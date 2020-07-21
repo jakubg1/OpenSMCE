@@ -9,6 +9,15 @@ The engine runs games located in `games` folder - a converter will be available 
 
 There is no game chooser yet - you can change the game name in parenthesis in main.lua:17.
 
+- For running the engine and playing the games:
+  - just the executable, the files, the game and you're ready to go
+
+- For modifying the games:
+  - same as above, plus some editors like you're modding Luxor, JSON knowledge (just a bit)
+
+- For modifying the engine:
+  - same as above, a text editor (preferably Notepad++), Lua knowledge, JSON knowledge, LOVE 11.3 installed and the code repository program to easily manage the code and update it
+
 
 
 This engine is on late alpha stage - there are some crucial features and fixes to be included before entering beta stage.
