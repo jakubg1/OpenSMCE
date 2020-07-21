@@ -27,3 +27,9 @@ In current shape, it is intended to play Luxor game. Next steps will add support
 ETA of entering beta stage (original Luxor game fully working and playable): end of July 2020
 
 Stay tuned!
+
+
+
+This repository contains code from following sources:
+  - Class implementation from https://github.com/bncastle/love2d-tutorial/blob/Episode4/class.lua (MIT license)
+  - JSON decoder/encoder implementation from https://github.com/rxi/json.lua (MIT license)
