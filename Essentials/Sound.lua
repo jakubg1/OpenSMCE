@@ -8,6 +8,7 @@ function Sound:new(path, looping)
 	self.instances = {}
 	for i = 1, self.INSTANCE_COUNT do
 		self.instances[i] = loadSound(path, "static")
+		if not self.instances[i] then error("Failed to load sound: " .. path) end
 		if looping then self.instances[i]:setLooping(looping) end
 		--self.instances[i]:setVolume(0.4)
 	end

@@ -7,6 +7,7 @@ local Color = require("Essentials/Color")
 function Image:new(path, frames)
 	frames = frames or Vec2(1)
 	self.img = loadImage(path)
+	if not self.img then error("Failed to load image: " .. path) end
 	self.size = Vec2(self.img:getDimensions())
 	self.frameSize = self.size / frames
 	self.frameCount = frames

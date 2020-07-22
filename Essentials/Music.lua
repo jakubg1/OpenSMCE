@@ -4,6 +4,7 @@ local Music = class:derive("Music")
 function Music:new(path)
 	print("Loading music data from " .. path .. "...")
 	self.instance = loadSound(path, "stream")
+	if not self.instance then error("Failed to load sound: " .. path) end
 	self.instance:setLooping(true)
 	
 	self.volume = 0

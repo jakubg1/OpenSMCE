@@ -10,6 +10,7 @@ function Font:new(path)
 	local data = loadJson(path)
 	
 	self.img = loadImage(parsePath(data.image))
+	if not self.img then error("Failed to load image: " .. path) end
 	self.size = Vec2(self.img:getDimensions())
 	self.characters = {}
 	for characterN, character in pairs(data.characters) do
