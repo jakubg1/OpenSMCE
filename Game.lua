@@ -169,7 +169,7 @@ function Game:draw()
 	
 	if self.particleManager then self.particleManager:draw() end
 	
-	self:drawDebugInfo()
+	--self:drawDebugInfo()
 end
 
 function Game:drawDebugInfo()
@@ -179,7 +179,11 @@ function Game:drawDebugInfo()
 		
 		local s = ""
 		s = s .. "LevelScore = " .. tostring(self.session.level.score) .. "\n"
-		s = s .. "LevelRecord = " .. tostring(self.session.profile:getCurrentLevel().score) .. "\n"
+		if self.session.profile:getCurrentLevel() then
+			s = s .. "LevelRecord = " .. tostring(self.session.profile:getCurrentLevel().score) .. "\n"
+		else
+			s = s .. "LevelRecord = ---\n"
+		end
 		s = s .. "ParticleSpawner# = " .. tostring(self.particleManager:getParticleSpawnerCount()) .. "\n"
 		s = s .. "Particle# = " .. tostring(self.particleManager:getParticlePieceCount()) .. "\n"
 		
