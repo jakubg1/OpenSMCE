@@ -14,7 +14,7 @@ local Game = require("Game")
 
 -- CONSTANT ZONE
 VERSION = "beta 1.0.0"
-GAME_NAME = "Luxor"
+GAME_NAME = "Luxor_working"
 
 
 -- TODO: at some point, get rid of these here and make them configurable
@@ -74,7 +74,7 @@ profVisible = false
 profPage = 1
 profPages = {profUpdate, profMusic, profDrawLevel, prof3}
 
-uiDebugVisible = true
+uiDebugVisible = false
 uiDebugOffset = 0
 e = false
 
@@ -342,17 +342,36 @@ end
 
 
 
-function loadJson(path)
-	print("Loading JSON data from " .. path .. "...")
+function loadFile(path)
 	local file = io.open(path, "r")
 	if not file then
-		print("WARNING: File does not exist. Returning empty list. Expect errors!")
-		return {}
+		print("WARNING: File \"" .. path .. "\" does not exist. Expect errors!")
+		return
 	end
 	io.input(file)
-	local contents = json.decode(io.read("*a"))
+	local contents = io.read("*a")
 	io.close(file)
 	return contents
+end
+
+function loadJson(path)
+	return json.decode(loadFile(path))
+end
+
+-- This function allows to load images from external sources.
+-- This is an altered code from https://love2d.org/forums/viewtopic.php?t=85350#p221460
+function loadImage(path)
+	local f = io.open(path, "rb")
+	if f then
+		local data = f:read("*all")
+		f:close()
+		if data then
+			data = love.filesystem.newFileData(data, "tempname")
+			data = love.image.newImageData(data)
+			local image = love.graphics.newImage(data)
+			return image
+		end
+	end
 end
 
 function saveJson(path, data)

@@ -9,7 +9,7 @@ function Font:new(path)
 	self.path = path
 	local data = loadJson(path)
 	
-	self.img = love.graphics.newImage(parsePath(data.image))
+	self.img = loadImage(parsePath(data.image))
 	self.size = Vec2(self.img:getDimensions())
 	self.characters = {}
 	for characterN, character in pairs(data.characters) do

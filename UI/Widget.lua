@@ -263,6 +263,8 @@ function UIWidget:executeEvent(event)
 		game.session:startLevel()
 	elseif event.type == "levelEnd" then
 		game.session.level = nil
+	elseif event.type == "quit" then
+		love.event.quit()
 	
 	-- widget stuff
 	elseif event.type == "widgetShow" then
@@ -271,6 +273,10 @@ function UIWidget:executeEvent(event)
 		game:getWidget(event.widget):hide()
 	elseif event.type == "widgetClean" then
 		game:getWidget(event.widget):clean()
+	
+	-- music stuff
+	elseif event.type == "musicVolume" then
+		game:getMusic(event.music):setVolume(event.volume)
 	
 	-- profile stuff
 	elseif event.type == "profileHighscoreWrite" then

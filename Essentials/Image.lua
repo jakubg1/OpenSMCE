@@ -6,7 +6,7 @@ local Color = require("Essentials/Color")
 
 function Image:new(path, frames)
 	frames = frames or Vec2(1)
-	self.img = love.graphics.newImage(path)
+	self.img = loadImage(path)
 	self.size = Vec2(self.img:getDimensions())
 	self.frameSize = self.size / frames
 	self.frameCount = frames
