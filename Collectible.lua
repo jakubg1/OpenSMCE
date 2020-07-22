@@ -36,10 +36,10 @@ function Collectible:catch()
 	end
 	if score > 0 then
 		game.session.level:grantScore(score)
-		game.session:spawnFloatingText(numStr(score), self.particle.pos, "fonts/score0.json")
+		game.session.level:spawnFloatingText(numStr(score), self.particle.pos, "fonts/score0.json")
 	end
 	if self.data.type == "powerup" then
-		game.session:spawnFloatingText(POWERUP_CATCH_TEXTS[self.data.name], self.particle.pos, "fonts/score" .. tostring(self.data.color or 0) .. ".json")
+		game.session.level:spawnFloatingText(POWERUP_CATCH_TEXTS[self.data.name], self.particle.pos, "fonts/score" .. tostring(self.data.color or 0) .. ".json")
 	end
 	game:spawnParticle("particles/powerup_catch.json", self.particle.pos)
 end

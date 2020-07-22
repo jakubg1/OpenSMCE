@@ -25,7 +25,7 @@ function BonusScarab:update(dt)
 	self.distance = self.path.length - self.offset
 	-- Luxor 2
 	-- while self.coinDistance < self.distance do
-		-- if self.coinDistance > 0 then game.session:spawnCollectible(self.path:getPos(self.offset), {type = "coin"}) end
+		-- if self.coinDistance > 0 then game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"}) end
 		-- self.coinDistance = self.coinDistance + 500
 	-- end
 	while self.trailDistance < self.distance do
@@ -43,7 +43,7 @@ function BonusScarab:destroy()
 	-- 50 points every 24 pixels
 	local score = math.max(math.floor((self.path.length - self.minOffset) / 24), 1) * 50
 	game.session.level:grantScore(score)
-	game.session:spawnFloatingText(numStr(score) .. "\nBONUS", self.path:getPos(self.offset), "fonts/score0.json")
+	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", self.path:getPos(self.offset), "fonts/score0.json")
 	game:spawnParticle("particles/collapse_vise.json", self.path:getPos(self.offset))
 	game:stopSound("bonus_scarab_loop")
 	game:playSound("bonus_scarab")

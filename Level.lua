@@ -6,6 +6,8 @@ local Image = require("Essentials/Image")
 
 local Map = require("Map")
 local Shooter = require("Shooter")
+local Collectible = require("Collectible")
+local FloatingText = require("FloatingText")
 
 function Level:new(data)
 	-- data specified in main config file
@@ -35,127 +37,184 @@ function Level:new(data)
 	self.dangerDistance = data.dangerDistance
 	self.speeds = data.speeds
 	
+	-- Additional variables come from this method!
 	self:reset()
 end
 
 function Level:update(dt)
-	self.map:update(dt)
-	self.shooter:update(dt)
+	-- Handling the pause
+	self.canPause = not self.won and not self.lost
+	if not love.window.hasFocus() and not self.pause then self:setPause(true) end
+	if not self.canPause and self.pause then self:setPause(false) end
 	
-	self.danger = self:getDanger()
 	
-	-- Warning lights
-	local maxDistance = self:getMaxDistance()
-	if maxDistance >= self.dangerDistance and not self.lost then
-		self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 3.5 + 0.5, 0.5)
-	else
-		self.warningDelayMax = nil
-	end
 	
-	if self.warningDelayMax then
-		self.warningDelay = self.warningDelay + dt
-		if self.warningDelay >= self.warningDelayMax then
-			for i, path in ipairs(self.map.paths) do
-				if path:getMaxOffset() / path.length >= self.dangerDistance then
-					game:spawnParticle("particles/warning.json", path:getPos(path.length))
-				end
+	if not self.pause then
+		self.map:update(dt)
+		self.shooter:update(dt)
+		
+		self.danger = self:getDanger()
+		
+		
+		
+		-- Shot spheres, collectibles, DEPRECATED! particles, floating texts
+		for i, shotSphere in pairs(self.shotSpheres) do
+			if shotSphere.delQueue then
+				self.shotSpheres[i] = nil
+				self.shooter.active = true
+				game:playSound("shooter_fill")
+			else
+				shotSphere:update(dt)
 			end
-			--game:playSound("warning", 1 + (4 - self.warningDelayMax) / 6)
-			self.warningDelay = 0
 		end
-	else
-		self.warningDelay = 0
-	end
-	
-	-- Target widget
-	-- TODO: HARDCODED - make it more flexible
-	if game:getWidget({"main", "Frame", "Progress"}).widget.value == 1 then
-		game:getWidget({"main", "Frame", "Progress_Complete"}):show()
-	else
-		game:getWidget({"main", "Frame", "Progress_Complete"}):hide()
-		game:getWidget({"main", "Frame", "Progress_Complete"}):clean()
-	end
-	
-	-- Level start
-	-- TODO: HARDCODED - make it more flexible
-	if not self.startMsg and not self.started and not game:getWidget({"main", "Banner_Intro"}).visible then
-		self.startMsg = true
-		game:getWidget({"main", "Banner_Intro"}):show()
-		game:getWidget({"main", "Banner_LevelLose"}):clean()
-	end
-	
-	if self.startMsg and not game:getWidget({"main", "Banner_Intro"}).visible and game:getWidget({"main", "Banner_Intro"}):getAnimationFinished() then
-		self.startMsg = false
-		self.started = true
-		self.controlDelay = 2
-		game:getMusic(self.musicName):reset()
-	end
-	
-	if self.controlDelay then
-		self.controlDelay = self.controlDelay - dt
-		if self.controlDelay <= 0 then
-			self.controlDelay = nil
-			self.shooter.active = true
-			game:playSound("shooter_fill")
+		for i, collectible in pairs(self.collectibles) do
+			if collectible.delQueue then
+				self.collectibles[i] = nil
+			else
+				collectible:update(dt)
+			end
 		end
-	end
-	
-	-- Level finish
-	if self:getFinish() and not self.finish and not self.finishDelay then
-		self.finishDelay = 2
-		self.shooter.active = false
-	end
-	
-	if self.finishDelay then
-		self.finishDelay = self.finishDelay - dt
-		if self.finishDelay <= 0 then
-			self.finishDelay = nil
-			self.finish = true
-			self.bonusDelay = 0
-			self.shooter.color = 0
-			self.shooter.nextColor = 0
+		for i, particle in pairs(self.particles) do
+			if particle.delQueue then
+				self.particles[i] = nil
+			else
+				particle:update(dt)
+			end
 		end
-	end
-	
-	if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths[self.bonusPathID - 1].bonusScarab) then
-		if self.map.paths[self.bonusPathID] then
-			self.bonusDelay = self.bonusDelay - dt
-			if self.bonusDelay <= 0 then
-				self.map.paths[self.bonusPathID]:spawnBonusScarab()
-				self.bonusDelay = 1.5
-				self.bonusPathID = self.bonusPathID + 1
+		for i, floatingText in pairs(self.floatingTexts) do
+			if floatingText.delQueue then
+				self.floatingTexts[i] = nil
+			else
+				floatingText:update(dt)
+			end
+		end
+		
+		
+		
+		-- Warning lights
+		local maxDistance = self:getMaxDistance()
+		if maxDistance >= self.dangerDistance and not self.lost then
+			self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 3.5 + 0.5, 0.5)
+		else
+			self.warningDelayMax = nil
+		end
+		
+		if self.warningDelayMax then
+			self.warningDelay = self.warningDelay + dt
+			if self.warningDelay >= self.warningDelayMax then
+				for i, path in ipairs(self.map.paths) do
+					if path:getMaxOffset() / path.length >= self.dangerDistance then
+						game:spawnParticle("particles/warning.json", path:getPos(path.length))
+					end
+				end
+				--game:playSound("warning", 1 + (4 - self.warningDelayMax) / 6)
+				self.warningDelay = 0
 			end
 		else
-			self.wonDelay = 1.5
-			self.bonusDelay = nil
+			self.warningDelay = 0
+		end
+		
+		
+		
+		-- Target widget
+		-- TODO: HARDCODED - make it more flexible
+		if game:getWidget({"main", "Frame", "Progress"}).widget.value == 1 then
+			game:getWidget({"main", "Frame", "Progress_Complete"}):show()
+		else
+			game:getWidget({"main", "Frame", "Progress_Complete"}):hide()
+			game:getWidget({"main", "Frame", "Progress_Complete"}):clean()
+		end
+		
+		
+		
+		-- Level start
+		-- TODO: HARDCODED - make it more flexible
+		if not self.startMsg and not self.started and not game:getWidget({"main", "Banner_Intro"}).visible then
+			self.startMsg = true
+			game:getWidget({"main", "Banner_Intro"}):show()
+			game:getWidget({"main", "Banner_LevelLose"}):clean()
+		end
+		
+		if self.startMsg and not game:getWidget({"main", "Banner_Intro"}).visible and game:getWidget({"main", "Banner_Intro"}):getAnimationFinished() then
+			self.startMsg = false
+			self.started = true
+			self.controlDelay = 2
+			game:getMusic(self.musicName):reset()
+		end
+		
+		if self.controlDelay then
+			self.controlDelay = self.controlDelay - dt
+			if self.controlDelay <= 0 then
+				self.controlDelay = nil
+				self.shooter.active = true
+				game:playSound("shooter_fill")
+			end
+		end
+		
+		
+		
+		-- Level finish
+		if self:getFinish() and not self.finish and not self.finishDelay then
+			self.finishDelay = 2
+			self.shooter.active = false
+		end
+		
+		if self.finishDelay then
+			self.finishDelay = self.finishDelay - dt
+			if self.finishDelay <= 0 then
+				self.finishDelay = nil
+				self.finish = true
+				self.bonusDelay = 0
+				self.shooter.color = 0
+				self.shooter.nextColor = 0
+			end
+		end
+		
+		if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths[self.bonusPathID - 1].bonusScarab) then
+			if self.map.paths[self.bonusPathID] then
+				self.bonusDelay = self.bonusDelay - dt
+				if self.bonusDelay <= 0 then
+					self.map.paths[self.bonusPathID]:spawnBonusScarab()
+					self.bonusDelay = 1.5
+					self.bonusPathID = self.bonusPathID + 1
+				end
+			else
+				self.wonDelay = 1.5
+				self.bonusDelay = nil
+			end
+		end
+		
+		if self.wonDelay then
+			self.wonDelay = self.wonDelay - dt
+			if self.wonDelay <= 0 then
+				self.wonDelay = nil
+				self.won = true
+				local highScore = game.session.profile:winLevel(self.score)
+				game:getWidget({"main", "Banner_LevelComplete"}):show()
+				if not highScore then game:getWidget({"main", "Banner_LevelComplete", "Frame", "Container", "VW_LevelScoreRecord"}):hide() end
+			end
+		end
+		
+		
+		
+		-- Level lose
+		-- TODO: HARDCODED - make it more flexible
+		if self.lost and self:getEmpty() and not self.restart then
+			game:getWidget({"main", "Banner_LevelLose"}):show()
+			self.restart = true
+		end
+		
+		if self.restart and not game:getWidget({"main", "Banner_LevelLose"}).visible and game:getWidget({"main", "Banner_LevelLose"}):getAnimationFinished() then
+			if game.session.profile:loseLevel() then self:reset() else game.session:terminate() end
 		end
 	end
 	
-	if self.wonDelay then
-		self.wonDelay = self.wonDelay - dt
-		if self.wonDelay <= 0 then
-			self.wonDelay = nil
-			self.won = true
-			local highScore = game.session.profile:winLevel(self.score)
-			game:getWidget({"main", "Banner_LevelComplete"}):show()
-			if not highScore then game:getWidget({"main", "Banner_LevelComplete", "Frame", "Container", "VW_LevelScoreRecord"}):hide() end
-		end
-	end
 	
-	-- Level lose
-	if self.lost and self:getEmpty() and not self.restart then
-		game:getWidget({"main", "Banner_LevelLose"}):show()
-		self.restart = true
-	end
-	
-	if self.restart and not game:getWidget({"main", "Banner_LevelLose"}).visible and game:getWidget({"main", "Banner_LevelLose"}):getAnimationFinished() then
-		if game.session.profile:loseLevel() then self:reset() else game.session:terminate() end
-	end
 	
 	-- music fade in/out
 	local music = game:getMusic(self.musicName)
 	local dangerMusic = game:getMusic(self.dangerMusicName)
-	if not self.started or self.lost or self.won then
+	if not self.started or self.lost or self.won or self.pause then
 		music:setVolume(0)
 		dangerMusic:setVolume(0)
 	else
@@ -234,7 +293,7 @@ function Level:getFinish()
 	for i, path in ipairs(self.map.paths) do
 		if #path.sphereChains > 0 then return false end
 	end
-	for i, collectible in pairs(game.session.collectibles) do return false end
+	for i, collectible in pairs(self.collectibles) do return false end
 	return true
 end
 
@@ -250,11 +309,18 @@ function Level:reset()
 	self.maxChain = 0
 	self.maxCombo = 0
 	
+	self.shotSpheres = {}
+	self.collectibles = {}
+	self.particles = {}
+	self.floatingTexts = {}
+	
 	self.targetReached = false
 	self.danger = false
 	self.warningDelay = 0
 	self.warningDelayMax = nil
 	
+	self.pause = false
+	self.canPause = true
 	self.startMsg = false
 	self.started = false
 	self.controlDelay = nil
@@ -282,11 +348,34 @@ function Level:lose()
 	game:playSound("level_lose")
 end
 
+function Level:setPause(pause)
+	if self.pause == pause or (not self.canPause and not self.pause) then return end
+	self.pause = pause
+	if pause then game:getWidget({"main", "Banner_Paused"}):show() else game:getWidget({"main", "Banner_Paused"}):hide() end
+end
+
+function Level:togglePause()
+	self:setPause(not self.pause)
+end
+
+function Level:spawnCollectible(pos, data)
+	table.insert(self.collectibles, Collectible(pos, data))
+	game:playSound("collectible_spawn_" .. data.type)
+end
+
+function Level:spawnFloatingText(text, pos, font)
+	table.insert(self.floatingTexts, FloatingText(text, pos, font))
+end
+
 
 
 function Level:draw()
 	self.map:draw()
 	self.shooter:draw()
+	for i, shotSphere in pairs(self.shotSpheres) do shotSphere:draw() end
+	for i, collectible in pairs(self.collectibles) do collectible:draw() end
+	for i, particle in pairs(self.particles) do particle:draw() end
+	for i, floatingText in pairs(self.floatingTexts) do floatingText:draw() end
 	
 	-- local p = posOnScreen(Vec2(20, 500))
 	-- love.graphics.setColor(1, 1, 1)

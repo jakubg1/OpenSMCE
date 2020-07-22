@@ -26,10 +26,6 @@ function Game:new(name)
 	self.sphereSprites = {}
 	self.nextSphereSprites = {}
 	
-	-- memorizing the pressed keys for keyboard control of the shooter
-	self.shooterKeys = {left = false, right = false}
-	self.shooterKeySpeed = 500
-	
 	
 	-- revert to original font size
 	love.graphics.setFont(love.graphics.newFont())
@@ -68,7 +64,6 @@ end
 
 function Game:initSession()
 	-- Cleanup the splash
-	self:getMusic("menu"):setVolume(0)
 	self.widgets.splash = nil
 	
 	-- Setup the UI and particles
@@ -106,20 +101,6 @@ function Game:tick(dt) -- always with 1/60 seconds
 		self.session:update(dt)
 	end
 	
-	if self:levelExists() then
-		local shooter = self.session.level.shooter
-		-- how many pixels will the shooter move since the last frame (by mouse)?
-		local shooterDelta = shooter:getDelta(mousePos.x, true)
-		if shooterDelta == 0 then
-			-- if 0, then the keyboard can be freely used
-			if self.shooterKeys.left then shooter:move(shooter.pos.x - self.shooterKeySpeed * dt, false) end
-			if self.shooterKeys.right then shooter:move(shooter.pos.x + self.shooterKeySpeed * dt, false) end
-		else
-			-- else, the mouse takes advantage and overwrites the position
-			shooter:move(mousePos.x, true)
-		end
-	end
-	
 	-- TODO: HARDCODED - make it more flexible
 	if self.widgets.splash then
 		-- splash progress bar
@@ -145,12 +126,6 @@ end
 
 function Game:levelExists()
 	return self.session and self.session.level
-end
-
-function Game:getWidget(names)
-	local widget = self.widgets[names[1]]
-	for i, name in ipairs(names) do if i > 1 then widget = widget.children[name] end end
-	return widget
 end
 
 
@@ -237,12 +212,12 @@ end
 
 function Game:keypressed(key)
 	-- pause
-	if key == "space" and self.session then self.session:setPause(not self.session.pause) end
+	if key == "space" and self:levelExists() then self.session.level:togglePause() end
 	-- shooter
-	if key == "left" then self.shooterKeys.left = true end
-	if key == "right" then self.shooterKeys.right = true end
 	if self:levelExists() then
 		local shooter = self.session.level.shooter
+		if key == "left" then shooter.moveKeys.left = true end
+		if key == "right" then shooter.moveKeys.right = true end
 		if key == "up" then shooter:shoot() end
 		if key == "down" then shooter:swapColors() end
 	end
@@ -250,8 +225,11 @@ end
 
 function Game:keyreleased(key)
 	-- shooter
-	if key == "left" then self.shooterKeys.left = false end
-	if key == "right" then self.shooterKeys.right = false end
+	if self:levelExists() then
+		local shooter = self.session.level.shooter
+		if key == "left" then shooter.moveKeys.left = false end
+		if key == "right" then shooter.moveKeys.right = false end
+	end
 end
 
 
@@ -270,6 +248,12 @@ end
 
 function Game:spawnParticle(name, pos)
 	self.particleManager:useSpawnerData(name, pos)
+end
+
+function Game:getWidget(names)
+	local widget = self.widgets[names[1]]
+	for i, name in ipairs(names) do if i > 1 then widget = widget.children[name] end end
+	return widget
 end
 
 

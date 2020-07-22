@@ -13,8 +13,8 @@ local Game = require("Game")
 
 
 -- CONSTANT ZONE
-VERSION = "alpha 1.4.5"
-GAME_NAME = "Luxor_working"
+VERSION = "beta 1.0.0"
+GAME_NAME = "Luxor"
 
 
 -- TODO: at some point, get rid of these here and make them configurable

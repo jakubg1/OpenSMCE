@@ -17,15 +17,35 @@ function Shooter:new()
 	self.active = false -- when the sphere is shot you can't shoot; same for start, win, lose
 	self.speedShotTime = 0
 	
+	-- memorizing the pressed keys for keyboard control of the shooter
+	self.moveKeys = {left = false, right = false}
+	-- the speed of the shooter when controlled via keyboard
+	self.moveKeySpeed = 500
+	
 	self.sprite = Sprite("sprites/shooter.json")
 end
 
 function Shooter:update(dt)
+	-- movement
+	-- how many pixels will the shooter move since the last frame (by mouse)?
+	local shooterDelta = self:getDelta(mousePos.x, true)
+	if shooterDelta == 0 then
+		-- if 0, then the keyboard can be freely used
+		if self.moveKeys.left then self:move(self.pos.x - self.moveKeySpeed * dt, false) end
+		if self.moveKeys.right then self:move(self.pos.x + self.moveKeySpeed * dt, false) end
+	else
+		-- else, the mouse takes advantage and overwrites the position
+		self:move(mousePos.x, true)
+	end
+	
+	-- filling
 	if self.active then
 		if game.session.sphereColorCounts[self.color] == 0 then self.color = 0 end
 		if game.session.sphereColorCounts[self.nextColor] == 0 then self.nextColor = 0 end
 		self:fill()
 	end
+	
+	-- speed shot time counting
 	if self.speedShotTime > 0 then self.speedShotTime = math.max(self.speedShotTime - dt, 0) end
 end
 
@@ -34,6 +54,7 @@ function Shooter:translatePos(x)
 end
 
 function Shooter:move(x, fromMouse)
+	if game.session.level.pause then return end
 	self.pos.x = self:translatePos(x)
 	if fromMouse then self.posMouse.x = self:translatePos(x) end
 end
@@ -48,7 +69,7 @@ end
 
 function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
-	if game.session.pause or not self.active or self.color == 0 then return end
+	if game.session.level.pause or not self.active or self.color == 0 then return end
 	local sound = "normal"
 	if self.color == -1 then sound = "wild" end
 	if self.color == -2 then sound = "fire" end
@@ -59,7 +80,7 @@ function Shooter:shoot()
 		game.session:destroyVertical(self.pos.x, 100)
 		game.session.level.combo = 0 -- cuz that's how it works
 	else
-		table.insert(game.session.shotSpheres, ShotSphere(self, self:spherePos(), self.color, self.speedShotTime > 0 and 2000 or 1000))
+		table.insert(game.session.level.shotSpheres, ShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed()))
 		self.active = false
 	end
 	self.color = 0
@@ -87,7 +108,7 @@ end
 
 function Shooter:swapColors()
 	-- we must be careful not to swap the spheres when they're absent
-	if game.session.pause or self.color == 0 or self.nextColor == 0 then return end
+	if game.session.level.pause or self.color == 0 or self.nextColor == 0 then return end
 	self.color, self.nextColor = self.nextColor, self.color
 	game:playSound("shooter_swap")
 end
@@ -132,6 +153,11 @@ end
 
 function Shooter:getTargetPos()
 	return game.session:getNearestSphereY(self.pos).targetPos
+end
+
+function Shooter:getShootingSpeed()
+	if self.speedShotTime > 0 then return 2000 end
+	return 1000
 end
 
 return Shooter

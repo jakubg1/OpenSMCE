@@ -19,8 +19,6 @@ local Vec2 = require("Essentials/Vector2")
 local Profile = require("Profile")
 local Highscores = require("Highscores")
 local Level = require("Level")
-local Collectible = require("Collectible")
-local FloatingText = require("FloatingText")
 
 
 
@@ -30,6 +28,8 @@ NOTE:
 
 May consider to ditch this class in the future and spread the contents to Game.lua, Level.lua and Profile.lua.
 
+~jakubg1
+
 ]]
 function Session:new()
 	-- TODO: Add a profile changer
@@ -37,15 +37,9 @@ function Session:new()
 	self.highscores = Highscores()
 	
 	self.scoreDisplay = 0
-	self.pause = false
-	self.canPause = true
 	self.gameOver = false
 	
 	self.level = nil
-	self.shotSpheres = {}
-	self.collectibles = {}
-	self.particles = {}
-	self.floatingTexts = {}
 	
 	self.sphereColorCounts = {}
 	self.dangerSphereColorCounts = {}
@@ -62,45 +56,9 @@ function Session:init()
 end
 
 function Session:update(dt)
-	self.canPause = self.level and not self.level.won and not self.level.lost
-	if not love.window.hasFocus() and not self.pause then self:setPause(true) end
-	if not self.canPause and self.pause then self:setPause(false) end
+	if self.level then self.level:update(dt) end
 	
-	if not self.pause then
-		if self.level then self.level:update(dt) end
-		for i, shotSphere in pairs(self.shotSpheres) do
-			if shotSphere.delQueue then
-				self.shotSpheres[i] = nil
-				self.level.shooter.active = true
-				game:playSound("shooter_fill")
-			else
-				shotSphere:update(dt)
-			end
-		end
-		for i, collectible in pairs(self.collectibles) do
-			if collectible.delQueue then
-				self.collectibles[i] = nil
-			else
-				collectible:update(dt)
-			end
-		end
-		for i, particle in pairs(self.particles) do
-			if particle.delQueue then
-				self.particles[i] = nil
-			else
-				particle:update(dt)
-			end
-		end
-		for i, floatingText in pairs(self.floatingTexts) do
-			if floatingText.delQueue then
-				self.floatingTexts[i] = nil
-			else
-				floatingText:update(dt)
-			end
-		end
-		
-		if self.scoreDisplay < self.profile:getScore() then self.scoreDisplay = self.scoreDisplay + math.ceil((self.profile:getScore() - self.scoreDisplay) / 10) end
-	end
+	if self.scoreDisplay < self.profile:getScore() then self.scoreDisplay = self.scoreDisplay + math.ceil((self.profile:getScore() - self.scoreDisplay) / 10) end
 end
 
 function Session:startLevel()
@@ -117,20 +75,8 @@ function Session:terminate()
 	game:getWidget({"main", "Banner_GameOver"}):show()
 end
 
-function Session:setPause(pause)
-	if self.pause == pause or (not self.canPause and not self.pause) then return end
-	self.pause = pause
-	game:getMusic("level"):setVolume(0)
-	game:getMusic("danger"):setVolume(0)
-	if pause then game:getWidget({"main", "Banner_Paused"}):show() else game:getWidget({"main", "Banner_Paused"}):hide() end
-end
-
 function Session:draw()
 	if self.level then self.level:draw() end
-	for i, shotSphere in pairs(self.shotSpheres) do shotSphere:draw() end
-	for i, collectible in pairs(self.collectibles) do collectible:draw() end
-	for i, particle in pairs(self.particles) do particle:draw() end
-	for i, floatingText in pairs(self.floatingTexts) do floatingText:draw() end
 end
 
 function Session:newSphereColor(omitDangerCheck)
@@ -151,15 +97,6 @@ end
 
 function Session:colorsMatch(color1, color2)
 	return color1 ~= 0 and color2 ~= 0 and (color1 == color2 or color1 == -1 or color2 == -1)
-end
-
-function Session:spawnCollectible(pos, data)
-	table.insert(self.collectibles, Collectible(pos, data))
-	game:playSound("collectible_spawn_" .. data.type)
-end
-
-function Session:spawnFloatingText(text, pos, font)
-	table.insert(self.floatingTexts, FloatingText(text, pos, font))
 end
 
 function Session:usePowerup(data)
@@ -222,7 +159,7 @@ function Session:destroyFunction(f, scorePos)
 		end
 	end
 	self.level:grantScore(score)
-	self:spawnFloatingText(numStr(score), scorePos, "fonts/score0.json")
+	self.level:spawnFloatingText(numStr(score), scorePos, "fonts/score0.json")
 end
 
 function Session:destroyColor(color)

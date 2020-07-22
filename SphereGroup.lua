@@ -179,7 +179,7 @@ function SphereGroup:checkDeletion()
 	if shouldDelete then self:delete() end
 	-- if there's only a vise in this chain, the whole chain gets yeeted!
 	if not self.prevGroup and not self.nextGroup and #self.spheres == 1 and self.spheres[1].color == 0 then
-		if not game.session.level.lost then game.session:spawnCollectible(self:getSpherePos(1), game.session.level:newGemData()) end
+		if not game.session.level.lost then game.session.level:spawnCollectible(self:getSpherePos(1), game.session.level:newGemData()) end
 		self.spheres[1]:delete()
 		self.sphereChain:delete(false)
 	end
@@ -322,13 +322,13 @@ function SphereGroup:matchAndDelete(position)
 	if boostCombo and game.session.level.combo > 2 then scoreText = scoreText .. "\n COMBO X" .. tostring(game.session.level.combo) end
 	if self.sphereChain.combo ~= 1 then scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo) end
 	local scoreTextColor = color > 0 and color or 0
-	game.session:spawnFloatingText(scoreText, pos, "fonts/score" .. scoreTextColor .. ".json")
+	game.session.level:spawnFloatingText(scoreText, pos, "fonts/score" .. scoreTextColor .. ".json")
 	
 	local spawnCoin = math.random() < (position2 - position1 - 2) * 0.2
-	if spawnCoin then game.session:spawnCollectible(pos, {type = "coin"}) end
+	if spawnCoin then game.session.level:spawnCollectible(pos, {type = "coin"}) end
 	
 	local spawnPowerup = (self.sphereChain.combo == 1 and boostCombo and game.session.level.combo % 3 == 0) or self.sphereChain.combo % 3 == 0
-	if spawnPowerup then game.session:spawnCollectible(pos, game.session.level:newPowerupData()) end
+	if spawnPowerup then game.session.level:spawnCollectible(pos, game.session.level:newPowerupData()) end
 	
 	game.session.level.maxCombo = math.max(game.session.level.combo, game.session.level.maxCombo)
 	game.session.level.maxChain = math.max(self.sphereChain.combo, game.session.level.maxChain)
