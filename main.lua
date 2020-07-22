@@ -14,7 +14,7 @@ local Game = require("Game")
 
 -- CONSTANT ZONE
 VERSION = "beta 1.0.0"
-GAME_NAME = "Luxor_working"
+GAME_NAME = "Luxor"
 
 
 -- TODO: at some point, get rid of these here and make them configurable
