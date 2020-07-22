@@ -43,9 +43,10 @@ If everything was done properly, Python along with PIL should be installed corre
 
 
 Installation:
-1. Uncompress Luxor files using QuickBMS. Only "data.mjz" file will be needed.
-2. Copy the folder to the "games" folder in your OpenSMCE main directory.
-3. If you can, you can try launching the "main.py" file located in the "games" folder. It doesn't always work!
+1. Uncompress Luxor files using QuickBMS - both "data.mjz" and "English.mjz" files will be needed.
+2. Copy all "English" folder contents to the "data" folder.
+3. Copy the "data" folder to the "games" folder in your OpenSMCE main directory.
+4. If you can, you can try launching the "main.py" file located in the "games" folder. It doesn't always work!
 
 Workaround:
 	1. Open the command prompt.
@@ -59,10 +60,11 @@ If everything gone well, you should have the following two lines at the bottom o
 	Everything is done!
 If so, proceed on to the next step.
 
-4. Copy the "music" and "sound" folders from the data folder to the newly created "output" folder.
-5. Copy the "luxor_appendix" folder contents to the "output" folder.
-6. You can delete the "luxor_appendix" and extracted data folders. Same goes with the script used in point 3. However, if you're a developer and want to improve the converter script, feel free to examine it!
-7. Rename "output" folder to "Luxor" (the case is important).
+5. Copy the "music" and "sound" folders from the data folder to the newly created "output" folder.
+6. Copy the "background.jpg" file from the "assets" folder from the original Luxor game. Open it in Paint, and save it as "background.png". Put it in the "output/img/splash" folder.
+7. Copy the "luxor_appendix" folder contents to the "output" folder.
+8. You can delete the "luxor_appendix" and extracted data folders. Same goes with the script used in point 3. However, if you're a developer and want to improve the converter script, feel free to examine it!
+9. Rename "output" folder to "Luxor" (the case is important).
 
 After all these tedious steps, everything should work fine. If not, please hit me up and we'll try to resolve the problem!
 ```
