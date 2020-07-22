@@ -374,6 +374,32 @@ function loadImage(path)
 	end
 end
 
+-- This function allows to load sounds from external sources.
+-- This is an altered code from the above function.
+function loadSound(path, type)
+	local f = io.open(path, "rb")
+	if f then
+		local data = f:read("*all")
+		f:close()
+		if data then
+			-- to make everything work properly, we need to get the extension from the path, because it is used
+			-- source: https://love2d.org/wiki/love.filesystem.newFileData
+			local dotPos = 0
+			local l = path:len()
+			for i = 1, l do
+				if path:sub(i, i) == "." then
+					dotPos = i
+				end
+			end
+			local extension = path:sub(dotPos + 1, l)
+			data = love.filesystem.newFileData(data, "tempname." .. extension)
+			data = love.sound.newSoundData(data)
+			local sound = love.audio.newSource(data, type)
+			return sound
+		end
+	end
+end
+
 function saveJson(path, data)
 	print("Saving JSON data to " .. path .. "...")
 	local file = io.open(path, "w")

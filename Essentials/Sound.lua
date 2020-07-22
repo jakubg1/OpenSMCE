@@ -7,7 +7,7 @@ function Sound:new(path, looping)
 	-- Each sound has 4 instances of it so it can play up to 4 instances at the same time.
 	self.instances = {}
 	for i = 1, self.INSTANCE_COUNT do
-		self.instances[i] = love.audio.newSource(path, "static")
+		self.instances[i] = loadSound(path, "static")
 		if looping then self.instances[i]:setLooping(looping) end
 		--self.instances[i]:setVolume(0.4)
 	end
