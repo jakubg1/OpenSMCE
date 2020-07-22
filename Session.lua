@@ -1,15 +1,38 @@
+--[[
+
+Session.lua
+
+A root for all variable things during the game, such as level and player's progress.
+
+Last modification: 22.07.2020 ~jakubg1
+
+]]
+
+-- Class identification
 local class = require "class"
 local Session = class:derive("Session")
 
+-- Include commons
 local Vec2 = require("Essentials/Vector2")
 
+-- Include class constructors
 local Profile = require("Profile")
 local Highscores = require("Highscores")
 local Level = require("Level")
 local Collectible = require("Collectible")
 local FloatingText = require("FloatingText")
 
+
+
+--[[
+
+NOTE:
+
+May consider to ditch this class in the future and spread the contents to Game.lua, Level.lua and Profile.lua.
+
+]]
 function Session:new()
+	-- TODO: Add a profile changer
 	self.profile = Profile("TEST")
 	self.highscores = Highscores()
 	
@@ -82,8 +105,8 @@ end
 
 function Session:startLevel()
 	--self.level = Level({path = "levels/level_7_2.json", name = self.profile.data.session.level})
-	self.level = Level({path = "levels/seven_lines.json", name = "0-0"})
-	--self.level = Level(self.profile:getCurrentLevelData())
+	--self.level = Level({path = "levels/seven_lines.json", name = "0-0"})
+	self.level = Level(self.profile:getCurrentLevelData())
 end
 
 function Session:terminate()
@@ -283,5 +306,7 @@ function Session:getNearestSphereY(pos)
 	end
 	return nearestData
 end
+
+
 
 return Session

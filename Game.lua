@@ -265,7 +265,7 @@ function Game:stopSound(name)
 end
 
 function Game:getMusic(name)
-	return self.resourceBank:getMusic(self.config.general.musicNames[name])
+	return self.resourceBank:getMusic(self.config.general.music[name])
 end
 
 function Game:spawnParticle(name, pos)

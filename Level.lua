@@ -8,7 +8,13 @@ local Map = require("Map")
 local Shooter = require("Shooter")
 
 function Level:new(data)
+	-- data specified in main config file
 	self.name = data.name
+	
+	self.musicName = data.music
+	self.dangerMusicName = data.dangerMusic
+	
+	-- data specified in level config file
 	local data = loadJson(parsePath(data.path))
 	
 	self.map = Map("maps/" .. data.map)
@@ -82,7 +88,7 @@ function Level:update(dt)
 		self.startMsg = false
 		self.started = true
 		self.controlDelay = 2
-		game:getMusic("level"):reset()
+		game:getMusic(self.musicName):reset()
 	end
 	
 	if self.controlDelay then
@@ -147,16 +153,18 @@ function Level:update(dt)
 	end
 	
 	-- music fade in/out
+	local music = game:getMusic(self.musicName)
+	local dangerMusic = game:getMusic(self.dangerMusicName)
 	if not self.started or self.lost or self.won then
-		game:getMusic("level"):setVolume(0)
-		game:getMusic("danger"):setVolume(0)
+		music:setVolume(0)
+		dangerMusic:setVolume(0)
 	else
 		if self.danger then
-			game:getMusic("level"):setVolume(0)
-			game:getMusic("danger"):setVolume(1)
+			music:setVolume(0)
+			dangerMusic:setVolume(1)
 		else
-			game:getMusic("level"):setVolume(1)
-			game:getMusic("danger"):setVolume(0)
+			music:setVolume(1)
+			dangerMusic:setVolume(0)
 		end
 	end
 end

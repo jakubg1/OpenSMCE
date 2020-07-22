@@ -18,7 +18,7 @@ function Map:new(path)
 		self.images[i] = {pos = Vec2(imageData.x, imageData.y), image = Image(parsePath(imagePath)), background = imageData.background}
 	end
 	for i, pathData in ipairs(data.paths) do
-		self.paths[i] = Path(self, pathData)
+		self.paths[i] = Path(self, pathData, false)
 	end
 end
 

@@ -5,8 +5,10 @@ local Vec2 = require("Essentials/Vector2")
 local SphereChain = require("SphereChain")
 local BonusScarab = require("BonusScarab")
 
-function Path:new(map, pathData)
+function Path:new(map, pathData, dummy)
 	self.map = map
+	-- whether it's just a decorative path, if false then it's meant to be playable
+	self.dummy = dummy
 	
 	self.nodes = {}
 	self.brightnesses = {}
@@ -84,7 +86,7 @@ function Path:update(dt)
 end
 
 function Path:shouldSpawn()
-	if not game.session.level.started or game.session.level.targetReached or game.session.level.lost then return false end
+	if game:levelExists() and (not game.session.level.started or game.session.level.targetReached or game.session.level.lost) then return false end
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * game.session.level.spawnDistance then return false end
 	end
