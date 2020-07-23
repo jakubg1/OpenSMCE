@@ -3,9 +3,11 @@ local Level = class:derive("Level")
 
 local Vec2 = require("Essentials/Vector2")
 local Image = require("Essentials/Image")
+local List1 = require("Essentials/List1")
 
 local Map = require("Map")
 local Shooter = require("Shooter")
+local ShotSphere = require("ShotSphere")
 local Collectible = require("Collectible")
 local FloatingText = require("FloatingText")
 
@@ -58,36 +60,9 @@ function Level:update(dt)
 		
 		
 		-- Shot spheres, collectibles, DEPRECATED! particles, floating texts
-		for i, shotSphere in pairs(self.shotSpheres) do
-			if shotSphere.delQueue then
-				self.shotSpheres[i] = nil
-				self.shooter.active = true
-				game:playSound("shooter_fill")
-			else
-				shotSphere:update(dt)
-			end
-		end
-		for i, collectible in pairs(self.collectibles) do
-			if collectible.delQueue then
-				self.collectibles[i] = nil
-			else
-				collectible:update(dt)
-			end
-		end
-		for i, particle in pairs(self.particles) do
-			if particle.delQueue then
-				self.particles[i] = nil
-			else
-				particle:update(dt)
-			end
-		end
-		for i, floatingText in pairs(self.floatingTexts) do
-			if floatingText.delQueue then
-				self.floatingTexts[i] = nil
-			else
-				floatingText:update(dt)
-			end
-		end
+		self.shotSpheres:iterate(function(i, o) o:update(dt) end)
+		self.collectibles:iterate(function(i, o) o:update(dt) end)
+		self.floatingTexts:iterate(function(i, o) o:update(dt) end)
 		
 		
 		
@@ -309,10 +284,9 @@ function Level:reset()
 	self.maxChain = 0
 	self.maxCombo = 0
 	
-	self.shotSpheres = {}
-	self.collectibles = {}
-	self.particles = {}
-	self.floatingTexts = {}
+	self.shotSpheres = List1()
+	self.collectibles = List1()
+	self.floatingTexts = List1()
 	
 	self.targetReached = false
 	self.danger = false
@@ -358,13 +332,17 @@ function Level:togglePause()
 	self:setPause(not self.pause)
 end
 
+function Level:spawnShotSphere(shooter, pos, color, speed)
+	self.shotSpheres:append(ShotSphere(shooter, pos, color, speed))
+end
+
 function Level:spawnCollectible(pos, data)
-	table.insert(self.collectibles, Collectible(pos, data))
+	self.collectibles:append(Collectible(pos, data))
 	game:playSound("collectible_spawn_" .. data.type)
 end
 
 function Level:spawnFloatingText(text, pos, font)
-	table.insert(self.floatingTexts, FloatingText(text, pos, font))
+	self.floatingTexts:append(FloatingText(text, pos, font))
 end
 
 
@@ -372,10 +350,10 @@ end
 function Level:draw()
 	self.map:draw()
 	self.shooter:draw()
-	for i, shotSphere in pairs(self.shotSpheres) do shotSphere:draw() end
-	for i, collectible in pairs(self.collectibles) do collectible:draw() end
-	for i, particle in pairs(self.particles) do particle:draw() end
-	for i, floatingText in pairs(self.floatingTexts) do floatingText:draw() end
+	
+	self.shotSpheres:iterate(function(i, o) o:draw() end)
+	self.collectibles:iterate(function(i, o) o:draw() end)
+	self.floatingTexts:iterate(function(i, o) o:draw() end)
 	
 	-- local p = posOnScreen(Vec2(20, 500))
 	-- love.graphics.setColor(1, 1, 1)

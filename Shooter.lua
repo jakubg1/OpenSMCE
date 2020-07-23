@@ -80,7 +80,7 @@ function Shooter:shoot()
 		game.session:destroyVertical(self.pos.x, 100)
 		game.session.level.combo = 0 -- cuz that's how it works
 	else
-		table.insert(game.session.level.shotSpheres, ShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed()))
+		game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
 		self.active = false
 	end
 	self.color = 0

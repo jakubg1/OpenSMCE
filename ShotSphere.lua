@@ -19,8 +19,6 @@ function ShotSphere:new(shooter, pos, color, speed)
 	
 	self.hitTime = 0
 	self.hitSphere = nil
-	
-	self.delQueue = false
 end
 
 function ShotSphere:update(dt)
@@ -28,7 +26,7 @@ function ShotSphere:update(dt)
 		-- increment the timer
 		self.hitTime = self.hitTime + dt
 		-- if the timer expired, destroy the entity and add the ball to the chain
-		if self.hitTime >= 0.15 then self.delQueue = true end
+		if self.hitTime >= 0.15 then self:destroy() end
 	else
 		-- move
 		self.steps = self.steps + self.speed * dt / self.PIXELS_PER_STEP
@@ -46,7 +44,7 @@ function ShotSphere:moveStep()
 	if nearestSphere.dist and nearestSphere.dist.y < 32 then
 		if self.color == -2 then
 			game.session:destroyRadius(self.pos, 125)
-			self.delQueue = true
+			self:destroy()
 			game:playSound("sphere_hit_fire")
 		else
 			self.hitSphere = nearestSphere
@@ -58,9 +56,15 @@ function ShotSphere:moveStep()
 	end
 	-- delete if outside of the board
 	if self.pos.y < -16 then
-		self.delQueue = true
+		self:destroy()
 		game.session.level.combo = 0
 	end
+end
+
+function ShotSphere:destroy()
+	self._list:destroy(self)
+	self.shooter.active = true
+	game:playSound("shooter_fill")
 end
 
 

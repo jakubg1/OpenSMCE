@@ -8,14 +8,12 @@ local Particle = require("Particle")
 function Collectible:new(pos, data)
 	self.data = data
 	self.particle = Particle(game.resourceBank:getLegacyParticle("particles/collectible.json"), pos, data)
-	
-	self.delQueue = false
 end
 
 function Collectible:update(dt)
 	self.particle:update(dt)
 	if game.session.level.shooter:catchablePos(self.particle.pos) then self:catch() end
-	if self.particle.delQueue then self:destroy() end
+	--if self.particle.delQueue then self:destroy() end
 end
 
 function Collectible:catch()
@@ -45,8 +43,8 @@ function Collectible:catch()
 end
 
 function Collectible:destroy()
-	if self.delQueue then return end
-	self.delQueue = true
+	if self._delQueue then return end
+	self._list:destroy(self)
 	self.particle:destroy()
 end
 
