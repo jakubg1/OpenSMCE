@@ -38,7 +38,7 @@ function Game:init()
 	self.config = loadJson(parsePath("config.json"))
 	
 	-- Step 2. Initialize the window
-	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - " .. self.name)
+	love.window.setTitle(self.config.general.windowTitle or ("OpenSMCE [" .. VERSION .. "] - " .. self.name))
 	love.window.setMode(self.config.general.nativeResolution.x, self.config.general.nativeResolution.y, {resizable = true})
 	
 	-- Step 3. Initialize RNG and timer
