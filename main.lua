@@ -13,7 +13,7 @@ local Game = require("Game")
 
 
 -- CONSTANT ZONE
-VERSION = "beta 1.0.0"
+VERSION = "beta 1.0.1"
 GAME_NAME = "Luxor"
 
 
