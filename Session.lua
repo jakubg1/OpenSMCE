@@ -4,8 +4,6 @@ Session.lua
 
 A root for all variable things during the game, such as level and player's progress.
 
-Last modification: 22.07.2020 ~jakubg1
-
 ]]
 
 -- Class identification
