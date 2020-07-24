@@ -48,6 +48,11 @@ function List1:remove(index)
 	object._list = nil
 end
 
+-- Deletes all items from the list.
+function List1:clear()
+	self:iterate(function(i, o) self:remove(i) end)
+end
+
 -- Deletes all items that were queued for deletion.
 function List1:cleanup()
 	for i = #self.objects, 1, -1 do
