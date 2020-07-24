@@ -28,19 +28,20 @@ function Image:getFrame(frame)
 	return self.frames[(frame.x - 1) % self.frameCount.x + 1][(frame.y - 1) % self.frameCount.y + 1]
 end
 
-function Image:draw(pos, align, frame, rot, color, alpha)
+function Image:draw(pos, align, frame, rot, color, alpha, scale)
 	align = align or Vec2()
 	frame = frame or Vec2(1)
 	rot = rot or 0
 	color = color or Color()
 	alpha = alpha or 1
-	pos = posOnScreen(pos - (align * self.frameSize):rotate(rot))
+	scale = scale or Vec2(1)
+	pos = posOnScreen(pos - (align * scale * self.frameSize):rotate(rot))
 	if color.r then -- temporary chunk
 		love.graphics.setColor(color.r, color.g, color.b, alpha)
 	else
 		love.graphics.setColor(unpack(color), alpha)
 	end
-	love.graphics.draw(self.img, self:getFrame(frame), pos.x, pos.y, rot, getResolutionScale(), getResolutionScale())
+	love.graphics.draw(self.img, self:getFrame(frame), pos.x, pos.y, rot, scale.x * getResolutionScale(), scale.y * getResolutionScale())
 end
 
 return Image
