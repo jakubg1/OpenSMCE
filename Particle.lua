@@ -24,10 +24,6 @@ function Particle:update(dt)
 	if self.bounds then for i = 1, 4 do if self:isPastBound(i) then self:useBoundBehavior(i) end end end
 	
 	self.sprite:update(dt)
-	for i, subparticle in pairs(self.subparticles) do
-		subparticle:update(dt)
-		if subparticle.delQueue then self.subparticles[i] = nil end
-	end
 end
 
 function Particle:isPastBound(boundID)
@@ -78,9 +74,6 @@ end
 
 function Particle:draw(variables)
 	self.sprite:draw(self.pos, variables)
-	for i, subparticle in pairs(self.subparticles) do
-		subparticle:draw(variables)
-	end
 end
 
 function Particle:destroy()
