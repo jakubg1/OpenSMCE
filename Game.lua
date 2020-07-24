@@ -169,7 +169,7 @@ function Game:draw()
 	
 	if self.particleManager then self.particleManager:draw() end
 	
-	--self:drawDebugInfo()
+	if gameDebugVisible then self:drawDebugInfo() end
 end
 
 function Game:drawDebugInfo()
@@ -186,6 +186,12 @@ function Game:drawDebugInfo()
 		end
 		s = s .. "ParticleSpawner# = " .. tostring(self.particleManager:getParticleSpawnerCount()) .. "\n"
 		s = s .. "Particle# = " .. tostring(self.particleManager:getParticlePieceCount()) .. "\n"
+		if self:sessionExists() then
+			s = s .. "SphereColors:" .. "\n"
+			for i = 1, 9 do
+				s = s .. tostring(i) .. " -> " .. self.session.sphereColorCounts[i] .. ", " .. self.session.dangerSphereColorCounts[i] .. "\n"
+			end
+		end
 		
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.print(s, p.x, p.y)
