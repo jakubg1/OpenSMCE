@@ -33,6 +33,9 @@ function Map:draw()
 	if e then for i, image in ipairs(self.images) do if not image.background then image.image:draw(image.pos) end end end
 	for i, path in pairs(self.paths) do path:draw(true) end
 	if not e then for i, image in ipairs(self.images) do if not image.background then image.image:draw(image.pos) end end end
+end
+
+function Map:drawSpheres()
 	for i, path in pairs(self.paths) do path:draw(false) end
 end
 

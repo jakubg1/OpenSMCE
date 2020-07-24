@@ -349,6 +349,8 @@ end
 
 function Level:draw()
 	self.map:draw()
+	self.shooter:drawSpeedShotBeam()
+	self.map:drawSpheres()
 	self.shooter:draw()
 	
 	self.shotSpheres:iterate(function(i, o) o:draw() end)
