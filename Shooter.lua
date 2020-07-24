@@ -24,6 +24,8 @@ function Shooter:new()
 	
 	self.sprite = Sprite("sprites/shooter.json")
 	self.speedShotImage = game.resourceBank:getImage("img/particles/speed_shot_beam.png")
+	
+	self.settings = game.config.gameplay.shooter
 end
 
 function Shooter:update(dt)
@@ -134,10 +136,30 @@ function Shooter:draw()
 		love.graphics.line(p2.x, p2.y, p3.x, p3.y)
 	end
 	-- speed shot beam
+	-- rendering options:
+	-- "full" - the beam is always fully visible
+	-- "cut" - the beam is cut on the target position
+	-- "scale" - the beam is squished between the shooter and the target position
 	if self.speedShotTime > 0 then
-		local distance = targetPos and self.pos.y - targetPos.y or self.pos.y
-		local scale = Vec2(1, distance / self.speedShotImage.size.y)
+		local maxDistance = self.speedShotImage.size.y
+		local distance = math.min(targetPos and self.pos.y - targetPos.y or self.pos.y, maxDistance)
+		local distanceUnit = distance / maxDistance
+		local scale = Vec2(1)
+		if self.settings.speedShotBeamRenderingType == "scale" then
+			-- if we need to scale the beam
+			scale.y = distanceUnit
+		elseif self.settings.speedShotBeamRenderingType == "cut" then
+			-- if we need to cut the beam
+			local p = posOnScreen(Vec2(self.pos.x - self.speedShotImage.size.x / 2, self.pos.y - distance))
+			local s = posOnScreen(Vec2(self.speedShotImage.size.x, distance))
+			love.graphics.setScissor(p.x, p.y, s.x, s.y)
+		end
+		-- draw the beam
 		self.speedShotImage:draw(self:spherePos(), Vec2(0.5, 1), nil, nil, nil, self.speedShotTime * 2, scale)
+		-- reset the scissor
+		if self.settings.speedShotBeamRenderingType == "cut" then
+			love.graphics.setScissor()
+		end
 	end
 	-- this color
 	-- reverse animation: math.floor(self.sphereFrame + 1)
@@ -163,8 +185,7 @@ function Shooter:getTargetPos()
 end
 
 function Shooter:getShootingSpeed()
-	if self.speedShotTime > 0 then return 1500 end
-	return 1000
+	return self.speedShotTime > 0 and self.settings.speedShotSpeed or self.settings.shotSpeed
 end
 
 return Shooter
