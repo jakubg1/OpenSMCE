@@ -2,8 +2,8 @@ local class = require "class"
 local Level = class:derive("Level")
 
 local Vec2 = require("Essentials/Vector2")
-local Image = require("Essentials/Image")
 local List1 = require("Essentials/List1")
+local Image = require("Essentials/Image")
 
 local Map = require("Map")
 local Shooter = require("Shooter")
@@ -333,11 +333,11 @@ function Level:togglePause()
 end
 
 function Level:spawnShotSphere(shooter, pos, color, speed)
-	self.shotSpheres:append(ShotSphere(shooter, pos, color, speed))
+	self.shotSpheres:append(ShotSphere(nil, shooter, pos, color, speed))
 end
 
 function Level:spawnCollectible(pos, data)
-	self.collectibles:append(Collectible(pos, data))
+	self.collectibles:append(Collectible(nil, pos, data))
 	game:playSound("collectible_spawn_" .. data.type)
 end
 
@@ -360,6 +360,61 @@ function Level:draw()
 	-- local p = posOnScreen(Vec2(20, 500))
 	-- love.graphics.setColor(1, 1, 1)
 	-- love.graphics.print(tostring(self.warningDelay) .. "\n" .. tostring(self.warningDelayMax), p.x, p.y)
+end
+
+
+
+-- Store all necessary data to save the level in order to load it again with exact same things on board.
+function Level:serialize()
+	local t = {
+		stats = {
+			score = self.score,
+			coins = self.coins,
+			gems = self.gems,
+			spheresShot = self.spheresShot,
+			sphereChainsSpawned = self.sphereChainsSpawned,
+			maxChain = self.maxChain,
+			maxCombo = self.maxCombo
+		},
+		shooter = self.shooter:serialize(),
+		shotSpheres = {},
+		collectibles = {},
+		combo = self.combo,
+		destroyedSpheres = self.destroyedSpheres
+	}
+	self.shotSpheres:iterate(function(i, o)
+		table.insert(t.shotSpheres, o:serialize())
+	end)
+	self.collectibles:iterate(function(i, o)
+		table.insert(t.collectibles, o:serialize())
+	end)
+	return t
+end
+
+-- Restores all data that was saved in the serialization method.
+function Level:deserialize(t)
+	-- Level stats
+	self.score = t.stats.score
+	self.coins = t.stats.coins
+	self.gems = t.stats.gems
+	self.spheresShot = t.stats.spheresShot
+	self.sphereChainsSpawned = t.stats.sphereChainsSpawned
+	self.maxChain = t.stats.maxChain
+	self.maxCombo = t.stats.maxCombo
+	self.combo = t.combo
+	self.destroyedSpheres = t.destroyedSpheres
+	-- Shooter
+	self.shooter:deserialize(t.shooter)
+	-- Shot spheres, collectibles
+	for i, tShotSphere in ipairs(t.shotSpheres) do
+		self.shotSpheres:append(ShotSphere(tShotSphere))
+	end
+	for i, tCollectible in ipairs(t.collectibles) do
+		self.collectibles:append(Collectible(tCollectible))
+	end
+	
+	-- Pause
+	self:setPause(true)
 end
 
 return Level

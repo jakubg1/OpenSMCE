@@ -7,7 +7,6 @@ local Color = require("Essentials/Color")
 local Sprite = require("Sprite")
 
 local ShotSphere = require("ShotSphere")
-local Particle = require("Particle")
 
 function Shooter:new()
 	self.pos = Vec2(0, 526)
@@ -189,6 +188,22 @@ end
 
 function Shooter:getShootingSpeed()
 	return self.speedShotTime > 0 and self.settings.speedShotSpeed or self.settings.shotSpeed
+end
+
+
+
+function Shooter:serialize()
+	return {
+		color = self.color,
+		nextColor = self.nextColor,
+		speedShotTime = self.speedShotTime
+	}
+end
+
+function Shooter:deserialize(t)
+	self.color = t.color
+	self.nextColor = t.nextColor
+	self.speedShotTime = t.speedShotTime
 end
 
 return Shooter

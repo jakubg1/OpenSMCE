@@ -5,20 +5,22 @@ local Vec2 = require("Essentials/Vector2")
 local Image = require("Essentials/Image")
 local Color = require("Essentials/Color")
 
-function ShotSphere:new(shooter, pos, color, speed)
-	self.shooter = shooter
+function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
+	if deserializationTable then
+		self:deserialize(deserializationTable)
+	else
+		self.shooter = shooter
+		self.pos = pos
+		self.steps = 0
+		self.color = color
+		self.speed = speed
+	
+		self.hitTime = 0
+		self.hitSphere = nil
+	end
 	
 	self.PIXELS_PER_STEP = 8
-	
-	self.pos = pos
-	self.steps = 0
-	self.color = color
-	self.speed = speed
-	
-	self.sprite = game.sphereSprites[color]
-	
-	self.hitTime = 0
-	self.hitSphere = nil
+	self.sprite = game.sphereSprites[self.color]
 end
 
 function ShotSphere:update(dt)
@@ -73,6 +75,36 @@ function ShotSphere:draw()
 	if not self.hitSphere then
 		self.sprite:draw(self.pos, {angle = 0, color = Color(), frame = 1})
 	end
+end
+
+
+
+function ShotSphere:serialize()
+	return {
+		pos = {x = self.pos.x, y = self.pos.y},
+		color = self.color,
+		speed = self.speed,
+		steps = self.steps,
+		hitSphere = {
+			pathID = 1,
+			chainID = 2,
+			groupID = 1,
+			sphereID = 8
+		}, -- TODO: add an indexation function in Sphere.lua to resolve this problem
+		hitTime = self.hitTime
+	}
+end
+
+function ShotSphere:deserialize(t)
+	self.pos = Vec2(t.pos.x, t.pos.y)
+	self.color = t.color
+	self.speed = t.speed
+	self.steps = t.steps
+	
+	self.shooter = game.session.level.shooter
+	
+	self.hitSphere = nil -- blah blah blah, see above
+	self.hitTime = t.hitTime
 end
 
 return ShotSphere
