@@ -268,7 +268,7 @@ function Level:getFinish()
 	for i, path in ipairs(self.map.paths) do
 		if #path.sphereChains > 0 then return false end
 	end
-	for i, collectible in pairs(self.collectibles) do return false end
+	if not self.collectibles:empty() then return false end
 	return true
 end
 
