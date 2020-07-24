@@ -318,7 +318,7 @@ function Level:lose()
 	self.shooter.color = 0
 	self.shooter.nextColor = 0
 	-- delete all shot balls
-	game.session.shotSpheres = {}
+	self.shotSpheres:clear()
 	game:playSound("level_lose")
 end
 
