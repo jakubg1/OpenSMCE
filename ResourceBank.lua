@@ -24,7 +24,7 @@ function ResourceBank:new()
 	self.stepLoadTotalObjs = 0
 	self.stepLoadTotalObjsFrac = 0
 	self.stepLoadProcessedObjs = 0
-	self.STEP_LOAD_FACTOR = 2 -- objects processed per frame; lower values can slow down the loading process significantly, while higher values can lag the progress bar
+	self.STEP_LOAD_FACTOR = 1 -- objects processed per frame; lower values can slow down the loading process significantly, while higher values can lag the progress bar
 end
 
 function ResourceBank:update(dt)
