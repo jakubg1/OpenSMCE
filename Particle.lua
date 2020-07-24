@@ -4,17 +4,6 @@ local Particle = class:derive("Particle")
 local Sprite = require("Sprite")
 
 function Particle:new(data, pos, variables)
-	self.subparticles = {}
-	if data.subparticles then
-		for i, subparticle in ipairs(data.subparticles) do
-			if subparticle.data then
-				self.subparticles[i] = Particle(subparticle.data, variables)
-			else
-				self.subparticles[i] = Particle(PARTICLES_DATA[parseString(subparticle.path, variables)], variables)
-			end
-		end
-	end
-	
 	self.sprite = Sprite(parseString(data.sprite, variables), variables)
 	
 	self.time = 0
@@ -98,9 +87,6 @@ function Particle:destroy()
 	if self.delQueue then return end
 	-- the particle won't disappear by itself, an object that holds it must eliminate it from the list
 	self.delQueue = true
-	for i, subparticle in pairs(self.subparticles) do
-		subparticle:destroy()
-	end
 end
 
 return Particle
