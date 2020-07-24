@@ -78,6 +78,11 @@ function List1:get(index)
 	return self.objects[index]
 end
 
+-- Returns whether the list is empty.
+function List1:empty()
+	return #self.objects == 0
+end
+
 -- Iterates through all objects in the list and executes a function on each one. The parameters are: index, object.
 -- Because items can be deleted through the iteration, rendering some items to be skipped, the list is locked for a while and then the cleanup of the list is performed.
 function List1:iterate(f)
