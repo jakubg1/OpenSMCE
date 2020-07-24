@@ -129,7 +129,7 @@ function Session:usePowerup(data)
 	elseif data.name == "lightning" then
 		self.level.shooter:getColor(-3)
 	elseif data.name == "shotspeed" then
-		self.level.shooter.speedShotTime = 30
+		self.level.shooter.speedShotTime = 15
 	elseif data.name == "colorbomb" then
 		self:destroyColor(data.color)
 	end

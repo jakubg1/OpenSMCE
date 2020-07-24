@@ -23,6 +23,7 @@ function Shooter:new()
 	self.moveKeySpeed = 500
 	
 	self.sprite = Sprite("sprites/shooter.json")
+	self.speedShotImage = game.resourceBank:getImage("img/particles/speed_shot_beam.png")
 end
 
 function Shooter:update(dt)
@@ -117,12 +118,6 @@ end
 
 function Shooter:draw()
 	self.sprite:draw(self.pos)
-	-- this color
-	-- reverse animation: math.floor(self.sphereFrame + 1)
-	-- forward (proper) animation: math.ceil(32 - self.sphereFrame)
-	if self.color ~= 0 then game.sphereSprites[self.color]:draw(self:spherePos(), {angle = 0, color = Color(), frame = 1}) end
-	-- next color
-	game.nextSphereSprites[self.nextColor]:draw(self.pos + Vec2(0, 21))
 	-- retical
 	local targetPos = self:getTargetPos()
 	if targetPos and (self.color > 0 or self.color == -1 or self.color == -2) then
@@ -138,6 +133,18 @@ function Shooter:draw()
 		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
 		love.graphics.line(p2.x, p2.y, p3.x, p3.y)
 	end
+	-- speed shot beam
+	if self.speedShotTime > 0 then
+		local distance = targetPos and self.pos.y - targetPos.y or self.pos.y
+		local scale = Vec2(1, distance / self.speedShotImage.size.y)
+		self.speedShotImage:draw(self:spherePos(), Vec2(0.5, 1), nil, nil, nil, self.speedShotTime * 2, scale)
+	end
+	-- this color
+	-- reverse animation: math.floor(self.sphereFrame + 1)
+	-- forward (proper) animation: math.ceil(32 - self.sphereFrame)
+	if self.color ~= 0 then game.sphereSprites[self.color]:draw(self:spherePos(), {angle = 0, color = Color(), frame = 1}) end
+	-- next color
+	game.nextSphereSprites[self.nextColor]:draw(self.pos + Vec2(0, 21))
 	
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
@@ -156,7 +163,7 @@ function Shooter:getTargetPos()
 end
 
 function Shooter:getShootingSpeed()
-	if self.speedShotTime > 0 then return 2000 end
+	if self.speedShotTime > 0 then return 1500 end
 	return 1000
 end
 
