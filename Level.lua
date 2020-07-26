@@ -77,11 +77,11 @@ function Level:update(dt)
 		if self.warningDelayMax then
 			self.warningDelay = self.warningDelay + dt
 			if self.warningDelay >= self.warningDelayMax then
-				for i, path in ipairs(self.map.paths) do
-					if path:getMaxOffset() / path.length >= self.dangerDistance then
+				self.map.paths:iterate(function(i, o)
+					if o:getMaxOffset() / o.length >= self.dangerDistance then
 						game:spawnParticle("particles/warning.json", path:getPos(path.length))
 					end
-				end
+				end)
 				--game:playSound("warning", 1 + (4 - self.warningDelayMax) / 6)
 				self.warningDelay = 0
 			end
@@ -145,11 +145,11 @@ function Level:update(dt)
 			end
 		end
 		
-		if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths[self.bonusPathID - 1].bonusScarab) then
-			if self.map.paths[self.bonusPathID] then
+		if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths:get(self.bonusPathID - 1).bonusScarab) then
+			if self.map.paths:get(self.bonusPathID) then
 				self.bonusDelay = self.bonusDelay - dt
 				if self.bonusDelay <= 0 then
-					self.map.paths[self.bonusPathID]:spawnBonusScarab()
+					self.map.paths:get(self.bonusPathID):spawnBonusScarab()
 					self.bonusDelay = 1.5
 					self.bonusPathID = self.bonusPathID + 1
 				end
@@ -238,38 +238,35 @@ function Level:destroySphere()
 end
 
 function Level:getEmpty()
-	for i, path in ipairs(self.map.paths) do
-		for j, sphereChain in ipairs(path.sphereChains) do
-			return false
-		end
-	end
-	return true
+	-- any more elegant way to do this?
+	-- at least "ok" referenced in the nested iterator function doesn't appear to be a global variable, instead, this one declared below is working
+	local ok = true
+	self.map.paths:iterate(function(i, o)
+		if #o.sphereChains > 0 then ok = false end
+	end)
+	return ok
 end
 
 function Level:getDanger()
-	for i, path in ipairs(self.map.paths) do
-		for j, sphereChain in ipairs(path.sphereChains) do
-			if sphereChain:getDanger() then return true end
+	local ok = false
+	self.map.paths:iterate(function(i, o)
+		for j, sphereChain in ipairs(o.sphereChains) do
+			if sphereChain:getDanger() then ok = true end
 		end
-	end
-	return false
+	end)
+	return ok
 end
 
 function Level:getMaxDistance()
 	local distance = 0
-	for i, path in ipairs(self.map.paths) do
-		distance = math.max(distance, path:getMaxOffset() / path.length)
-	end
+	self.map.paths:iterate(function(i, o)
+		distance = math.max(distance, o:getMaxOffset() / o.length)
+	end)
 	return distance
 end
 
 function Level:getFinish()
-	if not self.targetReached or self.lost then return false end
-	for i, path in ipairs(self.map.paths) do
-		if #path.sphereChains > 0 then return false end
-	end
-	if not self.collectibles:empty() then return false end
-	return true
+	return self.targetReached and not self.lost and self:getEmpty() and self.collectibles:empty()
 end
 
 function Level:reset()
