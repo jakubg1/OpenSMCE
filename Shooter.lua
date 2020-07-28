@@ -7,7 +7,6 @@ local Color = require("Essentials/Color")
 local Sprite = require("Sprite")
 
 local ShotSphere = require("ShotSphere")
-local Particle = require("Particle")
 
 function Shooter:new()
 	self.pos = Vec2(0, 526)
@@ -23,6 +22,9 @@ function Shooter:new()
 	self.moveKeySpeed = 500
 	
 	self.sprite = Sprite("sprites/shooter.json")
+	self.speedShotImage = game.resourceBank:getImage("img/particles/speed_shot_beam.png")
+	
+	self.settings = game.config.gameplay.shooter
 end
 
 function Shooter:update(dt)
@@ -80,7 +82,7 @@ function Shooter:shoot()
 		game.session:destroyVertical(self.pos.x, 100)
 		game.session.level.combo = 0 -- cuz that's how it works
 	else
-		table.insert(game.session.level.shotSpheres, ShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed()))
+		game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
 		self.active = false
 	end
 	self.color = 0
@@ -117,12 +119,6 @@ end
 
 function Shooter:draw()
 	self.sprite:draw(self.pos)
-	-- this color
-	-- reverse animation: math.floor(self.sphereFrame + 1)
-	-- forward (proper) animation: math.ceil(32 - self.sphereFrame)
-	if self.color ~= 0 then game.sphereSprites[self.color]:draw(self:spherePos(), {angle = 0, color = Color(), frame = 1}) end
-	-- next color
-	game.nextSphereSprites[self.nextColor]:draw(self.pos + Vec2(0, 21))
 	-- retical
 	local targetPos = self:getTargetPos()
 	if targetPos and (self.color > 0 or self.color == -1 or self.color == -2) then
@@ -138,9 +134,44 @@ function Shooter:draw()
 		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
 		love.graphics.line(p2.x, p2.y, p3.x, p3.y)
 	end
+	-- this color
+	-- reverse animation: math.floor(self.sphereFrame + 1)
+	-- forward (proper) animation: math.ceil(32 - self.sphereFrame)
+	if self.color ~= 0 then game.sphereSprites[self.color]:draw(self:spherePos(), {angle = 0, color = Color(), frame = 1}) end
+	-- next color
+	game.nextSphereSprites[self.nextColor]:draw(self.pos + Vec2(0, 21))
 	
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
+end
+
+function Shooter:drawSpeedShotBeam()
+	-- rendering options:
+	-- "full" - the beam is always fully visible
+	-- "cut" - the beam is cut on the target position
+	-- "scale" - the beam is squished between the shooter and the target position
+	if self.speedShotTime == 0 then return end
+	
+	local targetPos = self:getTargetPos()
+	local maxDistance = self.speedShotImage.size.y
+	local distance = math.min(targetPos and self.pos.y - targetPos.y or self.pos.y, maxDistance)
+	local distanceUnit = distance / maxDistance
+	local scale = Vec2(1)
+	if self.settings.speedShotBeamRenderingType == "scale" then
+		-- if we need to scale the beam
+		scale.y = distanceUnit
+	elseif self.settings.speedShotBeamRenderingType == "cut" then
+		-- if we need to cut the beam
+		local p = posOnScreen(Vec2(self.pos.x - self.speedShotImage.size.x / 2, self.pos.y - distance))
+		local s = posOnScreen(Vec2(self.speedShotImage.size.x, distance))
+		love.graphics.setScissor(p.x, p.y, s.x, s.y)
+	end
+	-- draw the beam
+	self.speedShotImage:draw(self:spherePos(), Vec2(0.5, 1), nil, nil, nil, self.speedShotTime * 2, scale)
+	-- reset the scissor
+	if self.settings.speedShotBeamRenderingType == "cut" then
+		love.graphics.setScissor()
+	end
 end
 
 function Shooter:spherePos()
@@ -156,8 +187,23 @@ function Shooter:getTargetPos()
 end
 
 function Shooter:getShootingSpeed()
-	if self.speedShotTime > 0 then return 2000 end
-	return 1000
+	return self.speedShotTime > 0 and self.settings.speedShotSpeed or self.settings.shotSpeed
+end
+
+
+
+function Shooter:serialize()
+	return {
+		color = self.color,
+		nextColor = self.nextColor,
+		speedShotTime = self.speedShotTime
+	}
+end
+
+function Shooter:deserialize(t)
+	self.color = t.color
+	self.nextColor = t.nextColor
+	self.speedShotTime = t.speedShotTime
 end
 
 return Shooter

@@ -63,6 +63,7 @@ function Session:startLevel()
 	--self.level = Level({path = "levels/level_7_2.json", name = self.profile.data.session.level})
 	--self.level = Level({path = "levels/seven_lines.json", name = "0-0"})
 	self.level = Level(self.profile:getCurrentLevelData())
+	--self.level:deserialize(loadJson(parsePath("test.json")))
 end
 
 function Session:terminate()
@@ -99,29 +100,29 @@ end
 
 function Session:usePowerup(data)
 	if data.name == "slow" then
-		for i, path in ipairs(self.level.map.paths) do
+		self.level.map.paths:iterate(function(i, path)
 			for j, sphereChain in ipairs(path.sphereChains) do
 				sphereChain.slowTime = 3
 				sphereChain.stopTime = 0
 				sphereChain.reverseTime = 0
 			end
-		end
+		end)
 	elseif data.name == "stop" then
-		for i, path in ipairs(self.level.map.paths) do
+		self.level.map.paths:iterate(function(i, path)
 			for j, sphereChain in ipairs(path.sphereChains) do
 				sphereChain.slowTime = 0
 				sphereChain.stopTime = 3
 				sphereChain.reverseTime = 0
 			end
-		end
+		end)
 	elseif data.name == "reverse" then
-		for i, path in ipairs(self.level.map.paths) do
+		self.level.map.paths:iterate(function(i, path)
 			for j, sphereChain in ipairs(path.sphereChains) do
 				sphereChain.slowTime = 0
 				sphereChain.stopTime = 0
 				sphereChain.reverseTime = 3
 			end
-		end
+		end)
 	elseif data.name == "wild" then
 		self.level.shooter:getColor(-1)
 	elseif data.name == "bomb" then
@@ -129,7 +130,7 @@ function Session:usePowerup(data)
 	elseif data.name == "lightning" then
 		self.level.shooter:getColor(-3)
 	elseif data.name == "shotspeed" then
-		self.level.shooter.speedShotTime = 30
+		self.level.shooter.speedShotTime = 20
 	elseif data.name == "colorbomb" then
 		self:destroyColor(data.color)
 	end
@@ -140,7 +141,7 @@ function Session:destroyFunction(f, scorePos)
 	-- we pass a function in the f variable
 	-- if f(param1, param2, ...) returns true, the sphere is nuked
 	local score = 0
-	for i, path in ipairs(self.level.map.paths) do
+	self.level.map.paths:iterate(function(i, path)
 		for j = #path.sphereChains, 1, -1 do
 			local sphereChain = path.sphereChains[j]
 			for k = #sphereChain.sphereGroups, 1, -1 do
@@ -155,7 +156,7 @@ function Session:destroyFunction(f, scorePos)
 				end
 			end
 		end
-	end
+	end)
 	self.level:grantScore(score)
 	self.level:spawnFloatingText(numStr(score), scorePos, "fonts/score0.json")
 end
@@ -183,7 +184,7 @@ end
 
 function Session:getNearestSphere(pos)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil}
-	for i, path in ipairs(self.level.map.paths) do
+	self.level.map.paths:iterate(function(i, path)
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -203,13 +204,13 @@ function Session:getNearestSphere(pos)
 				end
 			end
 		end
-	end
+	end)
 	return nearestData
 end
 
 function Session:getNearestSphereY(pos)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, targetPos = nil, half = nil}
-	for i, path in ipairs(self.level.map.paths) do
+	self.level.map.paths:iterate(function(i, path)
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -238,7 +239,7 @@ function Session:getNearestSphereY(pos)
 				end
 			end
 		end
-	end
+	end)
 	return nearestData
 end
 

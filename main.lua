@@ -79,6 +79,7 @@ uiDebugOffset = 0
 e = false
 
 particleSpawnersVisible = false
+gameDebugVisible = false
 
 
 
@@ -162,6 +163,9 @@ function love.keypressed(key)
 		if key == "o" then profVisible = not profVisible end
 		if key == "w" then uiDebugVisible = not uiDebugVisible end
 		if key == "q" then particleSpawnersVisible = not particleSpawnersVisible end
+		if key == "d" then gameDebugVisible = not gameDebugVisible end
+		if key == "s" then saveJson(parsePath("test.json"), game.session.level:serialize()); game:playSound("sphere_shoot_wild") end
+		if key == "l" then game.session.level:deserialize(loadJson(parsePath("test.json"))) end
 		if key == "kp-" and profPage > 1 then profPage = profPage - 1 end
 		if key == "kp+" and profPage < #profPages then profPage = profPage + 1 end
 		if key == "," then uiDebugOffset = uiDebugOffset - 75 end
