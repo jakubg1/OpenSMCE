@@ -63,6 +63,7 @@ function Session:startLevel()
 	--self.level = Level({path = "levels/level_7_2.json", name = self.profile.data.session.level})
 	--self.level = Level({path = "levels/seven_lines.json", name = "0-0"})
 	self.level = Level(self.profile:getCurrentLevelData())
+	--self.level:deserialize(loadJson(parsePath("test.json")))
 end
 
 function Session:terminate()
@@ -129,7 +130,7 @@ function Session:usePowerup(data)
 	elseif data.name == "lightning" then
 		self.level.shooter:getColor(-3)
 	elseif data.name == "shotspeed" then
-		self.level.shooter.speedShotTime = 15
+		self.level.shooter.speedShotTime = 20
 	elseif data.name == "colorbomb" then
 		self:destroyColor(data.color)
 	end
