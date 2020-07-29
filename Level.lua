@@ -79,7 +79,7 @@ function Level:update(dt)
 			if self.warningDelay >= self.warningDelayMax then
 				self.map.paths:iterate(function(i, o)
 					if o:getMaxOffset() / o.length >= self.dangerDistance then
-						game:spawnParticle("particles/warning.json", path:getPos(path.length))
+						game:spawnParticle("particles/warning.json", o:getPos(o.length))
 					end
 				end)
 				--game:playSound("warning", 1 + (4 - self.warningDelayMax) / 6)
