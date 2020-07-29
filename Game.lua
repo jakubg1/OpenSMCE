@@ -32,7 +32,7 @@ function Game:new(name)
 end
 
 function Game:init()
-	print("Init Started")
+	print("Selected game: " .. self.name)
 	
 	-- Step 1. Load the config
 	self.config = loadJson(parsePath("config.json"))

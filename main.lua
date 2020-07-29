@@ -14,7 +14,6 @@ local Game = require("Game")
 
 -- CONSTANT ZONE
 VERSION = "beta 1.1.0"
-GAME_NAME = "Luxor"
 
 
 -- TODO: at some point, get rid of these here and make them configurable
@@ -51,7 +50,7 @@ displayFullscreen = false
 mousePos = Vec2(0, 0)
 keyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
 
-game = BootScreen()
+game = nil
 musicVolume = 1
 
 variableSet = {}
@@ -89,6 +88,7 @@ gameDebugVisible = false
 -- CALLBACK ZONE
 function love.load()
 	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
+	game = BootScreen()
 end
 
 function love.update(dt)
