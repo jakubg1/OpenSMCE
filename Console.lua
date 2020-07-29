@@ -37,6 +37,10 @@ function Console:setOpen(open)
 	self.active = open
 end
 
+function Console:toggleOpen(open)
+	self:setOpen(not self.open)
+end
+
 function Console:draw()
 	if not self.open then return end
 	local pos = posOnScreen(Vec2())
@@ -57,6 +61,36 @@ function Console:draw()
 		if text then love.graphics.print(text, pos.x, pos.y) end
 	end
 end
+
+
+
+function Console:keypressed(key)
+	-- the shortcut is Shift + Control + ~
+	if key == "`" and (keyModifiers["lshift"] or keyModifiers["rshift"]) and (keyModifiers["lctrl"] or keyModifiers["rctrl"]) then
+		self:toggleOpen()
+	end
+	if self.active then
+		if key == "backspace" then
+			self:inputBackspace()
+			self.backspace = true
+		end
+		if key == "return" then
+			self:inputEnter()
+		end
+	end
+end
+
+function Console:keyreleased(key)
+	if key == "backspace" then
+		self.backspace = false
+	end
+end
+
+function Console:textinput(t)
+	self:inputCharacter(t)
+end
+
+
 
 function Console:inputCharacter(t)
 	if not self.active then return end

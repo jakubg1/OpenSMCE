@@ -98,6 +98,9 @@ function love.update(dt)
 	if game then game:update(dt * timeScale) end
 	console:update(dt)
 	
+	-- rainbow effect for the shooter and console cursor blink; to be phased out soon
+	totalTime = totalTime + dt
+	
 	profUpdate:stop()
 end
 
@@ -172,11 +175,7 @@ function love.keypressed(key)
 		if key == "." then uiDebugOffset = uiDebugOffset + 75 end
 	end
 	
-	if key == "`" and (keyModifiers["lshift"] or keyModifiers["rshift"]) and (keyModifiers["lctrl"] or keyModifiers["rctrl"]) then
-		console:setOpen(not console.open)
-	end
-	if key == "backspace" then console:inputBackspace(); console.backspace = true end
-	if key == "return" then console:inputEnter() end
+	console:keypressed(key)
 end
 
 function love.keyreleased(key)
@@ -186,11 +185,11 @@ function love.keyreleased(key)
 		if game then game:keyreleased(key) end
 	end
 	
-	if key == "backspace" then console.backspace = false end
+	console:keyreleased(key)
 end
 
 function love.textinput(t)
-	console:inputCharacter(t)
+	console:textinput(t)
 end
 
 function love.resize(w, h)
