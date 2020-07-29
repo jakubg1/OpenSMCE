@@ -5,7 +5,7 @@ function BootScreen:new()
 	-- make the boot screen font bigger
 	love.graphics.setFont(love.graphics.newFont(18))
 	-- github url link
-	self.url = "https://github.com/jakubg1/opensmce"
+	self.url = "https://github.com/jakubg1/OpenSMCE"
 	self.urlHovered = false
 end
 
