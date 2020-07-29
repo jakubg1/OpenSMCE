@@ -42,8 +42,11 @@ function ShotSphere:moveStep()
 	self.steps = self.steps - 1
 	self.pos.y = self.pos.y - self.PIXELS_PER_STEP
 	-- add if there's a sphere nearby
-	local nearestSphere = game.session:getNearestSphereY(self.pos)
-	if nearestSphere.dist and nearestSphere.dist.y < 32 then
+	-- old collission detection system:
+	--local nearestSphere = game.session:getNearestSphereY(self.pos)
+	--if nearestSphere.dist and nearestSphere.dist.y < 32 then
+	local nearestSphere = game.session:getNearestSphere(self.pos)
+	if nearestSphere.dist and nearestSphere.dist < 32 then
 		if self.color == -2 then
 			game.session:destroyRadius(self.pos, 125)
 			self:destroy()
@@ -74,6 +77,22 @@ end
 function ShotSphere:draw()
 	if not self.hitSphere then
 		self.sprite:draw(self.pos, {angle = 0, color = Color(), frame = 1})
+		--self:drawDebug()
+	end
+end
+
+function ShotSphere:drawDebug()
+	love.graphics.setColor(0, 1, 1)
+	for i = self.pos.y, 0, -self.PIXELS_PER_STEP do
+		local p = posOnScreen(Vec2(self.pos.x, i))
+		love.graphics.circle("fill", p.x, p.y, 2)
+		local nearestSphere = game.session:getNearestSphere(Vec2(self.pos.x, i))
+		if nearestSphere.dist and nearestSphere.dist < 32 then
+			love.graphics.setLineWidth(3)
+			local p = posOnScreen(nearestSphere.pos)
+			love.graphics.circle("line", p.x, p.y, 16 * getResolutionScale())
+			break
+		end
 	end
 end
 

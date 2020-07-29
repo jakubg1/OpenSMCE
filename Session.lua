@@ -183,16 +183,22 @@ function Session:destroyVertical(x, width)
 end
 
 function Session:getNearestSphere(pos)
-	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil}
+	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, half = nil}
 	self.level.map.paths:iterate(function(i, path)
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
 					local spherePos = sphereGroup:getSpherePos(l)
 					local sphereAngle = sphereGroup:getSphereAngle(l)
+					local sphereHidden = sphereGroup:getSphereHidden(l)
+					
 					local sphereDist = (pos - spherePos):len()
+					
+					local sphereDistAngle = (pos - spherePos):angle()
+					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
+					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
 					-- if closer than the closest for now, save it
-					if not nearestData.dist or sphereDist < nearestData.dist then
+					if not sphereHidden and (not nearestData.dist or sphereDist < nearestData.dist) then
 						nearestData.path = path
 						nearestData.sphereChain = sphereChain
 						nearestData.sphereGroup = sphereGroup
@@ -200,6 +206,7 @@ function Session:getNearestSphere(pos)
 						nearestData.sphere = sphere
 						nearestData.pos = spherePos
 						nearestData.dist = sphereDist
+						nearestData.half = sphereHalf
 					end
 				end
 			end
