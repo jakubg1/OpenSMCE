@@ -377,7 +377,8 @@ function Level:serialize()
 		shotSpheres = {},
 		collectibles = {},
 		combo = self.combo,
-		destroyedSpheres = self.destroyedSpheres
+		destroyedSpheres = self.destroyedSpheres,
+		paths = self.map:serialize()
 	}
 	self.shotSpheres:iterate(function(i, o)
 		table.insert(t.shotSpheres, o:serialize())

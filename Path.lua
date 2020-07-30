@@ -278,4 +278,10 @@ function Path:getBrightness(pixels)
 	return self.brightnesses[#self.brightnesses].value
 end
 
+
+
+function Path:serialize()
+	return "gówno"
+end
+
 return Path

@@ -61,4 +61,14 @@ function Map:drawSpheres()
 	--for i, path in pairs(self.paths) do path:draw(false) end
 end
 
+
+
+function Map:serialize()
+	local t = {}
+	self.paths:iterate(function(i, o)
+		table.insert(t, o:serialize())
+	end)
+	return t
+end
+
 return Map
