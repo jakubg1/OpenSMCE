@@ -108,6 +108,14 @@ function Shooter:getColor(color)
 	end
 end
 
+function Shooter:getReticalColor()
+	if self.color > 0 then return SPHERE_COLORS[self.color] end
+	if self.color == -1 then return getRainbowColor(totalTime / 3) end
+	if self.color == -2 then return Color(1, 0.7, 0) end
+	if self.color == -3 then return Color(0.7, 0.8, 1) end
+	return Color()
+end
+
 function Shooter:swapColors()
 	-- we must be careful not to swap the spheres when they're absent
 	if game.session.level.pause or self.color == 0 or self.nextColor == 0 then return end
@@ -123,10 +131,7 @@ function Shooter:draw()
 	local targetPos = self:getTargetPos()
 	if targetPos and (self.color > 0 or self.color == -1 or self.color == -2) then
 		love.graphics.setLineWidth(3 * getResolutionScale())
-		local color = Color()
-		if self.color > 0 then color = SPHERE_COLORS[self.color] end
-		if self.color == -1 then color = getRainbowColor(totalTime / 3) end
-		if self.color == -2 then color = Color(1, 0.7, 0) end
+		local color = self:getReticalColor()
 		love.graphics.setColor(color.r, color.g, color.b)
 		local p1 = posOnScreen(targetPos + Vec2(-8, 8))
 		local p2 = posOnScreen(targetPos)
@@ -166,8 +171,10 @@ function Shooter:drawSpeedShotBeam()
 		local s = posOnScreen(Vec2(self.speedShotImage.size.x, distance))
 		love.graphics.setScissor(p.x, p.y, s.x, s.y)
 	end
+	-- apply color if wanted
+	local color = self.settings.speedShotBeamColored and self:getReticalColor() or Color()
 	-- draw the beam
-	self.speedShotImage:draw(self:spherePos(), Vec2(0.5, 1), nil, nil, nil, self.speedShotTime * 2, scale)
+	self.speedShotImage:draw(self:spherePos(), Vec2(0.5, 1), nil, nil, color, self.speedShotTime * 2, scale)
 	-- reset the scissor
 	if self.settings.speedShotBeamRenderingType == "cut" then
 		love.graphics.setScissor()
