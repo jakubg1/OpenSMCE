@@ -242,16 +242,9 @@ end
 
 function Path:getAngle(pixels)
 	if pixels then
-		local nodeID, remainder = self:getNodeID(pixels)
-		if nodeID == 0 then return self.nodes[1].angle end
-		if nodeID > #self.nodes then return self.nodes[#self.nodes].angle end
-		local part = remainder / self.nodes[nodeID].length
-		local angle1 = self.nodes[nodeID].angle
-		local angle2 = self.nodes[nodeID + 1].angle
-		-- compensation if wraps around 360°
-		if angle1 - angle2 > math.pi then angle1 = angle1 - 2 * math.pi end
-		if angle2 - angle1 > math.pi then angle2 = angle2 - 2 * math.pi end
-		return angle1 * (1 - part) + angle2 * part
+		local p1 = self:getPos(pixels - 16)
+		local p2 = self:getPos(pixels + 16)
+		return (p2 - p1):angle() + math.pi / 2
 	else
 		return nil
 	end
