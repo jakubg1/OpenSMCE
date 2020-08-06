@@ -350,9 +350,10 @@ function Level:draw()
 	self.map:drawSpheres()
 	self.shooter:draw()
 	
-	self.shotSpheres:iterate(function(i, o) o:draw() end)
-	self.collectibles:iterate(function(i, o) o:draw() end)
-	self.floatingTexts:iterate(function(i, o) o:draw() end)
+	local f = function(i, o) o:draw() end
+	self.shotSpheres:iterate(f)
+	self.collectibles:iterate(f)
+	self.floatingTexts:iterate(f)
 	
 	-- local p = posOnScreen(Vec2(20, 500))
 	-- love.graphics.setColor(1, 1, 1)
