@@ -75,8 +75,17 @@ function BootScreen:draw()
 	love.graphics.print("Version: " .. VERSION, 560, 30)
 	
 	-- Notes
-	love.graphics.print("Notes:", 45, 75)
-	love.graphics.print("Welcome to the boot screen!\nThis engine is still in BETA development!\nIf you have any bugs or suggestions, head on to Forum or Discord!\n\nSee also our GitHub page:\n" .. self.url, 45, 100)
+	-- WARNING text
+	love.graphics.setColor(1, 0.2, 0.2)
+	love.graphics.print("WARNING", 45, 75)
+	-- WARNING contents
+	love.graphics.setColor(1, 1, 0.2)
+	love.graphics.setFont(self.font)
+	love.graphics.print("This engine is still in EARLY BETA DEVELOPMENT.\nDON'T expect it to be full of features, DO expect it will be full of bugs.\nThis version is dedicated to people who want to test the engine and examine it.\nHowever, you are modifying the game files at your own risk!! It may break, and I'm aware of that.\nThis version should NOT be treated like a full version. It's still far from it.\nRemember to post issues and feature suggestions at the following Github repository link.\nHowever, bear in mind I'm not taking suggestions for now. Keep them for later, now I'm working on crucial things.", 45, 100)
+	-- Github link
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setFont(self.fontBig)
+	love.graphics.print(self.url, 45, 205)
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", 30, 60, 740, 180) -- frame
 	
