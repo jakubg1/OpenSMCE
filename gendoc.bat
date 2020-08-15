@@ -1,0 +1,2 @@
+ldoc .
+pause

@@ -1,10 +1,10 @@
---[[
+--- A root for all variable things during the game, such as level and player's progress.
+-- @module Session
 
-Session.lua
+-- NOTE:
+-- May consider to ditch this class in the future and spread the contents to Game.lua, Level.lua and Profile.lua.
+-- ~jakubg1
 
-A root for all variable things during the game, such as level and player's progress.
-
-]]
 
 -- Class identification
 local class = require "class"
@@ -20,15 +20,8 @@ local Level = require("Level")
 
 
 
---[[
-
-NOTE:
-
-May consider to ditch this class in the future and spread the contents to Game.lua, Level.lua and Profile.lua.
-
-~jakubg1
-
-]]
+--- Object constructor.
+-- A callback executed when this object is created.
 function Session:new()
 	-- TODO: Add a profile changer
 	self.profile = Profile("TEST")
@@ -48,17 +41,28 @@ function Session:new()
 	self.lastSphereColor = 1
 end
 
+
+
+--- An initialization callback.
 function Session:init()
 	game:getWidget({"main"}):show()
 	game:getWidget({"main", "Frame"}):show()
 end
 
+
+
+--- An update callback.
+-- @tparam number dt Delta time in seconds.
 function Session:update(dt)
 	if self.level then self.level:update(dt) end
 	
 	if self.scoreDisplay < self.profile:getScore() then self.scoreDisplay = self.scoreDisplay + math.ceil((self.profile:getScore() - self.scoreDisplay) / 10) end
 end
 
+
+
+--- Initializes a new level.
+-- The level number is derived from the current Profile.
 function Session:startLevel()
 	--self.level = Level({path = "levels/level_7_2.json", name = self.profile.data.session.level})
 	--self.level = Level({path = "levels/seven_lines.json", name = "0-0"})
@@ -66,6 +70,10 @@ function Session:startLevel()
 	--self.level:deserialize(loadJson(parsePath("test.json")))
 end
 
+
+
+--- Triggers a Game Over.
+-- Deinitializates the level and shows an appropriate widget.
 function Session:terminate()
 	if self.gameOver then return end
 	self.gameOver = true
@@ -74,10 +82,21 @@ function Session:terminate()
 	game:getWidget({"main", "Banner_GameOver"}):show()
 end
 
+
+
+--- A drawing callback.
 function Session:draw()
 	if self.level then self.level:draw() end
 end
 
+
+
+--- Returns a random sphere color that is on the board.
+-- If no spheres are on the board, this function returns the last sphere color that appeared on the board.
+-- @tparam boolean omitDangerCheck When it is set to true, gets just any random sphere color that is on board provided it is not special (e.g. wild).
+-- Setting this to false searches only in colors that are in the danger colors list, and if nothing was found there,
+-- it gets a random color from the entire board.
+-- @treturn number A sphere color.
 function Session:newSphereColor(omitDangerCheck)
 	local availableColors = {}
 	if not omitDangerCheck then
@@ -94,10 +113,24 @@ function Session:newSphereColor(omitDangerCheck)
 	return availableColors[math.random(1, #availableColors)]
 end
 
+
+
+--- Returns whether both provided colors can attract or make valid scoring combinations with each other.
+-- @tparam number color1 The first color to check.
+-- @tparam number color2 The second color to check.
+-- @treturn boolean Whether the check has passed.
 function Session:colorsMatch(color1, color2)
 	return color1 ~= 0 and color2 ~= 0 and (color1 == color2 or color1 == -1 or color2 == -1)
 end
 
+
+
+--- Executes a powerup and plays an appropriate sound.
+-- @tparam table data The data of the powerup to use.
+-- powerupdata is a quasi-type that conveys following information:<br/>
+--   - name (string) - The name of the powerup, can be one of the following:<br/>
+--     "slow", "stop", "reverse", "wild", "bomb", "lightning", "shotspeed", "colorbomb"<br/>
+--   - color (number) - The powerup color, only exists if name == "colorbomb".
 function Session:usePowerup(data)
 	if data.name == "slow" then
 		self.level.map.paths:iterate(function(i, path)
@@ -137,6 +170,11 @@ function Session:usePowerup(data)
 	game:playSound("collectible_catch_powerup_" .. data.name)
 end
 
+
+
+--- Destroys all spheres on the board if a call of the function f(sphere, spherePos) returns true.
+-- @tparam function t The function that has to return true in order for a given sphere to be deleted.
+-- @tparam Vector2 scorePos A position where the score text should be located.
 function Session:destroyFunction(f, scorePos)
 	-- we pass a function in the f variable
 	-- if f(param1, param2, ...) returns true, the sphere is nuked
@@ -161,6 +199,10 @@ function Session:destroyFunction(f, scorePos)
 	self.level:spawnFloatingText(numStr(score), scorePos, "fonts/score0.json")
 end
 
+
+
+--- Destroys all spheres on the board if they are a given color.
+-- @tparam number color The sphere color to be deleted.
 function Session:destroyColor(color)
 	self:destroyFunction(
 		function(sphere, spherePos) return sphere.color == color end,
@@ -168,6 +210,11 @@ function Session:destroyColor(color)
 	)
 end
 
+
+
+--- Destroys all spheres that are closer than radius pixels to the pos position.
+-- @tparam Vector2 pos A position relative to which the spheres will be destroyed.
+-- @tparam number radius The range in pixels.
 function Session:destroyRadius(pos, radius)
 	self:destroyFunction(
 		function(sphere, spherePos) return (pos - spherePos):len() <= radius end,
@@ -175,6 +222,11 @@ function Session:destroyRadius(pos, radius)
 	)
 end
 
+
+
+--- Destroys all spheres that are closer than width pixels to the x position on X coordinate.
+-- @tparam number x An X coordinate relative to which the spheres will be destroyed.
+-- @tparam number width The range in pixels.
 function Session:destroyVertical(x, width)
 	self:destroyFunction(
 		function(sphere, spherePos) return math.abs(x - spherePos.x) <= width / 2 end,
