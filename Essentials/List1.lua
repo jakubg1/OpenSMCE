@@ -78,6 +78,11 @@ function List1:get(index)
 	return self.objects[index]
 end
 
+-- Returns a number of objects in the list.
+function List1:size()
+	return #self.objects
+end
+
 -- Returns whether the list is empty.
 function List1:empty()
 	return #self.objects == 0
