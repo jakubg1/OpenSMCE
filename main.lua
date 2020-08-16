@@ -65,6 +65,7 @@ console = Console()
 
 profUpdate = Profiler("Update")
 profDraw = Profiler("Draw")
+profDraw2 = Profiler("Draw")
 profDrawLevel = Profiler("Draw: Level")
 prof3 = Profiler("Draw: Level2")
 profMusic = Profiler("Music volume")
@@ -124,6 +125,7 @@ function love.draw()
 		love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 10)
 		profPages[profPage]:draw(Vec2(0, displaySize.y))
 		profDraw:draw(Vec2(400, displaySize.y))
+		profDraw2:draw(Vec2(400, displaySize.y))
 	end
 	
 	-- Console
