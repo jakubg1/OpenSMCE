@@ -186,6 +186,10 @@ function Game:drawDebugInfo()
 		end
 		s = s .. "ParticleSpawner# = " .. tostring(self.particleManager:getParticleSpawnerCount()) .. "\n"
 		s = s .. "Particle# = " .. tostring(self.particleManager:getParticlePieceCount()) .. "\n"
+		s = s .. "\n"
+		s = s .. "Collectible# = " .. tostring(self.session.level.collectibles:size()) .. "\n"
+		s = s .. "FloatingText# = " .. tostring(self.session.level.floatingTexts:size()) .. "\n"
+		s = s .. "ShotSphere# = " .. tostring(self.session.level.shotSpheres:size()) .. "\n"
 		if self:sessionExists() then
 			s = s .. "SphereColors:" .. "\n"
 			for i = 1, 9 do
