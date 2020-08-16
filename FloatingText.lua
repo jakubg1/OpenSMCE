@@ -9,13 +9,15 @@ function FloatingText:new(text, pos, font)
 	self.font = game.resourceBank:getFont(font)
 	
 	self.time = 0
-	
-	self.delQueue = false
 end
 
 function FloatingText:update(dt)
 	self.time = self.time + dt
-	if self.time >= 1 then self.delQueue = true end
+	if self.time >= 1 then self:destroy() end
+end
+
+function FloatingText:destroy()
+	self._list:destroy(self)
 end
 
 
