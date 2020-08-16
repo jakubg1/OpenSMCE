@@ -59,10 +59,16 @@ function Level:update(dt)
 		
 		
 		
-		-- Shot spheres, collectibles, DEPRECATED! particles, floating texts
-		self.shotSpheres:iterate(function(i, o) o:update(dt) end)
-		self.collectibles:iterate(function(i, o) o:update(dt) end)
-		self.floatingTexts:iterate(function(i, o) o:update(dt) end)
+		-- Shot spheres, collectibles, floating texts
+		for i, shotSphere in ipairs(self.shotSpheres.objects) do
+			shotSphere:update(dt)
+		end
+		for i, collectible in ipairs(self.collectibles.objects) do
+			collectible:update(dt)
+		end
+		for i, floatingText in ipairs(self.floatingTexts.objects) do
+			floatingText:update(dt)
+		end
 		
 		
 		
@@ -77,11 +83,11 @@ function Level:update(dt)
 		if self.warningDelayMax then
 			self.warningDelay = self.warningDelay + dt
 			if self.warningDelay >= self.warningDelayMax then
-				self.map.paths:iterate(function(i, o)
-					if o:getMaxOffset() / o.length >= self.dangerDistance then
-						game:spawnParticle("particles/warning.json", o:getPos(o.length))
+				for i, path in ipairs(self.map.paths.objects) do
+					if path:getMaxOffset() / path.length >= self.dangerDistance then
+						game:spawnParticle("particles/warning.json", path:getPos(path.length))
 					end
-				end)
+				end
 				--game:playSound("warning", 1 + (4 - self.warningDelayMax) / 6)
 				self.warningDelay = 0
 			end
@@ -238,30 +244,27 @@ function Level:destroySphere()
 end
 
 function Level:getEmpty()
-	-- any more elegant way to do this?
-	-- at least "ok" referenced in the nested iterator function doesn't appear to be a global variable, instead, this one declared below is working
-	local ok = true
-	self.map.paths:iterate(function(i, o)
-		if #o.sphereChains > 0 then ok = false end
-	end)
-	return ok
+	for i, path in ipairs(self.map.paths.objects) do
+		if #path.sphereChains > 0 then return false end
+	end
+	return true
 end
 
 function Level:getDanger()
 	local ok = false
-	self.map.paths:iterate(function(i, o)
-		for j, sphereChain in ipairs(o.sphereChains) do
+	for i, path in ipairs(self.map.paths.objects) do
+		for j, sphereChain in ipairs(path.sphereChains) do
 			if sphereChain:getDanger() then ok = true end
 		end
-	end)
+	end
 	return ok
 end
 
 function Level:getMaxDistance()
 	local distance = 0
-	self.map.paths:iterate(function(i, o)
-		distance = math.max(distance, o:getMaxOffset() / o.length)
-	end)
+	for i, path in ipairs(self.map.paths.objects) do
+		distance = math.max(distance, path:getMaxOffset() / path.length)
+	end
 	return distance
 end
 
@@ -350,10 +353,15 @@ function Level:draw()
 	self.map:drawSpheres()
 	self.shooter:draw()
 	
-	local f = function(i, o) o:draw() end
-	self.shotSpheres:iterate(f)
-	self.collectibles:iterate(f)
-	self.floatingTexts:iterate(f)
+	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+		shotSphere:draw()
+	end
+	for i, collectible in ipairs(self.collectibles.objects) do
+		collectible:draw()
+	end
+	for i, floatingText in ipairs(self.floatingTexts.objects) do
+		floatingText:draw()
+	end
 	
 	-- local p = posOnScreen(Vec2(20, 500))
 	-- love.graphics.setColor(1, 1, 1)
@@ -381,12 +389,12 @@ function Level:serialize()
 		destroyedSpheres = self.destroyedSpheres,
 		paths = self.map:serialize()
 	}
-	self.shotSpheres:iterate(function(i, o)
-		table.insert(t.shotSpheres, o:serialize())
-	end)
-	self.collectibles:iterate(function(i, o)
-		table.insert(t.collectibles, o:serialize())
-	end)
+	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+		table.insert(t.shotSpheres, shotSphere:serialize())
+	end
+	for i, collectible in ipairs(self.collectibles.objects) do
+		table.insert(t.collectibles, collectible:serialize())
+	end
 	return t
 end
 

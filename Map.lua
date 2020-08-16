@@ -24,41 +24,20 @@ function Map:new(path)
 end
 
 function Map:update(dt)
-	self.paths:iterate(function(i, o) o:update(dt) end)
+	for i, path in ipairs(self.paths.objects) do path:update(dt) end
 end
 
 
 
 function Map:draw()
-	self.images:iterate(function(i, o)
-		if o.background then o.image:draw(o.pos) end
-	end)
-	if e then
-		self.images:iterate(function(i, o)
-			if not o.background then o.image:draw(o.pos) end
-		end)
-	end
-	self.paths:iterate(function(i, o)
-		o:draw(true)
-	end)
-	if not e then
-		self.images:iterate(function(i, o)
-			if not o.background then o.image:draw(o.pos) end
-		end)
-	end
-	
-	--for i, image in ipairs(self.images) do if image.background then image.image:draw(image.pos) end end
-	--if e then for i, image in ipairs(self.images) do if not image.background then image.image:draw(image.pos) end end end
-	--for i, path in pairs(self.paths) do path:draw(true) end
-	--if not e then for i, image in ipairs(self.images) do if not image.background then image.image:draw(image.pos) end end end
+	for i, image in ipairs(self.images.objects) do if image.background then image.image:draw(image.pos) end end
+	if e then for i, image in ipairs(self.images.objects) do if not image.background then image.image:draw(image.pos) end end end
+	for i, path in ipairs(self.paths.objects) do path:draw(true) end
+	if not e then for i, image in ipairs(self.images.objects) do if not image.background then image.image:draw(image.pos) end end end
 end
 
 function Map:drawSpheres()
-	self.paths:iterate(function(i, o)
-		o:draw(false)
-	end)
-	
-	--for i, path in pairs(self.paths) do path:draw(false) end
+	for i, path in ipairs(self.paths.objects) do path:draw(false) end
 end
 
 
