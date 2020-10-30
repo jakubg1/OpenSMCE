@@ -146,8 +146,7 @@ function Level:update(dt)
 				self.finishDelay = nil
 				self.finish = true
 				self.bonusDelay = 0
-				self.shooter.color = 0
-				self.shooter.nextColor = 0
+				self.shooter:empty()
 			end
 		end
 		
@@ -314,9 +313,7 @@ function Level:lose()
 	if self.lost then return end
 	self.lost = true
 	-- empty the shooter
-	self.shooter.active = false
-	self.shooter.color = 0
-	self.shooter.nextColor = 0
+	self.shooter:empty()
 	-- delete all shot balls
 	self.shotSpheres:clear()
 	game:playSound("level_lose")

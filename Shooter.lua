@@ -100,6 +100,13 @@ function Shooter:fill()
 	end
 end
 
+function Shooter:empty()
+	self.active = false
+	self.color = 0
+	self.nextColor = 0
+	self.speedShotTime = 0
+end
+
 function Shooter:getColor(color)
 	if self.color ~= 0 then
 		self.color = color
