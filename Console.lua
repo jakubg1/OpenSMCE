@@ -1,8 +1,22 @@
+--- A class used for debugging; one can write commands there in order to affect gameplay or test some things.
+-- @classmod Console
+
+
+
+-- Class identification
 local class = require "class"
 local Console = class:derive("Console")
 
+-- Include commons
 local Vec2 = require("Essentials/Vector2")
 
+
+
+--- Constructors
+-- @section constructors
+
+--- Object constructor.
+-- Executed when this object is created.
 function Console:new()
 	self.history = {}
 	self.command = ""
@@ -16,6 +30,14 @@ function Console:new()
 	self.backspaceTime = 0
 end
 
+
+
+--- Callbacks
+-- @section callbacks
+
+--- An update callback.
+-- @tparam number dt Delta time in seconds.
+-- @see main.update
 function Console:update(dt)
 	if self.backspace then
 		self.backspaceTime = self.backspaceTime - dt
@@ -28,19 +50,10 @@ function Console:update(dt)
 	end
 end
 
-function Console:print(message)
-	table.insert(self.history, message)
-end
 
-function Console:setOpen(open)
-	self.open = open
-	self.active = open
-end
 
-function Console:toggleOpen(open)
-	self:setOpen(not self.open)
-end
-
+--- A drawing callback.
+-- @see main.draw
 function Console:draw()
 	if not self.open then return end
 	local pos = posOnScreen(Vec2())
@@ -64,6 +77,9 @@ end
 
 
 
+--- Key press callback.
+-- @tparam string key Which key was pressed.
+-- @see main.keypressed
 function Console:keypressed(key)
 	-- the shortcut is Shift + Control + ~
 	if key == "`" and (keyModifiers["lshift"] or keyModifiers["rshift"]) and (keyModifiers["lctrl"] or keyModifiers["rctrl"]) then
@@ -80,33 +96,79 @@ function Console:keypressed(key)
 	end
 end
 
+
+
+--- Key release callback.
+-- @tparam string key Which key was pressed.
+-- @see main.keyreleased
 function Console:keyreleased(key)
 	if key == "backspace" then
 		self.backspace = false
 	end
 end
 
+
+
+--- Text input callback.
+-- @tparam string t What would be typed in.
+-- @see main.textinput
 function Console:textinput(t)
 	self:inputCharacter(t)
 end
 
 
 
+--- @section end
+
+--- Prints a message in the console.
+-- @tparam string message A message to print.
+function Console:print(message)
+	table.insert(self.history, message)
+end
+
+
+
+--- Makes the console opened or closed.
+-- @tparam boolean open Whether the console should be opened or closed.
+function Console:setOpen(open)
+	self.open = open
+	self.active = open
+end
+
+
+
+--- Opens or closes the console, depending on which state it is now.
+function Console:toggleOpen()
+	self:setOpen(not self.open)
+end
+
+
+
+--- Adds a character to the input box.
+-- @tparam string t A character that was typed in.
 function Console:inputCharacter(t)
 	if not self.active then return end
 	self.command = self.command .. t
 end
 
+
+
+--- Removes the last character from the input box.
 function Console:inputBackspace()
 	if not self.active then return end
 	self.command = self.command:sub(1, -2)
 end
 
+
+
+--- Sends the current input contents as a command.
 function Console:inputEnter()
 	self:print("> " .. self.command)
 	local success = runCommand(self.command)
 	if not success then self:print("Invalid command!") end
 	self.command = ""
 end
+
+
 
 return Console

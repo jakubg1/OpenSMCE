@@ -1,3 +1,9 @@
+--- Represents a game itself.
+-- @classmod Game
+
+
+
+-- Class identification
 local class = require "class"
 local Game = class:derive("Game")
 
@@ -12,6 +18,14 @@ local UIWidget = require("UI/Widget")
 local ParticleManager = require("Particle/Manager")
 local Sprite = require("Sprite")
 
+
+
+--- Constructors
+-- @section constructors
+
+--- Object constructor.
+-- Executed when this object is created.
+-- @tparam string name The name of the Game. This should be identical to the game folder name located in games/ directory.
 function Game:new(name)
 	self.name = name
 	

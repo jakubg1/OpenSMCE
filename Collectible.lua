@@ -1,3 +1,9 @@
+--- Represents coins, gems and powerups that a Shooter can pick up.
+-- @classmod Collectible
+
+
+
+-- Class identification
 local class = require "class"
 local Collectible = class:derive("Collectible")
 
@@ -5,6 +11,16 @@ local Vec2 = require("Essentials/Vector2")
 local Image = require("Essentials/Image")
 local Sprite = require("Sprite")
 
+
+
+--- Constructors
+-- @section constructors
+
+--- Object constructor.
+-- Executed when this object is created.
+-- @tparam table deserializationTable If not nil, this object will use the deserialization table rather than using next parameters.
+-- @tparam Vector2 pos Where to spawn the Collectible in.
+-- @tparam table data Collectible data.
 function Collectible:new(deserializationTable, pos, data)
 	if deserializationTable then
 		self:deserialize(deserializationTable)

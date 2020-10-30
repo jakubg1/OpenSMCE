@@ -1,5 +1,5 @@
 --- A root for all variable things during the game, such as level and player's progress.
--- @module Session
+-- @classmod Session
 
 -- NOTE:
 -- May consider to ditch this class in the future and spread the contents to Game.lua, Level.lua and Profile.lua.
@@ -13,15 +13,18 @@ local Session = class:derive("Session")
 -- Include commons
 local Vec2 = require("Essentials/Vector2")
 
--- Include class constructors
+-- Include other classes
 local Profile = require("Profile")
 local Highscores = require("Highscores")
 local Level = require("Level")
 
 
 
+--- Constructors
+-- @section constructors
+
 --- Object constructor.
--- A callback executed when this object is created.
+-- Executed when this object is created.
 function Session:new()
 	-- TODO: Add a profile changer
 	self.profile = Profile("TEST")
@@ -43,6 +46,9 @@ end
 
 
 
+--- Callbacks
+-- @section callbacks
+
 --- An initialization callback.
 function Session:init()
 	game:getWidget({"main"}):show()
@@ -60,6 +66,15 @@ function Session:update(dt)
 end
 
 
+
+--- A drawing callback.
+function Session:draw()
+	if self.level then self.level:draw() end
+end
+
+
+
+--- @section end
 
 --- Initializes a new level.
 -- The level number is derived from the current Profile.
@@ -80,13 +95,6 @@ function Session:terminate()
 	self.level = nil
 	game:getWidget({"main", "Banner_LevelLose"}):clean()
 	game:getWidget({"main", "Banner_GameOver"}):show()
-end
-
-
-
---- A drawing callback.
-function Session:draw()
-	if self.level then self.level:draw() end
 end
 
 
@@ -126,11 +134,8 @@ end
 
 
 --- Executes a powerup and plays an appropriate sound.
--- @tparam table data The data of the powerup to use.
--- powerupdata is a quasi-type that conveys following information:<br/>
---   - name (string) - The name of the powerup, can be one of the following:<br/>
---     "slow", "stop", "reverse", "wild", "bomb", "lightning", "shotspeed", "colorbomb"<br/>
---   - color (number) - The powerup color, only exists if name == "colorbomb".
+-- @tparam CollectibleData data The data of the powerup to use.
+-- @see Structures:CollectibleData
 function Session:usePowerup(data)
 	if data.name == "slow" then
 		for i, path in ipairs(self.level.map.paths.objects) do
@@ -234,6 +239,11 @@ function Session:destroyVertical(x, width)
 	)
 end
 
+
+
+--- Gets nearest sphere data.
+-- @tparam Vector2 pos The point from where should the nearest sphere be.
+-- @return Sphere data. Check code from more information.
 function Session:getNearestSphere(pos)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, half = nil}
 	for i, path in ipairs(self.level.map.paths.objects) do
@@ -267,6 +277,12 @@ function Session:getNearestSphere(pos)
 	return nearestData
 end
 
+
+
+--- Gets nearest sphere data, including only Y coordinate.
+-- Starts from a given point, and looks only up. Spheres that are below the given point do not count.
+-- @tparam Vector2 pos The point from where should the nearest sphere be.
+-- @return Sphere data. Check code from more information.
 function Session:getNearestSphereY(pos)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, targetPos = nil, half = nil}
 	for i, path in ipairs(self.level.map.paths.objects) do

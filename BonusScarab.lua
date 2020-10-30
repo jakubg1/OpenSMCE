@@ -1,10 +1,27 @@
+--- Represents a bonus scarab that will give points at the end of the level.
+-- @classmod BonusScarab
+
+
+
+-- Class identification
 local class = require "class"
 local BonusScarab = class:derive("BonusScarab")
 
+-- Include commons
 local Vec2 = require("Essentials/Vector2")
 local Color = require("Essentials/Color")
+
+-- Include other classes
 local Sprite = require("Sprite")
 
+
+
+--- Constructors
+-- @section constructors
+
+--- Object constructor.
+-- Executed when this object is created.
+-- @tparam Path path An instance of Path on which this BonusScarab is.
 function BonusScarab:new(path)
 	self.path = path
 	
@@ -20,6 +37,13 @@ function BonusScarab:new(path)
 	game:playSound("bonus_scarab_loop")
 end
 
+
+
+--- Callbacks
+-- @section callbacks
+
+--- An update callback.
+-- @tparam number dt Delta time in seconds.
 function BonusScarab:update(dt)
 	self.offset = self.offset - 1000 * dt
 	self.distance = self.path.length - self.offset
@@ -38,6 +62,25 @@ function BonusScarab:update(dt)
 	if self.offset <= self.minOffset then self:destroy() end
 end
 
+
+
+--- A drawing callback.
+function BonusScarab:draw(hidden, shadow)
+	if self.path:getHidden(self.offset) == hidden then
+		if shadow then
+			self.shadowImage:draw(self.path:getPos(self.offset) + Vec2(4), Vec2(0.5))
+		else
+			self.sprite:draw(self.path:getPos(self.offset), {angle = self.path:getAngle(self.offset) + math.pi, color = Color(self.path:getBrightness(self.offset))})
+		end
+	end
+end
+
+
+
+--- @section end
+
+--- Destroys the bonus scarab and gives an appropriate number of points.
+-- For now, this is hardcoded to give 50 points every 24 pixels traversed.
 function BonusScarab:destroy()
 	self.path.bonusScarab = nil
 	-- 50 points every 24 pixels
@@ -50,15 +93,5 @@ function BonusScarab:destroy()
 end
 
 
-
-function BonusScarab:draw(hidden, shadow)
-	if self.path:getHidden(self.offset) == hidden then
-		if shadow then
-			self.shadowImage:draw(self.path:getPos(self.offset) + Vec2(4), Vec2(0.5))
-		else
-			self.sprite:draw(self.path:getPos(self.offset), {angle = self.path:getAngle(self.offset) + math.pi, color = Color(self.path:getBrightness(self.offset))})
-		end
-	end
-end
 
 return BonusScarab

@@ -1,8 +1,22 @@
+--- A specific type of Game; is used for a game selection screen.
+-- @classmod BootScreen
+
+
+
+-- Class identification
 local class = require "class"
 local BootScreen = class:derive("BootScreen")
 
+-- Include commons
 local Vec2 = require("Essentials/Vector2")
 
+
+
+--- Constructors
+-- @section constructors
+
+--- Object constructor.
+-- Executed when this object is created.
 function BootScreen:new()
 	-- prepare fonts of various sizes
 	self.font = love.graphics.newFont()
@@ -19,6 +33,14 @@ function BootScreen:new()
 	self.gameHovered = nil
 end
 
+
+
+--- Callbacks
+-- @section callbacks
+
+--- An update callback.
+-- @tparam number dt Delta time in seconds.
+-- @see main.update
 function BootScreen:update(dt)
 	-- game hover
 	self.gameHovered = nil
@@ -36,35 +58,10 @@ function BootScreen:update(dt)
 					mousePos.y < self.urlHoverPos.y + self.urlHoverSize.y
 end
 
-function BootScreen:getGames()
-	-- A given folder in the "games" folder is considered a valid game when it contains a "config.json" file with valid JSON structure.
-	
-	local games = {}
-	
-	-- If it's compiled /fused/, this piece of code is therefore needed to be able to read the external files
-	if love.filesystem.isFused() then
-		print("This is a compiled version. Mounting games...")
-		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), "")
-		if not success then error("Failed to read the game list. Report this error to a developer.") end
-	end
-	-- Now we can access the games directory regardless of whether it's fused or not.
-	local folders = love.filesystem.getDirectoryItems("games")
-	for i, folder in ipairs(folders) do
-		-- We check whether we can open the config.json file. If not, we skip the name.
-		print("Checking folder \"" .. folder .. "\"...")
-		if pcall(function() loadJson("games/" .. folder .. "/config.json") end) then
-			table.insert(games, folder)
-			print("SUCCESS!")
-		else
-			print("FAIL!")
-		end
-	end
-	-- After the reading process, we can unmount the listing again.
-	love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
-	
-	return games
-end
 
+
+--- A drawing callback.
+-- @see main.draw
 function BootScreen:draw()
 	-- White color
 	love.graphics.setColor(1, 1, 1)
@@ -128,10 +125,22 @@ end
 
 
 
+--- Mouse press callback.
+-- @tparam number x X coordinate where the mouse was when a button was pressed.
+-- @tparam number y Y coordinate where the mouse was when a button was pressed.
+-- @tparam number button Which mouse button was pressed.
+-- @see main.mousepressed
 function BootScreen:mousepressed(x, y, button)
 	-- STUB
 end
 
+
+
+--- Mouse release callback.
+-- @tparam number x X coordinate where the mouse was when a button was released.
+-- @tparam number y Y coordinate where the mouse was when a button was released.
+-- @tparam number button Which mouse button was released.
+-- @see main.mousereleased
 function BootScreen:mousereleased(x, y, button)
 	-- Game
 	if self.gameHovered then
@@ -143,12 +152,59 @@ function BootScreen:mousereleased(x, y, button)
 	end
 end
 
+
+
+--- Key press callback.
+-- @tparam string key Which key was pressed.
+-- @see main.keypressed
 function BootScreen:keypressed(key)
 	-- STUB
 end
 
+
+
+--- Key release callback.
+-- @tparam string key Which key was pressed.
+-- @see main.keyreleased
 function BootScreen:keyreleased(key)
 	-- STUB
 end
+
+
+
+--- @section end
+
+--- Scans the games directory and returns valid game directories.
+-- @treturn {string,...} List of valid game directories. For a folder to be a valid game directory, it must contain a config.json file with a valid JSON structure.
+function BootScreen:getGames()
+	-- A given folder in the "games" folder is considered a valid game when it contains a "config.json" file with valid JSON structure.
+	
+	local games = {}
+	
+	-- If it's compiled /fused/, this piece of code is therefore needed to be able to read the external files
+	if love.filesystem.isFused() then
+		print("This is a compiled version. Mounting games...")
+		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), "")
+		if not success then error("Failed to read the game list. Report this error to a developer.") end
+	end
+	-- Now we can access the games directory regardless of whether it's fused or not.
+	local folders = love.filesystem.getDirectoryItems("games")
+	for i, folder in ipairs(folders) do
+		-- We check whether we can open the config.json file. If not, we skip the name.
+		print("Checking folder \"" .. folder .. "\"...")
+		if pcall(function() loadJson("games/" .. folder .. "/config.json") end) then
+			table.insert(games, folder)
+			print("SUCCESS!")
+		else
+			print("FAIL!")
+		end
+	end
+	-- After the reading process, we can unmount the listing again.
+	love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
+	
+	return games
+end
+
+
 
 return BootScreen

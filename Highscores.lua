@@ -1,6 +1,19 @@
+--- Stores ten best players.
+-- @classmod Highscores
+
+
+
+-- Class identification
 local class = require "class"
 local Highscores = class:derive("Highscores")
 
+
+
+--- Constructors
+-- @section constructors
+
+--- Object constructor.
+-- Executed when this object is created.
 function Highscores:new()
 	self.entries = self:load()
 end

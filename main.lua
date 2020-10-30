@@ -1,3 +1,8 @@
+--- An entry point of this engine.
+-- @module main
+
+
+
 -- INCLUDE ZONE
 local json = require("json")
 
@@ -86,12 +91,22 @@ gameDebugVisible = false
 
 
 
--- CALLBACK ZONE
+
+
+--- Callbacks
+-- @section callbacks
+
+--- Executed once when starting the engine.
+-- Sets up the window title and starts a boot screen.
 function love.load()
 	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
 	game = BootScreen()
 end
 
+
+
+--- Called once every frame.
+-- @tparam number dt Time since last frame in seconds.
 function love.update(dt)
 	profUpdate:start()
 	
@@ -105,6 +120,9 @@ function love.update(dt)
 	profUpdate:stop()
 end
 
+
+
+--- Draws on the screen.
 function love.draw()
 	profDraw:start()
 	
@@ -150,14 +168,30 @@ function love.draw()
 	profDraw:stop()
 end
 
+
+
+--- Executed when an user presses a mouse button.
+-- @tparam number x X coordinate where the mouse was when a button was pressed.
+-- @tparam number y Y coordinate where the mouse was when a button was pressed.
+-- @tparam number button Which mouse button was pressed.
 function love.mousepressed(x, y, button)
 	if game then game:mousepressed(x, y, button) end
 end
 
+
+
+--- Executed when an user releases a mouse button.
+-- @tparam number x X coordinate where the mouse was when a button was released.
+-- @tparam number y Y coordinate where the mouse was when a button was released.
+-- @tparam number button Which mouse button was released.
 function love.mousereleased(x, y, button)
 	if game then game:mousereleased(x, y, button) end
 end
 
+
+
+--- Executed when an user presses a keyboard button.
+-- @tparam string key Which key was pressed.
 function love.keypressed(key)
 	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = true end end
 	
@@ -180,6 +214,10 @@ function love.keypressed(key)
 	console:keypressed(key)
 end
 
+
+
+--- Executed when an user releases a keyboard button.
+-- @tparam string key Which key was released.
 function love.keyreleased(key)
 	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = false end end
 	
@@ -190,17 +228,29 @@ function love.keyreleased(key)
 	console:keyreleased(key)
 end
 
+
+
+--- Executed when a key that would result in inserting a character is pressed.
+-- @tparam string t What would be typed in.
 function love.textinput(t)
 	console:textinput(t)
 end
 
+
+
+--- Executed when an user resizes the window.
+-- @tparam number w New width of the screen.
+-- @tparam number h New height of the screen.
 function love.resize(w, h)
 	displaySize = Vec2(w, h)
 end
 
 
 
--- FUNCTION ZONE
+--- @section end
+
+--- Loads a game from a given directory.
+-- @tparam string gameName The name of the game directory (in games folder).
 function loadGame(gameName)
 	game = Game(gameName)
 	game:init()
@@ -209,7 +259,7 @@ end
 
 
 
-
+--- Toggles fullscreen mode.
 function toggleFullscreen()
 	displayFullscreen = not displayFullscreen
 	if displayFullscreen then
@@ -220,6 +270,8 @@ function toggleFullscreen()
 	end
 	love.window.setMode(displaySize.x, displaySize.y, {fullscreen = displayFullscreen, resizable = true})
 end
+
+
 
 function getDisplayOffsetX()
 	return (displaySize.x - NATIVE_RESOLUTION.x * getResolutionScale()) / 2

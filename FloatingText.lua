@@ -1,8 +1,24 @@
+--- A purely decorational tooltip informing which powerup was just picked up or how much score the player gained.
+-- @classmod FloatingText
+
+
+
+-- Class identification
 local class = require "class"
 local FloatingText = class:derive("FloatingText")
 
 local Vec2 = require("Essentials/Vector2")
 
+
+
+--- Constructors
+-- @section constructors
+
+--- Object constructor.
+-- Executed when this object is created.
+-- @tparam string text The text to display.
+-- @tparam Vector2 pos Where to spawn the FloatingText.
+-- @tparam string font Which font to use. This method will automatically get a font instance from ResourceBank.
 function FloatingText:new(text, pos, font)
 	self.text = text
 	self.pos = pos
