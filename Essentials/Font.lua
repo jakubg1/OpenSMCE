@@ -16,6 +16,8 @@ function Font:new(path)
 	for characterN, character in pairs(data.characters) do
 		self.characters[characterN] = {quad = love.graphics.newQuad(character.offset, 0, character.width, self.size.y, self.size.x, self.size.y), width = character.width}
 	end
+	
+	self.reportedCharacters = {}
 end
 
 function Font:getCharacter(character)
@@ -23,7 +25,11 @@ function Font:getCharacter(character)
 	if c then
 		return c
 	else
-		print("ERROR: No character " .. tostring(character) .. " was found in font " .. self.path)
+		-- report only once
+		if not self.reportedCharacters[character] then
+			print("ERROR: No character " .. tostring(character) .. " was found in font " .. self.path)
+			self.reportedCharacters[character] = true
+		end
 		return self.characters["0"]
 	end
 end
