@@ -30,7 +30,7 @@ function Sphere:new(sphereGroup, color, shootOrigin)
 		self.size = 0
 	end
 	
-	if self.color > 0 then
+	if not self.map.isDummy and self.color > 0 then
 		game.session.sphereColorCounts[self.color] = game.session.sphereColorCounts[self.color] + 1
 	end
 	

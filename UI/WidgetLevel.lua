@@ -14,6 +14,7 @@ end
 
 
 function UIWidgetLevel:update(dt)
+	if not self.parent.visible then return end
 	self.level:update(dt)
 end
 
