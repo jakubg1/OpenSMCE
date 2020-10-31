@@ -89,7 +89,8 @@ function Sphere:delete()
 	-- update links !!!
 	if self.prevSphere then self.prevSphere.nextSphere = self.nextSphere end
 	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
-	if self.color > 0 then
+	-- update color count
+	if not self.map.isDummy and self.color > 0 then
 		game.session.sphereColorCounts[self.color] = game.session.sphereColorCounts[self.color] - 1
 		game.session.lastSphereColor = self.color
 		if self.danger then
