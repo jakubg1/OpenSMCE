@@ -173,32 +173,52 @@ function Game:draw()
 end
 
 function Game:drawDebugInfo()
+	-- Debug screen
+	local p = posOnScreen(Vec2())
+	
+	local s = {}
+	
+	table.insert(s, "===== MAIN =====")
+	table.insert(s, "Version = " .. VERSION)
+	table.insert(s, "Game = " .. self.name)
+	
+	table.insert(s, "")
+	table.insert(s, "===== PARTICLE =====")
+	if self.particleManager then
+		table.insert(s, "ParticleSpawner# = " .. tostring(self.particleManager:getParticleSpawnerCount()))
+		table.insert(s, "Particle# = " .. tostring(self.particleManager:getParticlePieceCount()))
+	end
+	
+	table.insert(s, "")
+	table.insert(s, "===== SESSION =====")
+	if self:sessionExists() then
+		table.insert(s, "SphereColors:")
+		for i = 1, 9 do
+			table.insert(s, tostring(i) .. " -> " .. self.session.sphereColorCounts[i] .. ", " .. self.session.dangerSphereColorCounts[i])
+		end
+	end
+	
+	table.insert(s, "")
+	table.insert(s, "===== LEVEL =====")
 	if self:levelExists() then
-		-- Debug screen
-		local p = posOnScreen(Vec2())
-		
-		local s = ""
-		s = s .. "LevelScore = " .. tostring(self.session.level.score) .. "\n"
+		table.insert(s, "LevelScore = " .. tostring(self.session.level.score))
 		if self.session.profile:getCurrentLevel() then
-			s = s .. "LevelRecord = " .. tostring(self.session.profile:getCurrentLevel().score) .. "\n"
+			table.insert(s, "LevelRecord = " .. tostring(self.session.profile:getCurrentLevel().score))
 		else
-			s = s .. "LevelRecord = ---\n"
+			table.insert(s, "LevelRecord = ---")
 		end
-		s = s .. "ParticleSpawner# = " .. tostring(self.particleManager:getParticleSpawnerCount()) .. "\n"
-		s = s .. "Particle# = " .. tostring(self.particleManager:getParticlePieceCount()) .. "\n"
-		s = s .. "\n"
-		s = s .. "Collectible# = " .. tostring(self.session.level.collectibles:size()) .. "\n"
-		s = s .. "FloatingText# = " .. tostring(self.session.level.floatingTexts:size()) .. "\n"
-		s = s .. "ShotSphere# = " .. tostring(self.session.level.shotSpheres:size()) .. "\n"
-		if self:sessionExists() then
-			s = s .. "SphereColors:" .. "\n"
-			for i = 1, 9 do
-				s = s .. tostring(i) .. " -> " .. self.session.sphereColorCounts[i] .. ", " .. self.session.dangerSphereColorCounts[i] .. "\n"
-			end
-		end
-		
+		table.insert(s, "")
+		table.insert(s, "Collectible# = " .. tostring(self.session.level.collectibles:size()))
+		table.insert(s, "FloatingText# = " .. tostring(self.session.level.floatingTexts:size()))
+		table.insert(s, "ShotSphere# = " .. tostring(self.session.level.shotSpheres:size()))
+	end
+	
+	for i, l in ipairs(s) do
+		love.graphics.setColor(0, 0, 0, 0.5)
+		local t = love.graphics.newText(love.graphics.getFont(), l)
+		love.graphics.rectangle("fill", p.x - 3, 15 * (i - 1), t:getWidth() + 6, 15)
 		love.graphics.setColor(1, 1, 1)
-		love.graphics.print(s, p.x, p.y)
+		love.graphics.print(l, p.x, p.y + 15 * (i - 1))
 	end
 end
 
