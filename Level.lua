@@ -99,24 +99,24 @@ function Level:update(dt)
 		
 		-- Target widget
 		-- TODO: HARDCODED - make it more flexible
-		if game:getWidget({"main", "Frame", "Progress"}).widget.value == 1 then
-			game:getWidget({"main", "Frame", "Progress_Complete"}):show()
+		if game:getWidget(game.config.hudPathsTEMP.level_progress).widget.value == 1 then
+			game:getWidget(game.config.hudPathsTEMP.level_progresscomplete):show()
 		else
-			game:getWidget({"main", "Frame", "Progress_Complete"}):hide()
-			game:getWidget({"main", "Frame", "Progress_Complete"}):clean()
+			game:getWidget(game.config.hudPathsTEMP.level_progresscomplete):hide()
+			game:getWidget(game.config.hudPathsTEMP.level_progresscomplete):clean()
 		end
 		
 		
 		
 		-- Level start
 		-- TODO: HARDCODED - make it more flexible
-		if not self.startMsg and not self.started and not game:getWidget({"main", "Banner_Intro"}).visible then
+		if not self.startMsg and not self.started and not game:getWidget(game.config.hudPathsTEMP.level_bannerintro).visible then
 			self.startMsg = true
-			game:getWidget({"main", "Banner_Intro"}):show()
-			game:getWidget({"main", "Banner_LevelLose"}):clean()
+			game:getWidget(game.config.hudPathsTEMP.level_bannerintro):show()
+			game:getWidget(game.config.hudPathsTEMP.level_bannerlose):clean()
 		end
 		
-		if self.startMsg and not game:getWidget({"main", "Banner_Intro"}).visible and game:getWidget({"main", "Banner_Intro"}):getAnimationFinished() then
+		if self.startMsg and not game:getWidget(game.config.hudPathsTEMP.level_bannerintro).visible and game:getWidget(game.config.hudPathsTEMP.level_bannerintro):getAnimationFinished() then
 			self.startMsg = false
 			self.started = true
 			self.controlDelay = 2
@@ -170,8 +170,8 @@ function Level:update(dt)
 				self.wonDelay = nil
 				self.won = true
 				local highScore = game.session.profile:winLevel(self.score)
-				game:getWidget({"main", "Banner_LevelComplete"}):show()
-				if not highScore then game:getWidget({"main", "Banner_LevelComplete", "Frame", "Container", "VW_LevelScoreRecord"}):hide() end
+				game:getWidget(game.config.hudPathsTEMP.level_bannercomplete):show()
+				if not highScore then game:getWidget(game.config.hudPathsTEMP.level_bannercompleterecord):hide() end
 			end
 		end
 		
@@ -180,11 +180,11 @@ function Level:update(dt)
 		-- Level lose
 		-- TODO: HARDCODED - make it more flexible
 		if self.lost and self:getEmpty() and not self.restart then
-			game:getWidget({"main", "Banner_LevelLose"}):show()
+			game:getWidget(game.config.hudPathsTEMP.level_bannerlose):show()
 			self.restart = true
 		end
 		
-		if self.restart and not game:getWidget({"main", "Banner_LevelLose"}).visible and game:getWidget({"main", "Banner_LevelLose"}):getAnimationFinished() then
+		if self.restart and not game:getWidget(game.config.hudPathsTEMP.level_bannerlose).visible and game:getWidget(game.config.hudPathsTEMP.level_bannerlose):getAnimationFinished() then
 			if game.session.profile:loseLevel() then self:reset() else game.session:terminate() end
 		end
 	end
@@ -322,7 +322,7 @@ end
 function Level:setPause(pause)
 	if self.pause == pause or (not self.canPause and not self.pause) then return end
 	self.pause = pause
-	if pause then game:getWidget({"main", "Banner_Paused"}):show() else game:getWidget({"main", "Banner_Paused"}):hide() end
+	if pause then game:getWidget(game.config.hudPathsTEMP.level_bannerpause):show() else game:getWidget(game.config.hudPathsTEMP.level_bannerpause):hide() end
 end
 
 function Level:togglePause()

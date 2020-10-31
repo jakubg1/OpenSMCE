@@ -67,7 +67,7 @@ function Game:initSession()
 	self.widgets.splash = nil
 	
 	-- Setup the UI and particles
-	self.widgets.main = UIWidget("Main", loadJson(parsePath("ui/hud.json")))
+	self.widgets.root = UIWidget("Root", loadJson(parsePath("ui/root.json")))
 	self.particleManager = ParticleManager()
 	
 	-- Setup the legacy sphere sprites
@@ -285,6 +285,10 @@ function Game:spawnParticle(name, pos)
 end
 
 function Game:getWidget(names)
+	-- local s = ""
+	-- for i, name in ipairs(names) do if i > 1 then s = s .. "/" .. name else s = s .. name end end
+	-- print("Trying to get widget: " .. s)
+	
 	local widget = self.widgets[names[1]]
 	for i, name in ipairs(names) do if i > 1 then widget = widget.children[name] end end
 	return widget

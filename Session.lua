@@ -45,8 +45,11 @@ end
 
 --- An initialization callback.
 function Session:init()
-	game:getWidget({"main"}):show()
-	game:getWidget({"main", "Frame"}):show()
+	game:getWidget({"root"}):show()
+	--game:getWidget({"root", "Game"}):show()
+	--game:getWidget({"root", "Game", "Hud"}):show()
+	--game:getWidget({"root", "Game", "Hud", "Frame"}):show()
+	--game:getWidget({"root", "Main"}):show()
 end
 
 

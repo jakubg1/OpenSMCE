@@ -60,7 +60,7 @@ function Profile:grantLife()
 	self.data.session.lives = self.data.session.lives + 1
 	self.data.session.coins = 0
 	game:playSound("extra_life")
-	game:getWidget({"main", "Frame", "Psys_NewLife"}):show()
+	game:getWidget(game.config.hudPathsTEMP.profile_extralife):show()
 end
 
 function Profile:takeLife()

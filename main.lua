@@ -248,7 +248,7 @@ function getRainbowColor(t)
 end
 
 function getUITreeText(widget, rowTable, indent)
-	widget = widget or game.widgets["main"]
+	widget = widget or game.widgets["root"]
 	rowTable = rowTable or {}
 	indent = indent or 0
 	--if indent > 1 then return end
