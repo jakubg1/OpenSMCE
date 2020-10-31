@@ -21,7 +21,7 @@ function Level:new(data)
 	-- data specified in level config file
 	local data = loadJson(parsePath(data.path))
 	
-	self.map = Map("maps/" .. data.map)
+	self.map = Map(self, "maps/" .. data.map)
 	self.shooter = Shooter()
 	
 	self.colors = data.colors

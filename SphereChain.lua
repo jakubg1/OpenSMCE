@@ -9,6 +9,7 @@ local Sphere = require("Sphere")
 
 function SphereChain:new(path)
 	self.path = path
+	self.map = path.map
 	
 	self.combo = 0
 	
@@ -33,9 +34,9 @@ function SphereChain:new(path)
 	
 	-- Pregenerate spheres
 	self.sphereGroups[1].spheres[1] = Sphere(self.sphereGroups[1], 0)
-	local color = game.session.level:newSphereColor()
-	for i = 1, game.session.level.spawnAmount do
-		if math.random() >= game.session.level.colorStreak then color = game.session.level:newSphereColor() end
+	local color = self.map.level:newSphereColor()
+	for i = 1, self.map.level.spawnAmount do
+		if math.random() >= self.map.level.colorStreak then color = self.map.level:newSphereColor() end
 		self.sphereGroups[1].spheres[i + 1] = Sphere(self.sphereGroups[1], color)
 		self.sphereGroups[1].spheres[i].nextSphere = self.sphereGroups[1].spheres[i + 1]
 		self.sphereGroups[1].spheres[i + 1].prevSphere = self.sphereGroups[1].spheres[i]
@@ -65,7 +66,7 @@ function SphereChain:delete(joins)
 	self.delQueue = true
 	table.remove(self.path.sphereChains, self.path:getSphereChainID(self))
 	-- mark the position to where the bonus scarab should arrive
-	if not joins and not game.session.level.lost then self.path.clearOffset = self.maxOffset end
+	if not joins and not self.map.level.lost then self.path.clearOffset = self.maxOffset end
 	
 	if joins then game:playSound("sphere_destroy_vise") end
 end

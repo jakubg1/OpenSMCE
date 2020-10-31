@@ -5,10 +5,8 @@ local Vec2 = require("Essentials/Vector2")
 local SphereChain = require("SphereChain")
 local BonusScarab = require("BonusScarab")
 
-function Path:new(map, pathData, dummy)
+function Path:new(map, pathData)
 	self.map = map
-	-- whether it's just a decorative path, if false then it's meant to be playable
-	self.dummy = dummy
 	
 	self.nodes = {}
 	self.brightnesses = {}
@@ -86,19 +84,21 @@ function Path:update(dt)
 end
 
 function Path:shouldSpawn()
-	if game:levelExists() and (not game.session.level.started or game.session.level.targetReached or game.session.level.lost) then return false end
+	if game:levelExists() and (not self.map.level.started or self.map.level.targetReached or self.map.level.lost) then return false end
 	for i, sphereChain in ipairs(self.sphereChains) do
-		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * game.session.level.spawnDistance then return false end
+		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * self.map.level.spawnDistance then return false end
 	end
 	return true
 end
 
 function Path:spawnChain()
 	local sphereChain = SphereChain(self)
-	if game.session.level.controlDelay then sphereChain.sphereGroups[1].speed = game.session.level.speeds[1].speed end
+	if self.map.level.controlDelay then sphereChain.sphereGroups[1].speed = self.map.level.speeds[1].speed end
 	table.insert(self.sphereChains, sphereChain)
-	game.session.level.sphereChainsSpawned = game.session.level.sphereChainsSpawned + 1
-	game:playSound("sphere_chain_spawn")
+	if not self.map.isDummy then
+		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
+		game:playSound("sphere_chain_spawn")
+	end
 end
 
 function Path:spawnBonusScarab()
@@ -180,9 +180,9 @@ end
 
 function Path:getSpeed(pixels)
 	local part = pixels / self.length
-	for i, speed in ipairs(game.session.level.speeds) do
+	for i, speed in ipairs(self.map.level.speeds) do
 		if part < speed.distance then
-			local prevSpeed = game.session.level.speeds[i - 1]
+			local prevSpeed = self.map.level.speeds[i - 1]
 			if prevSpeed and speed.distance - prevSpeed.distance > 0 then
 				local t = (speed.distance - part) / (speed.distance - prevSpeed.distance)
 				
@@ -205,14 +205,14 @@ function Path:getSpeed(pixels)
 	
 	-- after last node
 	if game.session.profile.data.session.ultimatelySatisfyingMode then
-		return game.session.level.speeds[#game.session.level.speeds].speed * (1 + (game.session.profile.data.session.level - 1) * 0.05)
+		return self.map.level.speeds[#self.map.level.speeds].speed * (1 + (game.session.profile.data.session.level - 1) * 0.05)
 	else
-		return game.session.level.speeds[#game.session.level.speeds].speed
+		return self.map.level.speeds[#self.map.level.speeds].speed
 	end
 end
 
 function Path:getDanger(pixels)
-	return pixels / self.length >= game.session.level.dangerDistance
+	return pixels / self.length >= self.map.level.dangerDistance
 end
 
 function Path:getNodeID(pixels)

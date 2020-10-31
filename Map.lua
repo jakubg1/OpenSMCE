@@ -7,7 +7,11 @@ local Image = require("Essentials/Image")
 
 local Path = require("Path")
 
-function Map:new(path)
+function Map:new(level, path, isDummy)
+	self.level = level
+	-- whether it's just a decorative map, if false then it's meant to be playable
+	self.isDummy = isDummy
+	
 	self.paths = List1()
 	self.images = List1()
 	
@@ -19,7 +23,7 @@ function Map:new(path)
 		self.images:append({pos = Vec2(imageData.x, imageData.y), image = Image(parsePath(imagePath)), background = imageData.background})
 	end
 	for i, pathData in ipairs(data.paths) do
-		self.paths:append(Path(self, pathData, false))
+		self.paths:append(Path(self, pathData))
 	end
 end
 

@@ -7,6 +7,7 @@ local UIWidgetImageButton = require("UI/WidgetImageButton")
 local UIWidgetImageProgress = require("UI/WidgetImageProgress")
 local UIWidgetText = require("UI/WidgetText")
 local UIWidgetParticle = require("UI/WidgetParticle")
+local UIWidgetLevel = require("UI/WidgetLevel")
 
 local Vec2 = require("Essentials/Vector2")
 local Sound = require("Essentials/Sound")
@@ -49,6 +50,8 @@ function UIWidget:new(name, data, parent)
 		self.widget = UIWidgetText(self, data.text, data.font, data.align)
 	elseif data.type == "particle" then
 		self.widget = UIWidgetParticle(self, data.path)
+	elseif data.type == "level" then
+		self.widget = UIWidgetLevel(self, data.path)
 	end
 	
 	self.parent = parent

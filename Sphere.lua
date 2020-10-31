@@ -7,6 +7,7 @@ local Vec2 = require("Essentials/Vector2")
 
 function Sphere:new(sphereGroup, color, shootOrigin)
 	self.sphereGroup = sphereGroup
+	self.map = sphereGroup.map
 	-- these two are filled by the sphere group object
 	self.prevSphere = nil
 	self.nextSphere = nil
@@ -51,7 +52,7 @@ function Sphere:update(dt)
 			if self.sphereGroup:shouldBoostCombo(index) then
 				self.boostCombo = true
 			else
-				game.session.level.combo = 0
+				self.map.level.combo = 0
 			end
 			--if self.sphereGroup:shouldFit(index) then SOUNDS.hit2:play() end
 			if self.sphereGroup:shouldMatch(index) then self.sphereGroup:matchAndDelete(index) end
@@ -63,7 +64,7 @@ function Sphere:update(dt)
 	end
 	
 	-- count/uncount the sphere from the danger sphere counts
-	if self.color > 0 and not self.delQueue then
+	if not self.map.isDummy and self.color > 0 and not self.delQueue then
 		local danger = self.sphereGroup.sphereChain:getDanger()
 		if self.danger ~= danger then
 			self.danger = danger
@@ -84,7 +85,7 @@ end
 function Sphere:delete()
 	if self.delQueue then return end
 	self.delQueue = true
-	if self.color ~= 0 then game.session.level:destroySphere() end
+	if not self.map.isDummy and self.color ~= 0 then self.map.level:destroySphere() end
 	-- update links !!!
 	if self.prevSphere then self.prevSphere.nextSphere = self.nextSphere end
 	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
@@ -99,7 +100,7 @@ function Sphere:delete()
 	if self.color == 0 then
 		game:spawnParticle("particles/collapse_vise.json", self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self)))
 	end
-	if not game.session.level.lost then
+	if not self.map.isDummy and not self.map.level.lost then
 		if self.color == -1 then
 			game:spawnParticle("particles/collapse_ball_6.json", self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self)))
 		end

@@ -9,6 +9,8 @@ local Sphere = require("Sphere")
 
 function SphereGroup:new(sphereChain)
 	self.sphereChain = sphereChain
+	self.map = sphereChain.map
+	
 	-- these two are filled later by the sphere chain object
 	self.prevGroup = nil
 	self.nextGroup = nil
@@ -41,10 +43,10 @@ function SphereGroup:update(dt)
 		-- stop
 		if self.sphereChain.stopTime > 0 then self.maxSpeed = 0 end
 		-- when the level is over
-		if game.session.level.lost then self.maxSpeed = 2000 end
+		if self.map.level.lost then self.maxSpeed = 2000 end
 	end
 	-- if the vise is pulling (reverse)
-	if not game.session.level.lost and not self.nextGroup and not self:isMagnetizing() and self.sphereChain.reverseTime > 0 then
+	if not self.map.level.lost and not self.nextGroup and not self:isMagnetizing() and self.sphereChain.reverseTime > 0 then
 		self.maxSpeed = -100
 	end
 	
@@ -60,14 +62,14 @@ function SphereGroup:update(dt)
 		end
 	end
 	if self.speed < self.maxSpeed then
-		--if game.session.level.lost then
+		--if self.map.level.lost then
 		--	self.speed = math.min(self.speed + 250 * dt, self.maxSpeed)
 		--else
 			self.speed = math.min(self.speed + 500 * dt, self.maxSpeed)
 		--end
 	end
 	-- anti-slow-catapulting
-	if not game.session.level.lost and self.speed > speedBound then self.speed = speedBound end
+	if not self.map.level.lost and self.speed > speedBound then self.speed = speedBound end
 	
 	self:move(self.speed * dt)
 	
@@ -85,7 +87,7 @@ function SphereGroup:update(dt)
 	end
 	
 	for i = #self.spheres, 1, -1 do
-		if game.session.level.lost and self:getSphereOffset(i) >= self.sphereChain.path.length then self:destroySphere(i) end
+		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then self:destroySphere(i) end
 	end
 	
 	for i, sphere in ipairs(self.spheres) do
@@ -179,7 +181,7 @@ function SphereGroup:checkDeletion()
 	if shouldDelete then self:delete() end
 	-- if there's only a vise in this chain, the whole chain gets yeeted!
 	if not self.prevGroup and not self.nextGroup and #self.spheres == 1 and self.spheres[1].color == 0 then
-		if not game.session.level.lost then game.session.level:spawnCollectible(self:getSpherePos(1), game.session.level:newGemData()) end
+		if not self.map.isDummy and not self.map.level.lost then self.map.level:spawnCollectible(self:getSpherePos(1), self.map.level:newGemData()) end
 		self.spheres[1]:delete()
 		self.sphereChain:delete(false)
 	end
@@ -194,8 +196,8 @@ function SphereGroup:move(offset)
 	-- join the previous group if this group starts to overlap the previous one
 	if crashes then self:join() end
 	-- if reached the end of the level, it's over
-	if self:getLastSphereOffset() >= self.sphereChain.path.length and not crashes and not self:isMagnetizing() and not self:hasShotSpheres() then
-		if not game.session.level.lost then game.session.level:lose() end
+	if self:getLastSphereOffset() >= self.sphereChain.path.length and not crashes and not self:isMagnetizing() and not self:hasShotSpheres() and not self.map.isDummy then
+		if not self.map.level.lost then self.map.level:lose() end
 	end
 end
 
@@ -219,7 +221,7 @@ function SphereGroup:join()
 	-- remove this group
 	self:delete()
 	-- check for combo
-	if not game.session.level.lost and game.session:colorsMatch(self.prevGroup.spheres[joinPosition].color, self.spheres[1].color) and self.matchCheck and self.prevGroup:shouldMatch(joinPosition) then
+	if not self.map.level.lost and game.session:colorsMatch(self.prevGroup.spheres[joinPosition].color, self.spheres[1].color) and self.matchCheck and self.prevGroup:shouldMatch(joinPosition) then
 		self.prevGroup:matchAndDelete(joinPosition)
 	end
 	game:playSound("sphere_group_join")
@@ -311,27 +313,27 @@ function SphereGroup:matchAndDelete(position)
 	local soundID = math.min(math.max(position2 - position1 - 1, 1), 5)
 	game:playSound("sphere_destroy_" .. tostring(soundID), 1 + self.sphereChain.combo * 0.05)
 	self.sphereChain.combo = self.sphereChain.combo + 1
-	if boostCombo then game.session.level.combo = game.session.level.combo + 1 end
+	if boostCombo then self.map.level.combo = self.map.level.combo + 1 end
 	
 	local score = (position2 - position1 + 1) * 100
-	if boostCombo then score = score + math.max(game.session.level.combo - 3, 0) * 100 end
+	if boostCombo then score = score + math.max(self.map.level.combo - 3, 0) * 100 end
 	score = score * self.sphereChain.combo
-	game.session.level:grantScore(score)
+	self.map.level:grantScore(score)
 	
 	local scoreText = numStr(score)
-	if boostCombo and game.session.level.combo > 2 then scoreText = scoreText .. "\n COMBO X" .. tostring(game.session.level.combo) end
+	if boostCombo and self.map.level.combo > 2 then scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo) end
 	if self.sphereChain.combo ~= 1 then scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo) end
 	local scoreTextColor = color > 0 and color or 0
-	game.session.level:spawnFloatingText(scoreText, pos, "fonts/score" .. scoreTextColor .. ".json")
+	self.map.level:spawnFloatingText(scoreText, pos, "fonts/score" .. scoreTextColor .. ".json")
 	
 	local spawnCoin = math.random() < (position2 - position1 - 2) * 0.2
-	if spawnCoin then game.session.level:spawnCollectible(pos, {type = "coin"}) end
+	if spawnCoin then self.map.level:spawnCollectible(pos, {type = "coin"}) end
 	
-	local spawnPowerup = (self.sphereChain.combo == 1 and boostCombo and game.session.level.combo % 3 == 0) or self.sphereChain.combo % 3 == 0
-	if spawnPowerup then game.session.level:spawnCollectible(pos, game.session.level:newPowerupData()) end
+	local spawnPowerup = (self.sphereChain.combo == 1 and boostCombo and self.map.level.combo % 3 == 0) or self.sphereChain.combo % 3 == 0
+	if spawnPowerup then self.map.level:spawnCollectible(pos, self.map.level:newPowerupData()) end
 	
-	game.session.level.maxCombo = math.max(game.session.level.combo, game.session.level.maxCombo)
-	game.session.level.maxChain = math.max(self.sphereChain.combo, game.session.level.maxChain)
+	self.map.level.maxCombo = math.max(self.map.level.combo, self.map.level.maxCombo)
+	self.map.level.maxChain = math.max(self.sphereChain.combo, self.map.level.maxChain)
 end
 
 function SphereGroup:isMagnetizing()
