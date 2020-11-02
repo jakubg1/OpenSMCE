@@ -50,6 +50,7 @@ function ResourceBank:loadImage(path, frames)
 end
 
 function ResourceBank:getImage(path)
+	if not self.images[path] then error("Resource Bank tried to get an unknown image: " .. path) end
 	return self.images[path]
 end
 
@@ -59,6 +60,7 @@ function ResourceBank:loadSound(path, loop)
 end
 
 function ResourceBank:getSound(path)
+	if not self.sounds[path] then error("Resource Bank tried to get an unknown sound: " .. path) end
 	return self.sounds[path]
 end
 
@@ -68,6 +70,7 @@ function ResourceBank:loadMusic(path)
 end
 
 function ResourceBank:getMusic(path)
+	if not self.music[path] then error("Resource Bank tried to get an unknown music: " .. path) end
 	return self.music[path]
 end
 
@@ -77,6 +80,7 @@ function ResourceBank:loadLegacySprite(path)
 end
 
 function ResourceBank:getLegacySprite(path)
+	if not self.legacySprites[path] then error("Resource Bank tried to get an unknown LegacySprite: " .. path) end
 	return self.legacySprites[path]
 end
 
@@ -86,6 +90,7 @@ function ResourceBank:loadParticle(path)
 end
 
 function ResourceBank:getParticle(path)
+	if not self.particles[path] then error("Resource Bank tried to get an unknown particle: " .. path) end
 	return self.particles[path]
 end
 
@@ -95,6 +100,7 @@ function ResourceBank:loadFont(path)
 end
 
 function ResourceBank:getFont(path)
+	if not self.fonts[path] then error("Resource Bank tried to get an unknown font: " .. path) end
 	return self.fonts[path]
 end
 

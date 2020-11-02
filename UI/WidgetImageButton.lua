@@ -1,9 +1,9 @@
 local class = require "class"
-local UIWidgetImage = class:derive("UIWidgetImage")
+local UIWidgetImageButton = class:derive("UIWidgetImageButton")
 
 local Vec2 = require("Essentials/Vector2")
 
-function UIWidgetImage:new(parent, image)
+function UIWidgetImageButton:new(parent, image)
 	self.type = "imageButton"
 	
 	self.parent = parent
@@ -11,32 +11,44 @@ function UIWidgetImage:new(parent, image)
 	self.hovered = false
 	self.clicked = false
 	self.enabled = true
+	self.enableForced = true
 	
 	self.image = game.resourceBank:getImage(image)
 end
 
-function UIWidgetImage:click()
+function UIWidgetImageButton:click()
 	if not self.parent:getVisible() or not self.hovered or self.clicked then return end
 	self.clicked = true
 	game:playSound("button_click")
 	print("Button clicked: " .. self.parent:getFullName())
 end
 
-function UIWidgetImage:unclick()
+function UIWidgetImageButton:unclick()
 	if not self.clicked then return end
 	self.parent:executeAction("buttonClick")
 	self.clicked = false
 end
 
+function UIWidgetImageButton:keypressed(key)
+	if not self.parent:getVisible() or not self.enabled then return end
+	if key == self.parent.hotkey then
+		self.parent:executeAction("buttonClick")
+	end
+end
+
+function UIWidgetImageButton:setEnabled(enabled)
+	self.enableForced = enabled
+end
 
 
-function UIWidgetImage:draw()
+
+function UIWidgetImageButton:draw()
 	local pos = self.parent:getPos()
 	local pos2 = pos + self.image.size * Vec2(1, 0.25)
 	local alpha = self.parent:getAlpha()
 	
-	self.enabled = alpha == 1
-	local hovered = self.enabled and mousePos.x >= pos.x and mousePos.y >= pos.y and mousePos.x <= pos2.x and mousePos.y <= pos2.y
+	self.enabled = self.enableForced and alpha == 1
+	local hovered = self.enabled and self.parent.active and mousePos.x >= pos.x and mousePos.y >= pos.y and mousePos.x <= pos2.x and mousePos.y <= pos2.y
 	if hovered ~= self.hovered then
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end
@@ -46,11 +58,11 @@ function UIWidgetImage:draw()
 	self.image:draw(pos, nil, Vec2(1, self:getFrame()), nil, nil, alpha)
 end
 
-function UIWidgetImage:getFrame()
+function UIWidgetImageButton:getFrame()
 	if not self.enabled then return 4 end
 	if self.clicked then return 3 end
 	if self.hovered then return 2 end
 	return 1
 end
 
-return UIWidgetImage
+return UIWidgetImageButton

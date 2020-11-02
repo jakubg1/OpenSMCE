@@ -311,7 +311,7 @@ function SphereGroup:matchAndDelete(position)
 	self:destroySpheres(position1, position2)
 	
 	local soundID = math.min(math.max(position2 - position1 - 1, 1), 5)
-	game:playSound("sphere_destroy_" .. tostring(soundID), 1 + self.sphereChain.combo * 0.05)
+	game:playSound("sphere_destroy_" .. tostring(soundID), 1 + self.sphereChain.combo * 0.1)
 	self.sphereChain.combo = self.sphereChain.combo + 1
 	if boostCombo then self.map.level.combo = self.map.level.combo + 1 end
 	

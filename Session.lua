@@ -28,16 +28,12 @@ function Session:new()
 	self.highscores = Highscores()
 	
 	self.scoreDisplay = 0
-	self.gameOver = false
 	
 	self.level = nil
 	
 	self.sphereColorCounts = {}
 	self.dangerSphereColorCounts = {}
-	for i = 1, 9 do
-		self.sphereColorCounts[i] = 0
-		self.dangerSphereColorCounts[i] = 0
-	end
+	self:resetSphereColorCounts()
 	self.lastSphereColor = 1
 end
 
@@ -45,11 +41,7 @@ end
 
 --- An initialization callback.
 function Session:init()
-	game:getWidget({"root"}):show()
-	--game:getWidget({"root", "Game"}):show()
-	--game:getWidget({"root", "Game", "Hud"}):show()
-	--game:getWidget({"root", "Game", "Hud", "Frame"}):show()
-	--game:getWidget({"root", "Main"}):show()
+	game:executeCallback("sessionInit")
 end
 
 
@@ -71,6 +63,8 @@ function Session:startLevel()
 	--self.level = Level({path = "levels/seven_lines.json", name = "0-0"})
 	self.level = Level(self.profile:getCurrentLevelData())
 	--self.level:deserialize(loadJson(parsePath("test.json")))
+	
+	game:executeCallback("levelStart")
 end
 
 
@@ -78,11 +72,8 @@ end
 --- Triggers a Game Over.
 -- Deinitializates the level and shows an appropriate widget.
 function Session:terminate()
-	if self.gameOver then return end
-	self.gameOver = true
 	self.level = nil
-	game:getWidget({"main", "Banner_LevelLose"}):clean()
-	game:getWidget({"main", "Banner_GameOver"}):show()
+	game:executeCallback("gameOver")
 end
 
 
@@ -114,6 +105,16 @@ function Session:newSphereColor(omitDangerCheck)
 	end
 	if #availableColors == 0 then return self.lastSphereColor end -- if no spheres present
 	return availableColors[math.random(1, #availableColors)]
+end
+
+
+
+--- Resets the onboard color counters back to 0.
+function Session:resetSphereColorCounts()
+	for i = 1, 9 do
+		self.sphereColorCounts[i] = 0
+		self.dangerSphereColorCounts[i] = 0
+	end
 end
 
 

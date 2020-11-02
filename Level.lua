@@ -44,13 +44,6 @@ function Level:new(data)
 end
 
 function Level:update(dt)
-	-- Handling the pause
-	self.canPause = not self.won and not self.lost
-	if not love.window.hasFocus() and not self.pause then self:setPause(true) end
-	if not self.canPause and self.pause then self:setPause(false) end
-	
-	
-	
 	if not self.pause then
 		self.map:update(dt)
 		self.shooter:update(dt)
@@ -110,19 +103,6 @@ function Level:update(dt)
 		
 		-- Level start
 		-- TODO: HARDCODED - make it more flexible
-		if not self.startMsg and not self.started and not game:getWidget(game.config.hudPathsTEMP.level_bannerintro).visible then
-			self.startMsg = true
-			game:getWidget(game.config.hudPathsTEMP.level_bannerintro):show()
-			game:getWidget(game.config.hudPathsTEMP.level_bannerlose):clean()
-		end
-		
-		if self.startMsg and not game:getWidget(game.config.hudPathsTEMP.level_bannerintro).visible and game:getWidget(game.config.hudPathsTEMP.level_bannerintro):getAnimationFinished() then
-			self.startMsg = false
-			self.started = true
-			self.controlDelay = 2
-			game:getMusic(self.musicName):reset()
-		end
-		
 		if self.controlDelay then
 			self.controlDelay = self.controlDelay - dt
 			if self.controlDelay <= 0 then
@@ -170,8 +150,12 @@ function Level:update(dt)
 				self.wonDelay = nil
 				self.won = true
 				local highScore = game.session.profile:winLevel(self.score)
-				game:getWidget(game.config.hudPathsTEMP.level_bannercomplete):show()
-				if not highScore then game:getWidget(game.config.hudPathsTEMP.level_bannercompleterecord):hide() end
+				print(highScore)
+				if highScore then
+					game:executeCallback("levelCompleteRecord")
+				else
+					game:executeCallback("levelComplete")
+				end
 			end
 		end
 		
@@ -180,12 +164,8 @@ function Level:update(dt)
 		-- Level lose
 		-- TODO: HARDCODED - make it more flexible
 		if self.lost and self:getEmpty() and not self.restart then
-			game:getWidget(game.config.hudPathsTEMP.level_bannerlose):show()
+			game:executeCallback("levelLost")
 			self.restart = true
-		end
-		
-		if self.restart and not game:getWidget(game.config.hudPathsTEMP.level_bannerlose).visible and game:getWidget(game.config.hudPathsTEMP.level_bannerlose):getAnimationFinished() then
-			if game.session.profile:loseLevel() then self:reset() else game.session:terminate() end
 		end
 	end
 	
@@ -271,6 +251,21 @@ function Level:getFinish()
 	return self.targetReached and not self.lost and self:getEmpty() and self.collectibles:empty()
 end
 
+function Level:tryAgain()
+	if game.session.profile:loseLevel() then
+		game:executeCallback("levelStart")
+		self:reset()
+	else
+		game.session:terminate()
+	end
+end
+
+function Level:begin()
+	self.started = true
+	self.controlDelay = 2
+	game:getMusic(self.musicName):reset()
+end
+
 function Level:reset()
 	self.score = 0
 	self.coins = 0
@@ -294,7 +289,6 @@ function Level:reset()
 	
 	self.pause = false
 	self.canPause = true
-	self.startMsg = false
 	self.started = false
 	self.controlDelay = nil
 	self.lost = false
@@ -307,6 +301,7 @@ function Level:reset()
 	self.bonusDelay = nil
 	
 	self.shooter.speedShotTime = 0
+	game.session:resetSphereColorCounts()
 end
 
 function Level:lose()
@@ -322,7 +317,6 @@ end
 function Level:setPause(pause)
 	if self.pause == pause or (not self.canPause and not self.pause) then return end
 	self.pause = pause
-	if pause then game:getWidget(game.config.hudPathsTEMP.level_bannerpause):show() else game:getWidget(game.config.hudPathsTEMP.level_bannerpause):hide() end
 end
 
 function Level:togglePause()

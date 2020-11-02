@@ -1,6 +1,8 @@
 local class = require "class"
 local Game = class:derive("Game")
 
+local strmethods = require("strmethods")
+
 local Vec2 = require("Essentials/Vector2")
 
 local Timer = require("Timer")
@@ -15,11 +17,14 @@ local Sprite = require("Sprite")
 function Game:new(name)
 	self.name = name
 	
+	self.hasFocus = false
+	
 	self.resourceBank = nil
 	self.session = nil
 	
 	self.widgets = {splash = nil, main = nil}
 	self.widgetVariables = {}
+	self.widgetCallbacks = {}
 	
 	self.particleManager = nil
 	
@@ -54,6 +59,7 @@ function Game:init()
 	-- Step 6. Set up the splash widget
 	self.widgets.splash = UIWidget("Splash", loadJson(parsePath("ui/splash.json")))
 	self.widgets.splash:show()
+	self.widgets.splash:setActive()
 	self:getMusic("menu"):setVolume(1)
 end
 
@@ -68,6 +74,7 @@ function Game:initSession()
 	
 	-- Setup the UI and particles
 	self.widgets.root = UIWidget("Root", loadJson(parsePath("ui/root.json")))
+	self:parseUIScript(loadFile(parsePath("ui/script.txt")))
 	self.particleManager = ParticleManager()
 	
 	-- Setup the legacy sphere sprites
@@ -95,6 +102,13 @@ function Game:update(dt) -- callback from main.lua
 end
 
 function Game:tick(dt) -- always with 1/60 seconds
+	if self.hasFocus ~= love.window.hasFocus() then
+		self.hasFocus = love.window.hasFocus()
+		if not self.hasFocus then
+			self:executeCallback("lostFocus")
+		end
+	end
+	
 	self.resourceBank:update(dt)
 	
 	if self:sessionExists() then
@@ -161,11 +175,13 @@ function Game:draw()
 		self.widgetVariables.levelMaxChain = self.session.level.maxChain
 	end
 	
+	profDraw2:start()
 	for i, layer in ipairs(self.config.hudLayerOrder) do
 		for widgetN, widget in pairs(self.widgets) do
 			widget:draw(layer, self.widgetVariables)
 		end
 	end
+	profDraw2:stop()
 	
 	if self.particleManager then self.particleManager:draw() end
 	
@@ -213,6 +229,23 @@ function Game:drawDebugInfo()
 		table.insert(s, "ShotSphere# = " .. tostring(self.session.level.shotSpheres:size()))
 	end
 	
+	table.insert(s, "")
+	table.insert(s, "===== EXTRA =====")
+	if self.widgets.root then
+		local a = self:getWidget({"root", "Game", "Hud"}).actions
+		for k, v in pairs(a) do
+			table.insert(s, k .. " -> ")
+			for k2, v2 in pairs(v) do
+				local n = "    " .. k2 .. " = {"
+				for k3, v3 in pairs(v2) do
+					n = n .. k3 .. ":" .. tostring(v3) .. ", "
+				end
+				n = n .. "}"
+				table.insert(s, n)
+			end
+		end
+	end
+	
 	for i, l in ipairs(s) do
 		love.graphics.setColor(0, 0, 0, 0.5)
 		local t = love.graphics.newText(love.graphics.getFont(), l)
@@ -230,9 +263,9 @@ function Game:mousepressed(x, y, button)
 			widget:click()
 		end
 		
-		if self:levelExists() then self.session.level.shooter:shoot() end
+		if self:levelExists() and mousePos.y < self.session.level.shooter.pos.y then self.session.level.shooter:shoot() end
 	elseif button == 2 then
-		if self:levelExists() then self.session.level.shooter:swapColors() end
+		if self:levelExists() and mousePos.y < self.session.level.shooter.pos.y then self.session.level.shooter:swapColors() end
 	end
 end
 
@@ -245,8 +278,9 @@ function Game:mousereleased(x, y, button)
 end
 
 function Game:keypressed(key)
-	-- pause
-	if key == "space" and self:levelExists() then self.session.level:togglePause() end
+	for widgetN, widget in pairs(self.widgets) do
+		widget:keypressed(key)
+	end
 	-- shooter
 	if self:levelExists() then
 		local shooter = self.session.level.shooter
@@ -284,14 +318,228 @@ function Game:spawnParticle(name, pos)
 	self.particleManager:useSpawnerData(name, pos)
 end
 
+function Game:addCallback(callbackType, event)
+	if not self.widgetCallbacks[callbackType] then self.widgetCallbacks[callbackType] = {} end
+	table.insert(self.widgetCallbacks[callbackType], event)
+end
+
+function Game:executeCallback(callbackType)
+	self:executeEvents(self.widgetCallbacks[callbackType])
+end
+
+function Game:resetActive()
+	for widgetN, widget in pairs(self.widgets) do
+		widget:resetActive()
+	end
+end
+
+
+
 function Game:getWidget(names)
 	-- local s = ""
 	-- for i, name in ipairs(names) do if i > 1 then s = s .. "/" .. name else s = s .. name end end
 	-- print("Trying to get widget: " .. s)
 	
 	local widget = self.widgets[names[1]]
-	for i, name in ipairs(names) do if i > 1 then widget = widget.children[name] end end
+	for i, name in ipairs(names) do if i > 1 then
+		widget = widget.children[name]
+		if not widget then
+			error("Could not find a widget: " .. strJoin(names, "/"))
+		end
+	end end
 	return widget
+end
+
+function Game:parseUIScript(script)
+	local s = strSplit(script, "\n")
+	
+	-- the current Widget we are editing
+	local type = ""
+	local widget = nil
+	local widgetAction = nil
+	
+	for i, l in ipairs(s) do
+		-- truncate the comment part
+		l = strSplit(l, "//")[1]
+		-- truncate leading whitespace
+		while l:sub(1, 1) == " " or l:sub(1, 1) == "\t" do l = l:sub(2) end
+		-- truncate trailing whitespace
+		while l:sub(l:len(), l:len()) == " " or l:sub(l:len(), l:len()) == "\t" do l = l:sub(1, l:len() - 1) end
+		-- omit empty lines and comments
+		if l:len() > 0 then
+			local t = strSplit(l, " ")
+			if t[2] == "->" then
+				-- new widget definition
+				local t2 = strSplit(t[1], ".")
+				widget = self:getWidget(strSplit(t2[1], "/"))
+				widgetAction = t2[2]
+				type = "action"
+			elseif t[2] == ">>" then
+				-- new widget definition
+				widgetAction = t[1]
+				type = "callback"
+			else
+				-- adding an event to the most recently defined widget
+				local t2 = strSplit(l, ":")
+				local event = self:prepareEvent(t2[1], strSplit(t2[2], ","))
+				if type == "action" then
+					widget:addAction(widgetAction, event)
+				elseif type == "callback" then
+					self:addCallback(widgetAction, event)
+				end
+			end
+			--print(l)
+		end
+	end
+end
+
+function Game:prepareEvent(eventType, params)
+	local event = {type = eventType}
+	
+	if eventType == "print" then
+		event.text = params[1]
+	elseif eventType == "wait" then
+		event.widget = strSplit(params[1], "/")
+		event.actionType = params[2]
+	elseif eventType == "jump" then
+		event.condition = self:parseCondition(params[1])
+		event.steps = tonumber(params[2])
+	elseif eventType == "widgetShow"
+		or eventType == "widgetHide"
+		or eventType == "widgetClean"
+		or eventType == "widgetSetActive"
+		or eventType == "widgetButtonDisable"
+		or eventType == "widgetButtonEnable"
+	then
+		event.widget = strSplit(params[1], "/")
+	elseif eventType == "musicVolume" then
+		event.music = params[1]
+		event.volume = tonumber(params[2])
+	end
+	
+	return event
+end
+
+function Game:parseCondition(s)
+	local condition = {}
+	
+	s = strSplit(s, "?")
+	condition.type = s[1]
+	s = strSplit(s[2], "=")
+	condition.value = s[2]
+	s = strSplit(s[1], ".")
+	condition.widget = strSplit(s[1], "/")
+	condition.property = s[2]
+	-- convert the value to boolean if necessary
+	if condition.property == "visible" or condition.property == "buttonActive" then
+		condition.value = condition.value == "true"
+	end
+	
+	print("Condition parsed")
+	for k, v in pairs(condition) do
+		print(k, v)
+	end
+	
+	return condition
+end
+
+function Game:executeEvents(events)
+	if not events then return end
+	local jumpN = 0
+	for i, event in ipairs(events) do
+		if jumpN > 0 then
+			jumpN = jumpN - 1
+		else
+			self:executeEvent(event)
+			if event.type == "end" then
+				break
+			elseif event.type == "wait" then
+				-- this event loop is ended, the remaining events are packed in a new action which is then put and flagged as one-time
+				for j = i + 1, #events do
+					-- we need to make a new table for the event because if we edited the original one, the events in the original action would be flagged and deleted too
+					local remainingEvent = {}
+					for k, v in pairs(events[j]) do remainingEvent[k] = v end
+					remainingEvent.onetime = true
+					-- put it in the target widget's action we're waiting for
+					self:getWidget(event.widget):addAction(event.actionType, remainingEvent)
+				end
+				break
+			elseif event.type == "jump" then
+				if self:checkCondition(event.condition) then
+					jumpN = jumpN + event.steps
+				end
+			end
+		end
+	end
+	-- delete from this table events that were flagged as onetime - reverse iteration
+	for i = #events, 1, -1 do
+		if events[i].onetime then
+			table.remove(events, i)
+		end
+	end
+end
+
+function Game:executeEvent(event)
+	-- main stuff
+	if event.type == "print" then
+		print(event.text)
+	elseif event.type == "loadMain" then
+		self:loadMain()
+	elseif event.type == "sessionInit" then
+		self:initSession()
+	elseif event.type == "levelStart" then
+		self.session:startLevel()
+	elseif event.type == "levelBegin" then
+		self.session.level:begin()
+	elseif event.type == "levelPause" then
+		self.session.level:setPause(true)
+	elseif event.type == "levelUnpause" then
+		self.session.level:setPause(false)
+	elseif event.type == "levelRestart" then
+		self.session.level:tryAgain()
+	elseif event.type == "levelEnd" then
+		self.session.level = nil
+	elseif event.type == "quit" then
+		love.event.quit()
+	
+	-- widget stuff
+	elseif event.type == "widgetShow" then
+		self:getWidget(event.widget):show()
+	elseif event.type == "widgetHide" then
+		self:getWidget(event.widget):hide()
+	elseif event.type == "widgetClean" then
+		self:getWidget(event.widget):clean()
+	elseif event.type == "widgetSetActive" then
+		self:getWidget(event.widget):setActive()
+	elseif event.type == "widgetButtonDisable" then
+		self:getWidget(event.widget):buttonSetEnabled(false)
+	elseif event.type == "widgetButtonEnable" then
+		self:getWidget(event.widget):buttonSetEnabled(true)
+	
+	-- music stuff
+	elseif event.type == "musicVolume" then
+		self:getMusic(event.music):setVolume(event.volume)
+	
+	-- profile stuff
+	elseif event.type == "profileHighscoreWrite" then
+		local success = self.session.profile:writeHighscore()
+		if success then
+			self:executeCallback("profileHighscoreWriteSuccess")
+		else
+			self:executeCallback("profileHighscoreWriteFail")
+		end
+	end
+end
+
+function Game:checkCondition(condition)
+	if condition.type == "widget" then
+		if condition.property == "visible" then
+			return self:getWidget(condition.widget):getVisible() == condition.value
+		elseif condition.property == "buttonActive" then
+			local w = self:getWidget(condition.widget)
+			return (w:getVisible() and w.active and w.widget.enableForced) == condition.value
+		end
+	end
 end
 
 

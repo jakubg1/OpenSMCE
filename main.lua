@@ -1,5 +1,6 @@
 -- INCLUDE ZONE
 local json = require("json")
+local strmethods = require("strmethods")
 
 local Vec2 = require("Essentials/Vector2")
 local Color = require("Essentials/Color")
@@ -13,7 +14,7 @@ local Game = require("Game")
 
 
 -- CONSTANT ZONE
-VERSION = "beta 1.1.0"
+VERSION = "beta 2.0.0-dev"
 
 
 -- TODO: at some point, get rid of these here and make them configurable
@@ -261,10 +262,11 @@ function getUITreeText(widget, rowTable, indent)
 	local alpha2 = tostring(math.floor(widget:getAlpha() * 10) / 10)
 	local time = widget.time and tostring(math.floor(widget.time * 100) / 100) or "-"
 	local pos = tostring(widget.pos)
-	if widget:getVisible() then
+	--if widget:getVisible() then
 		table.insert(rowTable, {name, visible, visible2, alpha, alpha2, time, pos})
-	end
+	--end
 	
+	--if 
 	for childN, child in pairs(widget.children) do
 		getUITreeText(child, rowTable, indent + 1)
 	end
@@ -275,15 +277,7 @@ end
 
 
 function runCommand(command)
-	local words = {""}
-	for i = 1, command:len() do
-		local character = command:sub(i, i)
-		if character == " " then
-			table.insert(words, "")
-		else
-			words[#words] = words[#words] .. character
-		end
-	end
+	local words = strSplit(command, " ")
 	
 	if words[1] == "p" then
 		local t = {fire = "bomb", ligh = "lightning", wild = "wild", bomb = "colorbomb", slow = "slow", stop = "stop", rev = "reverse", shot = "shotspeed"}
@@ -291,9 +285,9 @@ function runCommand(command)
 			if words[2] == word then
 				if word == "bomb" then
 					if not words[3] or not tonumber(words[3]) or tonumber(words[3]) < 1 or tonumber(words[3]) > 7 then return false end
-					game:usePowerup({name = name, color = tonumber(words[3])})
+					game.session:usePowerup({name = name, color = tonumber(words[3])})
 				else
-					game:usePowerup({name = name})
+					game.session:usePowerup({name = name})
 				end
 				console:print("Powerup applied")
 				return true
@@ -389,14 +383,8 @@ function loadSound(path, type)
 		if data then
 			-- to make everything work properly, we need to get the extension from the path, because it is used
 			-- source: https://love2d.org/wiki/love.filesystem.newFileData
-			local dotPos = 0
-			local l = path:len()
-			for i = 1, l do
-				if path:sub(i, i) == "." then
-					dotPos = i
-				end
-			end
-			local extension = path:sub(dotPos + 1, l)
+			local t = strSplit(path, ".")
+			local extension = t[#t]
 			data = love.filesystem.newFileData(data, "tempname." .. extension)
 			data = love.sound.newSoundData(data)
 			local sound = love.audio.newSource(data, type)

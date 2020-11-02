@@ -64,6 +64,8 @@ function UIWidget:new(name, data, parent)
 	
 	self.inheritShow = data.inheritShow
 	self.inheritHide = data.inheritHide
+	self.inheritPos = data.inheritPos
+	if self.inheritPos == nil then self.inheritPos = true end
 	self.visible = false
 	self.animationTime = nil
 	self.hideDelay = data.hideDelay
@@ -71,6 +73,8 @@ function UIWidget:new(name, data, parent)
 	self.time = data.showDelay
 	
 	self.actions = data.actions or {}
+	self.active = false
+	self.hotkey = data.hotkey
 end
 
 function UIWidget:update(dt)
@@ -104,6 +108,10 @@ function UIWidget:update(dt)
 			if self.visible then self:hide() else self:show() end
 		end
 	end
+	-- schedule if was deliberately cancelled from the timer - avoid softlock
+	if not self.time and self.parent and not self.parent:getVisible() then
+		if self.visible then self.time = self.hideDelay else self.time = self.showDelay end
+	end
 	if self.widget and self.widget.update then self.widget:update(dt) end
 	
 	for childN, child in pairs(self.children) do
@@ -116,7 +124,12 @@ function UIWidget:show()
 	if not self.visible then
 		--print("[" .. tostring(totalTime) .. "] " .. self:getFullName() .. " shown")
 		self.visible = true
-		if self.animations.in_ then self.animationTime = 0 else
+		if self.animations.in_ then
+			self.animationTime = 0
+			if self.animations.in_.type == "fade" then -- prevent background flickering on the first frame
+				self.alpha = self.animations.in_.startValue
+			end
+		else
 			self.animationTime = nil -- sets to 0 if animation exists, nil otherwise
 			self.alpha = 1
 			if self.widget and self.widget.type == "particle" then self.widget:spawn() end
@@ -139,8 +152,10 @@ function UIWidget:hide()
 			self.visible = false
 			if self.animations.out then self.animationTime = 0 else self.animationTime = nil end -- sets to 0 if animation exists, nil otherwise
 			if self.sounds.out then self.sounds.out:play() end
+			self.time = self.showDelay
+		else
+			self.time = nil
 		end
-		self.time = self.showDelay
 	end
 	
 	for childN, child in pairs(self.children) do
@@ -158,7 +173,7 @@ function UIWidget:clean()
 end
 
 function UIWidget:click()
-	if self.widget and self.widget.click then self.widget:click() end
+	if self.active and self.widget and self.widget.click then self.widget:click() end
 	
 	for childN, child in pairs(self.children) do
 		child:click()
@@ -170,6 +185,38 @@ function UIWidget:unclick()
 	
 	for childN, child in pairs(self.children) do
 		child:unclick()
+	end
+end
+
+function UIWidget:keypressed(key)
+	if self.active and self.widget and self.widget.keypressed then self.widget:keypressed(key) end
+	
+	for childN, child in pairs(self.children) do
+		child:keypressed(key)
+	end
+end
+
+function UIWidget:setActive(r)
+	if not r then game:resetActive() end
+	
+	self.active = true
+	
+	for childN, child in pairs(self.children) do
+		child:setActive(true)
+	end
+end
+
+function UIWidget:resetActive()
+	self.active = false
+	
+	for childN, child in pairs(self.children) do
+		child:resetActive()
+	end
+end
+
+function UIWidget:buttonSetEnabled(enabled)
+	if self.widget and self.widget.type == "imageButton" then
+		self.widget:setEnabled(enabled)
 	end
 end
 
@@ -203,7 +250,7 @@ end
 -- end
 
 function UIWidget:getPos()
-	if self.parent then
+	if self.parent and self.inheritPos then
 		local parentPos = self.parent:getPos()
 		if self.parent.widget and self.parent.widget.type == "text" then
 			parentPos = parentPos + self.parent.widget:getSize() * (Vec2(0.5) - self.parent.widget.align)
@@ -245,47 +292,15 @@ end
 
 
 function UIWidget:executeAction(actionType)
-	self:executeEvents(self.actions[actionType])
+	game:executeEvents(self.actions[actionType])
 	-- an action is a list of events
 end
 
-function UIWidget:executeEvents(events)
-	if not events then return end
-	for i, event in ipairs(events) do
-		self:executeEvent(event)
-	end
+function UIWidget:addAction(actionType, event)
+	if not self.actions[actionType] then self.actions[actionType] = {} end
+	table.insert(self.actions[actionType], event)
 end
 
-function UIWidget:executeEvent(event)
-	-- main stuff
-	if event.type == "loadMain" then
-		game:loadMain()
-	elseif event.type == "sessionInit" then
-		game:initSession()
-	elseif event.type == "levelStart" then
-		game.session:startLevel()
-	elseif event.type == "levelEnd" then
-		game.session.level = nil
-	elseif event.type == "quit" then
-		love.event.quit()
-	
-	-- widget stuff
-	elseif event.type == "widgetShow" then
-		game:getWidget(event.widget):show()
-	elseif event.type == "widgetHide" then
-		game:getWidget(event.widget):hide()
-	elseif event.type == "widgetClean" then
-		game:getWidget(event.widget):clean()
-	
-	-- music stuff
-	elseif event.type == "musicVolume" then
-		game:getMusic(event.music):setVolume(event.volume)
-	
-	-- profile stuff
-	elseif event.type == "profileHighscoreWrite" then
-		local success = game.session.profile:writeHighscore()
-		if success then self:executeEvents(event.onSuccess) else self:executeEvents(event.onFail) end
-	end
-end
+
 
 return UIWidget

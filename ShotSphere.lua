@@ -47,12 +47,12 @@ function ShotSphere:moveStep()
 	--if nearestSphere.dist and nearestSphere.dist.y < 32 then
 	local nearestSphere = game.session:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < 32 then
+		self.hitSphere = nearestSphere
 		if self.color == -2 then
 			game.session:destroyRadius(self.pos, 125)
 			self:destroy()
 			game:playSound("sphere_hit_fire")
 		else
-			self.hitSphere = nearestSphere
 			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
 			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitSphere.sphereID, self.color)
