@@ -71,7 +71,7 @@ After all these tedious steps, everything should work fine. If not, please hit m
 
 
 
-This engine is on late alpha stage - there are some crucial features and fixes to be included before entering beta stage.
+This engine is on beta stage - currently, some modules are being overhauled and new features being added to fully support the Luxor game.
 
 In current shape, it is intended to play Luxor game. Next steps will add support for Luxor Amun Rising, its huge variety of mods and Zuma respectively.
 
