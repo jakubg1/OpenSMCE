@@ -9,6 +9,7 @@ local Timer = require("Timer")
 
 local ResourceBank = require("ResourceBank")
 local Session = require("Session")
+local Options = require("Options")
 
 local UIWidget = require("UI/Widget")
 local ParticleManager = require("Particle/Manager")
@@ -21,6 +22,7 @@ function Game:new(name)
 	
 	self.resourceBank = nil
 	self.session = nil
+	self.options = nil
 	
 	self.widgets = {splash = nil, main = nil}
 	self.widgetVariables = {}
@@ -55,6 +57,7 @@ function Game:init()
 	
 	-- Step 5. Load initial resources (enough to start up the splash screen)
 	self.resourceBank:loadList(self.config.loadList)
+	self.options = Options()
 	
 	-- Step 6. Set up the splash widget
 	self.widgets.splash = UIWidget("Splash", loadJson(parsePath("ui/splash.json")))
@@ -102,6 +105,9 @@ function Game:update(dt) -- callback from main.lua
 end
 
 function Game:tick(dt) -- always with 1/60 seconds
+	-- despite being called since the splash screen starts, scripts are loaded when the main game widgets are loaded, and therefore this tick is called only after such event happens
+	self:executeCallback("tick")
+	
 	if self.hasFocus ~= love.window.hasFocus() then
 		self.hasFocus = love.window.hasFocus()
 		if not self.hasFocus then
@@ -217,6 +223,11 @@ function Game:drawDebugInfo()
 	table.insert(s, "")
 	table.insert(s, "===== LEVEL =====")
 	if self:levelExists() then
+		if self.session.profile:getCurrentLevel() then
+			table.insert(s, "LevelNumber = " .. tostring(self.session.profile.data.session.level))
+		else
+			table.insert(s, "LevelNumber = ---")
+		end
 		table.insert(s, "LevelScore = " .. tostring(self.session.level.score))
 		if self.session.profile:getCurrentLevel() then
 			table.insert(s, "LevelRecord = " .. tostring(self.session.profile:getCurrentLevel().score))
@@ -227,6 +238,18 @@ function Game:drawDebugInfo()
 		table.insert(s, "Collectible# = " .. tostring(self.session.level.collectibles:size()))
 		table.insert(s, "FloatingText# = " .. tostring(self.session.level.floatingTexts:size()))
 		table.insert(s, "ShotSphere# = " .. tostring(self.session.level.shotSpheres:size()))
+	end
+	
+	table.insert(s, "")
+	table.insert(s, "===== OPTIONS =====")
+	if self.options then
+		table.insert(s, "MusicVolume = " .. tostring(self.options:getMusicVolume()))
+		table.insert(s, "SoundVolume = " .. tostring(self.options:getSoundVolume()))
+		table.insert(s, "FullScreen = " .. tostring(self.options:getFullscreen()))
+		table.insert(s, "Mute = " .. tostring(self.options:getMute()))
+		table.insert(s, "")
+		table.insert(s, "EffMusicVolume = " .. tostring(self.options:getEffectiveMusicVolume()))
+		table.insert(s, "EffSoundVolume = " .. tostring(self.options:getEffectiveSoundVolume()))
 	end
 	
 	table.insert(s, "")
@@ -300,6 +323,10 @@ function Game:keyreleased(key)
 	end
 end
 
+function Game:quit()
+	game.options:save()
+end
+
 
 
 function Game:playSound(name, pitch)
@@ -331,6 +358,17 @@ function Game:resetActive()
 	for widgetN, widget in pairs(self.widgets) do
 		widget:resetActive()
 	end
+end
+
+function Game:setFullscreen(fullscreen)
+	if fullscreen == love.window.getFullscreen() then return end
+	if fullscreen then
+		local _, _, flags = love.window.getMode()
+		displaySize = Vec2(love.window.getDesktopDimensions(flags.display))
+	else
+		displaySize = NATIVE_RESOLUTION
+	end
+	love.window.setMode(displaySize.x, displaySize.y, {fullscreen = fullscreen, resizable = true})
 end
 
 
@@ -528,6 +566,20 @@ function Game:executeEvent(event)
 		else
 			self:executeCallback("profileHighscoreWriteFail")
 		end
+	
+	-- options stuff
+	elseif event.type == "optionsLoad" then
+		-- TODO: HARDCODED - make it more flexible
+		self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget:setValue(self.options:getMusicVolume())
+		self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget:setValue(self.options:getSoundVolume())
+		self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget:setState(self.options:getFullscreen())
+		self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget:setState(self.options:getMute())
+	elseif event.type == "optionsSave" then
+		-- TODO: HARDCODED - make it more flexible
+		self.options:setMusicVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget.value)
+		self.options:setSoundVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget.value)
+		self.options:setFullscreen(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget.state)
+		self.options:setMute(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget.state)
 	end
 end
 

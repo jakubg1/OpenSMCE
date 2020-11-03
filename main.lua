@@ -52,7 +52,6 @@ mousePos = Vec2(0, 0)
 keyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
 
 game = nil
-musicVolume = 1
 
 variableSet = {}
 
@@ -116,7 +115,7 @@ function love.draw()
 	
 	
 	-- Borders
-	love.graphics.setColor(0.2, 0.2, 0.2)
+	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", 0, 0, getDisplayOffsetX(), displaySize.y)
 	love.graphics.rectangle("fill", displaySize.x - getDisplayOffsetX(), 0, getDisplayOffsetX(), displaySize.y)
 	
@@ -199,6 +198,11 @@ function love.resize(w, h)
 	displaySize = Vec2(w, h)
 end
 
+function love.quit()
+	print("[] User-caused Exit... []")
+	if game.quit then game:quit() end
+end
+
 
 
 -- FUNCTION ZONE
@@ -211,16 +215,6 @@ end
 
 
 
-function toggleFullscreen()
-	displayFullscreen = not displayFullscreen
-	if displayFullscreen then
-		local _, _, flags = love.window.getMode()
-		displaySize = Vec2(love.window.getDesktopDimensions(flags.display))
-	else
-		displaySize = NATIVE_RESOLUTION
-	end
-	love.window.setMode(displaySize.x, displaySize.y, {fullscreen = displayFullscreen, resizable = true})
-end
 
 function getDisplayOffsetX()
 	return (displaySize.x - NATIVE_RESOLUTION.x * getResolutionScale()) / 2

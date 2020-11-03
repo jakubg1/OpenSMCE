@@ -20,13 +20,13 @@ function Music:update(dt)
 		else
 			self.volume = math.min(self.volume + dt * self.volumeFadeSpeed, volumeDes)
 		end
-		self:updateVolume()
 	end
+	self:updateVolume()
 	self:updatePlaying()
 end
 
 function Music:updateVolume()
-	self.instance:setVolume(self.volume * musicVolume)
+	self.instance:setVolume(self.volume * game.options:getEffectiveMusicVolume())
 end
 
 function Music:updatePlaying()

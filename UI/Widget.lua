@@ -4,13 +4,14 @@ local UIWidget = class:derive("UIWidget")
 local UIWidgetRectangle = require("UI/WidgetRectangle")
 local UIWidgetImage = require("UI/WidgetImage")
 local UIWidgetImageButton = require("UI/WidgetImageButton")
+local UIWidgetImageButtonCheckbox = require("UI/WidgetImageButtonCheckbox")
+local UIWidgetImageButtonSlider = require("UI/WidgetImageButtonSlider")
 local UIWidgetImageProgress = require("UI/WidgetImageProgress")
 local UIWidgetText = require("UI/WidgetText")
 local UIWidgetParticle = require("UI/WidgetParticle")
 local UIWidgetLevel = require("UI/WidgetLevel")
 
 local Vec2 = require("Essentials/Vector2")
-local Sound = require("Essentials/Sound")
 
 function UIWidget:new(name, data, parent)
 	self.name = name
@@ -32,9 +33,8 @@ function UIWidget:new(name, data, parent)
 	end
 	self.sounds = {in_ = nil, out = nil}
 	if data.sounds then
-		-- THIS LOADING METHOD IS TEMPORAL!!!
-		if data.sounds.in_ then self.sounds.in_ = Sound(parsePath(data.sounds.in_)) end
-		if data.sounds.out then self.sounds.out = Sound(parsePath(data.sounds.out)) end
+		if data.sounds.in_ then self.sounds.in_ = game.resourceBank:getSound(data.sounds.in_) end
+		if data.sounds.out then self.sounds.out = game.resourceBank:getSound(data.sounds.out) end
 	end
 	
 	self.widget = nil
@@ -44,6 +44,10 @@ function UIWidget:new(name, data, parent)
 		self.widget = UIWidgetImage(self, data.image)
 	elseif data.type == "imageButton" then
 		self.widget = UIWidgetImageButton(self, data.image)
+	elseif data.type == "imageButtonCheckbox" then
+		self.widget = UIWidgetImageButtonCheckbox(self, data.image)
+	elseif data.type == "imageButtonSlider" then
+		self.widget = UIWidgetImageButtonSlider(self, data.image, data.bounds)
 	elseif data.type == "imageProgress" then
 		self.widget = UIWidgetImageProgress(self, data.image, data.value, data.smooth)
 	elseif data.type == "text" then

@@ -51,6 +51,7 @@ end
 function Session:update(dt)
 	if self.level then self.level:update(dt) end
 	
+	-- TODO: HARDCODED - make it more flexible
 	if self.scoreDisplay < self.profile:getScore() then self.scoreDisplay = self.scoreDisplay + math.ceil((self.profile:getScore() - self.scoreDisplay) / 10) end
 end
 

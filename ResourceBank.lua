@@ -27,6 +27,9 @@ function ResourceBank:new()
 end
 
 function ResourceBank:update(dt)
+	for i, sound in pairs(self.sounds) do
+		sound:update(dt)
+	end
 	for i, music in pairs(self.music) do
 		music:update(dt)
 	end
