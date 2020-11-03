@@ -3,14 +3,13 @@ local Sound = class:derive("Sound")
 
 function Sound:new(path, looping)
 	print("Loading sound data from " .. path .. "...")
-	self.INSTANCE_COUNT = 4
-	-- Each sound has 4 instances of it so it can play up to 4 instances at the same time.
+	self.INSTANCE_COUNT = 8
+	-- Each sound has 8 instances of it so it can play up to 8 instances at the same time.
 	self.instances = {}
 	for i = 1, self.INSTANCE_COUNT do
 		self.instances[i] = loadSound(path, "static")
 		if not self.instances[i] then error("Failed to load sound: " .. path) end
 		if looping then self.instances[i]:setLooping(looping) end
-		--self.instances[i]:setVolume(0.4)
 	end
 end
 
