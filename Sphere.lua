@@ -5,23 +5,27 @@ local Sphere = class:derive("Sphere")
 
 local Vec2 = require("Essentials/Vector2")
 
-function Sphere:new(sphereGroup, color, shootOrigin)
+function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin)
 	self.sphereGroup = sphereGroup
 	self.map = sphereGroup.map
+	
 	-- these two are filled by the sphere group object
 	self.prevSphere = nil
 	self.nextSphere = nil
 	
-	self.color = color
-	self.frame = 0
-	self.frameOffset = math.random() * 32
-	self.offset = 0
-	self.size = 1
-	self.boostCombo = false
-	self.shootOrigin = nil
+	if deserializationTable then
+		self:deserialize(deserializationTable)
+	else
+		self.color = color
+		self.offset = 0
+		self.size = 1
+		self.boostCombo = false
+		self.shootOrigin = nil
+	end
+	
+	self.frameOffset = math.random() * 32 -- move to the "else" part if you're a purist and want this to be saved
 	
 	if self.color == 0 then -- vises follow another way
-		self.frame = 1
 		self.frameOffset = 0
 	end
 	
@@ -40,8 +44,6 @@ function Sphere:new(sphereGroup, color, shootOrigin)
 end
 
 function Sphere:update(dt)
-	-- sphere animation
-	if self.color > 0 then self.frame = (self.frameOffset + self.offset + self.sphereGroup.offset) % 32 end
 	-- for spheres that are being added
 	if self.size < 1 then
 		self.size = self.size + dt / 0.15
@@ -109,6 +111,32 @@ function Sphere:delete()
 			game:spawnParticle("particles/collapse_ball_" .. tostring(self.color) .. ".json", self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self)))
 		end
 	end
+end
+
+function Sphere:getFrame()
+	if self.color == 0 then return 1 end
+	return (self.frameOffset + self.offset + self.sphereGroup.offset) % 32
+end
+
+
+
+function Sphere:serialize()
+	local t = {
+		color = self.color,
+		--frameOffset = self.frameOffset, -- who cares about that, you can uncomment this if you do
+		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil
+	}
+	if self.size ~= 1 then t.size = self.size end
+	if self.boostCombo then t.boostCombo = self.boostCombo end
+	return t
+end
+
+function Sphere:deserialize(t)
+	self.color = t.color
+	--self.frameOffset = t.frameOffset
+	self.size = t.size or 1
+	self.boostCombo = t.boostCombo or false
+	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
 end
 
 return Sphere

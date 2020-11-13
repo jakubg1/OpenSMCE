@@ -54,4 +54,10 @@ function Map:serialize()
 	return t
 end
 
+function Map:deserialize(t)
+	for i, path in ipairs(t) do
+		self.paths:get(i):deserialize(path)
+	end
+end
+
 return Map

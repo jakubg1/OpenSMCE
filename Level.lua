@@ -28,8 +28,8 @@ function Level:new(data)
 	self.colorStreak = data.colorStreak
 	self.powerups = data.powerups
 	self.gemColors = data.gems
-	if game.session.profile.data.session.ultimatelySatisfyingMode then
-		self.spawnAmount = game.session.profile.data.session.level * 10
+	if game.satMode then
+		self.spawnAmount = game.runtimeManager.profile.data.session.level * 10
 		self.target = self.spawnAmount
 	else
 		self.target = data.target
@@ -149,9 +149,10 @@ function Level:update(dt)
 			if self.wonDelay <= 0 then
 				self.wonDelay = nil
 				self.won = true
-				local highScore = game.session.profile:winLevel(self.score)
-				print(highScore)
-				if highScore then
+				local currentLevel = game.runtimeManager.profile:getCurrentLevel()
+				local newRecord = not currentLevel or self.score > currentLevel.score
+				print(newRecord)
+				if newRecord then
 					game:executeCallback("levelCompleteRecord")
 				else
 					game:executeCallback("levelComplete")
@@ -204,12 +205,12 @@ end
 
 function Level:grantScore(score)
 	self.score = self.score + score
-	game.session.profile:grantScore(score)
+	game.runtimeManager.profile:grantScore(score)
 end
 
 function Level:grantCoin()
 	self.coins = self.coins + 1
-	game.session.profile:grantCoin()
+	game.runtimeManager.profile:grantCoin()
 end
 
 function Level:grantGem()
@@ -252,7 +253,7 @@ function Level:getFinish()
 end
 
 function Level:tryAgain()
-	if game.session.profile:loseLevel() then
+	if game.runtimeManager.profile:loseLevel() then
 		game:executeCallback("levelStart")
 		self:reset()
 	else
@@ -264,6 +265,25 @@ function Level:begin()
 	self.started = true
 	self.controlDelay = 2
 	game:getMusic(self.musicName):reset()
+end
+
+function Level:beginLoad()
+	self.started = true
+	game:getMusic(self.musicName):reset()
+	self.targetReached = self.destroyedSpheres == self.target
+end
+
+function Level:save()
+	game.runtimeManager.profile:saveLevel(self:serialize())
+end
+
+function Level:unsave()
+	game.runtimeManager.profile:unsaveLevel()
+end
+
+function Level:win()
+	game.runtimeManager.profile:winLevel(self.score)
+	game.runtimeManager.profile:unsaveLevel()
 end
 
 function Level:reset()
@@ -373,6 +393,11 @@ function Level:serialize()
 			maxChain = self.maxChain,
 			maxCombo = self.maxCombo
 		},
+		controlDelay = self.controlDelay,
+		finish = self.finish,
+		finishDelay = self.finishDelay,
+		bonusPathID = self.bonusPathID,
+		bonusDelay = self.bonusDelay,
 		shooter = self.shooter:serialize(),
 		shotSpheres = {},
 		collectibles = {},
@@ -391,6 +416,9 @@ end
 
 -- Restores all data that was saved in the serialization method.
 function Level:deserialize(t)
+	-- Prepare the counters
+	game.session:resetSphereColorCounts()
+	
 	-- Level stats
 	self.score = t.stats.score
 	self.coins = t.stats.coins
@@ -401,12 +429,22 @@ function Level:deserialize(t)
 	self.maxCombo = t.stats.maxCombo
 	self.combo = t.combo
 	self.destroyedSpheres = t.destroyedSpheres
+	-- Utils
+	self.controlDelay = t.controlDelay
+	self.finish = t.finish
+	self.finishDelay = t.finishDelay
+	self.bonusPathID = t.bonusPathID
+	self.bonusDelay = t.bonusDelay
+	-- Paths
+	self.map:deserialize(t.paths)
 	-- Shooter
 	self.shooter:deserialize(t.shooter)
 	-- Shot spheres, collectibles
+	self.shotSpheres:clear()
 	for i, tShotSphere in ipairs(t.shotSpheres) do
 		self.shotSpheres:append(ShotSphere(tShotSphere))
 	end
+	self.collectibles:clear()
 	for i, tCollectible in ipairs(t.collectibles) do
 		self.collectibles:append(Collectible(tCollectible))
 	end

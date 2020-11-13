@@ -8,8 +8,8 @@ local Vec2 = require("Essentials/Vector2")
 local Timer = require("Timer")
 
 local ResourceBank = require("ResourceBank")
+local RuntimeManager = require("RuntimeManager")
 local Session = require("Session")
-local Options = require("Options")
 
 local UIWidget = require("UI/Widget")
 local ParticleManager = require("Particle/Manager")
@@ -21,8 +21,8 @@ function Game:new(name)
 	self.hasFocus = false
 	
 	self.resourceBank = nil
+	self.runtimeManager = nil
 	self.session = nil
-	self.options = nil
 	
 	self.widgets = {splash = nil, main = nil}
 	self.widgetVariables = {}
@@ -57,9 +57,12 @@ function Game:init()
 	
 	-- Step 5. Load initial resources (enough to start up the splash screen)
 	self.resourceBank:loadList(self.config.loadList)
-	self.options = Options()
 	
-	-- Step 6. Set up the splash widget
+	-- Step 6. Create a runtime manager
+	self.runtimeManager = RuntimeManager()
+	self.satMode = self.runtimeManager.profile.data.session.ultimatelySatisfyingMode
+	
+	-- Step 7. Set up the splash widget
 	self.widgets.splash = UIWidget("Splash", loadJson(parsePath("ui/splash.json")))
 	self.widgets.splash:show()
 	self.widgets.splash:setActive()
@@ -151,14 +154,15 @@ end
 
 
 function Game:draw()
+	-- Session and level
 	if self:sessionExists() then
 		self.session:draw()
 		
-		self.widgetVariables.lives = self.session.profile:getLives()
-		self.widgetVariables.coins = self.session.profile:getCoins()
+		self.widgetVariables.lives = self.runtimeManager.profile:getLives()
+		self.widgetVariables.coins = self.runtimeManager.profile:getCoins()
 		self.widgetVariables.score = numStr(self.session.scoreDisplay)
-		self.widgetVariables.player = self.session.profile.name
-		for i, entry in ipairs(self.session.highscores.entries) do
+		self.widgetVariables.player = self.runtimeManager.profile.name
+		for i, entry in ipairs(self.runtimeManager.highscores.data.entries) do
 			self.widgetVariables["highscore" .. tostring(i) .. "score"] = numStr(entry.score)
 			self.widgetVariables["highscore" .. tostring(i) .. "name"] = entry.name
 			self.widgetVariables["highscore" .. tostring(i) .. "level"] = entry.level
@@ -181,6 +185,7 @@ function Game:draw()
 		self.widgetVariables.levelMaxChain = self.session.level.maxChain
 	end
 	
+	-- Widgets
 	profDraw2:start()
 	for i, layer in ipairs(self.config.hudLayerOrder) do
 		for widgetN, widget in pairs(self.widgets) do
@@ -189,20 +194,30 @@ function Game:draw()
 	end
 	profDraw2:stop()
 	
+	-- Particles
 	if self.particleManager then self.particleManager:draw() end
 	
+	-- Borders
+	love.graphics.setColor(0, 0, 0)
+	love.graphics.rectangle("fill", 0, 0, getDisplayOffsetX(), displaySize.y)
+	love.graphics.rectangle("fill", displaySize.x - getDisplayOffsetX(), 0, getDisplayOffsetX(), displaySize.y)
+	
+	-- Debug
 	if gameDebugVisible then self:drawDebugInfo() end
+	if sphereDebugVisible then self:drawSphereInfo() end
 end
 
 function Game:drawDebugInfo()
 	-- Debug screen
-	local p = posOnScreen(Vec2())
+	--local p = posOnScreen(Vec2())
+	local p = Vec2()
 	
 	local s = {}
 	
 	table.insert(s, "===== MAIN =====")
 	table.insert(s, "Version = " .. VERSION)
 	table.insert(s, "Game = " .. self.name)
+	table.insert(s, "FPS = " .. tostring(love.timer.getFPS()))
 	
 	table.insert(s, "")
 	table.insert(s, "===== PARTICLE =====")
@@ -223,14 +238,14 @@ function Game:drawDebugInfo()
 	table.insert(s, "")
 	table.insert(s, "===== LEVEL =====")
 	if self:levelExists() then
-		if self.session.profile:getCurrentLevel() then
-			table.insert(s, "LevelNumber = " .. tostring(self.session.profile.data.session.level))
+		if self.runtimeManager.profile:getCurrentLevel() then
+			table.insert(s, "LevelNumber = " .. tostring(self.runtimeManager.profile.data.session.level))
 		else
 			table.insert(s, "LevelNumber = ---")
 		end
 		table.insert(s, "LevelScore = " .. tostring(self.session.level.score))
-		if self.session.profile:getCurrentLevel() then
-			table.insert(s, "LevelRecord = " .. tostring(self.session.profile:getCurrentLevel().score))
+		if self.runtimeManager.profile:getCurrentLevel() then
+			table.insert(s, "LevelRecord = " .. tostring(self.runtimeManager.profile:getCurrentLevel().score))
 		else
 			table.insert(s, "LevelRecord = ---")
 		end
@@ -242,14 +257,14 @@ function Game:drawDebugInfo()
 	
 	table.insert(s, "")
 	table.insert(s, "===== OPTIONS =====")
-	if self.options then
-		table.insert(s, "MusicVolume = " .. tostring(self.options:getMusicVolume()))
-		table.insert(s, "SoundVolume = " .. tostring(self.options:getSoundVolume()))
-		table.insert(s, "FullScreen = " .. tostring(self.options:getFullscreen()))
-		table.insert(s, "Mute = " .. tostring(self.options:getMute()))
+	if self.runtimeManager then
+		table.insert(s, "MusicVolume = " .. tostring(self.runtimeManager.options:getMusicVolume()))
+		table.insert(s, "SoundVolume = " .. tostring(self.runtimeManager.options:getSoundVolume()))
+		table.insert(s, "FullScreen = " .. tostring(self.runtimeManager.options:getFullscreen()))
+		table.insert(s, "Mute = " .. tostring(self.runtimeManager.options:getMute()))
 		table.insert(s, "")
-		table.insert(s, "EffMusicVolume = " .. tostring(self.options:getEffectiveMusicVolume()))
-		table.insert(s, "EffSoundVolume = " .. tostring(self.options:getEffectiveSoundVolume()))
+		table.insert(s, "EffMusicVolume = " .. tostring(self.runtimeManager.options:getEffectiveMusicVolume()))
+		table.insert(s, "EffSoundVolume = " .. tostring(self.runtimeManager.options:getEffectiveSoundVolume()))
 	end
 	
 	table.insert(s, "")
@@ -275,6 +290,53 @@ function Game:drawDebugInfo()
 		love.graphics.rectangle("fill", p.x - 3, 15 * (i - 1), t:getWidth() + 6, 15)
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.print(l, p.x, p.y + 15 * (i - 1))
+	end
+end
+
+function Game:drawSphereInfo()
+	local p = Vec2(0, displaySize.y - 200)
+	local s = Vec2(displaySize.x, 200)
+	
+	-- background
+	love.graphics.setColor(0, 0, 0, 0.5)
+	love.graphics.rectangle("fill", p.x, p.y, s.x, s.y)
+	
+	local n = 0
+	local m = 0
+	
+	if self:levelExists() then
+		for i, path in ipairs(self.session.level.map.paths.objects) do
+			love.graphics.setColor(1, 1, 1)
+			love.graphics.print("Path " .. tostring(i), p.x + 10, p.y + 10 + n)
+			n = n + 25
+			for j, sphereChain in ipairs(path.sphereChains) do
+				love.graphics.setColor(1, 1, 1)
+				love.graphics.print(tostring(j), p.x + 20, p.y + 10 + n)
+				love.graphics.print(tostring(math.floor(sphereChain:getLastSphereGroup().offset)) .. "px", p.x + 50, p.y + 10 + n)
+				m = 0
+				for k = #sphereChain.sphereGroups, 1, -1 do -- reverse iteration
+					local sphereGroup = sphereChain.sphereGroups[k]
+					for l, sphere in ipairs(sphereGroup.spheres) do
+						local color = SPHERE_COLORS[sphere.color]
+						if color then love.graphics.setColor(color.r, color.g, color.b) else love.graphics.setColor(0.5, 0.5, 0.5) end
+						love.graphics.circle("fill", p.x + 120 + m, p.y + 20 + n, 10)
+						m = m + 20
+					end
+					if sphereGroup.nextGroup then
+						love.graphics.setColor(1, 1, 1)
+						love.graphics.print(tostring(math.floor(sphereGroup.nextGroup:getBackPos() - sphereGroup:getFrontPos())) .. "px", p.x + 150 + m, p.y + 10 + n)
+					end
+					--if k > 1 and sphereChain.sphereGroups[k - 1] ~= sphereGroup.nextGroup then print("ERROR") end
+					--if k < #sphereChain.sphereGroups and sphereChain.sphereGroups[k + 1] ~= sphereGroup.prevGroup then print("ERROR") end
+					
+					m = m + 100
+				end
+				n = n + 25
+			end
+		end
+	else
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.print("No level available!", p.x, p.y)
 	end
 end
 
@@ -324,7 +386,8 @@ function Game:keyreleased(key)
 end
 
 function Game:quit()
-	game.options:save()
+	if self:levelExists() then self.session.level:save() end
+	self.runtimeManager:save()
 end
 
 
@@ -463,14 +526,25 @@ function Game:parseCondition(s)
 	
 	s = strSplit(s, "?")
 	condition.type = s[1]
-	s = strSplit(s[2], "=")
-	condition.value = s[2]
-	s = strSplit(s[1], ".")
-	condition.widget = strSplit(s[1], "/")
-	condition.property = s[2]
-	-- convert the value to boolean if necessary
-	if condition.property == "visible" or condition.property == "buttonActive" then
-		condition.value = condition.value == "true"
+	
+	if condition.type == "widget" then
+		s = strSplit(s[2], "=")
+		condition.value = s[2]
+		s = strSplit(s[1], ".")
+		condition.widget = strSplit(s[1], "/")
+		condition.property = s[2]
+		-- convert the value to boolean if necessary
+		if condition.property == "visible" or condition.property == "buttonActive" then
+			condition.value = condition.value == "true"
+		end
+	elseif condition.type == "level" then
+		s = strSplit(s[2], "=")
+		condition.property = s[1]
+		condition.value = s[2]
+		-- convert the value to boolean if necessary
+		if condition.property == "paused" or condition.property == "started" then
+			condition.value = condition.value == "true"
+		end
 	end
 	
 	print("Condition parsed")
@@ -529,6 +603,8 @@ function Game:executeEvent(event)
 		self.session:startLevel()
 	elseif event.type == "levelBegin" then
 		self.session.level:begin()
+	elseif event.type == "levelBeginLoad" then
+		self.session.level:beginLoad()
 	elseif event.type == "levelPause" then
 		self.session.level:setPause(true)
 	elseif event.type == "levelUnpause" then
@@ -536,6 +612,13 @@ function Game:executeEvent(event)
 	elseif event.type == "levelRestart" then
 		self.session.level:tryAgain()
 	elseif event.type == "levelEnd" then
+		self.session.level:unsave()
+		self.session.level = nil
+	elseif event.type == "levelWin" then
+		self.session.level:win()
+		self.session.level = nil
+	elseif event.type == "levelSave" then
+		self.session.level:save()
 		self.session.level = nil
 	elseif event.type == "quit" then
 		love.event.quit()
@@ -560,7 +643,7 @@ function Game:executeEvent(event)
 	
 	-- profile stuff
 	elseif event.type == "profileHighscoreWrite" then
-		local success = self.session.profile:writeHighscore()
+		local success = self.runtimeManager.profile:writeHighscore()
 		if success then
 			self:executeCallback("profileHighscoreWriteSuccess")
 		else
@@ -570,16 +653,16 @@ function Game:executeEvent(event)
 	-- options stuff
 	elseif event.type == "optionsLoad" then
 		-- TODO: HARDCODED - make it more flexible
-		self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget:setValue(self.options:getMusicVolume())
-		self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget:setValue(self.options:getSoundVolume())
-		self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget:setState(self.options:getFullscreen())
-		self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget:setState(self.options:getMute())
+		self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget:setValue(self.runtimeManager.options:getMusicVolume())
+		self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget:setValue(self.runtimeManager.options:getSoundVolume())
+		self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget:setState(self.runtimeManager.options:getFullscreen())
+		self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget:setState(self.runtimeManager.options:getMute())
 	elseif event.type == "optionsSave" then
 		-- TODO: HARDCODED - make it more flexible
-		self.options:setMusicVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget.value)
-		self.options:setSoundVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget.value)
-		self.options:setFullscreen(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget.state)
-		self.options:setMute(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget.state)
+		self.runtimeManager.options:setMusicVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget.value)
+		self.runtimeManager.options:setSoundVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget.value)
+		self.runtimeManager.options:setFullscreen(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget.state)
+		self.runtimeManager.options:setMute(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget.state)
 	end
 end
 
@@ -590,6 +673,12 @@ function Game:checkCondition(condition)
 		elseif condition.property == "buttonActive" then
 			local w = self:getWidget(condition.widget)
 			return (w:getVisible() and w.active and w.widget.enableForced) == condition.value
+		end
+	elseif condition.type == "level" then
+		if condition.property == "paused" then
+			return self.session.level.pause == condition.value
+		elseif condition.property == "started" then
+			return self.session.level.started == condition.value
 		end
 	end
 end

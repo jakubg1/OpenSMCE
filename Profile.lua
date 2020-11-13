@@ -1,16 +1,10 @@
 local class = require "class"
 local Profile = class:derive("Profile")
 
-function Profile:new(name)
+function Profile:new(data, name)
 	self.name = name
 	
-	self.data = loadJson(parsePath("runtime.json")).profiles[self.name]
-end
-
-function Profile:save()
-	local data = loadJson(parsePath("runtime.json"))
-	data.profiles[self.name] = self.data
-	saveJson(parsePath("runtime.json"), data)
+	self.data = data[name]
 end
 
 
@@ -81,7 +75,6 @@ function Profile:winLevel(score)
 	self:setCurrentLevel(currentLevel)
 	self.data.session.level = self.data.session.level + 1
 	
-	self:save()
 	-- returns true if we have a new record
 	return newRecord
 end
@@ -93,9 +86,20 @@ function Profile:loseLevel()
 	self:setCurrentLevel(currentLevel)
 	
 	local canRetry = self:takeLife()
-	self:save()
 	
 	return canRetry
+end
+
+function Profile:saveLevel(t)
+	self.data.session.levelSaveData = t
+end
+
+function Profile:getSavedLevel()
+	return self.data.session.levelSaveData
+end
+
+function Profile:unsaveLevel()
+	self.data.session.levelSaveData = nil
 end
 
 

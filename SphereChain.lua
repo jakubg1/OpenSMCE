@@ -7,41 +7,46 @@ local Image = require("Essentials/Image")
 local SphereGroup = require("SphereGroup")
 local Sphere = require("Sphere")
 
-function SphereChain:new(path)
+function SphereChain:new(path, deserializationTable)
 	self.path = path
 	self.map = path.map
 	
-	self.combo = 0
-	
-	self.slowTime = 0
-	self.stopTime = 0
-	self.reverseTime = 0
-	
-	--[[ example:
-		how it looks:
-		xoooo     oo ooooo    ooo
+	if deserializationTable then
+		self:deserialize(deserializationTable)
+	else
+		self.combo = 0
 		
-		groups:
-		1: offset=0, spheres=[0,1,3,2,2](len=5)
-		2: offset=160, spheres=[4,1](len=2)
-		3: offset=192, spheres=[3,3,1,3,4](len=5)
-		4: offset=278, spheres=[2,4,1](len=3)
-	--]]
-	
-	self.sphereGroups = {
-		SphereGroup(self)
-	}
-	
-	-- Pregenerate spheres
-	self.sphereGroups[1].spheres[1] = Sphere(self.sphereGroups[1], 0)
-	local color = self.map.level:newSphereColor()
-	for i = 1, self.map.level.spawnAmount do
-		if math.random() >= self.map.level.colorStreak then color = self.map.level:newSphereColor() end
-		self.sphereGroups[1].spheres[i + 1] = Sphere(self.sphereGroups[1], color)
-		self.sphereGroups[1].spheres[i].nextSphere = self.sphereGroups[1].spheres[i + 1]
-		self.sphereGroups[1].spheres[i + 1].prevSphere = self.sphereGroups[1].spheres[i]
+		self.slowTime = 0
+		self.stopTime = 0
+		self.reverseTime = 0
+		
+		--[[ example:
+			how it looks:
+			xoooo     oo ooooo    ooo
+			
+			groups:
+			1: offset=0, spheres=[0,1,3,2,2](len=5)
+			2: offset=160, spheres=[4,1](len=2)
+			3: offset=192, spheres=[3,3,1,3,4](len=5)
+			4: offset=278, spheres=[2,4,1](len=3)
+		--]]
+		
+		self.sphereGroups = {
+			SphereGroup(self)
+		}
+		
+		-- Pregenerate spheres
+		self.sphereGroups[1].spheres[1] = Sphere(self.sphereGroups[1], nil, 0)
+		local color = self.map.level:newSphereColor()
+		for i = 1, self.map.level.spawnAmount do
+			if math.random() >= self.map.level.colorStreak then color = self.map.level:newSphereColor() end
+			self.sphereGroups[1].spheres[i + 1] = Sphere(self.sphereGroups[1], nil, color)
+			self.sphereGroups[1].spheres[i].nextSphere = self.sphereGroups[1].spheres[i + 1]
+			self.sphereGroups[1].spheres[i + 1].prevSphere = self.sphereGroups[1].spheres[i]
+		end
+		self.sphereGroups[1].offset = -32 * #self.sphereGroups[1].spheres -- 5000
 	end
-	self.sphereGroups[1].offset = -32 * #self.sphereGroups[1].spheres -- 5000
+	
 	self.maxOffset = 0
 	
 	self.delQueue = false
@@ -163,6 +168,39 @@ function SphereChain:getDebugText()
 		end
 	end
 	return text
+end
+
+
+
+function SphereChain:serialize()
+	local t = {
+		combo = self.combo,
+		slowTime = self.slowTime,
+		stopTime = self.stopTime,
+		reverseTime = self.reverseTime,
+		sphereGroups = {}
+	}
+	for i, sphereGroup in ipairs(self.sphereGroups) do
+		table.insert(t.sphereGroups, sphereGroup:serialize())
+	end
+	return t
+end
+
+function SphereChain:deserialize(t)
+	self.combo = t.combo
+	self.slowTime = t.slowTime
+	self.stopTime = t.stopTime
+	self.reverseTime = t.reverseTime
+	self.sphereGroups = {}
+	for i, sphereGroup in ipairs(t.sphereGroups) do
+		local s = SphereGroup(self, sphereGroup)
+		-- links are mandatory!!!
+		if i > 1 then
+			s.nextGroup = self.sphereGroups[i - 1]
+			self.sphereGroups[i - 1].prevGroup = s
+		end
+		table.insert(self.sphereGroups, s)
+	end
 end
 
 return SphereChain

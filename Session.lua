@@ -14,8 +14,6 @@ local Session = class:derive("Session")
 local Vec2 = require("Essentials/Vector2")
 
 -- Include class constructors
-local Profile = require("Profile")
-local Highscores = require("Highscores")
 local Level = require("Level")
 
 
@@ -23,10 +21,6 @@ local Level = require("Level")
 --- Object constructor.
 -- A callback executed when this object is created.
 function Session:new()
-	-- TODO: Add a profile changer
-	self.profile = Profile("TEST")
-	self.highscores = Highscores()
-	
 	self.scoreDisplay = 0
 	
 	self.level = nil
@@ -52,7 +46,7 @@ function Session:update(dt)
 	if self.level then self.level:update(dt) end
 	
 	-- TODO: HARDCODED - make it more flexible
-	if self.scoreDisplay < self.profile:getScore() then self.scoreDisplay = self.scoreDisplay + math.ceil((self.profile:getScore() - self.scoreDisplay) / 10) end
+	if self.scoreDisplay < game.runtimeManager.profile:getScore() then self.scoreDisplay = self.scoreDisplay + math.ceil((game.runtimeManager.profile:getScore() - self.scoreDisplay) / 10) end
 end
 
 
@@ -60,12 +54,16 @@ end
 --- Initializes a new level.
 -- The level number is derived from the current Profile.
 function Session:startLevel()
-	--self.level = Level({path = "levels/level_7_2.json", name = self.profile.data.session.level})
+	--self.level = Level({path = "levels/level_7_2.json", name = game.runtimeManager.profile.data.session.level})
 	--self.level = Level({path = "levels/seven_lines.json", name = "0-0"})
-	self.level = Level(self.profile:getCurrentLevelData())
-	--self.level:deserialize(loadJson(parsePath("test.json")))
-	
-	game:executeCallback("levelStart")
+	self.level = Level(game.runtimeManager.profile:getCurrentLevelData())
+	local savedLevelData = game.runtimeManager.profile:getSavedLevel()
+	if savedLevelData then
+		self.level:deserialize(savedLevelData)
+		game:executeCallback("levelLoaded")
+	else
+		game:executeCallback("levelStart")
+	end
 end
 
 

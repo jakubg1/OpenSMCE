@@ -187,16 +187,16 @@ function Path:getSpeed(pixels)
 				local t = (speed.distance - part) / (speed.distance - prevSpeed.distance)
 				
 				-- between nodes
-				if game.session.profile.data.session.ultimatelySatisfyingMode then
-					return (prevSpeed.speed * t + speed.speed * (1 - t)) * (1 + (game.session.profile.data.session.level - 1) * 0.05)
+				if game.satMode then
+					return (prevSpeed.speed * t + speed.speed * (1 - t)) * (1 + (game.runtimeManager.profile.data.session.level - 1) * 0.05)
 				else
 					return prevSpeed.speed * t + speed.speed * (1 - t)
 				end
 			end
 			
 			-- at the exact position of node or before first node
-			if game.session.profile.data.session.ultimatelySatisfyingMode then
-				return speed.speed * (1 + (game.session.profile.data.session.level - 1) * 0.05)
+			if game.satMode then
+				return speed.speed * (1 + (game.runtimeManager.profile.data.session.level - 1) * 0.05)
 			else
 				return speed.speed
 			end
@@ -204,8 +204,8 @@ function Path:getSpeed(pixels)
 	end
 	
 	-- after last node
-	if game.session.profile.data.session.ultimatelySatisfyingMode then
-		return self.map.level.speeds[#self.map.level.speeds].speed * (1 + (game.session.profile.data.session.level - 1) * 0.05)
+	if game.satMode then
+		return self.map.level.speeds[#self.map.level.speeds].speed * (1 + (game.runtimeManager.profile.data.session.level - 1) * 0.05)
 	else
 		return self.map.level.speeds[#self.map.level.speeds].speed
 	end
@@ -274,7 +274,24 @@ end
 
 
 function Path:serialize()
-	return "gówno"
+	local t = {
+		sphereChains = {},
+		clearOffset = self.clearOffset,
+		bonusScarab = self.bonusScarab and self.bonusScarab:serialize() or nil
+	}
+	for i, sphereChain in ipairs(self.sphereChains) do
+		table.insert(t.sphereChains, sphereChain:serialize())
+	end
+	return t
+end
+
+function Path:deserialize(t)
+	self.sphereChains = {}
+	for i, sphereChain in ipairs(t.sphereChains) do
+		table.insert(self.sphereChains, SphereChain(self, sphereChain))
+	end
+	self.clearOffset = t.clearOffset
+	self.bonusScarab = t.bonusScarab and BonusScarab(self, t.bonusScarab) or nil
 end
 
 return Path

@@ -5,13 +5,17 @@ local Vec2 = require("Essentials/Vector2")
 local Color = require("Essentials/Color")
 local Sprite = require("Sprite")
 
-function BonusScarab:new(path)
+function BonusScarab:new(path, deserializationTable)
 	self.path = path
 	
-	self.offset = path.length
-	self.distance = 0
-	self.trailDistance = 0
-	self.coinDistance = 0
+	if deserializationTable then
+		self:deserialize(deserializationTable)
+	else
+		self.offset = path.length
+		self.distance = 0
+		self.trailDistance = 0
+		self.coinDistance = 0
+	end
 	self.minOffset = math.max(path.clearOffset, 64)
 	
 	self.sprite = Sprite("sprites/sphere_vise.json")
@@ -59,6 +63,25 @@ function BonusScarab:draw(hidden, shadow)
 			self.sprite:draw(self.path:getPos(self.offset), {angle = self.path:getAngle(self.offset) + math.pi, color = Color(self.path:getBrightness(self.offset))})
 		end
 	end
+end
+
+
+
+function BonusScarab:serialize()
+	local t = {
+		offset = self.offset,
+		distance = self.distance,
+		trailDistance = self.trailDistance,
+		coinDistance = self.coinDistance
+	}
+	return t
+end
+
+function BonusScarab:deserialize(t)
+	self.offset = t.offset
+	self.distance = t.distance
+	self.trailDistance = t.trailDistance
+	self.coinDistance = t.coinDistance
 end
 
 return BonusScarab

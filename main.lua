@@ -80,6 +80,7 @@ e = false
 
 particleSpawnersVisible = false
 gameDebugVisible = false
+sphereDebugVisible = false
 
 
 
@@ -114,15 +115,9 @@ function love.draw()
 	-- Tests
 	
 	
-	-- Borders
-	love.graphics.setColor(0, 0, 0)
-	love.graphics.rectangle("fill", 0, 0, getDisplayOffsetX(), displaySize.y)
-	love.graphics.rectangle("fill", displaySize.x - getDisplayOffsetX(), 0, getDisplayOffsetX(), displaySize.y)
-	
 	-- Profilers
 	if profVisible then
 		love.graphics.setColor(1, 1, 1)
-		love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 10)
 		profPages[profPage]:draw(Vec2(0, displaySize.y))
 		profDraw:draw(Vec2(400, displaySize.y))
 		profDraw2:draw(Vec2(400, displaySize.y))
@@ -169,8 +164,7 @@ function love.keypressed(key)
 		if key == "w" then uiDebugVisible = not uiDebugVisible end
 		if key == "q" then particleSpawnersVisible = not particleSpawnersVisible end
 		if key == "d" then gameDebugVisible = not gameDebugVisible end
-		if key == "s" then saveJson(parsePath("test.json"), game.session.level:serialize()); game:playSound("sphere_shoot_wild") end
-		if key == "l" then game.session.level:deserialize(loadJson(parsePath("test.json"))) end
+		if key == "p" then sphereDebugVisible = not sphereDebugVisible end
 		if key == "kp-" and profPage > 1 then profPage = profPage - 1 end
 		if key == "kp+" and profPage < #profPages then profPage = profPage + 1 end
 		if key == "," then uiDebugOffset = uiDebugOffset - 75 end

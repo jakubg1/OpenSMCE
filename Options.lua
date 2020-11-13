@@ -1,63 +1,61 @@
 local class = require "class"
 local Options = class:derive("Options")
 
-function Options:new()
-	self.options = self:load()
+function Options:new(data)
+	self.data = data
 	
 	-- default options if not found
-	if not self.options then self.options = {} end
-	if not self:getMusicVolume() then self:setMusicVolume(1) end
-	if not self:getSoundVolume() then self:setSoundVolume(1) end
-	if self:getFullscreen() == nil then self:setFullscreen(false) end
-	if self:getMute() == nil then self:setMute(false) end
+	if not self.data then self:reset() end
 	
 	-- fullscreen on start
 	if self:getFullscreen() then game:setFullscreen(true) end
 end
 
-function Options:save()
-	local data = loadJson(parsePath("runtime.json"))
-	data.options = self.options
-	saveJson(parsePath("runtime.json"), data)
-end
 
-function Options:load()
-	return loadJson(parsePath("runtime.json")).options
+
+function Options:reset()
+	print("Resetting Options...")
+	
+	self.data = {}
+	self:setMusicVolume(1)
+	self:setSoundVolume(1)
+	self:setFullscreen(false)
+	self:setMute(false)
 end
 
 
 
 function Options:setMusicVolume(value)
-	self.options.musicVolume = value
+	self.data.musicVolume = value
 end
 
 function Options:getMusicVolume()
-	return self.options.musicVolume
+	return self.data.musicVolume
 end
 
 function Options:setSoundVolume(value)
-	self.options.soundVolume = value
+	self.data.soundVolume = value
 end
 
 function Options:getSoundVolume()
-	return self.options.soundVolume
+	return self.data.soundVolume
 end
 
 function Options:setFullscreen(value)
-	self.options.fullscreen = value
+	self.data.fullscreen = value
 	game:setFullscreen(value)
 end
 
 function Options:getFullscreen()
-	return self.options.fullscreen
+	return self.data.fullscreen
 end
 
 function Options:setMute(value)
-	self.options.mute = value
+	self.data.mute = value
 end
 
 function Options:getMute()
-	return self.options.mute
+	return self.data.mute
 end
 
 

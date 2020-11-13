@@ -7,7 +7,7 @@ local Color = require("Essentials/Color")
 
 local Sphere = require("Sphere")
 
-function SphereGroup:new(sphereChain)
+function SphereGroup:new(sphereChain, deserializationTable)
 	self.sphereChain = sphereChain
 	self.map = sphereChain.map
 	
@@ -15,12 +15,16 @@ function SphereGroup:new(sphereChain)
 	self.prevGroup = nil
 	self.nextGroup = nil
 	
-	self.offset = 0
-	self.speed = 0
-	self.maxSpeed = 0
-	self.spheres = {}
-	self.matchCheck = true -- this is used ONLY in vise destruction to not trigger a chain reaction
+	if deserializationTable then
+		self:deserialize(deserializationTable)
+	else
+		self.offset = 0
+		self.speed = 0
+		self.spheres = {}
+		self.matchCheck = true -- this is used ONLY in vise destruction to not trigger a chain reaction
+	end
 	
+	self.maxSpeed = 0
 	self.sphereShadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
 	
 	self.delQueue = false
@@ -97,7 +101,7 @@ end
 
 function SphereGroup:addSphere(pos, position, color)
 	-- pos - position in where was the shot sphere, position - sphere ID (the new sphere will gain the given ID = creation BEHIND the sphere with the given ID)
-	local sphere = Sphere(self, color, pos)
+	local sphere = Sphere(self, nil, color, pos)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
 	sphere.prevSphere = prevSphere
@@ -188,16 +192,22 @@ function SphereGroup:checkDeletion()
 end
 
 function SphereGroup:move(offset)
-	-- if it's gonna crash into the previous group, move only what is needed
-	local crashes = self.prevGroup and offset < -(self:getSphereOffset(1) - self.prevGroup:getLastSphereOffset() - 32 * self.spheres[1].size)
-	if crashes then offset = -(self.prevGroup:getLastSphereOffset() - 32 * self.spheres[1].size) end
 	self.offset = self.offset + offset
 	self:updateSphereOffsets()
-	-- join the previous group if this group starts to overlap the previous one
-	if crashes then self:join() end
 	-- if reached the end of the level, it's over
 	if self:getLastSphereOffset() >= self.sphereChain.path.length and not crashes and not self:isMagnetizing() and not self:hasShotSpheres() and not self.map.isDummy then
 		if not self.map.level.lost then self.map.level:lose() end
+	end
+	if offset <= 0 then
+		-- if it's gonna crash into the previous group, move only what is needed
+		local crashes = self.prevGroup and self:getBackPos() - self.prevGroup:getFrontPos() < 0
+		-- join the previous group if this group starts to overlap the previous one
+		if crashes then self:join() end
+	end
+	-- check the other direction too
+	if offset > 0 then
+		local crashes = self.nextGroup and self.nextGroup:getBackPos() - self:getFrontPos() < 0
+		if crashes then self.nextGroup:join() end
 	end
 end
 
@@ -359,7 +369,7 @@ function SphereGroup:draw(hidden, shadow)
 				end
 			else
 				if sphere.size == 1 then
-					game.sphereSprites[sphere.color]:draw(self:getSpherePos(i), {angle = self:getSphereAngle(i), color = self:getSphereColor(i), frame = math.ceil(32 - sphere.frame)})
+					game.sphereSprites[sphere.color]:draw(self:getSpherePos(i), {angle = self:getSphereAngle(i), color = self:getSphereColor(i), frame = math.ceil(32 - sphere:getFrame())})
 				else
 					game.sphereSprites[sphere.color]:draw(self:getSpherePos(i) * sphere.size + sphere.shootOrigin * (1 - sphere.size), {angle = self:getSphereAngle(i), color = self:getSphereColor(i), frame = 1})
 				end
@@ -370,9 +380,12 @@ function SphereGroup:draw(hidden, shadow)
 end
 
 function SphereGroup:drawDebug()
+	local pos = posOnScreen(self.sphereChain.path:getPos(self:getFrontPos()))
+	love.graphics.setColor(0.5, 1, 0)
+	love.graphics.circle("fill", pos.x, pos.y, 6)
+	local pos = posOnScreen(self.sphereChain.path:getPos(self:getBackPos()))
 	love.graphics.setColor(1, 0.5, 0)
-	local pos = self.sphereChain.path:getPos(self.offset)
-	love.graphics.circle("fill", pos.x, pos.y, 4)
+	love.graphics.circle("fill", pos.x, pos.y, 6)
 end
 
 function SphereGroup:getMatchPositions(position)
@@ -480,6 +493,14 @@ function SphereGroup:getLastSpherePos()
 	return self:getSpherePos(#self.spheres)
 end
 
+function SphereGroup:getFrontPos()
+	return self:getLastSphereOffset() + 32 * self:getLastSphere().size - 16
+end
+
+function SphereGroup:getBackPos()
+	return self:getSphereOffset(1) - 32 * self.spheres[1].size + 16
+end
+
 function SphereGroup:getSphereInChain(sphereID)
 	-- values out of bounds are possible, it will seek in neighboring spheres then
 	if sphereID < 1 then
@@ -532,6 +553,38 @@ function SphereGroup:getDebugText2()
 		text = text .. "\n"
 	end
 	return text
+end
+
+
+
+function SphereGroup:serialize()
+	local t = {
+		offset = self.offset,
+		speed = self.speed,
+		spheres = {},
+		matchCheck = self.matchCheck
+	}
+	for i, sphere in ipairs(self.spheres) do
+		table.insert(t.spheres, sphere:serialize())
+	end
+	return t
+end
+
+function SphereGroup:deserialize(t)
+	self.offset = t.offset
+	self.speed = t.speed
+	self.spheres = {}
+	for i, sphere in ipairs(t.spheres) do
+		local s = Sphere(self, sphere)
+		s.offset = (i - 1) * 32
+		-- links are mandatory!!!
+		if i > 1 then
+			s.prevSphere = self.spheres[i - 1]
+			self.spheres[i - 1].nextSphere = s
+		end
+		table.insert(self.spheres, s)
+	end
+	self.matchCheck = t.matchCheck
 end
 
 return SphereGroup

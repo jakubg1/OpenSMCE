@@ -14,7 +14,7 @@ function Sound:new(path, looping)
 end
 
 function Sound:update(dt)
-	self:setVolume(game.options:getEffectiveSoundVolume())
+	self:setVolume(game.runtimeManager.options:getEffectiveSoundVolume())
 end
 
 function Sound:play(pitch)

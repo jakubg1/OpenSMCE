@@ -26,7 +26,7 @@ function Music:update(dt)
 end
 
 function Music:updateVolume()
-	self.instance:setVolume(self.volume * game.options:getEffectiveMusicVolume())
+	self.instance:setVolume(self.volume * game.runtimeManager.options:getEffectiveMusicVolume())
 end
 
 function Music:updatePlaying()
