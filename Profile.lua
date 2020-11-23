@@ -4,7 +4,26 @@ local Profile = class:derive("Profile")
 function Profile:new(data, name)
 	self.name = name
 	
-	self.data = data[name]
+	if data then
+		self.data = data[name]
+	else
+		-- default if not found
+		-- TODO: change behavior after ProfileManager is done
+		self:reset()
+	end
+end
+
+
+
+function Profile:reset()
+	self.data = {}
+	self.data.levels = {}
+	self.data.session = {}
+	self.data.session.lives = 2
+	self.data.session.coins = 0
+	self.data.session.score = 0
+	self.data.session.level = 1
+	self.data.session.difficulty = 1
 end
 
 

@@ -4,6 +4,7 @@ local Highscores = class:derive("Highscores")
 function Highscores:new(data)
 	self.data = data
 	
+	-- default if not found
 	if not self.data then self:reset() end
 end
 
