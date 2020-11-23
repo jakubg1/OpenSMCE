@@ -271,6 +271,7 @@ function Level:beginLoad()
 	self.started = true
 	game:getMusic(self.musicName):reset()
 	self.targetReached = self.destroyedSpheres == self.target
+	if not self.bonusDelay and not self.map.paths:get(self.bonusPathID) then self.wonDelay = 1.5 end
 end
 
 function Level:save()

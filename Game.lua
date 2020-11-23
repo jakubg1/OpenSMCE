@@ -240,14 +240,12 @@ function Game:drawDebugInfo()
 	if self:levelExists() then
 		if self.runtimeManager.profile:getCurrentLevel() then
 			table.insert(s, "LevelNumber = " .. tostring(self.runtimeManager.profile.data.session.level))
-		else
-			table.insert(s, "LevelNumber = ---")
 		end
 		table.insert(s, "LevelScore = " .. tostring(self.session.level.score))
 		if self.runtimeManager.profile:getCurrentLevel() then
 			table.insert(s, "LevelRecord = " .. tostring(self.runtimeManager.profile:getCurrentLevel().score))
-		else
-			table.insert(s, "LevelRecord = ---")
+			table.insert(s, "Won = " .. tostring(self.runtimeManager.profile:getCurrentLevel().won))
+			table.insert(s, "Lost = " .. tostring(self.runtimeManager.profile:getCurrentLevel().lost))
 		end
 		table.insert(s, "")
 		table.insert(s, "Collectible# = " .. tostring(self.session.level.collectibles:size()))
