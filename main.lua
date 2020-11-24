@@ -1,15 +1,15 @@
 -- INCLUDE ZONE
-local json = require("json")
-local strmethods = require("strmethods")
+local json = require("com/json")
+local strmethods = require("src/strmethods")
 
-local Vec2 = require("Essentials/Vector2")
-local Color = require("Essentials/Color")
+local Vec2 = require("src/Essentials/Vector2")
+local Color = require("src/Essentials/Color")
 
-local Profiler = require("Profiler")
-local Console = require("Console")
+local Profiler = require("src/Profiler")
+local Console = require("src/Console")
 
-local BootScreen = require("BootScreen")
-local Game = require("Game")
+local BootScreen = require("src/BootScreen")
+local Game = require("src/Game")
 
 
 
