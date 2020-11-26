@@ -1,4 +1,8 @@
 -- INCLUDE ZONE
+
+-- custom error handler
+require("crash")
+
 local json = require("com/json")
 local strmethods = require("src/strmethods")
 
