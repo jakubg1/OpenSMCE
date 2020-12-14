@@ -124,11 +124,11 @@ end
 
 
 function Profile:writeHighscore()
-	local pos = game.session.highscores:getPosition(self:getScore())
+	local pos = game.highscores:getPosition(self:getScore())
 	if not pos then return false end
 	
 	-- returns true if it got into top 10
-	game.session.highscores:storeProfile(self, pos)
+	game.highscores:storeProfile(self, pos)
 	return true
 end
 
