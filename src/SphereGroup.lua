@@ -27,13 +27,15 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	self.maxSpeed = 0
 	self.sphereShadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
 	
+	self.settings = game.config.gameplay.sphereBehaviour
+	
 	self.delQueue = false
 end
 
 function SphereGroup:update(dt)
 	local speedBound = self.sphereChain.path:getSpeed(self:getLastSphereOffset())
 	if self:isMagnetizing() then
-		self.maxSpeed = -200 * math.max(self.sphereChain.combo, 1)
+		self.maxSpeed = self.settings.attractionSpeed * math.max(self.sphereChain.combo, 1)
 	else
 		self.maxSpeed = 0
 		if not self.matchCheck then self.matchCheck = true end
@@ -43,33 +45,31 @@ function SphereGroup:update(dt)
 		-- normal movement
 		self.maxSpeed = speedBound
 		-- slow
-		if self.sphereChain.slowTime > 0 then self.maxSpeed = self.maxSpeed * 0.3 end
+		if self.sphereChain.slowTime > 0 then self.maxSpeed = self.maxSpeed * self.settings.slowSpeedMultiplier end
 		-- stop
 		if self.sphereChain.stopTime > 0 then self.maxSpeed = 0 end
 		-- when the level is over
-		if self.map.level.lost then self.maxSpeed = 2000 end
+		if self.map.level.lost then self.maxSpeed = self.settings.foulSpeed end
 	end
 	-- if the vise is pulling (reverse)
 	if not self.map.level.lost and not self.nextGroup and not self:isMagnetizing() and self.sphereChain.reverseTime > 0 then
-		self.maxSpeed = -100
+		self.maxSpeed = self.settings.reverseSpeed
 	end
 	
 	if self.speed > self.maxSpeed then
 		if self.sphereChain.reverseTime > 0 then
 			self.speed = self.maxSpeed
-		elseif self.prevGroup then
-			self.speed = math.max(self.speed - 500 * dt, self.maxSpeed)
 		elseif self.sphereChain.slowTime > 0 or self.sphereChain.stopTime > 0 then
-			self.speed = math.max(self.speed - 200 * dt, self.maxSpeed)
+			self.speed = math.max(self.speed - self.settings.slowDecceleration * dt, self.maxSpeed)
 		else
-			self.speed = self.maxSpeed
+			self.speed = math.max(self.speed - self.settings.decceleration * dt, self.maxSpeed)
 		end
 	end
 	if self.speed < self.maxSpeed then
 		--if self.map.level.lost then
 		--	self.speed = math.min(self.speed + 250 * dt, self.maxSpeed)
 		--else
-			self.speed = math.min(self.speed + 500 * dt, self.maxSpeed)
+			self.speed = math.min(self.speed + self.settings.acceleration * dt, self.maxSpeed)
 		--end
 	end
 	-- anti-slow-catapulting
@@ -222,7 +222,7 @@ function SphereGroup:join()
 		table.insert(self.prevGroup.spheres, sphere)
 		sphere.sphereGroup = self.prevGroup
 	end
-	if self.speed < 0 then self.prevGroup.speed = -200 * math.max(self.sphereChain.combo, 1) end
+	if self.speed < 0 then self.prevGroup.speed = self.settings.collisionSpeed * math.max(self.sphereChain.combo, 1) end
 	-- link the spheres from both groups
 	self.prevGroup.spheres[joinPosition].nextSphere = self.spheres[1]
 	self.spheres[1].prevSphere = self.prevGroup.spheres[joinPosition]
