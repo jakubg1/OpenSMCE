@@ -242,6 +242,7 @@ function Game:drawDebugInfo()
 			table.insert(s, "LevelNumber = " .. tostring(self.runtimeManager.profile.data.session.level))
 		end
 		table.insert(s, "LevelScore = " .. tostring(self.session.level.score))
+		table.insert(s, "LevelProgress = " .. tostring(self.session.level.destroyedSpheres) .. "/" .. tostring(self.session.level.target))
 		if self.runtimeManager.profile:getCurrentLevel() then
 			table.insert(s, "LevelRecord = " .. tostring(self.runtimeManager.profile:getCurrentLevel().score))
 			table.insert(s, "Won = " .. tostring(self.runtimeManager.profile:getCurrentLevel().won))
