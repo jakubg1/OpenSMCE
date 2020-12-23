@@ -186,13 +186,13 @@ function Game:draw()
 	end
 	
 	-- Widgets
-	profDraw2:start()
+	dbg:profDraw2Start()
 	for i, layer in ipairs(self.config.hudLayerOrder) do
 		for widgetN, widget in pairs(self.widgets) do
 			widget:draw(layer, self.widgetVariables)
 		end
 	end
-	profDraw2:stop()
+	dbg:profDraw2Stop()
 	
 	-- Particles
 	if self.particleManager then self.particleManager:draw() end
@@ -201,142 +201,6 @@ function Game:draw()
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", 0, 0, getDisplayOffsetX(), displaySize.y)
 	love.graphics.rectangle("fill", displaySize.x - getDisplayOffsetX(), 0, getDisplayOffsetX(), displaySize.y)
-	
-	-- Debug
-	if gameDebugVisible then self:drawDebugInfo() end
-	if sphereDebugVisible then self:drawSphereInfo() end
-end
-
-function Game:drawDebugInfo()
-	-- Debug screen
-	--local p = posOnScreen(Vec2())
-	local p = Vec2()
-	
-	local s = {}
-	
-	table.insert(s, "===== MAIN =====")
-	table.insert(s, "Version = " .. VERSION)
-	table.insert(s, "Game = " .. self.name)
-	table.insert(s, "FPS = " .. tostring(love.timer.getFPS()))
-	
-	table.insert(s, "")
-	table.insert(s, "===== PARTICLE =====")
-	if self.particleManager then
-		table.insert(s, "ParticleSpawner# = " .. tostring(self.particleManager:getParticleSpawnerCount()))
-		table.insert(s, "Particle# = " .. tostring(self.particleManager:getParticlePieceCount()))
-	end
-	
-	table.insert(s, "")
-	table.insert(s, "===== SESSION =====")
-	if self:sessionExists() then
-		table.insert(s, "SphereColors:")
-		for i = 1, 9 do
-			table.insert(s, tostring(i) .. " -> " .. self.session.sphereColorCounts[i] .. ", " .. self.session.dangerSphereColorCounts[i])
-		end
-	end
-	
-	table.insert(s, "")
-	table.insert(s, "===== LEVEL =====")
-	if self:levelExists() then
-		if self.runtimeManager.profile:getCurrentLevel() then
-			table.insert(s, "LevelNumber = " .. tostring(self.runtimeManager.profile.data.session.level))
-		end
-		table.insert(s, "LevelScore = " .. tostring(self.session.level.score))
-		table.insert(s, "LevelProgress = " .. tostring(self.session.level.destroyedSpheres) .. "/" .. tostring(self.session.level.target))
-		if self.runtimeManager.profile:getCurrentLevel() then
-			table.insert(s, "LevelRecord = " .. tostring(self.runtimeManager.profile:getCurrentLevel().score))
-			table.insert(s, "Won = " .. tostring(self.runtimeManager.profile:getCurrentLevel().won))
-			table.insert(s, "Lost = " .. tostring(self.runtimeManager.profile:getCurrentLevel().lost))
-		end
-		table.insert(s, "")
-		table.insert(s, "Collectible# = " .. tostring(self.session.level.collectibles:size()))
-		table.insert(s, "FloatingText# = " .. tostring(self.session.level.floatingTexts:size()))
-		table.insert(s, "ShotSphere# = " .. tostring(self.session.level.shotSpheres:size()))
-	end
-	
-	table.insert(s, "")
-	table.insert(s, "===== OPTIONS =====")
-	if self.runtimeManager then
-		table.insert(s, "MusicVolume = " .. tostring(self.runtimeManager.options:getMusicVolume()))
-		table.insert(s, "SoundVolume = " .. tostring(self.runtimeManager.options:getSoundVolume()))
-		table.insert(s, "FullScreen = " .. tostring(self.runtimeManager.options:getFullscreen()))
-		table.insert(s, "Mute = " .. tostring(self.runtimeManager.options:getMute()))
-		table.insert(s, "")
-		table.insert(s, "EffMusicVolume = " .. tostring(self.runtimeManager.options:getEffectiveMusicVolume()))
-		table.insert(s, "EffSoundVolume = " .. tostring(self.runtimeManager.options:getEffectiveSoundVolume()))
-	end
-	
-	table.insert(s, "")
-	table.insert(s, "===== EXTRA =====")
-	if self.widgets.root then
-		local a = self:getWidget({"root", "Game", "Hud"}).actions
-		for k, v in pairs(a) do
-			table.insert(s, k .. " -> ")
-			for k2, v2 in pairs(v) do
-				local n = "    " .. k2 .. " = {"
-				for k3, v3 in pairs(v2) do
-					n = n .. k3 .. ":" .. tostring(v3) .. ", "
-				end
-				n = n .. "}"
-				table.insert(s, n)
-			end
-		end
-	end
-	
-	for i, l in ipairs(s) do
-		love.graphics.setColor(0, 0, 0, 0.5)
-		local t = love.graphics.newText(love.graphics.getFont(), l)
-		love.graphics.rectangle("fill", p.x - 3, 15 * (i - 1), t:getWidth() + 6, 15)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.print(l, p.x, p.y + 15 * (i - 1))
-	end
-end
-
-function Game:drawSphereInfo()
-	local p = Vec2(0, displaySize.y - 200)
-	local s = Vec2(displaySize.x, 200)
-	
-	-- background
-	love.graphics.setColor(0, 0, 0, 0.5)
-	love.graphics.rectangle("fill", p.x, p.y, s.x, s.y)
-	
-	local n = 0
-	local m = 0
-	
-	if self:levelExists() then
-		for i, path in ipairs(self.session.level.map.paths.objects) do
-			love.graphics.setColor(1, 1, 1)
-			love.graphics.print("Path " .. tostring(i), p.x + 10, p.y + 10 + n)
-			n = n + 25
-			for j, sphereChain in ipairs(path.sphereChains) do
-				love.graphics.setColor(1, 1, 1)
-				love.graphics.print(tostring(j), p.x + 20, p.y + 10 + n)
-				love.graphics.print(tostring(math.floor(sphereChain:getLastSphereGroup().offset)) .. "px", p.x + 50, p.y + 10 + n)
-				m = 0
-				for k = #sphereChain.sphereGroups, 1, -1 do -- reverse iteration
-					local sphereGroup = sphereChain.sphereGroups[k]
-					for l, sphere in ipairs(sphereGroup.spheres) do
-						local color = SPHERE_COLORS[sphere.color]
-						if color then love.graphics.setColor(color.r, color.g, color.b) else love.graphics.setColor(0.5, 0.5, 0.5) end
-						love.graphics.circle("fill", p.x + 120 + m, p.y + 20 + n, 10)
-						m = m + 20
-					end
-					if sphereGroup.nextGroup then
-						love.graphics.setColor(1, 1, 1)
-						love.graphics.print(tostring(math.floor(sphereGroup.nextGroup:getBackPos() - sphereGroup:getFrontPos())) .. "px", p.x + 150 + m, p.y + 10 + n)
-					end
-					--if k > 1 and sphereChain.sphereGroups[k - 1] ~= sphereGroup.nextGroup then print("ERROR") end
-					--if k < #sphereChain.sphereGroups and sphereChain.sphereGroups[k + 1] ~= sphereGroup.prevGroup then print("ERROR") end
-					
-					m = m + 100
-				end
-				n = n + 25
-			end
-		end
-	else
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.print("No level available!", p.x, p.y)
-	end
 end
 
 

@@ -9,8 +9,7 @@ local strmethods = require("src/strmethods")
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
-local Profiler = require("src/Profiler")
-local Console = require("src/Console")
+local Debug = require("src/Debug")
 
 local BootScreen = require("src/BootScreen")
 local Game = require("src/Game")
@@ -56,35 +55,14 @@ mousePos = Vec2(0, 0)
 keyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
 
 game = nil
+dbg = nil
 
 variableSet = {}
 
 totalTime = 0
 timeScale = 1
 
-console = Console()
 
-
-
-
-profUpdate = Profiler("Update")
-profDraw = Profiler("Draw")
-profDraw2 = Profiler("Draw")
-profDrawLevel = Profiler("Draw: Level")
-prof3 = Profiler("Draw: Level2")
-profMusic = Profiler("Music volume")
-
-profVisible = false
-profPage = 1
-profPages = {profUpdate, profMusic, profDrawLevel, prof3}
-
-uiDebugVisible = false
-uiDebugOffset = 0
-e = false
-
-particleSpawnersVisible = false
-gameDebugVisible = false
-sphereDebugVisible = false
 
 
 
@@ -95,58 +73,33 @@ sphereDebugVisible = false
 function love.load()
 	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
 	game = BootScreen()
+	dbg = Debug()
 end
 
 function love.update(dt)
-	profUpdate:start()
+	dbg:profUpdateStart()
 	
 	mousePos = posFromScreen(Vec2(love.mouse.getPosition()))
 	if game then game:update(dt * timeScale) end
-	console:update(dt)
+	
+	dbg:update(dt)
 	
 	-- rainbow effect for the shooter and console cursor blink; to be phased out soon
 	totalTime = totalTime + dt
 	
-	profUpdate:stop()
+	dbg:profUpdateStop()
 end
 
 function love.draw()
-	profDraw:start()
+	dbg:profDrawStart()
 	
 	-- Main
 	if game then game:draw() end
 	
 	-- Tests
+	dbg:draw()
 	
-	
-	-- Profilers
-	if profVisible then
-		love.graphics.setColor(1, 1, 1)
-		profPages[profPage]:draw(Vec2(0, displaySize.y))
-		profDraw:draw(Vec2(400, displaySize.y))
-		profDraw2:draw(Vec2(400, displaySize.y))
-	end
-	
-	-- Console
-	console:draw()
-	
-	-- UI tree
-	if uiDebugVisible and game.sessionExists and game:sessionExists() then
-		love.graphics.setColor(0, 0, 0, 0.5)
-		love.graphics.rectangle("fill", 0, 0, 460, 600)
-		love.graphics.setColor(1, 1, 1)
-		for i, line in ipairs(getUITreeText()) do
-			love.graphics.print(line[1], 10, 10 + i * 15 + uiDebugOffset)
-			love.graphics.print(line[2], 260, 10 + i * 15 + uiDebugOffset)
-			love.graphics.print(line[3], 270, 10 + i * 15 + uiDebugOffset)
-			love.graphics.print(line[4], 290, 10 + i * 15 + uiDebugOffset)
-			love.graphics.print(line[5], 320, 10 + i * 15 + uiDebugOffset)
-			love.graphics.print(line[6], 350, 10 + i * 15 + uiDebugOffset)
-			love.graphics.print(line[7], 380, 10 + i * 15 + uiDebugOffset)
-		end
-	end
-	
-	profDraw:stop()
+	dbg:profDrawStop()
 end
 
 function love.mousepressed(x, y, button)
@@ -160,36 +113,25 @@ end
 function love.keypressed(key)
 	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = true end end
 	
-	if not console.active then
+	if not dbg.console.active then
 		if game then game:keypressed(key) end
-		
-		--if key == "f" then toggleFullscreen() end
-		if key == "o" then profVisible = not profVisible end
-		if key == "w" then uiDebugVisible = not uiDebugVisible end
-		if key == "q" then particleSpawnersVisible = not particleSpawnersVisible end
-		if key == "d" then gameDebugVisible = not gameDebugVisible end
-		if key == "p" then sphereDebugVisible = not sphereDebugVisible end
-		if key == "kp-" and profPage > 1 then profPage = profPage - 1 end
-		if key == "kp+" and profPage < #profPages then profPage = profPage + 1 end
-		if key == "," then uiDebugOffset = uiDebugOffset - 75 end
-		if key == "." then uiDebugOffset = uiDebugOffset + 75 end
 	end
 	
-	console:keypressed(key)
+	dbg:keypressed(key)
 end
 
 function love.keyreleased(key)
 	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = false end end
 	
-	if not console.active then
+	if not dbg.console.active then
 		if game then game:keyreleased(key) end
 	end
 	
-	console:keyreleased(key)
+	dbg:keyreleased(key)
 end
 
 function love.textinput(t)
-	console:textinput(t)
+	dbg:textinput(t)
 end
 
 function love.resize(w, h)
@@ -240,96 +182,7 @@ function getRainbowColor(t)
 	return Color(r, g, b)
 end
 
-function getUITreeText(widget, rowTable, indent)
-	widget = widget or game.widgets["root"]
-	rowTable = rowTable or {}
-	indent = indent or 0
-	--if indent > 1 then return end
-	
-	local name = widget.name
-	for i = 1, indent do name = "    " .. name end
-	local visible = widget.visible and "X" or ""
-	local visible2 = widget:getVisible() and "V" or ""
-	local alpha = tostring(math.floor(widget.alpha * 10) / 10)
-	local alpha2 = tostring(math.floor(widget:getAlpha() * 10) / 10)
-	local time = widget.time and tostring(math.floor(widget.time * 100) / 100) or "-"
-	local pos = tostring(widget.pos)
-	--if widget:getVisible() then
-		table.insert(rowTable, {name, visible, visible2, alpha, alpha2, time, pos})
-	--end
-	
-	--if 
-	for childN, child in pairs(widget.children) do
-		getUITreeText(child, rowTable, indent + 1)
-	end
-	
-	return rowTable
-end
 
-
-
-function runCommand(command)
-	local words = strSplit(command, " ")
-	
-	if words[1] == "p" then
-		local t = {fire = "bomb", ligh = "lightning", wild = "wild", bomb = "colorbomb", slow = "slow", stop = "stop", rev = "reverse", shot = "shotspeed"}
-		for word, name in pairs(t) do
-			if words[2] == word then
-				if word == "bomb" then
-					if not words[3] or not tonumber(words[3]) or tonumber(words[3]) < 1 or tonumber(words[3]) > 7 then return false end
-					game.session:usePowerup({name = name, color = tonumber(words[3])})
-				else
-					game.session:usePowerup({name = name})
-				end
-				console:print("Powerup applied")
-				return true
-			end
-		end
-	elseif words[1] == "sp" then
-		if not words[2] or not tonumber(words[2]) then return false end
-		game.session.level.destroyedSpheres = tonumber(words[2])
-		console:print("Spheres destroyed set to " .. words[2])
-		return true
-	elseif words[1] == "b" then
-		for i, path in ipairs(game.session.level.map.paths) do
-			for j, sphereChain in ipairs(path.sphereChains) do
-				for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
-					sphereGroup.offset = sphereGroup.offset + 1000
-				end
-			end
-		end
-		console:print("Boosted!")
-		return true
-	elseif words[1] == "s" then
-		for i, path in ipairs(game.session.level.map.paths) do
-			path:spawnChain()
-		end
-		console:print("Spawned new chains!")
-		return true
-	elseif words[1] == "fs" then
-		toggleFullscreen()
-		console:print("Fullscreen toggled")
-		return true
-	elseif words[1] == "t" then
-		if not words[2] or not tonumber(words[2]) then return false end
-		timeScale = tonumber(words[2])
-		console:print("Time scale set to " .. words[2])
-		return true
-	elseif words[1] == "e" then
-		e = not e
-		console:print("Background cheat mode toggled")
-		return true
-	elseif words[1] == "n" then
-		game.session:destroyFunction(function(sphere, spherePos) return true end, Vec2())
-		console:print("Nuked!")
-		return true
-	elseif words[1] == "test" then
-		game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
-		return true
-	end
-	
-	return false
-end
 
 
 

@@ -104,7 +104,7 @@ end
 
 function Console:inputEnter()
 	self:print("> " .. self.command)
-	local success = runCommand(self.command)
+	local success = dbg:runCommand(self.command)
 	if not success then self:print("Invalid command!") end
 	self.command = ""
 end
