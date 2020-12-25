@@ -368,7 +368,8 @@ function Debug:runCommand(command)
 			"If you fire a crash report now, I'm gonna be mad at you.",
 			">:C",
 			"Y-YAMETE KUDASAI!!~",
-			"Don’t you have anything better to do?"
+			"Don’t you have anything better to do?",
+			"Game Over on hR 13-13 moment"
 		}
 		local witty = math.random(1, #witties)
 		error("Crashed manually. " .. witties[witty])
