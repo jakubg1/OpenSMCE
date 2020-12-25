@@ -67,7 +67,7 @@ function ParticleManager:draw()
 	for i, particlePiece in ipairs(self.particlePieces) do
 		particlePiece:draw()
 	end
-	if particleSpawnersVisible then
+	if dbg.particleSpawnersVisible then
 		for i, particleSpawner in ipairs(self.particleSpawners) do
 			particleSpawner:draw()
 		end
