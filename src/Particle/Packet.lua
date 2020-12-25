@@ -1,65 +1,35 @@
--- To do some other time
 local class = require "com/class"
-local ParticleManager = class:derive("ParticleManager")
+local ParticlePacket = class:derive("ParticlePacket")
 
-local ParticleSpawner = require("src/Particle/Spawner")
-local ParticlePiece = require("src/Particle/Piece")
-
-function ParticleManager:new()
-	self.particleSpawners = {}
-	self.particlePieces = {}
-end
-
-function ParticleManager:update(dt)
-	for i, particleSpawner in ipairs(self.particleSpawners) do
-		particleSpawner:update(dt)
+function ParticlePacket:new(manager, data, pos)
+	self.manager = manager
+	
+	self.pos = pos
+	self.spawnerCount = 0
+	for spawnerN, spawnerData in pairs(data) do
+		manager:spawnParticleSpawner(spawnerData, pos)
 	end
-	for i, particlePiece in ipairs(self.particlePieces) do
-		particlePiece:update(dt)
-	end
+	
+	self.delQueue = false
 end
 
-function ParticleManager:useSpawnerData(path, pos)
-	local particleSpawnerData = PARTICLE_SPAWNERS_DATA[path]
-	for spawnerN, spawnerData in pairs(particleSpawnerData) do
-		self:spawnParticleSpawner(spawnerData, pos)
-	end
+function ParticlePacket:update(dt)
 end
 
-function ParticleManager:spawnParticleSpawner(data, pos)
-	table.insert(self.particleSpawners, ParticleSpawner(self, data, pos))
-end
-
-function ParticleManager:spawnParticlePiece(data, pos)
-	table.insert(self.particlePieces, ParticlePiece(self, data, pos))
-end
-
-function ParticleManager:destroyParticleSpawner(particleSpawner)
-	table.remove(self.particleSpawners, self:getParticleSpawnerID(particleSpawner))
-end
-
-function ParticleManager:destroyParticlePiece(particlePiece)
-	table.remove(self.particlePieces, self:getParticlePieceID(particlePiece))
-end
-
-function ParticleManager:getParticleSpawnerID(particleSpawner)
-	for i, particleSpawnerT in ipairs(self.particleSpawners) do
-		if particleSpawner == particleSpawnerT then return i end
-	end
-end
-
-function ParticleManager:getParticlePieceID(particlePiece)
-	for i, particlePieceT in ipairs(self.particlePieces) do
-		if particlePiece == particlePieceT then return i end
-	end
+function ParticlePacket:draw()
+	local p = posOnScreen(self.pos)
+	love.graphics.setColor(1, 1, 0)
+	love.graphics.setLineWidth(2)
+	love.graphics.circle("line", p.x, p.y, 15)
 end
 
 
 
-function ParticleManager:draw()
-	for i, particlePiece in ipairs(self.particlePieces) do
-		particlePiece:draw()
-	end
+function ParticlePacket:destroy()
+	if self.delQueue then return end
+	self.delQueue = true
+	
+	self.manager:destroyParticlePacket(self)
 end
 
-return ParticleManager
+return ParticlePacket

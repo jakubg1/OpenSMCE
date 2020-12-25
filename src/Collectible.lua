@@ -15,7 +15,8 @@ function Collectible:new(deserializationTable, pos, data)
 		self.acceleration = Vec2(0, 300)
 	end
 	
-	self.sprite = Sprite("sprites/" .. self.data.type .. ".json", self.data)
+	self.particle = game:spawnParticle("particles/test_10.json", self.pos)
+	--self.sprite = Sprite("sprites/" .. self.data.type .. ".json", self.data)
 end
 
 function Collectible:update(dt)
@@ -39,7 +40,8 @@ function Collectible:update(dt)
 	end
 	
 	-- sprite
-	self.sprite:update(dt)
+	--self.sprite:update(dt)
+	self.particle.pos = self.pos
 end
 
 function Collectible:catch()
@@ -76,7 +78,8 @@ end
 
 
 function Collectible:draw()
-	self.sprite:draw(self.pos)
+	--self.sprite:draw(self.pos)
+	
 end
 
 

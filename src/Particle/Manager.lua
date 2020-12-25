@@ -1,10 +1,12 @@
 local class = require "com/class"
 local ParticleManager = class:derive("ParticleManager")
 
+local ParticlePacket = require("src/Particle/Packet")
 local ParticleSpawner = require("src/Particle/Spawner")
 local ParticlePiece = require("src/Particle/Piece")
 
 function ParticleManager:new()
+	self.particlePackets = {}
 	self.particleSpawners = {}
 	self.particlePieces = {}
 end
@@ -18,11 +20,9 @@ function ParticleManager:update(dt)
 	end
 end
 
-function ParticleManager:useSpawnerData(path, pos)
-	local particleSpawnerData = game.resourceBank:getParticle(path)
-	for spawnerN, spawnerData in pairs(particleSpawnerData) do
-		self:spawnParticleSpawner(spawnerData, pos)
-	end
+function ParticleManager:spawnParticlePacket(path, pos)
+	local data = game.resourceBank:getParticle(path)
+	table.insert(self.particlePackets, ParticlePacket(self, data, pos)
 end
 
 function ParticleManager:spawnParticleSpawner(data, pos)
@@ -33,12 +33,22 @@ function ParticleManager:spawnParticlePiece(data, pos)
 	table.insert(self.particlePieces, ParticlePiece(self, data, pos))
 end
 
+function ParticleManager:destroyParticlePacket(particlePacket)
+	table.remove(self.particlePackets, self:getParticlePacketID(particlePacket))
+end
+
 function ParticleManager:destroyParticleSpawner(particleSpawner)
 	table.remove(self.particleSpawners, self:getParticleSpawnerID(particleSpawner))
 end
 
 function ParticleManager:destroyParticlePiece(particlePiece)
 	table.remove(self.particlePieces, self:getParticlePieceID(particlePiece))
+end
+
+function ParticleManager:getParticlePacketID(particlePacket)
+	for i, particlePacketT in ipairs(self.particlePackets) do
+		if particlePacket == particlePacketT then return i end
+	end
 end
 
 function ParticleManager:getParticleSpawnerID(particleSpawner)
@@ -51,6 +61,10 @@ function ParticleManager:getParticlePieceID(particlePiece)
 	for i, particlePieceT in ipairs(self.particlePieces) do
 		if particlePiece == particlePieceT then return i end
 	end
+end
+
+function ParticleManager:getParticlePacketCount()
+	return #self.particlePackets
 end
 
 function ParticleManager:getParticleSpawnerCount()
@@ -68,6 +82,9 @@ function ParticleManager:draw()
 		particlePiece:draw()
 	end
 	if dbg.particleSpawnersVisible then
+		for i, particlePacket in ipairs(self.particlePackets) do
+			particlePacket:draw()
+		end
 		for i, particleSpawner in ipairs(self.particleSpawners) do
 			particleSpawner:draw()
 		end
