@@ -15,8 +15,21 @@ function Collectible:new(deserializationTable, pos, data)
 		self.acceleration = Vec2(0, 300)
 	end
 	
-	self.particle = game:spawnParticle("particles/test_10.json", self.pos)
-	--self.sprite = Sprite("sprites/" .. self.data.type .. ".json", self.data)
+	local n = nil
+	if self.data.type == "powerup" then
+		if self.data.name == "shotspeed" then
+			n = "powerup_speed_shot"
+		elseif self.data.name == "colorbomb" then
+			n = "powerup_bomb_color_" .. tostring(self.data.color)
+		else
+			n = "powerup_" .. self.data.name
+		end
+	elseif self.data.type == "gem" then
+		n = "gem_" .. tostring(self.data.color)
+	elseif self.data.type == "coin" then
+		n = "powerup_coin"
+	end
+	self.particle = game:spawnParticle("particles/" .. n .. ".json", self.pos)
 end
 
 function Collectible:update(dt)
@@ -40,7 +53,6 @@ function Collectible:update(dt)
 	end
 	
 	-- sprite
-	--self.sprite:update(dt)
 	self.particle.pos = self.pos
 end
 
@@ -79,7 +91,6 @@ end
 
 
 function Collectible:draw()
-	--self.sprite:draw(self.pos)
 	
 end
 
