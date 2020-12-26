@@ -17,6 +17,7 @@ function ParticlePiece:new(manager, spawner, data, pos)
 	self.acceleration = parseVec2(data.acceleration)
 	self.lifespan = parseNumber(data.lifespan) -- nil if it lives indefinitely
 	self.lifetime = self.lifespan
+	self.time = 0
 	
 	self.image = game.resourceBank:getImage(data.image)
 	self.animationSpeed = data.animationSpeed
@@ -25,6 +26,8 @@ function ParticlePiece:new(manager, spawner, data, pos)
 	self.fadeInPoint = data.fadeInPoint
 	self.fadeOutPoint = data.fadeOutPoint
 	self.posRelative = data.posRelative
+	self.rainbow = data.rainbow
+	self.rainbowSpeed = data.rainbowSpeed
 	
 	self.animationFrame = data.animationFrameRandom and math.random(1, self.animationFrameCount) or 1
 	
@@ -42,6 +45,7 @@ function ParticlePiece:update(dt)
 		self.lifetime = self.lifetime - dt
 		if self.lifetime <= 0 then self:destroy() end
 	end
+	self.time = self.time + dt
 	
 	-- animation
 	self.animationFrame = self.animationFrame + self.animationSpeed * dt
@@ -86,6 +90,13 @@ function ParticlePiece:getPos()
 	end
 end
 
+function ParticlePiece:getColor()
+	if not self.rainbow then
+		return nil
+	end
+	return getRainbowColor(self.time * self.rainbowSpeed / 30)
+end
+
 function ParticlePiece:getAlpha()
 	if not self.lifespan then
 		return 1
@@ -101,7 +112,7 @@ function ParticlePiece:getAlpha()
 end
 
 function ParticlePiece:draw()
-	self.image:draw(self:getPos(), Vec2(0.5), Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, nil, self:getAlpha())
+	self.image:draw(self:getPos(), Vec2(0.5), Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha())
 end
 
 return ParticlePiece
