@@ -12,6 +12,10 @@ function Path:new(map, pathData)
 	self.brightnesses = {}
 	self.length = 0
 	
+	self.nodeBookmarks = {} -- node bookmark IDs start from 0 !!!
+	self.nodeBookmarkCount = 0
+	self.NODE_BOOKMARK_DELAY = 500
+	
 	local nodes = {}
 	for i, node in ipairs(pathData) do
 		nodes[i] = {pos = Vec2(node.x, node.y), hidden = node.hidden, warp = node.warp}
@@ -58,6 +62,13 @@ function Path:prepareNodes(nodes)
 				table.insert(self.brightnesses, {distance = self.length - 8, value = 0.5})
 				table.insert(self.brightnesses, {distance = self.length + 8, value = 1})
 			end
+		end
+		
+		-- node bookmark stuff
+		while (self.length + length) / self.NODE_BOOKMARK_DELAY > self.nodeBookmarkCount do
+			self.nodeBookmarks[self.nodeBookmarkCount] = {id = i, distance = self.length + length}
+			self.nodeBookmarkCount = self.nodeBookmarkCount + 1
+			--print("Node Bookmark:", self.nodeBookmarkCount - 1, i)
 		end
 		
 		self.length = self.length + length
@@ -215,8 +226,16 @@ function Path:getDanger(pixels)
 	return pixels / self.length >= self.map.level.dangerDistance
 end
 
+function Path:getBookmarkID(pixels)
+	return math.min(math.floor(pixels / self.NODE_BOOKMARK_DELAY), self.nodeBookmarkCount - 1)
+end
+
 function Path:getNodeID(pixels)
-	local nodeID = 0
+	if pixels < 0 then return 0, pixels end
+	
+	local nodeBookmark = self.nodeBookmarks[self:getBookmarkID(pixels)]
+	local nodeID = nodeBookmark.id
+	pixels = pixels - nodeBookmark.distance
 	while pixels > 0 do
 		nodeID = nodeID + 1
 		if not self.nodes[nodeID] then break end
