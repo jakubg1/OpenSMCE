@@ -4,17 +4,31 @@ local ParticlePiece = class:derive("ParticlePiece")
 local Vec2 = require("src/Essentials/Vector2")
 local Image = require("src/Essentials/Image")
 
-function ParticlePiece:new(manager, spawner, data, pos)
+function ParticlePiece:new(manager, spawner, data)
 	self.manager = manager
 	self.packet = spawner.packet
 	self.spawner = spawner
 	self.spawner.pieceCount = self.spawner.pieceCount + 1
 	
-	self.pos = pos + parseVec2(data.pos)
-	self.speed = parseVec2(data.speed)
-	self.speedRotation = parseNumber(data.speedRotation)
-	--if self.speedRotation then self.speed = self.speed:rotate(math.random() * math.pi * 2) end
+	self.packetPos = self.packet.pos
+	
+	self.pos = self.spawner.pos
+	if not data.posRelative then
+		self.pos = self.spawner:getPos()
+	end
+	
+	local spawnScale = parseVec2(data.spawnScale)
+	local spawnRotVec = Vec2(1):rotate(math.random() * math.pi * 2)
+	local spawnPos = spawnRotVec * spawnScale
+	self.pos = self.pos + spawnPos
+	if data.spawnScaleAffectsSpeed then
+		self.speed = spawnPos * parseVec2(data.speed)
+	else
+		self.speed = parseVec2(data.speed)
+	end
+	
 	self.acceleration = parseVec2(data.acceleration)
+	
 	self.lifespan = parseNumber(data.lifespan) -- nil if it lives indefinitely
 	self.lifetime = self.lifespan
 	self.time = 0
@@ -28,6 +42,9 @@ function ParticlePiece:new(manager, spawner, data, pos)
 	self.posRelative = data.posRelative
 	self.rainbow = data.rainbow
 	self.rainbowSpeed = data.rainbowSpeed
+	self.directionDeviation = false -- is switched to true after directionDeviationTime seconds (if that exists)
+	self.directionDeviationTime = parseNumber(data.directionDeviationTime)
+	self.directionDeviationSpeed = data.directionDeviationSpeed -- evaluated every frame
 	
 	self.animationFrame = data.animationFrameRandom and math.random(1, self.animationFrameCount) or 1
 	
@@ -35,17 +52,24 @@ function ParticlePiece:new(manager, spawner, data, pos)
 end
 
 function ParticlePiece:update(dt)
-	-- position stuff
-	if self.speedRotation then self.speed = self.speed:rotate(self.speedRotation * dt) end
-	self.speed = self.speed + self.acceleration * dt
-	self.pos = self.pos + self.speed * dt
-	
 	-- lifespan
 	if self.lifetime then
 		self.lifetime = self.lifetime - dt
 		if self.lifetime <= 0 then self:destroy() end
 	end
 	self.time = self.time + dt
+	if not self.directionDeviation and self.directionDeviationTime and self.time >= self.directionDeviationTime then
+		self.directionDeviation = true
+	end
+	
+	-- position stuff
+	if self.directionDeviation then self.speed = self.speed:rotate(parseNumber(self.directionDeviationSpeed) * dt) end
+	self.speed = self.speed + self.acceleration * dt
+	self.pos = self.pos + self.speed * dt
+	-- cache last packet position
+	if self.packet then
+		self.packetPos = self.packet.pos
+	end
 	
 	-- animation
 	self.animationFrame = self.animationFrame + self.animationSpeed * dt
@@ -83,8 +107,8 @@ end
 
 
 function ParticlePiece:getPos()
-	if self.posRelative and self.packet then
-		return self.packet.pos + self.pos
+	if self.posRelative then
+		return self.packetPos + self.pos
 	else
 		return self.pos
 	end

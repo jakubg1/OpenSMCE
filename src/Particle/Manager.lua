@@ -34,8 +34,8 @@ function ParticleManager:spawnParticleSpawner(packet, data)
 	table.insert(self.particleSpawners, ParticleSpawner(self, packet, data))
 end
 
-function ParticleManager:spawnParticlePiece(spawner, data, pos)
-	table.insert(self.particlePieces, ParticlePiece(self, spawner, data, pos))
+function ParticleManager:spawnParticlePiece(spawner, data)
+	table.insert(self.particlePieces, ParticlePiece(self, spawner, data))
 end
 
 function ParticleManager:destroyParticlePacket(particlePacket)

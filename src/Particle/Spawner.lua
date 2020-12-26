@@ -8,7 +8,7 @@ function ParticleSpawner:new(manager, packet, data)
 	self.packet = packet
 	self.packet.spawnerCount = self.packet.spawnerCount + 1
 	
-	self.pos = Vec2()
+	self.pos = parseVec2(data.pos)
 	self.speed = parseVec2(data.speed)
 	self.acceleration = parseVec2(data.acceleration)
 	self.lifespan = data.lifespan -- nil if it lives indefinitely
@@ -67,11 +67,7 @@ end
 function ParticleSpawner:spawnPiece()
 	if self.pieceCount == self.spawnMax then return end
 	
-	local p = Vec2()
-	if not self.particleData.posRelative then
-		p = self:getPos()
-	end
-	self.manager:spawnParticlePiece(self, self.particleData, p)
+	self.manager:spawnParticlePiece(self, self.particleData)
 end
 
 
