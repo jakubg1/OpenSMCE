@@ -12,6 +12,9 @@ function ParticleManager:new()
 end
 
 function ParticleManager:update(dt)
+	for i, particlePacket in ipairs(self.particlePackets) do
+		particlePacket:update(dt)
+	end
 	for i, particleSpawner in ipairs(self.particleSpawners) do
 		particleSpawner:update(dt)
 	end
@@ -22,15 +25,17 @@ end
 
 function ParticleManager:spawnParticlePacket(path, pos)
 	local data = game.resourceBank:getParticle(path)
-	table.insert(self.particlePackets, ParticlePacket(self, data, pos)
+	local packet = ParticlePacket(self, data, pos)
+	table.insert(self.particlePackets, packet)
+	return packet
 end
 
-function ParticleManager:spawnParticleSpawner(data, pos)
-	table.insert(self.particleSpawners, ParticleSpawner(self, data, pos))
+function ParticleManager:spawnParticleSpawner(packet, data, pos)
+	table.insert(self.particleSpawners, ParticleSpawner(self, packet, data, pos))
 end
 
-function ParticleManager:spawnParticlePiece(data, pos)
-	table.insert(self.particlePieces, ParticlePiece(self, data, pos))
+function ParticleManager:spawnParticlePiece(spawner, data, pos)
+	table.insert(self.particlePieces, ParticlePiece(self, spawner, data, pos))
 end
 
 function ParticleManager:destroyParticlePacket(particlePacket)

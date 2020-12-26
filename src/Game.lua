@@ -268,7 +268,7 @@ function Game:getMusic(name)
 end
 
 function Game:spawnParticle(name, pos)
-	self.particleManager:spawnParticlePacket(name, pos)
+	return self.particleManager:spawnParticlePacket(name, pos)
 end
 
 function Game:addCallback(callbackType, event)

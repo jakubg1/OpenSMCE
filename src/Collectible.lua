@@ -73,6 +73,7 @@ end
 function Collectible:destroy()
 	if self._delQueue then return end
 	self._list:destroy(self)
+	self.particle:destroy()
 end
 
 

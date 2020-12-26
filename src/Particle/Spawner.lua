@@ -1,15 +1,18 @@
 local class = require "com/class"
 local ParticleSpawner = class:derive("ParticleSpawner")
 
-function ParticleSpawner:new(manager, data, pos)
+function ParticleSpawner:new(manager, packet, data, pos)
 	self.manager = manager
+	self.packet = packet
+	self.packet.spawnerCount = self.packet.spawnerCount + 1
 	
 	self.pos = pos
 	self.speed = parseVec2(data.speed)
 	self.acceleration = parseVec2(data.acceleration)
 	self.lifespan = data.lifespan -- nil if it lives indefinitely
 	self.lifetime = self.lifespan
-	self.spawnRemain = data.spawnMax
+	self.spawnMax = data.spawnMax
+	self.pieceCount = 0
 	self.spawnDelay = data.spawnDelay
 	self.particleData = data.particleData
 	
@@ -21,18 +24,28 @@ function ParticleSpawner:new(manager, data, pos)
 end
 
 function ParticleSpawner:update(dt)
+	-- speed and position stuff
 	self.speed = self.speed + self.acceleration * dt
 	self.pos = self.pos + self.speed * dt
+	
+	-- lifespan
 	if self.lifetime then
 		self.lifetime = self.lifetime - dt
 		if self.lifetime <= 0 then self:destroy() end
 	end
+	
+	-- piece spawning
 	if self.spawnNext then
 		self.spawnNext = self.spawnNext - dt
 		if self.spawnNext <= 0 then
 			self:spawnPiece()
 			self.spawnNext = self.spawnNext + self.spawnDelay
 		end
+	end
+	
+	-- destroy when packet is gone
+	if self.packet.delQueue then
+		self:destroy()
 	end
 end
 
@@ -44,10 +57,9 @@ function ParticleSpawner:draw()
 end
 
 function ParticleSpawner:spawnPiece()
-	if self.spawnRemain == 0 then return end
-	self.spawnRemain = self.spawnRemain - 1
+	if self.pieceCount == self.spawnMax then return end
 	
-	self.manager:spawnParticlePiece(self.particleData, self.pos)
+	self.manager:spawnParticlePiece(self, self.particleData, self.pos)
 end
 
 
@@ -57,6 +69,7 @@ function ParticleSpawner:destroy()
 	self.delQueue = true
 	
 	self.manager:destroyParticleSpawner(self)
+	self.packet.spawnerCount = self.packet.spawnerCount - 1
 end
 
 return ParticleSpawner

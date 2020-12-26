@@ -4,8 +4,11 @@ local ParticlePiece = class:derive("ParticlePiece")
 local Vec2 = require("src/Essentials/Vector2")
 local Image = require("src/Essentials/Image")
 
-function ParticlePiece:new(manager, data, pos)
+function ParticlePiece:new(manager, spawner, data, pos)
 	self.manager = manager
+	self.packet = spawner.packet
+	self.spawner = spawner
+	self.spawner.pieceCount = self.spawner.pieceCount + 1
 	
 	self.pos = pos + parseVec2(data.pos)
 	self.speed = parseVec2(data.speed)
@@ -29,24 +32,44 @@ function ParticlePiece:new(manager, data, pos)
 end
 
 function ParticlePiece:update(dt)
+	-- position stuff
 	if self.speedRotation then self.speed = self.speed:rotate(self.speedRotation * dt) end
 	self.speed = self.speed + self.acceleration * dt
 	self.pos = self.pos + self.speed * dt
+	
+	-- lifespan
 	if self.lifetime then
 		self.lifetime = self.lifetime - dt
 		if self.lifetime <= 0 then self:destroy() end
 	end
+	
+	-- animation
 	self.animationFrame = self.animationFrame + self.animationSpeed * dt
 	if self.animationFrame >= self.animationFrameCount + 1 then
 		if self.animationLoop then self.animationFrame = self.animationFrame - self.animationFrameCount end
 		--self:destroy()
 	end
+	
+	-- alpha
 	if self.lifetime < self.lifespan * (1 - self.fadeOutPoint) then
 		self.alpha = self.lifetime / (self.lifespan * (1 - self.fadeOutPoint))
 	elseif self.lifetime > self.lifespan * (1 - self.fadeInPoint) then
 		self.alpha = 1 - (self.lifetime - self.lifespan * (1 - self.fadeInPoint)) / (self.lifespan * self.fadeInPoint)
 	else
 		self.alpha = 1
+	end
+	
+	-- detach when spawner/packet is gone
+	if self.spawner and self.spawner.delQueue then
+		self.spawner = nil
+	end
+	if self.packet and self.packet.delQueue then
+		self.packet = nil
+	end
+	
+	-- when living indefinitely and packet inexistent, destroy
+	if not self.packet and not self.lifetime then
+		self:destroy()
 	end
 end
 
@@ -57,6 +80,9 @@ function ParticlePiece:destroy()
 	self.delQueue = true
 	
 	self.manager:destroyParticlePiece(self)
+	if self.spawner then
+		self.spawner.pieceCount = self.spawner.pieceCount - 1
+	end
 end
 
 

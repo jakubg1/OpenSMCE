@@ -141,6 +141,7 @@ end
 function Debug:getDebugParticle()
 	local s = ""
 	
+	s = s .. "ParticlePacket# = " .. tostring(game.particleManager:getParticlePacketCount()) .. "\n"
 	s = s .. "ParticleSpawner# = " .. tostring(game.particleManager:getParticleSpawnerCount()) .. "\n"
 	s = s .. "Particle# = " .. tostring(game.particleManager:getParticlePieceCount()) .. "\n"
 	

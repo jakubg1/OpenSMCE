@@ -7,20 +7,24 @@ function ParticlePacket:new(manager, data, pos)
 	self.pos = pos
 	self.spawnerCount = 0
 	for spawnerN, spawnerData in pairs(data) do
-		manager:spawnParticleSpawner(spawnerData, pos)
+		manager:spawnParticleSpawner(self, spawnerData, pos)
 	end
 	
 	self.delQueue = false
 end
 
 function ParticlePacket:update(dt)
+	-- destroy when no more spawners exist
+	if self.spawnerCount == 0 then
+		self:destroy()
+	end
 end
 
 function ParticlePacket:draw()
 	local p = posOnScreen(self.pos)
 	love.graphics.setColor(1, 1, 0)
 	love.graphics.setLineWidth(2)
-	love.graphics.circle("line", p.x, p.y, 15)
+	love.graphics.circle("line", p.x, p.y, 15 + self.spawnerCount * 5)
 end
 
 
