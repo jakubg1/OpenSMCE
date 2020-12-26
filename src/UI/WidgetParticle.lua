@@ -18,7 +18,7 @@ function UIWidgetParticle:update(dt)
 end
 
 function UIWidgetParticle:spawn()
-	self.manager:useSpawnerData(self.path, self.parent:getPos())
+	self.manager:spawnParticlePacket(self.path, self.parent:getPos())
 end
 
 
