@@ -175,13 +175,13 @@ function Shooter:drawSpeedShotBeam()
 	elseif self.settings.speedShotBeamRenderingType == "cut" then
 		-- if we need to cut the beam
 		local p = posOnScreen(Vec2(self.pos.x - self.speedShotImage.size.x / 2, self.pos.y - distance))
-		local s = posOnScreen(Vec2(self.speedShotImage.size.x, distance))
+		local s = posOnScreen(Vec2(self.speedShotImage.size.x, distance + 16))
 		love.graphics.setScissor(p.x, p.y, s.x, s.y)
 	end
 	-- apply color if wanted
 	local color = self.settings.speedShotBeamColored and self:getReticalColor() or Color()
 	-- draw the beam
-	self.speedShotImage:draw(self:spherePos(), Vec2(0.5, 1), nil, nil, color, self.speedShotTime * 2, scale)
+	self.speedShotImage:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, color, self.speedShotTime * 2, scale)
 	-- reset the scissor
 	if self.settings.speedShotBeamRenderingType == "cut" then
 		love.graphics.setScissor()
