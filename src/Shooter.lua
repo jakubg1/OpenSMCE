@@ -78,7 +78,7 @@ function Shooter:shoot()
 	if self.color == -3 then sound = "lightning" end
 	if self.color == -3 then
 		-- lightning spheres are not shot, they're deployed instantly
-		game:spawnParticle("particles/lightning_beam.json", Vec2(self.pos.x, 250))
+		game:spawnParticle("particles/lightning_beam.json", self:spherePos())
 		game.session:destroyVertical(self.pos.x, 100)
 		game.session.level.combo = 0 -- cuz that's how it works
 	else
