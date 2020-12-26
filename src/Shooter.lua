@@ -24,8 +24,12 @@ function Shooter:new()
 	self.sprite = Sprite("sprites/shooter.json")
 	self.speedShotImage = game.resourceBank:getImage("img/particles/speed_shot_beam.png")
 	
+	self.particle = nil
+	
 	self.settings = game.config.gameplay.shooter
 end
+
+
 
 function Shooter:update(dt)
 	-- movement
@@ -42,14 +46,21 @@ function Shooter:update(dt)
 	
 	-- filling
 	if self.active then
-		if game.session.sphereColorCounts[self.color] == 0 then self.color = 0 end
-		if game.session.sphereColorCounts[self.nextColor] == 0 then self.nextColor = 0 end
+		if game.session.sphereColorCounts[self.color] == 0 then self:setColor(0) end
+		if game.session.sphereColorCounts[self.nextColor] == 0 then self:setNextColor(0) end
 		self:fill()
 	end
 	
 	-- speed shot time counting
 	if self.speedShotTime > 0 then self.speedShotTime = math.max(self.speedShotTime - dt, 0) end
+	
+	-- particle position update
+	if self.particle then
+		self.particle.pos = self:spherePos()
+	end
 end
+
+
 
 function Shooter:translatePos(x)
 	return math.min(math.max(x, 20), NATIVE_RESOLUTION.x - 20)
@@ -69,6 +80,63 @@ function Shooter:getDelta(x, fromMouse)
 	end
 end
 
+
+
+function Shooter:setColor(color)
+	self.color = color
+	
+	-- Particle stuff
+	if self.particle then
+		self.particle:destroy()
+		self.particle = nil
+	end
+	if color == -1 then
+		self.particle = game:spawnParticle("particles/idle_ball_wild.json", self:spherePos())
+	elseif color == -2 then
+		self.particle = game:spawnParticle("particles/idle_ball_bomb.json", self:spherePos())
+	elseif color == -3 then
+		self.particle = game:spawnParticle("particles/idle_ball_lightning.json", self:spherePos())
+	end
+end
+
+function Shooter:setNextColor(color)
+	self.nextColor = color
+end
+
+function Shooter:empty()
+	self.active = false
+	self:setColor(0)
+	self:setNextColor(0)
+	self.speedShotTime = 0
+end
+
+function Shooter:getColor(color)
+	if self.color ~= 0 then
+		self:setColor(color)
+	elseif self.nextColor ~= 0 then
+		self:setNextColor(color)
+	end
+end
+
+function Shooter:swapColors()
+	-- we must be careful not to swap the spheres when they're absent
+	if game.session.level.pause or self.color == 0 or self.nextColor == 0 then return end
+	local tmp = self.color
+	self:setColor(self.nextColor)
+	self:setNextColor(tmp)
+	game:playSound("shooter_swap")
+end
+
+function Shooter:fill()
+	if self.nextColor == 0 then
+		self:setNextColor(game.session:newSphereColor())
+	end
+	if self.color == 0 and self.nextColor ~= 0 then
+		self:setColor(self.nextColor)
+		self:setNextColor(game.session:newSphereColor())
+	end
+end
+
 function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
 	if game.session.level.pause or not self.active or self.color == 0 then return end
@@ -85,49 +153,9 @@ function Shooter:shoot()
 		game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
 		self.active = false
 	end
-	self.color = 0
+	self:setColor(0)
 	game.session.level.spheresShot = game.session.level.spheresShot + 1
 	game:playSound("sphere_shoot_" .. sound)
-end
-
-function Shooter:fill()
-	if self.nextColor == 0 then
-		self.nextColor = game.session:newSphereColor()
-	end
-	if self.color == 0 and self.nextColor ~= 0 then
-		self.color = self.nextColor
-		self.nextColor = game.session:newSphereColor()
-	end
-end
-
-function Shooter:empty()
-	self.active = false
-	self.color = 0
-	self.nextColor = 0
-	self.speedShotTime = 0
-end
-
-function Shooter:getColor(color)
-	if self.color ~= 0 then
-		self.color = color
-	elseif self.nextColor ~= 0 then
-		self.nextColor = color
-	end
-end
-
-function Shooter:getReticalColor()
-	if self.color > 0 then return SPHERE_COLORS[self.color] end
-	if self.color == -1 then return getRainbowColor(totalTime / 3) end
-	if self.color == -2 then return Color(1, 0.7, 0) end
-	if self.color == -3 then return Color(0.7, 0.8, 1) end
-	return Color()
-end
-
-function Shooter:swapColors()
-	-- we must be careful not to swap the spheres when they're absent
-	if game.session.level.pause or self.color == 0 or self.nextColor == 0 then return end
-	self.color, self.nextColor = self.nextColor, self.color
-	game:playSound("shooter_swap")
 end
 
 
@@ -186,6 +214,16 @@ function Shooter:drawSpeedShotBeam()
 	if self.settings.speedShotBeamRenderingType == "cut" then
 		love.graphics.setScissor()
 	end
+end
+
+
+
+function Shooter:getReticalColor()
+	if self.color > 0 then return SPHERE_COLORS[self.color] end
+	if self.color == -1 then return getRainbowColor(totalTime / 3) end
+	if self.color == -2 then return Color(1, 0.7, 0) end
+	if self.color == -3 then return Color(0.7, 0.8, 1) end
+	return Color()
 end
 
 function Shooter:spherePos()
