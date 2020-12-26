@@ -24,9 +24,9 @@ function ParticlePiece:new(manager, spawner, data, pos)
 	self.animationLoop = data.animationLoop
 	self.fadeInPoint = data.fadeInPoint
 	self.fadeOutPoint = data.fadeOutPoint
+	self.posRelative = data.posRelative
 	
 	self.animationFrame = data.animationFrameRandom and math.random(1, self.animationFrameCount) or 1
-	self.alpha = 1
 	
 	self.delQueue = false
 end
@@ -48,15 +48,6 @@ function ParticlePiece:update(dt)
 	if self.animationFrame >= self.animationFrameCount + 1 then
 		if self.animationLoop then self.animationFrame = self.animationFrame - self.animationFrameCount end
 		--self:destroy()
-	end
-	
-	-- alpha
-	if self.lifetime < self.lifespan * (1 - self.fadeOutPoint) then
-		self.alpha = self.lifetime / (self.lifespan * (1 - self.fadeOutPoint))
-	elseif self.lifetime > self.lifespan * (1 - self.fadeInPoint) then
-		self.alpha = 1 - (self.lifetime - self.lifespan * (1 - self.fadeInPoint)) / (self.lifespan * self.fadeInPoint)
-	else
-		self.alpha = 1
 	end
 	
 	-- detach when spawner/packet is gone
@@ -87,8 +78,30 @@ end
 
 
 
+function ParticlePiece:getPos()
+	if self.posRelative and self.packet then
+		return self.packet.pos + self.pos
+	else
+		return self.pos
+	end
+end
+
+function ParticlePiece:getAlpha()
+	if not self.lifespan then
+		return 1
+	end
+	
+	if self.lifetime < self.lifespan * (1 - self.fadeOutPoint) then
+		return self.lifetime / (self.lifespan * (1 - self.fadeOutPoint))
+	elseif self.lifetime > self.lifespan * (1 - self.fadeInPoint) then
+		return 1 - (self.lifetime - self.lifespan * (1 - self.fadeInPoint)) / (self.lifespan * self.fadeInPoint)
+	else
+		return 1
+	end
+end
+
 function ParticlePiece:draw()
-	self.image:draw(self.pos, Vec2(0.5), Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, nil, self.alpha)
+	self.image:draw(self:getPos(), Vec2(0.5), Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, nil, self:getAlpha())
 end
 
 return ParticlePiece

@@ -30,8 +30,8 @@ function ParticleManager:spawnParticlePacket(path, pos)
 	return packet
 end
 
-function ParticleManager:spawnParticleSpawner(packet, data, pos)
-	table.insert(self.particleSpawners, ParticleSpawner(self, packet, data, pos))
+function ParticleManager:spawnParticleSpawner(packet, data)
+	table.insert(self.particleSpawners, ParticleSpawner(self, packet, data))
 end
 
 function ParticleManager:spawnParticlePiece(spawner, data, pos)

@@ -1,12 +1,14 @@
 local class = require "com/class"
 local ParticleSpawner = class:derive("ParticleSpawner")
 
-function ParticleSpawner:new(manager, packet, data, pos)
+local Vec2 = require("src/Essentials/Vector2")
+
+function ParticleSpawner:new(manager, packet, data)
 	self.manager = manager
 	self.packet = packet
 	self.packet.spawnerCount = self.packet.spawnerCount + 1
 	
-	self.pos = pos
+	self.pos = Vec2()
 	self.speed = parseVec2(data.speed)
 	self.acceleration = parseVec2(data.acceleration)
 	self.lifespan = data.lifespan -- nil if it lives indefinitely
@@ -49,8 +51,14 @@ function ParticleSpawner:update(dt)
 	end
 end
 
+
+
+function ParticleSpawner:getPos()
+	return self.pos + self.packet.pos
+end
+
 function ParticleSpawner:draw()
-	local p = posOnScreen(self.pos)
+	local p = posOnScreen(self:getPos())
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.setLineWidth(2)
 	love.graphics.rectangle("line", p.x - 10, p.y - 10, 20, 20)
@@ -59,7 +67,11 @@ end
 function ParticleSpawner:spawnPiece()
 	if self.pieceCount == self.spawnMax then return end
 	
-	self.manager:spawnParticlePiece(self, self.particleData, self.pos)
+	local p = Vec2()
+	if not self.particleData.posRelative then
+		p = self:getPos()
+	end
+	self.manager:spawnParticlePiece(self, self.particleData, p)
 end
 
 
