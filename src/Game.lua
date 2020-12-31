@@ -185,6 +185,9 @@ function Game:draw()
 		self.widgetVariables.levelMaxChain = self.session.level.maxChain
 	end
 	
+	-- Particles
+	if self.particleManager then self.particleManager:draw() end
+	
 	-- Widgets
 	dbg:profDraw2Start()
 	for i, layer in ipairs(self.config.hudLayerOrder) do
@@ -193,9 +196,6 @@ function Game:draw()
 		end
 	end
 	dbg:profDraw2Stop()
-	
-	-- Particles
-	if self.particleManager then self.particleManager:draw() end
 	
 	-- Borders
 	love.graphics.setColor(0, 0, 0)
