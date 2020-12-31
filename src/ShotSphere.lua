@@ -52,6 +52,7 @@ function ShotSphere:moveStep()
 			game.session:destroyRadius(self.pos, 125)
 			self:destroy()
 			game:playSound("sphere_hit_fire")
+			game:spawnParticle("particles/collapse_ball_bomb.json", self.pos)
 		else
 			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
