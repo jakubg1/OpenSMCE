@@ -204,7 +204,7 @@ end
 
 -- This function allows to load images from external sources.
 -- This is an altered code from https://love2d.org/forums/viewtopic.php?t=85350#p221460
-function loadImage(path)
+function loadImageData(path)
 	local f = io.open(path, "rb")
 	if f then
 		local data = f:read("*all")
@@ -212,10 +212,14 @@ function loadImage(path)
 		if data then
 			data = love.filesystem.newFileData(data, "tempname")
 			data = love.image.newImageData(data)
-			local image = love.graphics.newImage(data)
-			return image
+			return data
 		end
 	end
+end
+
+function loadImage(path)
+	local image = love.graphics.newImage(loadImageData(path))
+	return image
 end
 
 -- This function allows to load sounds from external sources.
