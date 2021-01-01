@@ -5,6 +5,7 @@ local Image = require("src/Essentials/Image")
 local Sound = require("src/Essentials/Sound")
 local Music = require("src/Essentials/Music")
 local Font = require("src/Essentials/Font")
+local ColorPalette = require("src/Essentials/ColorPalette")
 
 function ResourceBank:new()
 	self.images = {}
@@ -15,6 +16,7 @@ function ResourceBank:new()
 	self.legacySprites = {}
 	self.particles = {}
 	self.fonts = {}
+	self.colorPalettes = {}
 	
 	
 	-- Step load variables
@@ -107,6 +109,16 @@ function ResourceBank:getFont(path)
 	return self.fonts[path]
 end
 
+function ResourceBank:loadColorPalette(path)
+	print("[RB] Loading color palette: " .. path .. "...")
+	self.colorPalettes[path] = ColorPalette(parsePath(path))
+end
+
+function ResourceBank:getColorPalette(path)
+	if not self.colorPalettes[path] then error("Resource Bank tried to get an unknown color palette: " .. path) end
+	return self.colorPalettes[path]
+end
+
 
 
 function ResourceBank:loadList(list)
@@ -127,6 +139,9 @@ function ResourceBank:loadList(list)
 	end
 	if list.fonts then
 		for i, path in ipairs(list.fonts) do self:loadFont(path) end
+	end
+	if list.colorPalettes then
+		for i, path in ipairs(list.colorPalettes) do self:loadColorPalette(path) end
 	end
 end
 
@@ -162,6 +177,8 @@ function ResourceBank:stepLoadNext()
 		self:loadParticle(data)
 	elseif objectType == "fonts" then
 		self:loadFont(data)
+	elseif objectType == "colorPalettes" then
+		self:loadColorPalette(data)
 	end
 	-- remove from the list
 	table.remove(self.stepLoadQueue[objectType], 1)
