@@ -11,7 +11,7 @@ function ColorPalette:new(path)
 end
 
 function ColorPalette:getColor(t)
-	return Color(self.data:getPixel((t % 1) * self.size.x, 1))
+	return Color(self.data:getPixel(t % self.size.x, 1))
 end
 
 return ColorPalette
