@@ -12,22 +12,37 @@ function ParticlePiece:new(manager, spawner, data)
 	
 	self.packetPos = self.packet.pos
 	
-	self.pos = self.spawner.pos
+	self.startPos = self.spawner.pos
 	if not data.posRelative then
-		self.pos = self.spawner:getPos()
+		self.startPos = self.spawner:getPos()
 	end
+	self.pos = self.startPos
 	
-	local spawnScale = parseVec2(data.spawnScale)
-	local spawnRotVec = Vec2(1):rotate(math.random() * math.pi * 2)
-	local spawnPos = spawnRotVec * spawnScale
+	
+	
+	self.speedMode = data.speedMode
+	
+	self.spawnScale = parseVec2(data.spawnScale)
+	self.posAngle = math.random() * math.pi * 2
+	local spawnRotVec = Vec2(1):rotate(self.posAngle)
+	local spawnPos = spawnRotVec * self.spawnScale
 	self.pos = self.pos + spawnPos
-	if data.spawnScaleAffectsSpeed then
-		self.speed = spawnPos * parseVec2(data.speed)
-	else
+	
+	if self.speedMode == "loose" then
 		self.speed = parseVec2(data.speed)
+	elseif self.speedMode == "radius" then
+		self.speed = spawnPos * parseVec2(data.speed)
+	elseif self.speedMode == "circle" then
+		self.speed = parseNumber(data.speed) * math.pi / 180 -- convert degrees to radians
+	else
+		error("Unknown particle speed mode: " .. tostring(self.speedMode))
 	end
 	
-	self.acceleration = parseVec2(data.acceleration)
+	if self.speedMode == "circle" then
+		self.acceleration = parseNumber(data.acceleration)
+	else
+		self.acceleration = parseVec2(data.acceleration)
+	end
 	
 	self.lifespan = parseNumber(data.lifespan) -- nil if it lives indefinitely
 	self.lifetime = self.lifespan
@@ -66,7 +81,12 @@ function ParticlePiece:update(dt)
 	-- position stuff
 	if self.directionDeviation then self.speed = self.speed:rotate(parseNumber(self.directionDeviationSpeed) * dt) end
 	self.speed = self.speed + self.acceleration * dt
-	self.pos = self.pos + self.speed * dt
+	if self.speedMode == "circle" then
+		self.posAngle = self.posAngle + self.speed * dt
+		self.pos = self.startPos + (self.spawnScale * Vec2(1):rotate(self.posAngle))
+	else
+		self.pos = self.pos + self.speed * dt
+	end
 	-- cache last packet position
 	if self.packet then
 		self.packetPos = self.packet.pos
