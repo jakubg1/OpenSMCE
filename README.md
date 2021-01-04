@@ -1,14 +1,42 @@
 # OpenSMCE
-Open-source Sphere Matcher Community Engine - an engine that is made to run very various SM games.
+**Open-source Sphere Matcher Community Engine** - an engine that is made to run various Sphere Matching games.
 
-The code runs on LOVE2D 11.3 and is executed by starting start.bat file.
+This is a **LÖVE2D** project. The supported version of the engine is **11.3**
 
-It will not work on itself though - a game is required.
+## Overview
+This engine was made in order to help the Sphere Matcher community.
+Sphere Matching game genre is niche and only a few good titles are released.
+In order to make the gameplay less boring and more challenging, the community decided to start modding games, most notably the first version of *Luxor*, along with *Luxor: Amun Rising*.
 
-The engine runs games located in `games` folder - a converter will be available to be able to convert content made for the original Luxor/Luxor AR engine.
+However, the original engine, while it allows for some flexibility, is filled with bugs and hardcoded parts which can't be changed without decompiling the original executable, which is prohibited.
+There were also no attempts to rewrite and improve the original engine, in order for modders to have more control of what they can do.
+This is why *OpenSMCE* was created - a project that is attempting to rewrite the Luxor game (not reverse engineer!) along with making it much more flexible and open-source.
 
-There is no game chooser yet - you can change the game name in parenthesis in main.lua:17.
+The engine is still in development - but you can help!
 
+## Launching
+If you have LÖVE2D installed, you can run the game by launching `start.bat`.
+Note that you may need to change the LÖVE executable path.
+
+## Games
+The engine runs games and thus you need to have some installed.
+You can install games by putting them in the `games` directory where the executable/batch script sits.
+
+There are no games publicly available right now, however two games are known to be converted.
+We will provide tools to convert and create games at some point.
+
+### Luxor
+The original Luxor game is the main one supported - however, due to copyright issues, we can't provide it along with the engine releases.
+However, if you do have the original game, there's a way to convert it.
+
+Check the README file in the main release directory for instructions. Note that there may be some outdated information.
+We will simplify the conversion process down the road, and we plan to make a video tutorial as well (once the full version is released).
+
+### Mario's Voyage
+This is the first Luxor mod to be successfully converted.
+However, for now there are just private playtest versions and the game is not publicly available yet.
+
+## What do I need?
 - For running the engine and playing the games:
   - just the executable, the files, the game and you're ready to go
 
@@ -18,64 +46,16 @@ There is no game chooser yet - you can change the game name in parenthesis in ma
 - For modifying the engine:
   - same as above, a text editor (preferably Notepad++), Lua knowledge, JSON knowledge, LOVE 11.3 installed and the code repository program to easily manage the code and update it
 
-```
-You will need:
-- raw uncompressed Luxor 1's data (must be 1; Amun Rising, 2 etc. won't work!),
-- Python 3.8 installed on your computer, along with the PIL library.
-The conversion is an one-time process, though it's likely that one would need to repeat it when a new version is installed.
-It takes about 60 to 90 seconds, not counting the installation of the Python and PIL itself.
+## Documentation
+The documentation will come at some point. Unfortunately, there is no documentation for now.
 
-
-
-Python Installation:
-1. Go to the official Python page and download the latest version.
-2. Open the installer.
-3. MAKE SURE YOU ENABLE "Add Python 3.8 to PATH" setting! It will be important!
-4. Click "Install Now"
-5. Wait until the installation finishes.
-
-PIL library installation:
-1. Open the command prompt.
-2. Write "pip install pillow" and press Enter. Confirm everything with Y.
-
-If everything was done properly, Python along with PIL should be installed correctly.
-
-
-
-Installation:
-1. Uncompress Luxor files using QuickBMS - both "data.mjz" and "English.mjz" files will be needed.
-2. Copy all "English" folder contents to the "data" folder.
-3. Copy the "data" folder to the "games" folder in your OpenSMCE main directory.
-4. If you can, you can try launching the "main.py" file located in the "games" folder. It doesn't always work!
-
-Workaround:
-	1. Open the command prompt.
-	2. Go to the "games" folder (cd <path>)
-	3. Write "py main.py" and it should work.
-
-If neither of these methods work, please hit me up on Discord (jakubg1#2036) or contact me via other kind of chat, if possible. We'll try to resolve the problem together!
-
-If everything gone well, you should have the following two lines at the bottom of the console:
-	Done!
-	Everything is done!
-If so, proceed on to the next step.
-
-5. Copy the "music" and "sound" folders from the data folder to the newly created "output" folder.
-6. Copy the "background.jpg" file from the "assets" folder from the original Luxor game. Open it in Paint, and save it as "background.png". Put it in the "output/img/splash" folder.
-7. Copy the "luxor_appendix" folder contents to the "output" folder.
-8. You can delete the "luxor_appendix" and extracted data folders. Same goes with the script used in point 3. However, if you're a developer and want to improve the converter script, feel free to examine it!
-9. Rename "output" folder to "Luxor" (the case is important).
-
-After all these tedious steps, everything should work fine. If not, please hit me up and we'll try to resolve the problem!
-```
-
-
-
+## Notes
 This engine is on beta stage - currently, some modules are being overhauled and new features being added to fully support the Luxor game.
 
-In current shape, it is intended to play Luxor game. Next steps will add support for Luxor Amun Rising, its huge variety of mods and Zuma respectively.
+In current shape, it is intended to play the Luxor game along with its mods. Next steps will add support for Luxor Amun Rising, its huge variety of mods and Zuma respectively.
 
-ETA of leaving beta stage (original Luxor game fully working and playable): end of 2020
+ETA of leaving beta stage (original Luxor game fully working and playable) is January 17, 2021.
+Keep it mind that it might be delayed!
 
 Stay tuned!
 
