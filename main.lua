@@ -17,7 +17,7 @@ local Game = require("src/Game")
 
 
 -- CONSTANT ZONE
-VERSION = "v2.0.1-beta"
+VERSION = "v2.1.0-beta"
 
 
 -- TODO: at some point, get rid of these here and make them configurable
