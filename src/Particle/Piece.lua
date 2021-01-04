@@ -40,13 +40,14 @@ function ParticlePiece:new(manager, spawner, data)
 	self.fadeInPoint = data.fadeInPoint
 	self.fadeOutPoint = data.fadeOutPoint
 	self.posRelative = data.posRelative
-	self.rainbow = data.rainbow
-	self.rainbowSpeed = data.rainbowSpeed
 	self.directionDeviation = false -- is switched to true after directionDeviationTime seconds (if that exists)
 	self.directionDeviationTime = parseNumber(data.directionDeviationTime)
 	self.directionDeviationSpeed = data.directionDeviationSpeed -- evaluated every frame
 	
 	self.animationFrame = data.animationFrameRandom and math.random(1, self.animationFrameCount) or 1
+	
+	self.colorPalette = data.colorPalette and game.resourceBank:getColorPalette(data.colorPalette)
+	self.colorPaletteSpeed = data.colorPaletteSpeed
 	
 	self.delQueue = false
 end
@@ -115,10 +116,10 @@ function ParticlePiece:getPos()
 end
 
 function ParticlePiece:getColor()
-	if not self.rainbow then
-		return nil
+	if self.colorPalette then
+		local t = (self.colorPaletteSpeed and self.time * self.colorPaletteSpeed or 0)
+		return self.colorPalette:getColor(t)
 	end
-	return getRainbowColor(self.time * self.rainbowSpeed / 30)
 end
 
 function ParticlePiece:getAlpha()
