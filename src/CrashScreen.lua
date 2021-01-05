@@ -21,6 +21,15 @@ function CrashScreen:new(err)
 		{name = "Exit without saving", hovered = false, pos = Vec2(410, 550), size = Vec2(360, 25)}
 	}
 	self.url = "https://github.com/jakubg1/OpenSMCE/issues"
+	
+	
+	
+	if math.random() <3 then
+		pcall(function()
+			local sound = love.audio.newSource("assets/crash.wav", "static")
+			sound:play()
+		end)
+	end
 end
 
 function CrashScreen:update(dt)
