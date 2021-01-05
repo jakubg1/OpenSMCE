@@ -79,6 +79,16 @@ function UIWidget:new(name, data, parent)
 	self.actions = data.actions or {}
 	self.active = false
 	self.hotkey = data.hotkey
+	
+	
+	-- init animation alpha/position
+	if self.animations.in_ then
+		if self.animations.in_.type == "fade" then
+			self.alpha = self.animations.in_.startValue
+		elseif self.animations.in_.type == "move" then
+			self.pos = parseVec2(self.animations.in_.startPos)
+		end
+	end
 end
 
 function UIWidget:update(dt)
