@@ -58,7 +58,7 @@ function Debug:draw()
 		love.graphics.setColor(0, 0, 0, 0.5)
 		love.graphics.rectangle("fill", 0, 0, 460, 600)
 		love.graphics.setColor(1, 1, 1)
-		for i, line in ipairs(self.getUITreeText()) do
+		for i, line in ipairs(self:getUITreeText()) do
 			love.graphics.print(line[1], 10, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[2], 260, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[3], 270, 10 + i * 15 + self.uiDebugOffset)
@@ -120,7 +120,7 @@ function Debug:getUITreeText(widget, rowTable, indent)
 	
 	--if 
 	for childN, child in pairs(widget.children) do
-		self.getUITreeText(child, rowTable, indent + 1)
+		self:getUITreeText(child, rowTable, indent + 1)
 	end
 	
 	return rowTable
