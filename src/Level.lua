@@ -404,7 +404,8 @@ function Level:serialize()
 		collectibles = {},
 		combo = self.combo,
 		destroyedSpheres = self.destroyedSpheres,
-		paths = self.map:serialize()
+		paths = self.map:serialize(),
+		lost = self.lost
 	}
 	for i, shotSphere in ipairs(self.shotSpheres.objects) do
 		table.insert(t.shotSpheres, shotSphere:serialize())
@@ -430,6 +431,7 @@ function Level:deserialize(t)
 	self.maxCombo = t.stats.maxCombo
 	self.combo = t.combo
 	self.destroyedSpheres = t.destroyedSpheres
+	self.lost = t.lost
 	-- Utils
 	self.controlDelay = t.controlDelay
 	self.finish = t.finish
