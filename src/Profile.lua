@@ -11,6 +11,9 @@ function Profile:new(data, name)
 		-- TODO: change behavior after ProfileManager is done
 		self:reset()
 	end
+	
+	self.mapData = nil
+	self:reloadMapData()
 end
 
 
@@ -38,6 +41,12 @@ end
 
 function Profile:setCurrentLevel(data)
 	self.data.levels[tostring(self.data.session.level)] = data
+end
+
+function Profile:reloadMapData()
+	local levelData = loadJson(parsePath(self:getCurrentLevelData().path))
+	local path = "maps/" .. levelData.map
+	self.mapData = loadJson(parsePath(path .. "/config.json"))
 end
 
 
@@ -93,6 +102,8 @@ function Profile:winLevel(score)
 	currentLevel.won = currentLevel.won + 1
 	self:setCurrentLevel(currentLevel)
 	self.data.session.level = self.data.session.level + 1
+	self:reloadMapData()
+	self:unsaveLevel()
 	
 	-- returns true if we have a new record
 	return newRecord

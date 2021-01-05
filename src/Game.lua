@@ -162,6 +162,9 @@ function Game:draw()
 		self.widgetVariables.coins = self.runtimeManager.profile:getCoins()
 		self.widgetVariables.score = numStr(self.session.scoreDisplay)
 		self.widgetVariables.player = self.runtimeManager.profile.name
+		self.widgetVariables.levelName = self.runtimeManager.profile:getCurrentLevelData().name
+		self.widgetVariables.levelMapName = self.runtimeManager.profile.mapData.name
+		self.widgetVariables.stageName = self.config.stageNamesTEMP[self.runtimeManager.profile:getCurrentLevelData().stage]
 		for i, entry in ipairs(self.runtimeManager.highscores.data.entries) do
 			self.widgetVariables["highscore" .. tostring(i) .. "score"] = numStr(entry.score)
 			self.widgetVariables["highscore" .. tostring(i) .. "name"] = entry.name
@@ -174,8 +177,6 @@ function Game:draw()
 	
 	if self:levelExists() then
 		self.widgetVariables.progress = self.session.level.destroyedSpheres / self.session.level.target
-		self.widgetVariables.levelName = self.session.level.name
-		self.widgetVariables.levelMapName = self.session.level.map.name
 		self.widgetVariables.levelScore = numStr(self.session.level.score)
 		self.widgetVariables.levelShots = self.session.level.spheresShot
 		self.widgetVariables.levelCoins = self.session.level.coins
