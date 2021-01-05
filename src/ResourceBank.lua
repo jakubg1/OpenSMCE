@@ -25,7 +25,7 @@ function ResourceBank:new()
 	self.stepLoadTotalObjs = 0
 	self.stepLoadTotalObjsFrac = 0
 	self.stepLoadProcessedObjs = 0
-	self.STEP_LOAD_FACTOR = 1 -- objects processed per frame; lower values can slow down the loading process significantly, while higher values can lag the progress bar
+	self.STEP_LOAD_FACTOR = 3 -- objects processed per frame; lower values can slow down the loading process significantly, while higher values can lag the progress bar
 end
 
 function ResourceBank:update(dt)
@@ -50,7 +50,7 @@ end
 
 function ResourceBank:loadImage(path, frames)
 	-- we need sprites to convey images as objects as well, that shouldn't really be a problem because the number of frames is always constant for each given image
-	print("[RB] Loading image: " .. path .. "...")
+	--print("[RB] Loading image: " .. path .. "...")
 	self.images[path] = Image(parsePath(path), parseVec2(frames))
 end
 
@@ -60,7 +60,7 @@ function ResourceBank:getImage(path)
 end
 
 function ResourceBank:loadSound(path, loop)
-	print("[RB] Loading sound: " .. path .. "...")
+	--print("[RB] Loading sound: " .. path .. "...")
 	self.sounds[path] = Sound(parsePath(path), loop)
 end
 
@@ -70,7 +70,7 @@ function ResourceBank:getSound(path)
 end
 
 function ResourceBank:loadMusic(path)
-	print("[RB] Loading music: " .. path .. "...")
+	--print("[RB] Loading music: " .. path .. "...")
 	self.music[path] = Music(parsePath(path))
 end
 
@@ -80,7 +80,7 @@ function ResourceBank:getMusic(path)
 end
 
 function ResourceBank:loadLegacySprite(path)
-	print("[RB] Loading LEGACY sprite: " .. path .. "...")
+	--print("[RB] Loading LEGACY sprite: " .. path .. "...")
 	self.legacySprites[path] = loadJson(parsePath(path))
 end
 
@@ -90,7 +90,7 @@ function ResourceBank:getLegacySprite(path)
 end
 
 function ResourceBank:loadParticle(path)
-	print("[RB] Loading particle: " .. path .. "...")
+	--print("[RB] Loading particle: " .. path .. "...")
 	self.particles[path] = loadJson(parsePath(path))
 end
 
@@ -100,7 +100,7 @@ function ResourceBank:getParticle(path)
 end
 
 function ResourceBank:loadFont(path)
-	print("[RB] Loading font: " .. path .. "...")
+	--print("[RB] Loading font: " .. path .. "...")
 	self.fonts[path] = Font(parsePath(path))
 end
 
@@ -110,7 +110,7 @@ function ResourceBank:getFont(path)
 end
 
 function ResourceBank:loadColorPalette(path)
-	print("[RB] Loading color palette: " .. path .. "...")
+	--print("[RB] Loading color palette: " .. path .. "...")
 	self.colorPalettes[path] = ColorPalette(parsePath(path))
 end
 
@@ -163,7 +163,7 @@ function ResourceBank:stepLoadNext()
 	for k, v in pairs(self.stepLoadQueue) do objectType = k; break end -- loading a first object type that it comes
 	-- get data
 	local data = self.stepLoadQueue[objectType][1]
-	print("[RB] Processing item " .. tostring(self.stepLoadProcessedObjs + 1) .. " from " .. tostring(self.stepLoadTotalObjs) .. "...")
+	--print("[RB] Processing item " .. tostring(self.stepLoadProcessedObjs + 1) .. " from " .. tostring(self.stepLoadTotalObjs) .. "...")
 	-- load
 	if objectType == "images" then
 		self:loadImage(data.path, data.frames)
