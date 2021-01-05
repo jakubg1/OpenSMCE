@@ -242,7 +242,7 @@ function Path:getNodeID(pixels)
 		pixels = pixels - self.nodes[nodeID].length
 	end
 	-- returns a node ID and how many pixels afterwards the given position is
-	local remainder = 0
+	local remainder = pixels
 	if self.nodes[nodeID] then remainder = self.nodes[nodeID].length + pixels end
 	return nodeID, remainder
 end
@@ -251,7 +251,7 @@ function Path:getPos(pixels)
 	if pixels then
 		local nodeID, remainder = self:getNodeID(pixels)
 		if nodeID == 0 then return self.nodes[1].pos end
-		if nodeID > #self.nodes then return self.nodes[#self.nodes].pos end
+		if nodeID > #self.nodes then return self.nodes[#self.nodes].pos end -- + Vec2(0, -remainder):rotate(self.nodes[#self.nodes].angle) end
 		local part = remainder / self.nodes[nodeID].length
 		return self.nodes[nodeID].pos * (1 - part) + self.nodes[nodeID + 1].pos * part
 	else
