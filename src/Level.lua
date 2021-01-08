@@ -115,7 +115,7 @@ function Level:update(dt)
 		
 		
 		-- Level finish
-		if self:getFinish() and not self.finish and not self.finishDelay then
+		if self:getFinish() and not self.finish and not self.finishDelay and not self.lost then
 			self.finishDelay = 2
 			self.shooter.active = false
 		end
