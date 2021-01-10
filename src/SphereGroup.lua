@@ -498,7 +498,7 @@ function SphereGroup:getLastSpherePos()
 end
 
 function SphereGroup:getFrontPos()
-	return self:getLastSphereOffset() + 32 * self:getLastSphere().size - 16
+	return self:getLastSphereOffset() + 16
 end
 
 function SphereGroup:getBackPos()
