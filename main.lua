@@ -14,10 +14,13 @@ local Debug = require("src/Debug")
 local BootScreen = require("src/BootScreen")
 local Game = require("src/Game")
 
+local DiscordRichPresence = require("src/DiscordRichPresence")
+
 
 
 -- CONSTANT ZONE
 VERSION = "v2.1.0-beta"
+DISCORD_APPLICATION_ID = "797956172539887657"
 
 
 -- TODO: at some point, get rid of these here and make them configurable
@@ -74,6 +77,9 @@ function love.load()
 	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
 	game = BootScreen()
 	dbg = Debug()
+	discordRPC = DiscordRichPresence()
+	-- Init boot screen
+	game:init()
 end
 
 function love.update(dt)
@@ -83,6 +89,7 @@ function love.update(dt)
 	if game then game:update(dt * timeScale) end
 	
 	dbg:update(dt)
+	discordRPC:update(dt)
 	
 	-- rainbow effect for the shooter and console cursor blink; to be phased out soon
 	totalTime = totalTime + dt
@@ -140,6 +147,7 @@ end
 
 function love.quit()
 	print("[] User-caused Exit... []")
+	discordRPC:disconnect()
 	if game.quit then game:quit() end
 end
 

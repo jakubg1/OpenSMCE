@@ -52,6 +52,8 @@ function love.errorhandler(msg)
 	
 	love.graphics.origin()
 	
+	if discordRPC then discordRPC:disconnect() end
+	
 	local sanitizedmsg = {}
 	for char in msg:gmatch(utf8.charpattern) do
 		table.insert(sanitizedmsg, char)

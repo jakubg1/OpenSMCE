@@ -11,12 +11,20 @@ function BootScreen:new()
 	-- github url link
 	self.url = "https://github.com/jakubg1/OpenSMCE"
 	self.urlHovered = false
-	self.urlHoverPos = Vec2(35, 204)
+	self.urlHoverPos = Vec2(35, 184)
 	self.urlHoverSize = Vec2(365, 25)
 	
 	-- game list
-	self.games = self:getGames()
+	self.games = nil
 	self.gameHovered = nil
+end
+
+function BootScreen:init()
+	-- game list
+	self.games = self:getGames()
+	
+	-- discord rpc connection
+	discordRPC:connect()
 end
 
 function BootScreen:update(dt)
@@ -81,13 +89,13 @@ function BootScreen:draw()
 	-- WARNING contents
 	love.graphics.setColor(1, 1, 0.2)
 	love.graphics.setFont(self.font)
-	love.graphics.print("This engine is still in EARLY BETA DEVELOPMENT.\nDON'T expect it to be full of features, DO expect it will be full of bugs.\nThis version is dedicated to people who want to test the engine and examine it.\nHowever, you are modifying the game files at your own risk!! It may break, and I'm aware of that.\nThis version should NOT be treated like a full version. It's still far from it.\nRemember to post issues and feature suggestions at the following Github repository link.\nHowever, bear in mind I'm not taking suggestions for now. Keep them for later, now I'm working on crucial things.", 45, 100)
+	love.graphics.print("This engine is in BETA DEVELOPMENT.\nExpect that it will be full of bugs. This version is dedicated to people who want to test the engine and examine it.\nThis version should NOT be treated like a full version.\nRemember to post issues and feature suggestions at the following Github repository link.", 45, 100)
 	-- Github link
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.fontBig)
-	love.graphics.print(self.url, 45, 205)
+	love.graphics.print(self.url, 45, 185)
 	love.graphics.setLineWidth(4)
-	love.graphics.rectangle("line", 30, 60, 740, 180) -- frame
+	love.graphics.rectangle("line", 30, 60, 740, 150) -- frame
 	
 	-- Game list
 	love.graphics.print("Game List", 30, 270)
@@ -124,6 +132,11 @@ function BootScreen:draw()
 	if self.urlHovered then
 		love.graphics.print("<--- Click here to open the page!", self.urlHoverPos.x + self.urlHoverSize.x + 20, self.urlHoverPos.y + 8, 0.1)
 	end
+	
+	-- Discord Rich Presence status
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setFont(self.fontBig)
+	love.graphics.print("Discord Integration: ", 30, 220)
 end
 
 
