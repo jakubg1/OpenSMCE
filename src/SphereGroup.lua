@@ -59,6 +59,8 @@ function SphereGroup:update(dt)
 	if self.speed > self.maxSpeed then
 		if self.sphereChain.reverseTime > 0 then
 			self.speed = self.maxSpeed
+		elseif self.prevGroup then -- magnetization
+			self.speed = math.max(self.speed - self.settings.decceleration * dt, self.maxSpeed)
 		elseif self.sphereChain.slowTime > 0 or self.sphereChain.stopTime > 0 then
 			self.speed = math.max(self.speed - self.settings.slowDecceleration * dt, self.maxSpeed)
 		else
