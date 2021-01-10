@@ -164,7 +164,12 @@ function UIWidget:hide()
 		if self.visible then
 			--print("[" .. tostring(totalTime) .. "] " .. self:getFullName() .. " hidden")
 			self.visible = false
-			if self.animations.out then self.animationTime = 0 else self.animationTime = nil end -- sets to 0 if animation exists, nil otherwise
+			if self.animations.out then
+				self.animationTime = 0
+			else
+				self.animationTime = nil -- sets to 0 if animation exists, nil otherwise
+				if self.widget and self.widget.type == "particle" then self.widget:despawn() end
+			end
 			if self.sounds.out then self.sounds.out:play() end
 			self.time = self.showDelay
 		else

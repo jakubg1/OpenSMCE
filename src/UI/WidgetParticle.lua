@@ -21,6 +21,10 @@ function UIWidgetParticle:spawn()
 	self.manager:spawnParticlePacket(self.path, self.parent:getPos())
 end
 
+function UIWidgetParticle:despawn()
+	self.manager:clear()
+end
+
 
 
 function UIWidgetParticle:draw()

@@ -80,6 +80,12 @@ function ParticleManager:getParticlePieceCount()
 	return #self.particlePieces
 end
 
+function ParticleManager:clear()
+	self.particlePackets = {}
+	self.particleSpawners = {}
+	self.particlePieces = {}
+end
+
 
 
 function ParticleManager:draw()
