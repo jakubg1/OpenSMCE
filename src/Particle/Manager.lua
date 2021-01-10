@@ -83,7 +83,6 @@ end
 function ParticleManager:clear()
 	self.particlePackets = {}
 	self.particleSpawners = {}
-	self.particlePieces = {}
 end
 
 
