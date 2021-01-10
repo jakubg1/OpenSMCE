@@ -66,4 +66,5 @@ This repository contains code from following sources:
   - JSON decoder/encoder implementation from https://github.com/rxi/json.lua
   - Discord Rich Presence DLL from https://github.com/discord/discord-rpc
   - Lua wrapper for Discord Rich Presence from https://github.com/pfirsich/lua-discordRPC
+
 All of the above is licensed under MIT license.
