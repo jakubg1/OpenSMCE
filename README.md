@@ -62,5 +62,8 @@ Stay tuned!
 
 
 This repository contains code from following sources:
-  - Class implementation from https://github.com/bncastle/love2d-tutorial/blob/Episode4/class.lua (MIT license)
-  - JSON decoder/encoder implementation from https://github.com/rxi/json.lua (MIT license)
+  - Class implementation from https://github.com/bncastle/love2d-tutorial/blob/Episode4/class.lua
+  - JSON decoder/encoder implementation from https://github.com/rxi/json.lua
+  - Discord Rich Presence DLL from https://github.com/discord/discord-rpc
+  - Lua wrapper for Discord Rich Presence from https://github.com/pfirsich/lua-discordRPC
+All of the above is licensed under MIT license.
