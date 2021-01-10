@@ -378,7 +378,9 @@ function SphereGroup:draw(hidden, shadow)
 			end
 		end
 	end
-	--self:drawDebug()
+	if dbg.sphereDebugVisible2 then
+		self:drawDebug()
+	end
 end
 
 function SphereGroup:drawDebug()

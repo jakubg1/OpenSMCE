@@ -33,6 +33,7 @@ function Debug:new()
 	self.particleSpawnersVisible = false
 	self.gameDebugVisible = false
 	self.sphereDebugVisible = false
+	self.sphereDebugVisible2 = false
 end
 
 
@@ -81,6 +82,7 @@ function Debug:keypressed(key)
 		if key == "q" then self.particleSpawnersVisible = not self.particleSpawnersVisible end
 		if key == "d" then self.gameDebugVisible = not self.gameDebugVisible end
 		if key == "p" then self.sphereDebugVisible = not self.sphereDebugVisible end
+		if key == "h" then self.sphereDebugVisible2 = not self.sphereDebugVisible2 end
 		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
 		if key == "kp+" and self.profPage < #self.profPages then self.profPage = self.profPage + 1 end
 		if key == "," then self.uiDebugOffset = self.uiDebugOffset - 75 end
