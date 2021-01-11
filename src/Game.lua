@@ -141,6 +141,24 @@ function Game:tick(dt) -- always with 1/60 seconds
 	for i, sphereSprite in pairs(self.sphereSprites) do sphereSprite:update(dt) end
 	
 	if self.particleManager then self.particleManager:update(dt) end
+	
+	-- Discord Rich Presence
+	local line1 = "Playing: " .. self.name
+	if self:levelExists() then
+		local line2 = string.format("Level %s (%s%%), Score: %s, Lives: %s",
+			self.widgetVariables.levelName,
+			math.floor(self.widgetVariables.progress * 100),
+			self.widgetVariables.score,
+			self.widgetVariables.lives
+		)
+		discordRPC:setStatus(line1, line2)
+	else
+		local line2 = string.format("In menus, Score: %s, Lives: %s",
+			self.widgetVariables.score,
+			self.widgetVariables.lives
+		)
+		discordRPC:setStatus(line1, line2)
+	end
 end
 
 function Game:sessionExists()
@@ -160,7 +178,8 @@ function Game:draw()
 		
 		self.widgetVariables.lives = self.runtimeManager.profile:getLives()
 		self.widgetVariables.coins = self.runtimeManager.profile:getCoins()
-		self.widgetVariables.score = numStr(self.session.scoreDisplay)
+		self.widgetVariables.score = numStr(self.runtimeManager.profile:getScore())
+		self.widgetVariables.scoreAnim = numStr(self.session.scoreDisplay)
 		self.widgetVariables.player = self.runtimeManager.profile.name
 		self.widgetVariables.levelName = self.runtimeManager.profile:getCurrentLevelData().name
 		self.widgetVariables.levelMapName = self.runtimeManager.profile.mapData.name
