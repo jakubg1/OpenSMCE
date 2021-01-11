@@ -115,7 +115,7 @@ function Level:update(dt)
 		
 		
 		-- Level finish
-		if self:getFinish() and not self.finish and not self.finishDelay and not self.lost then
+		if self:getFinish() and not self.finish and not self.finishDelay then
 			self.finishDelay = 2
 			self.shooter.active = false
 		end
@@ -194,8 +194,25 @@ function Level:newSphereColor()
 end
 
 function Level:newPowerupData()
-	local data = {type = "powerup", name = self.powerups[math.random(1, #self.powerups)]}
-	if data.name == "colorbomb" then data.color = game.session:newSphereColor(true) end
+	local names = {}
+	local weights = {}
+	local totalWeight = 0
+	for i, powerup in ipairs(self.powerups) do
+		local powerupData = game.powerups[powerup]
+		table.insert(names, powerup)
+		table.insert(weights, powerupData.weight)
+		totalWeight = totalWeight + powerupData.weight
+	end
+	local rnd = math.random(totalWeight) -- from 1 to totalWeight, inclusive, integer!!
+	local i = 1
+	while rnd > weights[i] do
+		rnd = rnd - weights[i]
+		i = i + 1
+	end
+	local powerupName = names[i]
+	local powerupData = game.powerups[powerupName]
+	local data = {type = "powerup", name = powerupName}
+	if powerupData.colored then data.color = game.session:newSphereColor(true) end
 	return data
 end
 

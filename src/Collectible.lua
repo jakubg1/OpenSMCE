@@ -15,21 +15,22 @@ function Collectible:new(deserializationTable, pos, data)
 		self.acceleration = Vec2(0, 300)
 	end
 	
-	local n = nil
+	self.powerupConfig = nil
+	
+	local particleName = nil
 	if self.data.type == "powerup" then
-		if self.data.name == "shotspeed" then
-			n = "powerup_speed_shot"
-		elseif self.data.name == "colorbomb" then
-			n = "powerup_bomb_color_" .. tostring(self.data.color)
+		self.powerupConfig = game.powerups[self.data.name]
+		if self.powerupConfig.colored then
+			particleName = self.powerupConfig.particle[tostring(self.data.color)]
 		else
-			n = "powerup_" .. self.data.name
+			particleName = self.powerupConfig.particle
 		end
 	elseif self.data.type == "gem" then
-		n = "gem_" .. tostring(self.data.color)
+		particleName = "particles/gem_" .. tostring(self.data.color) .. ".json"
 	elseif self.data.type == "coin" then
-		n = "powerup_coin"
+		particleName = "particles/powerup_coin.json"
 	end
-	self.particle = game:spawnParticle("particles/" .. n .. ".json", self.pos)
+	self.particle = game:spawnParticle(particleName, self.pos)
 end
 
 function Collectible:update(dt)
@@ -59,7 +60,8 @@ end
 function Collectible:catch()
 	self:destroy()
 	if self.data.type == "powerup" then
-		game.session:usePowerup(self.data)
+		game.session:usePowerupEffect(self.powerupConfig.effect, self.data.color)
+		game:playSound(self.powerupConfig.pickupSound)
 	else
 		game:playSound("collectible_catch_" .. self.data.type)
 	end
@@ -77,7 +79,11 @@ function Collectible:catch()
 		game.session.level:spawnFloatingText(numStr(score), self.pos, "fonts/score0.json")
 	end
 	if self.data.type == "powerup" then
-		game.session.level:spawnFloatingText(POWERUP_CATCH_TEXTS[self.data.name], self.pos, "fonts/score" .. tostring(self.data.color or 0) .. ".json")
+		local font = self.powerupConfig.pickupFont
+		if self.powerupConfig.colored then
+			font = game.spheres[self.data.color].matchFont
+		end
+		game.session.level:spawnFloatingText(self.powerupConfig.pickupName, self.pos, font)
 	end
 	game:spawnParticle("particles/powerup_catch.json", self.pos)
 end

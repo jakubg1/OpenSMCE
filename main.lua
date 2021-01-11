@@ -37,16 +37,6 @@ SPHERE_COLORS = {
 	[8] = Color(1, 0.5, 0),
 	[9] = Color(0, 0.5, 1)
 }
-POWERUP_CATCH_TEXTS = {
-	bomb = "FIREBALL!",
-	colorbomb = "COLOR BOMB!",
-	lightning = "LIGHTNING BALL!",
-	reverse = "REVERSE!",
-	slow = "SLOW!",
-	stop = "STOP!",
-	shotspeed = "SPEED SHOT!",
-	wild = "WILD BALL!"
-}
 
 
 

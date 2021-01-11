@@ -134,43 +134,38 @@ end
 --   - name (string) - The name of the powerup, can be one of the following:<br/>
 --     "slow", "stop", "reverse", "wild", "bomb", "lightning", "shotspeed", "colorbomb"<br/>
 --   - color (number) - The powerup color, only exists if name == "colorbomb".
-function Session:usePowerup(data)
-	if data.name == "slow" then
+function Session:usePowerupEffect(effect, color)
+	if effect.type == "replaceSphere" then
+		self.level.shooter:getColor(effect.color)
+	elseif effect.type == "speedShot" then
+		self.level.shooter.speedShotTime = effect.time
+	elseif effect.type == "slow" then
 		for i, path in ipairs(self.level.map.paths.objects) do
 			for j, sphereChain in ipairs(path.sphereChains) do
-				sphereChain.slowTime = 3
+				sphereChain.slowTime = effect.time
 				sphereChain.stopTime = 0
 				sphereChain.reverseTime = 0
 			end
 		end
-	elseif data.name == "stop" then
+	elseif effect.type == "stop" then
 		for i, path in ipairs(self.level.map.paths.objects) do
 			for j, sphereChain in ipairs(path.sphereChains) do
 				sphereChain.slowTime = 0
-				sphereChain.stopTime = 3
+				sphereChain.stopTime = effect.time
 				sphereChain.reverseTime = 0
 			end
 		end
-	elseif data.name == "reverse" then
+	elseif effect.type == "reverse" then
 		for i, path in ipairs(self.level.map.paths.objects) do
 			for j, sphereChain in ipairs(path.sphereChains) do
 				sphereChain.slowTime = 0
 				sphereChain.stopTime = 0
-				sphereChain.reverseTime = 3
+				sphereChain.reverseTime = effect.time
 			end
 		end
-	elseif data.name == "wild" then
-		self.level.shooter:getColor(-1)
-	elseif data.name == "bomb" then
-		self.level.shooter:getColor(-2)
-	elseif data.name == "lightning" then
-		self.level.shooter:getColor(-3)
-	elseif data.name == "shotspeed" then
-		self.level.shooter.speedShotTime = 20
-	elseif data.name == "colorbomb" then
-		self:destroyColor(data.color)
+	elseif effect.type == "destroyColor" then
+		self:destroyColor(color)
 	end
-	game:playSound("collectible_catch_powerup_" .. data.name)
 end
 
 
