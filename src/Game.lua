@@ -33,6 +33,10 @@ function Game:new(name)
 	self.sphereSprites = {}
 	self.nextSphereSprites = {}
 	
+	self.config = nil
+	self.spheres = {}
+	self.powerups = {}
+	
 	
 	-- revert to original font size
 	love.graphics.setFont(love.graphics.newFont())
@@ -43,6 +47,10 @@ function Game:init()
 	
 	-- Step 1. Load the config
 	self.config = loadJson(parsePath("config.json"))
+	for k, v in pairs(self.config.spheres) do
+		self.spheres[tonumber(k)] = v
+	end
+	self.powerups = self.config.powerups
 	
 	-- Step 2. Initialize the window
 	love.window.setTitle(self.config.general.windowTitle or ("OpenSMCE [" .. VERSION .. "] - " .. self.name))
