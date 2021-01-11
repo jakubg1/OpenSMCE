@@ -25,6 +25,7 @@ function BootScreen:init()
 	
 	-- discord rpc connection
 	discordRPC:connect()
+	discordRPC:setStatus("Boot Screen", nil, true)
 end
 
 function BootScreen:update(dt)
@@ -137,6 +138,19 @@ function BootScreen:draw()
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.fontBig)
 	love.graphics.print("Discord Integration: ", 30, 220)
+	if discordRPC.enabled and discordRPC.connected then
+		love.graphics.setColor(0, 1, 0)
+		love.graphics.print(string.format("Connected! (%s)", discordRPC.username), 210, 220)
+	elseif discordRPC.enabled and not discordRPC.connected then
+		love.graphics.setColor(1, 1, 0)
+		love.graphics.print("Connecting...", 210, 220)
+	elseif not discordRPC.enabled and discordRPC.connected then
+		love.graphics.setColor(1, 0.5, 0)
+		love.graphics.print("Disconnecting...", 210, 220)
+	elseif not discordRPC.enabled and not discordRPC.connected then
+		love.graphics.setColor(0.75, 0.75, 0.75)
+		love.graphics.print("Inactive", 210, 220)
+	end
 end
 
 

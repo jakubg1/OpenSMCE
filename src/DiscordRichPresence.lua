@@ -9,11 +9,11 @@ function DiscordRichPresence:new()
 	self.enabled = false
 	self.connected = false
 	self.username = nil
+	
 	self.UPDATE_INTERVAL = 2
 	self.updateTime = 0
 	
-	self.line1 = "Line 1!!!"
-	self.line2 = "Line 2..."
+	self.status = {}
 	
 	
 	
@@ -37,9 +37,8 @@ end
 function DiscordRichPresence:update(dt)
 	self.updateTime = self.updateTime + dt
 	if self.updateTime >= self.UPDATE_INTERVAL then
-		print("a")
 		self.updateTime = 0
-		discordRPCMain.updatePresence({state = self.line1, details = self.line2})
+		discordRPCMain.updatePresence(self.status)
 	end
 	discordRPCMain.runCallbacks()
 end
@@ -62,46 +61,15 @@ function DiscordRichPresence:disconnect()
 	self.username = nil
 end
 
-function DiscordRichPresence:setStatus(line1, line2)
-	self.line1 = line1
-	self.line2 = line2
+function DiscordRichPresence:setStatus(line1, line2, countTime)
+	self.status = {details = line1, state = line2}
+	if countTime then
+		self.status.startTimestamp = os.time(os.date("*t"))
+	else
+		self.status.startTimestamp = nil
+	end
 end
 
 
 
 return DiscordRichPresence
-
-
-
-
-
-
-
-
-
-
---[[
-
-local enabled = false
-local connected = false
-
-
-function love.draw()
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.print("Connection: ", 10, 10)
-	if enabled and connected then
-		love.graphics.setColor(0, 1, 0)
-		love.graphics.print("ACTIVE", 90, 10)
-	elseif enabled and not connected then
-		love.graphics.setColor(1, 1, 0)
-		love.graphics.print("PENDING", 90, 10)
-	elseif not enabled and connected then
-		love.graphics.setColor(1, 0.5, 0)
-		love.graphics.print("DISCONNECTING", 90, 10)
-	elseif not enabled and not connected then
-		love.graphics.setColor(0.75, 0.75, 0.75)
-		love.graphics.print("INACTIVE", 90, 10)
-	end
-end
-
-]]
