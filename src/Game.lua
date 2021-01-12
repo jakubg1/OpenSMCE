@@ -30,9 +30,6 @@ function Game:new(name)
 	
 	self.particleManager = nil
 	
-	self.sphereSprites = {}
-	self.nextSphereSprites = {}
-	
 	self.config = nil
 	self.spheres = {}
 	self.powerups = {}
@@ -91,19 +88,6 @@ function Game:initSession()
 	self:parseUIScript(loadFile(parsePath("ui/script.txt")))
 	self.particleManager = ParticleManager()
 	
-	-- Setup the legacy sphere sprites
-	for i = 0, 7 do
-		if i > 0 then self.sphereSprites[i] = Sprite("sprites/sphere.json", {color = i}) end
-		self.nextSphereSprites[i] = Sprite("sprites/next_sphere.json", {color = i})
-	end
-	self.sphereSprites[-3] = Sprite("sprites/sphere_lightning.json")
-	self.sphereSprites[-2] = Sprite("sprites/sphere_fire.json")
-	self.sphereSprites[-1] = Sprite("sprites/sphere_wild.json")
-	self.sphereSprites[0] = Sprite("sprites/sphere_vise.json")
-	self.nextSphereSprites[-3] = Sprite("sprites/next_sphere_lightning.json")
-	self.nextSphereSprites[-2] = Sprite("sprites/next_sphere_fire.json")
-	self.nextSphereSprites[-1] = Sprite("sprites/next_sphere_wild.json")
-	
 	self.session = Session()
 	self.session:init()
 end
@@ -145,8 +129,6 @@ function Game:tick(dt) -- always with 1/60 seconds
 	for widgetN, widget in pairs(self.widgets) do
 		widget:update(dt)
 	end
-	
-	for i, sphereSprite in pairs(self.sphereSprites) do sphereSprite:update(dt) end
 	
 	if self.particleManager then self.particleManager:update(dt) end
 	

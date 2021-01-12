@@ -369,11 +369,16 @@ function SphereGroup:draw(hidden, shadow)
 					self.sphereShadowImage:draw(self:getSpherePos(i) * sphere.size + sphere.shootOrigin * (1 - sphere.size) + Vec2(4), Vec2(0.5))
 				end
 			else
-				if sphere.size == 1 then
-					game.sphereSprites[sphere.color]:draw(self:getSpherePos(i), {angle = self:getSphereAngle(i), color = self:getSphereColor(i), frame = math.ceil(32 - sphere:getFrame())})
-				else
-					game.sphereSprites[sphere.color]:draw(self:getSpherePos(i) * sphere.size + sphere.shootOrigin * (1 - sphere.size), {angle = self:getSphereAngle(i), color = self:getSphereColor(i), frame = 1})
+				local config = game.spheres[sphere.color]
+				local pos = sphere.size == 1 and self:getSpherePos(i) or (self:getSpherePos(i) * sphere.size + sphere.shootOrigin * (1 - sphere.size))
+				local angle = config.imageAnimationSpeed and 0 or self:getSphereAngle(i)
+				local frame = Vec2(1)
+				if config.imageAnimationSpeed then
+					frame = Vec2(math.floor(config.imageAnimationSpeed * totalTime), 1)
+				elseif sphere.size == 1 then
+					frame = Vec2(math.ceil(32 - sphere:getFrame()), 1)
 				end
+				game.resourceBank:getImage(config.image):draw(pos, Vec2(0.5, 0.5), frame, angle, self:getSphereColor(i))
 			end
 		end
 	end

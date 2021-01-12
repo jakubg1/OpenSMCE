@@ -20,7 +20,6 @@ function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 	end
 	
 	self.PIXELS_PER_STEP = 8
-	self.sprite = game.sphereSprites[self.color]
 end
 
 function ShotSphere:update(dt)
@@ -77,7 +76,7 @@ end
 
 function ShotSphere:draw()
 	if not self.hitSphere then
-		self.sprite:draw(self.pos, {angle = 0, color = Color(), frame = 1})
+		game.resourceBank:getImage(game.spheres[self.color].image):draw(self.pos, Vec2(0.5))
 		--self:drawDebug()
 	end
 end

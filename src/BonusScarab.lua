@@ -18,7 +18,7 @@ function BonusScarab:new(path, deserializationTable)
 	end
 	self.minOffset = math.max(path.clearOffset, 64)
 	
-	self.sprite = Sprite("sprites/sphere_vise.json")
+	self.image = game.resourceBank:getImage("img/game/vise.png")
 	self.shadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
 	
 	game:playSound("bonus_scarab_loop")
@@ -60,7 +60,7 @@ function BonusScarab:draw(hidden, shadow)
 		if shadow then
 			self.shadowImage:draw(self.path:getPos(self.offset) + Vec2(4), Vec2(0.5))
 		else
-			self.sprite:draw(self.path:getPos(self.offset), {angle = self.path:getAngle(self.offset) + math.pi, color = Color(self.path:getBrightness(self.offset))})
+			self.image:draw(self.path:getPos(self.offset), Vec2(0.5), nil, self.path:getAngle(self.offset) + math.pi, Color(self.path:getBrightness(self.offset)))
 		end
 	end
 end

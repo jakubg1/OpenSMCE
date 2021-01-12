@@ -4,7 +4,6 @@ local Shooter = class:derive("Shooter")
 local Vec2 = require("src/Essentials/Vector2")
 local Image = require("src/Essentials/Image")
 local Color = require("src/Essentials/Color")
-local Sprite = require("src/Sprite")
 
 local ShotSphere = require("src/ShotSphere")
 
@@ -21,7 +20,8 @@ function Shooter:new()
 	-- the speed of the shooter when controlled via keyboard
 	self.moveKeySpeed = 500
 	
-	self.sprite = Sprite("sprites/shooter.json")
+	self.shadowImage = game.resourceBank:getImage("img/game/shooter_shadow.png")
+	self.image = game.resourceBank:getImage("img/game/shooter.png")
 	self.speedShotImage = game.resourceBank:getImage("img/particles/speed_shot_beam.png")
 	
 	self.particle = nil
@@ -154,7 +154,9 @@ end
 
 
 function Shooter:draw()
-	self.sprite:draw(self.pos)
+	self.shadowImage:draw(self.pos + Vec2(8, 8), Vec2(0.5, 0))
+	self.image:draw(self.pos, Vec2(0.5, 0))
+	
 	-- retical
 	local targetPos = self:getTargetPos()
 	if targetPos and (self.color > 0 or self.color == -1 or self.color == -2) then
@@ -167,12 +169,15 @@ function Shooter:draw()
 		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
 		love.graphics.line(p2.x, p2.y, p3.x, p3.y)
 	end
+	
 	-- this color
-	-- reverse animation: math.floor(self.sphereFrame + 1)
-	-- forward (proper) animation: math.ceil(32 - self.sphereFrame)
-	if self.color ~= 0 then game.sphereSprites[self.color]:draw(self:spherePos(), {angle = 0, color = Color(), frame = 1}) end
+	if self.color ~= 0 then
+		local config = game.spheres[self.color]
+		local frame = config.imageAnimationSpeed and Vec2(math.floor(config.imageAnimationSpeed * totalTime), 1) or Vec2(1)
+		game.resourceBank:getImage(config.image):draw(self:spherePos(), Vec2(0.5, 0.5), frame)
+	end
 	-- next color
-	game.nextSphereSprites[self.nextColor]:draw(self.pos + Vec2(0, 21))
+	game.resourceBank:getImage(game.spheres[self.nextColor].nextImage):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
 	
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
