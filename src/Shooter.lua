@@ -90,12 +90,8 @@ function Shooter:setColor(color)
 		self.particle:destroy()
 		self.particle = nil
 	end
-	if color == -1 then
-		self.particle = game:spawnParticle("particles/idle_ball_wild.json", self:spherePos())
-	elseif color == -2 then
-		self.particle = game:spawnParticle("particles/idle_ball_bomb.json", self:spherePos())
-	elseif color == -3 then
-		self.particle = game:spawnParticle("particles/idle_ball_lightning.json", self:spherePos())
+	if game.spheres[self.color].idleParticle then
+		self.particle = game:spawnParticle(game.spheres[self.color].idleParticle, self:spherePos())
 	end
 end
 
@@ -140,11 +136,8 @@ end
 function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
 	if game.session.level.pause or not self.active or self.color == 0 then return end
-	local sound = "normal"
-	if self.color == -1 then sound = "wild" end
-	if self.color == -2 then sound = "fire" end
-	if self.color == -3 then sound = "lightning" end
-	if self.color == -3 then
+	
+	if game.spheres[self.color].shootBehavior == "lightning" then
 		-- lightning spheres are not shot, they're deployed instantly
 		game:spawnParticle("particles/lightning_beam.json", self:spherePos())
 		game.session:destroyVertical(self.pos.x, 100)
@@ -153,9 +146,9 @@ function Shooter:shoot()
 		game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
 		self.active = false
 	end
+	game:playSound(game.spheres[self.color].shootSound)
 	self:setColor(0)
 	game.session.level.spheresShot = game.session.level.spheresShot + 1
-	game:playSound("sphere_shoot_" .. sound)
 end
 
 
@@ -219,11 +212,12 @@ end
 
 
 function Shooter:getReticalColor()
-	if self.color > 0 then return SPHERE_COLORS[self.color] end
-	if self.color == -1 then return getRainbowColor(totalTime / 3) end
-	if self.color == -2 then return Color(1, 0.7, 0) end
-	if self.color == -3 then return Color(0.7, 0.8, 1) end
-	return Color()
+	local color = game.spheres[self.color].color
+	if color == "rainbow" then
+		return getRainbowColor(totalTime / 3)
+	else
+		return color
+	end
 end
 
 function Shooter:spherePos()

@@ -23,20 +23,9 @@ VERSION = "v2.1.0-beta"
 DISCORD_APPLICATION_ID = "797956172539887657"
 
 
--- TODO: at some point, get rid of these here and make them configurable
+-- TODO: at some point, get rid of this and make it configurable
 NATIVE_RESOLUTION = Vec2(800, 600)
 
-SPHERE_COLORS = {
-	[1] = Color(0, 0, 1),
-	[2] = Color(1, 1, 0),
-	[3] = Color(1, 0, 0),
-	[4] = Color(0, 1, 0),
-	[5] = Color(1, 0, 1),
-	[6] = Color(1, 1, 1),
-	[7] = Color(0, 0, 0),
-	[8] = Color(1, 0.5, 0),
-	[9] = Color(0, 0.5, 1)
-}
 
 
 

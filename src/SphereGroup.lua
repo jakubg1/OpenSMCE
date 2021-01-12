@@ -335,8 +335,7 @@ function SphereGroup:matchAndDelete(position)
 	local scoreText = numStr(score)
 	if boostCombo and self.map.level.combo > 2 then scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo) end
 	if self.sphereChain.combo ~= 1 then scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo) end
-	local scoreTextColor = color > 0 and color or 0
-	self.map.level:spawnFloatingText(scoreText, pos, "fonts/score" .. scoreTextColor .. ".json")
+	self.map.level:spawnFloatingText(scoreText, pos, game.spheres[color].matchFont)
 	
 	local spawnCoin = math.random() < (position2 - position1 - 2) * 0.2
 	if spawnCoin then self.map.level:spawnCollectible(pos, {type = "coin"}) end

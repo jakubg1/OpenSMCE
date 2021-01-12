@@ -123,7 +123,11 @@ end
 -- @tparam number color2 The second color to check.
 -- @treturn boolean Whether the check has passed.
 function Session:colorsMatch(color1, color2)
-	return color1 ~= 0 and color2 ~= 0 and (color1 == color2 or color1 == -1 or color2 == -1)
+	local matches = game.spheres[color1].matches
+	for i, v in ipairs(matches) do
+		if v == color2 then return true end
+	end
+	return false
 end
 
 

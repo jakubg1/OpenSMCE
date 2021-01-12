@@ -276,8 +276,8 @@ function Debug:drawSphereInfo()
 				for k = #sphereChain.sphereGroups, 1, -1 do -- reverse iteration
 					local sphereGroup = sphereChain.sphereGroups[k]
 					for l, sphere in ipairs(sphereGroup.spheres) do
-						local color = SPHERE_COLORS[sphere.color]
-						if color then love.graphics.setColor(color.r, color.g, color.b) else love.graphics.setColor(0.5, 0.5, 0.5) end
+						local color = game.spheres[sphere.color].color
+						if color and type(color) == "table" then love.graphics.setColor(color.r, color.g, color.b) else love.graphics.setColor(0.5, 0.5, 0.5) end
 						love.graphics.circle("fill", p.x + 120 + m, p.y + 20 + n, 10)
 						m = m + 20
 					end

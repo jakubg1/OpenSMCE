@@ -48,16 +48,16 @@ function ShotSphere:moveStep()
 	local nearestSphere = game.session:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < 32 then
 		self.hitSphere = nearestSphere
-		if self.color == -2 then
+		local sphereConfig = game.spheres[self.color]
+		game:playSound(sphereConfig.hitSound)
+		if sphereConfig.hitBehavior == "fireball" then
 			game.session:destroyRadius(self.pos, 125)
 			self:destroy()
-			game:playSound("sphere_hit_fire")
-			game:spawnParticle("particles/collapse_ball_bomb.json", self.pos)
+			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		else
 			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
 			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitSphere.sphereID, self.color)
-			game:playSound("sphere_hit_normal")
 		end
 	end
 	-- delete if outside of the board

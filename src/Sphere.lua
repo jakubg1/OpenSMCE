@@ -100,16 +100,8 @@ function Sphere:delete()
 		end
 	end
 	-- particles
-	if self.color == 0 then
-		game:spawnParticle("particles/collapse_vise.json", self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self)))
-	end
-	if not self.map.isDummy and not self.map.level.lost then
-		if self.color == -1 then
-			game:spawnParticle("particles/collapse_ball_6.json", self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self)))
-		end
-		if self.color > 0 then
-			game:spawnParticle("particles/collapse_ball_" .. tostring(self.color) .. ".json", self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self)))
-		end
+	if not self.map.isDummy and (not self.map.level.lost or self.color == 0) then
+		game:spawnParticle(game.spheres[self.color].destroyParticle, self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self)))
 	end
 end
 
