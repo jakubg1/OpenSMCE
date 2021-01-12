@@ -13,7 +13,6 @@ local Session = require("src/Session")
 
 local UIWidget = require("src/UI/Widget")
 local ParticleManager = require("src/Particle/Manager")
-local Sprite = require("src/Sprite")
 
 function Game:new(name)
 	self.name = name

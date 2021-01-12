@@ -3,7 +3,6 @@ local BonusScarab = class:derive("BonusScarab")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
-local Sprite = require("src/Sprite")
 
 function BonusScarab:new(path, deserializationTable)
 	self.path = path

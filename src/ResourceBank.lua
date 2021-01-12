@@ -13,7 +13,6 @@ function ResourceBank:new()
 	self.music = {}
 	-- This holds all raw data from files, excluding "config" and "runtime" files, which are critical and handled directly by the game.
 	-- Widgets are excluded from doing so as well, because widgets are loaded only once and don't need to have their source data stored.
-	self.legacySprites = {}
 	self.particles = {}
 	self.fonts = {}
 	self.colorPalettes = {}
@@ -79,16 +78,6 @@ function ResourceBank:getMusic(path)
 	return self.music[path]
 end
 
-function ResourceBank:loadLegacySprite(path)
-	--print("[RB] Loading LEGACY sprite: " .. path .. "...")
-	self.legacySprites[path] = loadJson(parsePath(path))
-end
-
-function ResourceBank:getLegacySprite(path)
-	if not self.legacySprites[path] then error("Resource Bank tried to get an unknown LegacySprite: " .. path) end
-	return self.legacySprites[path]
-end
-
 function ResourceBank:loadParticle(path)
 	--print("[RB] Loading particle: " .. path .. "...")
 	self.particles[path] = loadJson(parsePath(path))
@@ -131,9 +120,6 @@ function ResourceBank:loadList(list)
 	if list.music then
 		for i, path in ipairs(list.music) do self:loadMusic(path) end
 	end
-	if list.legacySprites then
-		for i, path in ipairs(list.legacySprites) do self:loadLegacySprite(path) end
-	end
 	if list.particles then
 		for i, path in ipairs(list.particles) do self:loadParticle(path) end
 	end
@@ -171,8 +157,6 @@ function ResourceBank:stepLoadNext()
 		self:loadSound(data.path, data.loop)
 	elseif objectType == "music" then
 		self:loadMusic(data)
-	elseif objectType == "legacySprites" then
-		self:loadLegacySprite(data)
 	elseif objectType == "particles" then
 		self:loadParticle(data)
 	elseif objectType == "fonts" then

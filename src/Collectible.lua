@@ -3,7 +3,6 @@ local Collectible = class:derive("Collectible")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Image = require("src/Essentials/Image")
-local Sprite = require("src/Sprite")
 
 function Collectible:new(deserializationTable, pos, data)
 	if deserializationTable then
