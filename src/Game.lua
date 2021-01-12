@@ -159,6 +159,9 @@ function Game:tick(dt) -- always with 1/60 seconds
 			self.widgetVariables.score,
 			self.widgetVariables.lives
 		)
+		if self.session.level.pause then
+			line1 = line1 .. " - Paused"
+		end
 		discordRPC:setStatus(line1, line2)
 	else
 		local line2 = string.format("In menus, Score: %s, Lives: %s",
