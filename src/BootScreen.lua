@@ -81,7 +81,7 @@ function BootScreen:draw()
 	-- Header
 	love.graphics.setFont(self.fontBig)
 	love.graphics.print("OpenSMCE Boot Menu", 30, 30)
-	love.graphics.print("Version: " .. VERSION, 560, 30)
+	love.graphics.print(string.format("Version: %s (%s)", VERSION_NAME, VERSION), 520, 30)
 	
 	-- Notes
 	-- WARNING text
