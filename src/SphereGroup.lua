@@ -362,18 +362,15 @@ function SphereGroup:draw(hidden, shadow)
 	--love.graphics.print(self:getDebugText2(), 10, 10 * #self.spheres)
 	for i, sphere in ipairs(self.spheres) do
 		if self:getSphereHidden(i) == hidden then
+			local pos = self:getSpherePos(i)
+			if sphere.size < 1 then
+				pos = self.sphereChain.path:getPos(self:getSphereOffset(i) + 16 - sphere.size * 16) * sphere.size + sphere.shootOrigin * (1 - sphere.size)
+			end
+			
 			if shadow then
-				if sphere.size == 1 then
-					self.sphereShadowImage:draw(self:getSpherePos(i) + Vec2(4), Vec2(0.5))
-				else
-					self.sphereShadowImage:draw(self.sphereChain.path:getPos(self:getSphereOffset(i) + 16 - sphere.size * 16) * sphere.size + sphere.shootOrigin * (1 - sphere.size) + Vec2(4), Vec2(0.5))
-				end
+				self.sphereShadowImage:draw(pos + Vec2(4), Vec2(0.5))
 			else
 				local config = game.spheres[sphere.color]
-				local pos = self:getSpherePos(i)
-				if sphere.size < 1 then
-					pos = self.sphereChain.path:getPos(self:getSphereOffset(i) + 16 - sphere.size * 16) * sphere.size + sphere.shootOrigin * (1 - sphere.size)
-				end
 				local angle = config.imageAnimationSpeed and 0 or self:getSphereAngle(i)
 				local frame = Vec2(1)
 				if config.imageAnimationSpeed then
@@ -381,7 +378,7 @@ function SphereGroup:draw(hidden, shadow)
 				elseif sphere.size == 1 then
 					frame = Vec2(math.ceil(32 - sphere:getFrame()), 1)
 				end
-				game.resourceBank:getImage(config.image):draw(pos, Vec2(0.5, 0.5), frame, angle, self:getSphereColor(i))
+				game.resourceBank:getImage(config.image):draw(pos, Vec2(0.5), frame, angle, self:getSphereColor(i))
 			end
 		end
 	end
