@@ -11,7 +11,7 @@ function BootScreen:new()
 	-- github url link
 	self.url = "https://github.com/jakubg1/OpenSMCE"
 	self.urlHovered = false
-	self.urlHoverPos = Vec2(35, 184)
+	self.urlHoverPos = Vec2(35, 174)
 	self.urlHoverSize = Vec2(365, 25)
 	
 	-- game list
@@ -94,7 +94,7 @@ function BootScreen:draw()
 	-- Github link
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.fontBig)
-	love.graphics.print(self.url, 45, 185)
+	love.graphics.print(self.url, 45, 175)
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", 30, 60, 740, 150) -- frame
 	
@@ -130,9 +130,9 @@ function BootScreen:draw()
 	end
 	love.graphics.setLineWidth(2)
 	love.graphics.rectangle("line", self.urlHoverPos.x, self.urlHoverPos.y, self.urlHoverSize.x, self.urlHoverSize.y)
-	if self.urlHovered then
-		love.graphics.print("<--- Click here to open the page!", self.urlHoverPos.x + self.urlHoverSize.x + 20, self.urlHoverPos.y + 8, 0.1)
-	end
+	-- if self.urlHovered then
+		-- love.graphics.print("<--- Click here to open the page!", self.urlHoverPos.x + self.urlHoverSize.x + 20, self.urlHoverPos.y + 8, 0.1)
+	-- end
 	
 	-- Discord Rich Presence status
 	love.graphics.setColor(1, 1, 1)
