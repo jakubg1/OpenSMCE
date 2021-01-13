@@ -212,7 +212,7 @@ function Level:newPowerupData()
 	local powerupName = names[i]
 	local powerupData = game.powerups[powerupName]
 	local data = {type = "powerup", name = powerupName}
-	if powerupData.colored then data.color = game.session:newSphereColor(true) end
+	if powerupData.colored then data.color = game.session.colorManager:pickColor(true) end
 	return data
 end
 
@@ -339,7 +339,7 @@ function Level:reset()
 	self.bonusDelay = nil
 	
 	self.shooter.speedShotTime = 0
-	game.session:resetSphereColorCounts()
+	game.session.colorManager:reset()
 end
 
 function Level:lose()
@@ -436,7 +436,7 @@ end
 -- Restores all data that was saved in the serialization method.
 function Level:deserialize(t)
 	-- Prepare the counters
-	game.session:resetSphereColorCounts()
+	game.session.colorManager:reset()
 	
 	-- Level stats
 	self.score = t.stats.score

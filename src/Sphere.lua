@@ -35,7 +35,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin)
 	end
 	
 	if not self.map.isDummy and self.color > 0 then
-		game.session.sphereColorCounts[self.color] = game.session.sphereColorCounts[self.color] + 1
+		game.session.colorManager:increment(self.color)
 	end
 	
 	self.danger = false
@@ -71,9 +71,9 @@ function Sphere:update(dt)
 		if self.danger ~= danger then
 			self.danger = danger
 			if danger then
-				game.session.dangerSphereColorCounts[self.color] = game.session.dangerSphereColorCounts[self.color] + 1
+				game.session.colorManager:increment(self.color, true)
 			else
-				game.session.dangerSphereColorCounts[self.color] = game.session.dangerSphereColorCounts[self.color] - 1
+				game.session.colorManager:decrement(self.color, true)
 			end
 		end
 	end
@@ -93,10 +93,9 @@ function Sphere:delete()
 	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
 	-- update color count
 	if not self.map.isDummy and self.color > 0 then
-		game.session.sphereColorCounts[self.color] = game.session.sphereColorCounts[self.color] - 1
-		game.session.lastSphereColor = self.color
+		game.session.colorManager:decrement(self.color)
 		if self.danger then
-			game.session.dangerSphereColorCounts[self.color] = game.session.dangerSphereColorCounts[self.color] - 1
+			game.session.colorManager:decrement(self.color, true)
 		end
 	end
 	-- particles

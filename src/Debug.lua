@@ -150,17 +150,6 @@ function Debug:getDebugParticle()
 	return s
 end
 
-function Debug:getDebugSession()
-	local s = ""
-	
-	s = s .. "SphereColors:\n"
-	for i = 1, 9 do
-		s = s .. tostring(i) .. " -> " .. game.session.sphereColorCounts[i] .. ", " .. game.session.dangerSphereColorCounts[i] .. "\n"
-	end
-	
-	return s
-end
-
 function Debug:getDebugLevel()
 	local s = ""
 	
@@ -201,9 +190,9 @@ function Debug:getDebugInfo()
 	if game.particleManager then
 		s = s .. self:getDebugParticle()
 	end
-	s = s .. "\n===== SESSION =====\n"
+	s = s .. "\n===== COLOR MANAGER =====\n"
 	if game:sessionExists() then
-		s = s .. self:getDebugSession()
+		s = s .. game.session.colorManager:getDebugText()
 	end
 	s = s .. "\n===== LEVEL =====\n"
 	if game:levelExists() then

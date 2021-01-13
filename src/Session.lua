@@ -15,6 +15,7 @@ local Vec2 = require("src/Essentials/Vector2")
 
 -- Include class constructors
 local Level = require("src/Level")
+local ColorManager = require("src/ColorManager")
 
 
 
@@ -24,11 +25,7 @@ function Session:new()
 	self.scoreDisplay = 0
 	
 	self.level = nil
-	
-	self.sphereColorCounts = {}
-	self.dangerSphereColorCounts = {}
-	self:resetSphereColorCounts()
-	self.lastSphereColor = 1
+	self.colorManager = ColorManager()
 end
 
 
@@ -80,40 +77,6 @@ end
 --- A drawing callback.
 function Session:draw()
 	if self.level then self.level:draw() end
-end
-
-
-
---- Returns a random sphere color that is on the board.
--- If no spheres are on the board, this function returns the last sphere color that appeared on the board.
--- @tparam boolean omitDangerCheck When it is set to true, gets just any random sphere color that is on board provided it is not special (e.g. wild).
--- Setting this to false searches only in colors that are in the danger colors list, and if nothing was found there,
--- it gets a random color from the entire board.
--- @treturn number A sphere color.
-function Session:newSphereColor(omitDangerCheck)
-	local availableColors = {}
-	if not omitDangerCheck then
-		-- check the vises in danger first
-		for i, count in ipairs(self.dangerSphereColorCounts) do
-			if count > 0 then table.insert(availableColors, i) end
-		end
-		if #availableColors > 0 then return availableColors[math.random(1, #availableColors)] end -- if there are, pick one from them
-	end
-	for i, count in ipairs(self.sphereColorCounts) do
-		if count > 0 then table.insert(availableColors, i) end
-	end
-	if #availableColors == 0 then return self.lastSphereColor end -- if no spheres present
-	return availableColors[math.random(1, #availableColors)]
-end
-
-
-
---- Resets the onboard color counters back to 0.
-function Session:resetSphereColorCounts()
-	for i = 1, 9 do
-		self.sphereColorCounts[i] = 0
-		self.dangerSphereColorCounts[i] = 0
-	end
 end
 
 

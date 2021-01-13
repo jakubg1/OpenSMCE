@@ -46,8 +46,9 @@ function Shooter:update(dt)
 	
 	-- filling
 	if self.active then
-		if game.session.sphereColorCounts[self.color] == 0 then self:setColor(0) end
-		if game.session.sphereColorCounts[self.nextColor] == 0 then self:setNextColor(0) end
+		-- remove inexistant colors
+		if not game.session.colorManager:isColorExistent(self.color) then self:setColor(0) end
+		if not game.session.colorManager:isColorExistent(self.nextColor) then self:setNextColor(0) end
 		self:fill()
 	end
 	
@@ -125,11 +126,11 @@ end
 
 function Shooter:fill()
 	if self.nextColor == 0 then
-		self:setNextColor(game.session:newSphereColor())
+		self:setNextColor(game.session.colorManager:pickColor())
 	end
 	if self.color == 0 and self.nextColor ~= 0 then
 		self:setColor(self.nextColor)
-		self:setNextColor(game.session:newSphereColor())
+		self:setNextColor(game.session.colorManager:pickColor())
 	end
 end
 
