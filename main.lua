@@ -326,3 +326,15 @@ function numStr(n)
 	end
 	return text
 end
+
+-- One-dimensional cubic Beazier curve.
+-- More info: http://www.demofox.org/bezcubic1d.html
+-- The given expression can be simplified, because we are defining A = 0 and D = 1.
+-- The shortened expression: y = B * 3x(1-x)^2 + C * 3x^2(1-x) + x^3
+-- x is t, B is p1 and C is p2.
+function bzLerp(t, p1, p2)
+	local b = p1 * (3 * t * math.pow(1 - t, 2))
+	local c = p2 * (math.pow(3 * t, 2) * (1 - t))
+	local d = math.pow(x, 3)
+	return b + c + d
+end
