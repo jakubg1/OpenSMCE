@@ -206,7 +206,9 @@ function loadImageData(path)
 end
 
 function loadImage(path)
-	local image = love.graphics.newImage(loadImageData(path))
+	local imageData = loadImageData(path)
+	if not imageData then error("LOAD IMAGE FAIL: " .. path) end
+	local image = love.graphics.newImage(imageData)
 	return image
 end
 
