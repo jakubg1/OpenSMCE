@@ -50,7 +50,10 @@ end
 function ResourceBank:loadImage(path, frames)
 	-- we need sprites to convey images as objects as well, that shouldn't really be a problem because the number of frames is always constant for each given image
 	--print("[RB] Loading image: " .. path .. "...")
-	self.images[path] = Image(parsePath(path), parseVec2(frames))
+	local success = pcall(function()
+		self.images[path] = Image(parsePath(path), parseVec2(frames))
+	end)
+	if not success then error("Resource Bank failed to load an image: " .. path) end
 end
 
 function ResourceBank:getImage(path)
@@ -60,7 +63,10 @@ end
 
 function ResourceBank:loadSound(path, loop)
 	--print("[RB] Loading sound: " .. path .. "...")
-	self.sounds[path] = Sound(parsePath(path), loop)
+	local success = pcall(function()
+		self.sounds[path] = Sound(parsePath(path), loop)
+	end)
+	if not success then error("Resource Bank failed to load a sound: " .. path) end
 end
 
 function ResourceBank:getSound(path)
@@ -70,7 +76,10 @@ end
 
 function ResourceBank:loadMusic(path)
 	--print("[RB] Loading music: " .. path .. "...")
-	self.music[path] = Music(parsePath(path))
+	local success = pcall(function()
+		self.music[path] = Music(parsePath(path))
+	end)
+	if not success then error("Resource Bank failed to load a music: " .. path) end
 end
 
 function ResourceBank:getMusic(path)
@@ -80,7 +89,10 @@ end
 
 function ResourceBank:loadParticle(path)
 	--print("[RB] Loading particle: " .. path .. "...")
-	self.particles[path] = loadJson(parsePath(path))
+	local success = pcall(function()
+		self.particles[path] = loadJson(parsePath(path))
+	end)
+	if not success then error("Resource Bank failed to load a particle: " .. path) end
 end
 
 function ResourceBank:getParticle(path)
@@ -90,7 +102,10 @@ end
 
 function ResourceBank:loadFont(path)
 	--print("[RB] Loading font: " .. path .. "...")
-	self.fonts[path] = Font(parsePath(path))
+	local success = pcall(function()
+		self.fonts[path] = Font(parsePath(path))
+	end)
+	if not success then error("Resource Bank failed to load a font: " .. path) end
 end
 
 function ResourceBank:getFont(path)
@@ -100,7 +115,10 @@ end
 
 function ResourceBank:loadColorPalette(path)
 	--print("[RB] Loading color palette: " .. path .. "...")
-	self.colorPalettes[path] = ColorPalette(parsePath(path))
+	local success = pcall(function()
+		self.colorPalettes[path] = ColorPalette(parsePath(path))
+	end)
+	if not success then error("Resource Bank failed to load a color palette: " .. path) end
 end
 
 function ResourceBank:getColorPalette(path)
