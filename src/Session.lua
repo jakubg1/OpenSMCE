@@ -97,7 +97,9 @@ end
 
 function Session:usePowerupEffect(effect, color)
 	if effect.type == "replaceSphere" then
-		self.level.shooter:getColor(effect.color)
+		self.level.shooter:getSphere(effect.color)
+	elseif effect.type == "multiSphere" then
+		self.level.shooter:getMultiSphere(effect.color, effect.count)
 	elseif effect.type == "speedShot" then
 		self.level.shooter.speedShotTime = effect.time
 	elseif effect.type == "slow" then

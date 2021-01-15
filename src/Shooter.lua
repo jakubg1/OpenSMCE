@@ -15,6 +15,9 @@ function Shooter:new()
 	self.active = false -- when the sphere is shot you can't shoot; same for start, win, lose
 	self.speedShotTime = 0
 	
+	self.multiColorColor = nil
+	self.multiColorCount = 0
+	
 	-- memorizing the pressed keys for keyboard control of the shooter
 	self.moveKeys = {left = false, right = false}
 	-- the speed of the shooter when controlled via keyboard
@@ -107,14 +110,6 @@ function Shooter:empty()
 	self.speedShotTime = 0
 end
 
-function Shooter:getColor(color)
-	if self.color ~= 0 then
-		self:setColor(color)
-	elseif self.nextColor ~= 0 then
-		self:setNextColor(color)
-	end
-end
-
 function Shooter:swapColors()
 	-- we must be careful not to swap the spheres when they're absent
 	if game.session.level.pause or self.color == 0 or self.nextColor == 0 then return end
@@ -124,13 +119,22 @@ function Shooter:swapColors()
 	game:playSound("shooter_swap")
 end
 
+function Shooter:getNextColor()
+	if self.multiColorCount == 0 then
+		return game.session.colorManager:pickColor()
+	else
+		self.multiColorCount = self.multiColorCount - 1
+		return self.multiColorColor
+	end
+end
+
 function Shooter:fill()
 	if self.nextColor == 0 then
-		self:setNextColor(game.session.colorManager:pickColor())
+		self:setNextColor(self:getNextColor())
 	end
 	if self.color == 0 and self.nextColor ~= 0 then
 		self:setColor(self.nextColor)
-		self:setNextColor(game.session.colorManager:pickColor())
+		self:setNextColor(self:getNextColor())
 	end
 end
 
@@ -151,6 +155,23 @@ function Shooter:shoot()
 	game:playSound(sphereConfig.shootSound)
 	self:setColor(0)
 	game.session.level.spheresShot = game.session.level.spheresShot + 1
+end
+
+
+
+function Shooter:getSphere(color)
+	if self.color ~= 0 then
+		self:setColor(color)
+	elseif self.nextColor ~= 0 then
+		self:setNextColor(color)
+	end
+end
+
+function Shooter:getMultiSphere(color, count)
+	self.multiColorColor = color
+	self.multiColorCount = count
+	self:setColor(0)
+	self:setNextColor(0)
 end
 
 
