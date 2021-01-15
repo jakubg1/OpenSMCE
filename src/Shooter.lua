@@ -138,16 +138,17 @@ function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
 	if game.session.level.pause or not self.active or self.color == 0 then return end
 	
-	if game.spheres[self.color].shootBehavior == "lightning" then
+	local sphereConfig = game.spheres[self.color]
+	if sphereConfig.shootBehavior.type == "lightning" then
 		-- lightning spheres are not shot, they're deployed instantly
 		game:spawnParticle("particles/lightning_beam.json", self:spherePos())
-		game.session:destroyVertical(self.pos.x, 100)
+		game.session:destroyVertical(self.pos.x, sphereConfig.shootBehavior.range)
 		game.session.level.combo = 0 -- cuz that's how it works
 	else
 		game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
 		self.active = false
 	end
-	game:playSound(game.spheres[self.color].shootSound)
+	game:playSound(sphereConfig.shootSound)
 	self:setColor(0)
 	game.session.level.spheresShot = game.session.level.spheresShot + 1
 end
