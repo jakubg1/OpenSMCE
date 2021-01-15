@@ -95,12 +95,6 @@ end
 
 
 
---- Executes a powerup and plays an appropriate sound.
--- @tparam table data The data of the powerup to use.
--- powerupdata is a quasi-type that conveys following information:<br/>
---   - name (string) - The name of the powerup, can be one of the following:<br/>
---     "slow", "stop", "reverse", "wild", "bomb", "lightning", "shotspeed", "colorbomb"<br/>
---   - color (number) - The powerup color, only exists if name == "colorbomb".
 function Session:usePowerupEffect(effect, color)
 	if effect.type == "replaceSphere" then
 		self.level.shooter:getColor(effect.color)

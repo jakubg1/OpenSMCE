@@ -59,7 +59,9 @@ end
 function Collectible:catch()
 	self:destroy()
 	if self.data.type == "powerup" then
-		game.session:usePowerupEffect(self.powerupConfig.effect, self.data.color)
+		for i, effect in ipairs(self.powerupConfig.effects) do
+			game.session:usePowerupEffect(effect, self.data.color)
+		end
 		game:playSound(self.powerupConfig.pickupSound)
 	else
 		game:playSound("collectible_catch_" .. self.data.type)
