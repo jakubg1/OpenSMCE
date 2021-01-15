@@ -20,6 +20,8 @@ function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 	end
 	
 	self.PIXELS_PER_STEP = 8
+	
+	self.delQueue = false
 end
 
 function ShotSphere:update(dt)
@@ -31,7 +33,7 @@ function ShotSphere:update(dt)
 	else
 		-- move
 		self.steps = self.steps + self.speed * dt / self.PIXELS_PER_STEP
-		while self.steps > 0 and not self.hitSphere do self:moveStep() end
+		while self.steps > 0 and not self.hitSphere and not self.delQueue do self:moveStep() end
 	end
 end
 
@@ -67,7 +69,9 @@ function ShotSphere:moveStep()
 end
 
 function ShotSphere:destroy()
+	if self.delQueue then return end
 	self._list:destroy(self)
+	self.delQueue = true
 	self.shooter.active = true
 	game:playSound("shooter_fill")
 end
