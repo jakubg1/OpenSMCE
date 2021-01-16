@@ -198,7 +198,7 @@ function Shooter:draw()
 			--love.graphics.setColor(1, 0, 0)
 			local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
 			for i = 1, dotCount do
-				local angle = 2 * i * math.pi / dotCount
+				local angle = (2 * i * math.pi / dotCount) + totalTime / 2
 				local p = posOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
 				love.graphics.circle("fill", p.x, p.y, 2 * getResolutionScale())
 			end
