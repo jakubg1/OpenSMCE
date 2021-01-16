@@ -284,6 +284,8 @@ function Shooter:serialize()
 	return {
 		color = self.color,
 		nextColor = self.nextColor,
+		multiColorColor = self.multiColorColor,
+		multiColorCount = self.multiColorCount,
 		speedShotTime = self.speedShotTime,
 		active = self.active
 	}
@@ -292,6 +294,8 @@ end
 function Shooter:deserialize(t)
 	self.color = t.color
 	self.nextColor = t.nextColor
+	self.multiColorColor = t.multiColorColor
+	self.multiColorCount = t.multiColorCount
 	self.speedShotTime = t.speedShotTime
 	self.active = t.active
 end
