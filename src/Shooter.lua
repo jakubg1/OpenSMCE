@@ -107,6 +107,8 @@ function Shooter:empty()
 	self.active = false
 	self:setColor(0)
 	self:setNextColor(0)
+	self.multiColorColor = nil
+	self.multiColorCount = 0
 	self.speedShotTime = 0
 end
 
