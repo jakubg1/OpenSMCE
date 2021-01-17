@@ -242,7 +242,7 @@ end
 
 function Level:getEmpty()
 	for i, path in ipairs(self.map.paths.objects) do
-		if #path.sphereChains > 0 then return false end
+		if not path:getEmpty() then return false end
 	end
 	return true
 end

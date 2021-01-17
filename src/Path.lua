@@ -222,6 +222,10 @@ function Path:getSpeed(pixels)
 	end
 end
 
+function Path:getEmpty()
+	return #self.sphereChains == 0
+end
+
 function Path:getDanger(pixels)
 	return pixels / self.length >= self.map.level.dangerDistance
 end
