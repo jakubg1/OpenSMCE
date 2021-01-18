@@ -20,47 +20,55 @@ end
 -- @treturn number A sphere color.
 function ColorManager:pickColor(omitDangerCheck)
 	local availableColors = {}
+	local path = nil
 	if not omitDangerCheck then
-		-- check the vises in danger first
-		for i, count in ipairs(self.dangerSphereColorCounts) do
+		-- Pick a random path
+		local paths = game.session.level.map.paths
+		local pathsPool = {}
+		for i = 1, paths:size() do
+			table.insert(pathsPool, paths:get(i))
+		end
+		while not path and #pathsPool > 0 do
+			-- pick a random path
+			local id = math.random(#pathsPool)
+			path = pathsPool[id]
+			-- remove it from the list
+			table.remove(pathsPool, id)
+			-- if it does not meet the requirements, abandon it
+			if path:getEmpty() or not path:getDanger(path:getMaxOffset()) then
+				path = nil
+			end
+		end
+	end
+	-- If a path is in danger and omitDangerCheck is false, then time to draw from it, else, use a standard generation
+	if path then
+		-- Get a SphereChain nearest to the pyramid
+		local sphereChain = path.sphereChains[1]
+		-- Iterate through all groups and then spheres in each group
+		local lastGoodColor = nil
+		-- reverse iteration!!!
+		for i, sphereGroup in ipairs(sphereChain.sphereGroups) do
+			local sphereGroup = sphereChain.sphereGroups[i]
+			for j = #sphereGroup.spheres, 1, -1 do
+				local sphere = sphereGroup.spheres[j]
+				local color = sphere.color
+				-- if this color is generatable, 25% chance to pass the check
+				if game.spheres[color].generatable and math.random() < 0.25 then
+					return color
+				end
+				-- else, next sphere comes but if no more further spheres are generatable we will use it anyway
+				lastGoodColor = color
+			end
+		end
+		-- no more spheres left, get the last good one
+		return lastGoodColor
+	else
+		for i, count in ipairs(self.sphereColorCounts) do
 			if count > 0 then table.insert(availableColors, i) end
 		end
-		-- NEW GENERATION MECHANICS
-		if #availableColors > 0 then
-			-- Pick a random path
-			local paths = game.session.level.map.paths
-			local path = nil
-			while not path or path:getEmpty() or not path:getDanger(path:getMaxOffset()) do
-				-- if path empty or not in danger, try again
-				path = paths:get(math.random(paths:size()))
-			end
-			-- Get a SphereChain nearest to the pyramid
-			local sphereChain = path.sphereChains[1]
-			-- Iterate through all groups and then spheres in each group
-			local lastGoodColor = nil
-			-- reverse iteration!!!
-			for i, sphereGroup in ipairs(sphereChain.sphereGroups) do
-				local sphereGroup = sphereChain.sphereGroups[i]
-				for j = #sphereGroup.spheres, 1, -1 do
-					local sphere = sphereGroup.spheres[j]
-					local color = sphere.color
-					-- if this color is generatable, 25% chance to pass the check
-					if game.spheres[color].generatable and math.random() < 0.25 then
-						return color
-					end
-					-- else, next sphere comes but if no more further spheres are generatable we will use it anyway
-					lastGoodColor = color
-				end
-			end
-			-- no more spheres left, get the last good one
-			return lastGoodColor
-		end
+		if #availableColors == 0 then return self.lastSphereColor end -- if no spheres present
+		return availableColors[math.random(1, #availableColors)]
 	end
-	for i, count in ipairs(self.sphereColorCounts) do
-		if count > 0 then table.insert(availableColors, i) end
-	end
-	if #availableColors == 0 then return self.lastSphereColor end -- if no spheres present
-	return availableColors[math.random(1, #availableColors)]
 end
 
 
