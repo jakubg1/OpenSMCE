@@ -39,9 +39,10 @@ function ColorManager:pickColor(omitDangerCheck)
 			-- Iterate through all groups and then spheres in each group
 			local lastGoodColor = nil
 			-- reverse iteration!!!
-			for i = #sphereChain.sphereGroups, 1, -1 do
+			for i, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				local sphereGroup = sphereChain.sphereGroups[i]
-				for j, sphere in ipairs(sphereGroup.spheres) do
+				for j = #sphereGroup.spheres, 1, -1 do
+					local sphere = sphereGroup.spheres[j]
 					local color = sphere.color
 					-- if this color is generatable, 25% chance to pass the check
 					if game.spheres[color].generatable and math.random() < 0.25 then
