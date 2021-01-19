@@ -57,12 +57,20 @@ function ColorManager:pickColor(omitDangerCheck)
 					return color
 				end
 				-- else, next sphere comes but if no more further spheres are generatable we will use it anyway
-				lastGoodColor = color
+				if game.spheres[color].generatable then
+					lastGoodColor = color
+				end
 			end
 		end
-		-- no more spheres left, get the last good one
-		return lastGoodColor
-	else
+		-- no more spheres left, get the last good one if exists
+		if lastGoodColor then
+			return lastGoodColor
+		else
+			-- else, use a fallback algorithm
+			path = nil
+		end
+	end
+	if not path then
 		for i, count in ipairs(self.sphereColorCounts) do
 			if count > 0 then table.insert(availableColors, i) end
 		end
