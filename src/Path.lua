@@ -267,6 +267,24 @@ function Path:getAngle(pixels)
 	if pixels then
 		local p1 = self:getPos(pixels - 16)
 		local p2 = self:getPos(pixels + 16)
+		-- get IDs of this node, and ID of nodes 16 pixels behind and 16 pixels ahead
+		local id1 = self:getNodeID(pixels - 16)
+		local id = self:getNodeID(pixels)
+		local id2 = self:getNodeID(pixels + 16)
+		-- look for warp nodes behind
+		for i = id1, id - 1 do
+			if self.nodes[i] and self.nodes[i].warp then
+				p1 = self.nodes[i + 1].pos
+				break
+			end
+		end
+		-- and ahead
+		for i = id, id2 do
+			if self.nodes[i] and self.nodes[i].warp then
+				p2 = self.nodes[i].pos
+				break
+			end
+		end
 		return (p2 - p1):angle() + math.pi / 2
 	else
 		return nil
