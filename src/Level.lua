@@ -149,9 +149,7 @@ function Level:update(dt)
 			if self.wonDelay <= 0 then
 				self.wonDelay = nil
 				self.won = true
-				local currentLevel = game.runtimeManager.profile:getCurrentLevel()
-				local newRecord = not currentLevel or self.score > currentLevel.score
-				print(newRecord)
+				local newRecord = game.runtimeManager.profile:getLevelHighscoreInfo(self.score)
 				if newRecord then
 					game:executeCallback("levelCompleteRecord")
 				else

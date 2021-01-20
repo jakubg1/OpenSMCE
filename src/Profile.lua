@@ -93,19 +93,21 @@ end
 
 
 function Profile:winLevel(score)
-	local currentLevel = self:getCurrentLevel()
-	local newRecord = not currentLevel or score > currentLevel.score
-	currentLevel = currentLevel or {score = 0, won = 0, lost = 0}
+	local currentLevel = self:getCurrentLevel() or {score = 0, won = 0, lost = 0}
 	
-	if newRecord then currentLevel.score = score end
+	currentLevel.score = math.max(currentLevel.score, score)
 	currentLevel.won = currentLevel.won + 1
 	self:setCurrentLevel(currentLevel)
 	self.data.session.level = self.data.session.level + 1
 	self:reloadMapData()
 	self:unsaveLevel()
-	
-	-- returns true if we have a new record
-	return newRecord
+	game:playSound("levelAdvance")
+end
+
+function Profile:getLevelHighscoreInfo(score)
+	-- Returns true if score given in parameter would yield a new record for the current level.
+	local currentLevel = self:getCurrentLevel()
+	return not currentLevel or score > currentLevel.score
 end
 
 function Profile:loseLevel()
