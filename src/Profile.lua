@@ -101,7 +101,7 @@ function Profile:winLevel(score)
 	self.data.session.level = self.data.session.level + 1
 	self:reloadMapData()
 	self:unsaveLevel()
-	game:playSound("levelAdvance")
+	game:playSound("level_advance")
 end
 
 function Profile:getLevelHighscoreInfo(score)
