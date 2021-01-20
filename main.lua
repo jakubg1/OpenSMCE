@@ -9,9 +9,9 @@ local strmethods = require("src/strmethods")
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
-local Debug = require("src/Debug")
+local Debug = require("src/Kernel/Debug")
 
-local BootScreen = require("src/BootScreen")
+local BootScreen = require("src/Kernel/BootScreen")
 local Game = require("src/Game")
 
 local DiscordRichPresence = require("src/DiscordRichPresence")

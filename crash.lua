@@ -2,7 +2,7 @@ local utf8 = require("utf8")
 
 
 
-local CrashScreen = require("src/CrashScreen")
+local CrashScreen = require("src/Kernel/CrashScreen")
 local crashScreen = nil
 local DT = 0.1
 
