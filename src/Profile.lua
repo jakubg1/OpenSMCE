@@ -98,10 +98,17 @@ function Profile:winLevel(score)
 	currentLevel.score = math.max(currentLevel.score, score)
 	currentLevel.won = currentLevel.won + 1
 	self:setCurrentLevel(currentLevel)
+	self:unsaveLevel()
+end
+
+function Profile:advanceLevel()
 	self.data.session.level = self.data.session.level + 1
 	self:reloadMapData()
-	self:unsaveLevel()
 	game:playSound("level_advance")
+	local checkpoint = self:getCurrentLevelData().checkpoint
+	if checkpoint then
+		game:playSound("checkpoint")
+	end
 end
 
 function Profile:getLevelHighscoreInfo(score)

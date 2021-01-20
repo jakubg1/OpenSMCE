@@ -517,6 +517,8 @@ function Game:executeEvent(event)
 		self:getMusic(event.music):setVolume(event.volume)
 	
 	-- profile stuff
+	elseif event.type == "profileLevelAdvance" then
+		self.runtimeManager.profile:advanceLevel()
 	elseif event.type == "profileHighscoreWrite" then
 		local success = self.runtimeManager.profile:writeHighscore()
 		if success then
