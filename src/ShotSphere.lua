@@ -50,7 +50,7 @@ function ShotSphere:moveStep()
 	if nearestSphere.dist and nearestSphere.dist < 32 then
 		self.hitSphere = nearestSphere
 		local sphereConfig = game.spheres[self.color]
-		game:playSound(sphereConfig.hitSound)
+		local badShot = false
 		if sphereConfig.hitBehavior.type == "fireball" then
 			game.session:destroyRadius(self.pos, sphereConfig.hitBehavior.range)
 			self:destroy()
@@ -59,7 +59,9 @@ function ShotSphere:moveStep()
 			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
 			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitSphere.sphereID, self.color)
+			badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 		end
+		game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound)
 	end
 	-- delete if outside of the board
 	if self.pos.y < -16 then
