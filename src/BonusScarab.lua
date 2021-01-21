@@ -33,9 +33,9 @@ function BonusScarab:update(dt)
 	-- end
 	while self.trailDistance < self.distance do
 		local offset = self.path.length - self.trailDistance
-		--if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
+		if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
 			game:spawnParticle("particles/bonus_scarab_trail.json", self.path:getPos(offset))
-		--end
+		end
 		self.trailDistance = self.trailDistance + 24
 	end
 	if self.offset <= self.minOffset then self:destroy() end

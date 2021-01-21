@@ -51,9 +51,9 @@ function Scorpion:update(dt)
 	-- Trail
 	while self.trailDistance < self.distance do
 		local offset = self.path.length - self.trailDistance
-		--if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
+		if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
 			game:spawnParticle("particles/bonus_scarab_trail.json", self.path:getPos(offset))
-		--end
+		end
 		self.trailDistance = self.trailDistance + 24
 	end
 	-- Destroy when near spawn point or when no more spheres to destroy
