@@ -126,6 +126,8 @@ function Session:usePowerupEffect(effect, color)
 				sphereChain.reverseTime = effect.time
 			end
 		end
+	elseif effect.type == "destroyAllSpheres" then
+		self:destroyAllSpheres()
 	elseif effect.type == "destroyColor" then
 		self:destroyColor(color)
 	end
@@ -158,6 +160,16 @@ function Session:destroyFunction(f, scorePos)
 	end
 	self.level:grantScore(score)
 	self.level:spawnFloatingText(numStr(score), scorePos, "fonts/score0.json")
+end
+
+
+
+--- Destroys all spheres on the board.
+function Session:destroyAllSpheres()
+	self:destroyFunction(
+		function(sphere, spherePos) return true end,
+		self.level.shooter.pos + Vec2(0, -32)
+	)
 end
 
 
