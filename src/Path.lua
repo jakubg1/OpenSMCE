@@ -4,6 +4,7 @@ local Path = class:derive("Path")
 local Vec2 = require("src/Essentials/Vector2")
 local SphereChain = require("src/SphereChain")
 local BonusScarab = require("src/BonusScarab")
+local Scorpion = require("src/Scorpion")
 
 function Path:new(map, pathData)
 	self.map = map
@@ -27,6 +28,7 @@ function Path:new(map, pathData)
 	self.sphereChains = {}
 	self.clearOffset = 0
 	self.bonusScarab = nil
+	self.scorpions = {}
 end
 
 function Path:prepareNodes(nodes)
@@ -92,6 +94,14 @@ function Path:update(dt)
 	end
 	if self:shouldSpawn() then self:spawnChain() end
 	if self.bonusScarab then self.bonusScarab:update(dt) end
+	
+	for i, scorpion in ipairs(self.scorpions) do
+		scorpion:update(dt)
+	end
+	for i = #self.scorpions, 1, -1 do
+		local scorpion = self.scorpions[i]
+		if scorpion.delQueue then table.remove(self.scorpions, i) end
+	end
 end
 
 function Path:shouldSpawn()
@@ -116,6 +126,10 @@ function Path:spawnBonusScarab()
 	self.bonusScarab = BonusScarab(self)
 end
 
+function Path:spawnScorpion()
+	table.insert(self.scorpions, Scorpion(self))
+end
+
 
 
 function Path:draw(hidden)
@@ -128,6 +142,11 @@ function Path:draw(hidden)
 	if self.bonusScarab then
 		self.bonusScarab:draw(hidden, true)
 		self.bonusScarab:draw(hidden, false)
+	end
+	
+	for i, scorpion in ipairs(self.scorpions) do
+		scorpion:draw(hidden, true)
+		scorpion:draw(hidden, false)
 	end
 	
 	--if not hidden then self:drawDebugFill() end
@@ -318,10 +337,14 @@ function Path:serialize()
 	local t = {
 		sphereChains = {},
 		clearOffset = self.clearOffset,
-		bonusScarab = self.bonusScarab and self.bonusScarab:serialize() or nil
+		bonusScarab = self.bonusScarab and self.bonusScarab:serialize() or nil,
+		scorpions = {}
 	}
 	for i, sphereChain in ipairs(self.sphereChains) do
 		table.insert(t.sphereChains, sphereChain:serialize())
+	end
+	for i, scorpion in ipairs(self.scorpions) do
+		table.insert(t.scorpions, scorpion:serialize())
 	end
 	return t
 end
@@ -333,6 +356,10 @@ function Path:deserialize(t)
 	end
 	self.clearOffset = t.clearOffset
 	self.bonusScarab = t.bonusScarab and BonusScarab(self, t.bonusScarab) or nil
+	self.scorpions = {}
+	for i, scorpion in ipairs(t.scorpions) do
+		table.insert(self.scorpions, Scorpion(self, scorpion))
+	end
 end
 
 return Path

@@ -345,6 +345,8 @@ function Debug:runCommand(command)
 		game.session:destroyFunction(function(sphere, spherePos) return true end, Vec2())
 		self.console:print("Nuked!")
 		return true
+	elseif words[1] == "ppp" then
+		game.session:usePowerupEffect({type = "spawnScorpion"})
 	elseif words[1] == "test" then
 		game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
 		return true

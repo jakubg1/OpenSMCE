@@ -263,6 +263,19 @@ function Level:getMaxDistance()
 	return distance
 end
 
+function Level:getMostDangerousPath()
+	local distance = 0
+	local mostDangerousPath = nil
+	for i, path in ipairs(self.map.paths.objects) do
+		local d = path:getMaxOffset() / path.length
+		if d > distance then
+			distance = d
+			mostDangerousPath = path
+		end
+	end
+	return mostDangerousPath
+end
+
 function Level:getFinish()
 	return self.targetReached and not self.lost and self:getEmpty() and self.collectibles:empty()
 end

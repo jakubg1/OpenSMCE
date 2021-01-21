@@ -130,6 +130,8 @@ function Session:usePowerupEffect(effect, color)
 		self:destroyAllSpheres()
 	elseif effect.type == "destroyColor" then
 		self:destroyColor(color)
+	elseif effect.type == "spawnScorpion" then
+		self.level:getMostDangerousPath():spawnScorpion()
 	end
 end
 
