@@ -131,7 +131,10 @@ function Session:usePowerupEffect(effect, color)
 	elseif effect.type == "destroyColor" then
 		self:destroyColor(color)
 	elseif effect.type == "spawnScorpion" then
-		self.level:getMostDangerousPath():spawnScorpion()
+		local path = self.level:getMostDangerousPath()
+		if path then
+			path:spawnScorpion()
+		end
 	end
 end
 
