@@ -20,7 +20,7 @@ function DiscordRichPresence:new()
 	function discordRPCMain.ready(userId, username, discriminator, avatar)
 		self.connected = true
 		self.username = string.format("%s#%s", username, discriminator)
-		print(string.format("[DiscordRPC] Connected! (username: %s)", self.username))
+		dbg.console:print({{0, 1, 1}, "[DiscordRPC] ", {0, 1, 0}, string.format("Connected! (username: %s)", self.username)})
 	end
 	
 	function discordRPCMain.disconnected(errorCode, message)

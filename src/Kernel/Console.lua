@@ -35,6 +35,15 @@ end
 
 function Console:print(message)
 	table.insert(self.history, {text = message, time = totalTime})
+	local logText = "[CONSOLE] "
+	if type(message) == "table" then
+		for i = 1, #message / 2 do
+			logText = logText .. message[i * 2]
+		end
+	else
+		logText = logText .. message
+	end
+	print(logText)
 end
 
 function Console:setOpen(open)
@@ -56,7 +65,7 @@ function Console:draw()
 		local pos = pos - Vec2(0, 30 + 20 * i)
 		local message = self.history[#self.history - i + 1]
 		if message and (self.open or totalTime - message.time < 10) then
-			dbg:drawVisibleText({{1, 0.3, 0.3}, message.text}, pos, 20)
+			dbg:drawVisibleText(message.text, pos, 20)
 		end
 	end
 	
