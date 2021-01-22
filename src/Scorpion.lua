@@ -36,7 +36,7 @@ function Scorpion:update(dt)
 	self.offset = self.offset - self.settings.speed * dt
 	self.distance = self.path.length - self.offset
 	-- Destroying spheres
-	while self.destroyedSpheres < self.maxSpheres do
+	while (self.maxSpheres and self.destroyedSpheres < self.maxSpheres) or (self.maxChains and self.destroyedChains < self.maxChains) do
 		-- Attempt to erase one sphere per iteration
 		-- The routine simply finds the closest sphere to the pyramid
 		-- If it's too far away, the loop ends
@@ -103,7 +103,9 @@ function Scorpion:serialize()
 		distance = self.distance,
 		trailDistance = self.trailDistance,
 		destroyedSpheres = self.destroyedSpheres,
-		maxSpheres = self.maxSpheres
+		destroyedChains = self.destroyedChains,
+		maxSpheres = self.maxSpheres,
+		maxChains = self.maxChains
 	}
 	return t
 end
@@ -113,7 +115,9 @@ function Scorpion:deserialize(t)
 	self.distance = t.distance
 	self.trailDistance = t.trailDistance
 	self.destroyedSpheres = t.destroyedSpheres
+	self.destroyedChains = t.destroyedChains
 	self.maxSpheres = t.maxSpheres
+	self.maxChains = t.maxChains
 end
 
 return Scorpion
