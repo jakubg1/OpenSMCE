@@ -17,14 +17,16 @@ function BootScreen:new()
 	
 	-- game list
 	self.games = nil
-	self.gameHovered = nil
-	
-	self.btn = Button("aaa", self.fontBig, Vec2(100, 100), Vec2(732, 24), function() print("aaa") end)
+	self.gameButtons = {}
 end
 
 function BootScreen:init()
 	-- game list
 	self.games = self:getGames()
+	-- set buttons up
+	for i, game in ipairs(self.games) do
+		table.insert(self.gameButtons, Button(game, self.fontBig, Vec2(34, 280 + i * 24), Vec2(732, 24), function() loadGame(game) end))
+	end
 	
 	-- discord rpc connection
 	discordRPC:connect()
@@ -33,12 +35,8 @@ end
 
 function BootScreen:update(dt)
 	-- game hover
-	self.gameHovered = nil
-	for i, game in ipairs(self.games) do
-		if mousePos.x > 34 and mousePos.x < 766 and mousePos.y > 280 + i * 24 and mousePos.y < 304 + i * 24 then
-			self.gameHovered = game
-			break
-		end
+	for i, gameButton in ipairs(self.gameButtons) do
+		gameButton:update(dt)
 	end
 	
 	-- URL hover
@@ -46,8 +44,6 @@ function BootScreen:update(dt)
 					mousePos.x < self.urlHoverPos.x + self.urlHoverSize.x and
 					mousePos.y > self.urlHoverPos.y and
 					mousePos.y < self.urlHoverPos.y + self.urlHoverSize.y
-	
-	self.btn:update(dt)
 end
 
 function BootScreen:getGames()
@@ -105,18 +101,8 @@ function BootScreen:draw()
 	
 	-- Game list
 	love.graphics.print("Game List", 30, 270)
-	love.graphics.setLineWidth(1)
-	for i, game in ipairs(self.games) do
-		if game == self.gameHovered then
-			love.graphics.setColor(0.8, 0.8, 0.8)
-		else
-			love.graphics.setColor(0.4, 0.4, 0.4)
-		end
-		love.graphics.rectangle("fill", 34, 280 + i * 24, 732, 24)
-		love.graphics.setColor(0.2, 0.2, 0.2)
-		love.graphics.rectangle("line", 34, 280 + i * 24, 732, 24)
-		love.graphics.setColor(0, 0, 0)
-		love.graphics.print(game, 38, 282 + i * 24)
+	for i, gameButton in ipairs(self.gameButtons) do
+		gameButton:draw()
 	end
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setLineWidth(4)
@@ -156,8 +142,6 @@ function BootScreen:draw()
 		love.graphics.setColor(0.75, 0.75, 0.75)
 		love.graphics.print("Inactive", 210, 220)
 	end
-	
-	self.btn:draw()
 end
 
 
@@ -168,15 +152,13 @@ end
 
 function BootScreen:mousereleased(x, y, button)
 	-- Game
-	if self.gameHovered then
-		loadGame(self.gameHovered)
+	for i, gameButton in ipairs(self.gameButtons) do
+		gameButton:mousereleased(x, y, button)
 	end
 	-- URL
 	if self.urlHovered then
 		love.system.openURL(self.url)
 	end
-	
-	self.btn:mousereleased(x, y, button)
 end
 
 function BootScreen:keypressed(key)
