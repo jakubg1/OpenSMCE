@@ -223,6 +223,16 @@ function Debug:getDebugInfo()
 	return s
 end
 
+
+
+function Debug:drawVisibleText(text, pos, height)
+	love.graphics.setColor(0, 0, 0, 0.5)
+	local t = love.graphics.newText(love.graphics.getFont(), text)
+	love.graphics.rectangle("fill", pos.x - 3, pos.y, t:getWidth() + 6, height)
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.print(text, pos.x, pos.y)
+end
+
 function Debug:drawDebugInfo()
 	-- Debug screen
 	--local p = posOnScreen(Vec2())
@@ -231,11 +241,7 @@ function Debug:drawDebugInfo()
 	local spl = strSplit(self:getDebugInfo(), "\n")
 	
 	for i, l in ipairs(spl) do
-		love.graphics.setColor(0, 0, 0, 0.5)
-		local t = love.graphics.newText(love.graphics.getFont(), l)
-		love.graphics.rectangle("fill", p.x - 3, 15 * (i - 1), t:getWidth() + 6, 15)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.print(l, p.x, p.y + 15 * (i - 1))
+		self:drawVisibleText(l, p + Vec2(0, 15 * (i - 1)), 15)
 	end
 end
 
