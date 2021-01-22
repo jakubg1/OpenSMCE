@@ -2,6 +2,7 @@ local class = require "com/class"
 local BootScreen = class:derive("BootScreen")
 
 local Vec2 = require("src/Essentials/Vector2")
+local Button = require("src/Kernel/UI/Button")
 
 function BootScreen:new()
 	-- prepare fonts of various sizes
@@ -17,6 +18,8 @@ function BootScreen:new()
 	-- game list
 	self.games = nil
 	self.gameHovered = nil
+	
+	self.btn = Button("aaa", self.fontBig, Vec2(100, 100), Vec2(732, 24), function() print("aaa") end)
 end
 
 function BootScreen:init()
@@ -43,6 +46,8 @@ function BootScreen:update(dt)
 					mousePos.x < self.urlHoverPos.x + self.urlHoverSize.x and
 					mousePos.y > self.urlHoverPos.y and
 					mousePos.y < self.urlHoverPos.y + self.urlHoverSize.y
+	
+	self.btn:update(dt)
 end
 
 function BootScreen:getGames()
@@ -151,6 +156,8 @@ function BootScreen:draw()
 		love.graphics.setColor(0.75, 0.75, 0.75)
 		love.graphics.print("Inactive", 210, 220)
 	end
+	
+	self.btn:draw()
 end
 
 
@@ -168,6 +175,8 @@ function BootScreen:mousereleased(x, y, button)
 	if self.urlHovered then
 		love.system.openURL(self.url)
 	end
+	
+	self.btn:mousereleased(x, y, button)
 end
 
 function BootScreen:keypressed(key)
