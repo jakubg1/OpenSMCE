@@ -46,15 +46,15 @@ end
 
 function Console:draw()
 	if not self.open then return end
-	local pos = Vec2()
-	local size = Vec2(NATIVE_RESOLUTION.x, 200)
+	local pos = Vec2(0, displaySize.y - 200)
+	local size = Vec2(400, 200)
 	love.graphics.setColor(0, 0, 0, 0.5)
 	love.graphics.rectangle("fill", pos.x, pos.y, size.x, size.y)
 	
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.consoleFont)
 	for i = 1, 10 do
-		local pos = Vec2(10, 20 * (i - 1))
+		local pos = Vec2(10, 20 * (i - 1)) + pos
 		local text = nil
 		if i == 10 then
 			text = "> " .. self.command
