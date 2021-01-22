@@ -14,6 +14,9 @@ function Console:new()
 	self.BACKSPACE_FIRST_REPEAT_TIME = 0.5
 	self.BACKSPACE_NEXT_REPEAT_TIME = 0.05
 	self.backspaceTime = 0
+	
+	self.font = love.graphics.newFont()
+	self.consoleFont = love.graphics.newFont(16)
 end
 
 function Console:update(dt)
@@ -43,14 +46,15 @@ end
 
 function Console:draw()
 	if not self.open then return end
-	local pos = posOnScreen(Vec2())
-	local size = Vec2(NATIVE_RESOLUTION.x, 160) * getResolutionScale()
+	local pos = Vec2()
+	local size = Vec2(NATIVE_RESOLUTION.x, 200)
 	love.graphics.setColor(0, 0, 0, 0.5)
 	love.graphics.rectangle("fill", pos.x, pos.y, size.x, size.y)
 	
 	love.graphics.setColor(1, 1, 1)
+	love.graphics.setFont(self.consoleFont)
 	for i = 1, 10 do
-		local pos = posOnScreen(Vec2(10, 16 * (i - 1)))
+		local pos = Vec2(10, 20 * (i - 1))
 		local text = nil
 		if i == 10 then
 			text = "> " .. self.command
@@ -60,13 +64,14 @@ function Console:draw()
 		end
 		if text then love.graphics.print(text, pos.x, pos.y) end
 	end
+	love.graphics.setFont(self.font)
 end
 
 
 
 function Console:keypressed(key)
-	-- the shortcut is Shift + Control + ~
-	if key == "`" and (keyModifiers["lshift"] or keyModifiers["rshift"]) and (keyModifiers["lctrl"] or keyModifiers["rctrl"]) then
+	-- the shortcut is Control + F12
+	if key == "f12" and (keyModifiers["lctrl"] or keyModifiers["rctrl"]) then
 		self:toggleOpen()
 	end
 	if self.active then
