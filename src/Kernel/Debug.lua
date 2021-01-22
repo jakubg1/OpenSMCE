@@ -225,10 +225,14 @@ end
 
 
 
-function Debug:drawVisibleText(text, pos, height)
-	love.graphics.setColor(0, 0, 0, 0.5)
-	local t = love.graphics.newText(love.graphics.getFont(), text)
-	love.graphics.rectangle("fill", pos.x - 3, pos.y, t:getWidth() + 6, height)
+function Debug:drawVisibleText(text, pos, height, width)
+	love.graphics.setColor(0, 0, 0, 0.7)
+	if width then
+		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
+	else
+		local t = love.graphics.newText(love.graphics.getFont(), text)
+		love.graphics.rectangle("fill", pos.x - 3, pos.y, t:getWidth() + 6, height)
+	end
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.print(text, pos.x, pos.y)
 end

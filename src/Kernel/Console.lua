@@ -15,6 +15,8 @@ function Console:new()
 	self.BACKSPACE_NEXT_REPEAT_TIME = 0.05
 	self.backspaceTime = 0
 	
+	self.MAX_MESSAGES = 20
+	
 	self.font = love.graphics.newFont()
 	self.consoleFont = love.graphics.newFont(16)
 end
@@ -32,7 +34,7 @@ function Console:update(dt)
 end
 
 function Console:print(message)
-	table.insert(self.history, message)
+	table.insert(self.history, {text = message, time = totalTime})
 end
 
 function Console:setOpen(open)
@@ -45,24 +47,23 @@ function Console:toggleOpen(open)
 end
 
 function Console:draw()
-	if not self.open then return end
-	local pos = Vec2(0, displaySize.y - 205)
-	local size = Vec2(400, 200)
+	local pos = Vec2(5, displaySize.y)
+	local size = Vec2(600, 200)
 	
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.consoleFont)
-	for i = 1, 10 do
-		local pos = Vec2(5, 20 * (i - 1)) + pos
-		local text = nil
-		if i == 10 then
-			text = "> " .. self.command
-			if self.active and totalTime % 1 < 0.5 then text = text .. "_" end
-		else
-			text = self.history[i + #self.history - 9]
+	for i = 1, self.MAX_MESSAGES do
+		local pos = pos - Vec2(0, 30 + 20 * i)
+		local message = self.history[#self.history - i + 1]
+		if message and (self.open or totalTime - message.time < 10) then
+			dbg:drawVisibleText({{1, 0.3, 0.3}, message.text}, pos, 20)
 		end
-		if text then
-			dbg:drawVisibleText({{1, 0.3, 0.3}, text}, pos, 20)
-		end
+	end
+	
+	if self.open then
+		local text = "> " .. self.command
+		if self.active and totalTime % 1 < 0.5 then text = text .. "_" end
+		dbg:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x)
 	end
 	love.graphics.setFont(self.font)
 end
@@ -108,7 +109,6 @@ function Console:inputBackspace()
 end
 
 function Console:inputEnter()
-	self:print("> " .. self.command)
 	local success = dbg:runCommand(self.command)
 	if not success then self:print("Invalid command!") end
 	self.command = ""
