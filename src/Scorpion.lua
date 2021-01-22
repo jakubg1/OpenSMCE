@@ -59,9 +59,9 @@ function Scorpion:update(dt)
 	while self.trailDistance < self.distance do
 		local offset = self.path.length - self.trailDistance
 		if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
-			game:spawnParticle(self.config.trailParticle, self.path:getPos(offset))
+			game:spawnParticle(self.settings.trailParticle, self.path:getPos(offset))
 		end
-		self.trailDistance = self.trailDistance + self.config.trailParticleDistance
+		self.trailDistance = self.trailDistance + self.settings.trailParticleDistance
 	end
 	-- Destroy when near spawn point or when no more spheres to destroy
 	if self.offset <= 64 or (self.destroyedSpheres and self.destroyedSpheres == self.maxSpheres) or (self.destroyedChains and self.destroyedChains == self.maxChains) then
@@ -74,11 +74,11 @@ function Scorpion:destroy()
 	self.delQueue = true
 	local score = self.destroyedSpheres * 100
 	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score), self.path:getPos(self.offset), self.config.scoreFont)
+	game.session.level:spawnFloatingText(numStr(score), self.path:getPos(self.offset), self.settings.scoreFont)
 	if self.destroyedSpheres == self.maxSpheres then
 		game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"})
 	end
-	game:spawnParticle(self.config.destroyParticle, self.path:getPos(self.offset))
+	game:spawnParticle(self.settings.destroyParticle, self.path:getPos(self.offset))
 	game:stopSound("scorpion_loop")
 	game:playSound("scorpion_destroy")
 end
