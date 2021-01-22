@@ -7,6 +7,10 @@ local Color = require("src/Essentials/Color")
 function Scorpion:new(path, deserializationTable)
 	self.path = path
 	
+	self.settings = game.config.gameplay.scorpion
+	
+	
+	
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
@@ -14,20 +18,22 @@ function Scorpion:new(path, deserializationTable)
 		self.distance = 0
 		self.trailDistance = 0
 		self.destroyedSpheres = 0
-		self.maxSpheres = 8
+		self.destroyedChains = 0
+		self.maxSpheres = self.settings.maxSpheres
+		self.maxChains = self.settings.maxChains
 	end
 	
-	self.image = game.resourceBank:getImage("img/game/vise.png")
+	self.image = game.resourceBank:getImage(self.settings.image)
 	self.shadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
 	
-	game:playSound("bonus_scarab_loop")
+	game:playSound("scorpion_loop")
 	
 	self.delQueue = false
 end
 
 function Scorpion:update(dt)
 	-- Offset and distance
-	self.offset = self.offset - 2000 * dt
+	self.offset = self.offset - self.settings.speed * dt
 	self.distance = self.path.length - self.offset
 	-- Destroying spheres
 	while self.destroyedSpheres < self.maxSpheres do
@@ -39,10 +45,11 @@ function Scorpion:update(dt)
 		if sphereGroup:getFrontPos() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
 			sphereGroup:destroySphere(#sphereGroup.spheres)
 			game.session.level:destroySphere()
+			game:playSound("scorpion_destroys")
 			self.destroyedSpheres = self.destroyedSpheres + 1
-			-- if this sphere is the last sphere, the scorpion gets rekt (TODO make it configurable)
+			-- if this sphere is the last sphere, the scorpion gets rekt
 			if not sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 1 and sphereGroup.spheres[1].color == 0 then
-				self:destroy()
+				self.destroyedChains = self.destroyedChains + 1
 			end
 		else
 			break
@@ -52,12 +59,12 @@ function Scorpion:update(dt)
 	while self.trailDistance < self.distance do
 		local offset = self.path.length - self.trailDistance
 		if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
-			game:spawnParticle("particles/bonus_scarab_trail.json", self.path:getPos(offset))
+			game:spawnParticle(self.config.trailParticle, self.path:getPos(offset))
 		end
-		self.trailDistance = self.trailDistance + 24
+		self.trailDistance = self.trailDistance + self.config.trailParticleDistance
 	end
 	-- Destroy when near spawn point or when no more spheres to destroy
-	if self.offset <= 64 or self.destroyedSpheres == self.maxSpheres then
+	if self.offset <= 64 or (self.destroyedSpheres and self.destroyedSpheres == self.maxSpheres) or (self.destroyedChains and self.destroyedChains == self.maxChains) then
 		self:destroy()
 	end
 end
@@ -67,13 +74,13 @@ function Scorpion:destroy()
 	self.delQueue = true
 	local score = self.destroyedSpheres * 100
 	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score), self.path:getPos(self.offset), "fonts/score0.json")
+	game.session.level:spawnFloatingText(numStr(score), self.path:getPos(self.offset), self.config.scoreFont)
 	if self.destroyedSpheres == self.maxSpheres then
 		game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"})
 	end
-	game:spawnParticle("particles/collapse_vise.json", self.path:getPos(self.offset))
-	game:stopSound("bonus_scarab_loop")
-	game:playSound("bonus_scarab")
+	game:spawnParticle(self.config.destroyParticle, self.path:getPos(self.offset))
+	game:stopSound("scorpion_loop")
+	game:playSound("scorpion_destroy")
 end
 
 
