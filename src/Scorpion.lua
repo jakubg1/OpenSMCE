@@ -56,12 +56,14 @@ function Scorpion:update(dt)
 		end
 	end
 	-- Trail
-	while self.trailDistance < self.distance do
-		local offset = self.path.length - self.trailDistance
-		if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
-			game:spawnParticle(self.settings.trailParticle, self.path:getPos(offset))
+	if self.settings.trailParticle then
+		while self.trailDistance < self.distance do
+			local offset = self.path.length - self.trailDistance
+			if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
+				game:spawnParticle(self.settings.trailParticle, self.path:getPos(offset))
+			end
+			self.trailDistance = self.trailDistance + self.settings.trailParticleDistance
 		end
-		self.trailDistance = self.trailDistance + self.settings.trailParticleDistance
 	end
 	-- Destroy when near spawn point or when no more spheres to destroy
 	if self.offset <= 64 or (self.destroyedSpheres and self.destroyedSpheres == self.maxSpheres) or (self.destroyedChains and self.destroyedChains == self.maxChains) then
