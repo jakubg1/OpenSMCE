@@ -80,8 +80,8 @@ end
 
 
 function Console:keypressed(key)
-	-- the shortcut is `
-	if key == "`" then
+	-- the shortcut is Ctrl + `
+	if key == "`" and (keyModifiers["lctrl"] or keyModifiers["rctrl"]) then
 		self:toggleOpen()
 	end
 	if self.active then
