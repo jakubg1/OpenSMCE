@@ -52,7 +52,7 @@ function ShotSphere:moveStep()
 		local sphereConfig = game.spheres[self.color]
 		local badShot = false
 		if sphereConfig.hitBehavior.type == "fireball" then
-			game.session:destroyRadius(self.pos, sphereConfig.hitBehavior.range)
+			game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
 			self:destroy()
 			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		else

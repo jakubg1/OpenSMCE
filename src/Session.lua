@@ -212,6 +212,32 @@ function Session:destroyVertical(x, width)
 	)
 end
 
+
+
+--- Destroys all spheres that are closer than radius pixels to the pos position.
+-- @tparam Vector2 pos A position relative to which the spheres will be destroyed.
+-- @tparam number radius The range in pixels.
+-- @tparam number color A color that any sphere must be matching with in order to destroy it.
+function Session:destroyRadiusColor(pos, radius, color)
+	self:destroyFunction(
+		function(sphere, spherePos) return (pos - spherePos):len() <= radius and self:colorsMatch(color, sphere.color) end,
+		pos
+	)
+end
+
+
+
+--- Destroys all spheres that are closer than width pixels to the x position on X coordinate.
+-- @tparam number x An X coordinate relative to which the spheres will be destroyed.
+-- @tparam number width The range in pixels.
+-- @tparam number color A color that any sphere must be matching with in order to destroy it.
+function Session:destroyVerticalColor(x, width, color)
+	self:destroyFunction(
+		function(sphere, spherePos) return math.abs(x - spherePos.x) <= width / 2 and self:colorsMatch(color, sphere.color) end,
+		self.level.shooter.pos + Vec2(0, -32)
+	)
+end
+
 function Session:getNearestSphere(pos)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, half = nil}
 	for i, path in ipairs(self.level.map.paths.objects) do
