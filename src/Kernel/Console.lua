@@ -80,8 +80,8 @@ end
 
 
 function Console:keypressed(key)
-	-- the shortcut is Control + F12
-	if key == "f12" and (keyModifiers["lctrl"] or keyModifiers["rctrl"]) then
+	-- the shortcut is `
+	if key == "`" then
 		self:toggleOpen()
 	end
 	if self.active then
