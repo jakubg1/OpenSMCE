@@ -135,6 +135,8 @@ function Session:usePowerupEffect(effect, color)
 		if path then
 			path:spawnScorpion()
 		end
+	elseif effect.type == "lightningStorm" then
+		self.level.lightningStormCount = effect.count
 	end
 end
 
@@ -274,6 +276,42 @@ function Session:replaceColor(color1, color2, particle)
 		function(sphere, spherePos) return sphere.color == color1 end,
 		color2, particle
 	)
+end
+
+function Session:getLowestMatchLength()
+	local lowest = nil
+	for i, path in ipairs(self.level.map.paths.objects) do
+		for j, sphereChain in ipairs(path.sphereChains) do
+			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for l, sphere in ipairs(sphereGroup.spheres) do
+					local matchLength = sphereGroup:getMatchLengthInChain(l)
+					if sphere.color ~= 0 and not sphere:isOffscreen() and (not lowest or lowest > matchLength) then
+						lowest = matchLength
+						if lowest == 1 then -- can't go any lower
+							return 1
+						end
+					end
+				end
+			end
+		end
+	end
+	return lowest
+end
+
+function Session:getSpheresWithMatchLength(matchLength)
+	local spheres = {}
+	for i, path in ipairs(self.level.map.paths.objects) do
+		for j, sphereChain in ipairs(path.sphereChains) do
+			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for l, sphere in ipairs(sphereGroup.spheres) do
+					if sphere.color ~= 0 and not sphere:isOffscreen() and sphereGroup:getMatchLengthInChain(l) == matchLength then
+						table.insert(spheres, sphere)
+					end
+				end
+			end
+		end
+	end
+	return spheres
 end
 
 function Session:getNearestSphere(pos)

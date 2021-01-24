@@ -65,6 +65,22 @@ function Level:update(dt)
 		
 		
 		
+		-- Lightning storm
+		if self.lightningStormCount > 0 then
+			self.lightningStormTime = self.lightningStormTime + dt
+			if self.lightningStormTime >= 0.5 then
+				self:spawnLightningStormPiece()
+				self.lightningStormCount = self.lightningStormCount - 1
+				if self.lightningStormCount == 0 then
+					self.lightningStormTime = 0
+				else
+					self.lightningStormTime = self.lightningStormTime - 0.5
+				end
+			end
+		end
+		
+		
+		
 		-- Warning lights
 		local maxDistance = self:getMaxDistance()
 		if maxDistance >= self.dangerDistance and not self.lost then
@@ -238,6 +254,39 @@ function Level:destroySphere()
 	if self.destroyedSpheres == self.target then self.targetReached = true end
 end
 
+function Level:spawnLightningStormPiece()
+	-- get a sphere candidate to be destroyed
+	local sphere = self:getLightningStormSphere()
+	-- if no candidate, the lightning storm is over
+	if not sphere then
+		self.lightningStormCount = 0
+		self.lightningStormTime = 0
+		return
+	end
+	
+	-- spawn a particle, add points etc
+	local pos = sphere:getPos()
+	self:grantScore(100)
+	self:spawnFloatingText(numStr(100), pos, game.spheres[sphere.color].matchFont)
+	game:spawnParticle("particles/lightning_beam.json", pos)
+	game:playSound("lightning_storm_destroy")
+	-- destroy it
+	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
+	self:destroySphere()
+end
+
+function Level:getLightningStormSphere()
+	local spheres = game.session:getSpheresWithMatchLength(game.session:getLowestMatchLength())
+	if #spheres == 0 then -- if none, return nothing
+		return nil
+	end
+	return spheres[math.random(#spheres)]
+end
+
+
+
+
+
 function Level:getEmpty()
 	for i, path in ipairs(self.map.paths.objects) do
 		if not path:getEmpty() then return false end
@@ -349,6 +398,8 @@ function Level:reset()
 	self.bonusPathID = 1
 	self.bonusDelay = nil
 	
+	self.lightningStormTime = 0
+	self.lightningStormCount = 0
 	self.shooter.speedShotTime = 0
 	game.session.colorManager:reset()
 end
@@ -431,6 +482,8 @@ function Level:serialize()
 		shotSpheres = {},
 		collectibles = {},
 		combo = self.combo,
+		lightningStormCount = self.lightningStormCount,
+		lightningStormTime = self.lightningStormTime,
 		destroyedSpheres = self.destroyedSpheres,
 		paths = self.map:serialize(),
 		lost = self.lost
@@ -479,6 +532,9 @@ function Level:deserialize(t)
 	for i, tCollectible in ipairs(t.collectibles) do
 		self.collectibles:append(Collectible(tCollectible))
 	end
+	-- Effects
+	self.lightningStormCount = t.lightningStormCount
+	self.lightningStormTime = t.lightningStormTime
 	
 	-- Pause
 	self:setPause(true)

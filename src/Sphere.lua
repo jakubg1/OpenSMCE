@@ -122,6 +122,10 @@ function Sphere:getPos()
 	return self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self))
 end
 
+function Sphere:isOffscreen()
+	return self.sphereGroup:getSphereOffset(self.sphereGroup:getSphereID(self)) < 64
+end
+
 
 
 function Sphere:serialize()
