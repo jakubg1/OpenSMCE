@@ -169,6 +169,31 @@ end
 
 
 
+--- Changes all sphere colors on the board if a call of the function f(sphere, spherePos) returns true.
+-- @tparam function t The function that has to return true in order for a given sphere's color to be changed.
+-- @tparam number color A color to which the given spheres will be painted.
+function Session:setColorFunction(f, color, particle)
+	-- we pass a function in the f variable
+	-- if f(param1, param2, ...) returns true, the sphere color is changed
+	for i, path in ipairs(self.level.map.paths.objects) do
+		for j = #path.sphereChains, 1, -1 do
+			local sphereChain = path.sphereChains[j]
+			for k = #sphereChain.sphereGroups, 1, -1 do
+				local sphereGroup = sphereChain.sphereGroups[k]
+				for l = #sphereGroup.spheres, 1, -1 do
+					local sphere = sphereGroup.spheres[l]
+					local spherePos = sphereGroup:getSpherePos(l)
+					if f(sphere, spherePos) and sphere.color ~= 0 then
+						sphere:changeColor(color, particle)
+					end
+				end
+			end
+		end
+	end
+end
+
+
+
 --- Destroys all spheres on the board.
 function Session:destroyAllSpheres()
 	self:destroyFunction(
@@ -235,6 +260,19 @@ function Session:destroyVerticalColor(x, width, color)
 	self:destroyFunction(
 		function(sphere, spherePos) return math.abs(x - spherePos.x) <= width / 2 and self:colorsMatch(color, sphere.color) end,
 		self.level.shooter.pos + Vec2(0, -32)
+	)
+end
+
+
+
+--- Destroys all spheres that are closer than width pixels to the x position on X coordinate.
+-- @tparam number x An X coordinate relative to which the spheres will be destroyed.
+-- @tparam number width The range in pixels.
+-- @tparam number color A color that any sphere must be matching with in order to destroy it.
+function Session:replaceColor(color1, color2, particle)
+	self:setColorFunction(
+		function(sphere, spherePos) return sphere.color == color1 end,
+		color2, particle
 	)
 end
 

@@ -55,6 +55,10 @@ function ShotSphere:moveStep()
 			game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
 			self:destroy()
 			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+		elseif sphereConfig.hitBehavior.type == "replaceColor" then
+			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
+			local color = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
+			game.session:replaceColor(color, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
 		else
 			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)

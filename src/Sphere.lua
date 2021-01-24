@@ -84,6 +84,15 @@ function Sphere:updateOffset()
 	self.offset = self.prevSphere and self.prevSphere.offset + 32 * self.size or 0
 end
 
+function Sphere:changeColor(color, particle)
+	game.session.colorManager:decrement(self.color)
+	game.session.colorManager:increment(color)
+	self.color = color
+	if particle then
+		game:spawnParticle(particle, self:getPos())
+	end
+end
+
 function Sphere:delete()
 	if self.delQueue then return end
 	self.delQueue = true
@@ -100,13 +109,17 @@ function Sphere:delete()
 	end
 	-- particles
 	if not self.map.isDummy and (not self.map.level.lost or self.color == 0) then
-		game:spawnParticle(game.spheres[self.color].destroyParticle, self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self)))
+		game:spawnParticle(game.spheres[self.color].destroyParticle, self:getPos())
 	end
 end
 
 function Sphere:getFrame()
 	if self.color == 0 then return 1 end
 	return (self.frameOffset + self.offset + self.sphereGroup.offset) % 32
+end
+
+function Sphere:getPos()
+	return self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self))
 end
 
 
