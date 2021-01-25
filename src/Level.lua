@@ -275,11 +275,19 @@ function Level:spawnLightningStormPiece()
 end
 
 function Level:getLightningStormSphere()
-	local spheres = game.session:getSpheresWithMatchLength(game.session:getLowestMatchLength())
-	if #spheres == 0 then -- if none, return nothing
-		return nil
+	local ln = game.session:getLowestMatchLength()
+	-- first, check for spheres that would make matching easier when destroyed
+	local spheres = game.session:getSpheresWithMatchLength(ln, true)
+	if #spheres > 0 then
+		return spheres[math.random(#spheres)]
 	end
-	return spheres[math.random(#spheres)]
+	-- if none, then check for any of the shortest groups
+	spheres = game.session:getSpheresWithMatchLength(ln)
+	if #spheres > 0 then
+		return spheres[math.random(#spheres)]
+	end
+	-- if none, return nothing
+	return nil
 end
 
 

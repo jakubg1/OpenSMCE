@@ -298,13 +298,24 @@ function Session:getLowestMatchLength()
 	return lowest
 end
 
-function Session:getSpheresWithMatchLength(matchLength)
+function Session:getSpheresWithMatchLength(matchLength, encourageMatches)
+	if not matchLength then return {} end
 	local spheres = {}
 	for i, path in ipairs(self.level.map.paths.objects) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
-					if sphere.color ~= 0 and not sphere:isOffscreen() and sphereGroup:getMatchLengthInChain(l) == matchLength then
+					local valid = true
+					-- Encourage matches: target groups that when destroyed will make a match.
+					if encourageMatches then
+						local color1, color2 = sphereGroup:getMatchBoundColorsInChain(l)
+						valid = color1 and color2 and self:colorsMatch(color1, color2)
+					end
+					-- If one sphere can be destroyed in a large group to make a big match, don't trim edges to avoid lost opportunities.
+					if matchLength > 3 then
+						valid = sphereGroup.spheres[l - 1] and sphereGroup.spheres[l + 1] and self:colorsMatch(sphereGroup.spheres[l - 1].color, sphereGroup.spheres[l + 1].color)
+					end
+					if sphere.color ~= 0 and not sphere:isOffscreen() and sphereGroup:getMatchLengthInChain(l) == matchLength and valid then
 						table.insert(spheres, sphere)
 					end
 				end

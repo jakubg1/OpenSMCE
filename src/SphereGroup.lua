@@ -459,6 +459,26 @@ function SphereGroup:getMatchLengthInChain(position)
 	return position2 - position1 - 1
 end
 
+function SphereGroup:getMatchBoundColorsInChain(position)
+	-- special seek for a lightning storm search algorithm
+	local position1 = position
+	local position2 = position
+	local color = self.spheres[position].color
+	-- seek backwards
+	while true do
+		position1 = position1 - 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self:getSphereInChain(position1) or not game.session:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then break end
+	end
+	-- seek forwards
+	while true do
+		position2 = position2 + 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self:getSphereInChain(position2) or not game.session:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then break end
+	end
+	return self:getSphereInChain(position1) and self:getSphereInChain(position1).color, self:getSphereInChain(position2) and self:getSphereInChain(position2).color
+end
+
 function SphereGroup:getLastSphere()
 	return self.spheres[#self.spheres]
 end
