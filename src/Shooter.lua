@@ -157,8 +157,8 @@ function Shooter:shoot()
 	game:playSound(sphereConfig.shootSound)
 	self:setColor(0)
 	game.session.level.spheresShot = game.session.level.spheresShot + 1
-	game.session.level.lightningStormCount = 0
-	game.session.level.lightningStormTime = 0
+	--game.session.level.lightningStormCount = 0
+	--game.session.level.lightningStormTime = 0
 end
 
 
