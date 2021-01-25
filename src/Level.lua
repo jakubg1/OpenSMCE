@@ -74,7 +74,7 @@ function Level:update(dt)
 				if self.lightningStormCount == 0 then
 					self.lightningStormTime = 0
 				else
-					self.lightningStormTime = self.lightningStormTime + 0.5
+					self.lightningStormTime = self.lightningStormTime + 0.3
 				end
 			end
 		end
