@@ -272,7 +272,6 @@ function Level:spawnLightningStormPiece()
 	game:playSound("lightning_storm_destroy")
 	-- destroy it
 	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
-	self:destroySphere()
 end
 
 function Level:getLightningStormSphere()
