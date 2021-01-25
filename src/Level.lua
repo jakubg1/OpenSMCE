@@ -67,14 +67,14 @@ function Level:update(dt)
 		
 		-- Lightning storm
 		if self.lightningStormCount > 0 then
-			self.lightningStormTime = self.lightningStormTime + dt
-			if self.lightningStormTime >= 0.5 then
+			self.lightningStormTime = self.lightningStormTime - dt
+			if self.lightningStormTime <= 0 then
 				self:spawnLightningStormPiece()
 				self.lightningStormCount = self.lightningStormCount - 1
 				if self.lightningStormCount == 0 then
 					self.lightningStormTime = 0
 				else
-					self.lightningStormTime = self.lightningStormTime - 0.5
+					self.lightningStormTime = self.lightningStormTime + 0.5
 				end
 			end
 		end
