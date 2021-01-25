@@ -7,6 +7,10 @@ local Color = require("src/Essentials/Color")
 function BonusScarab:new(path, deserializationTable)
 	self.path = path
 	
+	self.settings = game.config.gameplay.bonusScarab
+	
+	
+	
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
@@ -17,37 +21,43 @@ function BonusScarab:new(path, deserializationTable)
 	end
 	self.minOffset = math.max(path.clearOffset, 64)
 	
-	self.image = game.resourceBank:getImage("img/game/vise.png")
+	self.image = game.resourceBank:getImage(self.settings.image)
 	self.shadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
 	
 	game:playSound("bonus_scarab_loop")
 end
 
 function BonusScarab:update(dt)
-	self.offset = self.offset - 1000 * dt
+	-- Offset and distance
+	self.offset = self.offset - self.settings.speed * dt
 	self.distance = self.path.length - self.offset
-	-- Luxor 2
-	-- while self.coinDistance < self.distance do
-		-- if self.coinDistance > 0 then game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"}) end
-		-- self.coinDistance = self.coinDistance + 500
-	-- end
-	while self.trailDistance < self.distance do
-		local offset = self.path.length - self.trailDistance
-		if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
-			game:spawnParticle("particles/bonus_scarab_trail.json", self.path:getPos(offset))
+	-- Coins
+	if self.settings.coinDistance then
+		while self.coinDistance < self.distance do
+			if self.coinDistance > 0 then game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"}) end
+			self.coinDistance = self.coinDistance + self.settings.coinDistance
 		end
-		self.trailDistance = self.trailDistance + 24
 	end
+	-- Trail
+	if self.settings.trailParticle then
+		while self.trailDistance < self.distance do
+			local offset = self.path.length - self.trailDistance
+			if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
+				game:spawnParticle(self.settings.trailParticle, self.path:getPos(offset))
+			end
+			self.trailDistance = self.trailDistance + self.settings.trailParticleDistance
+		end
+	end
+	-- Destroy when exceeded minimum offset
 	if self.offset <= self.minOffset then self:destroy() end
 end
 
 function BonusScarab:destroy()
 	self.path.bonusScarab = nil
-	-- 50 points every 24 pixels
-	local score = math.max(math.floor((self.path.length - self.minOffset) / 24), 1) * 50
+	local score = math.max(math.floor((self.path.length - self.minOffset) / self.settings.stepLength), 1) * self.settings.pointsPerStep
 	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", self.path:getPos(self.offset), "fonts/score0.json")
-	game:spawnParticle("particles/collapse_vise.json", self.path:getPos(self.offset))
+	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", self.path:getPos(self.offset), self.settings.scoreFont)
+	game:spawnParticle(self.settings.destroyParticle, self.path:getPos(self.offset))
 	game:stopSound("bonus_scarab_loop")
 	game:playSound("bonus_scarab")
 end
