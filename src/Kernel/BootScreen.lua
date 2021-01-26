@@ -30,7 +30,7 @@ function BootScreen:init()
 	
 	-- discord rpc connection
 	discordRPC:connect()
-	discordRPC:setStatus("Boot Screen", nil, true)
+	discordRPC:setStatus(string.format("Boot Screen - Version: %s", VERSION_NAME), nil, true)
 end
 
 function BootScreen:update(dt)
