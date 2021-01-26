@@ -198,7 +198,7 @@ function Shooter:draw()
 		love.graphics.line(p2.x, p2.y, p3.x, p3.y)
 		
 		-- Fireball range highlight
-		if sphereConfig.hitBehavior.type == "fireball" then
+		if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
 			--love.graphics.setColor(1, 0, 0)
 			local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
 			for i = 1, dotCount do

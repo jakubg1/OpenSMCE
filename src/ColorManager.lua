@@ -93,6 +93,7 @@ end
 
 --- Increments the given color counter by one.
 function ColorManager:increment(color, danger)
+	if not self.sphereColorCounts[color] then return end
 	if danger then
 		self.dangerSphereColorCounts[color] = self.dangerSphereColorCounts[color] + 1
 	else
@@ -102,6 +103,7 @@ end
 
 --- Decrements the given color counter by one.
 function ColorManager:decrement(color, danger)
+	if not self.sphereColorCounts[color] then return end
 	if danger then
 		self.dangerSphereColorCounts[color] = self.dangerSphereColorCounts[color] - 1
 	else

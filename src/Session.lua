@@ -265,16 +265,17 @@ function Session:destroyVerticalColor(x, width, color)
 	)
 end
 
-
-
---- Destroys all spheres that are closer than width pixels to the x position on X coordinate.
--- @tparam number x An X coordinate relative to which the spheres will be destroyed.
--- @tparam number width The range in pixels.
--- @tparam number color A color that any sphere must be matching with in order to destroy it.
 function Session:replaceColor(color1, color2, particle)
 	self:setColorFunction(
 		function(sphere, spherePos) return sphere.color == color1 end,
 		color2, particle
+	)
+end
+
+function Session:replaceColorRadiusColor(pos, radius, color, color2)
+	self:setColorFunction(
+		function(sphere, spherePos) return (pos - spherePos):len() <= radius and self:colorsMatch(color, sphere.color) end,
+		color2
 	)
 end
 
