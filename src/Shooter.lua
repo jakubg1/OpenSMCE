@@ -14,6 +14,7 @@ function Shooter:new()
 	self.nextColor = 0
 	self.active = false -- when the sphere is shot you can't shoot; same for start, win, lose
 	self.speedShotTime = 0
+	self.speedShotSpeed = 0
 	
 	self.multiColorColor = nil
 	self.multiColorCount = 0
@@ -279,7 +280,7 @@ function Shooter:getTargetPos()
 end
 
 function Shooter:getShootingSpeed()
-	return self.speedShotTime > 0 and self.settings.speedShotSpeed or self.settings.shotSpeed
+	return self.speedShotTime > 0 and self.speedShotSpeed or self.settings.shotSpeed
 end
 
 
@@ -291,6 +292,7 @@ function Shooter:serialize()
 		multiColorColor = self.multiColorColor,
 		multiColorCount = self.multiColorCount,
 		speedShotTime = self.speedShotTime,
+		speedShotSpeed = self.speedShotSpeed,
 		active = self.active
 	}
 end
@@ -301,6 +303,7 @@ function Shooter:deserialize(t)
 	self.multiColorColor = t.multiColorColor
 	self.multiColorCount = t.multiColorCount
 	self.speedShotTime = t.speedShotTime
+	self.speedShotSpeed = t.speedShotSpeed
 	self.active = t.active
 end
 

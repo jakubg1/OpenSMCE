@@ -102,6 +102,7 @@ function Session:usePowerupEffect(effect, color)
 		self.level.shooter:getMultiSphere(effect.color, effect.count)
 	elseif effect.type == "speedShot" then
 		self.level.shooter.speedShotTime = effect.time
+		self.level.shooter.speedShotSpeed = effect.speed
 	elseif effect.type == "slow" then
 		for i, path in ipairs(self.level.map.paths.objects) do
 			for j, sphereChain in ipairs(path.sphereChains) do
