@@ -146,7 +146,7 @@ end
 --- Destroys all spheres on the board if a call of the function f(sphere, spherePos) returns true.
 -- @tparam function t The function that has to return true in order for a given sphere to be deleted.
 -- @tparam Vector2 scorePos A position where the score text should be located.
-function Session:destroyFunction(f, scorePos)
+function Session:destroyFunction(f, scorePos, scoreFont)
 	-- we pass a function in the f variable
 	-- if f(param1, param2, ...) returns true, the sphere is nuked
 	local score = 0
@@ -167,7 +167,7 @@ function Session:destroyFunction(f, scorePos)
 		end
 	end
 	self.level:grantScore(score)
-	self.level:spawnFloatingText(numStr(score), scorePos, "fonts/score0.json")
+	self.level:spawnFloatingText(numStr(score), scorePos, scoreFont or "fonts/score0.json")
 end
 
 
@@ -202,6 +202,15 @@ function Session:destroyAllSpheres()
 	self:destroyFunction(
 		function(sphere, spherePos) return true end,
 		self.level.shooter.pos + Vec2(0, -32)
+	)
+end
+
+
+
+function Session:destroySingleSphere(s)
+	self:destroyFunction(
+		function(sphere, spherePos) return sphere == s end,
+		s:getPos(), game.spheres[s.color].matchFont
 	)
 end
 

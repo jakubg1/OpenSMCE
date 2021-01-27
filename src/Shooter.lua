@@ -115,7 +115,7 @@ end
 
 function Shooter:swapColors()
 	-- we must be careful not to swap the spheres when they're absent
-	if game.session.level.pause or self.color == 0 or self.nextColor == 0 then return end
+	if game.session.level.pause or self.color == 0 or self.nextColor == 0 or not game.spheres[self.color].interchangeable then return end
 	local tmp = self.color
 	self:setColor(self.nextColor)
 	self:setNextColor(tmp)
@@ -280,6 +280,7 @@ function Shooter:getTargetPos()
 end
 
 function Shooter:getShootingSpeed()
+	if game.spheres[self.color].shootSpeed then return game.spheres[self.color].shootSpeed end
 	return self.speedShotTime > 0 and self.speedShotSpeed or self.settings.shotSpeed
 end
 

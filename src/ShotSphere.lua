@@ -50,8 +50,15 @@ function ShotSphere:moveStep()
 	if nearestSphere.dist and nearestSphere.dist < 32 then
 		self.hitSphere = nearestSphere
 		local sphereConfig = game.spheres[self.color]
+		local hitColor = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
 		local badShot = false
-		if sphereConfig.hitBehavior.type == "fireball" then
+		if sphereConfig.hitBehavior.type == "destroySphere" then
+			if game.session:colorsMatch(self.color, hitColor) then
+				game.session:destroySingleSphere(self.hitSphere.sphere)
+			end
+			self:destroy()
+			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+		elseif sphereConfig.hitBehavior.type == "fireball" then
 			game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
 			self:destroy()
 			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
@@ -61,8 +68,7 @@ function ShotSphere:moveStep()
 			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		elseif sphereConfig.hitBehavior.type == "replaceColor" then
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
-			local color = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
-			game.session:replaceColor(color, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
+			game.session:replaceColor(hitColor, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
 			self:destroy()
 			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		else
