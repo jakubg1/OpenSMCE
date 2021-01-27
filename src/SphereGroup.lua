@@ -92,6 +92,9 @@ function SphereGroup:update(dt)
 		if self:getLastSphereOffset() < 0 then self.sphereChain.reverseTime = 0 end
 	end
 	
+	-- stop spheres when away from board and rolling back
+	if self.speed < 0 and self:getFrontPos() < 0 then self.speed = 0 end
+	
 	for i = #self.spheres, 1, -1 do
 		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then self:destroySphere(i) end
 	end
