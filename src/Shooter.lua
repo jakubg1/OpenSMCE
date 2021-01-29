@@ -5,6 +5,7 @@ local Vec2 = require("src/Essentials/Vector2")
 local Image = require("src/Essentials/Image")
 local Color = require("src/Essentials/Color")
 
+local SphereEntity = require("src/SphereEntity")
 local ShotSphere = require("src/ShotSphere")
 
 function Shooter:new()
@@ -28,7 +29,7 @@ function Shooter:new()
 	self.image = game.resourceBank:getImage("img/game/shooter.png")
 	self.speedShotImage = game.resourceBank:getImage("img/particles/speed_shot_beam.png")
 	
-	self.particle = nil
+	self.sphereEntity = nil
 	
 	self.settings = game.config.gameplay.shooter
 end
@@ -60,8 +61,8 @@ function Shooter:update(dt)
 	if self.speedShotTime > 0 then self.speedShotTime = math.max(self.speedShotTime - dt, 0) end
 	
 	-- particle position update
-	if self.particle then
-		self.particle.pos = self:spherePos()
+	if self.sphereEntity then
+		self.sphereEntity:setPos(self:spherePos())
 	end
 end
 
@@ -90,13 +91,16 @@ end
 function Shooter:setColor(color)
 	self.color = color
 	
-	-- Particle stuff
-	if self.particle then
-		self.particle:destroy()
-		self.particle = nil
+	if color == 0 and self.sphereEntity then
+		self.sphereEntity:destroy(false)
+		self.sphereEntity = nil
 	end
-	if game.spheres[self.color].idleParticle then
-		self.particle = game:spawnParticle(game.spheres[self.color].idleParticle, self:spherePos())
+	if color ~= 0 then
+		if self.sphereEntity then
+			self.sphereEntity:setColor(color)
+		else
+			self.sphereEntity = SphereEntity(color, self:spherePos())
+		end
 	end
 end
 
@@ -213,10 +217,10 @@ function Shooter:draw()
 	end
 	
 	-- this color
-	if self.color ~= 0 then
-		local config = game.spheres[self.color]
-		local frame = config.imageAnimationSpeed and Vec2(math.floor(config.imageAnimationSpeed * totalTime), 1) or Vec2(1)
-		game.resourceBank:getImage(config.image):draw(self:spherePos(), Vec2(0.5, 0.5), frame)
+	if self.sphereEntity then
+		local frame = self.sphereEntity.config.imageAnimationSpeed and Vec2(math.floor(self.sphereEntity.config.imageAnimationSpeed * totalTime), 1) or Vec2(1)
+		self.sphereEntity.frame = frame
+		self.sphereEntity:draw()
 	end
 	-- next color
 	game.resourceBank:getImage(game.spheres[self.nextColor].nextImage):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
