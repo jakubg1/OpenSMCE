@@ -54,6 +54,9 @@ timeScale = 1
 
 -- CALLBACK ZONE
 function love.load()
+	local s = loadFile("test.txt")
+	print(s)
+	print(jsonBeautify(s))
 	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
 	game = BootScreen()
 	dbg = Debug()
@@ -236,7 +239,7 @@ function saveJson(path, data)
 	print("Saving JSON data to " .. path .. "...")
 	local file = io.open(path, "w")
 	io.output(file)
-	local contents = json.encode(data)
+	local contents = jsonBeautify(json.encode(data))
 	io.write(contents)
 	io.close(file)
 end
