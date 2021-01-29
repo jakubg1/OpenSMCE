@@ -5,6 +5,8 @@ local Vec2 = require("src/Essentials/Vector2")
 local Image = require("src/Essentials/Image")
 local Color = require("src/Essentials/Color")
 
+local SphereEntity = require("src/SphereEntity")
+
 function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
@@ -14,6 +16,7 @@ function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 		self.steps = 0
 		self.color = color
 		self.speed = speed
+		self.sphereEntity = shooter.sphereEntity
 	
 		self.hitTime = 0
 		self.hitSphere = nil
@@ -89,6 +92,7 @@ end
 function ShotSphere:destroy()
 	if self.delQueue then return end
 	self._list:destroy(self)
+	self.sphereEntity:destroy(false)
 	self.delQueue = true
 	self.shooter.active = true
 	game:playSound("shooter_fill")
@@ -98,7 +102,9 @@ end
 
 function ShotSphere:draw()
 	if not self.hitSphere then
-		game.resourceBank:getImage(game.spheres[self.color].image):draw(self.pos, Vec2(0.5))
+		self.sphereEntity:setPos(self.pos)
+		self.sphereEntity:draw(true)
+		self.sphereEntity:draw()
 		--self:drawDebug()
 	end
 end
@@ -146,6 +152,10 @@ function ShotSphere:deserialize(t)
 	
 	self.hitSphere = nil -- blah blah blah, see above
 	self.hitTime = t.hitTime
+	
+	
+	
+	self.sphereEntity = SphereEntity(self.pos, self.color)
 end
 
 return ShotSphere

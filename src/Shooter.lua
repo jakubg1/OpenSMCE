@@ -99,7 +99,7 @@ function Shooter:setColor(color)
 		if self.sphereEntity then
 			self.sphereEntity:setColor(color)
 		else
-			self.sphereEntity = SphereEntity(color, self:spherePos())
+			self.sphereEntity = SphereEntity(self:spherePos(), color)
 		end
 	end
 end
@@ -157,10 +157,11 @@ function Shooter:shoot()
 		game.session.level.combo = 0 -- cuz that's how it works
 	else
 		game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
+		self.sphereEntity = nil
 		self.active = false
 	end
 	game:playSound(sphereConfig.shootSound)
-	self:setColor(0)
+	self.color = 0
 	game.session.level.spheresShot = game.session.level.spheresShot + 1
 	--game.session.level.lightningStormCount = 0
 	--game.session.level.lightningStormTime = 0
@@ -262,6 +263,13 @@ end
 
 
 
+function Shooter:spawnSphereEntity()
+	if self.color == 0 or self.sphereEntity then return end
+	self.sphereEntity = SphereEntity(self:spherePos(), self.color)
+end
+
+
+
 function Shooter:getReticalColor()
 	local color = game.spheres[self.color].color
 	if type(color) == "string" then
@@ -310,6 +318,10 @@ function Shooter:deserialize(t)
 	self.speedShotTime = t.speedShotTime
 	self.speedShotSpeed = t.speedShotSpeed
 	self.active = t.active
+	
+	
+	
+	self:spawnSphereEntity()
 end
 
 return Shooter

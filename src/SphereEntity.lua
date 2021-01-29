@@ -4,7 +4,7 @@ local SphereEntity = class:derive("SphereEntity")
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
-function SphereEntity:new(color, pos)
+function SphereEntity:new(pos, color)
 	self.color = color
 	self.pos = pos
 	self.angle = 0
