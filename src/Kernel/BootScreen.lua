@@ -21,7 +21,7 @@ function BootScreen:new()
 	self.selectedGame = nil
 	
 	-- buttons
-	self.loadGameBtn = Button("Start!", self.fontBig, Vec2(540, 476), Vec2(230, 24), function() self:loadSelectedGame() end)
+	self.loadGameBtn = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end)
 	self.settingsBtn = Button("Engine Settings", self.fontBig, Vec2(540, 530), Vec2(230, 24), function()  end)
 	self.quitBtn = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
 end
@@ -31,7 +31,7 @@ function BootScreen:init()
 	self.games = self:getGames()
 	-- set buttons up
 	for i, game in ipairs(self.games) do
-		table.insert(self.gameButtons, Button(game, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(i) end))
+		table.insert(self.gameButtons, Button(game.name, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(i) end))
 	end
 	self.loadGameBtn.visible = false
 	
@@ -65,7 +65,7 @@ function BootScreen:selectGame(id)
 end
 
 function BootScreen:loadSelectedGame()
-	loadGame(self.games[self.selectedGame])
+	loadGame(self.games[self.selectedGame].name)
 end
 
 function BootScreen:getGames()
@@ -84,8 +84,9 @@ function BootScreen:getGames()
 	for i, folder in ipairs(folders) do
 		-- We check whether we can open the config.json file. If not, we skip the name.
 		print("Checking folder \"" .. folder .. "\"...")
-		if pcall(function() loadJson("games/" .. folder .. "/config.json") end) then
-			table.insert(games, folder)
+		local success, result = pcall(function() return loadJson("games/" .. folder .. "/config.json") end)
+		if success then
+			table.insert(games, {name = folder, config = result})
 			print("SUCCESS!")
 		else
 			print("FAIL!")
@@ -141,16 +142,25 @@ function BootScreen:draw()
 	-----------------------------
 	love.graphics.print("Selected Game", 540, 270)
 	if self.selectedGame then
-		love.graphics.print(self.games[self.selectedGame], 540, 300)
+		love.graphics.print(self.games[self.selectedGame].name, 544, 304)
+		-- Version support
+		local supportedVersion = self.games[self.selectedGame].config.engineVersion
 		love.graphics.setFont(self.font)
-		love.graphics.print(string.format("Supported Version: %s", VERSION), 540, 320)
+		if supportedVersion then
+			love.graphics.print(string.format("Supported Version: %s", supportedVersion), 544, 324)
+		else
+			love.graphics.setColor(1, 1, 0)
+			love.graphics.print(string.format("Unknown supported version!"), 544, 324)
+		end
 	end
 	self.loadGameBtn:draw()
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setLineWidth(4)
+	love.graphics.rectangle("line", 540, 300, 230, 200) -- frame
 	
 	-----------------------------
 	-- FOOTER
 	-----------------------------
-	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.font)
 	love.graphics.print("OpenSMCE is a short for Open-Source Sphere Matcher Community Engine.", 30, 525)
 	love.graphics.print("This work was brought to you by jakubg1\nLicensed under MIT license.", 30, 555)
