@@ -32,13 +32,13 @@ function Button:draw()
 	love.graphics.setLineWidth(1)
 	if self.hovered then
 		if self.selected then
-			love.graphics.setColor(0.2, 0.2, 0.2)
+			love.graphics.setColor(0.9, 0.9, 0.9)
 		else
-			love.graphics.setColor(0.8, 0.8, 0.8)
+			love.graphics.setColor(0.6, 0.6, 0.6)
 		end
 	else
 		if self.selected then
-			love.graphics.setColor(0.6, 0.6, 0.6)
+			love.graphics.setColor(0.8, 0.8, 0.8)
 		else
 			love.graphics.setColor(0.4, 0.4, 0.4)
 		end

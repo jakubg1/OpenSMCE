@@ -19,6 +19,11 @@ function BootScreen:new()
 	self.games = nil
 	self.gameButtons = {}
 	self.selectedGame = nil
+	
+	-- buttons
+	self.loadGameBtn = Button("Start!", self.fontBig, Vec2(540, 476), Vec2(230, 24), function() self:loadSelectedGame() end)
+	self.settingsBtn = Button("Engine Settings", self.fontBig, Vec2(540, 530), Vec2(230, 24), function()  end)
+	self.quitBtn = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
 end
 
 function BootScreen:init()
@@ -28,6 +33,7 @@ function BootScreen:init()
 	for i, game in ipairs(self.games) do
 		table.insert(self.gameButtons, Button(game, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(i) end))
 	end
+	self.loadGameBtn.visible = false
 	
 	-- discord rpc connection
 	discordRPC:connect()
@@ -35,10 +41,13 @@ function BootScreen:init()
 end
 
 function BootScreen:update(dt)
-	-- game hover
+	-- button hover
 	for i, gameButton in ipairs(self.gameButtons) do
 		gameButton:update(dt)
 	end
+	self.loadGameBtn:update(dt)
+	self.settingsBtn:update(dt)
+	self.quitBtn:update(dt)
 	
 	-- URL hover
 	self.urlHovered = mousePos.x > self.urlHoverPos.x and
@@ -49,6 +58,14 @@ end
 
 function BootScreen:selectGame(id)
 	self.selectedGame = id
+	self.loadGameBtn.visible = true
+	for i, button in ipairs(self.gameButtons) do
+		button.selected = i == id
+	end
+end
+
+function BootScreen:loadSelectedGame()
+	loadGame(self.games[self.selectedGame])
 end
 
 function BootScreen:getGames()
@@ -123,14 +140,26 @@ function BootScreen:draw()
 	-- SELECTED GAME DATA
 	-----------------------------
 	love.graphics.print("Selected Game", 540, 270)
-	love.graphics.print(tostring(self.selectedGame), 540, 300)
+	if self.selectedGame then
+		love.graphics.print(self.games[self.selectedGame], 540, 300)
+		love.graphics.setFont(self.font)
+		love.graphics.print(string.format("Supported Version: %s", VERSION), 540, 320)
+	end
+	self.loadGameBtn:draw()
 	
 	-----------------------------
 	-- FOOTER
 	-----------------------------
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.font)
 	love.graphics.print("OpenSMCE is a short for Open-Source Sphere Matcher Community Engine.", 30, 525)
 	love.graphics.print("This work was brought to you by jakubg1\nLicensed under MIT license.", 30, 555)
+	
+	-----------------------------
+	-- FOOTER BUTTONS
+	-----------------------------
+	self.settingsBtn:draw()
+	self.quitBtn:draw()
 	
 	-----------------------------
 	-- URL HOVERING
@@ -174,10 +203,14 @@ function BootScreen:mousepressed(x, y, button)
 end
 
 function BootScreen:mousereleased(x, y, button)
-	-- Game
+	-- Buttons
 	for i, gameButton in ipairs(self.gameButtons) do
 		gameButton:mousereleased(x, y, button)
 	end
+	self.loadGameBtn:mousereleased(x, y, button)
+	self.settingsBtn:mousereleased(x, y, button)
+	self.quitBtn:mousereleased(x, y, button)
+	
 	-- URL
 	if self.urlHovered then
 		love.system.openURL(self.url)
