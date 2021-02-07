@@ -18,6 +18,7 @@ function BootScreen:new()
 	-- game list
 	self.games = nil
 	self.gameButtons = {}
+	self.selectedGame = nil
 end
 
 function BootScreen:init()
@@ -25,7 +26,7 @@ function BootScreen:init()
 	self.games = self:getGames()
 	-- set buttons up
 	for i, game in ipairs(self.games) do
-		table.insert(self.gameButtons, Button(game, self.fontBig, Vec2(34, 280 + i * 24), Vec2(732, 24), function() loadGame(game) end))
+		table.insert(self.gameButtons, Button(game, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(i) end))
 	end
 	
 	-- discord rpc connection
@@ -44,6 +45,10 @@ function BootScreen:update(dt)
 					mousePos.x < self.urlHoverPos.x + self.urlHoverSize.x and
 					mousePos.y > self.urlHoverPos.y and
 					mousePos.y < self.urlHoverPos.y + self.urlHoverSize.y
+end
+
+function BootScreen:selectGame(id)
+	self.selectedGame = id
 end
 
 function BootScreen:getGames()
@@ -79,12 +84,16 @@ function BootScreen:draw()
 	-- White color
 	love.graphics.setColor(1, 1, 1)
 	
-	-- Header
+	-----------------------------
+	-- HEADER
+	-----------------------------
 	love.graphics.setFont(self.fontBig)
 	love.graphics.print("OpenSMCE Boot Menu", 30, 30)
 	love.graphics.print(string.format("Version: %s (%s)", VERSION_NAME, VERSION), 520, 30)
 	
-	-- Notes
+	-----------------------------
+	-- NOTES
+	-----------------------------
 	-- WARNING text
 	love.graphics.setColor(1, 0.2, 0.2)
 	love.graphics.print("WARNING", 45, 75)
@@ -99,21 +108,33 @@ function BootScreen:draw()
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", 30, 60, 740, 150) -- frame
 	
-	-- Game list
+	-----------------------------
+	-- GAME LIST
+	-----------------------------
 	love.graphics.print("Game List", 30, 270)
 	for i, gameButton in ipairs(self.gameButtons) do
 		gameButton:draw()
 	end
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setLineWidth(4)
-	love.graphics.rectangle("line", 30, 300, 740, 200) -- frame
+	love.graphics.rectangle("line", 30, 300, 490, 200) -- frame
 	
-	-- Footer
+	-----------------------------
+	-- SELECTED GAME DATA
+	-----------------------------
+	love.graphics.print("Selected Game", 540, 270)
+	love.graphics.print(tostring(self.selectedGame), 540, 300)
+	
+	-----------------------------
+	-- FOOTER
+	-----------------------------
 	love.graphics.setFont(self.font)
 	love.graphics.print("OpenSMCE is a short for Open-Source Sphere Matcher Community Engine.", 30, 525)
 	love.graphics.print("This work was brought to you by jakubg1\nLicensed under MIT license.", 30, 555)
 	
-	-- URL hovering
+	-----------------------------
+	-- URL HOVERING
+	-----------------------------
 	if self.urlHovered then
 		love.graphics.setColor(1, 1, 0)
 	else
@@ -125,7 +146,9 @@ function BootScreen:draw()
 		-- love.graphics.print("<--- Click here to open the page!", self.urlHoverPos.x + self.urlHoverSize.x + 20, self.urlHoverPos.y + 8, 0.1)
 	-- end
 	
-	-- Discord Rich Presence status
+	-----------------------------
+	-- DISCORD RICH PRESENCE STATUS
+	-----------------------------
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.fontBig)
 	love.graphics.print("Discord Integration: ", 30, 220)
