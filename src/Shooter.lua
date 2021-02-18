@@ -16,21 +16,21 @@ function Shooter:new()
 	self.active = false -- when the sphere is shot you can't shoot; same for start, win, lose
 	self.speedShotTime = 0
 	self.speedShotSpeed = 0
-	
+
 	self.multiColorColor = nil
 	self.multiColorCount = 0
-	
+
 	-- memorizing the pressed keys for keyboard control of the shooter
 	self.moveKeys = {left = false, right = false}
 	-- the speed of the shooter when controlled via keyboard
 	self.moveKeySpeed = 500
-	
+
 	self.shadowImage = game.resourceBank:getImage("img/game/shooter_shadow.png")
 	self.image = game.resourceBank:getImage("img/game/shooter.png")
 	self.speedShotImage = game.resourceBank:getImage("img/particles/speed_shot_beam.png")
-	
+
 	self.sphereEntity = nil
-	
+
 	self.settings = game.config.gameplay.shooter
 end
 
@@ -48,7 +48,7 @@ function Shooter:update(dt)
 		-- else, the mouse takes advantage and overwrites the position
 		self:move(mousePos.x, true)
 	end
-	
+
 	-- filling
 	if self.active then
 		-- remove inexistant colors
@@ -56,10 +56,10 @@ function Shooter:update(dt)
 		if not game.session.colorManager:isColorExistent(self.nextColor) then self:setNextColor(0) end
 		self:fill()
 	end
-	
+
 	-- speed shot time counting
 	if self.speedShotTime > 0 then self.speedShotTime = math.max(self.speedShotTime - dt, 0) end
-	
+
 	-- particle position update
 	if self.sphereEntity then
 		self.sphereEntity:setPos(self:spherePos())
@@ -90,7 +90,7 @@ end
 
 function Shooter:setColor(color)
 	self.color = color
-	
+
 	if color == 0 and self.sphereEntity then
 		self.sphereEntity:destroy(false)
 		self.sphereEntity = nil
@@ -148,13 +148,15 @@ end
 function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
 	if game.session.level.pause or not self.active or self.color == 0 then return end
-	
+
 	local sphereConfig = game.spheres[self.color]
 	if sphereConfig.shootBehavior.type == "lightning" then
 		-- lightning spheres are not shot, they're deployed instantly
 		game:spawnParticle(sphereConfig.destroyParticle, self:spherePos())
 		game.session:destroyVerticalColor(self.pos.x, sphereConfig.shootBehavior.range, self.color)
-		game.session.level.combo = 0 -- cuz that's how it works
+		if sphereConfig.shootBehavior.resetCombo then
+			game.session.level.combo = 0 -- cuz that's how it works
+		end
 	else
 		game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
 		self.sphereEntity = nil
@@ -189,7 +191,7 @@ end
 function Shooter:draw()
 	self.shadowImage:draw(self.pos + Vec2(8, 8), Vec2(0.5, 0))
 	self.image:draw(self.pos, Vec2(0.5, 0))
-	
+
 	-- retical
 	local targetPos = self:getTargetPos()
 	local color = self:getReticalColor()
@@ -202,7 +204,7 @@ function Shooter:draw()
 		local p3 = posOnScreen(targetPos + Vec2(8, 8))
 		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
 		love.graphics.line(p2.x, p2.y, p3.x, p3.y)
-		
+
 		-- Fireball range highlight
 		if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
 			--love.graphics.setColor(1, 0, 0)
@@ -216,7 +218,7 @@ function Shooter:draw()
 			--love.graphics.circle("line", p2.x, p2.y, sphereConfig.hitBehavior.range)
 		end
 	end
-	
+
 	-- this color
 	if self.sphereEntity then
 		local frame = self.sphereEntity.config.imageAnimationSpeed and Vec2(math.floor(self.sphereEntity.config.imageAnimationSpeed * totalTime), 1) or Vec2(1)
@@ -225,7 +227,7 @@ function Shooter:draw()
 	end
 	-- next color
 	game.resourceBank:getImage(game.spheres[self.nextColor].nextImage):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
-	
+
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
 end
@@ -236,7 +238,7 @@ function Shooter:drawSpeedShotBeam()
 	-- "cut" - the beam is cut on the target position
 	-- "scale" - the beam is squished between the shooter and the target position
 	if self.speedShotTime == 0 then return end
-	
+
 	local targetPos = self:getTargetPos()
 	local maxDistance = self.speedShotImage.size.y
 	local distance = math.min(targetPos and self.pos.y - targetPos.y or self.pos.y, maxDistance)
@@ -318,9 +320,9 @@ function Shooter:deserialize(t)
 	self.speedShotTime = t.speedShotTime
 	self.speedShotSpeed = t.speedShotSpeed
 	self.active = t.active
-	
-	
-	
+
+
+
 	self:spawnSphereEntity()
 end
 
