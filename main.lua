@@ -14,6 +14,8 @@ local Debug = require("src/Kernel/Debug")
 local BootScreen = require("src/Kernel/BootScreen")
 local Game = require("src/Game")
 
+local Settings = require("src/Kernel/Settings")
+
 local DiscordRichPresence = require("src/DiscordRichPresence")
 
 
@@ -54,12 +56,13 @@ timeScale = 1
 
 -- CALLBACK ZONE
 function love.load()
-	local s = loadFile("test.txt")
-	print(s)
-	print(jsonBeautify(s))
+	--local s = loadFile("test.txt")
+	--print(s)
+	--print(jsonBeautify(s))
 	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
 	game = BootScreen()
 	dbg = Debug()
+	engineSettings = Settings("engine/settings.json")
 	discordRPC = DiscordRichPresence()
 	-- Init boot screen
 	game:init()
@@ -67,28 +70,28 @@ end
 
 function love.update(dt)
 	dbg:profUpdateStart()
-	
+
 	mousePos = posFromScreen(Vec2(love.mouse.getPosition()))
 	if game then game:update(dt * timeScale) end
-	
+
 	dbg:update(dt)
 	discordRPC:update(dt)
-	
+
 	-- rainbow effect for the shooter and console cursor blink; to be phased out soon
 	totalTime = totalTime + dt
-	
+
 	dbg:profUpdateStop()
 end
 
 function love.draw()
 	dbg:profDrawStart()
-	
+
 	-- Main
 	if game then game:draw() end
-	
+
 	-- Tests
 	dbg:draw()
-	
+
 	dbg:profDrawStop()
 end
 
@@ -102,21 +105,21 @@ end
 
 function love.keypressed(key)
 	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = true end end
-	
+
 	if not dbg.console.active then
 		if game then game:keypressed(key) end
 	end
-	
+
 	dbg:keypressed(key)
 end
 
 function love.keyreleased(key)
 	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = false end end
-	
+
 	if not dbg.console.active then
 		if game then game:keyreleased(key) end
 	end
-	
+
 	dbg:keyreleased(key)
 end
 

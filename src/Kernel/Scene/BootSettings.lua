@@ -15,11 +15,18 @@ function BootSettings:new(bootScreen)
 	self.fontBig = love.graphics.newFont(18)
 
 	-- buttons
-	self.menuBtn = Button("Go Back", self.fontBig, Vec2(30, 546), Vec2(300, 24), function() self.bootScreen:setScene("main") end)
+	self.menuBtn = Button("Save and Go Back", self.fontBig, Vec2(30, 546), Vec2(300, 24), function() engineSettings:save(); self.bootScreen:setScene("main") end)
 	self.settingCheckboxes = {
-    Checkbox("Enable Discord Rich Presence", self.fontBig, Vec2(40, 110), Vec2(760, 24), function(state) dbg.console:print(tostring(state)) end),
-	  Checkbox("Go back to the boot menu when exiting a game", self.fontBig, Vec2(40, 140), Vec2(760, 24), function(state) dbg.console:print(tostring(state)) end)
+    Checkbox("Enable Discord Rich Presence", self.fontBig, Vec2(40, 110), Vec2(760, 24), function(state) engineSettings:setDiscordRPC(state) end),
+	  Checkbox("Go back to the boot menu when exiting a game", self.fontBig, Vec2(40, 140), Vec2(760, 24), function(state) engineSettings:setBackToBoot(state) end)
   }
+end
+
+
+
+function BootSettings:init()
+  self.settingCheckboxes[1].selected = engineSettings:getDiscordRPC()
+  self.settingCheckboxes[2].selected = engineSettings:getBackToBoot()
 end
 
 
