@@ -5,6 +5,7 @@ local Vec2 = require("src/Essentials/Vector2")
 local Button = require("src/Kernel/UI/Button")
 
 local BootMain = require("src/Kernel/Scene/BootMain")
+local BootSettings = require("src/Kernel/Scene/BootSettings")
 
 
 
@@ -13,6 +14,10 @@ function BootScreen:new()
 	self.games = nil
 
 	self.scene = nil
+	self.sceneConstructors = {
+		main = BootMain,
+		settings = BootSettings
+	}
 end
 
 
@@ -22,7 +27,7 @@ function BootScreen:init()
 	self.games = self:getGames()
 
 	-- init the main screen
-	self:setScene(BootMain)
+	self:setScene("main")
 
 	-- discord rpc connection
 	discordRPC:connect()
@@ -31,9 +36,9 @@ end
 
 
 
-function BootScreen:setScene(constructor)
-	self.scene = constructor(self)
-	self.scene:init()
+function BootScreen:setScene(name)
+	self.scene = self.sceneConstructors[name](self)
+	if self.scene.init then self.scene:init() end
 end
 
 
