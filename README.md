@@ -44,7 +44,7 @@ However, for now there are just private playtest versions and the game is not pu
   - same as above, plus some editors like you're modding Luxor, JSON knowledge (just a bit)
 
 - For modifying the engine:
-  - same as above, a text editor (preferably Notepad++), Lua knowledge, JSON knowledge, LOVE 11.3 installed and the code repository program to easily manage the code and update it
+  - same as above, a text editor (preferably *Atom* or *Notepad++*), Lua knowledge, JSON knowledge, LOVE 11.3 installed and the code repository program to easily manage the code and update it
 
 ## Documentation
 The documentation will come at some point. Unfortunately, there is no documentation for now.
