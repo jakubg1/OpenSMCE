@@ -309,7 +309,7 @@ function Game:setFullscreen(fullscreen)
 	love.window.setMode(displaySize.x, displaySize.y, {fullscreen = fullscreen, resizable = true})
 end
 
-function Game:quit()
+function Game:exit()
 	self.resourceBank:unload()
 	if engineSettings:getBackToBoot() then
 		love.window.setMode(800, 600) -- reset window size
@@ -506,7 +506,7 @@ function Game:executeEvent(event)
 		self.session.level:save()
 		self.session.level = nil
 	elseif event.type == "quit" then
-		self:quit()
+		self:exit()
 
 	-- widget stuff
 	elseif event.type == "widgetShow" then
