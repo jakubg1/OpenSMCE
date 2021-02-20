@@ -134,9 +134,9 @@ function Game:tick(dt) -- always with 1/60 seconds
 	-- Discord Rich Presence
 	local line1 = "Playing: " .. self.name
 	if self:levelExists() then
-		local line2 = string.format("Level %s (%s%%), Score: %s, Lives: %s",
+		local line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
 			self.widgetVariables.levelName,
-			math.floor(self.widgetVariables.progress * 100),
+			self.session.level.won and "Complete!" or string.format("%s%%", math.floor(self.widgetVariables.progress * 100)),
 			self.widgetVariables.score,
 			self.widgetVariables.lives
 		)
