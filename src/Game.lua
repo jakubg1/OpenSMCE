@@ -16,56 +16,56 @@ local ParticleManager = require("src/Particle/Manager")
 
 function Game:new(name)
 	self.name = name
-	
+
 	self.hasFocus = false
-	
+
 	self.resourceBank = nil
 	self.runtimeManager = nil
 	self.session = nil
-	
+
 	self.widgets = {splash = nil, main = nil}
 	self.widgetVariables = {}
 	self.widgetCallbacks = {}
-	
+
 	self.particleManager = nil
-	
+
 	self.config = nil
 	self.spheres = {}
 	self.powerups = {}
-	
-	
+
+
 	-- revert to original font size
 	love.graphics.setFont(love.graphics.newFont())
 end
 
 function Game:init()
 	print("Selected game: " .. self.name)
-	
+
 	-- Step 1. Load the config
 	self.config = loadJson(parsePath("config.json"))
 	for k, v in pairs(self.config.spheres) do
 		self.spheres[tonumber(k)] = v
 	end
 	self.powerups = self.config.powerups
-	
+
 	-- Step 2. Initialize the window
 	love.window.setTitle(self.config.general.windowTitle or ("OpenSMCE [" .. VERSION .. "] - " .. self.name))
 	love.window.setMode(self.config.general.nativeResolution.x, self.config.general.nativeResolution.y, {resizable = true})
-	
+
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
 	math.randomseed(os.time())
-	
+
 	-- Step 4. Create a resource bank
 	self.resourceBank = ResourceBank()
-	
+
 	-- Step 5. Load initial resources (enough to start up the splash screen)
 	self.resourceBank:loadList(self.config.loadList)
-	
+
 	-- Step 6. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
 	self.satMode = self.runtimeManager.profile.data.session.ultimatelySatisfyingMode
-	
+
 	-- Step 7. Set up the splash widget
 	self.widgets.splash = UIWidget("Splash", loadJson(parsePath("ui/splash.json")))
 	self.widgets.splash:show()
@@ -81,12 +81,12 @@ end
 function Game:initSession()
 	-- Cleanup the splash
 	self.widgets.splash = nil
-	
+
 	-- Setup the UI and particles
 	self.widgets.root = UIWidget("Root", loadJson(parsePath("ui/root.json")))
 	self:parseUIScript(loadFile(parsePath("ui/script.txt")))
 	self.particleManager = ParticleManager()
-	
+
 	self.session = Session()
 	self.session:init()
 end
@@ -101,20 +101,20 @@ end
 function Game:tick(dt) -- always with 1/60 seconds
 	-- despite being called since the splash screen starts, scripts are loaded when the main game widgets are loaded, and therefore this tick is called only after such event happens
 	self:executeCallback("tick")
-	
+
 	if self.hasFocus ~= love.window.hasFocus() then
 		self.hasFocus = love.window.hasFocus()
 		if not self.hasFocus then
 			self:executeCallback("lostFocus")
 		end
 	end
-	
+
 	self.resourceBank:update(dt)
-	
+
 	if self:sessionExists() then
 		self.session:update(dt)
 	end
-	
+
 	-- TODO: HARDCODED - make it more flexible
 	if self.widgets.splash then
 		-- splash progress bar
@@ -124,13 +124,13 @@ function Game:tick(dt) -- always with 1/60 seconds
 			self.widgets.splash.children.Frame.children.Button_Play:show()
 		end
 	end
-	
+
 	for widgetN, widget in pairs(self.widgets) do
 		widget:update(dt)
 	end
-	
+
 	if self.particleManager then self.particleManager:update(dt) end
-	
+
 	-- Discord Rich Presence
 	local line1 = "Playing: " .. self.name
 	if self:levelExists() then
@@ -167,7 +167,7 @@ function Game:draw()
 	-- Session and level
 	if self:sessionExists() then
 		self.session:draw()
-		
+
 		self.widgetVariables.lives = self.runtimeManager.profile:getLives()
 		self.widgetVariables.coins = self.runtimeManager.profile:getCoins()
 		self.widgetVariables.score = numStr(self.runtimeManager.profile:getScore())
@@ -185,7 +185,7 @@ function Game:draw()
 			self.widgetVariables.progress = 0
 		end
 	end
-	
+
 	if self:levelExists() then
 		self.widgetVariables.progress = self.session.level.destroyedSpheres / self.session.level.target
 		self.widgetVariables.levelScore = numStr(self.session.level.score)
@@ -196,10 +196,10 @@ function Game:draw()
 		self.widgetVariables.levelMaxCombo = self.session.level.maxCombo
 		self.widgetVariables.levelMaxChain = self.session.level.maxChain
 	end
-	
+
 	-- Particles
 	if self.particleManager then self.particleManager:draw() end
-	
+
 	-- Widgets
 	dbg:profDraw2Start()
 	for i, layer in ipairs(self.config.hudLayerOrder) do
@@ -208,7 +208,7 @@ function Game:draw()
 		end
 	end
 	dbg:profDraw2Stop()
-	
+
 	-- Borders
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", 0, 0, getDisplayOffsetX(), displaySize.y)
@@ -222,7 +222,7 @@ function Game:mousepressed(x, y, button)
 		for widgetN, widget in pairs(self.widgets) do
 			widget:click()
 		end
-		
+
 		if self:levelExists() and mousePos.y < self.session.level.shooter.pos.y then self.session.level.shooter:shoot() end
 	elseif button == 2 then
 		if self:levelExists() and mousePos.y < self.session.level.shooter.pos.y then self.session.level.shooter:swapColors() end
@@ -309,13 +309,21 @@ function Game:setFullscreen(fullscreen)
 	love.window.setMode(displaySize.x, displaySize.y, {fullscreen = fullscreen, resizable = true})
 end
 
+function Game:quit()
+	if engineSettings:getBackToBoot() then
+		loadBootScreen()
+	else
+		love.event.quit()
+	end
+end
+
 
 
 function Game:getWidget(names)
 	-- local s = ""
 	-- for i, name in ipairs(names) do if i > 1 then s = s .. "/" .. name else s = s .. name end end
 	-- print("Trying to get widget: " .. s)
-	
+
 	local widget = self.widgets[names[1]]
 	for i, name in ipairs(names) do if i > 1 then
 		widget = widget.children[name]
@@ -328,12 +336,12 @@ end
 
 function Game:parseUIScript(script)
 	local s = strSplit(script, "\n")
-	
+
 	-- the current Widget we are editing
 	local type = ""
 	local widget = nil
 	local widgetAction = nil
-	
+
 	for i, l in ipairs(s) do
 		-- truncate the comment part
 		l = strSplit(l, "//")[1]
@@ -371,7 +379,7 @@ end
 
 function Game:prepareEvent(eventType, params)
 	local event = {type = eventType}
-	
+
 	if eventType == "print" then
 		event.text = params[1]
 	elseif eventType == "wait" then
@@ -392,16 +400,16 @@ function Game:prepareEvent(eventType, params)
 		event.music = params[1]
 		event.volume = tonumber(params[2])
 	end
-	
+
 	return event
 end
 
 function Game:parseCondition(s)
 	local condition = {}
-	
+
 	s = strSplit(s, "?")
 	condition.type = s[1]
-	
+
 	if condition.type == "widget" then
 		s = strSplit(s[2], "=")
 		condition.value = s[2]
@@ -421,12 +429,12 @@ function Game:parseCondition(s)
 			condition.value = condition.value == "true"
 		end
 	end
-	
+
 	print("Condition parsed")
 	for k, v in pairs(condition) do
 		print(k, v)
 	end
-	
+
 	return condition
 end
 
@@ -496,8 +504,8 @@ function Game:executeEvent(event)
 		self.session.level:save()
 		self.session.level = nil
 	elseif event.type == "quit" then
-		love.event.quit()
-	
+		self:quit()
+
 	-- widget stuff
 	elseif event.type == "widgetShow" then
 		self:getWidget(event.widget):show()
@@ -511,11 +519,11 @@ function Game:executeEvent(event)
 		self:getWidget(event.widget):buttonSetEnabled(false)
 	elseif event.type == "widgetButtonEnable" then
 		self:getWidget(event.widget):buttonSetEnabled(true)
-	
+
 	-- music stuff
 	elseif event.type == "musicVolume" then
 		self:getMusic(event.music):setVolume(event.volume)
-	
+
 	-- profile stuff
 	elseif event.type == "profileLevelAdvance" then
 		self.runtimeManager.profile:advanceLevel()
@@ -526,7 +534,7 @@ function Game:executeEvent(event)
 		else
 			self:executeCallback("profileHighscoreWriteFail")
 		end
-	
+
 	-- options stuff
 	elseif event.type == "optionsLoad" then
 		-- TODO: HARDCODED - make it more flexible

@@ -60,12 +60,11 @@ function love.load()
 	--print(s)
 	--print(jsonBeautify(s))
 	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
-	game = BootScreen()
 	dbg = Debug()
 	engineSettings = Settings("engine/settings.json")
 	discordRPC = DiscordRichPresence()
 	-- Init boot screen
-	game:init()
+	loadBootScreen()
 end
 
 function love.update(dt)
@@ -142,6 +141,11 @@ end
 -- FUNCTION ZONE
 function loadGame(gameName)
 	game = Game(gameName)
+	game:init()
+end
+
+function loadBootScreen()
+	game = BootScreen()
 	game:init()
 end
 

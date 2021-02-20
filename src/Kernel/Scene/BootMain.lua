@@ -70,7 +70,7 @@ end
 
 
 function BootMain:loadSelectedGame()
-	self.bootScreen:loadGame(self.games[self.selectedGame].name)
+	loadGame(self.bootScreen.games[self.selectedGame].name)
 end
 
 
