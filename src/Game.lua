@@ -312,6 +312,7 @@ end
 function Game:quit()
 	self.resourceBank:unload()
 	if engineSettings:getBackToBoot() then
+		love.window.setMode(800, 600) -- reset window size
 		loadBootScreen()
 	else
 		love.event.quit()
