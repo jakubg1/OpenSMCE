@@ -9,32 +9,47 @@ function DiscordRichPresence:new()
 	self.enabled = false
 	self.connected = false
 	self.username = nil
-	
+
 	self.UPDATE_INTERVAL = 2
 	self.updateTime = 0
-	
+
 	self.status = {}
-	
-	
-	
+
+
+
 	function discordRPCMain.ready(userId, username, discriminator, avatar)
 		self.connected = true
 		self.username = string.format("%s#%s", username, discriminator)
 		dbg.console:print({{0, 1, 1}, "[DiscordRPC] ", {0, 1, 0}, string.format("Connected! (username: %s)", self.username)})
 	end
-	
+
 	function discordRPCMain.disconnected(errorCode, message)
 		self.connected = false
 		self.username = nil
 		print(string.format("[DiscordRPC] disconnected (%d: %s)", errorCode, message))
 	end
-	
+
 	function discordRPCMain.errored(errorCode, message)
 		print(string.format("[DiscordRPC] error (%d: %s)", errorCode, message))
 	end
 end
 
 function DiscordRichPresence:update(dt)
+	self:updateEnabled()
+	self:updateRun(dt)
+end
+
+function DiscordRichPresence:updateEnabled()
+	local setting = engineSettings:getDiscordRPC()
+	if not self.enabled and setting then
+		self:connect()
+	end
+	if self.enabled and not setting then
+		self:disconnect()
+	end
+end
+
+function DiscordRichPresence:updateRun(dt)
 	self.updateTime = self.updateTime + dt
 	if self.updateTime >= self.UPDATE_INTERVAL then
 		self.updateTime = 0
