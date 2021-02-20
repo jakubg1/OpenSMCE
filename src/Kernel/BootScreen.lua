@@ -23,6 +23,10 @@ end
 
 
 function BootScreen:init()
+	-- window title and size
+	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
+	love.window.setMode(800, 600)
+
 	-- game list
 	self.games = self:getGames()
 

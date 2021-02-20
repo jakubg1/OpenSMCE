@@ -310,6 +310,7 @@ function Game:setFullscreen(fullscreen)
 end
 
 function Game:quit()
+	self.resourceBank:unload()
 	if engineSettings:getBackToBoot() then
 		loadBootScreen()
 	else

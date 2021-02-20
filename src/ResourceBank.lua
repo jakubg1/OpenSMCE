@@ -16,8 +16,8 @@ function ResourceBank:new()
 	self.particles = {}
 	self.fonts = {}
 	self.colorPalettes = {}
-	
-	
+
+
 	-- Step load variables
 	self.stepLoading = false
 	self.stepLoadQueue = {}
@@ -34,13 +34,13 @@ function ResourceBank:update(dt)
 	for i, music in pairs(self.music) do
 		music:update(dt)
 	end
-	
+
 	if self.stepLoading then
 		self.stepLoadTotalObjsFrac = self.stepLoadTotalObjsFrac + self.STEP_LOAD_FACTOR
 		while self.stepLoadTotalObjsFrac >= 1 do
 			self:stepLoadNext()
 			self.stepLoadTotalObjsFrac = self.stepLoadTotalObjsFrac - 1
-			
+
 			-- exit if no more assets to load
 			if not self.stepLoading then break end
 		end
@@ -190,5 +190,18 @@ function ResourceBank:stepLoadNext()
 	-- end if all resources loaded
 	if self.stepLoadProcessedObjs == self.stepLoadTotalObjs then self.stepLoading = false end
 end
+
+
+
+function ResourceBank:unload()
+	for musicN, music in pairs(self.music) do
+		music:stop()
+	end
+	for soundN, sound in pairs(self.sounds) do
+		sound:stop()
+	end
+end
+
+
 
 return ResourceBank
