@@ -6,28 +6,49 @@ local Button = require("src/Kernel/UI/Button")
 
 local BootMain = require("src/Kernel/Scene/BootMain")
 
+
+
 function BootScreen:new()
 	-- game list
 	self.games = nil
 
-	self.mainScene = BootMain(self)
+	self.scene = nil
 end
+
+
 
 function BootScreen:init()
 	-- game list
 	self.games = self:getGames()
 
 	-- init the main screen
-	self.mainScene:init()
+	self:setScene(BootMain)
 
 	-- discord rpc connection
 	discordRPC:connect()
 	discordRPC:setStatus(string.format("Boot Screen - Version: %s", VERSION_NAME), nil, true)
 end
 
-function BootScreen:update(dt)
-	self.mainScene:update(dt)
+
+
+function BootScreen:setScene(constructor)
+	self.scene = constructor(self)
+	self.scene:init()
 end
+
+
+
+function BootScreen:update(dt)
+	self.scene:update(dt)
+end
+
+
+
+function BootScreen:draw()
+	self.scene:draw()
+end
+
+
 
 function BootScreen:getGames()
 	-- A given folder in the "games" folder is considered a valid game when it contains a "config.json" file with valid JSON structure.
@@ -59,10 +80,6 @@ function BootScreen:getGames()
 	return games
 end
 
-function BootScreen:draw()
-	self.mainScene:draw()
-end
-
 
 
 function BootScreen:mousepressed(x, y, button)
@@ -70,7 +87,7 @@ function BootScreen:mousepressed(x, y, button)
 end
 
 function BootScreen:mousereleased(x, y, button)
-	self.mainScene:mousereleased(x, y, button)
+	self.scene:mousereleased(x, y, button)
 end
 
 function BootScreen:keypressed(key)

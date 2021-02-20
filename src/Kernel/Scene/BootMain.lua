@@ -4,6 +4,8 @@ local BootMain = class:derive("BootMain")
 local Vec2 = require("src/Essentials/Vector2")
 local Button = require("src/Kernel/UI/Button")
 
+
+
 function BootMain:new(bootScreen)
   self.bootScreen = bootScreen
 
@@ -27,6 +29,8 @@ function BootMain:new(bootScreen)
 	self.quitBtn = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
 end
 
+
+
 function BootMain:init()
 	-- set buttons up
 	for i, game in ipairs(self.bootScreen.games) do
@@ -34,6 +38,8 @@ function BootMain:init()
 	end
 	self.loadGameBtn.visible = false
 end
+
+
 
 function BootMain:update(dt)
 	-- button hover
@@ -51,6 +57,8 @@ function BootMain:update(dt)
 					mousePos.y < self.urlHoverPos.y + self.urlHoverSize.y
 end
 
+
+
 function BootMain:selectGame(id)
 	self.selectedGame = id
 	self.loadGameBtn.visible = true
@@ -59,9 +67,13 @@ function BootMain:selectGame(id)
 	end
 end
 
+
+
 function BootMain:loadSelectedGame()
 	self.bootScreen:loadGame(self.games[self.selectedGame].name)
 end
+
+
 
 function BootMain:draw()
 	-- White color
@@ -170,6 +182,8 @@ function BootMain:draw()
 		love.graphics.print("Inactive", 210, 220)
 	end
 end
+
+
 
 function BootMain:mousereleased(x, y, button)
 	-- Buttons
