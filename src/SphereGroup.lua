@@ -10,11 +10,11 @@ local Sphere = require("src/Sphere")
 function SphereGroup:new(sphereChain, deserializationTable)
 	self.sphereChain = sphereChain
 	self.map = sphereChain.map
-	
+
 	-- these two are filled later by the sphere chain object
 	self.prevGroup = nil
 	self.nextGroup = nil
-	
+
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
@@ -23,12 +23,12 @@ function SphereGroup:new(sphereChain, deserializationTable)
 		self.spheres = {}
 		self.matchCheck = true -- this is used ONLY in vise destruction to not trigger a chain reaction
 	end
-	
+
 	self.maxSpeed = 0
 	self.sphereShadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
-	
+
 	self.settings = game.config.gameplay.sphereBehaviour
-	
+
 	self.delQueue = false
 end
 
@@ -55,7 +55,7 @@ function SphereGroup:update(dt)
 	if not self.map.level.lost and not self.nextGroup and not self:isMagnetizing() and self.sphereChain.reverseTime > 0 then
 		self.maxSpeed = self.settings.reverseSpeed
 	end
-	
+
 	if self.speed > self.maxSpeed then
 		if self.sphereChain.reverseTime > 0 then
 			self.speed = self.maxSpeed
@@ -76,9 +76,9 @@ function SphereGroup:update(dt)
 	end
 	-- anti-slow-catapulting
 	if not self.map.level.lost and self.speed > speedBound then self.speed = speedBound end
-	
+
 	self:move(self.speed * dt)
-	
+
 	-- tick the powerup timers
 	-- the vise is pushing
 	if not self.prevGroup and self.sphereChain.reverseTime == 0 then
@@ -91,14 +91,14 @@ function SphereGroup:update(dt)
 		-- if it goes too far, nuke the powerup
 		if self:getLastSphereOffset() < 0 then self.sphereChain.reverseTime = 0 end
 	end
-	
+
 	-- stop spheres when away from board and rolling back
 	if self.speed < 0 and self:getFrontPos() < 0 then self.speed = 0 end
-	
+
 	for i = #self.spheres, 1, -1 do
 		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then self:destroySphere(i) end
 	end
-	
+
 	for i, sphere in ipairs(self.spheres) do
 		if not sphere.delQueue then sphere:update(dt) end
 	end
@@ -142,7 +142,7 @@ function SphereGroup:destroySphere(position)
 		self.spheres[position]:delete()
 		table.remove(self.spheres, position)
 	end
-	
+
 	self:checkDeletion()
 end
 
@@ -151,7 +151,7 @@ function SphereGroup:destroySpheres(position1, position2)
 	-- example:
 	-- before:     oooo[ooo]ooooooo  (p1 = 5, p2 = 7) !BOTH INCLUSIVE!
 	-- after:      oooo     ooooooo   gap length: 3
-	
+
 	-- check if it's on the beginning or on the end of the group
 	if position1 == 1 then
 		for i = 1, position2 do
@@ -173,7 +173,7 @@ function SphereGroup:destroySpheres(position1, position2)
 			table.remove(self.spheres, #self.spheres)
 		end
 	end
-	
+
 	self:checkDeletion()
 end
 
@@ -248,7 +248,7 @@ function SphereGroup:divide(position)
 	-- position: 3
 	-- groups after: ooo | oooo
 	-- that means this group will remain with 3 spheres (the break appears AFTER the specified position) and the rest will be given to a new group
-	
+
 	-- first, create a new group and give its properties there
 	local newGroup = SphereGroup(self.sphereChain)
 	newGroup.offset = self:getSphereOffset(position + 1)
@@ -270,7 +270,7 @@ function SphereGroup:divide(position)
 	if self.nextGroup then self.nextGroup.prevGroup = newGroup end
 	-- here, the previous group stays the same
 	self.nextGroup = newGroup
-	
+
 	-- add to the master
 	table.insert(self.sphereChain.sphereGroups, self.sphereChain:getSphereGroupID(self), newGroup)
 end
@@ -313,39 +313,40 @@ end
 
 function SphereGroup:matchAndDelete(position)
 	local position1, position2 = self:getMatchBounds(position)
-	
+	local length = (position2 - position1 + 1)
+
 	local boostCombo = false
 	-- abort if any sphere from the given ones has not joined yet and see if we have to boost the combo
 	for i = position1, position2 do
 		if self.spheres[i].size < 1 then return end
 		boostCombo = boostCombo or self.spheres[i].boostCombo
 	end
-	
+
 	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
 	local color = self.spheres[position].color
 	self:destroySpheres(position1, position2)
-	
-	local soundID = math.min(math.max(position2 - position1 - 1, 1), 5)
+
+	local soundID = math.min(math.max(length - 2, 1), 5)
 	game:playSound("sphere_destroy_" .. tostring(soundID), 1 + self.sphereChain.combo * 0.1)
 	self.sphereChain.combo = self.sphereChain.combo + 1
 	if boostCombo then self.map.level.combo = self.map.level.combo + 1 end
-	
-	local score = (position2 - position1 + 1) * 100
+
+	local score = length * 100
 	if boostCombo then score = score + math.max(self.map.level.combo - 3, 0) * 100 end
 	score = score * self.sphereChain.combo
 	self.map.level:grantScore(score)
-	
+
 	local scoreText = numStr(score)
 	if boostCombo and self.map.level.combo > 2 then scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo) end
 	if self.sphereChain.combo ~= 1 then scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo) end
 	self.map.level:spawnFloatingText(scoreText, pos, game.spheres[color].matchFont)
-	
-	local spawnCoin = math.random() < (position2 - position1 - 2) * 0.2
+
+	local spawnCoin = MOD_GAME.coinSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
 	if spawnCoin then self.map.level:spawnCollectible(pos, {type = "coin"}) end
-	
-	local spawnPowerup = (self.sphereChain.combo == 1 and boostCombo and self.map.level.combo % 3 == 0) or self.sphereChain.combo % 3 == 0
+
+	local spawnPowerup = MOD_GAME.powerupSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
 	if spawnPowerup then self.map.level:spawnCollectible(pos, self.map.level:newPowerupData()) end
-	
+
 	self.map.level.maxCombo = math.max(self.map.level.combo, self.map.level.maxCombo)
 	self.map.level.maxChain = math.max(self.sphereChain.combo, self.map.level.maxChain)
 end
@@ -369,7 +370,7 @@ function SphereGroup:draw(hidden, shadow)
 			if sphere.size < 1 then
 				pos = self.sphereChain.path:getPos(self:getSphereOffset(i) + 16 - sphere.size * 16) * sphere.size + sphere.shootOrigin * (1 - sphere.size)
 			end
-			
+
 			if shadow then
 				self.sphereShadowImage:draw(pos + Vec2(4), Vec2(0.5))
 			else

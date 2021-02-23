@@ -8,6 +8,7 @@ local Vec2 = require("src/Essentials/Vector2")
 local Timer = require("src/Timer")
 
 local ResourceBank = require("src/ResourceBank")
+local GameModuleManager = require("src/GameModuleManager")
 local RuntimeManager = require("src/RuntimeManager")
 local Session = require("src/Session")
 
@@ -20,6 +21,7 @@ function Game:new(name)
 	self.hasFocus = false
 
 	self.resourceBank = nil
+	self.gameModuleManager = nil
 	self.runtimeManager = nil
 	self.session = nil
 
@@ -62,11 +64,14 @@ function Game:init()
 	-- Step 5. Load initial resources (enough to start up the splash screen)
 	self.resourceBank:loadList(self.config.loadList)
 
-	-- Step 6. Create a runtime manager
+	-- Step 6. Load game modules
+	self.gameModuleManager = GameModuleManager()
+
+	-- Step 7. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
 	self.satMode = self.runtimeManager.profile.data.session.ultimatelySatisfyingMode
 
-	-- Step 7. Set up the splash widget
+	-- Step 8. Set up the splash widget
 	self.widgets.splash = UIWidget("Splash", loadJson(parsePath("ui/splash.json")))
 	self.widgets.splash:show()
 	self.widgets.splash:setActive()
