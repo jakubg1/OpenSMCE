@@ -24,7 +24,8 @@ function BootMain:new(bootScreen)
 	self.selectedGame = nil
 
 	-- buttons
-	self.loadGameBtn = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end)
+  self.loadGameBtn = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end)
+  self.convertGameBtn = Button("Convert!", self.fontBig, Vec2(544, 448), Vec2(222, 24), function() self:convertSelectedGame() end)
 	self.settingsBtn = Button("Engine Settings", self.fontBig, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end)
 	self.quitBtn = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
 end
@@ -37,6 +38,7 @@ function BootMain:init()
 		table.insert(self.gameButtons, Button(game.name, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(i) end))
 	end
 	self.loadGameBtn.visible = false
+	self.convertGameBtn.visible = false
 end
 
 
@@ -47,6 +49,7 @@ function BootMain:update(dt)
 		gameButton:update(dt)
 	end
 	self.loadGameBtn:update(dt)
+	self.convertGameBtn:update(dt)
 	self.settingsBtn:update(dt)
 	self.quitBtn:update(dt)
 
@@ -62,6 +65,7 @@ end
 function BootMain:selectGame(id)
 	self.selectedGame = id
 	self.loadGameBtn.visible = true
+	self.convertGameBtn.visible = self:getSelectedGameVersionStatus() == 0
 	for i, button in ipairs(self.gameButtons) do
 		button.selected = i == id
 	end
@@ -69,8 +73,20 @@ end
 
 
 
+function BootMain:getSelectedGameVersion()
+  return self.bootScreen.games[self.selectedGame].config.engineVersion
+end
+
+function BootMain:getSelectedGameVersionStatus()
+  return self.bootScreen.versionManager:getVersionStatus(self:getSelectedGameVersion())
+end
+
 function BootMain:loadSelectedGame()
 	loadGame(self.bootScreen.games[self.selectedGame].name)
+end
+
+function BootMain:convertSelectedGame()
+  dbg.console:print({{1, 0, 0}, "Conversion of old games is not supported yet."})
 end
 
 
@@ -121,16 +137,30 @@ function BootMain:draw()
 	if self.selectedGame then
 		love.graphics.print(self.bootScreen.games[self.selectedGame].name, 544, 304)
 		-- Version support
-		local supportedVersion = self.bootScreen.games[self.selectedGame].config.engineVersion
+		local supportedVersion = self:getSelectedGameVersion()
+    local versionStatus = self:getSelectedGameVersionStatus()
 		love.graphics.setFont(self.font)
-		if supportedVersion then
-			love.graphics.print(string.format("Supported Version: %s", supportedVersion), 544, 324)
-		else
+
+		if versionStatus == -1 then
 			love.graphics.setColor(1, 1, 0)
 			love.graphics.print(string.format("Unknown supported version!"), 544, 324)
+    else
+      love.graphics.print(string.format("Supported Version: %s", supportedVersion), 544, 324)
+    end
+
+		if versionStatus == 0 then
+			love.graphics.setColor(1, 0.5, 0)
+      love.graphics.print("This game is out of date!", 544, 338)
+		elseif versionStatus == 1 then
+			love.graphics.setColor(0, 1, 0)
+      love.graphics.print("Your version is up to date!", 544, 338)
+		elseif versionStatus == 2 then
+			love.graphics.setColor(1, 0, 0)
+      love.graphics.print("This game is ed for the newer version of the engine!", 544, 338)
 		end
 	end
 	self.loadGameBtn:draw()
+  self.convertGameBtn:draw()
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", 540, 300, 230, 200) -- frame
@@ -191,6 +221,7 @@ function BootMain:mousereleased(x, y, button)
 		gameButton:mousereleased(x, y, button)
 	end
 	self.loadGameBtn:mousereleased(x, y, button)
+  self.convertGameBtn:mousereleased(x, y, button)
 	self.settingsBtn:mousereleased(x, y, button)
 	self.quitBtn:mousereleased(x, y, button)
 

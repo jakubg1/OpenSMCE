@@ -4,13 +4,16 @@ local BootScreen = class:derive("BootScreen")
 local Vec2 = require("src/Essentials/Vector2")
 local Button = require("src/Kernel/UI/Button")
 
+local VersionManager = require("src/Kernel/VersionManager")
+
 local BootMain = require("src/Kernel/Scene/BootMain")
 local BootSettings = require("src/Kernel/Scene/BootSettings")
 
 
 
 function BootScreen:new()
-	-- game list
+	self.versionManager = VersionManager()
+
 	self.games = nil
 
 	self.scene = nil
