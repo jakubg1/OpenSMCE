@@ -193,29 +193,31 @@ function Shooter:draw()
 	self.image:draw(self.pos, Vec2(0.5, 0))
 
 	-- retical
-	local targetPos = self:getTargetPos()
-	local color = self:getReticalColor()
-	local sphereConfig = game.spheres[self.color]
-	if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
-		love.graphics.setLineWidth(3 * getResolutionScale())
-		love.graphics.setColor(color.r, color.g, color.b)
-		local p1 = posOnScreen(targetPos + Vec2(-8, 8))
-		local p2 = posOnScreen(targetPos)
-		local p3 = posOnScreen(targetPos + Vec2(8, 8))
-		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-		love.graphics.line(p2.x, p2.y, p3.x, p3.y)
+	if engineSettings:getAimingRetical() then
+		local targetPos = self:getTargetPos()
+		local color = self:getReticalColor()
+		local sphereConfig = game.spheres[self.color]
+		if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
+			love.graphics.setLineWidth(3 * getResolutionScale())
+			love.graphics.setColor(color.r, color.g, color.b)
+			local p1 = posOnScreen(targetPos + Vec2(-8, 8))
+			local p2 = posOnScreen(targetPos)
+			local p3 = posOnScreen(targetPos + Vec2(8, 8))
+			love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+			love.graphics.line(p2.x, p2.y, p3.x, p3.y)
 
-		-- Fireball range highlight
-		if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
-			--love.graphics.setColor(1, 0, 0)
-			local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
-			for i = 1, dotCount do
-				local angle = (2 * i * math.pi / dotCount) + totalTime / 2
-				local p = posOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
-				love.graphics.circle("fill", p.x, p.y, 2 * getResolutionScale())
+			-- Fireball range highlight
+			if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
+				--love.graphics.setColor(1, 0, 0)
+				local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
+				for i = 1, dotCount do
+					local angle = (2 * i * math.pi / dotCount) + totalTime / 2
+					local p = posOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
+					love.graphics.circle("fill", p.x, p.y, 2 * getResolutionScale())
+				end
+				--love.graphics.setLineWidth(3 * getResolutionScale())
+				--love.graphics.circle("line", p2.x, p2.y, sphereConfig.hitBehavior.range)
 			end
-			--love.graphics.setLineWidth(3 * getResolutionScale())
-			--love.graphics.circle("line", p2.x, p2.y, sphereConfig.hitBehavior.range)
 		end
 	end
 
