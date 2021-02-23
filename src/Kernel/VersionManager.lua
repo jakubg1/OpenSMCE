@@ -46,6 +46,10 @@ end
 
 -- Converts all the way up to the current version
 function VersionManager:convertGame(name, version)
+  -- Backup copy is really important!
+  local contents = loadFile(string.format("games/%s/config.json", name))
+  saveFile(string.format("games/%s/config_orig_%s.json", name, version))
+
   local versionID = self:getVersionID(version)
   while versionID > 1 do
     self:convertGameStep(name, self.versions[versionID])

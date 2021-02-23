@@ -240,13 +240,16 @@ function loadSound(path, type)
 	end
 end
 
-function saveJson(path, data)
-	print("Saving JSON data to " .. path .. "...")
+function saveFile(path, data)
 	local file = io.open(path, "w")
 	io.output(file)
-	local contents = jsonBeautify(json.encode(data))
-	io.write(contents)
+	io.write(data)
 	io.close(file)
+end
+
+function saveJson(path, data)
+	print("Saving JSON data to " .. path .. "...")
+	saveFile(path, jsonBeautify(json.encode(data)))
 end
 
 function parseString(data, variables)
