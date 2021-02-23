@@ -73,6 +73,10 @@ end
 
 
 
+function BootMain:getSelectedGameName()
+  return self.bootScreen.games[self.selectedGame].name
+end
+
 function BootMain:getSelectedGameVersion()
   return self.bootScreen.games[self.selectedGame].config.engineVersion
 end
@@ -82,10 +86,12 @@ function BootMain:getSelectedGameVersionStatus()
 end
 
 function BootMain:loadSelectedGame()
-	loadGame(self.bootScreen.games[self.selectedGame].name)
+	loadGame(self:getSelectedGameName())
 end
 
 function BootMain:convertSelectedGame()
+  self.bootScreen.versionManager:convertGame(self:getSelectedGameName(), self:getSelectedGameVersion())
+  self.bootScreen:init()
   dbg.console:print({{1, 0, 0}, "Conversion of old games is not supported yet."})
 end
 
