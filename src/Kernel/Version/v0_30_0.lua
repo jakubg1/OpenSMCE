@@ -53,6 +53,15 @@ function f.main(path)
     end
   end
 
+  -- New sounds
+  config.general.soundEvents.level_advance = "sound/level_advance.ogg"
+  config.general.soundEvents.checkpoint = "sound/stage_complete.ogg"
+  table.insert(config.resourceList.sounds, {path = "sound/level_advance.ogg", loop = false})
+  table.insert(config.resourceList.sounds, {path = "sound/stage_complete.ogg", loop = false})
+
+  -- WARNING: UI script is not converted but it is needed for complete conversion!!!
+  -- This is a tough topic for now and that's why UI must be fully completed before 1.0.0 release.
+
   -- Save Config
   saveJson(path .. "config.json", config)
 end

@@ -48,7 +48,7 @@ end
 function VersionManager:convertGame(name, version)
   -- Backup copy is really important!
   local contents = loadFile(string.format("games/%s/config.json", name))
-  saveFile(string.format("games/%s/config_orig_%s.json", name, version))
+  saveFile(string.format("games/%s/config_orig_%s.json", name, version), contents)
 
   local versionID = self:getVersionID(version)
   while versionID > 1 do
