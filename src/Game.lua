@@ -178,9 +178,9 @@ function Game:draw()
 		self.widgetVariables.score = numStr(self.runtimeManager.profile:getScore())
 		self.widgetVariables.scoreAnim = numStr(self.session.scoreDisplay)
 		self.widgetVariables.player = self.runtimeManager.profile.name
-		self.widgetVariables.levelName = self.runtimeManager.profile:getCurrentLevelData().name
+		self.widgetVariables.levelName = self.runtimeManager.profile:getCurrentLevelConfig().name
 		self.widgetVariables.levelMapName = self.runtimeManager.profile.mapData.name
-		self.widgetVariables.stageName = self.config.stageNamesTEMP[self.runtimeManager.profile:getCurrentLevelData().stage]
+		self.widgetVariables.stageName = self.config.stageNamesTEMP[self.runtimeManager.profile:getCurrentLevelConfig().stage]
 		for i, entry in ipairs(self.runtimeManager.highscores.data.entries) do
 			self.widgetVariables["highscore" .. tostring(i) .. "score"] = numStr(entry.score)
 			self.widgetVariables["highscore" .. tostring(i) .. "name"] = entry.name
