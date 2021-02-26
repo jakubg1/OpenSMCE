@@ -23,7 +23,7 @@ local ColorManager = require("src/ColorManager")
 -- A callback executed when this object is created.
 function Session:new()
 	self.scoreDisplay = 0
-	
+
 	self.level = nil
 	self.colorManager = ColorManager()
 end
@@ -41,9 +41,14 @@ end
 -- @tparam number dt Delta time in seconds.
 function Session:update(dt)
 	if self.level then self.level:update(dt) end
-	
+
 	-- TODO: HARDCODED - make it more flexible
-	if self.scoreDisplay < game.runtimeManager.profile:getScore() then self.scoreDisplay = self.scoreDisplay + math.ceil((game.runtimeManager.profile:getScore() - self.scoreDisplay) / 10) end
+	if self.scoreDisplay < game.runtimeManager.profile:getScore() then
+		self.scoreDisplay = self.scoreDisplay + math.ceil((game.runtimeManager.profile:getScore() - self.scoreDisplay) / 10)
+	end
+	if self.scoreDisplay > game.runtimeManager.profile:getScore() then
+		self.scoreDisplay = self.scoreDisplay + math.floor((game.runtimeManager.profile:getScore() - self.scoreDisplay) / 10)
+	end
 end
 
 
@@ -345,9 +350,9 @@ function Session:getNearestSphere(pos)
 					local spherePos = sphereGroup:getSpherePos(l)
 					local sphereAngle = sphereGroup:getSphereAngle(l)
 					local sphereHidden = sphereGroup:getSphereHidden(l)
-					
+
 					local sphereDist = (pos - spherePos):len()
-					
+
 					local sphereDistAngle = (pos - spherePos):angle()
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
@@ -378,10 +383,10 @@ function Session:getNearestSphereY(pos)
 					local spherePos = sphereGroup:getSpherePos(l)
 					local sphereAngle = sphereGroup:getSphereAngle(l)
 					local sphereHidden = sphereGroup:getSphereHidden(l)
-					
+
 					local sphereTargetY = spherePos.y + math.sqrt(math.pow(16 --[[half of sphere size // note for placing constant here]], 2) - math.pow(pos.x - spherePos.x, 2))
 					local sphereDist = Vec2(pos.x - spherePos.x, pos.y - sphereTargetY)
-					
+
 					local sphereDistAngle = (pos - spherePos):angle()
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
