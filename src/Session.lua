@@ -58,7 +58,7 @@ end
 function Session:startLevel()
 	--self.level = Level({path = "levels/level_7_2.json", name = game.runtimeManager.profile.data.session.level})
 	--self.level = Level({path = "levels/seven_lines.json", name = "0-0"})
-	self.level = Level(game.runtimeManager.profile:getCurrentLevelData())
+	self.level = Level(game.runtimeManager.profile:getCurrentLevelConfig())
 	local savedLevelData = game.runtimeManager.profile:getSavedLevel()
 	if savedLevelData then
 		self.level:deserialize(savedLevelData)
