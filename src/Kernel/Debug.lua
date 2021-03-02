@@ -10,26 +10,26 @@ local Console = require("src/Kernel/Console")
 
 function Debug:new()
 	self.console = Console()
-	
-	
-	
+
+
+
 	self.profUpdate = Profiler("Update")
 	self.profDraw = Profiler("Draw")
 	self.profDraw2 = Profiler("Draw")
 	self.profDrawLevel = Profiler("Draw: Level")
 	self.prof3 = Profiler("Draw: Level2")
 	self.profMusic = Profiler("Music volume")
-	
+
 	self.profVisible = false
 	self.profPage = 1
 	self.profPages = {self.profUpdate, self.profMusic, self.profDrawLevel, self.prof3}
-	
+
 	self.uiDebugVisible = false
 	self.uiDebugOffset = 0
 	self.e = false
-	
-	
-	
+
+
+
 	self.particleSpawnersVisible = false
 	self.gameDebugVisible = false
 	self.sphereDebugVisible = false
@@ -50,10 +50,10 @@ function Debug:draw()
 		self.profDraw:draw(Vec2(400, displaySize.y))
 		self.profDraw2:draw(Vec2(400, displaySize.y))
 	end
-	
+
 	-- Console
 	self.console:draw()
-	
+
 	-- UI tree
 	if self.uiDebugVisible and game.sessionExists and game:sessionExists() then
 		love.graphics.setColor(0, 0, 0, 0.5)
@@ -69,7 +69,7 @@ function Debug:draw()
 			love.graphics.print(line[7], 380, 10 + i * 15 + self.uiDebugOffset)
 		end
 	end
-	
+
 	-- Game and spheres
 	if self.gameDebugVisible then self:drawDebugInfo() end
 	if self.sphereDebugVisible then self:drawSphereInfo() end
@@ -88,7 +88,7 @@ function Debug:keypressed(key)
 		if key == "," then self.uiDebugOffset = self.uiDebugOffset - 75 end
 		if key == "." then self.uiDebugOffset = self.uiDebugOffset + 75 end
 	end
-	
+
 	self.console:keypressed(key)
 end
 
@@ -107,7 +107,7 @@ function Debug:getUITreeText(widget, rowTable, indent)
 	rowTable = rowTable or {}
 	indent = indent or 0
 	--if indent > 1 then return end
-	
+
 	local name = widget.name
 	for i = 1, indent do name = "    " .. name end
 	local visible = widget.visible and "X" or ""
@@ -119,12 +119,12 @@ function Debug:getUITreeText(widget, rowTable, indent)
 	--if widget:getVisible() then
 		table.insert(rowTable, {name, visible, visible2, alpha, alpha2, time, pos})
 	--end
-	
-	--if 
+
+	--if
 	for childN, child in pairs(widget.children) do
 		self:getUITreeText(child, rowTable, indent + 1)
 	end
-	
+
 	return rowTable
 end
 
@@ -132,44 +132,44 @@ end
 
 function Debug:getDebugMain()
 	local s = ""
-	
+
 	s = s .. "Version = " .. VERSION .. "\n"
 	s = s .. "Game = " .. game.name .. "\n"
 	s = s .. "FPS = " .. tostring(love.timer.getFPS()) .. "\n"
-	
+
 	return s
 end
 
 function Debug:getDebugParticle()
 	local s = ""
-	
+
 	s = s .. "ParticlePacket# = " .. tostring(game.particleManager:getParticlePacketCount()) .. "\n"
 	s = s .. "ParticleSpawner# = " .. tostring(game.particleManager:getParticleSpawnerCount()) .. "\n"
 	s = s .. "Particle# = " .. tostring(game.particleManager:getParticlePieceCount()) .. "\n"
-	
+
 	return s
 end
 
 function Debug:getDebugLevel()
 	local s = ""
-	
+
 	s = s .. "LevelNumber = " .. tostring(game.runtimeManager.profile.data.session.level) .. "\n"
 	s = s .. "LevelScore = " .. tostring(game.session.level.score) .. "\n"
 	s = s .. "LevelProgress = " .. tostring(game.session.level.destroyedSpheres) .. "/" .. tostring(game.session.level.target) .. "\n"
-	s = s .. "LevelRecord = " .. tostring(game.runtimeManager.profile:getCurrentLevel().score) .. "\n"
-	s = s .. "Won = " .. tostring(game.runtimeManager.profile:getCurrentLevel().won) .. "\n"
-	s = s .. "Lost = " .. tostring(game.runtimeManager.profile:getCurrentLevel().lost) .. "\n"
+	s = s .. "LevelRecord = " .. tostring(game.runtimeManager.profile:getCurrentLevelData().score) .. "\n"
+	s = s .. "Won = " .. tostring(game.runtimeManager.profile:getCurrentLevelData().won) .. "\n"
+	s = s .. "Lost = " .. tostring(game.runtimeManager.profile:getCurrentLevelData().lost) .. "\n"
 	s = s .. "\n"
 	s = s .. "Collectible# = " .. tostring(game.session.level.collectibles:size()) .. "\n"
 	s = s .. "FloatingText# = " .. tostring(game.session.level.floatingTexts:size()) .. "\n"
 	s = s .. "ShotSphere# = " .. tostring(game.session.level.shotSpheres:size()) .. "\n"
-	
+
 	return s
 end
 
 function Debug:getDebugOptions()
 	local s = ""
-	
+
 	s = s .. "MusicVolume = " .. tostring(game.runtimeManager.options:getMusicVolume()) .. "\n"
 	s = s .. "SoundVolume = " .. tostring(game.runtimeManager.options:getSoundVolume()) .. "\n"
 	s = s .. "FullScreen = " .. tostring(game.runtimeManager.options:getFullscreen()) .. "\n"
@@ -177,13 +177,13 @@ function Debug:getDebugOptions()
 	s = s .. "\n"
 	s = s .. "EffMusicVolume = " .. tostring(game.runtimeManager.options:getEffectiveMusicVolume()) .. "\n"
 	s = s .. "EffSoundVolume = " .. tostring(game.runtimeManager.options:getEffectiveSoundVolume()) .. "\n"
-	
+
 	return s
 end
 
 function Debug:getDebugInfo()
 	local s = ""
-	
+
 	s = s .. "===== MAIN =====\n"
 	s = s .. self:getDebugMain()
 	s = s .. "\n===== PARTICLE =====\n"
@@ -202,7 +202,7 @@ function Debug:getDebugInfo()
 	if game.runtimeManager then
 		s = s .. self:getDebugOptions()
 	end
-	
+
 	-- table.insert(s, "")
 	-- table.insert(s, "===== EXTRA =====")
 	-- if game.widgets.root then
@@ -219,7 +219,7 @@ function Debug:getDebugInfo()
 			-- end
 		-- end
 	-- end
-	
+
 	return s
 end
 
@@ -241,9 +241,9 @@ function Debug:drawDebugInfo()
 	-- Debug screen
 	--local p = posOnScreen(Vec2())
 	local p = Vec2()
-	
+
 	local spl = strSplit(self:getDebugInfo(), "\n")
-	
+
 	for i, l in ipairs(spl) do
 		self:drawVisibleText(l, p + Vec2(0, 15 * (i - 1)), 15)
 	end
@@ -254,14 +254,14 @@ end
 function Debug:drawSphereInfo()
 	local p = Vec2(0, displaySize.y - 200)
 	local s = Vec2(displaySize.x, 200)
-	
+
 	-- background
 	love.graphics.setColor(0, 0, 0, 0.5)
 	love.graphics.rectangle("fill", p.x, p.y, s.x, s.y)
-	
+
 	local n = 0
 	local m = 0
-	
+
 	if game:levelExists() then
 		for i, path in ipairs(game.session.level.map.paths.objects) do
 			love.graphics.setColor(1, 1, 1)
@@ -286,7 +286,7 @@ function Debug:drawSphereInfo()
 					end
 					--if k > 1 and sphereChain.sphereGroups[k - 1] ~= sphereGroup.nextGroup then print("ERROR") end
 					--if k < #sphereChain.sphereGroups and sphereChain.sphereGroups[k + 1] ~= sphereGroup.prevGroup then print("ERROR") end
-					
+
 					m = m + 100
 				end
 				n = n + 25
@@ -302,7 +302,7 @@ end
 
 function Debug:runCommand(command)
 	local words = strSplit(command, " ")
-	
+
 	if words[1] == "p" then
 		local t = {fire = "bomb", ligh = "lightning", wild = "wild", bomb = "colorbomb", slow = "slow", stop = "stop", rev = "reverse", shot = "shotspeed"}
 		for word, name in pairs(t) do
@@ -378,7 +378,7 @@ function Debug:runCommand(command)
 		local witty = math.random(1, #witties)
 		error("Crashed manually. " .. witties[witty])
 	end
-	
+
 	return false
 end
 
