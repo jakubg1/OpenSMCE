@@ -22,8 +22,11 @@ Note that you may need to change the LÖVE executable path.
 The engine runs games and thus you need to have some installed.
 You can install games by putting them in the `games` directory where the executable/batch script sits.
 
-There are no games publicly available right now, however two games are known to be converted.
+There are no games publicly available right now, however three games are known to be converted.
 We will provide tools to convert and create games at some point.
+In future, we are considering bundling all releases with a builtin game - to save you hassle! More info soon.
+
+**The game listing below and descriptions are for informing purpose only. We cannot guarantee that all info below is genuine or up to date.**
 
 ### Luxor
 The original Luxor game is the main one supported - however, due to copyright issues, we can't provide it along with the engine releases.
@@ -35,6 +38,10 @@ We will simplify the conversion process down the road, and we plan to make a vid
 ### Mario's Voyage
 This is the first Luxor mod to be successfully converted.
 However, for now there are just private playtest versions and the game is not publicly available yet.
+
+### Luxor 1 AR Mix
+This is the first OpenSMCE game which was built specifically for this engine.
+However, we cannot tell you a way to download it, because it contains copyrighted assets.
 
 ## What do I need?
 - For running the engine and playing the games:
