@@ -92,7 +92,6 @@ end
 function BootMain:convertSelectedGame()
   self.bootScreen.versionManager:convertGame(self:getSelectedGameName(), self:getSelectedGameVersion())
   self.bootScreen:init()
-  dbg.console:print({{1, 0, 0}, "Conversion of old games is not supported yet."})
 end
 
 
@@ -162,7 +161,7 @@ function BootMain:draw()
       love.graphics.print("Your version is up to date!", 544, 338)
 		elseif versionStatus == 2 then
 			love.graphics.setColor(1, 0, 0)
-      love.graphics.print("This game is ed for the newer version of the engine!", 544, 338)
+      love.graphics.print("This game is intended to work with a newer version of the engine!", 544, 338)
 		end
 	end
 	self.loadGameBtn:draw()
@@ -176,7 +175,7 @@ function BootMain:draw()
 	-----------------------------
 	love.graphics.setFont(self.font)
 	love.graphics.print("OpenSMCE is a short for Open-Source Sphere Matcher Community Engine.", 30, 525)
-	love.graphics.print("This work was brought to you by jakubg1\nLicensed under MIT license.", 30, 555)
+	love.graphics.print("Copyright (c) 2020-2021 jakubg1\nThis software is licensed under MIT license.", 30, 555)
 
 	-----------------------------
 	-- FOOTER BUTTONS
