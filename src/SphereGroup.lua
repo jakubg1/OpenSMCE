@@ -488,6 +488,11 @@ function SphereGroup:getLastSphere()
 end
 
 function SphereGroup:getSphereOffset(sphereID)
+	if not self.spheres[sphereID] then
+		dbg.console:print({{1, 0, 0}, "WARNING: ", {1, 1, 1}, string.format("Something went wrong while getting sphere offset. Tried to get index %s out ot %s! Game paused.", sphereID, #self.spheres)})
+		game.session.level:setPause(true)
+		return self.offset
+	end
 	return self.offset + self.spheres[sphereID].offset
 end
 
