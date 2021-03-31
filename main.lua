@@ -82,7 +82,7 @@ function love.update(dt)
 end
 
 function love.draw()
-	dbg:profDrawStart()
+	--dbg:profDrawStart()
 
 	-- Main
 	if game then game:draw() end
@@ -90,7 +90,7 @@ function love.draw()
 	-- Tests
 	dbg:draw()
 
-	dbg:profDrawStop()
+	--dbg:profDrawStop()
 end
 
 function love.mousepressed(x, y, button)

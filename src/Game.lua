@@ -169,6 +169,8 @@ end
 
 
 function Game:draw()
+	dbg:profDraw2Start()
+
 	-- Session and level
 	if self:sessionExists() then
 		self.session:draw()
@@ -190,6 +192,7 @@ function Game:draw()
 			self.widgetVariables.progress = 0
 		end
 	end
+	dbg:profDraw2Checkpoint()
 
 	if self:levelExists() then
 		self.widgetVariables.progress = self.session.level.destroyedSpheres / self.session.level.target
@@ -201,23 +204,27 @@ function Game:draw()
 		self.widgetVariables.levelMaxCombo = self.session.level.maxCombo
 		self.widgetVariables.levelMaxChain = self.session.level.maxChain
 	end
+	dbg:profDraw2Checkpoint()
 
 	-- Particles
 	if self.particleManager then self.particleManager:draw() end
+	dbg:profDraw2Checkpoint()
 
 	-- Widgets
-	dbg:profDraw2Start()
 	for i, layer in ipairs(self.config.hudLayerOrder) do
 		for widgetN, widget in pairs(self.widgets) do
 			widget:draw(layer, self.widgetVariables)
 		end
 	end
-	dbg:profDraw2Stop()
+	dbg:profDraw2Checkpoint()
 
 	-- Borders
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", 0, 0, getDisplayOffsetX(), displaySize.y)
 	love.graphics.rectangle("fill", displaySize.x - getDisplayOffsetX(), 0, getDisplayOffsetX(), displaySize.y)
+	dbg:profDraw2Checkpoint()
+
+	dbg:profDraw2Stop()
 end
 
 

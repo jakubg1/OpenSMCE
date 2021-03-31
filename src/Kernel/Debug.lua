@@ -402,6 +402,10 @@ function Debug:profDraw2Start()
 	self.profDraw2:start()
 end
 
+function Debug:profDraw2Checkpoint()
+	self.profDraw2:checkpoint()
+end
+
 function Debug:profDraw2Stop()
 	self.profDraw2:stop()
 end

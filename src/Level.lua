@@ -14,16 +14,16 @@ local FloatingText = require("src/FloatingText")
 function Level:new(data)
 	-- data specified in main config file
 	self.name = data.name
-	
+
 	self.musicName = data.music
 	self.dangerMusicName = data.dangerMusic
-	
+
 	-- data specified in level config file
 	local data = loadJson(parsePath(data.path))
-	
+
 	self.map = Map(self, "maps/" .. data.map)
 	self.shooter = Shooter()
-	
+
 	self.colors = data.colors
 	self.colorStreak = data.colorStreak
 	self.powerups = data.powerups
@@ -38,7 +38,7 @@ function Level:new(data)
 	self.spawnDistance = data.spawnDistance
 	self.dangerDistance = data.dangerDistance
 	self.speeds = data.speeds
-	
+
 	-- Additional variables come from this method!
 	self:reset()
 end
@@ -47,11 +47,11 @@ function Level:update(dt)
 	if not self.pause then
 		self.map:update(dt)
 		self.shooter:update(dt)
-		
+
 		self.danger = self:getDanger()
-		
-		
-		
+
+
+
 		-- Shot spheres, collectibles, floating texts
 		for i, shotSphere in ipairs(self.shotSpheres.objects) do
 			shotSphere:update(dt)
@@ -62,9 +62,9 @@ function Level:update(dt)
 		for i, floatingText in ipairs(self.floatingTexts.objects) do
 			floatingText:update(dt)
 		end
-		
-		
-		
+
+
+
 		-- Lightning storm
 		if self.lightningStormCount > 0 then
 			self.lightningStormTime = self.lightningStormTime - dt
@@ -78,9 +78,9 @@ function Level:update(dt)
 				end
 			end
 		end
-		
-		
-		
+
+
+
 		-- Warning lights
 		local maxDistance = self:getMaxDistance()
 		if maxDistance >= self.dangerDistance and not self.lost then
@@ -88,7 +88,7 @@ function Level:update(dt)
 		else
 			self.warningDelayMax = nil
 		end
-		
+
 		if self.warningDelayMax then
 			self.warningDelay = self.warningDelay + dt
 			if self.warningDelay >= self.warningDelayMax then
@@ -103,9 +103,9 @@ function Level:update(dt)
 		else
 			self.warningDelay = 0
 		end
-		
-		
-		
+
+
+
 		-- Target widget
 		-- TODO: HARDCODED - make it more flexible
 		if game:getWidget(game.config.hudPathsTEMP.level_progress).widget.value == 1 then
@@ -114,9 +114,9 @@ function Level:update(dt)
 			game:getWidget(game.config.hudPathsTEMP.level_progresscomplete):hide()
 			game:getWidget(game.config.hudPathsTEMP.level_progresscomplete):clean()
 		end
-		
-		
-		
+
+
+
 		-- Level start
 		-- TODO: HARDCODED - make it more flexible
 		if self.controlDelay then
@@ -127,15 +127,15 @@ function Level:update(dt)
 				game:playSound("shooter_fill")
 			end
 		end
-		
-		
-		
+
+
+
 		-- Level finish
 		if self:getFinish() and not self.finish and not self.finishDelay then
 			self.finishDelay = 2
 			self.shooter.active = false
 		end
-		
+
 		if self.finishDelay then
 			self.finishDelay = self.finishDelay - dt
 			if self.finishDelay <= 0 then
@@ -145,7 +145,7 @@ function Level:update(dt)
 				self.shooter:empty()
 			end
 		end
-		
+
 		if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths:get(self.bonusPathID - 1).bonusScarab) then
 			if self.map.paths:get(self.bonusPathID) then
 				self.bonusDelay = self.bonusDelay - dt
@@ -159,7 +159,7 @@ function Level:update(dt)
 				self.bonusDelay = nil
 			end
 		end
-		
+
 		if self.wonDelay then
 			self.wonDelay = self.wonDelay - dt
 			if self.wonDelay <= 0 then
@@ -173,9 +173,9 @@ function Level:update(dt)
 				end
 			end
 		end
-		
-		
-		
+
+
+
 		-- Level lose
 		-- TODO: HARDCODED - make it more flexible
 		if self.lost and self:getEmpty() and not self.restart then
@@ -183,9 +183,9 @@ function Level:update(dt)
 			self.restart = true
 		end
 	end
-	
-	
-	
+
+
+
 	-- music fade in/out
 	local music = game:getMusic(self.musicName)
 	local dangerMusic = game:getMusic(self.dangerMusicName)
@@ -263,7 +263,7 @@ function Level:spawnLightningStormPiece()
 		self.lightningStormTime = 0
 		return
 	end
-	
+
 	-- spawn a particle, add points etc
 	local pos = sphere:getPos()
 	self:grantScore(100)
@@ -377,21 +377,21 @@ function Level:reset()
 	self.gems = 0
 	self.combo = 0
 	self.destroyedSpheres = 0
-	
+
 	self.spheresShot = 0
 	self.sphereChainsSpawned = 0
 	self.maxChain = 0
 	self.maxCombo = 0
-	
+
 	self.shotSpheres = List1()
 	self.collectibles = List1()
 	self.floatingTexts = List1()
-	
+
 	self.targetReached = false
 	self.danger = false
 	self.warningDelay = 0
 	self.warningDelayMax = nil
-	
+
 	self.pause = false
 	self.canPause = true
 	self.started = false
@@ -404,7 +404,7 @@ function Level:reset()
 	self.finishDelay = nil
 	self.bonusPathID = 1
 	self.bonusDelay = nil
-	
+
 	self.lightningStormTime = 0
 	self.lightningStormCount = 0
 	self.shooter.speedShotTime = 0
@@ -450,7 +450,7 @@ function Level:draw()
 	self.shooter:drawSpeedShotBeam()
 	self.map:drawSpheres()
 	self.shooter:draw()
-	
+
 	for i, shotSphere in ipairs(self.shotSpheres.objects) do
 		shotSphere:draw()
 	end
@@ -460,7 +460,7 @@ function Level:draw()
 	for i, floatingText in ipairs(self.floatingTexts.objects) do
 		floatingText:draw()
 	end
-	
+
 	-- local p = posOnScreen(Vec2(20, 500))
 	-- love.graphics.setColor(1, 1, 1)
 	-- love.graphics.print(tostring(self.warningDelay) .. "\n" .. tostring(self.warningDelayMax), p.x, p.y)
@@ -508,7 +508,7 @@ end
 function Level:deserialize(t)
 	-- Prepare the counters
 	game.session.colorManager:reset()
-	
+
 	-- Level stats
 	self.score = t.stats.score
 	self.coins = t.stats.coins
@@ -542,7 +542,7 @@ function Level:deserialize(t)
 	-- Effects
 	self.lightningStormCount = t.lightningStormCount
 	self.lightningStormTime = t.lightningStormTime
-	
+
 	-- Pause
 	self:setPause(true)
 end
