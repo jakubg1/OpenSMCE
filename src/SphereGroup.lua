@@ -75,7 +75,9 @@ function SphereGroup:update(dt)
 		--end
 	end
 	-- anti-slow-catapulting
-	if not self.map.level.lost and self.speed > speedBound then self.speed = speedBound end
+	if self.settings.overspeedCheck and not self.map.level.lost and self.speed > speedBound then
+		self.speed = speedBound
+	end
 
 	self:move(self.speed * dt)
 
