@@ -17,13 +17,13 @@ function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 		self.color = color
 		self.speed = speed
 		self.sphereEntity = shooter.sphereEntity
-	
+
 		self.hitTime = 0
 		self.hitSphere = nil
 	end
-	
+
 	self.PIXELS_PER_STEP = 8
-	
+
 	self.delQueue = false
 end
 
@@ -58,9 +58,9 @@ function ShotSphere:moveStep()
 		if sphereConfig.hitBehavior.type == "destroySphere" then
 			if game.session:colorsMatch(self.color, hitColor) then
 				game.session:destroySingleSphere(self.hitSphere.sphere)
+				self:destroy()
+				game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 			end
-			self:destroy()
-			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		elseif sphereConfig.hitBehavior.type == "fireball" then
 			game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
 			self:destroy()
@@ -147,14 +147,14 @@ function ShotSphere:deserialize(t)
 	self.color = t.color
 	self.speed = t.speed
 	self.steps = t.steps
-	
+
 	self.shooter = game.session.level.shooter
-	
+
 	self.hitSphere = nil -- blah blah blah, see above
 	self.hitTime = t.hitTime
-	
-	
-	
+
+
+
 	self.sphereEntity = SphereEntity(self.pos, self.color)
 end
 
