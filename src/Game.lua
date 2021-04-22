@@ -222,8 +222,6 @@ function Game:draw()
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", 0, 0, getDisplayOffsetX(), displaySize.y)
 	love.graphics.rectangle("fill", displaySize.x - getDisplayOffsetX(), 0, getDisplayOffsetX(), displaySize.y)
-	dbg:profDraw2Checkpoint()
-
 	dbg:profDraw2Stop()
 end
 

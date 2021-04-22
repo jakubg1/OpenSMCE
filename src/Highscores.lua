@@ -3,7 +3,7 @@ local Highscores = class:derive("Highscores")
 
 function Highscores:new(data)
 	self.data = data
-	
+
 	-- default if not found
 	if not self.data then self:reset() end
 end
@@ -12,8 +12,9 @@ end
 
 function Highscores:reset()
 	print("Resetting Highscores...")
-	
+
 	self.data = {}
+	-- TODO: HARDCODED - make it more flexible
 	self.data.entries = {
 		{name = "AAA", score = 10000, level = "1-1"},
 		{name = "BBB", score = 9000, level = "1-1"},
@@ -45,7 +46,7 @@ function Highscores:storeProfile(profile, pos)
 		self.data.entries[i + 1] = self.data.entries[i]
 	end
 	self.data.entries[pos] = {name = profile.name, score = profile:getScore(), level = profile:getCurrentLevelData().name}
-	
+
 	for i, entry in ipairs(self.data.entries) do print(entry.score, entry.name, entry.level) end
 	return true
 end
