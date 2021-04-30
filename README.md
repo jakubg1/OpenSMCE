@@ -4,7 +4,7 @@
 This is a **LÖVE2D** project. The supported version of the engine is **11.3**
 
 ## Current Status
-This project is currently on a temporary hiatus. I will be back at development approximately on June 8, 2021.
+This project is currently on a temporary hiatus. I will be back at development approximately on July 8, 2021.
 
 ### What is to be finished?
 When I get back to the development, the first priority will be to release the full 1.0.0 version.
