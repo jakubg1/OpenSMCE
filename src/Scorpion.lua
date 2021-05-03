@@ -6,11 +6,11 @@ local Color = require("src/Essentials/Color")
 
 function Scorpion:new(path, deserializationTable)
 	self.path = path
-	
+
 	self.settings = game.config.gameplay.scorpion
-	
-	
-	
+
+
+
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
@@ -22,12 +22,12 @@ function Scorpion:new(path, deserializationTable)
 		self.maxSpheres = self.settings.maxSpheres
 		self.maxChains = self.settings.maxChains
 	end
-	
-	self.image = game.resourceBank:getImage(self.settings.image)
-	self.shadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
-	
+
+	self.image = game.resourceManager:getImage(self.settings.image)
+	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
+
 	game:playSound("scorpion_loop")
-	
+
 	self.delQueue = false
 end
 

@@ -24,7 +24,7 @@ function ParticleManager:update(dt)
 end
 
 function ParticleManager:spawnParticlePacket(path, pos)
-	local data = game.resourceBank:getParticle(path)
+	local data = game.resourceManager:getParticle(path)
 	local packet = ParticlePacket(self, data, pos)
 	table.insert(self.particlePackets, packet)
 	return packet

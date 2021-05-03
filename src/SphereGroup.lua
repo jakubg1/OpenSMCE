@@ -25,7 +25,7 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	end
 
 	self.maxSpeed = 0
-	self.sphereShadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
+	self.sphereShadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
 
 	self.settings = game.config.gameplay.sphereBehaviour
 
@@ -378,7 +378,7 @@ function SphereGroup:draw(color, hidden, shadow)
 				self.sphereShadowImage:draw(pos + Vec2(4), Vec2(0.5))
 			else
 				local config = game.spheres[sphere.color]
-				local img = game.resourceBank:getImage(config.image)
+				local img = game.resourceManager:getImage(config.image)
 				local angle = config.imageAnimationSpeed and 0 or self:getSphereAngle(i)
 				local frame = Vec2(1)
 				if config.imageAnimationSpeed then

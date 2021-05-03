@@ -10,11 +10,11 @@ function SphereEntity:new(pos, color)
 	self.angle = 0
 	self.frame = 0
 	self.colorM = Color()
-	
+
 	self.config = game.spheres[color]
-	
-	self.shadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
-	self.image = game.resourceBank:getImage(self.config.image)
+
+	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
+	self.image = game.resourceManager:getImage(self.config.image)
 	self.particle = self.config.idleParticle and game:spawnParticle(self.config.idleParticle, pos)
 end
 
@@ -30,8 +30,8 @@ end
 function SphereEntity:setColor(color)
 	self.color = color
 	self.config = game.spheres[color]
-	self.image = game.resourceBank:getImage(self.config.image)
-	
+	self.image = game.resourceManager:getImage(self.config.image)
+
 	-- Particle stuff
 	if self.particle then
 		self.particle:destroy()

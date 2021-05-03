@@ -25,9 +25,9 @@ function Shooter:new()
 	-- the speed of the shooter when controlled via keyboard
 	self.moveKeySpeed = 500
 
-	self.shadowImage = game.resourceBank:getImage("img/game/shooter_shadow.png")
-	self.image = game.resourceBank:getImage("img/game/shooter.png")
-	self.speedShotImage = game.resourceBank:getImage("img/particles/speed_shot_beam.png")
+	self.shadowImage = game.resourceManager:getImage("img/game/shooter_shadow.png")
+	self.image = game.resourceManager:getImage("img/game/shooter.png")
+	self.speedShotImage = game.resourceManager:getImage("img/particles/speed_shot_beam.png")
 
 	self.sphereEntity = nil
 
@@ -228,7 +228,7 @@ function Shooter:draw()
 		self.sphereEntity:draw()
 	end
 	-- next color
-	game.resourceBank:getImage(game.spheres[self.nextColor].nextImage):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
+	game.resourceManager:getImage(game.spheres[self.nextColor].nextImage):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
 
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
@@ -277,7 +277,7 @@ end
 function Shooter:getReticalColor()
 	local color = game.spheres[self.color].color
 	if type(color) == "string" then
-		return game.resourceBank:getColorPalette(color):getColor(totalTime * game.spheres[self.color].colorSpeed)
+		return game.resourceManager:getColorPalette(color):getColor(totalTime * game.spheres[self.color].colorSpeed)
 	else
 		return color
 	end

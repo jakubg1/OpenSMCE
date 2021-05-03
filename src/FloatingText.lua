@@ -6,8 +6,8 @@ local Vec2 = require("src/Essentials/Vector2")
 function FloatingText:new(text, pos, font)
 	self.text = text
 	self.pos = pos
-	self.font = game.resourceBank:getFont(font)
-	
+	self.font = game.resourceManager:getFont(font)
+
 	self.time = 0
 end
 

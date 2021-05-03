@@ -6,11 +6,11 @@ local Color = require("src/Essentials/Color")
 
 function BonusScarab:new(path, deserializationTable)
 	self.path = path
-	
+
 	self.settings = game.config.gameplay.bonusScarab
-	
-	
-	
+
+
+
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
@@ -20,10 +20,10 @@ function BonusScarab:new(path, deserializationTable)
 		self.coinDistance = 0
 	end
 	self.minOffset = math.max(path.clearOffset, 64)
-	
-	self.image = game.resourceBank:getImage(self.settings.image)
-	self.shadowImage = game.resourceBank:getImage("img/game/ball_shadow.png")
-	
+
+	self.image = game.resourceManager:getImage(self.settings.image)
+	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
+
 	game:playSound("bonus_scarab_loop")
 end
 

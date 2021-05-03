@@ -7,7 +7,7 @@ local Vec2 = require("src/Essentials/Vector2")
 
 local Timer = require("src/Timer")
 
-local ResourceBank = require("src/ResourceBank")
+local ResourceManager = require("src/ResourceManager")
 local GameModuleManager = require("src/GameModuleManager")
 local RuntimeManager = require("src/RuntimeManager")
 local Session = require("src/Session")
@@ -20,7 +20,7 @@ function Game:new(name)
 
 	self.hasFocus = false
 
-	self.resourceBank = nil
+	self.resourceManager = nil
 	self.gameModuleManager = nil
 	self.runtimeManager = nil
 	self.session = nil
@@ -60,10 +60,10 @@ function Game:init()
 	math.randomseed(os.time())
 
 	-- Step 4. Create a resource bank
-	self.resourceBank = ResourceBank()
+	self.resourceManager = ResourceManager()
 
 	-- Step 5. Load initial resources (enough to start up the splash screen)
-	self.resourceBank:loadList(self.config.loadList)
+	self.resourceManager:loadList(self.config.loadList)
 
 	-- Step 6. Load game modules
 	self.gameModuleManager = GameModuleManager()
@@ -81,7 +81,7 @@ end
 
 function Game:loadMain()
 	-- Loads all game resources
-	self.resourceBank:stepLoadList(self.config.resourceList)
+	self.resourceManager:stepLoadList(self.config.resourceList)
 end
 
 function Game:initSession()
@@ -115,7 +115,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 		end
 	end
 
-	self.resourceBank:update(dt)
+	self.resourceManager:update(dt)
 
 	if self:sessionExists() then
 		self.session:update(dt)
@@ -124,7 +124,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 	-- TODO: HARDCODED - make it more flexible
 	if self.widgets.splash then
 		-- splash progress bar
-		self.widgets.splash.children.Frame.children.Progress.widget.valueData = self.resourceBank.stepLoadProcessedObjs / self.resourceBank.stepLoadTotalObjs
+		self.widgets.splash.children.Frame.children.Progress.widget.valueData = self.resourceManager.stepLoadProcessedObjs / self.resourceManager.stepLoadTotalObjs
 		-- splash play button
 		if self.widgets.splash.children.Frame.children.Progress.widget.value == 1 then
 			self.widgets.splash.children.Frame.children.Button_Play:show()
@@ -279,15 +279,15 @@ end
 
 
 function Game:playSound(name, pitch)
-	self.resourceBank:getSound(self.config.general.soundEvents[name]):play(pitch)
+	self.resourceManager:getSound(self.config.general.soundEvents[name]):play(pitch)
 end
 
 function Game:stopSound(name)
-	self.resourceBank:getSound(self.config.general.soundEvents[name]):stop()
+	self.resourceManager:getSound(self.config.general.soundEvents[name]):stop()
 end
 
 function Game:getMusic(name)
-	return self.resourceBank:getMusic(self.config.general.music[name])
+	return self.resourceManager:getMusic(self.config.general.music[name])
 end
 
 function Game:spawnParticle(name, pos)
@@ -322,7 +322,7 @@ end
 
 function Game:quit()
 	self:save()
-	self.resourceBank:unload()
+	self.resourceManager:unload()
 	if engineSettings:getBackToBoot() then
 		love.window.setMode(800, 600) -- reset window size
 		loadBootScreen()
