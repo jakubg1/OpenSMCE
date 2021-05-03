@@ -7,6 +7,7 @@ local Vec2 = require("src/Essentials/Vector2")
 
 local Timer = require("src/Timer")
 
+local ConfigManager = require("src/ConfigManager")
 local ResourceManager = require("src/ResourceManager")
 local GameModuleManager = require("src/GameModuleManager")
 local RuntimeManager = require("src/RuntimeManager")
@@ -20,6 +21,7 @@ function Game:new(name)
 
 	self.hasFocus = false
 
+	self.configManager = nil
 	self.resourceManager = nil
 	self.gameModuleManager = nil
 	self.runtimeManager = nil
@@ -31,10 +33,6 @@ function Game:new(name)
 
 	self.particleManager = nil
 
-	self.config = nil
-	self.spheres = {}
-	self.powerups = {}
-
 
 	-- revert to original font size
 	love.graphics.setFont(love.graphics.newFont())
@@ -43,17 +41,12 @@ end
 function Game:init()
 	print("Selected game: " .. self.name)
 
-	-- Step 1. Load the config files
-	self.config = loadJson(parsePath("config.json"))
-	self.powerups = loadJson(parsePath("config/powerups.json"))
-	local configSpheres = loadJson(parsePath("config/spheres.json"))
-	for k, v in pairs(configSpheres) do
-		self.spheres[tonumber(k)] = v
-	end
+	-- Step 1. Load the config
+	self.configManager = ConfigManager()
 
 	-- Step 2. Initialize the window
-	love.window.setTitle(self.config.general.windowTitle or ("OpenSMCE [" .. VERSION .. "] - " .. self.name))
-	love.window.setMode(self.config.general.nativeResolution.x, self.config.general.nativeResolution.y, {resizable = true})
+	love.window.setTitle(self.configManager.config.general.windowTitle or ("OpenSMCE [" .. VERSION .. "] - " .. self.name))
+	love.window.setMode(self.configManager.config.general.nativeResolution.x, self.configManager.config.general.nativeResolution.y, {resizable = true})
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -63,7 +56,7 @@ function Game:init()
 	self.resourceManager = ResourceManager()
 
 	-- Step 5. Load initial resources (enough to start up the splash screen)
-	self.resourceManager:loadList(self.config.loadList)
+	self.resourceManager:loadList(self.configManager.config.loadList)
 
 	-- Step 6. Load game modules
 	self.gameModuleManager = GameModuleManager()
@@ -81,7 +74,7 @@ end
 
 function Game:loadMain()
 	-- Loads all game resources
-	self.resourceManager:stepLoadList(self.config.resourceList)
+	self.resourceManager:stepLoadList(self.configManager.config.resourceList)
 end
 
 function Game:initSession()
@@ -183,7 +176,7 @@ function Game:draw()
 		self.widgetVariables.player = self.runtimeManager.profile.name
 		self.widgetVariables.levelName = self.runtimeManager.profile:getCurrentLevelConfig().name
 		self.widgetVariables.levelMapName = self.runtimeManager.profile.mapData.name
-		self.widgetVariables.stageName = self.config.stageNamesTEMP[self.runtimeManager.profile:getCurrentLevelConfig().stage]
+		self.widgetVariables.stageName = self.configManager.config.stageNamesTEMP[self.runtimeManager.profile:getCurrentLevelConfig().stage]
 		for i, entry in ipairs(self.runtimeManager.highscores.data.entries) do
 			self.widgetVariables["highscore" .. tostring(i) .. "score"] = numStr(entry.score)
 			self.widgetVariables["highscore" .. tostring(i) .. "name"] = entry.name
@@ -212,7 +205,7 @@ function Game:draw()
 	dbg:profDraw2Checkpoint()
 
 	-- Widgets
-	for i, layer in ipairs(self.config.hudLayerOrder) do
+	for i, layer in ipairs(self.configManager.config.hudLayerOrder) do
 		for widgetN, widget in pairs(self.widgets) do
 			widget:draw(layer, self.widgetVariables)
 		end
@@ -279,15 +272,15 @@ end
 
 
 function Game:playSound(name, pitch)
-	self.resourceManager:getSound(self.config.general.soundEvents[name]):play(pitch)
+	self.resourceManager:getSound(self.configManager.config.general.soundEvents[name]):play(pitch)
 end
 
 function Game:stopSound(name)
-	self.resourceManager:getSound(self.config.general.soundEvents[name]):stop()
+	self.resourceManager:getSound(self.configManager.config.general.soundEvents[name]):stop()
 end
 
 function Game:getMusic(name)
-	return self.resourceManager:getMusic(self.config.general.music[name])
+	return self.resourceManager:getMusic(self.configManager.config.general.music[name])
 end
 
 function Game:spawnParticle(name, pos)

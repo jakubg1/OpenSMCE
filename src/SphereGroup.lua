@@ -27,7 +27,7 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	self.maxSpeed = 0
 	self.sphereShadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
 
-	self.settings = game.config.gameplay.sphereBehaviour
+	self.config = game.configManager.config.gameplay.sphereBehaviour
 
 	self.delQueue = false
 end
@@ -35,7 +35,7 @@ end
 function SphereGroup:update(dt)
 	local speedBound = self.sphereChain.path:getSpeed(self:getLastSphereOffset())
 	if self:isMagnetizing() then
-		self.maxSpeed = self.settings.attractionSpeed * math.max(self.sphereChain.combo, 1)
+		self.maxSpeed = self.config.attractionSpeed * math.max(self.sphereChain.combo, 1)
 	else
 		self.maxSpeed = 0
 		if not self.matchCheck then self.matchCheck = true end
@@ -45,37 +45,37 @@ function SphereGroup:update(dt)
 		-- normal movement
 		self.maxSpeed = speedBound
 		-- slow
-		if self.sphereChain.slowTime > 0 then self.maxSpeed = self.maxSpeed * self.settings.slowSpeedMultiplier end
+		if self.sphereChain.slowTime > 0 then self.maxSpeed = self.maxSpeed * self.config.slowSpeedMultiplier end
 		-- stop
 		if self.sphereChain.stopTime > 0 then self.maxSpeed = 0 end
 		-- when the level is over
-		if self.map.level.lost then self.maxSpeed = self.settings.foulSpeed end
+		if self.map.level.lost then self.maxSpeed = self.config.foulSpeed end
 	end
 	-- if the vise is pulling (reverse)
 	if not self.map.level.lost and not self.nextGroup and not self:isMagnetizing() and self.sphereChain.reverseTime > 0 then
-		self.maxSpeed = self.settings.reverseSpeed
+		self.maxSpeed = self.config.reverseSpeed
 	end
 
 	if self.speed > self.maxSpeed then
 		if self.sphereChain.reverseTime > 0 then
 			self.speed = self.maxSpeed
 		elseif self.prevGroup then -- magnetization
-			self.speed = math.max(self.speed - self.settings.decceleration * dt, self.maxSpeed)
+			self.speed = math.max(self.speed - self.config.decceleration * dt, self.maxSpeed)
 		elseif self.sphereChain.slowTime > 0 or self.sphereChain.stopTime > 0 then
-			self.speed = math.max(self.speed - self.settings.slowDecceleration * dt, self.maxSpeed)
+			self.speed = math.max(self.speed - self.config.slowDecceleration * dt, self.maxSpeed)
 		else
-			self.speed = math.max(self.speed - self.settings.decceleration * dt, self.maxSpeed)
+			self.speed = math.max(self.speed - self.config.decceleration * dt, self.maxSpeed)
 		end
 	end
 	if self.speed < self.maxSpeed then
 		--if self.map.level.lost then
 		--	self.speed = math.min(self.speed + 250 * dt, self.maxSpeed)
 		--else
-			self.speed = math.min(self.speed + self.settings.acceleration * dt, self.maxSpeed)
+			self.speed = math.min(self.speed + self.config.acceleration * dt, self.maxSpeed)
 		--end
 	end
 	-- anti-slow-catapulting
-	if self.settings.overspeedCheck and not self.map.level.lost and self.speed > speedBound then
+	if self.config.overspeedCheck and not self.map.level.lost and self.speed > speedBound then
 		self.speed = speedBound
 	end
 
@@ -229,7 +229,7 @@ function SphereGroup:join()
 		table.insert(self.prevGroup.spheres, sphere)
 		sphere.sphereGroup = self.prevGroup
 	end
-	if self.speed < 0 then self.prevGroup.speed = self.settings.collisionSpeed * math.max(self.sphereChain.combo, 1) end
+	if self.speed < 0 then self.prevGroup.speed = self.config.collisionSpeed * math.max(self.sphereChain.combo, 1) end
 	-- link the spheres from both groups
 	self.prevGroup.spheres[joinPosition].nextSphere = self.spheres[1]
 	self.spheres[1].prevSphere = self.prevGroup.spheres[joinPosition]
@@ -341,7 +341,7 @@ function SphereGroup:matchAndDelete(position)
 	local scoreText = numStr(score)
 	if boostCombo and self.map.level.combo > 2 then scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo) end
 	if self.sphereChain.combo ~= 1 then scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo) end
-	self.map.level:spawnFloatingText(scoreText, pos, game.spheres[color].matchFont)
+	self.map.level:spawnFloatingText(scoreText, pos, game.configManager.spheres[color].matchFont)
 
 	local spawnCoin = MOD_GAME.coinSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
 	if spawnCoin then self.map.level:spawnCollectible(pos, {type = "coin"}) end
@@ -377,7 +377,7 @@ function SphereGroup:draw(color, hidden, shadow)
 			if shadow then
 				self.sphereShadowImage:draw(pos + Vec2(4), Vec2(0.5))
 			else
-				local config = game.spheres[sphere.color]
+				local config = game.configManager.spheres[sphere.color]
 				local img = game.resourceManager:getImage(config.image)
 				local angle = config.imageAnimationSpeed and 0 or self:getSphereAngle(i)
 				local frame = Vec2(1)

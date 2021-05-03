@@ -8,11 +8,11 @@ local Vec2 = require("src/Essentials/Vector2")
 function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin)
 	self.sphereGroup = sphereGroup
 	self.map = sphereGroup.map
-	
+
 	-- these two are filled by the sphere group object
 	self.prevSphere = nil
 	self.nextSphere = nil
-	
+
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
@@ -22,24 +22,24 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin)
 		self.boostCombo = false
 		self.shootOrigin = nil
 	end
-	
+
 	self.frameOffset = math.random() * 32 -- move to the "else" part if you're a purist and want this to be saved
-	
+
 	if self.color == 0 then -- vises follow another way
 		self.frameOffset = 0
 	end
-	
+
 	if shootOrigin then
 		self.shootOrigin = shootOrigin
 		self.size = 0
 	end
-	
+
 	if not self.map.isDummy and self.color > 0 then
 		game.session.colorManager:increment(self.color)
 	end
-	
+
 	self.danger = false
-	
+
 	self.delQueue = false
 end
 
@@ -64,7 +64,7 @@ function Sphere:update(dt)
 	if self.boostCombo then
 		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) then self.boostCombo = false end
 	end
-	
+
 	-- count/uncount the sphere from the danger sphere counts
 	if not self.map.isDummy and self.color > 0 and not self.delQueue then
 		local danger = self.sphereGroup.sphereChain:getDanger()
@@ -109,7 +109,7 @@ function Sphere:delete()
 	end
 	-- particles
 	if not self.map.isDummy and (not self.map.level.lost or self.color == 0) then
-		game:spawnParticle(game.spheres[self.color].destroyParticle, self:getPos())
+		game:spawnParticle(game.configManager.spheres[self.color].destroyParticle, self:getPos())
 	end
 end
 

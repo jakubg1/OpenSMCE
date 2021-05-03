@@ -52,7 +52,7 @@ function Map:draw()
 
 	-- Draw hidden spheres and other hidden path stuff
 	for i, path in ipairs(self.paths.objects) do
-		for sphereID, sphere in pairs(game.spheres) do
+		for sphereID, sphere in pairs(game.configManager.spheres) do
 			path:drawSpheres(sphereID, true)
 		end
 		path:draw(true)
@@ -70,7 +70,7 @@ end
 
 function Map:drawSpheres()
 	for i, path in ipairs(self.paths.objects) do
-		for sphereID, sphere in pairs(game.spheres) do
+		for sphereID, sphere in pairs(game.configManager.spheres) do
 			path:drawSpheres(sphereID, false)
 		end
 		path:draw(false)

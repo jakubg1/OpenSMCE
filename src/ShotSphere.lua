@@ -52,7 +52,7 @@ function ShotSphere:moveStep()
 	local nearestSphere = game.session:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < 32 then
 		self.hitSphere = nearestSphere
-		local sphereConfig = game.spheres[self.color]
+		local sphereConfig = game.configManager.spheres[self.color]
 		local hitColor = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
 		local badShot = false
 		if sphereConfig.hitBehavior.type == "destroySphere" then

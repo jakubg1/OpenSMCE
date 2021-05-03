@@ -31,7 +31,7 @@ function Shooter:new()
 
 	self.sphereEntity = nil
 
-	self.settings = game.config.gameplay.shooter
+	self.config = game.configManager.config.gameplay.shooter
 end
 
 
@@ -119,7 +119,7 @@ end
 
 function Shooter:swapColors()
 	-- we must be careful not to swap the spheres when they're absent
-	if game.session.level.pause or self.color == 0 or self.nextColor == 0 or not game.spheres[self.color].interchangeable then return end
+	if game.session.level.pause or self.color == 0 or self.nextColor == 0 or not game.configManager.spheres[self.color].interchangeable then return end
 	local tmp = self.color
 	self:setColor(self.nextColor)
 	self:setNextColor(tmp)
@@ -149,7 +149,7 @@ function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
 	if game.session.level.pause or not self.active or self.color == 0 then return end
 
-	local sphereConfig = game.spheres[self.color]
+	local sphereConfig = game.configManager.spheres[self.color]
 	if sphereConfig.shootBehavior.type == "lightning" then
 		-- lightning spheres are not shot, they're deployed instantly
 		game:spawnParticle(sphereConfig.destroyParticle, self:spherePos())
@@ -228,7 +228,7 @@ function Shooter:draw()
 		self.sphereEntity:draw()
 	end
 	-- next color
-	game.resourceManager:getImage(game.spheres[self.nextColor].nextImage):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
+	game.resourceManager:getImage(game.configManager.spheres[self.nextColor].nextImage):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
 
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
@@ -246,21 +246,21 @@ function Shooter:drawSpeedShotBeam()
 	local distance = math.min(targetPos and self.pos.y - targetPos.y or self.pos.y, maxDistance)
 	local distanceUnit = distance / maxDistance
 	local scale = Vec2(1)
-	if self.settings.speedShotBeamRenderingType == "scale" then
+	if self.config.speedShotBeamRenderingType == "scale" then
 		-- if we need to scale the beam
 		scale.y = distanceUnit
-	elseif self.settings.speedShotBeamRenderingType == "cut" then
+	elseif self.config.speedShotBeamRenderingType == "cut" then
 		-- if we need to cut the beam
 		local p = posOnScreen(Vec2(self.pos.x - self.speedShotImage.size.x / 2, self.pos.y - distance))
 		local s = posOnScreen(Vec2(self.speedShotImage.size.x, distance + 16))
 		love.graphics.setScissor(p.x, p.y, s.x, s.y)
 	end
 	-- apply color if wanted
-	local color = self.settings.speedShotBeamColored and self:getReticalColor() or Color()
+	local color = self.config.speedShotBeamColored and self:getReticalColor() or Color()
 	-- draw the beam
 	self.speedShotImage:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, color, self.speedShotTime * 2, scale)
 	-- reset the scissor
-	if self.settings.speedShotBeamRenderingType == "cut" then
+	if self.config.speedShotBeamRenderingType == "cut" then
 		love.graphics.setScissor()
 	end
 end
@@ -275,9 +275,9 @@ end
 
 
 function Shooter:getReticalColor()
-	local color = game.spheres[self.color].color
+	local color = game.configManager.spheres[self.color].color
 	if type(color) == "string" then
-		return game.resourceManager:getColorPalette(color):getColor(totalTime * game.spheres[self.color].colorSpeed)
+		return game.resourceManager:getColorPalette(color):getColor(totalTime * game.configManager.spheres[self.color].colorSpeed)
 	else
 		return color
 	end
@@ -296,8 +296,8 @@ function Shooter:getTargetPos()
 end
 
 function Shooter:getShootingSpeed()
-	if game.spheres[self.color].shootSpeed then return game.spheres[self.color].shootSpeed end
-	return self.speedShotTime > 0 and self.speedShotSpeed or self.settings.shotSpeed
+	if game.configManager.spheres[self.color].shootSpeed then return game.configManager.spheres[self.color].shootSpeed end
+	return self.speedShotTime > 0 and self.speedShotSpeed or self.config.shotSpeed
 end
 
 

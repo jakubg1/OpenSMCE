@@ -108,11 +108,11 @@ function Level:update(dt)
 
 		-- Target widget
 		-- TODO: HARDCODED - make it more flexible
-		if game:getWidget(game.config.hudPathsTEMP.level_progress).widget.value == 1 then
-			game:getWidget(game.config.hudPathsTEMP.level_progresscomplete):show()
+		if game:getWidget(game.configManager.config.hudPathsTEMP.level_progress).widget.value == 1 then
+			game:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):show()
 		else
-			game:getWidget(game.config.hudPathsTEMP.level_progresscomplete):hide()
-			game:getWidget(game.config.hudPathsTEMP.level_progresscomplete):clean()
+			game:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):hide()
+			game:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):clean()
 		end
 
 
@@ -212,7 +212,7 @@ function Level:newPowerupData()
 	local weights = {}
 	local totalWeight = 0
 	for i, powerup in ipairs(self.powerups) do
-		local powerupData = game.powerups[powerup]
+		local powerupData = game.configManager.powerups[powerup]
 		table.insert(names, powerup)
 		table.insert(weights, powerupData.weight)
 		totalWeight = totalWeight + powerupData.weight
@@ -224,7 +224,7 @@ function Level:newPowerupData()
 		i = i + 1
 	end
 	local powerupName = names[i]
-	local powerupData = game.powerups[powerupName]
+	local powerupData = game.configManager.powerups[powerupName]
 	local data = {type = "powerup", name = powerupName}
 	if powerupData.colored then data.color = game.session.colorManager:pickColor(true) end
 	return data
@@ -267,7 +267,7 @@ function Level:spawnLightningStormPiece()
 	-- spawn a particle, add points etc
 	local pos = sphere:getPos()
 	self:grantScore(100)
-	self:spawnFloatingText(numStr(100), pos, game.spheres[sphere.color].matchFont)
+	self:spawnFloatingText(numStr(100), pos, game.configManager.spheres[sphere.color].matchFont)
 	game:spawnParticle("particles/lightning_beam.json", pos)
 	game:playSound("lightning_storm_destroy")
 	-- destroy it

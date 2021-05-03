@@ -91,7 +91,7 @@ end
 -- @tparam number color2 The second color to check.
 -- @treturn boolean Whether the check has passed.
 function Session:colorsMatch(color1, color2)
-	local matches = game.spheres[color1].matches
+	local matches = game.configManager.spheres[color1].matches
 	for i, v in ipairs(matches) do
 		if v == color2 then return true end
 	end
@@ -215,7 +215,7 @@ end
 function Session:destroySingleSphere(s)
 	self:destroyFunction(
 		function(sphere, spherePos) return sphere == s end,
-		s:getPos(), game.spheres[s.color].matchFont
+		s:getPos(), game.configManager.spheres[s.color].matchFont
 	)
 end
 

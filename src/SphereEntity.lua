@@ -11,7 +11,7 @@ function SphereEntity:new(pos, color)
 	self.frame = 0
 	self.colorM = Color()
 
-	self.config = game.spheres[color]
+	self.config = game.configManager.spheres[color]
 
 	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
 	self.image = game.resourceManager:getImage(self.config.image)
@@ -29,7 +29,7 @@ end
 
 function SphereEntity:setColor(color)
 	self.color = color
-	self.config = game.spheres[color]
+	self.config = game.configManager.spheres[color]
 	self.image = game.resourceManager:getImage(self.config.image)
 
 	-- Particle stuff

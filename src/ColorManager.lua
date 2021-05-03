@@ -6,7 +6,7 @@ function ColorManager:new()
 	self.sphereColorCounts = {}
 	self.dangerSphereColorCounts = {}
 	self.lastSphereColor = 1
-	
+
 	self:reset()
 end
 
@@ -53,11 +53,11 @@ function ColorManager:pickColor(omitDangerCheck)
 				local sphere = sphereGroup.spheres[j]
 				local color = sphere.color
 				-- if this color is generatable, 25% chance to pass the check
-				if game.spheres[color].generatable and math.random() < 0.25 then
+				if game.configManager.spheres[color].generatable and math.random() < 0.25 then
 					return color
 				end
 				-- else, next sphere comes but if no more further spheres are generatable we will use it anyway
-				if game.spheres[color].generatable then
+				if game.configManager.spheres[color].generatable then
 					lastGoodColor = color
 				end
 			end
@@ -83,7 +83,7 @@ end
 
 --- Resets the onboard color counters back to 0.
 function ColorManager:reset()
-	for i, sphere in pairs(game.spheres) do
+	for i, sphere in pairs(game.configManager.spheres) do
 		if sphere.generatable then
 			self.sphereColorCounts[i] = 0
 			self.dangerSphereColorCounts[i] = 0
@@ -123,11 +123,11 @@ end
 
 function ColorManager:getDebugText()
 	local s = ""
-	
+
 	for i, v in pairs(self.sphereColorCounts) do
 		s = s .. string.format("%s:   N %s   D %s\n", i, self.sphereColorCounts[i], self.dangerSphereColorCounts[i])
 	end
-	
+
 	return s
 end
 
