@@ -362,12 +362,13 @@ end
 
 
 
-function SphereGroup:draw(hidden, shadow)
+function SphereGroup:draw(color, hidden, shadow)
+	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	-- shadow: to make all shadows rendered before spheres
 	--love.graphics.print(self:getDebugText2(), 10, 10 * #self.spheres)
 	for i, sphere in ipairs(self.spheres) do
-		if self:getSphereHidden(i) == hidden then
+		if sphere.color == color and self:getSphereHidden(i) == hidden then
 			local pos = self:getSpherePos(i)
 			if sphere.size < 1 then
 				pos = self.sphereChain.path:getPos(self:getSphereOffset(i) + 16 - sphere.size * 16) * sphere.size + sphere.shootOrigin * (1 - sphere.size)
@@ -377,6 +378,7 @@ function SphereGroup:draw(hidden, shadow)
 				self.sphereShadowImage:draw(pos + Vec2(4), Vec2(0.5))
 			else
 				local config = game.spheres[sphere.color]
+				local img = game.resourceBank:getImage(config.image)
 				local angle = config.imageAnimationSpeed and 0 or self:getSphereAngle(i)
 				local frame = Vec2(1)
 				if config.imageAnimationSpeed then
@@ -384,7 +386,7 @@ function SphereGroup:draw(hidden, shadow)
 				elseif sphere.size == 1 then
 					frame = Vec2(math.ceil(32 - sphere:getFrame()), 1)
 				end
-				game.resourceBank:getImage(config.image):draw(pos, Vec2(0.5), frame, angle, self:getSphereColor(i))
+				img:draw(pos, Vec2(0.5), frame, angle, self:getSphereColor(i))
 			end
 		end
 	end

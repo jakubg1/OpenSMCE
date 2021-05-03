@@ -10,31 +10,31 @@ local Sphere = require("src/Sphere")
 function SphereChain:new(path, deserializationTable)
 	self.path = path
 	self.map = path.map
-	
+
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
 		self.combo = 0
-		
+
 		self.slowTime = 0
 		self.stopTime = 0
 		self.reverseTime = 0
-		
+
 		--[[ example:
 			how it looks:
 			xoooo     oo ooooo    ooo
-			
+
 			groups:
 			1: offset=0, spheres=[0,1,3,2,2](len=5)
 			2: offset=160, spheres=[4,1](len=2)
 			3: offset=192, spheres=[3,3,1,3,4](len=5)
 			4: offset=278, spheres=[2,4,1](len=3)
 		--]]
-		
+
 		self.sphereGroups = {
 			SphereGroup(self)
 		}
-		
+
 		-- Pregenerate spheres
 		self.sphereGroups[1].spheres[1] = Sphere(self.sphereGroups[1], nil, 0)
 		local color = self.map.level:newSphereColor()
@@ -46,9 +46,9 @@ function SphereChain:new(path, deserializationTable)
 		end
 		self.sphereGroups[1].offset = -32 * #self.sphereGroups[1].spheres -- 5000
 	end
-	
+
 	self.maxOffset = 0
-	
+
 	self.delQueue = false
 end
 
@@ -72,7 +72,7 @@ function SphereChain:delete(joins)
 	table.remove(self.path.sphereChains, self.path:getSphereChainID(self))
 	-- mark the position to where the bonus scarab should arrive
 	if not joins and not self.map.level.lost then self.path.clearOffset = self.maxOffset end
-	
+
 	if joins then game:playSound("sphere_destroy_vise") end
 end
 
@@ -103,12 +103,13 @@ end
 
 
 
-function SphereChain:draw(hidden, shadow)
+function SphereChain:draw(color, hidden, shadow)
+	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	-- shadow: to make all shadows rendered before spheres
 	--love.graphics.print(self:getDebugText(), 10, 10)
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue then sphereGroup:draw(hidden, shadow) end
+		if not sphereGroup.delQueue then sphereGroup:draw(color, hidden, shadow) end
 	end
 	--local pos = self.path:getPos(self.sphereGroups[1]:getLastSphereOffset())
 	--love.graphics.circle("fill", pos.x, pos.y, 8)

@@ -8,23 +8,23 @@ local Scorpion = require("src/Scorpion")
 
 function Path:new(map, pathData)
 	self.map = map
-	
+
 	self.nodes = {}
 	self.brightnesses = {}
 	self.length = 0
-	
+
 	self.nodeBookmarks = {} -- node bookmark IDs start from 0 !!!
 	self.nodeBookmarkCount = 0
 	self.NODE_BOOKMARK_DELAY = 500
-	
+
 	local nodes = {}
 	for i, node in ipairs(pathData) do
 		nodes[i] = {pos = Vec2(node.x, node.y), hidden = node.hidden, warp = node.warp}
 	end
-	
+
 	--self:prepareNodes({Vec2(0, 200), Vec2(500, 200), Vec2(515, 200), Vec2(520, 205), Vec2(520, 220), Vec2(520, 400)})
 	self:prepareNodes(nodes)
-	
+
 	self.sphereChains = {}
 	self.clearOffset = 0
 	self.bonusScarab = nil
@@ -52,7 +52,7 @@ function Path:prepareNodes(nodes)
 		end
 		angle = (angle + math.pi / 2) % (math.pi * 2)
 		self.nodes[i] = {pos = node.pos, hidden = node.hidden, warp = node.warp, length = length, angle = angle}
-		
+
 		-- brightnesses stuff
 		if node.hidden then
 			if nodes[i - 1] and not nodes[i - 1].hidden then -- visible->hidden
@@ -65,17 +65,17 @@ function Path:prepareNodes(nodes)
 				table.insert(self.brightnesses, {distance = self.length + 8, value = 1})
 			end
 		end
-		
+
 		-- node bookmark stuff
 		while (self.length + length) / self.NODE_BOOKMARK_DELAY > self.nodeBookmarkCount do
 			self.nodeBookmarks[self.nodeBookmarkCount] = {id = i, distance = self.length + length}
 			self.nodeBookmarkCount = self.nodeBookmarkCount + 1
 			--print("Node Bookmark:", self.nodeBookmarkCount - 1, i)
 		end
-		
+
 		self.length = self.length + length
 	end
-	
+
 	-- if no tunnels we must add a placeholder
 	if #self.brightnesses == 0 then table.insert(self.brightnesses, {distance = 0, value = 1}) end
 end
@@ -94,7 +94,7 @@ function Path:update(dt)
 	end
 	if self:shouldSpawn() then self:spawnChain() end
 	if self.bonusScarab then self.bonusScarab:update(dt) end
-	
+
 	for i, scorpion in ipairs(self.scorpions) do
 		scorpion:update(dt)
 	end
@@ -132,30 +132,34 @@ end
 
 
 
-function Path:draw(hidden)
+function Path:drawSpheres(color, hidden)
+	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	for i, sphereChain in pairs(self.sphereChains) do
-		sphereChain:draw(hidden, true)
-		sphereChain:draw(hidden, false)
+		sphereChain:draw(color, hidden, true)
+		sphereChain:draw(color, hidden, false)
 	end
-	
+end
+
+function Path:draw(hidden)
+	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	if self.bonusScarab then
 		self.bonusScarab:draw(hidden, true)
 		self.bonusScarab:draw(hidden, false)
 	end
-	
+
 	for i, scorpion in ipairs(self.scorpions) do
 		scorpion:draw(hidden, true)
 		scorpion:draw(hidden, false)
 	end
-	
+
 	--if not hidden then self:drawDebugFill() end
 end
 
 function Path:drawDebug()
 	-- todo: make the mouse position global
 	--local mx, my = love.mouse.getPosition()
-	
+
 	love.graphics.setLineWidth(1)
 	love.graphics.setColor(0, 1, 1)
 	for i, node in ipairs(self.nodes) do
@@ -215,7 +219,7 @@ function Path:getSpeed(pixels)
 			local prevSpeed = self.map.level.speeds[i - 1]
 			if prevSpeed and speed.distance - prevSpeed.distance > 0 then
 				local t = (speed.distance - part) / (speed.distance - prevSpeed.distance)
-				
+
 				-- between nodes
 				if game.satMode then
 					return (prevSpeed.speed * t + speed.speed * (1 - t)) * (1 + (game.runtimeManager.profile.data.session.level - 1) * 0.05)
@@ -223,7 +227,7 @@ function Path:getSpeed(pixels)
 					return prevSpeed.speed * t + speed.speed * (1 - t)
 				end
 			end
-			
+
 			-- at the exact position of node or before first node
 			if game.satMode then
 				return speed.speed * (1 + (game.runtimeManager.profile.data.session.level - 1) * 0.05)
@@ -232,7 +236,7 @@ function Path:getSpeed(pixels)
 			end
 		end
 	end
-	
+
 	-- after last node
 	if game.satMode then
 		return self.map.level.speeds[#self.map.level.speeds].speed * (1 + (game.runtimeManager.profile.data.session.level - 1) * 0.05)
@@ -255,7 +259,7 @@ end
 
 function Path:getNodeID(pixels)
 	if pixels < 0 then return 0, pixels end
-	
+
 	local nodeBookmark = self.nodeBookmarks[self:getBookmarkID(pixels)]
 	local nodeID = nodeBookmark.id
 	pixels = pixels - nodeBookmark.distance

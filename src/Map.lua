@@ -11,10 +11,10 @@ function Map:new(level, path, isDummy)
 	self.level = level
 	-- whether it's just a decorative map, if false then it's meant to be playable
 	self.isDummy = isDummy
-	
+
 	self.paths = List1()
 	self.images = List1()
-	
+
 	local data = loadJson(parsePath(path .. "/config.json"))
 	self.name = data.name
 	for i, imageData in ipairs(data.images) do
@@ -34,14 +34,47 @@ end
 
 
 function Map:draw()
-	for i, image in ipairs(self.images.objects) do if image.background then image.image:draw(image.pos) end end
-	if e then for i, image in ipairs(self.images.objects) do if not image.background then image.image:draw(image.pos) end end end
-	for i, path in ipairs(self.paths.objects) do path:draw(true) end
-	if not e then for i, image in ipairs(self.images.objects) do if not image.background then image.image:draw(image.pos) end end end
+	-- Background
+	for i, image in ipairs(self.images.objects) do
+		if image.background then
+			image.image:draw(image.pos)
+		end
+	end
+
+	-- Objects drawn before hidden spheres (background cheat mode)
+	if e then
+		for i, image in ipairs(self.images.objects) do
+			if not image.background then
+				image.image:draw(image.pos)
+			end
+		end
+	end
+
+	-- Draw hidden spheres and other hidden path stuff
+	for i, path in ipairs(self.paths.objects) do
+		for sphereID, sphere in pairs(game.spheres) do
+			path:drawSpheres(sphereID, true)
+		end
+		path:draw(true)
+	end
+
+	-- Objects that will be drown when the BCM is off
+	if not e then
+		for i, image in ipairs(self.images.objects) do
+			if not image.background then
+				image.image:draw(image.pos)
+			end
+		end
+	end
 end
 
 function Map:drawSpheres()
-	for i, path in ipairs(self.paths.objects) do path:draw(false) end
+	for i, path in ipairs(self.paths.objects) do
+		for sphereID, sphere in pairs(game.spheres) do
+			path:drawSpheres(sphereID, false)
+		end
+		path:draw(false)
+	end
 end
 
 
