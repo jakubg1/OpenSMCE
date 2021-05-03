@@ -43,12 +43,13 @@ end
 function Game:init()
 	print("Selected game: " .. self.name)
 
-	-- Step 1. Load the config
+	-- Step 1. Load the config files
 	self.config = loadJson(parsePath("config.json"))
-	for k, v in pairs(self.config.spheres) do
+	self.powerups = loadJson(parsePath("config/powerups.json"))
+	local configSpheres = loadJson(parsePath("config/spheres.json"))
+	for k, v in pairs(configSpheres) do
 		self.spheres[tonumber(k)] = v
 	end
-	self.powerups = self.config.powerups
 
 	-- Step 2. Initialize the window
 	love.window.setTitle(self.config.general.windowTitle or ("OpenSMCE [" .. VERSION .. "] - " .. self.name))
