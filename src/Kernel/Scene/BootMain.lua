@@ -64,7 +64,7 @@ end
 
 function BootMain:selectGame(id)
 	self.selectedGame = id
-	self.loadGameBtn.visible = true
+	self.loadGameBtn.visible = self:getSelectedGameVersionStatus() ~= 3
 	self.convertGameBtn.visible = self:getSelectedGameVersionStatus() == 0
 	for i, button in ipairs(self.gameButtons) do
 		button.selected = i == id
@@ -159,9 +159,12 @@ function BootMain:draw()
 		elseif versionStatus == 1 then
 			love.graphics.setColor(0, 1, 0)
       love.graphics.print("Your version is up to date!", 544, 338)
-		elseif versionStatus == 2 then
+    elseif versionStatus == 2 then
 			love.graphics.setColor(1, 0, 0)
-      love.graphics.print("This game is intended to work with a newer version of the engine!", 544, 338)
+      love.graphics.print("This game is intended to work with\na newer version of the engine!", 544, 338)
+    elseif versionStatus == 3 then
+			love.graphics.setColor(1, 0, 0)
+      love.graphics.print("You have a too new engine version!\nYou can't convert this game to the\nnew version!\n\nUse the previous version of the engine\nin order to play this game.", 544, 338)
 		end
 	end
 	self.loadGameBtn:draw()

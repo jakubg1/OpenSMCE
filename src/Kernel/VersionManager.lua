@@ -4,8 +4,15 @@ local VersionManager = class:derive("VersionManager")
 function VersionManager:new(path)
   -- versions sorted from most recent to oldest
 	self.versions = {
+		"v0.40.0",
     "v0.30.0",
     "v0.22.1"
+  }
+
+	self.versionData = {
+		["v0.40.0"] = {inconvertible = false},
+    ["v0.30.0"] = {inconvertible = true},
+    ["v0.22.1"] = {inconvertible = false}
   }
 end
 
@@ -27,6 +34,7 @@ function VersionManager:getVersionStatus(version)
   -- 0: old version
   -- 1: up to date version
   -- 2: unknown version (on output) / future version
+	-- 3: old version but you can't convert to it
   if not version then
     return -1
   end
@@ -36,7 +44,11 @@ function VersionManager:getVersionStatus(version)
       if i == 1 then
         return 1
       else
-        return 0
+				if self.versionData[v].inconvertible then
+					return 3
+				else
+        	return 0
+				end
       end
     end
   end
