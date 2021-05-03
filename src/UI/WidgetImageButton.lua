@@ -5,15 +5,15 @@ local Vec2 = require("src/Essentials/Vector2")
 
 function UIWidgetImageButton:new(parent, image)
 	self.type = "imageButton"
-	
+
 	self.parent = parent
-	
+
 	self.hovered = false
 	self.clicked = false
 	self.enabled = true
 	self.enableForced = true
-	
-	self.image = game.resourceBank:getImage(image)
+
+	self.image = game.resourceManager:getImage(image)
 end
 
 function UIWidgetImageButton:click()
@@ -46,7 +46,7 @@ function UIWidgetImageButton:draw()
 	local pos = self.parent:getPos()
 	local pos2 = pos + self.image.size * Vec2(1, 0.25)
 	local alpha = self.parent:getAlpha()
-	
+
 	self.enabled = self.enableForced and alpha == 1
 	local hovered = self.enabled and self.parent.active and mousePos.x >= pos.x and mousePos.y >= pos.y and mousePos.x <= pos2.x and mousePos.y <= pos2.y
 	if hovered ~= self.hovered then
@@ -54,7 +54,7 @@ function UIWidgetImageButton:draw()
 		--if not self.hovered and self.clicked then self:unclick() end
 		--SOUNDS.buttonHover:play()
 	end
-	
+
 	self.image:draw(pos, nil, Vec2(1, self:getFrame()), nil, nil, alpha)
 end
 

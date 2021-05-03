@@ -5,12 +5,12 @@ local Vec2 = require("src/Essentials/Vector2")
 
 function UIWidgetText:new(parent, text, font, align)
 	self.type = "text"
-	
+
 	self.parent = parent
-	
+
 	self.text = text
 	self.textTmp = ""
-	self.font = game.resourceBank:getFont(font)
+	self.font = game.resourceManager:getFont(font)
 	self.align = align and parseVec2(align) or Vec2(0.5, 0)
 end
 

@@ -15,17 +15,17 @@ local Vec2 = require("src/Essentials/Vector2")
 
 function UIWidget:new(name, data, parent)
 	self.name = name
-	
+
 	-- positions, alpha etc. are:
 	-- local in variables
 	-- global in methods
 	if type(data) == "string" then data = loadJson(parsePath(data)) end
-	
+
 	self.pos = parseVec2(data.pos)
 	self.layer = data.layer
 	self.alpha = data.alpha
 	-- TODO remove the lines after "or" (when the development enters into "fit a converter" (last) phase)
-	
+
 	self.animations = {in_ = nil, out = nil}
 	if data.animations then
 		self.animations.in_ = data.animations.in_
@@ -33,10 +33,10 @@ function UIWidget:new(name, data, parent)
 	end
 	self.sounds = {in_ = nil, out = nil}
 	if data.sounds then
-		if data.sounds.in_ then self.sounds.in_ = game.resourceBank:getSound(data.sounds.in_) end
-		if data.sounds.out then self.sounds.out = game.resourceBank:getSound(data.sounds.out) end
+		if data.sounds.in_ then self.sounds.in_ = game.resourceManager:getSound(data.sounds.in_) end
+		if data.sounds.out then self.sounds.out = game.resourceManager:getSound(data.sounds.out) end
 	end
-	
+
 	self.widget = nil
 	if data.type == "rectangle" then
 		self.widget = UIWidgetRectangle(self, data.size, data.color)
@@ -57,7 +57,7 @@ function UIWidget:new(name, data, parent)
 	elseif data.type == "level" then
 		self.widget = UIWidgetLevel(self, data.path)
 	end
-	
+
 	self.parent = parent
 	self.children = {}
 	if data.children then
@@ -65,7 +65,7 @@ function UIWidget:new(name, data, parent)
 			self.children[childN] = UIWidget(childN, child, self)
 		end
 	end
-	
+
 	self.inheritShow = data.inheritShow
 	self.inheritHide = data.inheritHide
 	self.inheritPos = data.inheritPos
@@ -75,12 +75,12 @@ function UIWidget:new(name, data, parent)
 	self.hideDelay = data.hideDelay
 	self.showDelay = data.showDelay
 	self.time = data.showDelay
-	
+
 	self.actions = data.actions or {}
 	self.active = false
 	self.hotkey = data.hotkey
-	
-	
+
+
 	-- init animation alpha/position
 	if self.animations.in_ then
 		if self.animations.in_.type == "fade" then
@@ -94,7 +94,7 @@ end
 function UIWidget:update(dt)
 	if self.animationTime then
 		self.animationTime = self.animationTime + dt
-		
+
 		local animation = self.visible and self.animations.in_ or self.animations.out
 		local t = math.min(self.animationTime / animation.time, 1)
 		if animation.type == "fade" then
@@ -102,7 +102,7 @@ function UIWidget:update(dt)
 		elseif animation.type == "move" then
 			self.pos = parseVec2(animation.startPos) * (1 - t) + parseVec2(animation.endPos) * t
 		end
-		
+
 		if self.animationTime >= animation.time then
 			self.animationTime = nil
 			if self.visible then
@@ -127,7 +127,7 @@ function UIWidget:update(dt)
 		if self.visible then self.time = self.hideDelay else self.time = self.showDelay end
 	end
 	if self.widget and self.widget.update then self.widget:update(dt) end
-	
+
 	for childN, child in pairs(self.children) do
 		child:update(dt)
 	end
@@ -151,7 +151,7 @@ function UIWidget:show()
 		if self.sounds.in_ then self.sounds.in_:play() end
 	end
 	self.time = self.hideDelay
-	
+
 	for childN, child in pairs(self.children) do
 		if child.inheritShow then
 			child:show()
@@ -176,7 +176,7 @@ function UIWidget:hide()
 			self.time = nil
 		end
 	end
-	
+
 	for childN, child in pairs(self.children) do
 		if child.inheritHide then
 			child:hide()
@@ -193,7 +193,7 @@ end
 
 function UIWidget:click()
 	if self.active and self.widget and self.widget.click then self.widget:click() end
-	
+
 	for childN, child in pairs(self.children) do
 		child:click()
 	end
@@ -201,7 +201,7 @@ end
 
 function UIWidget:unclick()
 	if self.widget and self.widget.unclick then self.widget:unclick() end
-	
+
 	for childN, child in pairs(self.children) do
 		child:unclick()
 	end
@@ -209,7 +209,7 @@ end
 
 function UIWidget:keypressed(key)
 	if self.active and self.widget and self.widget.keypressed then self.widget:keypressed(key) end
-	
+
 	for childN, child in pairs(self.children) do
 		child:keypressed(key)
 	end
@@ -217,9 +217,9 @@ end
 
 function UIWidget:setActive(r)
 	if not r then game:resetActive() end
-	
+
 	self.active = true
-	
+
 	for childN, child in pairs(self.children) do
 		child:setActive(true)
 	end
@@ -227,7 +227,7 @@ end
 
 function UIWidget:resetActive()
 	self.active = false
-	
+
 	for childN, child in pairs(self.children) do
 		child:resetActive()
 	end

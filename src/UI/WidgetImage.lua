@@ -3,10 +3,10 @@ local UIWidgetImage = class:derive("UIWidgetImage")
 
 function UIWidgetImage:new(parent, image)
 	self.type = "image"
-	
+
 	self.parent = parent
-	
-	self.image = game.resourceBank:getImage(image)
+
+	self.image = game.resourceManager:getImage(image)
 end
 
 

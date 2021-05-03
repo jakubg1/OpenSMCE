@@ -5,10 +5,10 @@ local Vec2 = require("src/Essentials/Vector2")
 
 function UIWidgetImageProgress:new(parent, image, value, smooth)
 	self.type = "imageProgress"
-	
+
 	self.parent = parent
-	
-	self.image = game.resourceBank:getImage(image)
+
+	self.image = game.resourceManager:getImage(image)
 	self.value = 0
 	self.valueData = value
 	self.smooth = smooth
@@ -27,7 +27,7 @@ function UIWidgetImageProgress:draw(variables)
 	else
 		self.value = value
 	end
-	
+
 	local pos = self.parent:getPos()
 	local pos2 = posOnScreen(pos)
 	love.graphics.setScissor(pos2.x, pos2.y, self.image.size.x * getResolutionScale() * self.value, self.image.size.y * getResolutionScale())

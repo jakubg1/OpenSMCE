@@ -6,13 +6,13 @@ local UIWidgetImageButton = require("src/UI/WidgetImageButton")
 
 function UIWidgetImageButtonCheckbox:new(parent, images)
 	self.type = "imageButtonCheckbox"
-	
+
 	self.parent = parent
 	self.button = UIWidgetImageButton(parent, images[1])
-	
+
 	self.state = false
-	
-	self.images = {game.resourceBank:getImage(images[1]), game.resourceBank:getImage(images[2])}
+
+	self.images = {game.resourceManager:getImage(images[1]), game.resourceManager:getImage(images[2])}
 end
 
 function UIWidgetImageButtonCheckbox:click()
