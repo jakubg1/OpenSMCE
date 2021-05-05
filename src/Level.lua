@@ -208,26 +208,7 @@ function Level:newSphereColor()
 end
 
 function Level:newPowerupData()
-	local names = {}
-	local weights = {}
-	local totalWeight = 0
-	for i, powerup in ipairs(self.powerups) do
-		local powerupData = game.configManager.powerups[powerup]
-		table.insert(names, powerup)
-		table.insert(weights, powerupData.weight)
-		totalWeight = totalWeight + powerupData.weight
-	end
-	local rnd = math.random(totalWeight) -- from 1 to totalWeight, inclusive, integer!!
-	local i = 1
-	while rnd > weights[i] do
-		rnd = rnd - weights[i]
-		i = i + 1
-	end
-	local powerupName = names[i]
-	local powerupData = game.configManager.powerups[powerupName]
-	local data = {type = "powerup", name = powerupName}
-	if powerupData.colored then data.color = game.session.colorManager:pickColor(true) end
-	return data
+	return game.configManager.collectibleGeneratorManager:getEntry("vanilla_powerup"):generate()
 end
 
 function Level:newGemData()
