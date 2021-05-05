@@ -26,7 +26,7 @@ function Level:new(data)
 
 	self.colors = data.colors
 	self.colorStreak = data.colorStreak
-	self.powerups = data.powerups
+	self.powerupGenerator = data.powerupGenerator
 	self.gemColors = data.gems
 	if game.satMode then
 		self.spawnAmount = game.runtimeManager.profile.data.session.level * 10
@@ -208,7 +208,7 @@ function Level:newSphereColor()
 end
 
 function Level:newPowerupData()
-	return game.configManager.collectibleGeneratorManager:getEntry("vanilla_powerup"):generate()
+	return game.configManager.collectibleGeneratorManager:getEntry(self.powerupGenerator):generate()
 end
 
 function Level:newGemData()
