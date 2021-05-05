@@ -13,12 +13,12 @@ function Collectible:new(deserializationTable, pos, data)
 		self.speed = Vec2(math.random() * 100 - 50, math.random() * 100 - 250)
 		self.acceleration = Vec2(0, 300)
 	end
-	
+
 	self.powerupConfig = nil
-	
+
 	local particleName = nil
 	if self.data.type == "powerup" then
-		self.powerupConfig = game.powerups[self.data.name]
+		self.powerupConfig = game.configManager.powerups[self.data.name]
 		if self.powerupConfig.colored then
 			particleName = self.powerupConfig.particle[tostring(self.data.color)]
 		else
@@ -36,7 +36,7 @@ function Collectible:update(dt)
 	-- speed and position
 	self.speed = self.speed + self.acceleration * dt
 	self.pos = self.pos + self.speed * dt
-	
+
 	-- catching/bouncing/destroying
 	if game.session.level.shooter:catchablePos(self.pos) then self:catch() end
 	if self.pos.x < 10 then -- left
@@ -51,7 +51,7 @@ function Collectible:update(dt)
 	elseif self.pos.y > NATIVE_RESOLUTION.y + 20 then -- down - uncatched, falls down
 		self:destroy()
 	end
-	
+
 	-- sprite
 	self.particle.pos = self.pos
 end
@@ -66,7 +66,7 @@ function Collectible:catch()
 	else
 		game:playSound("collectible_catch_" .. self.data.type)
 	end
-	
+
 	local score = 0
 	if self.data.type == "coin" then
 		score = 250
@@ -82,7 +82,7 @@ function Collectible:catch()
 	if self.data.type == "powerup" then
 		local font = self.powerupConfig.pickupFont
 		if self.powerupConfig.colored then
-			font = game.spheres[self.data.color].matchFont
+			font = game.configManager.spheres[self.data.color].matchFont
 		end
 		game.session.level:spawnFloatingText(self.powerupConfig.pickupName, self.pos, font)
 	end
@@ -98,7 +98,7 @@ end
 
 
 function Collectible:draw()
-	
+
 end
 
 

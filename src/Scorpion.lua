@@ -7,7 +7,7 @@ local Color = require("src/Essentials/Color")
 function Scorpion:new(path, deserializationTable)
 	self.path = path
 
-	self.settings = game.config.gameplay.scorpion
+	self.config = game.configManager.config.gameplay.scorpion
 
 
 
@@ -19,11 +19,11 @@ function Scorpion:new(path, deserializationTable)
 		self.trailDistance = 0
 		self.destroyedSpheres = 0
 		self.destroyedChains = 0
-		self.maxSpheres = self.settings.maxSpheres
-		self.maxChains = self.settings.maxChains
+		self.maxSpheres = self.config.maxSpheres
+		self.maxChains = self.config.maxChains
 	end
 
-	self.image = game.resourceManager:getImage(self.settings.image)
+	self.image = game.resourceManager:getImage(self.config.image)
 	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
 
 	game:playSound("scorpion_loop")
@@ -33,7 +33,7 @@ end
 
 function Scorpion:update(dt)
 	-- Offset and distance
-	self.offset = self.offset - self.settings.speed * dt
+	self.offset = self.offset - self.config.speed * dt
 	self.distance = self.path.length - self.offset
 	-- Destroying spheres
 	while (self.maxSpheres and self.destroyedSpheres < self.maxSpheres) or (self.maxChains and self.destroyedChains < self.maxChains) do
@@ -56,13 +56,13 @@ function Scorpion:update(dt)
 		end
 	end
 	-- Trail
-	if self.settings.trailParticle then
+	if self.config.trailParticle then
 		while self.trailDistance < self.distance do
 			local offset = self.path.length - self.trailDistance
 			if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
-				game:spawnParticle(self.settings.trailParticle, self.path:getPos(offset))
+				game:spawnParticle(self.config.trailParticle, self.path:getPos(offset))
 			end
-			self.trailDistance = self.trailDistance + self.settings.trailParticleDistance
+			self.trailDistance = self.trailDistance + self.config.trailParticleDistance
 		end
 	end
 	-- Destroy when near spawn point or when no more spheres to destroy
@@ -76,11 +76,11 @@ function Scorpion:destroy()
 	self.delQueue = true
 	local score = self.destroyedSpheres * 100
 	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score), self.path:getPos(self.offset), self.settings.scoreFont)
+	game.session.level:spawnFloatingText(numStr(score), self.path:getPos(self.offset), self.config.scoreFont)
 	if self.destroyedSpheres == self.maxSpheres then
 		game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"})
 	end
-	game:spawnParticle(self.settings.destroyParticle, self.path:getPos(self.offset))
+	game:spawnParticle(self.config.destroyParticle, self.path:getPos(self.offset))
 	game:stopSound("scorpion_loop")
 	game:playSound("scorpion_destroy")
 end

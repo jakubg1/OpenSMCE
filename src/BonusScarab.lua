@@ -7,7 +7,7 @@ local Color = require("src/Essentials/Color")
 function BonusScarab:new(path, deserializationTable)
 	self.path = path
 
-	self.settings = game.config.gameplay.bonusScarab
+	self.config = game.configManager.config.gameplay.bonusScarab
 
 
 
@@ -21,7 +21,7 @@ function BonusScarab:new(path, deserializationTable)
 	end
 	self.minOffset = math.max(path.clearOffset, 64)
 
-	self.image = game.resourceManager:getImage(self.settings.image)
+	self.image = game.resourceManager:getImage(self.config.image)
 	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
 
 	game:playSound("bonus_scarab_loop")
@@ -29,23 +29,23 @@ end
 
 function BonusScarab:update(dt)
 	-- Offset and distance
-	self.offset = self.offset - self.settings.speed * dt
+	self.offset = self.offset - self.config.speed * dt
 	self.distance = self.path.length - self.offset
 	-- Coins
-	if self.settings.coinDistance then
+	if self.config.coinDistance then
 		while self.coinDistance < self.distance do
 			if self.coinDistance > 0 then game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"}) end
-			self.coinDistance = self.coinDistance + self.settings.coinDistance
+			self.coinDistance = self.coinDistance + self.config.coinDistance
 		end
 	end
 	-- Trail
-	if self.settings.trailParticle then
+	if self.config.trailParticle then
 		while self.trailDistance < self.distance do
 			local offset = self.path.length - self.trailDistance
 			if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
-				game:spawnParticle(self.settings.trailParticle, self.path:getPos(offset))
+				game:spawnParticle(self.config.trailParticle, self.path:getPos(offset))
 			end
-			self.trailDistance = self.trailDistance + self.settings.trailParticleDistance
+			self.trailDistance = self.trailDistance + self.config.trailParticleDistance
 		end
 	end
 	-- Destroy when exceeded minimum offset
@@ -54,10 +54,10 @@ end
 
 function BonusScarab:destroy()
 	self.path.bonusScarab = nil
-	local score = math.max(math.floor((self.path.length - self.minOffset) / self.settings.stepLength), 1) * self.settings.pointsPerStep
+	local score = math.max(math.floor((self.path.length - self.minOffset) / self.config.stepLength), 1) * self.config.pointsPerStep
 	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", self.path:getPos(self.offset), self.settings.scoreFont)
-	game:spawnParticle(self.settings.destroyParticle, self.path:getPos(self.offset))
+	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", self.path:getPos(self.offset), self.config.scoreFont)
+	game:spawnParticle(self.config.destroyParticle, self.path:getPos(self.offset))
 	game:stopSound("bonus_scarab_loop")
 	game:playSound("bonus_scarab")
 end
