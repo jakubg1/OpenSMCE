@@ -100,7 +100,7 @@ end
 
 
 
-function Session:usePowerupEffect(effect, color)
+function Session:usePowerupEffect(effect)
 	if effect.type == "replaceSphere" then
 		self.level.shooter:getSphere(effect.color)
 	elseif effect.type == "multiSphere" then
@@ -135,7 +135,7 @@ function Session:usePowerupEffect(effect, color)
 	elseif effect.type == "destroyAllSpheres" then
 		self:destroyAllSpheres()
 	elseif effect.type == "destroyColor" then
-		self:destroyColor(color)
+		self:destroyColor(effect.color)
 	elseif effect.type == "spawnScorpion" then
 		local path = self.level:getMostDangerousPath()
 		if path then
