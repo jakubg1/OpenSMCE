@@ -80,6 +80,8 @@ function UIWidget:new(name, data, parent)
 	self.active = false
 	self.hotkey = data.hotkey
 
+	self.variables = data.variables
+
 
 	-- init animation alpha/position
 	if self.animations.in_ then
@@ -242,6 +244,12 @@ end
 
 
 function UIWidget:draw(layer, variables)
+	--if variables["n"] then print("Reported! " .. self:getFullName()) end
+	if self.variables then
+		for variableN, variable in pairs(self.variables) do
+			variables[variableN] = variable
+		end
+	end
 	for childN, child in pairs(self.children) do
 		child:draw(layer, variables)
 	end

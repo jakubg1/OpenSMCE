@@ -260,7 +260,9 @@ function parseString(data, variables)
 		if type(compound) == "string" then
 			str = str .. compound
 		else
-			if compound.type == "variable" then
+			if compound.type == "scoreFormat" then
+				str = str .. numStr(parseNumber(compound.value, variables))
+			elseif compound.type == "variable" then
 				if not variables[compound.name] then
 					-- print("FATAL: Invalid variable: " .. compound.name)
 					-- print("Variables:")
@@ -269,7 +271,8 @@ function parseString(data, variables)
 				end
 				str = str .. tostring(variables[compound.name])
 			elseif compound.type == "highscoreData" then
-				str = str .. tostring(game.runtimeManager.highscores:getEntry(compound.place)[compound.name])
+				local place = parseNumber(compound.place, variables)
+				str = str .. tostring(game.runtimeManager.highscores:getEntry(place)[compound.name])
 			end
 		end
 	end
@@ -284,6 +287,7 @@ end
 function parseNumber(data, variables, properties)
 	if not data then return nil end
 	if type(data) == "number" then return data end
+	if type(data) == "string" then return tonumber(data) end
 	if data.type == "variable" then return variables[data.name] end
 	if data.type == "property" then return properties[data.name] end
 	if data.type == "randomSign" then
@@ -317,6 +321,9 @@ function parseNumber(data, variables, properties)
 			end
 		end
 		return points[#points].y
+	end
+	if data.type == "fromString" then
+		return tonumber(parseString(data.value, variables))
 	end
 end
 
