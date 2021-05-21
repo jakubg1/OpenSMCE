@@ -268,6 +268,8 @@ function parseString(data, variables)
 					-- print("The game will crash now...")
 				end
 				str = str .. tostring(variables[compound.name])
+			elseif compound.type == "highscoreData" then
+				str = str .. tostring(game.runtimeManager.highscores:getEntry(compound.place)[compound.name])
 			end
 		end
 	end
