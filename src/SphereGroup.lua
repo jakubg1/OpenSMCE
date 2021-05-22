@@ -79,6 +79,9 @@ function SphereGroup:update(dt)
 		self.speed = speedBound
 	end
 
+	-- stop spheres when away from board and rolling back
+	if self.speed < 0 and self:getFrontPos() < 0 then self.speed = 0 end
+
 	self:move(self.speed * dt)
 
 	-- tick the powerup timers
@@ -93,9 +96,6 @@ function SphereGroup:update(dt)
 		-- if it goes too far, nuke the powerup
 		if self:getLastSphereOffset() < 0 then self.sphereChain.reverseTime = 0 end
 	end
-
-	-- stop spheres when away from board and rolling back
-	if self.speed < 0 and self:getFrontPos() < 0 then self.speed = 0 end
 
 	for i = #self.spheres, 1, -1 do
 		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then self:destroySphere(i) end
@@ -492,11 +492,6 @@ function SphereGroup:getLastSphere()
 end
 
 function SphereGroup:getSphereOffset(sphereID)
-	if not self.spheres[sphereID] then
-		dbg.console:print({{1, 0, 0}, "WARNING: ", {1, 1, 1}, string.format("Something went wrong while getting sphere offset. Tried to get index %s out ot %s! Game paused.", sphereID, #self.spheres)})
-		game.session.level:setPause(true)
-		return self.offset
-	end
 	return self.offset + self.spheres[sphereID].offset
 end
 
