@@ -156,9 +156,12 @@ function Debug:getDebugLevel()
 	s = s .. "LevelNumber = " .. tostring(game.runtimeManager.profile.data.session.level) .. "\n"
 	s = s .. "LevelScore = " .. tostring(game.session.level.score) .. "\n"
 	s = s .. "LevelProgress = " .. tostring(game.session.level.destroyedSpheres) .. "/" .. tostring(game.session.level.target) .. "\n"
-	s = s .. "LevelRecord = " .. tostring(game.runtimeManager.profile:getCurrentLevelData().score) .. "\n"
-	s = s .. "Won = " .. tostring(game.runtimeManager.profile:getCurrentLevelData().won) .. "\n"
-	s = s .. "Lost = " .. tostring(game.runtimeManager.profile:getCurrentLevelData().lost) .. "\n"
+	local levelData = game.runtimeManager.profile:getCurrentLevelData()
+	if levelData then
+		s = s .. "LevelRecord = " .. tostring(levelData.score) .. "\n"
+		s = s .. "Won = " .. tostring(levelData.won) .. "\n"
+		s = s .. "Lost = " .. tostring(levelData.lost) .. "\n"
+	end
 	s = s .. "\n"
 	s = s .. "Collectible# = " .. tostring(game.session.level.collectibles:size()) .. "\n"
 	s = s .. "FloatingText# = " .. tostring(game.session.level.floatingTexts:size()) .. "\n"
