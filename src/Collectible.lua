@@ -10,8 +10,9 @@ function Collectible:new(deserializationTable, pos, data)
 	else
 		self.data = data
 		self.pos = pos
-		self.speed = Vec2(math.random() * 100 - 50, math.random() * 100 - 250)
-		self.acceleration = Vec2(0, 300)
+		local beh = game.configManager.config.gameplay.collectibleBehaviour
+		self.speed = parseVec2(beh.speed)
+		self.acceleration = parseVec2(beh.acceleration)
 	end
 
 	self.powerupConfig = nil
