@@ -253,8 +253,8 @@ function UIWidget:draw(layer, variables)
 	for childN, child in pairs(self.children) do
 		child:draw(layer, variables)
 	end
-	if self.widget and self.widget.type == "text" then self.widget.textTmp = parseString(self.widget.text, variables) end
 	if self:getAlpha() == 0 then return end -- why drawing excessively?
+	if self.widget and self.widget.type == "text" then self.widget.textTmp = parseString(self.widget.text, variables) end
 	if self.widget and self:getLayer() == layer then self.widget:draw(variables) end
 end
 

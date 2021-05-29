@@ -177,11 +177,6 @@ function Game:draw()
 		self.widgetVariables.levelName = self.runtimeManager.profile:getCurrentLevelConfig().name
 		self.widgetVariables.levelMapName = self.runtimeManager.profile.mapData.name
 		self.widgetVariables.stageName = self.configManager.config.stageNamesTEMP[self.runtimeManager.profile:getCurrentLevelConfig().stage]
-		for i, entry in ipairs(self.runtimeManager.highscores.data.entries) do
-			self.widgetVariables["highscore" .. tostring(i) .. "score"] = numStr(entry.score)
-			self.widgetVariables["highscore" .. tostring(i) .. "name"] = entry.name
-			self.widgetVariables["highscore" .. tostring(i) .. "level"] = entry.level
-		end
 		if not self.widgetVariables.progress then
 			self.widgetVariables.progress = 0
 		end
