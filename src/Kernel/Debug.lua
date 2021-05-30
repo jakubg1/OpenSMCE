@@ -32,6 +32,7 @@ function Debug:new()
 
 	self.particleSpawnersVisible = false
 	self.gameDebugVisible = false
+	self.fpsDebugVisible = false
 	self.sphereDebugVisible = false
 	self.sphereDebugVisible2 = false
 end
@@ -72,6 +73,7 @@ function Debug:draw()
 
 	-- Game and spheres
 	if self.gameDebugVisible then self:drawDebugInfo() end
+	if self.fpsDebugVisible then self:drawFpsInfo() end
 	if self.sphereDebugVisible then self:drawSphereInfo() end
 end
 
@@ -81,6 +83,7 @@ function Debug:keypressed(key)
 		if key == "w" then self.uiDebugVisible = not self.uiDebugVisible end
 		if key == "q" then self.particleSpawnersVisible = not self.particleSpawnersVisible end
 		if key == "d" then self.gameDebugVisible = not self.gameDebugVisible end
+		if key == "f" then self.fpsDebugVisible = not self.fpsDebugVisible end
 		if key == "p" then self.sphereDebugVisible = not self.sphereDebugVisible end
 		if key == "h" then self.sphereDebugVisible2 = not self.sphereDebugVisible2 end
 		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
@@ -250,6 +253,12 @@ function Debug:drawDebugInfo()
 	for i, l in ipairs(spl) do
 		self:drawVisibleText(l, p + Vec2(0, 15 * (i - 1)), 15)
 	end
+end
+
+function Debug:drawFpsInfo()
+	local s = "FPS = " .. tostring(love.timer.getFPS())
+
+	self:drawVisibleText(s, Vec2(), 15, 50)
 end
 
 
