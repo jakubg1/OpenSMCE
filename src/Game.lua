@@ -346,11 +346,7 @@ function Game:parseUIScript(script)
 
 	for i, l in ipairs(s) do
 		-- truncate the comment part
-		l = strSplit(l, "//")[1]
-		-- truncate leading whitespace
-		while l:sub(1, 1) == " " or l:sub(1, 1) == "\t" do l = l:sub(2) end
-		-- truncate trailing whitespace
-		while l:sub(l:len(), l:len()) == " " or l:sub(l:len(), l:len()) == "\t" do l = l:sub(1, l:len() - 1) end
+		l = strTrimCom(l)
 		-- omit empty lines and comments
 		if l:len() > 0 then
 			local t = strSplit(l, " ")
@@ -374,7 +370,7 @@ function Game:parseUIScript(script)
 					self:addCallback(widgetAction, event)
 				end
 			end
-			--print(l)
+			print(l)
 		end
 	end
 end

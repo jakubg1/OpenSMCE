@@ -22,12 +22,26 @@ function strJoin(t, k)
 	return s
 end
 
+function strTrim(s)
+	-- truncate leading whitespace
+	while s:sub(1, 1) == " " or s:sub(1, 1) == "\t" do s = s:sub(2) end
+	-- truncate trailing whitespace
+	while s:sub(s:len(), s:len()) == " " or s:sub(s:len(), s:len()) == "\t" do s = s:sub(1, s:len() - 1) end
+
+	return s
+end
+
+function strTrimCom(s)
+	-- truncate the comment part and trim
+	return strTrim(strSplit(s, "//")[1])
+end
+
 function jsonBeautify(s)
 	local indent = 0
 	local ret = "" -- returned string
 	local ln = "" -- current line
 	local strMode = false -- if we're inside a string chain (")
-	
+
 	for i = 1, s:len() do
 		local pc = s:sub(i-1, i-1) -- previous character
 		local c = s:sub(i, i) -- this character
@@ -57,8 +71,8 @@ function jsonBeautify(s)
 			end
 		end
 	end
-	
+
 	ret = ret .. ln .. "\n"
-	
+
 	return ret
 end
