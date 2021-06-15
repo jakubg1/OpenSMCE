@@ -32,7 +32,7 @@ end
 
 --- An initialization callback.
 function Session:init()
-	game:executeCallback("sessionInit")
+	game.uiManager:executeCallback("sessionInit")
 end
 
 
@@ -62,9 +62,9 @@ function Session:startLevel()
 	local savedLevelData = game.runtimeManager.profile:getSavedLevel()
 	if savedLevelData then
 		self.level:deserialize(savedLevelData)
-		game:executeCallback("levelLoaded")
+		game.uiManager:executeCallback("levelLoaded")
 	else
-		game:executeCallback("levelStart")
+		game.uiManager:executeCallback("levelStart")
 	end
 end
 
@@ -74,7 +74,7 @@ end
 -- Deinitializates the level and shows an appropriate widget.
 function Session:terminate()
 	self.level = nil
-	game:executeCallback("gameOver")
+	game.uiManager:executeCallback("gameOver")
 end
 
 

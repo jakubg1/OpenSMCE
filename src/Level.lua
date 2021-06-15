@@ -108,11 +108,11 @@ function Level:update(dt)
 
 		-- Target widget
 		-- TODO: HARDCODED - make it more flexible
-		if game:getWidget(game.configManager.config.hudPathsTEMP.level_progress).widget.value == 1 then
-			game:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):show()
+		if game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.level_progress).widget.value == 1 then
+			game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):show()
 		else
-			game:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):hide()
-			game:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):clean()
+			game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):hide()
+			game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):clean()
 		end
 
 
@@ -167,9 +167,9 @@ function Level:update(dt)
 				self.won = true
 				local newRecord = game.runtimeManager.profile:getLevelHighscoreInfo(self.score)
 				if newRecord then
-					game:executeCallback("levelCompleteRecord")
+					game.uiManager:executeCallback("levelCompleteRecord")
 				else
-					game:executeCallback("levelComplete")
+					game.uiManager:executeCallback("levelComplete")
 				end
 			end
 		end
@@ -179,7 +179,7 @@ function Level:update(dt)
 		-- Level lose
 		-- TODO: HARDCODED - make it more flexible
 		if self.lost and self:getEmpty() and not self.restart then
-			game:executeCallback("levelLost")
+			game.uiManager:executeCallback("levelLost")
 			self.restart = true
 		end
 	end
@@ -319,7 +319,7 @@ end
 
 function Level:tryAgain()
 	if game.runtimeManager.profile:loseLevel() then
-		game:executeCallback("levelStart")
+		game.uiManager:executeCallback("levelStart")
 		self:reset()
 	else
 		game.session:terminate()

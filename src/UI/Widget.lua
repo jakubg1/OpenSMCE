@@ -218,7 +218,7 @@ function UIWidget:keypressed(key)
 end
 
 function UIWidget:setActive(r)
-	if not r then game:resetActive() end
+	if not r then game.uiManager:resetActive() end
 
 	self.active = true
 
@@ -319,7 +319,7 @@ end
 
 
 function UIWidget:executeAction(actionType)
-	game:executeEvents(self.actions[actionType])
+	game.uiManager:executeEvents(self.actions[actionType])
 	-- an action is a list of events
 end
 
