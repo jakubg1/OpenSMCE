@@ -330,7 +330,7 @@ function Game:getWidget(names)
 	for i, name in ipairs(names) do if i > 1 then
 		widget = widget.children[name]
 		if not widget then
-			error("Could not find a widget: " .. strJoin(names, "/"))
+			error("Could not find a widget: \"" .. strJoin(names, "/") .. "\"")
 		end
 	end end
 	return widget
