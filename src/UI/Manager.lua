@@ -11,6 +11,12 @@ function UIManager:new()
   self.widgets = {splash = nil, main = nil}
   self.widgetVariables = {}
   self.widgetCallbacks = {}
+
+  self.script = nil
+  self.scriptFunctions = {
+    getWidgetN = function(names) return self:getWidgetN(names) end,
+    levelPause = function() game.session.level:setPause(true) end
+  }
 end
 
 function UIManager:initSplash()
@@ -18,6 +24,9 @@ function UIManager:initSplash()
   self.widgets.splash:show()
   self.widgets.splash:setActive()
   game:getMusic("menu"):setVolume(1)
+
+  self.script = require(parsePath("ui/script"))
+  self:executeCallback("test")
 end
 
 function UIManager:init()
@@ -122,6 +131,11 @@ end
 
 function UIManager:executeCallback(callbackType)
 	self:executeEvents(self.widgetCallbacks[callbackType])
+
+  local f = self.script.callbacks[callbackType]
+  if f then
+    f(self.scriptFunctions)
+  end
 end
 
 function UIManager:resetActive()
