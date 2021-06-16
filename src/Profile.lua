@@ -103,7 +103,7 @@ end
 function Profile:grantLife()
 	self.data.session.lives = self.data.session.lives + 1
 	self.data.session.coins = 0
-	game:getWidget(game.configManager.config.hudPathsTEMP.profile_extralife):show()
+	game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.profile_extralife):show()
 end
 
 function Profile:takeLife()
