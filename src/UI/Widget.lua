@@ -117,7 +117,7 @@ function UIWidget:update(dt)
 			-- instead, you need to clean up the black background manually!
 		end
 	end
-	if self.time and (not self.parent or self.parent:getVisible()) then
+	if self.time and (not self.parent or self.parent:isVisible()) then
 		self.time = self.time - dt
 		if self.time <= 0 then
 			self.time = nil
@@ -125,7 +125,7 @@ function UIWidget:update(dt)
 		end
 	end
 	-- schedule if was deliberately cancelled from the timer - avoid softlock
-	if not self.time and self.parent and not self.parent:getVisible() then
+	if not self.time and self.parent and not self.parent:isVisible() then
 		if self.visible then self.time = self.hideDelay else self.time = self.showDelay end
 	end
 	if self.widget and self.widget.update then self.widget:update(dt) end
@@ -304,8 +304,12 @@ end
 	-- return b or (self.visible and not self.showPermanently)
 -- end
 
-function UIWidget:getVisible()
-	if self.parent then return self.parent:getVisible() and self.visible else return self.visible end
+function UIWidget:isVisible()
+	if self.parent then return self.parent:isVisible() and self.visible else return self.visible end
+end
+
+function UIWidget:isActive()
+	return self:isVisible() and self.active and self.widget.enableForced
 end
 
 function UIWidget:getAnimationFinished()

@@ -147,6 +147,10 @@ function UIManager:getWidget(names)
 	return widget
 end
 
+function UIManager:getWidgetN(names)
+  return self:getWidget(strSplit(names, "/"))
+end
+
 function UIManager:parseUIScript(script)
 	local s = strSplit(script, "\n")
 
@@ -365,10 +369,9 @@ end
 function UIManager:checkCondition(condition)
 	if condition.type == "widget" then
 		if condition.property == "visible" then
-			return self:getWidget(condition.widget):getVisible() == condition.value
+			return self:getWidget(condition.widget):isVisible() == condition.value
 		elseif condition.property == "buttonActive" then
-			local w = self:getWidget(condition.widget)
-			return (w:getVisible() and w.active and w.widget.enableForced) == condition.value
+			return self:getWidget(condition.widget):isActive() == condition.value
 		end
 	elseif condition.type == "level" then
 		if condition.property == "paused" then

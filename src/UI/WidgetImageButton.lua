@@ -17,7 +17,7 @@ function UIWidgetImageButton:new(parent, image)
 end
 
 function UIWidgetImageButton:click()
-	if not self.parent:getVisible() or not self.hovered or self.clicked then return end
+	if not self.parent:isVisible() or not self.hovered or self.clicked then return end
 	self.clicked = true
 	game:playSound("button_click")
 	print("Button clicked: " .. self.parent:getFullName())
@@ -30,7 +30,7 @@ function UIWidgetImageButton:unclick()
 end
 
 function UIWidgetImageButton:keypressed(key)
-	if not self.parent:getVisible() or not self.enabled then return end
+	if not self.parent:isVisible() or not self.enabled then return end
 	if key == self.parent.hotkey then
 		self.parent:executeAction("buttonClick")
 	end

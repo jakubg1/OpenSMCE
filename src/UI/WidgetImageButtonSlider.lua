@@ -6,17 +6,17 @@ local UIWidgetImageButton = require("src/UI/WidgetImageButton")
 
 function UIWidgetImageButtonSlider:new(parent, image, bounds)
 	self.type = "imageButton"
-	
+
 	self.parent = parent
 	self.button = UIWidgetImageButton(parent, image)
-	
+
 	self.value = 0
 	self.bounds = bounds
 	self.catchX = 0
 end
 
 function UIWidgetImageButtonSlider:click()
-	if not self.parent:getVisible() or not self.button.hovered or self.button.clicked then return end
+	if not self.parent:isVisible() or not self.button.hovered or self.button.clicked then return end
 	self.button:click()
 	self.catchX = mousePos.x - self.parent.pos.x
 end
