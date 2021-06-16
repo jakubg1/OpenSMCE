@@ -14,8 +14,20 @@ function UIManager:new()
 
   self.script = nil
   self.scriptFunctions = {
-    getWidgetN = function(names) return self:getWidgetN(names) end,
-    levelPause = function() game.session.level:setPause(true) end
+    levelBegin = function() game.session.level:begin() end,
+    levelBeginLoad = function() game.session.level:beginLoad() end,
+    levelPause = function() game.session.level:setPause(true) end,
+    levelRestart = function() game.session.level:tryAgain() end,
+
+    musicVolume = function(music, volume) game:getMusic(event.music):setVolume(event.volume) end,
+
+    profileHighscoreWrite = function() self:profileHighscoreWrite() end,
+
+    optionsLoad = function() self:optionsLoad() end,
+    optionsSave = function() self:optionsSave() end,
+
+
+    getWidgetN = function(names) return self:getWidgetN(names) end
   }
 end
 
@@ -26,7 +38,6 @@ function UIManager:initSplash()
   game:getMusic("menu"):setVolume(1)
 
   self.script = require(parsePath("ui/script"))
-  self:executeCallback("test")
 end
 
 function UIManager:init()
@@ -357,27 +368,39 @@ function UIManager:executeEvent(event)
 	elseif event.type == "profileLevelAdvance" then
 		game.runtimeManager.profile:advanceLevel()
 	elseif event.type == "profileHighscoreWrite" then
-		local success = game.runtimeManager.profile:writeHighscore()
-		if success then
-			self:executeCallback("profileHighscoreWriteSuccess")
-		else
-			self:executeCallback("profileHighscoreWriteFail")
-		end
+    self:profileHighscoreWrite()
 
 	-- options stuff
 	elseif event.type == "optionsLoad" then
-		-- TODO: HARDCODED - make it more flexible
-		self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget:setValue(game.runtimeManager.options:getMusicVolume())
-		self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget:setValue(game.runtimeManager.options:getSoundVolume())
-		self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget:setState(game.runtimeManager.options:getFullscreen())
-		self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget:setState(game.runtimeManager.options:getMute())
+    self:optionsLoad()
 	elseif event.type == "optionsSave" then
-		-- TODO: HARDCODED - make it more flexible
-		game.runtimeManager.options:setMusicVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget.value)
-		game.runtimeManager.options:setSoundVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget.value)
-		game.runtimeManager.options:setFullscreen(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget.state)
-		game.runtimeManager.options:setMute(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget.state)
+    self:optionsSave()
 	end
+end
+
+function UIManager:profileHighscoreWrite()
+  local success = game.runtimeManager.profile:writeHighscore()
+  if success then
+    self:executeCallback("profileHighscoreWriteSuccess")
+  else
+    self:executeCallback("profileHighscoreWriteFail")
+  end
+end
+
+function UIManager:optionsLoad()
+  -- TODO: HARDCODED - make it more flexible
+  self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget:setValue(game.runtimeManager.options:getMusicVolume())
+  self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget:setValue(game.runtimeManager.options:getSoundVolume())
+  self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget:setState(game.runtimeManager.options:getFullscreen())
+  self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget:setState(game.runtimeManager.options:getMute())
+end
+
+function UIManager:optionsSave()
+  -- TODO: HARDCODED - make it more flexible
+  game.runtimeManager.options:setMusicVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget.value)
+  game.runtimeManager.options:setSoundVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget.value)
+  game.runtimeManager.options:setFullscreen(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget.state)
+  game.runtimeManager.options:setMute(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget.state)
 end
 
 function UIManager:checkCondition(condition)
