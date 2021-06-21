@@ -158,16 +158,13 @@ end
 
 
 function UIManager:getWidget(names)
-	-- local s = ""
-	-- for i, name in ipairs(names) do if i > 1 then s = s .. "/" .. name else s = s .. name end end
-	-- print("Trying to get widget: " .. s)
-
 	local widget = self.widgets[names[1]]
 	for i, name in ipairs(names) do if i > 1 then
+    if not widget then
+      --error("Could not find a widget: \"" .. strJoin(names, "/") .. "\"")
+      return
+    end
 		widget = widget.children[name]
-		if not widget then
-			error("Could not find a widget: \"" .. strJoin(names, "/") .. "\"")
-		end
 	end end
 	return widget
 end
