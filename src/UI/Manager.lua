@@ -10,7 +10,6 @@ local UIWidget = require("src/UI/Widget")
 function UIManager:new()
   self.widgets = {splash = nil, main = nil}
   self.widgetVariables = {}
-  self.widgetCallbacks = {}
 
   self.script = nil
   self.scriptFunctions = {
@@ -135,14 +134,7 @@ end
 
 
 
-function UIManager:addCallback(callbackType, event)
-	if not self.widgetCallbacks[callbackType] then self.widgetCallbacks[callbackType] = {} end
-	table.insert(self.widgetCallbacks[callbackType], event)
-end
-
 function UIManager:executeCallback(callbackType)
-	self:executeEvents(self.widgetCallbacks[callbackType])
-
   local f = self.script.callbacks[callbackType]
   if f then
     f(self.scriptFunctions)
@@ -193,18 +185,12 @@ function UIManager:parseUIScript(script)
 				widget = self:getWidget(strSplit(t2[1], "/"))
 				widgetAction = t2[2]
 				type = "action"
-			elseif t[2] == ">>" then
-				-- new widget definition
-				widgetAction = t[1]
-				type = "callback"
 			else
 				-- adding an event to the most recently defined widget
 				local t2 = strSplit(l, ":")
 				local event = self:prepareEvent(t2[1], strSplit(t2[2], ","))
 				if type == "action" then
 					widget:addAction(widgetAction, event)
-				elseif type == "callback" then
-					self:addCallback(widgetAction, event)
 				end
 			end
 			print(l)
