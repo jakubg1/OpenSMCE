@@ -6,17 +6,17 @@ local Vec2 = require("src/Essentials/Vector2")
 function Console:new()
 	self.history = {}
 	self.command = ""
-	
+
 	self.open = false
 	self.active = false
-	
+
 	self.backspace = false
 	self.BACKSPACE_FIRST_REPEAT_TIME = 0.5
 	self.BACKSPACE_NEXT_REPEAT_TIME = 0.05
 	self.backspaceTime = 0
-	
+
 	self.MAX_MESSAGES = 20
-	
+
 	self.font = love.graphics.newFont()
 	self.consoleFont = love.graphics.newFont(16)
 end
@@ -58,17 +58,24 @@ end
 function Console:draw()
 	local pos = Vec2(5, displaySize.y)
 	local size = Vec2(600, 200)
-	
+
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.consoleFont)
 	for i = 1, self.MAX_MESSAGES do
 		local pos = pos - Vec2(0, 30 + 20 * i)
 		local message = self.history[#self.history - i + 1]
-		if message and (self.open or totalTime - message.time < 10) then
-			dbg:drawVisibleText(message.text, pos, 20)
+		if message then
+			local t = totalTime - message.time
+			if self.open or t < 10 then
+				local a = 1
+				if not self.open then
+					a = math.min(10 - t, 1)
+				end
+				dbg:drawVisibleText(message.text, pos, 20, nil, a)
+			end
 		end
 	end
-	
+
 	if self.open then
 		local text = "> " .. self.command
 		if self.active and totalTime % 1 < 0.5 then text = text .. "_" end
