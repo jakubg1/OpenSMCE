@@ -135,7 +135,7 @@ end
 
 
 function UIManager:executeCallback(callbackType)
-  local f = self.script.callbacks[callbackType]
+  local f = self.script[callbackType]
   if f then
     f(self.scriptFunctions)
   end
