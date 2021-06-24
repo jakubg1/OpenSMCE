@@ -82,6 +82,7 @@ function UIWidget:new(name, data, parent)
 	self.hotkey = data.hotkey
 
 	self.variables = data.variables
+	self.callbacks = data.callbacks
 
 
 	-- init animation alpha/position
@@ -333,6 +334,10 @@ function UIWidget:executeAction(actionType)
 			f(game.uiManager.scriptFunctions)
 		end
 		self.actions2[actionType] = nil
+	end
+	-- New code:
+	if self.callbacks and self.callbacks[actionType] then
+		game.uiManager:executeCallback(self.callbacks[actionType])
 	end
 end
 
