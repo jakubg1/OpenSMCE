@@ -13,13 +13,21 @@ function UIManager:new()
 
   self.script = nil
   self.scriptFunctions = {
+    levelStart = function() game.session:startLevel() end,
     levelBegin = function() game.session.level:begin() end,
     levelBeginLoad = function() game.session.level:beginLoad() end,
     levelPause = function() game.session.level:setPause(true) end,
+    levelUnpause = function() game.session.level:setPause(false) end,
     levelRestart = function() game.session.level:tryAgain() end,
+    levelEnd = function() game.session:levelEnd() end,
+    levelWin = function() game.session:levelWin() end,
+    levelSave = function() game.session:levelSave() end,
+    quit = function() game:quit() end,
 
-    musicVolume = function(music, volume) game:getMusic(event.music):setVolume(event.volume) end,
+    musicVolume = function(music, volume) game:getMusic(music):setVolume(volume) end,
 
+    profileNewGame = function() game.runtimeManager.profile:newGame() end,
+    profileLevelAdvance = function() game.runtimeManager.profile:advanceLevel() end,
     profileHighscoreWrite = function() self:profileHighscoreWrite() end,
 
     optionsLoad = function() self:optionsLoad() end,
@@ -316,14 +324,11 @@ function UIManager:executeEvent(event)
 	elseif event.type == "levelRestart" then
 		game.session.level:tryAgain()
 	elseif event.type == "levelEnd" then
-		game.session.level:unsave()
-		game.session.level = nil
+		game.session:levelEnd()
 	elseif event.type == "levelWin" then
-		game.session.level:win()
-		game.session.level = nil
+		game.session:levelWin()
 	elseif event.type == "levelSave" then
-		game.session.level:save()
-		game.session.level = nil
+		game.session:levelSave()
 	elseif event.type == "quit" then
 		game:quit()
 

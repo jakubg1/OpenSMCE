@@ -68,6 +68,21 @@ function Session:startLevel()
 	end
 end
 
+function Session:levelEnd()
+	self.level:unsave()
+	self.level = nil
+end
+
+function Session:levelWin()
+	self.level:win()
+	self.level = nil
+end
+
+function Session:levelSave()
+	self.level:save()
+	self.level = nil
+end
+
 
 
 --- Triggers a Game Over.
