@@ -76,8 +76,7 @@ function UIWidget:new(name, data, parent)
 	self.showDelay = data.showDelay
 	self.time = data.showDelay
 
-	self.actions = data.actions or {}
-	self.actions2 = {}
+	self.actions = {}
 	self.active = false
 	self.hotkey = data.hotkey
 
@@ -324,31 +323,24 @@ end
 
 
 
--- WARNING: Dirty code below!
-
 function UIWidget:executeAction(actionType)
--- An action is a list of events, BUT now it can be also a list of functions.
-	game.uiManager:executeEvents(self.actions[actionType])
-	if self.actions2[actionType] then
-		for i, f in ipairs(self.actions2[actionType]) do
-			f(game.uiManager.scriptFunctions)
-		end
-		self.actions2[actionType] = nil
-	end
-	-- New code:
+-- An action is a list of functions.
+	-- Execute defined functions (JSON)
 	if self.callbacks and self.callbacks[actionType] then
 		game.uiManager:executeCallback(self.callbacks[actionType])
 	end
-end
-
-function UIWidget:addAction(actionType, event)
-	if not self.actions[actionType] then self.actions[actionType] = {} end
-	table.insert(self.actions[actionType], event)
+	-- Execute scheduled functions (UI script)
+	if self.actions[actionType] then
+		for i, f in ipairs(self.actions[actionType]) do
+			f(game.uiManager.scriptFunctions)
+		end
+		self.actions[actionType] = nil
+	end
 end
 
 function UIWidget:scheduleFunction(actionType, f)
-	if not self.actions2[actionType] then self.actions2[actionType] = {} end
-	table.insert(self.actions2[actionType], f)
+	if not self.actions[actionType] then self.actions[actionType] = {} end
+	table.insert(self.actions[actionType], f)
 end
 
 

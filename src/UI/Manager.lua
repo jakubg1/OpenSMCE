@@ -13,6 +13,9 @@ function UIManager:new()
 
   self.script = nil
   self.scriptFunctions = {
+    loadMain = function() game:loadMain() end,
+    initSession = function() game:initSession() end,
+
     levelStart = function() game.session:startLevel() end,
     levelBegin = function() game.session.level:begin() end,
     levelBeginLoad = function() game.session.level:beginLoad() end,
@@ -53,7 +56,6 @@ function UIManager:init()
 
 	-- Setup the UI
 	self.widgets.root = UIWidget("Root", loadJson(parsePath("ui/root.json")))
-	self:parseUIScript(loadFile(parsePath("ui/script.txt")))
 end
 
 function UIManager:update(dt)
@@ -171,199 +173,6 @@ end
 
 function UIManager:getWidgetN(names)
   return self:getWidget(strSplit(names, "/"))
-end
-
-function UIManager:parseUIScript(script)
-	local s = strSplit(script, "\n")
-
-	-- the current Widget we are editing
-	local type = ""
-	local widget = nil
-	local widgetAction = nil
-
-	for i, l in ipairs(s) do
-		-- truncate the comment part
-		l = strTrimCom(l)
-		-- omit empty lines and comments
-		if l:len() > 0 then
-			local t = strSplit(l, " ")
-			if t[2] == "->" then
-				-- new widget definition
-				local t2 = strSplit(t[1], ".")
-				widget = self:getWidget(strSplit(t2[1], "/"))
-				widgetAction = t2[2]
-				type = "action"
-			else
-				-- adding an event to the most recently defined widget
-				local t2 = strSplit(l, ":")
-				local event = self:prepareEvent(t2[1], strSplit(t2[2], ","))
-				if type == "action" then
-					widget:addAction(widgetAction, event)
-				end
-			end
-			print(l)
-		end
-	end
-end
-
-function UIManager:prepareEvent(eventType, params)
-	local event = {type = eventType}
-
-	if eventType == "print" then
-		event.text = params[1]
-	elseif eventType == "wait" then
-		event.widget = strSplit(params[1], "/")
-		event.actionType = params[2]
-	elseif eventType == "jump" then
-		event.condition = self:parseCondition(params[1])
-		event.steps = tonumber(params[2])
-	elseif eventType == "widgetShow"
-		or eventType == "widgetHide"
-		or eventType == "widgetClean"
-		or eventType == "widgetSetActive"
-		or eventType == "widgetButtonDisable"
-		or eventType == "widgetButtonEnable"
-	then
-		event.widget = strSplit(params[1], "/")
-	elseif eventType == "musicVolume" then
-		event.music = params[1]
-		event.volume = tonumber(params[2])
-	end
-
-	return event
-end
-
-function UIManager:parseCondition(s)
-	local condition = {}
-
-	s = strSplit(s, "?")
-	condition.type = s[1]
-
-	if condition.type == "widget" then
-		s = strSplit(s[2], "=")
-		condition.value = s[2]
-		s = strSplit(s[1], ".")
-		condition.widget = strSplit(s[1], "/")
-		condition.property = s[2]
-		-- convert the value to boolean if necessary
-		if condition.property == "visible" or condition.property == "buttonActive" then
-			condition.value = condition.value == "true"
-		end
-	elseif condition.type == "level" then
-		s = strSplit(s[2], "=")
-		condition.property = s[1]
-		condition.value = s[2]
-		-- convert the value to boolean if necessary
-		if condition.property == "paused" or condition.property == "started" then
-			condition.value = condition.value == "true"
-		end
-	end
-
-	print("Condition parsed")
-	for k, v in pairs(condition) do
-		print(k, v)
-	end
-
-	return condition
-end
-
-function UIManager:executeEvents(events)
-	if not events then return end
-	local jumpN = 0
-	for i, event in ipairs(events) do
-		if jumpN > 0 then
-			jumpN = jumpN - 1
-		else
-			self:executeEvent(event)
-			if event.type == "end" then
-				break
-			elseif event.type == "wait" then
-				-- this event loop is ended, the remaining events are packed in a new action which is then put and flagged as one-time
-				for j = i + 1, #events do
-					-- we need to make a new table for the event because if we edited the original one, the events in the original action would be flagged and deleted too
-					local remainingEvent = {}
-					for k, v in pairs(events[j]) do remainingEvent[k] = v end
-					remainingEvent.onetime = true
-					-- put it in the target widget's action we're waiting for
-					self:getWidget(event.widget):addAction(event.actionType, remainingEvent)
-				end
-				break
-			elseif event.type == "jump" then
-				if self:checkCondition(event.condition) then
-					jumpN = jumpN + event.steps
-				end
-			end
-		end
-	end
-	-- delete from this table events that were flagged as onetime - reverse iteration
-	for i = #events, 1, -1 do
-		if events[i].onetime then
-			table.remove(events, i)
-		end
-	end
-end
-
-function UIManager:executeEvent(event)
-	-- main stuff
-	if event.type == "print" then
-		print(event.text)
-	elseif event.type == "loadMain" then
-		game:loadMain()
-	elseif event.type == "sessionInit" then
-		game:initSession()
-	elseif event.type == "levelStart" then
-		game.session:startLevel()
-	elseif event.type == "levelBegin" then
-		game.session.level:begin()
-	elseif event.type == "levelBeginLoad" then
-		game.session.level:beginLoad()
-	elseif event.type == "levelPause" then
-		game.session.level:setPause(true)
-	elseif event.type == "levelUnpause" then
-		game.session.level:setPause(false)
-	elseif event.type == "levelRestart" then
-		game.session.level:tryAgain()
-	elseif event.type == "levelEnd" then
-		game.session:levelEnd()
-	elseif event.type == "levelWin" then
-		game.session:levelWin()
-	elseif event.type == "levelSave" then
-		game.session:levelSave()
-	elseif event.type == "quit" then
-		game:quit()
-
-	-- widget stuff
-	elseif event.type == "widgetShow" then
-		self:getWidget(event.widget):show()
-	elseif event.type == "widgetHide" then
-		self:getWidget(event.widget):hide()
-	elseif event.type == "widgetClean" then
-		self:getWidget(event.widget):clean()
-	elseif event.type == "widgetSetActive" then
-		self:getWidget(event.widget):setActive()
-	elseif event.type == "widgetButtonDisable" then
-		self:getWidget(event.widget):buttonSetEnabled(false)
-	elseif event.type == "widgetButtonEnable" then
-		self:getWidget(event.widget):buttonSetEnabled(true)
-
-	-- music stuff
-	elseif event.type == "musicVolume" then
-		game:getMusic(event.music):setVolume(event.volume)
-
-	-- profile stuff
-	elseif event.type == "profileNewGame" then
-		game.runtimeManager.profile:newGame()
-	elseif event.type == "profileLevelAdvance" then
-		game.runtimeManager.profile:advanceLevel()
-	elseif event.type == "profileHighscoreWrite" then
-    self:profileHighscoreWrite()
-
-	-- options stuff
-	elseif event.type == "optionsLoad" then
-    self:optionsLoad()
-	elseif event.type == "optionsSave" then
-    self:optionsSave()
-	end
 end
 
 function UIManager:profileHighscoreWrite()
