@@ -17,6 +17,7 @@ function Settings:reset()
 	if self:getDiscordRPC() == nil then self:setDiscordRPC(true) end
 	if self:getBackToBoot() == nil then self:setBackToBoot(false) end
 	if self:getAimingRetical() == nil then self:setAimingRetical(true) end
+	if self:getConsoleWindow() == nil then self:setConsoleWindow(false) end
 end
 
 
@@ -43,6 +44,14 @@ end
 
 function Settings:getAimingRetical()
 	return self.data.aimingRetical
+end
+
+function Settings:setConsoleWindow(value)
+	self.data.consoleWindow = value
+end
+
+function Settings:getConsoleWindow()
+	return self.data.consoleWindow
 end
 
 

@@ -19,7 +19,8 @@ function BootSettings:new(bootScreen)
 	self.settingCheckboxes = {
     Checkbox("Enable Discord Rich Presence", self.fontBig, Vec2(40, 110), Vec2(760, 24), function(state) engineSettings:setDiscordRPC(state) end),
     Checkbox("Go back to the boot menu when exiting a game", self.fontBig, Vec2(40, 140), Vec2(760, 24), function(state) engineSettings:setBackToBoot(state) end),
-    Checkbox("Aiming Retical", self.fontBig, Vec2(40, 170), Vec2(760, 24), function(state) engineSettings:setAimingRetical(state) end)
+    Checkbox("Aiming Retical", self.fontBig, Vec2(40, 170), Vec2(760, 24), function(state) engineSettings:setAimingRetical(state) end),
+    Checkbox("Debug console window (restart to see the effect)", self.fontBig, Vec2(40, 200), Vec2(760, 24), function(state) engineSettings:setConsoleWindow(state) end)
   }
 end
 
@@ -29,6 +30,7 @@ function BootSettings:init()
   self.settingCheckboxes[1].selected = engineSettings:getDiscordRPC()
   self.settingCheckboxes[2].selected = engineSettings:getBackToBoot()
   self.settingCheckboxes[3].selected = engineSettings:getAimingRetical()
+  self.settingCheckboxes[4].selected = engineSettings:getConsoleWindow()
 end
 
 
