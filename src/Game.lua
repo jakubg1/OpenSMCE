@@ -198,8 +198,8 @@ end
 
 
 
-function Game:playSound(name, pitch)
-	self.resourceManager:getSound(self.configManager.config.general.soundEvents[name]):play(pitch)
+function Game:playSound(name, pitch, pos)
+	return self.resourceManager:getSound(self.configManager.config.general.soundEvents[name]):play(pitch, pos)
 end
 
 function Game:stopSound(name)
