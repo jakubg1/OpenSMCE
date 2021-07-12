@@ -19,16 +19,8 @@ function SoundInstance:update(dt)
 	self:setVolume(game.runtimeManager.options:getEffectiveSoundVolume())
 end
 
-function SoundInstance:play(pitch)
-	pitch = pitch or 1
-	for i, instance in ipairs(self.instances) do
-		if not instance:isPlaying() then
-			instance:setPitch(pitch)
-			instance:play()
-			return
-		end
-	end
-	-- might add an algorithm that will nuke one of the sounds and play it again on that instance if no free instances
+function SoundInstance:play()
+	self.sound:play()
 end
 
 function SoundInstance:stop()
