@@ -12,7 +12,7 @@ function SoundInstance:new(path, looping)
     self.sound:setLooping(looping)
   end
 
-  self.pos = Vec2()
+  self.pos = NATIVE_RESOLUTION / 2
 end
 
 function SoundInstance:update(dt)
@@ -36,7 +36,16 @@ function SoundInstance:setPitch(pitch)
 end
 
 function SoundInstance:setPos(pos)
-  self.pos = pos
+  print(self.sound:getAttenuationDistances())
+  if pos then
+    self.pos = pos
+    local p = pos - NATIVE_RESOLUTION / 2
+    self.sound:setPosition(p.x, p.y, 0)
+    self.sound:setAttenuationDistances(0, NATIVE_RESOLUTION.x)
+  else
+    self.pos = Vec2()
+    self.sound:setPosition(0, 0, 0)
+  end
 end
 
 function SoundInstance:isPlaying()

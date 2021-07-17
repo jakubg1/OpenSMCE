@@ -241,7 +241,7 @@ function SphereGroup:join()
 	if not self.map.level.lost and game.session:colorsMatch(self.prevGroup.spheres[joinPosition].color, self.spheres[1].color) and self.matchCheck and self.prevGroup:shouldMatch(joinPosition) then
 		self.prevGroup:matchAndDelete(joinPosition)
 	end
-	game:playSound("sphere_group_join")
+	game:playSound("sphere_group_join", 1, self.sphereChain.path:getPos(self.offset))
 end
 
 function SphereGroup:divide(position)
@@ -329,7 +329,7 @@ function SphereGroup:matchAndDelete(position)
 	self:destroySpheres(position1, position2)
 
 	local soundID = math.min(math.max(length - 2, 1), 5)
-	game:playSound("sphere_destroy_" .. tostring(soundID), 1 + self.sphereChain.combo * 0.1)
+	game:playSound("sphere_destroy_" .. tostring(soundID), 1 + self.sphereChain.combo * 0.1, pos)
 	self.sphereChain.combo = self.sphereChain.combo + 1
 	if boostCombo then self.map.level.combo = self.map.level.combo + 1 end
 

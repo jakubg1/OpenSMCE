@@ -123,7 +123,7 @@ function Shooter:swapColors()
 	local tmp = self.color
 	self:setColor(self.nextColor)
 	self:setNextColor(tmp)
-	game:playSound("shooter_swap")
+	game:playSound("shooter_swap", 1, self.pos)
 end
 
 function Shooter:getNextColor()
@@ -145,6 +145,11 @@ function Shooter:fill()
 	end
 end
 
+function Shooter:activate()
+	self.active = true
+	game:playSound("shooter_fill", 1, self.pos)
+end
+
 function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
 	if game.session.level.pause or not self.active or self.color == 0 then return end
@@ -162,7 +167,7 @@ function Shooter:shoot()
 		self.sphereEntity = nil
 		self.active = false
 	end
-	game:playSound(sphereConfig.shootSound)
+	game:playSound(sphereConfig.shootSound, 1, self.pos)
 	self.color = 0
 	game.session.level.spheresShot = game.session.level.spheresShot + 1
 	--game.session.level.lightningStormCount = 0

@@ -63,9 +63,9 @@ function Collectible:catch()
 		for i, effect in ipairs(self.powerupConfig.effects) do
 			game.session:usePowerupEffect(effect)
 		end
-		game:playSound(self.powerupConfig.pickupSound)
+		game:playSound(self.powerupConfig.pickupSound, 1, self.pos)
 	else
-		game:playSound("collectible_catch_" .. self.data.type)
+		game:playSound("collectible_catch_" .. self.data.type, 1, self.pos)
 	end
 
 	local score = 0

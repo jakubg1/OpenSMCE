@@ -24,7 +24,7 @@ function BonusScarab:new(path, deserializationTable)
 	self.image = game.resourceManager:getImage(self.config.image)
 	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
 
-	game:playSound("bonus_scarab_loop")
+	self.sound = game:playSound("bonus_scarab_loop", 1, self:getPos())
 end
 
 function BonusScarab:update(dt)
@@ -34,7 +34,7 @@ function BonusScarab:update(dt)
 	-- Coins
 	if self.config.coinDistance then
 		while self.coinDistance < self.distance do
-			if self.coinDistance > 0 then game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"}) end
+			if self.coinDistance > 0 then game.session.level:spawnCollectible(self:getPos(), {type = "coin"}) end
 			self.coinDistance = self.coinDistance + self.config.coinDistance
 		end
 	end
@@ -48,18 +48,23 @@ function BonusScarab:update(dt)
 			self.trailDistance = self.trailDistance + self.config.trailParticleDistance
 		end
 	end
+	-- Sound
+	self.sound:setPos(self:getPos())
 	-- Destroy when exceeded minimum offset
 	if self.offset <= self.minOffset then self:destroy() end
 end
 
 function BonusScarab:destroy()
 	self.path.bonusScarab = nil
+
+	local pos = self:getPos()
 	local score = math.max(math.floor((self.path.length - self.minOffset) / self.config.stepLength), 1) * self.config.pointsPerStep
+
 	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", self.path:getPos(self.offset), self.config.scoreFont)
-	game:spawnParticle(self.config.destroyParticle, self.path:getPos(self.offset))
-	game:stopSound("bonus_scarab_loop")
-	game:playSound("bonus_scarab")
+	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", pos, self.config.scoreFont)
+	game:spawnParticle(self.config.destroyParticle, pos)
+	self.sound:stop()
+	game:playSound("bonus_scarab", 1, pos)
 end
 
 
@@ -67,11 +72,25 @@ end
 function BonusScarab:draw(hidden, shadow)
 	if self.path:getHidden(self.offset) == hidden then
 		if shadow then
-			self.shadowImage:draw(self.path:getPos(self.offset) + Vec2(4), Vec2(0.5))
+			self.shadowImage:draw(self:getPos() + Vec2(4), Vec2(0.5))
 		else
-			self.image:draw(self.path:getPos(self.offset), Vec2(0.5), nil, self.path:getAngle(self.offset) + math.pi, Color(self.path:getBrightness(self.offset)))
+			self.image:draw(self:getPos(), Vec2(0.5), nil, self:getAngle() + math.pi, Color(self:getBrightness()))
 		end
 	end
+end
+
+
+
+function BonusScarab:getPos()
+	return self.path:getPos(self.offset)
+end
+
+function BonusScarab:getAngle()
+	return self.path:getAngle(self.offset)
+end
+
+function BonusScarab:getBrightness()
+	return self.path:getBrightness(self.offset)
 end
 
 

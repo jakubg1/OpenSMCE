@@ -123,8 +123,7 @@ function Level:update(dt)
 			self.controlDelay = self.controlDelay - dt
 			if self.controlDelay <= 0 then
 				self.controlDelay = nil
-				self.shooter.active = true
-				game:playSound("shooter_fill")
+				self.shooter:activate()
 			end
 		end
 
@@ -417,7 +416,7 @@ end
 
 function Level:spawnCollectible(pos, data)
 	self.collectibles:append(Collectible(nil, pos, data))
-	game:playSound("collectible_spawn_" .. data.type)
+	game:playSound("collectible_spawn_" .. data.type, 1, pos)
 end
 
 function Level:spawnFloatingText(text, pos, font)

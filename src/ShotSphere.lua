@@ -80,7 +80,7 @@ function ShotSphere:moveStep()
 			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitSphere.sphereID, self.color)
 			badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 		end
-		game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound)
+		game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
 	end
 	-- delete if outside of the board
 	if self.pos.y < -16 then
@@ -94,8 +94,7 @@ function ShotSphere:destroy()
 	self._list:destroy(self)
 	self.sphereEntity:destroy(false)
 	self.delQueue = true
-	self.shooter.active = true
-	game:playSound("shooter_fill")
+	self.shooter:activate()
 end
 
 
