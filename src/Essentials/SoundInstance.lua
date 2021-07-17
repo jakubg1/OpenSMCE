@@ -36,7 +36,6 @@ function SoundInstance:setPitch(pitch)
 end
 
 function SoundInstance:setPos(pos)
-  print(self.sound:getAttenuationDistances())
   if pos then
     self.pos = pos
     local p = pos - NATIVE_RESOLUTION / 2
