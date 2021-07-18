@@ -48,7 +48,17 @@ function Level:update(dt)
 		self.map:update(dt)
 		self.shooter:update(dt)
 
-		self.danger = self:getDanger()
+		-- danger sound
+		local d1 = self:getDanger() and not self.lost
+		local d2 = self.danger
+		if d1 and not d2 then
+			self.dangerSound = game:playSound("warning_loop")
+		elseif not d1 and d2 then
+			self.dangerSound:stop()
+			self.dangerSound = nil
+		end
+
+		self.danger = self:getDanger() and not self.lost
 
 
 
@@ -84,7 +94,7 @@ function Level:update(dt)
 		-- Warning lights
 		local maxDistance = self:getMaxDistance()
 		if maxDistance >= self.dangerDistance and not self.lost then
-			self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 3.5 + 0.5, 0.5)
+			self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 4 + 0, 0)
 		else
 			self.warningDelayMax = nil
 		end
@@ -98,6 +108,7 @@ function Level:update(dt)
 					end
 				end
 				--game:playSound("warning", 1 + (4 - self.warningDelayMax) / 6)
+				game:playSound("warning")
 				self.warningDelay = 0
 			end
 		else
@@ -369,6 +380,7 @@ function Level:reset()
 
 	self.targetReached = false
 	self.danger = false
+	self.dangerSound = nil
 	self.warningDelay = 0
 	self.warningDelayMax = nil
 
