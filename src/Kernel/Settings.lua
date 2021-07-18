@@ -18,6 +18,7 @@ function Settings:reset()
 	if self:getBackToBoot() == nil then self:setBackToBoot(false) end
 	if self:getAimingRetical() == nil then self:setAimingRetical(true) end
 	if self:getConsoleWindow() == nil then self:setConsoleWindow(false) end
+	if self:get3DSound() == nil then self:set3DSound(true) end
 end
 
 
@@ -52,6 +53,14 @@ end
 
 function Settings:getConsoleWindow()
 	return self.data.consoleWindow
+end
+
+function Settings:set3DSound(value)
+	self.data.threedeeSound = value
+end
+
+function Settings:get3DSound()
+	return self.data.threedeeSound
 end
 
 

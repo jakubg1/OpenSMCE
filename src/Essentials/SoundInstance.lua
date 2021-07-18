@@ -33,7 +33,7 @@ function SoundInstance:setPitch(pitch)
 end
 
 function SoundInstance:setPos(pos)
-  if pos then
+  if engineSettings:get3DSound() and pos then
     self.pos = pos
     local p = pos - NATIVE_RESOLUTION / 2
     self.sound:setPosition(p.x, p.y, 0)
