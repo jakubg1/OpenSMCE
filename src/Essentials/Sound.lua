@@ -3,13 +3,13 @@ local Sound = class:derive("Sound")
 
 local SoundInstance = require("src/Essentials/SoundInstance")
 
-function Sound:new(path, looping)
+function Sound:new(path)
 	print("Loading sound data from " .. path .. "...")
 	self.INSTANCE_COUNT = 8
 	-- Each sound has 8 instances of it so it can play up to 8 instances at the same time.
 	self.instances = {}
 	for i = 1, self.INSTANCE_COUNT do
-		self.instances[i] = SoundInstance(path, looping)
+		self.instances[i] = SoundInstance(path)
 	end
 end
 
@@ -25,12 +25,13 @@ function Sound:getFreeInstance()
 	end
 end
 
-function Sound:play(pitch, pos)
+function Sound:play(pitch, pos, loop)
 	pitch = pitch or 1
 	local instance = self:getFreeInstance()
 	if instance then
 		instance:setPitch(pitch)
 		instance:setPos(pos)
+		instance:setLoop(loop)
 		instance:play()
 		return instance
 	end

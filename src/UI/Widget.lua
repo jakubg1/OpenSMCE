@@ -151,7 +151,8 @@ function UIWidget:show()
 			self.alpha = 1
 			if self.widget and self.widget.type == "particle" then self.widget:spawn() end
 		end
-		if self.sounds.in_ then self.sounds.in_:play() end
+		-- TODO: in future, this should use the sound event system
+		if self.sounds.in_ then self.sounds.in_:play(1, nil, false) end
 	end
 	self.time = self.hideDelay
 
@@ -173,7 +174,8 @@ function UIWidget:hide()
 				self.animationTime = nil -- sets to 0 if animation exists, nil otherwise
 				if self.widget and self.widget.type == "particle" then self.widget:despawn() end
 			end
-			if self.sounds.out then self.sounds.out:play() end
+			-- TODO: in future, this should use the sound event system
+			if self.sounds.out then self.sounds.out:play(1, nil, false) end
 			self.time = self.showDelay
 		else
 			self.time = nil

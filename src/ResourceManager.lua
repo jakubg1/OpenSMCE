@@ -61,10 +61,10 @@ function ResourceManager:getImage(path)
 	return self.images[path]
 end
 
-function ResourceManager:loadSound(path, loop)
+function ResourceManager:loadSound(path)
 	--print("[RB] Loading sound: " .. path .. "...")
 	local success = pcall(function()
-		self.sounds[path] = Sound(parsePath(path), loop)
+		self.sounds[path] = Sound(parsePath(path))
 	end)
 	if not success then error("Resource Bank failed to load a sound: " .. path) end
 end
@@ -133,7 +133,7 @@ function ResourceManager:loadList(list)
 		for i, data in ipairs(list.images) do self:loadImage(data.path, data.frames) end
 	end
 	if list.sounds then
-		for i, data in ipairs(list.sounds) do self:loadSound(data.path, data.loop) end
+		for i, path in ipairs(list.sounds) do self:loadSound(path) end
 	end
 	if list.music then
 		for i, path in ipairs(list.music) do self:loadMusic(path) end
@@ -172,7 +172,7 @@ function ResourceManager:stepLoadNext()
 	if objectType == "images" then
 		self:loadImage(data.path, data.frames)
 	elseif objectType == "sounds" then
-		self:loadSound(data.path, data.loop)
+		self:loadSound(data)
 	elseif objectType == "music" then
 		self:loadMusic(data)
 	elseif objectType == "particles" then

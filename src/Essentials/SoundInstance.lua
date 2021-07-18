@@ -3,13 +3,10 @@ local SoundInstance = class:derive("SoundInstance")
 
 local Vec2 = require("src/Essentials/Vector2")
 
-function SoundInstance:new(path, looping)
+function SoundInstance:new(path)
   self.sound = loadSound(path, "static")
 	if not self.sound then
     error("Failed to load sound: " .. path)
-  end
-	if looping then
-    self.sound:setLooping(looping)
   end
 
   self.pos = NATIVE_RESOLUTION / 2
@@ -45,6 +42,10 @@ function SoundInstance:setPos(pos)
     self.pos = Vec2()
     self.sound:setPosition(0, 0, 0)
   end
+end
+
+function SoundInstance:setLoop(loop)
+  self.sound:setLooping(loop)
 end
 
 function SoundInstance:isPlaying()
