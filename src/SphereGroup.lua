@@ -91,8 +91,10 @@ function SphereGroup:update(dt)
 		if self.sphereChain.stopTime > 0 and self.speed == self.maxSpeed then self.sphereChain.stopTime = math.max(self.sphereChain.stopTime - dt, 0) end
 	end
 	-- if the vise is pulling (reverse)
-	if not self.nextGroup and not self:isMagnetizing() and self.sphereChain.reverseTime > 0 then
-		if self.speed == self.maxSpeed then self.sphereChain.reverseTime = math.max(self.sphereChain.reverseTime - dt, 0) end
+	if not self.nextGroup and self.sphereChain.reverseTime > 0 then
+		if self.speed == self.maxSpeed and not self:isMagnetizing() then
+			self.sphereChain.reverseTime = math.max(self.sphereChain.reverseTime - dt, 0)
+		end
 		-- if it goes too far, nuke the powerup
 		if self:getLastSphereOffset() < 0 then self.sphereChain.reverseTime = 0 end
 	end
