@@ -18,7 +18,7 @@ function Console:new()
 	self.MAX_MESSAGES = 20
 
 	self.font = love.graphics.newFont()
-	self.consoleFont = love.graphics.newFont(16)
+	self.consoleFont = love.graphics.newFont("unifont.ttf", 16)
 end
 
 function Console:update(dt)
