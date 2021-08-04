@@ -39,7 +39,8 @@ function UIManager:new()
     optionsSave = function() self:optionsSave() end,
 
 
-    getWidgetN = function(names) return self:getWidgetN(names) end
+    getWidgetN = function(names) return self:getWidgetN(names) end,
+    resetActive = function() self:resetActive() end
   }
 end
 
