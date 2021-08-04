@@ -54,6 +54,10 @@ function Profile:getCurrentLevelConfig()
 	return game.configManager.config.levels[self:getLevel()]
 end
 
+function Profile:getNextLevelConfig()
+	return game.configManager.config.levels[self:getLevel() + 1]
+end
+
 
 function Profile:getCurrentLevelData()
 	return self.data.levels[tostring(self:getLevel())]
@@ -142,10 +146,6 @@ end
 function Profile:advanceLevel()
 	self:incrementLevel()
 	game:playSound("level_advance")
-	local checkpoint = self:getCurrentLevelConfig().checkpoint
-	if checkpoint then
-		game:playSound("checkpoint")
-	end
 end
 
 function Profile:getLevelHighscoreInfo(score)
