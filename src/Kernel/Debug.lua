@@ -64,10 +64,11 @@ function Debug:draw()
 			love.graphics.print(line[1], 10, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[2], 260, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[3], 270, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[4], 290, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[5], 320, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[6], 350, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[7], 380, 10 + i * 15 + self.uiDebugOffset)
+			love.graphics.print(line[4], 280, 10 + i * 15 + self.uiDebugOffset)
+			love.graphics.print(line[5], 300, 10 + i * 15 + self.uiDebugOffset)
+			love.graphics.print(line[6], 320, 10 + i * 15 + self.uiDebugOffset)
+			love.graphics.print(line[7], 340, 10 + i * 15 + self.uiDebugOffset)
+			love.graphics.print(line[8], 360, 10 + i * 15 + self.uiDebugOffset)
 		end
 	end
 
@@ -106,7 +107,7 @@ end
 
 
 function Debug:getUITreeText(widget, rowTable, indent)
-	widget = widget or game.widgets["root"]
+	widget = widget or game.uiManager.widgets["root"]
 	rowTable = rowTable or {}
 	indent = indent or 0
 	--if indent > 1 then return end
@@ -114,13 +115,14 @@ function Debug:getUITreeText(widget, rowTable, indent)
 	local name = widget.name
 	for i = 1, indent do name = "    " .. name end
 	local visible = widget.visible and "X" or ""
-	local visible2 = widget:getVisible() and "V" or ""
+	local visible2 = widget:isVisible() and "V" or ""
+	local active = widget:isActive() and "A" or ""
 	local alpha = tostring(math.floor(widget.alpha * 10) / 10)
 	local alpha2 = tostring(math.floor(widget:getAlpha() * 10) / 10)
 	local time = widget.time and tostring(math.floor(widget.time * 100) / 100) or "-"
 	local pos = tostring(widget.pos)
 	--if widget:getVisible() then
-		table.insert(rowTable, {name, visible, visible2, alpha, alpha2, time, pos})
+		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos})
 	--end
 
 	--if

@@ -312,6 +312,7 @@ function UIWidget:isVisible()
 end
 
 function UIWidget:isActive()
+	if not self.widget then return false end
 	return self:isVisible() and self.active and self.widget.enableForced
 end
 
