@@ -81,6 +81,12 @@ function ParticleManager:getParticlePieceCount()
 end
 
 function ParticleManager:clear()
+	for i, particlePacket in ipairs(self.particlePackets) do
+		particlePacket.delQueue = true
+	end
+	for i, particleSpawner in ipairs(self.particleSpawners) do
+		particleSpawner.delQueue = true
+	end
 	self.particlePackets = {}
 	self.particleSpawners = {}
 end

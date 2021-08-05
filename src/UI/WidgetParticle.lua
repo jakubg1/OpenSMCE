@@ -16,9 +16,12 @@ end
 
 function UIWidgetParticle:update(dt)
 	self.manager:update(dt)
-	if self.packet and self.packet.delQueue then
-		self.packet = nil
-		self.parent:executeAction("particleDespawn")
+	if self.packet then
+		self.packet.pos = self.parent:getPos()
+		if self.packet.delQueue then
+			self.packet = nil
+			self.parent:executeAction("particleDespawn")
+		end
 	end
 end
 
