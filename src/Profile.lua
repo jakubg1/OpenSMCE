@@ -132,13 +132,17 @@ function Profile:getUnlockedCheckpoints()
 	return self.data.checkpoints
 end
 
-function Profile:unlockCheckpoint(n)
-	-- check if it's already unlocked
+function Profile:isCheckpointUnlocked(n)
 	for i, o in ipairs(self.data.checkpoints) do
 		if n == o then
-			return
+			return true
 		end
 	end
+	return false
+end
+
+function Profile:unlockCheckpoint(n)
+	if self:isCheckpointUnlocked(n) then return end
 	table.insert(self.data.checkpoints, n)
 end
 
