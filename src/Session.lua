@@ -43,11 +43,12 @@ function Session:update(dt)
 	if self.level then self.level:update(dt) end
 
 	-- TODO: HARDCODED - make it more flexible
-	if self.scoreDisplay < game.runtimeManager.profile:getScore() then
-		self.scoreDisplay = self.scoreDisplay + math.ceil((game.runtimeManager.profile:getScore() - self.scoreDisplay) / 10)
+	local s = game.uiManager.widgetVariables.score or 0
+	if self.scoreDisplay < s then
+		self.scoreDisplay = self.scoreDisplay + math.ceil((s - self.scoreDisplay) / 10)
 	end
-	if self.scoreDisplay > game.runtimeManager.profile:getScore() then
-		self.scoreDisplay = self.scoreDisplay + math.floor((game.runtimeManager.profile:getScore() - self.scoreDisplay) / 10)
+	if self.scoreDisplay > s then
+		self.scoreDisplay = self.scoreDisplay + math.floor((s - self.scoreDisplay) / 10)
 	end
 end
 

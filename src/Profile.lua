@@ -13,7 +13,9 @@ function Profile:new(data, name)
 	end
 
 	self.mapData = nil
-	self:reloadMapData()
+	if self:getSession() then
+		self:reloadMapData()
+	end
 end
 
 
@@ -24,6 +26,10 @@ function Profile:reset()
 	self.data = {}
 	self.data.levels = {}
 	self:newGame()
+end
+
+function Profile:getSession()
+	return self.data.session
 end
 
 function Profile:reloadMapData()

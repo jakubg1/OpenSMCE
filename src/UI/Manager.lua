@@ -89,17 +89,28 @@ end
 
 function UIManager:draw()
 	if game:sessionExists() then
-		self.widgetVariables.lives = game.runtimeManager.profile:getLives()
-		self.widgetVariables.coins = game.runtimeManager.profile:getCoins()
-		self.widgetVariables.score = numStr(game.runtimeManager.profile:getScore())
-		self.widgetVariables.scoreAnim = numStr(game.session.scoreDisplay)
-		self.widgetVariables.player = game.runtimeManager.profile.name
-		self.widgetVariables.levelName = game.runtimeManager.profile:getCurrentLevelConfig().name
-		self.widgetVariables.levelMapName = game.runtimeManager.profile.mapData.name
-		self.widgetVariables.stageName = game.configManager.config.stageNamesTEMP[game.runtimeManager.profile:getCurrentLevelConfig().stage]
-		if not self.widgetVariables.progress then
-			self.widgetVariables.progress = 0
-		end
+    self.widgetVariables.player = game.runtimeManager.profile.name
+    self.widgetVariables.scoreAnim = numStr(game.session.scoreDisplay)
+    if not self.widgetVariables.progress then
+      self.widgetVariables.progress = 0
+    end
+    if game.runtimeManager.profile:getSession() then
+  		self.widgetVariables.lives = game.runtimeManager.profile:getLives()
+  		self.widgetVariables.coins = game.runtimeManager.profile:getCoins()
+  		self.widgetVariables.score = game.runtimeManager.profile:getScore()
+  		self.widgetVariables.scoreStr = numStr(self.widgetVariables.score)
+  		self.widgetVariables.levelName = game.runtimeManager.profile:getCurrentLevelConfig().name
+  		self.widgetVariables.levelMapName = game.runtimeManager.profile.mapData.name
+  		self.widgetVariables.stageName = game.configManager.config.stageNamesTEMP[game.runtimeManager.profile:getCurrentLevelConfig().stage]
+    else
+  		self.widgetVariables.lives = 0
+  		self.widgetVariables.coins = 0
+  		self.widgetVariables.score = 0
+  		self.widgetVariables.scoreStr = ""
+  		self.widgetVariables.levelName = ""
+  		self.widgetVariables.levelMapName = ""
+  		self.widgetVariables.stageName = ""
+    end
 	end
 
 	if game:levelExists() then
