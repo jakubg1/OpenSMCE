@@ -150,13 +150,13 @@ end
 
 -- General
 
-function Profile:newGame()
+function Profile:newGame(checkpoint)
 	self.data.session = {}
 	self.data.session.lives = 2
 	self.data.session.coins = 0
 	self.data.session.score = 0
 	self.data.session.difficulty = 1
-	self:setLevel(1)
+	self:setLevel(game.configManager.config.checkpoints[checkpoint or 1].level)
 end
 
 
