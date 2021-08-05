@@ -126,15 +126,10 @@ end
 
 
 
--- General
+-- Unlocked checkpoints
 
-function Profile:newGame()
-	self.data.session = {}
-	self.data.session.lives = 2
-	self.data.session.coins = 0
-	self.data.session.score = 0
-	self.data.session.difficulty = 1
-	self:setLevel(1)
+function Profile:getUnlockedCheckpoints()
+	return self.data.checkpoints
 end
 
 function Profile:unlockCheckpoint(n)
@@ -145,6 +140,19 @@ function Profile:unlockCheckpoint(n)
 		end
 	end
 	table.insert(self.data.checkpoints, n)
+end
+
+
+
+-- General
+
+function Profile:newGame()
+	self.data.session = {}
+	self.data.session.lives = 2
+	self.data.session.coins = 0
+	self.data.session.score = 0
+	self.data.session.difficulty = 1
+	self:setLevel(1)
 end
 
 
