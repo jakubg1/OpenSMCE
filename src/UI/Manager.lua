@@ -33,6 +33,7 @@ function UIManager:new()
     profileLevelAdvance = function() game.runtimeManager.profile:advanceLevel() end,
     profileHighscoreWrite = function() self:profileHighscoreWrite() end,
     profileGetSession = function() return game.runtimeManager.profile:getSession() end,
+    profileGetLevelN = function() return game.runtimeManager.profile:getLevel() end,
     profileGetLevel = function() return game.runtimeManager.profile:getCurrentLevelConfig() end,
     profileGetNextLevel = function() return game.runtimeManager.profile:getNextLevelConfig() end,
     profileGetSavedLevel = function() return game.runtimeManager.profile:getSavedLevel() end,
