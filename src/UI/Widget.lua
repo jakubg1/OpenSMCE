@@ -71,6 +71,7 @@ function UIWidget:new(name, data, parent)
 	self.inheritPos = data.inheritPos
 	if self.inheritPos == nil then self.inheritPos = true end
 	self.visible = false
+	self.neverDisabled = data.neverDisabled
 	self.animationTime = nil
 	self.hideDelay = data.hideDelay
 	self.showDelay = data.showDelay

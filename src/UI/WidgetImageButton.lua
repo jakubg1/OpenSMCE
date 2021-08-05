@@ -47,7 +47,7 @@ function UIWidgetImageButton:draw()
 	local pos2 = pos + self.image.size * Vec2(1, 0.25)
 	local alpha = self.parent:getAlpha()
 
-	self.enabled = self.enableForced and alpha == 1
+	self.enabled = self.enableForced and (alpha == 1 or parent.neverDisabled)
 	local hovered = self.enabled and self.parent.active and mousePos.x >= pos.x and mousePos.y >= pos.y and mousePos.x <= pos2.x and mousePos.y <= pos2.y
 	if hovered ~= self.hovered then
 		self.hovered = hovered
