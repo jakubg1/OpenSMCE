@@ -159,6 +159,10 @@ function Profile:newGame(checkpoint)
 	self:setLevel(game.configManager.config.checkpoints[checkpoint or 1].level)
 end
 
+function Profile:deleteGame()
+	self.session = nil
+end
+
 
 
 -- Level

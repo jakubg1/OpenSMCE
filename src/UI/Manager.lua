@@ -30,6 +30,7 @@ function UIManager:new()
     musicVolume = function(music, volume) game:getMusic(music):setVolume(volume) end,
 
     profileNewGame = function(checkpoint) game.runtimeManager.profile:newGame(checkpoint) end,
+    profileDeleteGame = function() game.runtimeManager.profile:deleteGame() end,
     profileLevelAdvance = function() game.runtimeManager.profile:advanceLevel() end,
     profileHighscoreWrite = function() self:profileHighscoreWrite() end,
     profileGetSession = function() return game.runtimeManager.profile:getSession() end,
