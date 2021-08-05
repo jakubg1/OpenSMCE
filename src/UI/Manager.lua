@@ -161,10 +161,18 @@ end
 
 
 
-function UIManager:executeCallback(callbackType)
-  local f = self.script[callbackType]
+function UIManager:executeCallback(data)
+  local name = ""
+  local params = {}
+  if type(data) == "string" then
+    name = data
+  else
+    name = data.name
+    params = data.parameters
+  end
+  local f = self.script[name]
   if f then
-    f(self.scriptFunctions)
+    f(self.scriptFunctions, params)
   end
 end
 
