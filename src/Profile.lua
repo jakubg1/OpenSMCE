@@ -160,7 +160,7 @@ function Profile:newGame(checkpoint)
 end
 
 function Profile:deleteGame()
-	self.session = nil
+	self.data.session = nil
 end
 
 
