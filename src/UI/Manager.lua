@@ -104,7 +104,7 @@ function UIManager:draw()
   		self.widgetVariables.scoreStr = numStr(self.widgetVariables.score)
   		self.widgetVariables.levelName = game.runtimeManager.profile:getCurrentLevelConfig().name
   		self.widgetVariables.levelMapName = game.runtimeManager.profile.mapData.name
-  		self.widgetVariables.stageName = game.configManager.config.stageNamesTEMP[game.runtimeManager.profile:getCurrentLevelConfig().stage]
+  		self.widgetVariables.stageName = game.configManager.config.checkpoints[game.runtimeManager.profile:getCurrentLevelConfig().stage].name
     else
   		self.widgetVariables.lives = 0
   		self.widgetVariables.coins = 0

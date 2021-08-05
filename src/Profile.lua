@@ -25,6 +25,7 @@ end
 function Profile:reset()
 	self.data = {}
 	self.data.levels = {}
+	self.data.checkpoints = {1}
 	self:newGame()
 end
 
@@ -136,6 +137,16 @@ function Profile:newGame()
 	self:setLevel(1)
 end
 
+function Profile:unlockCheckpoint(n)
+	-- check if it's already unlocked
+	for i, o in ipairs(self.data.checkpoints) do
+		if n == o then
+			return
+		end
+	end
+	table.insert(self.data.checkpoints, n)
+end
+
 
 
 -- Level
@@ -152,6 +163,9 @@ end
 function Profile:advanceLevel()
 	self:incrementLevel()
 	game:playSound("level_advance")
+	if self:getCurrentLevelConfig().checkpoint > 0 then
+		self:unlockCheckpoint(self:getCurrentLevelConfig().checkpoint)
+	end
 end
 
 function Profile:getLevelHighscoreInfo(score)
