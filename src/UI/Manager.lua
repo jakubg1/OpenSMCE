@@ -133,9 +133,12 @@ function UIManager:draw()
 	end
 
 	-- Widgets
+	for widgetN, widget in pairs(self.widgets) do
+		widget:generateDrawData(self.widgetVariables)
+	end
 	for i, layer in ipairs(game.configManager.config.hudLayerOrder) do
 		for widgetN, widget in pairs(self.widgets) do
-			widget:draw(layer, self.widgetVariables)
+			widget:draw(layer)
 		end
 	end
 end
