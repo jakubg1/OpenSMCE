@@ -11,11 +11,6 @@ function Profile:new(data, name)
 		-- TODO: change behavior after ProfileManager is done
 		self:reset()
 	end
-
-	self.mapData = nil
-	if self:getSession() then
-		self:reloadMapData()
-	end
 end
 
 
@@ -33,10 +28,8 @@ function Profile:getSession()
 	return self.data.session
 end
 
-function Profile:reloadMapData()
-	local levelData = loadJson(parsePath(self:getCurrentLevelConfig().path))
-	local path = "maps/" .. levelData.map
-	self.mapData = loadJson(parsePath(path .. "/config.json"))
+function Profile:getMapData()
+	return game.configManager.maps[game.configManager.levels[self:getLevel()].map]
 end
 
 
@@ -49,7 +42,6 @@ end
 
 function Profile:setLevel(level)
 	self.data.session.level = level
-	self:reloadMapData()
 end
 
 function Profile:incrementLevel()

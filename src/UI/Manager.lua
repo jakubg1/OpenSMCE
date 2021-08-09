@@ -37,13 +37,15 @@ function UIManager:new()
     profileGetLevelN = function() return game.runtimeManager.profile:getLevel() end,
     profileGetLevel = function() return game.runtimeManager.profile:getCurrentLevelConfig() end,
     profileGetNextLevel = function() return game.runtimeManager.profile:getNextLevelConfig() end,
-    profileGetLevelMapName = function() return game.runtimeManager.profile.mapData.name end,
     profileGetSavedLevel = function() return game.runtimeManager.profile:getSavedLevel() end,
+    profileGetMap = function() return game.runtimeManager.profile:getMapData() end,
     profileGetCheckpoint = function() return game.runtimeManager.profile:getCurrentCheckpointConfig() end,
     profileGetUnlockedCheckpoints = function() return game.runtimeManager.profile:getUnlockedCheckpoints() end,
     profileIsCheckpointUnlocked = function(n) return game.runtimeManager.profile:isCheckpointUnlocked(n) end,
 
     configGetLevelData = function(n) return game.configManager.config.levels[n] end,
+    configGetLevelData2 = function(n) return game.configManager.levels[n] end,
+    configGetMapData = function(name) return game.configManager.maps[name] end,
     configGetCheckpointData = function(n) return game.configManager.config.checkpoints[n] end,
 
     optionsLoad = function() self:optionsLoad() end,
@@ -111,7 +113,7 @@ function UIManager:draw()
   		self.widgetVariables.score = game.runtimeManager.profile:getScore()
   		self.widgetVariables.scoreStr = numStr(self.widgetVariables.score)
   		self.widgetVariables.levelName = game.runtimeManager.profile:getCurrentLevelConfig().name
-  		self.widgetVariables.levelMapName = game.runtimeManager.profile.mapData.name
+  		self.widgetVariables.levelMapName = game.runtimeManager.profile:getMapData().name
   		self.widgetVariables.stageName = game.configManager.config.checkpoints[game.runtimeManager.profile:getCurrentLevelConfig().stage].name
     else
   		self.widgetVariables.lives = 0

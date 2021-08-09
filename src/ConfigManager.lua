@@ -15,6 +15,16 @@ function ConfigManager:new()
 	for k, v in pairs(configSpheres) do
 		self.spheres[tonumber(k)] = v
 	end
+
+	self.levels = {}
+	self.maps = {}
+	for i, levelConfig in ipairs(self.config.levels) do
+		local level = loadJson(parsePath(levelConfig.path))
+		self.levels[i] = level
+		if not self.maps[level.map] then
+			self.maps[level.map] = loadJson(parsePath("maps/" .. level.map .. "/config.json"))
+		end
+	end
 end
 
 return ConfigManager
