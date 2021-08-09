@@ -22,8 +22,6 @@ local ColorManager = require("src/ColorManager")
 --- Object constructor.
 -- A callback executed when this object is created.
 function Session:new()
-	self.scoreDisplay = 0
-
 	self.level = nil
 	self.colorManager = ColorManager()
 end
@@ -41,15 +39,6 @@ end
 -- @tparam number dt Delta time in seconds.
 function Session:update(dt)
 	if self.level then self.level:update(dt) end
-
-	-- TODO: HARDCODED - make it more flexible
-	local s = game.uiManager.widgetVariables.score or 0
-	if self.scoreDisplay < s then
-		self.scoreDisplay = self.scoreDisplay + math.ceil((s - self.scoreDisplay) / 10)
-	end
-	if self.scoreDisplay > s then
-		self.scoreDisplay = self.scoreDisplay + math.floor((s - self.scoreDisplay) / 10)
-	end
 end
 
 

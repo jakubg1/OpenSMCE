@@ -9,7 +9,6 @@ local UIWidget = require("src/UI/Widget")
 
 function UIManager:new()
   self.widgets = {splash = nil, main = nil}
-  self.widgetVariables = {}
 
   self.script = nil
   self.scriptFunctions = {
@@ -27,12 +26,27 @@ function UIManager:new()
     levelSave = function() game.session:levelSave() end,
     quit = function() game:quit() end,
 
+    levelExists = function() return game:levelExists() end,
+    levelGetProgress = function() return game.session.level.destroyedSpheres / game.session.level.target end,
+    levelGetScore = function() return game.session.level.score end,
+    levelGetShots = function() return game.session.level.spheresShot end,
+    levelGetCoins = function() return game.session.level.coins end,
+    levelGetGems = function() return game.session.level.gems end,
+    levelGetChains = function() return game.session.level.sphereChainsSpawned end,
+    levelGetMaxCombo = function() return game.session.level.maxCombo end,
+    levelGetMaxChain = function() return game.session.level.maxChain end,
+
     musicVolume = function(music, volume) game:getMusic(music):setVolume(volume) end,
 
     profileNewGame = function(checkpoint) game.runtimeManager.profile:newGame(checkpoint) end,
     profileDeleteGame = function() game.runtimeManager.profile:deleteGame() end,
     profileLevelAdvance = function() game.runtimeManager.profile:advanceLevel() end,
     profileHighscoreWrite = function() self:profileHighscoreWrite() end,
+
+    profileGetName = function() return game.runtimeManager.profile.name end,
+    profileGetLives = function() return game.runtimeManager.profile:getLives() end,
+    profileGetCoins = function() return game.runtimeManager.profile:getCoins() end,
+    profileGetScore = function() return game.runtimeManager.profile:getScore() end,
     profileGetSession = function() return game.runtimeManager.profile:getSession() end,
     profileGetLevelN = function() return game.runtimeManager.profile:getLevel() end,
     profileGetLevel = function() return game.runtimeManager.profile:getCurrentLevelConfig() end,
@@ -42,6 +56,8 @@ function UIManager:new()
     profileGetCheckpoint = function() return game.runtimeManager.profile:getCurrentCheckpointConfig() end,
     profileGetUnlockedCheckpoints = function() return game.runtimeManager.profile:getUnlockedCheckpoints() end,
     profileIsCheckpointUnlocked = function(n) return game.runtimeManager.profile:isCheckpointUnlocked(n) end,
+
+    highscoreGetEntry = function(n) return game.runtimeManager.highscores:getEntry(n) end,
 
     configGetLevelData = function(n) return game.configManager.config.levels[n] end,
     configGetLevelData2 = function(n) return game.configManager.levels[n] end,
@@ -101,45 +117,9 @@ function UIManager:update(dt)
 end
 
 function UIManager:draw()
-	if game:sessionExists() then
-    self.widgetVariables.player = game.runtimeManager.profile.name
-    self.widgetVariables.scoreAnim = numStr(game.session.scoreDisplay)
-    if not self.widgetVariables.progress then
-      self.widgetVariables.progress = 0
-    end
-    if game.runtimeManager.profile:getSession() then
-  		self.widgetVariables.lives = game.runtimeManager.profile:getLives()
-  		self.widgetVariables.coins = game.runtimeManager.profile:getCoins()
-  		self.widgetVariables.score = game.runtimeManager.profile:getScore()
-  		self.widgetVariables.scoreStr = numStr(self.widgetVariables.score)
-  		self.widgetVariables.levelName = game.runtimeManager.profile:getCurrentLevelConfig().name
-  		self.widgetVariables.levelMapName = game.runtimeManager.profile:getMapData().name
-  		self.widgetVariables.stageName = game.configManager.config.checkpoints[game.runtimeManager.profile:getCurrentLevelConfig().stage].name
-    else
-  		self.widgetVariables.lives = 0
-  		self.widgetVariables.coins = 0
-  		self.widgetVariables.score = 0
-  		self.widgetVariables.scoreStr = ""
-  		self.widgetVariables.levelName = ""
-  		self.widgetVariables.levelMapName = ""
-  		self.widgetVariables.stageName = ""
-    end
-	end
-
-	if game:levelExists() then
-		self.widgetVariables.progress = game.session.level.destroyedSpheres / game.session.level.target
-		self.widgetVariables.levelScore = numStr(game.session.level.score)
-		self.widgetVariables.levelShots = game.session.level.spheresShot
-		self.widgetVariables.levelCoins = game.session.level.coins
-		self.widgetVariables.levelGems = game.session.level.gems
-		self.widgetVariables.levelChains = game.session.level.sphereChainsSpawned
-		self.widgetVariables.levelMaxCombo = game.session.level.maxCombo
-		self.widgetVariables.levelMaxChain = game.session.level.maxChain
-	end
-
 	-- Widgets
 	for widgetN, widget in pairs(self.widgets) do
-		widget:generateDrawData(self.widgetVariables)
+		widget:generateDrawData()
 	end
 	for i, layer in ipairs(game.configManager.config.hudLayerOrder) do
 		for widgetN, widget in pairs(self.widgets) do

@@ -100,25 +100,29 @@ function Game:tick(dt) -- always with 1/60 seconds
 	if self.particleManager then self.particleManager:update(dt) end
 
 	-- Discord Rich Presence
+	local p = self.runtimeManager.profile
 	local line1 = "Playing: " .. self.name
+	local line2 = ""
 	if self:levelExists() then
-		local line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
-			self.uiManager.widgetVariables.levelName,
-			self.session.level.won and "Complete!" or string.format("%s%%", math.floor(self.uiManager.widgetVariables.progress * 100)),
-			self.uiManager.widgetVariables.score,
-			self.uiManager.widgetVariables.lives
+		local l = self.session.level
+		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
+			p:getCurrentLevelConfig().name,
+			l.won and "Complete!" or string.format("%s%%", math.floor((l.destroyedSpheres / l.target) * 100)),
+			p:getScore(),
+			p:getLives()
 		)
-		if self.session.level.pause then
+		if l.pause then
 			line1 = line1 .. " - Paused"
 		end
-		discordRPC:setStatus(line1, line2)
-	else
-		local line2 = string.format("In menus, Score: %s, Lives: %s",
-			self.uiManager.widgetVariables.score,
-			self.uiManager.widgetVariables.lives
+	elseif p:getSession() then
+		line2 = string.format("In menus, Score: %s, Lives: %s",
+			p:getScore(),
+			p:getLives()
 		)
-		discordRPC:setStatus(line1, line2)
+	else
+		line2 = string.format("In menus")
 	end
+	discordRPC:setStatus(line1, line2)
 end
 
 function Game:sessionExists()

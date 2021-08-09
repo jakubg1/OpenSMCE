@@ -81,10 +81,8 @@ function UIWidget:new(name, data, parent)
 	self.active = false
 	self.hotkey = data.hotkey
 
-	self.variables = data.variables
 	self.callbacks = data.callbacks
 
-	self.drawVariables = nil
 
 
 	-- init animation alpha/position
@@ -249,19 +247,13 @@ end
 
 
 
-function UIWidget:generateDrawData(variables)
-	if self.variables then
-		for variableN, variable in pairs(self.variables) do
-			variables[variableN] = variable
-		end
-	end
+function UIWidget:generateDrawData()
 	for childN, child in pairs(self.children) do
-		child:generateDrawData(variables)
+		child:generateDrawData()
 	end
 	if self.widget and self.widget.type == "text" then
-		self.widget.textTmp = parseString(self.widget.text, variables)
+		self.widget.textTmp = parseString(self.widget.text)
 	end
-	self.drawVariables = variables
 end
 
 function UIWidget:draw(layer)
@@ -269,7 +261,7 @@ function UIWidget:draw(layer)
 		child:draw(layer)
 	end
 	if self:getAlpha() == 0 then return end -- why drawing excessively?
-	if self.widget and self:getLayer() == layer then self.widget:draw(self.drawVariables) end
+	if self.widget and self:getLayer() == layer then self.widget:draw() end
 end
 
 function UIWidget:getFullName()
