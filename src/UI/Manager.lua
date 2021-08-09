@@ -37,10 +37,13 @@ function UIManager:new()
     profileGetLevelN = function() return game.runtimeManager.profile:getLevel() end,
     profileGetLevel = function() return game.runtimeManager.profile:getCurrentLevelConfig() end,
     profileGetNextLevel = function() return game.runtimeManager.profile:getNextLevelConfig() end,
+    profileGetLevelMapName = function() return game.runtimeManager.profile.mapData.name end,
     profileGetSavedLevel = function() return game.runtimeManager.profile:getSavedLevel() end,
+    profileGetCheckpoint = function() return game.runtimeManager.profile:getCurrentCheckpointConfig() end,
     profileGetUnlockedCheckpoints = function() return game.runtimeManager.profile:getUnlockedCheckpoints() end,
     profileIsCheckpointUnlocked = function(n) return game.runtimeManager.profile:isCheckpointUnlocked(n) end,
 
+    configGetLevelData = function(n) return game.configManager.config.levels[n] end,
     configGetCheckpointData = function(n) return game.configManager.config.checkpoints[n] end,
 
     optionsLoad = function() self:optionsLoad() end,

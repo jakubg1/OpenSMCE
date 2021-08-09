@@ -65,6 +65,10 @@ function Profile:getNextLevelConfig()
 	return game.configManager.config.levels[self:getLevel() + 1]
 end
 
+function Profile:getCurrentCheckpointConfig()
+	return game.configManager.config.checkpoints[self:getCurrentLevelConfig().stage]
+end
+
 
 function Profile:getCurrentLevelData()
 	return self.data.levels[tostring(self:getLevel())]
