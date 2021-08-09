@@ -4,10 +4,19 @@
 This is a **LÖVE2D** project. The supported version of the engine is **11.3**
 
 ## Current Status
-This project is currently on a temporary hiatus. I will be back at development approximately on July 8, 2021.
+This project is currently work-in-progress. Currently the most effort is spent to rework UI system, and soon Beta 4.0.0 will be released. This version will offer massive improvements compared to Beta 3.0.0, and will **not** be compatible with existing games.
 
-### What is to be finished?
-When I get back to the development, the first priority will be to release the full 1.0.0 version.
+### Roadmap
+- Split the game config file into respective files.
+- Split sound events and sprites into separate files for each.
+- Optimize sphere drawing routine.
+- Add remaining Luxor 1 functionality (profile selector).
+- Make progress autosave functionality, emergency save function.
+- Fix bugs.
+For more information, you can take a look [here](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Full+1.0+release%22).
+
+### Further plans
+The first priority is to release the full 1.0.0 version.
 This will happen once Luxor 1 support is considered finished. Look at the issue [#5](https://github.com/jakubg1/OpenSMCE/issues/5) for more information.
 
 ## Overview
