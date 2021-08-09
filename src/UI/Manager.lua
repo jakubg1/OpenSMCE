@@ -41,7 +41,7 @@ function UIManager:new()
     profileNewGame = function(checkpoint) game.runtimeManager.profile:newGame(checkpoint) end,
     profileDeleteGame = function() game.runtimeManager.profile:deleteGame() end,
     profileLevelAdvance = function() game.runtimeManager.profile:advanceLevel() end,
-    profileHighscoreWrite = function() self:profileHighscoreWrite() end,
+    profileHighscoreWrite = function() return game.runtimeManager.profile:writeHighscore() end,
 
     profileGetName = function() return game.runtimeManager.profile.name end,
     profileGetLives = function() return game.runtimeManager.profile:getLives() end,
@@ -191,15 +191,6 @@ end
 
 function UIManager:getWidgetN(names)
   return self:getWidget(strSplit(names, "/"))
-end
-
-function UIManager:profileHighscoreWrite()
-  local success = game.runtimeManager.profile:writeHighscore()
-  if success then
-    self:executeCallback("profileHighscoreWriteSuccess")
-  else
-    self:executeCallback("profileHighscoreWriteFail")
-  end
 end
 
 function UIManager:optionsLoad()

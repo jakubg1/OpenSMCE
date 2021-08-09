@@ -97,6 +97,7 @@ end
 function Profile:grantCoin()
 	self.data.session.coins = self.data.session.coins + 1
 	if self.data.session.coins == 30 then self:grantLife() end
+	game.uiManager:executeCallback("newCoin")
 end
 
 
@@ -110,7 +111,7 @@ end
 function Profile:grantLife()
 	self.data.session.lives = self.data.session.lives + 1
 	self.data.session.coins = 0
-	game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.profile_extralife):show()
+	game.uiManager:executeCallback("newLife")
 end
 
 function Profile:takeLife()
@@ -215,9 +216,9 @@ function Profile:writeHighscore()
 	local pos = game.runtimeManager.highscores:getPosition(self:getScore())
 	if not pos then return false end
 
-	-- returns true if it got into top 10
+	-- returns the position if it got into top 10
 	game.runtimeManager.highscores:storeProfile(self, pos)
-	return true
+	return pos
 end
 
 
