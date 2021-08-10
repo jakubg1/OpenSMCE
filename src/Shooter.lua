@@ -31,7 +31,7 @@ function Shooter:new()
 
 	self.sphereEntity = nil
 
-	self.config = game.configManager.config.gameplay.shooter
+	self.config = game.configManager.gameplay.shooter
 end
 
 

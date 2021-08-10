@@ -27,7 +27,7 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	self.maxSpeed = 0
 	self.sphereShadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
 
-	self.config = game.configManager.config.gameplay.sphereBehaviour
+	self.config = game.configManager.gameplay.sphereBehaviour
 
 	self.delQueue = false
 end

@@ -6,6 +6,7 @@ local CollectibleGeneratorManager = require("src/CollectibleGenerator/Manager")
 function ConfigManager:new()
 	self.config = loadJson(parsePath("config.json"))
 
+	self.gameplay = loadJson(parsePath("config/gameplay.json"))
 	self.powerups = loadJson(parsePath("config/powerups.json"))
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()

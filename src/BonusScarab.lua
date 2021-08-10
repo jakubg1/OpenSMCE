@@ -7,7 +7,7 @@ local Color = require("src/Essentials/Color")
 function BonusScarab:new(path, deserializationTable)
 	self.path = path
 
-	self.config = game.configManager.config.gameplay.bonusScarab
+	self.config = game.configManager.gameplay.bonusScarab
 
 
 

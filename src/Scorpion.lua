@@ -7,7 +7,7 @@ local Color = require("src/Essentials/Color")
 function Scorpion:new(path, deserializationTable)
 	self.path = path
 
-	self.config = game.configManager.config.gameplay.scorpion
+	self.config = game.configManager.gameplay.scorpion
 
 
 
