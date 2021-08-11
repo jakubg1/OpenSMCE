@@ -252,6 +252,28 @@ function saveJson(path, data)
 	saveFile(path, jsonBeautify(json.encode(data)))
 end
 
+function getDirListing(path)
+	-- If it's compiled /fused/, this piece of code is needed to be able to read the external files
+	if love.filesystem.isFused() then
+		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), "")
+		if not success then
+			local msg = string.format("Failed to read contents of folder: \"%s\". Report this error to a developer.", path)
+			error(msg)
+		end
+	end
+	-- Now we can access the directory regardless of whether it's fused or not.
+	local items = love.filesystem.getDirectoryItems(path)
+	-- Each folder will get a / character on the end so it's easier to tell whether this is a file or a directory.
+	for i, item in ipairs(items) do
+		if love.filesystem.getInfo(path .. "/" .. item).type == "directory" then
+			items[i] = item .. "/"
+		end
+	end
+	-- Unmount it so we don't get into safety problems.
+	love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
+	return items
+end
+
 function parseString(data, variables)
 	if not data then return nil end
 	if type(data) == "string" then return data end

@@ -65,27 +65,20 @@ function BootScreen:getGames()
 
 	local games = {}
 
-	-- If it's compiled /fused/, this piece of code is therefore needed to be able to read the external files
-	if love.filesystem.isFused() then
-		print("This is a compiled version. Mounting games...")
-		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), "")
-		if not success then error("Failed to read the game list. Report this error to a developer.") end
-	end
-	-- Now we can access the games directory regardless of whether it's fused or not.
-	local folders = love.filesystem.getDirectoryItems("games")
-	for i, folder in ipairs(folders) do
-		-- We check whether we can open the config.json file. If not, we skip the name.
-		print("Checking folder \"" .. folder .. "\"...")
-		local success, result = pcall(function() return loadJson("games/" .. folder .. "/config.json") end)
-		if success then
-			table.insert(games, {name = folder, config = result})
-			print("SUCCESS!")
-		else
-			print("FAIL!")
+	for i, folder in ipairs(getDirListing("games")) do
+		local l = folder:len()
+		if folder:sub(l, l) == "/" then
+			local name = folder:sub(1, l - 1)
+			print("Checking folder \"" .. name .. "\"...")
+			local success, result = pcall(function() return loadJson("games/" .. name .. "/config.json") end)
+			if success then
+				table.insert(games, {name = name, config = result})
+				print("SUCCESS!")
+			else
+				print("FAIL!")
+			end
 		end
 	end
-	-- After the reading process, we can unmount the listing again.
-	love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
 
 	return games
 end
