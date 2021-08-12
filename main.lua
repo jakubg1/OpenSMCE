@@ -252,7 +252,13 @@ function saveJson(path, data)
 	saveFile(path, jsonBeautify(json.encode(data)))
 end
 
-function getDirListing(path)
+function getDirListing(path, filter, recursive, pathRec)
+	-- Returns a list of directories and/or files in a given path.
+	-- filter can be "all", "dir" for directories only or "file" for files only.
+	filter = filter or "all"
+	pathRec = pathRec or ""
+
+	local result = {}
 	-- If it's compiled /fused/, this piece of code is needed to be able to read the external files
 	if love.filesystem.isFused() then
 		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), "")
@@ -262,17 +268,33 @@ function getDirListing(path)
 		end
 	end
 	-- Now we can access the directory regardless of whether it's fused or not.
-	local items = love.filesystem.getDirectoryItems(path)
-	-- Each folder will get a / character on the end so it's easier to tell whether this is a file or a directory.
+	local items = love.filesystem.getDirectoryItems(path .. "/" .. pathRec)
+	-- Each folder will get a / character on the end BUT ONLY IN "ALL" FILTER so it's easier to tell whether this is a file or a directory.
 	for i, item in ipairs(items) do
-		if love.filesystem.getInfo(path .. "/" .. item).type == "directory" then
-			items[i] = item .. "/"
+		local p = path .. "/" .. pathRec .. item
+		if love.filesystem.getInfo(p).type == "directory" then
+			if filter == "all" then
+				table.insert(result, pathRec .. item .. "/")
+			elseif filter == "dir" then
+				table.insert(result, pathRec .. item)
+			end
+			if recursive then
+				for j, file in ipairs(getDirListing(path, filter, true, pathRec .. item .. "/")) do
+					table.insert(result, file)
+				end
+			end
+		else
+			if filter == "all" or filter == "file" then
+				table.insert(result, pathRec .. item)
+			end
 		end
 	end
 	-- Unmount it so we don't get into safety problems.
 	love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
-	return items
+	return result
 end
+
+
 
 function parseString(data, variables)
 	if not data then return nil end

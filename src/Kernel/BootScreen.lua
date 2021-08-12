@@ -65,18 +65,14 @@ function BootScreen:getGames()
 
 	local games = {}
 
-	for i, folder in ipairs(getDirListing("games")) do
-		local l = folder:len()
-		if folder:sub(l, l) == "/" then
-			local name = folder:sub(1, l - 1)
-			print("Checking folder \"" .. name .. "\"...")
-			local success, result = pcall(function() return loadJson("games/" .. name .. "/config.json") end)
-			if success then
-				table.insert(games, {name = name, config = result})
-				print("SUCCESS!")
-			else
-				print("FAIL!")
-			end
+	for i, name in ipairs(getDirListing("games", "dir")) do
+		print("Checking folder \"" .. name .. "\"...")
+		local success, result = pcall(function() return loadJson("games/" .. name .. "/config.json") end)
+		if success then
+			table.insert(games, {name = name, config = result})
+			print("SUCCESS!")
+		else
+			print("FAIL!")
 		end
 	end
 
