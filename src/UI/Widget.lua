@@ -2,11 +2,11 @@ local class = require "com/class"
 local UIWidget = class:derive("UIWidget")
 
 local UIWidgetRectangle = require("src/UI/WidgetRectangle")
-local UIWidgetImage = require("src/UI/WidgetImage")
-local UIWidgetImageButton = require("src/UI/WidgetImageButton")
-local UIWidgetImageButtonCheckbox = require("src/UI/WidgetImageButtonCheckbox")
-local UIWidgetImageButtonSlider = require("src/UI/WidgetImageButtonSlider")
-local UIWidgetImageProgress = require("src/UI/WidgetImageProgress")
+local UIWidgetSprite = require("src/UI/WidgetSprite")
+local UIWidgetSpriteButton = require("src/UI/WidgetSpriteButton")
+local UIWidgetSpriteButtonCheckbox = require("src/UI/WidgetSpriteButtonCheckbox")
+local UIWidgetSpriteButtonSlider = require("src/UI/WidgetSpriteButtonSlider")
+local UIWidgetSpriteProgress = require("src/UI/WidgetSpriteProgress")
 local UIWidgetText = require("src/UI/WidgetText")
 local UIWidgetParticle = require("src/UI/WidgetParticle")
 local UIWidgetLevel = require("src/UI/WidgetLevel")
@@ -40,16 +40,16 @@ function UIWidget:new(name, data, parent)
 	self.widget = nil
 	if data.type == "rectangle" then
 		self.widget = UIWidgetRectangle(self, data.size, data.color)
-	elseif data.type == "image" then
-		self.widget = UIWidgetImage(self, data.image)
-	elseif data.type == "imageButton" then
-		self.widget = UIWidgetImageButton(self, data.image)
-	elseif data.type == "imageButtonCheckbox" then
-		self.widget = UIWidgetImageButtonCheckbox(self, data.image)
-	elseif data.type == "imageButtonSlider" then
-		self.widget = UIWidgetImageButtonSlider(self, data.image, data.bounds)
-	elseif data.type == "imageProgress" then
-		self.widget = UIWidgetImageProgress(self, data.image, data.value, data.smooth)
+	elseif data.type == "sprite" then
+		self.widget = UIWidgetSprite(self, data.sprite)
+	elseif data.type == "spriteButton" then
+		self.widget = UIWidgetSpriteButton(self, data.sprite)
+	elseif data.type == "spriteButtonCheckbox" then
+		self.widget = UIWidgetSpriteButtonCheckbox(self, data.sprite)
+	elseif data.type == "spriteButtonSlider" then
+		self.widget = UIWidgetSpriteButtonSlider(self, data.sprite, data.bounds)
+	elseif data.type == "spriteProgress" then
+		self.widget = UIWidgetSpriteProgress(self, data.sprite, data.value, data.smooth)
 	elseif data.type == "text" then
 		self.widget = UIWidgetText(self, data.text, data.font, data.align)
 	elseif data.type == "particle" then
@@ -240,7 +240,7 @@ function UIWidget:resetActive()
 end
 
 function UIWidget:buttonSetEnabled(enabled)
-	if self.widget and self.widget.type == "imageButton" then
+	if self.widget and self.widget.type == "spriteButton" then
 		self.widget:setEnabled(enabled)
 	end
 end

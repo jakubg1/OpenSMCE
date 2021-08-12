@@ -2,7 +2,7 @@ local class = require "com/class"
 local ParticlePiece = class:derive("ParticlePiece")
 
 local Vec2 = require("src/Essentials/Vector2")
-local Image = require("src/Essentials/Image")
+local Sprite = require("src/Essentials/Sprite")
 
 function ParticlePiece:new(manager, spawner, data)
 	self.manager = manager
@@ -48,7 +48,7 @@ function ParticlePiece:new(manager, spawner, data)
 	self.lifetime = self.lifespan
 	self.time = 0
 
-	self.image = game.resourceManager:getImage(data.image)
+	self.sprite = game.resourceManager:getSprite(data.sprite)
 	self.animationSpeed = data.animationSpeed
 	self.animationFrameCount = data.animationFrameCount
 	self.animationLoop = data.animationLoop
@@ -157,7 +157,7 @@ function ParticlePiece:getAlpha()
 end
 
 function ParticlePiece:draw()
-	self.image:draw(self:getPos(), Vec2(0.5), Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha())
+	self.sprite:draw(self:getPos(), Vec2(0.5), Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha())
 end
 
 return ParticlePiece

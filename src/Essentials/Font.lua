@@ -8,15 +8,14 @@ function Font:new(path)
 	print("Loading font from " .. path .. "...")
 	self.path = path
 	local data = loadJson(path)
-	
-	self.img = loadImage(parsePath(data.image))
-	if not self.img then error("Failed to load image: " .. path) end
-	self.size = Vec2(self.img:getDimensions())
+
+	self.img = game.resourceManager:getImage(data.image)
+	self.height = self.img.size.y
 	self.characters = {}
 	for characterN, character in pairs(data.characters) do
-		self.characters[characterN] = {quad = love.graphics.newQuad(character.offset, 0, character.width, self.size.y, self.size.x, self.size.y), width = character.width}
+		self.characters[characterN] = {quad = love.graphics.newQuad(character.offset, 0, character.width, self.img.size.y, self.img.size.x, self.img.size.y), width = character.width}
 	end
-	
+
 	self.reportedCharacters = {}
 end
 
@@ -35,11 +34,11 @@ function Font:getCharacter(character)
 end
 
 function Font:getTextSize(text)
-	local size = Vec2(0, self.size.y)
+	local size = Vec2(0, self.height)
 	for i = 1, text:len() do
 		local character = text:sub(i, i)
 		if character == "\n" then
-			size.y = size.y + self.size.y
+			size.y = size.y + self.height
 		else
 			size.x = size.x + self:getCharacter(character).width
 		end
@@ -52,7 +51,7 @@ function Font:draw(text, pos, align, color, alpha)
 	color = color or Color()
 	alpha = alpha or 1
 	love.graphics.setColor(color.r, color.g, color.b, alpha)
-	
+
 	local y = pos.y - self:getTextSize(text).y * align.y
 	local line = ""
 	for i = 1, text:len() do
@@ -60,7 +59,7 @@ function Font:draw(text, pos, align, color, alpha)
 		if character == "\n" then
 			self:drawLine(line, Vec2(pos.x, y), align.x)
 			line = ""
-			y = y + self.size.y
+			y = y + self.height
 		else
 			line = line .. character
 		end
@@ -80,7 +79,7 @@ end
 function Font:drawCharacter(character, pos)
 	pos = posOnScreen(pos)
 	--if self.characters[character] then
-	love.graphics.draw(self.img, self:getCharacter(character).quad, pos.x, pos.y, 0, getResolutionScale())
+	self.img:draw(self:getCharacter(character).quad, pos.x, pos.y, 0, getResolutionScale())
 	--else
 	--	print("ERROR: Unexpected character: " .. character)
 	--end

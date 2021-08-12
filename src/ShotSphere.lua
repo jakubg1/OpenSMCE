@@ -2,7 +2,6 @@ local class = require "com/class"
 local ShotSphere = class:derive("ShotSphere")
 
 local Vec2 = require("src/Essentials/Vector2")
-local Image = require("src/Essentials/Image")
 local Color = require("src/Essentials/Color")
 
 local SphereEntity = require("src/SphereEntity")

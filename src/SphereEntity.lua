@@ -13,8 +13,8 @@ function SphereEntity:new(pos, color)
 
 	self.config = game.configManager.spheres[color]
 
-	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
-	self.image = game.resourceManager:getImage(self.config.image)
+	self.shadowSprite = game.resourceManager:getSprite("sprites/game/ball_shadow.json")
+	self.sprite = game.resourceManager:getSprite(self.config.sprite)
 	self.particle = self.config.idleParticle and game:spawnParticle(self.config.idleParticle, pos)
 end
 
@@ -30,7 +30,7 @@ end
 function SphereEntity:setColor(color)
 	self.color = color
 	self.config = game.configManager.spheres[color]
-	self.image = game.resourceManager:getImage(self.config.image)
+	self.sprite = game.resourceManager:getSprite(self.config.sprite)
 
 	-- Particle stuff
 	if self.particle then
@@ -55,9 +55,9 @@ end
 
 function SphereEntity:draw(shadow)
 	if shadow then
-		self.shadowImage:draw(self.pos + Vec2(4), Vec2(0.5))
+		self.shadowSprite:draw(self.pos + Vec2(4), Vec2(0.5))
 	else
-		self.image:draw(self.pos, Vec2(0.5), self.frame, self.angle, self.colorM)
+		self.sprite:draw(self.pos, Vec2(0.5), self.frame, self.angle, self.colorM)
 	end
 end
 

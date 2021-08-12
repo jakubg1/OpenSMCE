@@ -2,7 +2,7 @@ local class = require "com/class"
 local Shooter = class:derive("Shooter")
 
 local Vec2 = require("src/Essentials/Vector2")
-local Image = require("src/Essentials/Image")
+local Sprite = require("src/Essentials/Sprite")
 local Color = require("src/Essentials/Color")
 
 local SphereEntity = require("src/SphereEntity")
@@ -25,9 +25,9 @@ function Shooter:new()
 	-- the speed of the shooter when controlled via keyboard
 	self.moveKeySpeed = 500
 
-	self.shadowImage = game.resourceManager:getImage("img/game/shooter_shadow.png")
-	self.image = game.resourceManager:getImage("img/game/shooter.png")
-	self.speedShotImage = game.resourceManager:getImage("img/particles/speed_shot_beam.png")
+	self.shadowSprite = game.resourceManager:getSprite("sprites/game/shooter_shadow.json")
+	self.sprite = game.resourceManager:getSprite("sprites/game/shooter.json")
+	self.speedShotSprite = game.resourceManager:getSprite("sprites/particles/speed_shot_beam.json")
 
 	self.sphereEntity = nil
 
@@ -194,8 +194,8 @@ end
 
 
 function Shooter:draw()
-	self.shadowImage:draw(self.pos + Vec2(8, 8), Vec2(0.5, 0))
-	self.image:draw(self.pos, Vec2(0.5, 0))
+	self.shadowSprite:draw(self.pos + Vec2(8, 8), Vec2(0.5, 0))
+	self.sprite:draw(self.pos, Vec2(0.5, 0))
 
 	-- retical
 	if engineSettings:getAimingRetical() then
@@ -228,12 +228,12 @@ function Shooter:draw()
 
 	-- this color
 	if self.sphereEntity then
-		local frame = self.sphereEntity.config.imageAnimationSpeed and Vec2(math.floor(self.sphereEntity.config.imageAnimationSpeed * totalTime), 1) or Vec2(1)
+		local frame = self.sphereEntity.config.spriteAnimationSpeed and Vec2(math.floor(self.sphereEntity.config.spriteAnimationSpeed * totalTime), 1) or Vec2(1)
 		self.sphereEntity.frame = frame
 		self.sphereEntity:draw()
 	end
 	-- next color
-	game.resourceManager:getImage(game.configManager.spheres[self.nextColor].nextImage):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
+	game.resourceManager:getSprite(game.configManager.spheres[self.nextColor].nextSprite):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
 
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
@@ -247,7 +247,7 @@ function Shooter:drawSpeedShotBeam()
 	if self.speedShotTime == 0 then return end
 
 	local targetPos = self:getTargetPos()
-	local maxDistance = self.speedShotImage.size.y
+	local maxDistance = self.speedShotSprite.size.y
 	local distance = math.min(targetPos and self.pos.y - targetPos.y or self.pos.y, maxDistance)
 	local distanceUnit = distance / maxDistance
 	local scale = Vec2(1)
@@ -256,14 +256,14 @@ function Shooter:drawSpeedShotBeam()
 		scale.y = distanceUnit
 	elseif self.config.speedShotBeamRenderingType == "cut" then
 		-- if we need to cut the beam
-		local p = posOnScreen(Vec2(self.pos.x - self.speedShotImage.size.x / 2, self.pos.y - distance))
-		local s = posOnScreen(Vec2(self.speedShotImage.size.x, distance + 16))
+		local p = posOnScreen(Vec2(self.pos.x - self.speedShotSprite.size.x / 2, self.pos.y - distance))
+		local s = posOnScreen(Vec2(self.speedShotSprite.size.x, distance + 16))
 		love.graphics.setScissor(p.x, p.y, s.x, s.y)
 	end
 	-- apply color if wanted
 	local color = self.config.speedShotBeamColored and self:getReticalColor() or Color()
 	-- draw the beam
-	self.speedShotImage:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, color, self.speedShotTime * 2, scale)
+	self.speedShotSprite:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, color, self.speedShotTime * 2, scale)
 	-- reset the scissor
 	if self.config.speedShotBeamRenderingType == "cut" then
 		love.graphics.setScissor()

@@ -2,7 +2,7 @@ local class = require "com/class"
 local SphereGroup = class:derive("SphereGroup")
 
 local Vec2 = require("src/Essentials/Vector2")
-local Image = require("src/Essentials/Image")
+local Sprite = require("src/Essentials/Sprite")
 local Color = require("src/Essentials/Color")
 
 local Sphere = require("src/Sphere")
@@ -25,7 +25,7 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	end
 
 	self.maxSpeed = 0
-	self.sphereShadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
+	self.sphereShadowSprite = game.resourceManager:getSprite("sprites/game/ball_shadow.json")
 
 	self.config = game.configManager.gameplay.sphereBehaviour
 
@@ -377,14 +377,14 @@ function SphereGroup:draw(color, hidden, shadow)
 			end
 
 			if shadow then
-				self.sphereShadowImage:draw(pos + Vec2(4), Vec2(0.5))
+				self.sphereShadowSprite:draw(pos + Vec2(4), Vec2(0.5))
 			else
 				local config = game.configManager.spheres[sphere.color]
-				local img = game.resourceManager:getImage(config.image)
-				local angle = config.imageAnimationSpeed and 0 or self:getSphereAngle(i)
+				local img = game.resourceManager:getSprite(config.sprite)
+				local angle = config.spriteAnimationSpeed and 0 or self:getSphereAngle(i)
 				local frame = Vec2(1)
-				if config.imageAnimationSpeed then
-					frame = Vec2(math.floor(config.imageAnimationSpeed * totalTime), 1)
+				if config.spriteAnimationSpeed then
+					frame = Vec2(math.floor(config.spriteAnimationSpeed * totalTime), 1)
 				elseif sphere.size == 1 then
 					frame = Vec2(math.ceil(32 - sphere:getFrame()), 1)
 				end

@@ -2,6 +2,7 @@ local class = require "com/class"
 local ResourceManager = class:derive("ResourceManager")
 
 local Image = require("src/Essentials/Image")
+local Sprite = require("src/Essentials/Sprite")
 local Sound = require("src/Essentials/Sound")
 local Music = require("src/Essentials/Music")
 local Font = require("src/Essentials/Font")
@@ -9,6 +10,7 @@ local ColorPalette = require("src/Essentials/ColorPalette")
 
 function ResourceManager:new()
 	self.images = {}
+	self.sprites = {}
 	self.sounds = {}
 	self.music = {}
 	-- This holds all raw data from files, excluding "config" and "runtime" files, which are critical and handled directly by the game.
@@ -47,11 +49,10 @@ function ResourceManager:update(dt)
 	end
 end
 
-function ResourceManager:loadImage(path, frames)
-	-- we need sprites to convey images as objects as well, that shouldn't really be a problem because the number of frames is always constant for each given image
+function ResourceManager:loadImage(path)
 	--print("[RB] Loading image: " .. path .. "...")
 	local success = pcall(function()
-		self.images[path] = Image(parsePath(path), parseVec2(frames))
+		self.images[path] = Image(parsePath(path))
 	end)
 	if not success then error("Resource Bank failed to load an image: " .. path) end
 end
@@ -59,6 +60,19 @@ end
 function ResourceManager:getImage(path)
 	if not self.images[path] then error("Resource Bank tried to get an unknown image: " .. path) end
 	return self.images[path]
+end
+
+function ResourceManager:loadSprite(path)
+	--print("[RB] Loading sprite: " .. path .. "...")
+	local success = pcall(function()
+		self.sprites[path] = Sprite(parsePath(path))
+	end)
+	if not success then error("Resource Bank failed to load a sprite: " .. path) end
+end
+
+function ResourceManager:getSprite(path)
+	if not self.sprites[path] then error("Resource Bank tried to get an unknown sprite: " .. path) end
+	return self.sprites[path]
 end
 
 function ResourceManager:loadSound(path)
@@ -130,7 +144,10 @@ end
 
 function ResourceManager:loadList(list)
 	if list.images then
-		for i, data in ipairs(list.images) do self:loadImage(data.path, data.frames) end
+		for i, path in ipairs(list.images) do self:loadImage(path) end
+	end
+	if list.sprites then
+		for i, path in ipairs(list.sprites) do self:loadSprite(path) end
 	end
 	if list.sounds then
 		for i, path in ipairs(list.sounds) do self:loadSound(path) end
@@ -164,13 +181,22 @@ end
 
 function ResourceManager:stepLoadNext()
 	local objectType = nil
-	for k, v in pairs(self.stepLoadQueue) do objectType = k; break end -- loading a first object type that it comes
+	local order = {"images", "sprites", "sounds", "music", "particles", "fonts", "colorPalettes"}
+	-- loading a first object type from order
+	for i, v in ipairs(order) do
+		if self.stepLoadQueue[v] then
+			objectType = v
+			break
+		end
+	end
 	-- get data
 	local data = self.stepLoadQueue[objectType][1]
 	--print("[RB] Processing item " .. tostring(self.stepLoadProcessedObjs + 1) .. " from " .. tostring(self.stepLoadTotalObjs) .. "...")
 	-- load
 	if objectType == "images" then
-		self:loadImage(data.path, data.frames)
+		self:loadImage(data)
+	elseif objectType == "sprites" then
+		self:loadSprite(data)
 	elseif objectType == "sounds" then
 		self:loadSound(data)
 	elseif objectType == "music" then

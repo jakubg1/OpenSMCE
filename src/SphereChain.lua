@@ -2,7 +2,6 @@ local class = require "com/class"
 local SphereChain = class:derive("SphereChain")
 
 local Vec2 = require("src/Essentials/Vector2")
-local Image = require("src/Essentials/Image")
 
 local SphereGroup = require("src/SphereGroup")
 local Sphere = require("src/Sphere")

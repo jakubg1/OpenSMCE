@@ -3,7 +3,6 @@ local Level = class:derive("Level")
 
 local Vec2 = require("src/Essentials/Vector2")
 local List1 = require("src/Essentials/List1")
-local Image = require("src/Essentials/Image")
 
 local Map = require("src/Map")
 local Shooter = require("src/Shooter")

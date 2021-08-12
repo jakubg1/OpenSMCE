@@ -23,8 +23,8 @@ function Scorpion:new(path, deserializationTable)
 		self.maxChains = self.config.maxChains
 	end
 
-	self.image = game.resourceManager:getImage(self.config.image)
-	self.shadowImage = game.resourceManager:getImage("img/game/ball_shadow.png")
+	self.sprite = game.resourceManager:getSprite(self.config.sprite)
+	self.shadowSprite = game.resourceManager:getSprite("sprites/game/ball_shadow.json")
 
 	game:playSound("scorpion_loop")
 
@@ -90,9 +90,9 @@ end
 function Scorpion:draw(hidden, shadow)
 	if self.path:getHidden(self.offset) == hidden then
 		if shadow then
-			self.shadowImage:draw(self.path:getPos(self.offset) + Vec2(4), Vec2(0.5))
+			self.shadowSprite:draw(self.path:getPos(self.offset) + Vec2(4), Vec2(0.5))
 		else
-			self.image:draw(self.path:getPos(self.offset), Vec2(0.5), nil, self.path:getAngle(self.offset) + math.pi, Color(self.path:getBrightness(self.offset)))
+			self.sprite:draw(self.path:getPos(self.offset), Vec2(0.5), nil, self.path:getAngle(self.offset) + math.pi, Color(self.path:getBrightness(self.offset)))
 		end
 	end
 end

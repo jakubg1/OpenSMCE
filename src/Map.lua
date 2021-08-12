@@ -3,7 +3,7 @@ local Map = class:derive("Map")
 
 local Vec2 = require("src/Essentials/Vector2")
 local List1 = require("src/Essentials/List1")
-local Image = require("src/Essentials/Image")
+local Sprite = require("src/Essentials/Sprite")
 
 local Path = require("src/Path")
 
@@ -13,14 +13,16 @@ function Map:new(level, path, isDummy)
 	self.isDummy = isDummy
 
 	self.paths = List1()
-	self.images = List1()
+	self.sprites = List1()
 
 	local data = loadJson(parsePath(path .. "/config.json"))
 	self.name = data.name
-	for i, imageData in ipairs(data.images) do
-		local imageGlobal = imageData.path:sub(1, 1) == "/"
-		local imagePath = imageGlobal and imageData.path:sub(2, -1) or (path .. "/" .. imageData.path)
-		self.images:append({pos = Vec2(imageData.x, imageData.y), image = Image(parsePath(imagePath)), background = imageData.background})
+	for i, spriteData in ipairs(data.sprites) do
+		local spritePath = spriteData.path
+		if spriteData.internal then
+			spritePath = path .. "/" .. spritePath
+		end
+		self.sprites:append({pos = Vec2(spriteData.x, spriteData.y), sprite = Sprite(parsePath(spritePath)), background = spriteData.background})
 	end
 	for i, pathData in ipairs(data.paths) do
 		self.paths:append(Path(self, pathData))
@@ -35,17 +37,17 @@ end
 
 function Map:draw()
 	-- Background
-	for i, image in ipairs(self.images.objects) do
-		if image.background then
-			image.image:draw(image.pos)
+	for i, sprite in ipairs(self.sprites.objects) do
+		if sprite.background then
+			sprite.sprite:draw(sprite.pos)
 		end
 	end
 
 	-- Objects drawn before hidden spheres (background cheat mode)
 	if e then
-		for i, image in ipairs(self.images.objects) do
-			if not image.background then
-				image.image:draw(image.pos)
+		for i, sprite in ipairs(self.sprites.objects) do
+			if not sprite.background then
+				sprite.sprite:draw(sprite.pos)
 			end
 		end
 	end
@@ -60,9 +62,9 @@ function Map:draw()
 
 	-- Objects that will be drown when the BCM is off
 	if not e then
-		for i, image in ipairs(self.images.objects) do
-			if not image.background then
-				image.image:draw(image.pos)
+		for i, sprite in ipairs(self.sprites.objects) do
+			if not sprite.background then
+				sprite.sprite:draw(sprite.pos)
 			end
 		end
 	end
