@@ -53,7 +53,7 @@ function Game:init()
 	self.resourceManager = ResourceManager()
 
 	-- Step 5. Load initial resources (enough to start up the splash screen)
-	self.resourceManager:loadList(self.configManager.config.loadList)
+	self.resourceManager:loadList(self.configManager.loadList)
 
 	-- Step 6. Load game modules
 	self.gameModuleManager = GameModuleManager()

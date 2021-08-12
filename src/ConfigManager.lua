@@ -6,6 +6,11 @@ local CollectibleGeneratorManager = require("src/CollectibleGenerator/Manager")
 function ConfigManager:new()
 	self.config = loadJson(parsePath("config.json"))
 
+	self.loadList = loadJson(parsePath("config/loadlist.json"))
+	for i, v in ipairs(getDirListing(parsePath("images"), "file", true)) do
+		print(i, v)
+	end
+
 	self.gameplay = loadJson(parsePath("config/gameplay.json"))
 	self.powerups = loadJson(parsePath("config/powerups.json"))
 
