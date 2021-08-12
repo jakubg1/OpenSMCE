@@ -252,7 +252,7 @@ function saveJson(path, data)
 	saveFile(path, jsonBeautify(json.encode(data)))
 end
 
-function getDirListing(path, filter, recursive, pathRec)
+function getDirListing(path, filter, extFilter, recursive, pathRec)
 	-- Returns a list of directories and/or files in a given path.
 	-- filter can be "all", "dir" for directories only or "file" for files only.
 	filter = filter or "all"
@@ -279,12 +279,12 @@ function getDirListing(path, filter, recursive, pathRec)
 				table.insert(result, pathRec .. item)
 			end
 			if recursive then
-				for j, file in ipairs(getDirListing(path, filter, true, pathRec .. item .. "/")) do
+				for j, file in ipairs(getDirListing(path, filter, extFilter, true, pathRec .. item .. "/")) do
 					table.insert(result, file)
 				end
 			end
 		else
-			if filter == "all" or filter == "file" then
+			if filter == "all" or filter == "file" and (not extFilter or item:sub(item:len() - extFilter:len(), item:len()) == extFilter) then
 				table.insert(result, pathRec .. item)
 			end
 		end

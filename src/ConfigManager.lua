@@ -7,8 +7,26 @@ function ConfigManager:new()
 	self.config = loadJson(parsePath("config.json"))
 
 	self.loadList = loadJson(parsePath("config/loadlist.json"))
-	for i, v in ipairs(getDirListing(parsePath("images"), "file", true)) do
-		print(i, v)
+	local resourceTypes = {"images", "sprites", "sounds", "music", "particles", "fonts"}
+	self.resourceList = {}
+	for i, type in ipairs(resourceTypes) do
+		self.resourceList[type] = {}
+		for j, path in ipairs(getDirListing(parsePath(type), "file", nil, true)) do
+			local name = type .. "/" .. path
+			local ok = true
+			if self.loadList[type] then
+				-- Forbid loading the same resource twice.
+				for k, path2 in ipairs(self.loadList[type]) do
+					if name == path2 then
+						ok = false
+						break
+					end
+				end
+			end
+			if ok then
+				table.insert(self.resourceList[type], name)
+			end
+		end
 	end
 
 	self.gameplay = loadJson(parsePath("config/gameplay.json"))

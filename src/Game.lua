@@ -69,7 +69,7 @@ end
 
 function Game:loadMain()
 	-- Loads all game resources
-	self.resourceManager:stepLoadList(self.configManager.config.resourceList)
+	self.resourceManager:stepLoadList(self.configManager.resourceList)
 end
 
 function Game:initSession()

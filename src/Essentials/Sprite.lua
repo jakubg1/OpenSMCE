@@ -6,7 +6,6 @@ local Color = require("src/Essentials/Color")
 local Image = require("src/Essentials/Image")
 
 function Sprite:new(path)
-	print("Loading sprite from " .. path .. "...")
 	self.path = path
 	local data = loadJson(path)
 

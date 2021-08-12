@@ -4,7 +4,6 @@ local Sound = class:derive("Sound")
 local SoundInstance = require("src/Essentials/SoundInstance")
 
 function Sound:new(path)
-	print("Loading sound data from " .. path .. "...")
 	self.INSTANCE_COUNT = 8
 	-- Each sound has 8 instances of it so it can play up to 8 instances at the same time.
 	self.instances = {}

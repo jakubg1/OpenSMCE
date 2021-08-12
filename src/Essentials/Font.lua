@@ -5,7 +5,6 @@ local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
 function Font:new(path)
-	print("Loading font from " .. path .. "...")
 	self.path = path
 	local data = loadJson(path)
 
