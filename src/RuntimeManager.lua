@@ -41,7 +41,7 @@ end
 function RuntimeManager:save()
 	local data = {}
 
-	data.profiles = self.profileManager.data
+	data.profiles = self.profileManager:serialize()
 	data.highscores = self.highscores.data
 	data.options = self.options.data
 
