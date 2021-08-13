@@ -157,7 +157,7 @@ function ParticlePiece:getAlpha()
 end
 
 function ParticlePiece:draw()
-	self.sprite:draw(self:getPos(), Vec2(0.5), Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha())
+	self.sprite:draw(self:getPos(), Vec2(0.5), nil, Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha())
 end
 
 return ParticlePiece
