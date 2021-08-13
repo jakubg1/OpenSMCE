@@ -380,7 +380,7 @@ function SphereGroup:draw(color, hidden, shadow)
 				self.sphereShadowSprite:draw(pos + Vec2(4), Vec2(0.5))
 			else
 				local config = game.configManager.spheres[sphere.color]
-				local img = game.resourceManager:getSprite(config.sprite)
+				local sprite = game.resourceManager:getSprite(config.sprite)
 				local angle = config.spriteAnimationSpeed and 0 or self:getSphereAngle(i)
 				local frame = Vec2(1)
 				if config.spriteAnimationSpeed then
@@ -388,7 +388,7 @@ function SphereGroup:draw(color, hidden, shadow)
 				elseif sphere.size == 1 then
 					frame = Vec2(math.ceil(32 - sphere:getFrame()), 1)
 				end
-				img:draw(pos, Vec2(0.5), frame, angle, self:getSphereColor(i))
+				sprite:draw(pos, Vec2(0.5), nil, frame, angle, self:getSphereColor(i))
 			end
 		end
 	end

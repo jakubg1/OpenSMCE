@@ -57,7 +57,7 @@ function SphereEntity:draw(shadow)
 	if shadow then
 		self.shadowSprite:draw(self.pos + Vec2(4), Vec2(0.5))
 	else
-		self.sprite:draw(self.pos, Vec2(0.5), self.frame, self.angle, self.colorM)
+		self.sprite:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM)
 	end
 end
 

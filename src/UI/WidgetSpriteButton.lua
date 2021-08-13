@@ -14,7 +14,7 @@ function UIWidgetSpriteButton:new(parent, sprite)
 	self.enableForced = true
 
 	self.sprite = game.resourceManager:getSprite(sprite)
-	self.size = self.sprite.size
+	self.size = self.sprite.frameSize
 end
 
 function UIWidgetSpriteButton:click()
@@ -45,7 +45,7 @@ end
 
 function UIWidgetSpriteButton:draw()
 	local pos = self.parent:getPos()
-	local pos2 = pos + self.size * Vec2(1, 0.25)
+	local pos2 = pos + self.size
 	local alpha = self.parent:getAlpha()
 
 	self.enabled = self.enableForced and (alpha == 1 or self.parent.neverDisabled)
@@ -56,10 +56,10 @@ function UIWidgetSpriteButton:draw()
 		--SOUNDS.buttonHover:play()
 	end
 
-	self.sprite:draw(pos, nil, Vec2(1, self:getFrame()), nil, nil, alpha)
+	self.sprite:draw(pos, nil, self:getState(), nil, nil, nil, alpha)
 end
 
-function UIWidgetSpriteButton:getFrame()
+function UIWidgetSpriteButton:getState()
 	if not self.enabled then return 4 end
 	if self.clicked then return 3 end
 	if self.hovered then return 2 end

@@ -92,7 +92,7 @@ function Scorpion:draw(hidden, shadow)
 		if shadow then
 			self.shadowSprite:draw(self.path:getPos(self.offset) + Vec2(4), Vec2(0.5))
 		else
-			self.sprite:draw(self.path:getPos(self.offset), Vec2(0.5), nil, self.path:getAngle(self.offset) + math.pi, Color(self.path:getBrightness(self.offset)))
+			self.sprite:draw(self.path:getPos(self.offset), Vec2(0.5), nil, nil, self.path:getAngle(self.offset) + math.pi, Color(self.path:getBrightness(self.offset)))
 		end
 	end
 end

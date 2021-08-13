@@ -263,7 +263,7 @@ function Shooter:drawSpeedShotBeam()
 	-- apply color if wanted
 	local color = self.config.speedShotBeamColored and self:getReticalColor() or Color()
 	-- draw the beam
-	self.speedShotSprite:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, color, self.speedShotTime * 2, scale)
+	self.speedShotSprite:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, nil, color, self.speedShotTime * 2, scale)
 	-- reset the scissor
 	if self.config.speedShotBeamRenderingType == "cut" then
 		love.graphics.setScissor()

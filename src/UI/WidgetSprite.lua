@@ -12,7 +12,7 @@ end
 
 
 function UIWidgetSprite:draw()
-	self.sprite:draw(self.parent:getPos(), nil, nil, nil, nil, self.parent:getAlpha())
+	self.sprite:draw(self.parent:getPos(), nil, nil, nil, nil, nil, self.parent:getAlpha())
 end
 
 return UIWidgetSprite

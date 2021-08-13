@@ -74,7 +74,7 @@ function BonusScarab:draw(hidden, shadow)
 		if shadow then
 			self.shadowSprite:draw(self:getPos() + Vec2(4), Vec2(0.5))
 		else
-			self.sprite:draw(self:getPos(), Vec2(0.5), nil, self:getAngle() + math.pi, Color(self:getBrightness()))
+			self.sprite:draw(self:getPos(), Vec2(0.5), nil, nil, self:getAngle() + math.pi, Color(self:getBrightness()))
 		end
 	end
 end

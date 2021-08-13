@@ -51,10 +51,13 @@ end
 
 function ResourceManager:loadImage(path)
 	--print("[RB] Loading image: " .. path .. "...")
-	local success = pcall(function()
+	local success, err = pcall(function()
 		self.images[path] = Image(parsePath(path))
 	end)
-	if not success then print("[ResourceManager] FAILED to load an image: " .. path) end
+	if not success then
+		print("[ResourceManager] FAILED to load an image: " .. path)
+		print("-> " .. err)
+	end
 end
 
 function ResourceManager:getImage(path)
@@ -64,10 +67,13 @@ end
 
 function ResourceManager:loadSprite(path)
 	--print("[RB] Loading sprite: " .. path .. "...")
-	local success = pcall(function()
+	local success, err = pcall(function()
 		self.sprites[path] = Sprite(parsePath(path))
 	end)
-	if not success then print("[ResourceManager] FAILED to load a sprite: " .. path) end
+	if not success then
+		print("[ResourceManager] FAILED to load a sprite: " .. path)
+		print("-> " .. err)
+	end
 end
 
 function ResourceManager:getSprite(path)
@@ -77,10 +83,13 @@ end
 
 function ResourceManager:loadSound(path)
 	--print("[RB] Loading sound: " .. path .. "...")
-	local success = pcall(function()
+	local success, err = pcall(function()
 		self.sounds[path] = Sound(parsePath(path))
 	end)
-	if not success then print("[ResourceManager] FAILED to load a sound: " .. path) end
+	if not success then
+		print("[ResourceManager] FAILED to load a sound: " .. path)
+		print("-> " .. err)
+	end
 end
 
 function ResourceManager:getSound(path)
@@ -90,10 +99,13 @@ end
 
 function ResourceManager:loadMusic(path)
 	--print("[RB] Loading music: " .. path .. "...")
-	local success = pcall(function()
+	local success, err = pcall(function()
 		self.music[path] = Music(parsePath(path))
 	end)
-	if not success then print("[ResourceManager] FAILED to load a music: " .. path) end
+	if not success then
+		print("[ResourceManager] FAILED to load a music: " .. path)
+		print("-> " .. err)
+	end
 end
 
 function ResourceManager:getMusic(path)
@@ -103,10 +115,13 @@ end
 
 function ResourceManager:loadParticle(path)
 	--print("[RB] Loading particle: " .. path .. "...")
-	local success = pcall(function()
+	local success, err = pcall(function()
 		self.particles[path] = loadJson(parsePath(path))
 	end)
-	if not success then print("[ResourceManager] FAILED to load a particle: " .. path) end
+	if not success then
+		print("[ResourceManager] FAILED to load a particle: " .. path)
+		print("-> " .. err)
+	end
 end
 
 function ResourceManager:getParticle(path)
@@ -116,10 +131,13 @@ end
 
 function ResourceManager:loadFont(path)
 	--print("[RB] Loading font: " .. path .. "...")
-	local success = pcall(function()
+	local success, err = pcall(function()
 		self.fonts[path] = Font(parsePath(path))
 	end)
-	if not success then print("[ResourceManager] FAILED to load a font: " .. path) end
+	if not success then
+		print("[ResourceManager] FAILED to load a font: " .. path)
+		print("-> " .. err)
+	end
 end
 
 function ResourceManager:getFont(path)
@@ -129,10 +147,13 @@ end
 
 function ResourceManager:loadColorPalette(path)
 	--print("[RB] Loading color palette: " .. path .. "...")
-	local success = pcall(function()
+	local success, err = pcall(function()
 		self.colorPalettes[path] = ColorPalette(parsePath(path))
 	end)
-	if not success then print("[ResourceManager] FAILED to load a color palette: " .. path) end
+	if not success then
+		print("[ResourceManager] FAILED to load a color palette: " .. path)
+		print("-> " .. err)
+	end
 end
 
 function ResourceManager:getColorPalette(path)
