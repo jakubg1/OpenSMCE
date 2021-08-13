@@ -7,11 +7,11 @@ local Options = require("src/Options")
 
 function RuntimeManager:new()
 	print("Initializing RuntimeManager...")
-	
+
 	self.profile = nil
 	self.highscores = nil
 	self.options = nil
-	
+
 	self:load()
 end
 
@@ -19,9 +19,9 @@ function RuntimeManager:load()
 	-- if runtime.json exists, then load it
 	if pcall(function() loadJson(parsePath("runtime.json")) end) then
 		local data = loadJson(parsePath("runtime.json"))
-		
+
 		-- TODO: add a ProfileManager
-		self.profile = Profile(data.profiles, "TEST")
+		self.profile = Profile(data.profiles, "Test")
 		self.highscores = Highscores(data.highscores)
 		self.options = Options(data.options)
 	else
@@ -33,7 +33,7 @@ function RuntimeManager:load()
 		print("[RuntimeManager] or send it to the development team!")
 		print("[RuntimeManager]")
 		print("[RuntimeManager] If you're launching the game for the first time, you can safely ignore above message.")
-		self.profile = Profile(nil, "TEST")
+		self.profile = Profile(nil, "Test")
 		self.highscores = Highscores(nil)
 		self.options = Options(nil)
 	end
@@ -41,12 +41,12 @@ end
 
 function RuntimeManager:save()
 	local data = {}
-	
+
 	data.profiles = {}
-	data.profiles.TEST = self.profile.data
+	data.profiles.Test = self.profile.data
 	data.highscores = self.highscores.data
 	data.options = self.options.data
-	
+
 	saveJson(parsePath("runtime.json"), data)
 end
 

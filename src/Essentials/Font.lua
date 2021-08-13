@@ -19,9 +19,13 @@ function Font:new(path)
 end
 
 function Font:getCharacter(character)
+	local b = character:byte()
 	local c = self.characters[character]
 	if c then
 		return c
+	elseif b >= 97 and b <= 122 then
+		-- if lowercase character does not exist, we try again with an uppercase character
+		return self:getCharacter(string.char(b - 32))
 	else
 		-- report only once
 		if not self.reportedCharacters[character] then
