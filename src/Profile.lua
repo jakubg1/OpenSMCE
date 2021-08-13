@@ -5,7 +5,7 @@ function Profile:new(data, name)
 	self.name = name
 
 	if data then
-		self.data = data[name]
+		self.data = data
 	else
 		-- default if not found
 		-- TODO: change behavior after ProfileManager is done

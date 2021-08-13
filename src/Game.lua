@@ -60,7 +60,8 @@ function Game:init()
 
 	-- Step 7. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
-	self.satMode = self.runtimeManager.profile.data.session and self.runtimeManager.profile.data.session.ultimatelySatisfyingMode
+	local p = self:getCurrentProfile()
+	self.satMode = p.data.session and p.data.session.ultimatelySatisfyingMode
 
 	-- Step 8. Set up the UI Manager
 	self.uiManager = UIManager()
@@ -100,7 +101,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 	if self.particleManager then self.particleManager:update(dt) end
 
 	-- Discord Rich Presence
-	local p = self.runtimeManager.profile
+	local p = self:getCurrentProfile()
 	local line1 = "Playing: " .. self.name
 	local line2 = ""
 	if self:levelExists() then
@@ -214,6 +215,10 @@ end
 
 function Game:getMusic(name)
 	return self.resourceManager:getMusic(self.configManager.config.general.music[name])
+end
+
+function Game:getCurrentProfile()
+	return self.runtimeManager.profileManager:getCurrentProfile()
 end
 
 function Game:spawnParticle(name, pos)

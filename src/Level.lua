@@ -28,7 +28,7 @@ function Level:new(data)
 	self.powerupGenerator = data.powerupGenerator
 	self.gemColors = data.gems
 	if game.satMode then
-		self.spawnAmount = game.runtimeManager.profile.data.session.level * 10
+		self.spawnAmount = game:getCurrentProfile().data.session.level * 10
 		self.target = self.spawnAmount
 	else
 		self.target = data.target
@@ -174,7 +174,7 @@ function Level:update(dt)
 			if self.wonDelay <= 0 then
 				self.wonDelay = nil
 				self.won = true
-				local newRecord = game.runtimeManager.profile:getLevelHighscoreInfo(self.score)
+				local newRecord = game:getCurrentProfile():getLevelHighscoreInfo(self.score)
 				if newRecord then
 					game.uiManager:executeCallback("levelCompleteRecord")
 				else
@@ -226,12 +226,12 @@ end
 
 function Level:grantScore(score)
 	self.score = self.score + score
-	game.runtimeManager.profile:grantScore(score)
+	game:getCurrentProfile():grantScore(score)
 end
 
 function Level:grantCoin()
 	self.coins = self.coins + 1
-	game.runtimeManager.profile:grantCoin()
+	game:getCurrentProfile():grantCoin()
 end
 
 function Level:grantGem()
@@ -327,7 +327,7 @@ function Level:getFinish()
 end
 
 function Level:tryAgain()
-	if game.runtimeManager.profile:loseLevel() then
+	if game:getCurrentProfile():loseLevel() then
 		game.uiManager:executeCallback("levelStart")
 		self:reset()
 	else
@@ -349,16 +349,16 @@ function Level:beginLoad()
 end
 
 function Level:save()
-	game.runtimeManager.profile:saveLevel(self:serialize())
+	game:getCurrentProfile():saveLevel(self:serialize())
 end
 
 function Level:unsave()
-	game.runtimeManager.profile:unsaveLevel()
+	game:getCurrentProfile():unsaveLevel()
 end
 
 function Level:win()
-	game.runtimeManager.profile:winLevel(self.score)
-	game.runtimeManager.profile:unsaveLevel()
+	game:getCurrentProfile():winLevel(self.score)
+	game:getCurrentProfile():unsaveLevel()
 end
 
 function Level:reset()
