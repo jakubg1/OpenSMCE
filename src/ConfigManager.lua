@@ -30,6 +30,7 @@ function ConfigManager:new()
 	end
 
 	self.gameplay = loadJson(parsePath("config/gameplay.json"))
+	self.highscores = loadJson(parsePath("config/highscores.json"))
 	self.powerups = loadJson(parsePath("config/powerups.json"))
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()

@@ -57,6 +57,7 @@ function UIManager:new()
     profileGetUnlockedCheckpoints = function() return game.runtimeManager.profile:getUnlockedCheckpoints() end,
     profileIsCheckpointUnlocked = function(n) return game.runtimeManager.profile:isCheckpointUnlocked(n) end,
 
+    highscoreReset = function() game.runtimeManager.highscores:reset() end,
     highscoreGetEntry = function(n) return game.runtimeManager.highscores:getEntry(n) end,
 
     configGetLevelData = function(n) return game.configManager.config.levels[n] end,

@@ -14,19 +14,7 @@ function Highscores:reset()
 	print("Resetting Highscores...")
 
 	self.data = {}
-	-- TODO: HARDCODED - make it more flexible
-	self.data.entries = {
-		{name = "AAA", score = 10000, level = "1-1"},
-		{name = "BBB", score = 9000, level = "1-1"},
-		{name = "CCC", score = 8000, level = "1-1"},
-		{name = "DDD", score = 7000, level = "1-1"},
-		{name = "EEE", score = 6000, level = "1-1"},
-		{name = "FFF", score = 5000, level = "1-1"},
-		{name = "GGG", score = 4000, level = "1-1"},
-		{name = "HHH", score = 3000, level = "1-1"},
-		{name = "III", score = 2000, level = "1-1"},
-		{name = "JJJ", score = 1000, level = "1-1"}
-	}
+	self.data.entries = game.configManager.highscores.default_scores
 end
 
 function Highscores:getEntry(n)
