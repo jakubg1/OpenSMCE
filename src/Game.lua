@@ -61,7 +61,7 @@ function Game:init()
 	-- Step 7. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
 	local p = self:getCurrentProfile()
-	self.satMode = p.data.session and p.data.session.ultimatelySatisfyingMode
+	self.satMode = p and p.data.session and p.data.session.ultimatelySatisfyingMode
 
 	-- Step 8. Set up the UI Manager
 	self.uiManager = UIManager()
