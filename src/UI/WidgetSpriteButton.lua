@@ -10,6 +10,7 @@ function UIWidgetSpriteButton:new(parent, sprite)
 
 	self.hovered = false
 	self.clicked = false
+	self.clickedV = false
 	self.enabled = true
 	self.enableForced = true
 
@@ -61,7 +62,7 @@ end
 
 function UIWidgetSpriteButton:getState()
 	if not self.enabled then return 4 end
-	if self.clicked then return 3 end
+	if self.clicked or self.clickedV then return 3 end
 	if self.hovered then return 2 end
 	return 1
 end
