@@ -38,7 +38,8 @@ function UIManager:new()
 
     musicVolume = function(music, volume) game:getMusic(music):setVolume(volume) end,
 
-    profileMSet = function(name) return game.runtimeManager.profileManager:setCurrentProfile(name) end,
+    profileMSet = function(name) game.runtimeManager.profileManager:setCurrentProfile(name) end,
+    profileMCreate = function(name) return game.runtimeManager.profileManager:createProfile(name) end,
     profileMDelete = function(name) game.runtimeManager.profileManager:deleteProfile(name) end,
 
     profileMGetNameOrder = function() return game.runtimeManager.profileManager.order end,
@@ -157,6 +158,12 @@ function UIManager:keypressed(key)
 	for widgetN, widget in pairs(self.widgets) do
 		widget:keypressed(key)
 	end
+end
+
+function UIManager:textinput(t)
+  for widgetN, widget in pairs(self.widgets) do
+    widget:textinput(t)
+  end
 end
 
 

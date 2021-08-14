@@ -103,6 +103,8 @@ end
 
 function love.keypressed(key)
 	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = true end end
+	-- Backspace is treated exclusively and will trigger repeatedly when held.
+	love.keyboard.setKeyRepeat(key == "backspace")
 
 	if not dbg.console.active then
 		if game then game:keypressed(key) end
@@ -122,6 +124,10 @@ function love.keyreleased(key)
 end
 
 function love.textinput(t)
+	if not dbg.console.active then
+		if game then game:textinput(t) end
+	end
+
 	dbg:textinput(t)
 end
 

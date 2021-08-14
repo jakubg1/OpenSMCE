@@ -8,6 +8,7 @@ local UIWidgetSpriteButtonCheckbox = require("src/UI/WidgetSpriteButtonCheckbox"
 local UIWidgetSpriteButtonSlider = require("src/UI/WidgetSpriteButtonSlider")
 local UIWidgetSpriteProgress = require("src/UI/WidgetSpriteProgress")
 local UIWidgetText = require("src/UI/WidgetText")
+local UIWidgetTextInput = require("src/UI/WidgetTextInput")
 local UIWidgetParticle = require("src/UI/WidgetParticle")
 local UIWidgetLevel = require("src/UI/WidgetLevel")
 
@@ -52,6 +53,8 @@ function UIWidget:new(name, data, parent)
 		self.widget = UIWidgetSpriteProgress(self, data.sprite, data.value, data.smooth)
 	elseif data.type == "text" then
 		self.widget = UIWidgetText(self, data.text, data.font, data.align)
+	elseif data.type == "textInput" then
+		self.widget = UIWidgetTextInput(self, data.font, data.align, data.cursorSprite, data.maxLength)
 	elseif data.type == "particle" then
 		self.widget = UIWidgetParticle(self, data.path)
 	elseif data.type == "level" then
@@ -218,6 +221,14 @@ function UIWidget:keypressed(key)
 
 	for childN, child in pairs(self.children) do
 		child:keypressed(key)
+	end
+end
+
+function UIWidget:textinput(t)
+	if self.active and self.widget and self.widget.textinput then self.widget:textinput(t) end
+
+	for childN, child in pairs(self.children) do
+		child:textinput(t)
 	end
 end
 

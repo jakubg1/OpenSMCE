@@ -196,6 +196,10 @@ function Game:keyreleased(key)
 	end
 end
 
+function Game:textinput(t)
+	self.uiManager:textinput(t)
+end
+
 function Game:save()
 	if self:levelExists() then self.session.level:save() end
 	self.runtimeManager:save()

@@ -8,7 +8,6 @@ function Profile:new(data, name)
 		self.data = data
 	else
 		-- default if not found
-		-- TODO: change behavior after ProfileManager is done
 		self:reset()
 	end
 end
@@ -18,10 +17,10 @@ end
 -- Core stuff
 
 function Profile:reset()
-	self.data = {}
-	self.data.levels = {}
-	self.data.checkpoints = {1}
-	self:newGame()
+	self.data = {
+		levels = {},
+		checkpoints = {1}
+	}
 end
 
 function Profile:getSession()

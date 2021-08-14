@@ -21,6 +21,17 @@ function ProfileManager:setCurrentProfile(name)
 	self.selected = name
 end
 
+function ProfileManager:createProfile(name)
+	-- duplication check
+	if self.profiles[name] then
+		return false
+	end
+	self.profiles[name] = Profile(nil, name)
+	table.insert(self.order, name)
+	self.selected = name
+	return true
+end
+
 function ProfileManager:deleteProfile(name)
 	self.profiles[name] = nil
 	for i, n in ipairs(self.order) do
