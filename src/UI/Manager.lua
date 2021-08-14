@@ -38,6 +38,8 @@ function UIManager:new()
 
     musicVolume = function(music, volume) game:getMusic(music):setVolume(volume) end,
 
+    profileMGetNameOrder = function() return game.runtimeManager.profileManager.order end,
+
     profileNewGame = function(checkpoint) game:getCurrentProfile():newGame(checkpoint) end,
     profileDeleteGame = function() game:getCurrentProfile():deleteGame() end,
     profileLevelAdvance = function() game:getCurrentProfile():advanceLevel() end,

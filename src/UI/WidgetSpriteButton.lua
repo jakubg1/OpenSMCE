@@ -49,7 +49,7 @@ function UIWidgetSpriteButton:draw()
 	local alpha = self.parent:getAlpha()
 
 	self.enabled = self.enableForced and (alpha == 1 or self.parent.neverDisabled)
-	local hovered = self.enabled and self.parent.active and mousePos.x >= pos.x and mousePos.y >= pos.y and mousePos.x <= pos2.x and mousePos.y <= pos2.y
+	local hovered = self.enabled and self.parent.active and mousePos.x >= pos.x and mousePos.y >= pos.y and mousePos.x < pos2.x and mousePos.y < pos2.y
 	if hovered ~= self.hovered then
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end
