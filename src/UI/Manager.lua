@@ -38,6 +38,9 @@ function UIManager:new()
 
     musicVolume = function(music, volume) game:getMusic(music):setVolume(volume) end,
 
+    profileMSet = function(name) return game.runtimeManager.profileManager:setCurrentProfile(name) end,
+    profileMDelete = function(name) game.runtimeManager.profileManager:deleteProfile(name) end,
+
     profileMGetNameOrder = function() return game.runtimeManager.profileManager.order end,
 
     profileNewGame = function(checkpoint) game:getCurrentProfile():newGame(checkpoint) end,
@@ -45,6 +48,7 @@ function UIManager:new()
     profileLevelAdvance = function() game:getCurrentProfile():advanceLevel() end,
     profileHighscoreWrite = function() return game:getCurrentProfile():writeHighscore() end,
 
+    profileGetExists = function() return game:getCurrentProfile() ~= nil end,
     profileGetName = function() return game:getCurrentProfile().name end,
     profileGetLives = function() return game:getCurrentProfile():getLives() end,
     profileGetCoins = function() return game:getCurrentProfile():getCoins() end,

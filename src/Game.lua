@@ -115,7 +115,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 		if l.pause then
 			line1 = line1 .. " - Paused"
 		end
-	elseif p:getSession() then
+	elseif p and p:getSession() then
 		line2 = string.format("In menus, Score: %s, Lives: %s",
 			p:getScore(),
 			p:getLives()

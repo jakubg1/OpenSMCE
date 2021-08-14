@@ -17,6 +17,24 @@ function ProfileManager:getCurrentProfile()
 	return self.profiles[self.selected]
 end
 
+function ProfileManager:setCurrentProfile(name)
+	self.selected = name
+end
+
+function ProfileManager:deleteProfile(name)
+	self.profiles[name] = nil
+	for i, n in ipairs(self.order) do
+		if name == n then
+			table.remove(self.order, i)
+			break
+		end
+	end
+	-- if we've just deleted the selected profile, select the first one from the list
+	if self.selected == name then
+		self.selected = self.order[1]
+	end
+end
+
 
 
 function ProfileManager:serialize()
