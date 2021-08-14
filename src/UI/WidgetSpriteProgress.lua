@@ -17,7 +17,7 @@ end
 
 
 
-function UIWidgetSpriteProgress:draw(variables)
+function UIWidgetSpriteProgress:update(dt)
 	local value = parseNumber(self.valueData, variables)
 	if self.smooth then
 		if self.value < value then
@@ -28,7 +28,9 @@ function UIWidgetSpriteProgress:draw(variables)
 	else
 		self.value = value
 	end
+end
 
+function UIWidgetSpriteProgress:draw(variables)
 	local pos = self.parent:getPos()
 	local pos2 = posOnScreen(pos)
 	love.graphics.setScissor(pos2.x, pos2.y, self.size.x * getResolutionScale() * self.value, self.size.y * getResolutionScale())

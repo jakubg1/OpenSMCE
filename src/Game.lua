@@ -240,10 +240,10 @@ function Game:setFullscreen(fullscreen)
 	love.window.setMode(displaySize.x, displaySize.y, {fullscreen = fullscreen, resizable = true})
 end
 
-function Game:quit()
+function Game:quit(forced)
 	self:save()
 	self.resourceManager:unload()
-	if engineSettings:getBackToBoot() then
+	if engineSettings:getBackToBoot() and not forced then
 		love.window.setMode(800, 600) -- reset window size
 		loadBootScreen()
 	else

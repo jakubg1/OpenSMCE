@@ -137,6 +137,7 @@ end
 
 function love.quit()
 	print("[] User-caused Exit... []")
+	if game and game.quit then game:quit(true) end
 	discordRPC:disconnect()
 end
 
