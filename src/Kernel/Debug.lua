@@ -80,13 +80,13 @@ end
 
 function Debug:keypressed(key)
 	if not self.console.active then
-		if key == "o" then self.profVisible = not self.profVisible end
-		if key == "w" then self.uiDebugVisible = not self.uiDebugVisible end
-		if key == "q" then self.particleSpawnersVisible = not self.particleSpawnersVisible end
-		if key == "d" then self.gameDebugVisible = not self.gameDebugVisible end
-		if key == "f" then self.fpsDebugVisible = not self.fpsDebugVisible end
-		if key == "p" then self.sphereDebugVisible = not self.sphereDebugVisible end
-		if key == "h" then self.sphereDebugVisible2 = not self.sphereDebugVisible2 end
+		if key == "f1" then self.profVisible = not self.profVisible end
+		if key == "f2" then self.uiDebugVisible = not self.uiDebugVisible end
+		if key == "f3" then self.particleSpawnersVisible = not self.particleSpawnersVisible end
+		if key == "f4" then self.gameDebugVisible = not self.gameDebugVisible end
+		if key == "f5" then self.fpsDebugVisible = not self.fpsDebugVisible end
+		if key == "f6" then self.sphereDebugVisible = not self.sphereDebugVisible end
+		if key == "f7" then self.sphereDebugVisible2 = not self.sphereDebugVisible2 end
 		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
 		if key == "kp+" and self.profPage < #self.profPages then self.profPage = self.profPage + 1 end
 		if key == "," then self.uiDebugOffset = self.uiDebugOffset - 75 end
