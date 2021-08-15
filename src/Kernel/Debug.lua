@@ -158,7 +158,7 @@ end
 function Debug:getDebugLevel()
 	local s = ""
 
-	s = s .. "LevelNumber = " .. tostring(game:getCurrentProfile().data.session.level) .. "\n"
+	s = s .. "LevelNumber = " .. tostring(game:getCurrentProfile().session.level) .. "\n"
 	s = s .. "LevelScore = " .. tostring(game.session.level.score) .. "\n"
 	s = s .. "LevelProgress = " .. tostring(game.session.level.destroyedSpheres) .. "/" .. tostring(game.session.level.target) .. "\n"
 	local levelData = game:getCurrentProfile():getCurrentLevelData()
