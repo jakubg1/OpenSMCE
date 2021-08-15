@@ -4,11 +4,12 @@ local Profile = class:derive("Profile")
 function Profile:new(data, name)
 	self.name = name
 
+	self.levels = {}
+	self.checkpoints = {1}
+	self.variables = {}
+
 	if data then
-		self.data = data
-	else
-		-- default if not found
-		self:reset()
+		self:deserialize(data)
 	end
 end
 
@@ -16,15 +17,8 @@ end
 
 -- Core stuff
 
-function Profile:reset()
-	self.data = {
-		levels = {},
-		checkpoints = {1}
-	}
-end
-
 function Profile:getSession()
-	return self.data.session
+	return self.session
 end
 
 function Profile:getMapData()
@@ -33,14 +27,26 @@ end
 
 
 
+-- Variables
+
+function Profile:setVariable(name, value)
+	self.variables[name] = value
+end
+
+function Profile:getVariable(name)
+	return self.variables[name]
+end
+
+
+
 -- Core level stuff
 
 function Profile:getLevel()
-	return self.data.session.level
+	return self.session.level
 end
 
 function Profile:setLevel(level)
-	self.data.session.level = level
+	self.session.level = level
 end
 
 function Profile:incrementLevel()
@@ -62,11 +68,11 @@ end
 
 
 function Profile:getCurrentLevelData()
-	return self.data.levels[tostring(self:getLevel())]
+	return self.levels[tostring(self:getLevel())]
 end
 
 function Profile:setCurrentLevelData(data)
-	self.data.levels[tostring(self:getLevel())] = data
+	self.levels[tostring(self:getLevel())] = data
 end
 
 
@@ -74,14 +80,14 @@ end
 -- Score
 
 function Profile:getScore()
-	return self.data.session.score
+	return self.session.score
 end
 
 function Profile:grantScore(score)
-	if self.data.session.ultimatelySatisfyingMode then
-		self.data.session.score = self.data.session.score + score * (1 + (self.data.session.level - 1) * 0.2)
+	if self.session.ultimatelySatisfyingMode then
+		self.session.score = self.session.score + score * (1 + (self.session.level - 1) * 0.2)
 	else
-		self.data.session.score = self.data.session.score + score
+		self.session.score = self.session.score + score
 	end
 end
 
@@ -90,12 +96,12 @@ end
 -- Coins
 
 function Profile:getCoins()
-	return self.data.session.coins
+	return self.session.coins
 end
 
 function Profile:grantCoin()
-	self.data.session.coins = self.data.session.coins + 1
-	if self.data.session.coins == 30 then self:grantLife() end
+	self.session.coins = self.session.coins + 1
+	if self.session.coins == 30 then self:grantLife() end
 	game.uiManager:executeCallback("newCoin")
 end
 
@@ -104,18 +110,18 @@ end
 -- Lives
 
 function Profile:getLives()
-	return self.data.session.lives
+	return self.session.lives
 end
 
 function Profile:grantLife()
-	self.data.session.lives = self.data.session.lives + 1
-	self.data.session.coins = 0
+	self.session.lives = self.session.lives + 1
+	self.session.coins = 0
 	game.uiManager:executeCallback("newLife")
 end
 
 function Profile:takeLife()
-	if self.data.session.lives == 0 then return false end
-	self.data.session.lives = self.data.session.lives - 1
+	if self.session.lives == 0 then return false end
+	self.session.lives = self.session.lives - 1
 	-- returns true if the player can retry
 	return true
 end
@@ -125,11 +131,11 @@ end
 -- Unlocked checkpoints
 
 function Profile:getUnlockedCheckpoints()
-	return self.data.checkpoints
+	return self.checkpoints
 end
 
 function Profile:isCheckpointUnlocked(n)
-	for i, o in ipairs(self.data.checkpoints) do
+	for i, o in ipairs(self.checkpoints) do
 		if n == o then
 			return true
 		end
@@ -139,7 +145,7 @@ end
 
 function Profile:unlockCheckpoint(n)
 	if self:isCheckpointUnlocked(n) then return end
-	table.insert(self.data.checkpoints, n)
+	table.insert(self.checkpoints, n)
 end
 
 
@@ -147,16 +153,16 @@ end
 -- General
 
 function Profile:newGame(checkpoint)
-	self.data.session = {}
-	self.data.session.lives = 2
-	self.data.session.coins = 0
-	self.data.session.score = 0
-	self.data.session.difficulty = 1
+	self.session = {}
+	self.session.lives = 2
+	self.session.coins = 0
+	self.session.score = 0
+	self.session.difficulty = 1
 	self:setLevel(game.configManager.config.checkpoints[checkpoint or 1].level)
 end
 
 function Profile:deleteGame()
-	self.data.session = nil
+	self.session = nil
 end
 
 
@@ -198,15 +204,15 @@ function Profile:loseLevel()
 end
 
 function Profile:saveLevel(t)
-	self.data.session.levelSaveData = t
+	self.session.levelSaveData = t
 end
 
 function Profile:getSavedLevel()
-	return self.data.session.levelSaveData
+	return self.session.levelSaveData
 end
 
 function Profile:unsaveLevel()
-	self.data.session.levelSaveData = nil
+	self.session.levelSaveData = nil
 end
 
 
@@ -218,6 +224,29 @@ function Profile:writeHighscore()
 	-- returns the position if it got into top 10
 	game.runtimeManager.highscores:storeProfile(self, pos)
 	return pos
+end
+
+
+
+-- Serialization
+
+function Profile:serialize()
+	local t = {
+		session = self.session,
+		levels = self.levels,
+		checkpoints = self.checkpoints,
+		variables = self.variables
+	}
+	return t
+end
+
+function Profile:deserialize(t)
+	self.session = t.session
+	self.levels = t.levels
+	self.checkpoints = t.checkpoints
+	if t.variables then
+		self.variables = t.variables
+	end
 end
 
 

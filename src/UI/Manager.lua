@@ -64,6 +64,9 @@ function UIManager:new()
     profileGetUnlockedCheckpoints = function() return game:getCurrentProfile():getUnlockedCheckpoints() end,
     profileIsCheckpointUnlocked = function(n) return game:getCurrentProfile():isCheckpointUnlocked(n) end,
 
+    profileSetVariable = function(name, value) game:getCurrentProfile():setVariable(name, value) end,
+    profileGetVariable = function(name) return game:getCurrentProfile():getVariable(name) end,
+
     highscoreReset = function() game.runtimeManager.highscores:reset() end,
     highscoreGetEntry = function(n) return game.runtimeManager.highscores:getEntry(n) end,
 

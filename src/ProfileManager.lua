@@ -55,7 +55,7 @@ function ProfileManager:serialize()
 		selected = self.selected
 	}
 	for profileN, profile in pairs(self.profiles) do
-		t.profiles[profileN] = profile.data
+		t.profiles[profileN] = profile:serialize()
 	end
 	return t
 end
