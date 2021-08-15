@@ -93,7 +93,7 @@ function Level:update(dt)
 		-- Warning lights
 		local maxDistance = self:getMaxDistance()
 		if maxDistance >= self.dangerDistance and not self.lost then
-			self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 4 + 0, 0)
+			self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 3.5 + 0.5, 0.5)
 		else
 			self.warningDelayMax = nil
 		end
