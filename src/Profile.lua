@@ -235,7 +235,8 @@ function Profile:serialize()
 		session = self.session,
 		levels = self.levels,
 		checkpoints = self.checkpoints,
-		variables = self.variables
+		variables = self.variables,
+		ultimatelySatisfyingMode = self.ultimatelySatisfyingMode
 	}
 	return t
 end
@@ -247,6 +248,7 @@ function Profile:deserialize(t)
 	if t.variables then
 		self.variables = t.variables
 	end
+	self.ultimatelySatisfyingMode = t.ultimatelySatisfyingMode
 end
 
 
