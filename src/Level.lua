@@ -28,7 +28,7 @@ function Level:new(data)
 	self.powerupGenerator = data.powerupGenerator
 	self.gemColors = data.gems
 	if game.satMode then
-		self.spawnAmount = game:getCurrentProfile().data.session.level * 10
+		self.spawnAmount = game:getCurrentProfile().session.level * 10
 		self.target = self.spawnAmount
 	else
 		self.target = data.target
