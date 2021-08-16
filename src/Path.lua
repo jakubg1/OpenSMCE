@@ -221,7 +221,7 @@ function Path:getSpeed(pixels)
 				local t = (speed.distance - part) / (speed.distance - prevSpeed.distance)
 
 				-- between nodes
-				if game.satMode then
+				if game.satMode and game:getCurrentProfile().session then
 					return (prevSpeed.speed * t + speed.speed * (1 - t)) * (1 + (game:getCurrentProfile().session.level - 1) * 0.05)
 				else
 					return prevSpeed.speed * t + speed.speed * (1 - t)
@@ -229,7 +229,7 @@ function Path:getSpeed(pixels)
 			end
 
 			-- at the exact position of node or before first node
-			if game.satMode then
+			if game.satMode and game:getCurrentProfile().session then
 				return speed.speed * (1 + (game:getCurrentProfile().session.level - 1) * 0.05)
 			else
 				return speed.speed
@@ -238,7 +238,7 @@ function Path:getSpeed(pixels)
 	end
 
 	-- after last node
-	if game.satMode then
+	if game.satMode and game:getCurrentProfile().session then
 		return self.map.level.speeds[#self.map.level.speeds].speed * (1 + (game:getCurrentProfile().session.level - 1) * 0.05)
 	else
 		return self.map.level.speeds[#self.map.level.speeds].speed
