@@ -84,7 +84,7 @@ function Profile:getScore()
 end
 
 function Profile:grantScore(score)
-	if self.session.ultimatelySatisfyingMode then
+	if self.ultimatelySatisfyingMode then
 		self.session.score = self.session.score + score * (1 + (self.session.level - 1) * 0.2)
 	else
 		self.session.score = self.session.score + score
