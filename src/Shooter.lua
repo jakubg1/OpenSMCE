@@ -174,6 +174,12 @@ function Shooter:shoot()
 	--game.session.level.lightningStormTime = 0
 end
 
+function Shooter:destroy()
+	if self.sphereEntity then
+		self.sphereEntity:destroy(false)
+	end
+end
+
 
 
 function Shooter:getSphere(color)

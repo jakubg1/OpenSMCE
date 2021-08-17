@@ -58,16 +58,19 @@ end
 
 function Session:levelEnd()
 	self.level:unsave()
+	self.level:destroy()
 	self.level = nil
 end
 
 function Session:levelWin()
 	self.level:win()
+	self.level:destroy()
 	self.level = nil
 end
 
 function Session:levelSave()
 	self.level:save()
+	self.level:destroy()
 	self.level = nil
 end
 

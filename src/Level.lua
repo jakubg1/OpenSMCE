@@ -361,6 +361,16 @@ function Level:win()
 	game:getCurrentProfile():unsaveLevel()
 end
 
+function Level:destroy()
+	self.shooter:destroy()
+	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+		shotSphere:destroy()
+	end
+	for i, collectible in ipairs(self.collectibles.objects) do
+		collectible:destroy()
+	end
+end
+
 function Level:reset()
 	self.score = 0
 	self.coins = 0
