@@ -141,6 +141,8 @@ function Debug:getDebugMain()
 	s = s .. "Version = " .. VERSION .. "\n"
 	s = s .. "Game = " .. game.name .. "\n"
 	s = s .. "FPS = " .. tostring(love.timer.getFPS()) .. "\n"
+	s = s .. "Drawcalls = " .. tostring(love.graphics.getStats().drawcalls) .. "\n"
+	s = s .. "DrawcallsSaved = " .. tostring(love.graphics.getStats().drawcallsbatched) .. "\n"
 
 	return s
 end
