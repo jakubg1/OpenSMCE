@@ -131,7 +131,9 @@ function Path:spawnScorpion()
 end
 
 function Path:destroy()
-	self.bonusScarab:destroy()
+	if self.bonusScarab then
+		self.bonusScarab:destroy()
+	end
 	--self.bonusScarab = nil
 	for i, scorpion in ipairs(self.scorpions) do
 		scorpion:destroy()
