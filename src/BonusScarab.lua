@@ -51,20 +51,23 @@ function BonusScarab:update(dt)
 	-- Sound
 	self.sound:setPos(self:getPos())
 	-- Destroy when exceeded minimum offset
-	if self.offset <= self.minOffset then self:destroy() end
+	if self.offset <= self.minOffset then self:explode() end
 end
 
-function BonusScarab:destroy()
-	self.path.bonusScarab = nil
-
+function BonusScarab:explode()
 	local pos = self:getPos()
 	local score = math.max(math.floor((self.path.length - self.minOffset) / self.config.stepLength), 1) * self.config.pointsPerStep
 
 	game.session.level:grantScore(score)
 	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", pos, self.config.scoreFont)
 	game:spawnParticle(self.config.destroyParticle, pos)
-	self.sound:stop()
 	game:playSound("bonus_scarab", 1, pos)
+	self:destroy()
+end
+
+function BonusScarab:destroy()
+	self.path.bonusScarab = nil
+	self.sound:stop()
 end
 
 

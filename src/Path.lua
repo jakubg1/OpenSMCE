@@ -130,6 +130,15 @@ function Path:spawnScorpion()
 	table.insert(self.scorpions, Scorpion(self))
 end
 
+function Path:destroy()
+	self.bonusScarab:destroy()
+	--self.bonusScarab = nil
+	for i, scorpion in ipairs(self.scorpions) do
+		scorpion:destroy()
+	end
+	--self.scorpions = {}
+end
+
 
 
 function Path:drawSpheres(color, hidden)

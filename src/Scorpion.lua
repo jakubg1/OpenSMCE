@@ -26,7 +26,7 @@ function Scorpion:new(path, deserializationTable)
 	self.sprite = game.resourceManager:getSprite(self.config.sprite)
 	self.shadowSprite = game.resourceManager:getSprite("sprites/game/ball_shadow.json")
 
-	game:playSound("scorpion_loop")
+	self.sound = game:playSound("scorpion_loop", 1, self:getPos())
 
 	self.delQueue = false
 end
@@ -36,7 +36,7 @@ function Scorpion:update(dt)
 	self.offset = self.offset - self.config.speed * dt
 	self.distance = self.path.length - self.offset
 	-- Destroying spheres
-	while (self.maxSpheres and self.destroyedSpheres < self.maxSpheres) or (self.maxChains and self.destroyedChains < self.maxChains) do
+	while not self:shouldExplode() do
 		-- Attempt to erase one sphere per iteration
 		-- The routine simply finds the closest sphere to the pyramid
 		-- If it's too far away, the loop ends
@@ -65,15 +65,21 @@ function Scorpion:update(dt)
 			self.trailDistance = self.trailDistance + self.config.trailParticleDistance
 		end
 	end
+	-- Sound
+	self.sound:setPos(self:getPos())
 	-- Destroy when near spawn point or when no more spheres to destroy
-	if self.offset <= 64 or (self.destroyedSpheres and self.destroyedSpheres == self.maxSpheres) or (self.destroyedChains and self.destroyedChains == self.maxChains) then
-		self:destroy()
+	if self:shouldExplode() then
+		self:explode()
 	end
 end
 
-function Scorpion:destroy()
-	if self.delQueue then return end
-	self.delQueue = true
+function Scorpion:shouldExplode()
+	return self.offset <= 64
+	or (self.destroyedSpheres and self.destroyedSpheres == self.maxSpheres)
+	or (self.destroyedChains and self.destroyedChains == self.maxChains)
+end
+
+function Scorpion:explode()
 	local score = self.destroyedSpheres * 100
 	game.session.level:grantScore(score)
 	game.session.level:spawnFloatingText(numStr(score), self.path:getPos(self.offset), self.config.scoreFont)
@@ -81,8 +87,13 @@ function Scorpion:destroy()
 		game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"})
 	end
 	game:spawnParticle(self.config.destroyParticle, self.path:getPos(self.offset))
-	game:stopSound("scorpion_loop")
-	game:playSound("scorpion_destroy")
+	game:playSound("scorpion_destroy", 1, pos)
+end
+
+function Scorpion:destroy()
+	if self.delQueue then return end
+	self.delQueue = true
+	self.sound:stop()
 end
 
 

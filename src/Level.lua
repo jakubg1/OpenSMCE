@@ -369,6 +369,9 @@ function Level:destroy()
 	for i, collectible in ipairs(self.collectibles.objects) do
 		collectible:destroy()
 	end
+	for i, path in ipairs(self.map.paths.objects) do
+		path:destroy()
+	end
 end
 
 function Level:reset()
