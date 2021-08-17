@@ -88,10 +88,36 @@ function ShotSphere:moveStep()
 	end
 end
 
+function ShotSphere:getHitSphereIDs()
+	if not self.hitSphere then
+		return nil
+	end
+
+	local s = self.hitSphere
+	local g = s.sphereGroup
+	local c = g.sphereChain
+	local p = c.path
+	local m = p.map
+
+	local sphereID = s.sphereID
+	local groupID = c:getSphereGroupID(g)
+	local chainID = p:getSphereChainID(c)
+	local pathID = m:getPathID(p)
+
+	return {
+		sphereID = sphereID,
+		groupID = groupID,
+		chainID = chainID,
+		pathID = pathID
+	}
+end
+
 function ShotSphere:destroy()
 	if self.delQueue then return end
 	self._list:destroy(self)
-	self.sphereEntity:destroy(false)
+	if self.sphereEntity then
+		self.sphereEntity:destroy(false)
+	end
 	self.delQueue = true
 	self.shooter:activate()
 end
@@ -130,12 +156,7 @@ function ShotSphere:serialize()
 		color = self.color,
 		speed = self.speed,
 		steps = self.steps,
-		hitSphere = {
-			pathID = 1,
-			chainID = 2,
-			groupID = 1,
-			sphereID = 8
-		}, -- TODO: add an indexation function in Sphere.lua to resolve this problem
+		hitSphere = self:getHitSphereIDs(),
 		hitTime = self.hitTime
 	}
 end
@@ -148,12 +169,20 @@ function ShotSphere:deserialize(t)
 
 	self.shooter = game.session.level.shooter
 
-	self.hitSphere = nil -- blah blah blah, see above
+	self.hitSphere = nil
+	self.sphereEntity = nil
+
+	if t.hitSphere then
+		self.hitSphere = {
+			sphereID = t.hitSphere.sphereID,
+			sphereGroup = game.session.level.map.paths.objects[t.hitSphere.pathID].sphereChains[t.hitSphere.chainID].sphereGroups[t.hitSphere.groupID]
+		}
+	else
+		self.sphereEntity = SphereEntity(self.pos, self.color)
+		self.sphereEntity.frame = Vec2(1)
+	end
+
 	self.hitTime = t.hitTime
-
-
-
-	self.sphereEntity = SphereEntity(self.pos, self.color)
 end
 
 return ShotSphere

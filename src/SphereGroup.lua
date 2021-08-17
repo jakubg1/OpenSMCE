@@ -612,15 +612,17 @@ function SphereGroup:deserialize(t)
 	self.offset = t.offset
 	self.speed = t.speed
 	self.spheres = {}
+	local offset = 0
 	for i, sphere in ipairs(t.spheres) do
 		local s = Sphere(self, sphere)
-		s.offset = (i - 1) * 32
+		s.offset = offset
 		-- links are mandatory!!!
 		if i > 1 then
 			s.prevSphere = self.spheres[i - 1]
 			self.spheres[i - 1].nextSphere = s
 		end
 		table.insert(self.spheres, s)
+		offset = offset + 32 * s.size
 	end
 	self.matchCheck = t.matchCheck
 end

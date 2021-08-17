@@ -33,6 +33,10 @@ function Map:update(dt)
 	for i, path in ipairs(self.paths.objects) do path:update(dt) end
 end
 
+function Map:getPathID(path)
+	for i, pathT in ipairs(self.paths.objects) do if pathT == path then return i end end
+end
+
 
 
 function Map:draw()
