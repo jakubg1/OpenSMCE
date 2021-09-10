@@ -212,7 +212,7 @@ function Game:playSound(name, pitch, pos)
 end
 
 function Game:getMusic(name)
-	return self.resourceManager:getMusic(self.configManager.config.general.music[name])
+	return self.resourceManager:getMusic(self.configManager.music[name])
 end
 
 function Game:getCurrentProfile()

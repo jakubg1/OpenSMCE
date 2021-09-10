@@ -31,6 +31,8 @@ function ConfigManager:new()
 
 	self.gameplay = loadJson(parsePath("config/gameplay.json"))
 	self.highscores = loadJson(parsePath("config/highscores.json"))
+	self.hudLayerOrder = loadJson(parsePath("config/hud_layer_order.json"))
+	self.music = loadJson(parsePath("config/music.json"))
 	self.powerups = loadJson(parsePath("config/powerups.json"))
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
