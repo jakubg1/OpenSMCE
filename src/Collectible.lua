@@ -17,17 +17,17 @@ function Collectible:new(deserializationTable, pos, data)
 	self.powerupConfig = nil
 
 	local particleName = nil
+	self.soundEventName = nil
 	if self.data.type == "powerup" then
 		self.powerupConfig = game.configManager.powerups[self.data.name]
-		if self.powerupConfig.colored then
-			particleName = self.powerupConfig.particle[tostring(self.data.color)]
-		else
-			particleName = self.powerupConfig.particle
-		end
+		particleName = self.powerupConfig.particle
+		self.soundEventName = self.powerupConfig.pickupSound
 	elseif self.data.type == "gem" then
 		particleName = "particles/gem_" .. tostring(self.data.color) .. ".json"
+		self.soundEventName = "sound_events/collectible_catch_gem.json"
 	elseif self.data.type == "coin" then
 		particleName = "particles/powerup_coin.json"
+		self.soundEventName = "sound_events/collectible_catch_coin.json"
 	end
 	self.particle = game:spawnParticle(particleName, self.pos)
 end
@@ -62,10 +62,8 @@ function Collectible:catch()
 		for i, effect in ipairs(self.powerupConfig.effects) do
 			game.session:usePowerupEffect(effect)
 		end
-		game:playSound(self.powerupConfig.pickupSound, 1, self.pos)
-	else
-		game:playSound("collectible_catch_" .. self.data.type, 1, self.pos)
 	end
+	game:playSound(self.soundEventName, 1, self.pos)
 
 	local score = 0
 	if self.data.type == "coin" then

@@ -180,7 +180,7 @@ end
 
 function Profile:advanceLevel()
 	self:incrementLevel()
-	game:playSound("level_advance")
+	game:playSound("sound_events/level_advance.json")
 	if self:getCurrentLevelConfig().checkpoint > 0 then
 		self:unlockCheckpoint(self:getCurrentLevelConfig().checkpoint)
 	end

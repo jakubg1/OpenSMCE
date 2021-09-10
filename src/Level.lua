@@ -51,7 +51,7 @@ function Level:update(dt)
 		local d1 = self:getDanger() and not self.lost
 		local d2 = self.danger
 		if d1 and not d2 then
-			self.dangerSound = game:playSound("warning_loop")
+			self.dangerSound = game:playSound("sound_events/warning_loop.json")
 		elseif not d1 and d2 then
 			self.dangerSound:stop()
 			self.dangerSound = nil
@@ -106,8 +106,8 @@ function Level:update(dt)
 						game:spawnParticle("particles/warning.json", path:getPos(path.length))
 					end
 				end
-				--game:playSound("warning", 1 + (4 - self.warningDelayMax) / 6)
-				game:playSound("warning")
+				--game:playSound("sound_events/warning.json", 1 + (4 - self.warningDelayMax) / 6)
+				game:playSound("sound_events/warning.json")
 				self.warningDelay = 0
 			end
 		else
@@ -259,7 +259,7 @@ function Level:spawnLightningStormPiece()
 	self:grantScore(100)
 	self:spawnFloatingText(numStr(100), pos, game.configManager.spheres[sphere.color].matchFont)
 	game:spawnParticle("particles/lightning_beam.json", pos)
-	game:playSound("lightning_storm_destroy")
+	game:playSound("sound_events/lightning_storm_destroy.json")
 	-- destroy it
 	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
 end
@@ -422,7 +422,7 @@ function Level:lose()
 	self.shooter:empty()
 	-- delete all shot balls
 	self.shotSpheres:clear()
-	game:playSound("level_lose")
+	game:playSound("sound_events/level_lose.json")
 end
 
 function Level:setPause(pause)
@@ -440,7 +440,7 @@ end
 
 function Level:spawnCollectible(pos, data)
 	self.collectibles:append(Collectible(nil, pos, data))
-	game:playSound("collectible_spawn_" .. data.type, 1, pos)
+	game:playSound("sound_events/collectible_spawn_" .. data.type .. ".json", 1, pos)
 end
 
 function Level:spawnFloatingText(text, pos, font)

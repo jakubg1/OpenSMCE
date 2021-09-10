@@ -7,7 +7,7 @@ function ConfigManager:new()
 	self.config = loadJson(parsePath("config.json"))
 
 	self.loadList = loadJson(parsePath("config/loadlist.json"))
-	local resourceTypes = {"images", "sprites", "sounds", "music", "particles", "fonts"}
+	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
 	self.resourceList = {}
 	for i, type in ipairs(resourceTypes) do
 		self.resourceList[type] = {}

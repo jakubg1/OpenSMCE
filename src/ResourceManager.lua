@@ -4,6 +4,7 @@ local ResourceManager = class:derive("ResourceManager")
 local Image = require("src/Essentials/Image")
 local Sprite = require("src/Essentials/Sprite")
 local Sound = require("src/Essentials/Sound")
+local SoundEvent = require("src/Essentials/SoundEvent")
 local Music = require("src/Essentials/Music")
 local Font = require("src/Essentials/Font")
 local ColorPalette = require("src/Essentials/ColorPalette")
@@ -12,12 +13,24 @@ function ResourceManager:new()
 	self.images = {}
 	self.sprites = {}
 	self.sounds = {}
+	self.soundEvents = {}
 	self.music = {}
 	-- This holds all raw data from files, excluding "config" and "runtime" files, which are critical and handled directly by the game.
 	-- Widgets are excluded from doing so as well, because widgets are loaded only once and don't need to have their source data stored.
 	self.particles = {}
 	self.fonts = {}
 	self.colorPalettes = {}
+
+	self.resources = {
+		image = {t = self.images, c = Image, e = "image"},
+		sprite = {t = self.sprites, c = Sprite, e = "sprite"},
+		sound = {t = self.sounds, c = Sound, e = "sound"},
+		soundEvent = {t = self.soundEvents, c = SoundEvent, e = "sound event"},
+		music = {t = self.music, c = Music, e = "music"},
+		particle = {t = self.particles, c = loadJson, e = "particle"},
+		font = {t = self.fonts, c = Font, e = "font"},
+		colorPalette = {t = self.colorPalettes, c = ColorPalette, e = "color palette"},
+	}
 
 
 	-- Step load variables
@@ -50,115 +63,91 @@ function ResourceManager:update(dt)
 end
 
 function ResourceManager:loadImage(path)
-	--print("[RB] Loading image: " .. path .. "...")
-	local success, err = pcall(function()
-		self.images[path] = Image(parsePath(path))
-	end)
-	if not success then
-		print("[ResourceManager] FAILED to load an image: " .. path)
-		print("-> " .. err)
-	end
+	self:loadResource("image", path)
 end
 
 function ResourceManager:getImage(path)
-	if not self.images[path] then error("Resource Bank tried to get an unknown image: " .. path) end
-	return self.images[path]
+	return self:getResource("image", path)
 end
 
 function ResourceManager:loadSprite(path)
-	--print("[RB] Loading sprite: " .. path .. "...")
-	local success, err = pcall(function()
-		self.sprites[path] = Sprite(parsePath(path))
-	end)
-	if not success then
-		print("[ResourceManager] FAILED to load a sprite: " .. path)
-		print("-> " .. err)
-	end
+	self:loadResource("sprite", path)
 end
 
 function ResourceManager:getSprite(path)
-	if not self.sprites[path] then error("Resource Bank tried to get an unknown sprite: " .. path) end
-	return self.sprites[path]
+	return self:getResource("sprite", path)
 end
 
 function ResourceManager:loadSound(path)
-	--print("[RB] Loading sound: " .. path .. "...")
-	local success, err = pcall(function()
-		self.sounds[path] = Sound(parsePath(path))
-	end)
-	if not success then
-		print("[ResourceManager] FAILED to load a sound: " .. path)
-		print("-> " .. err)
-	end
+	self:loadResource("sound", path)
 end
 
 function ResourceManager:getSound(path)
-	if not self.sounds[path] then error("Resource Bank tried to get an unknown sound: " .. path) end
-	return self.sounds[path]
+	return self:getResource("sound", path)
+end
+
+function ResourceManager:loadSoundEvent(path)
+	self:loadResource("soundEvent", path)
+end
+
+function ResourceManager:getSoundEvent(path)
+	return self:getResource("soundEvent", path)
 end
 
 function ResourceManager:loadMusic(path)
-	--print("[RB] Loading music: " .. path .. "...")
-	local success, err = pcall(function()
-		self.music[path] = Music(parsePath(path))
-	end)
-	if not success then
-		print("[ResourceManager] FAILED to load a music: " .. path)
-		print("-> " .. err)
-	end
+	self:loadResource("music", path)
 end
 
 function ResourceManager:getMusic(path)
-	if not self.music[path] then error("Resource Bank tried to get an unknown music: " .. path) end
-	return self.music[path]
+	return self:getResource("music", path)
 end
 
 function ResourceManager:loadParticle(path)
-	--print("[RB] Loading particle: " .. path .. "...")
-	local success, err = pcall(function()
-		self.particles[path] = loadJson(parsePath(path))
-	end)
-	if not success then
-		print("[ResourceManager] FAILED to load a particle: " .. path)
-		print("-> " .. err)
-	end
+	self:loadResource("particle", path)
 end
 
 function ResourceManager:getParticle(path)
-	if not self.particles[path] then error("Resource Bank tried to get an unknown particle: " .. path) end
-	return self.particles[path]
+	return self:getResource("particle", path)
 end
 
 function ResourceManager:loadFont(path)
-	--print("[RB] Loading font: " .. path .. "...")
-	local success, err = pcall(function()
-		self.fonts[path] = Font(parsePath(path))
-	end)
-	if not success then
-		print("[ResourceManager] FAILED to load a font: " .. path)
-		print("-> " .. err)
-	end
+	self:loadResource("font", path)
 end
 
 function ResourceManager:getFont(path)
-	if not self.fonts[path] then error("Resource Bank tried to get an unknown font: " .. path) end
-	return self.fonts[path]
+	return self:getResource("font", path)
 end
 
 function ResourceManager:loadColorPalette(path)
-	--print("[RB] Loading color palette: " .. path .. "...")
+	self:loadResource("colorPalette", path)
+end
+
+function ResourceManager:getColorPalette(path)
+	return self:getResource("colorPalette", path)
+end
+
+
+
+function ResourceManager:loadResource(type, path)
+	local data = self.resources[type]
+
+	--print(string.format("[RB] Loading %s: %s...", data.e, path))
 	local success, err = pcall(function()
-		self.colorPalettes[path] = ColorPalette(parsePath(path))
+		data.t[path] = data.c(parsePath(path))
 	end)
 	if not success then
-		print("[ResourceManager] FAILED to load a color palette: " .. path)
+		print(string.format("[ResourceManager] FAILED to load %s: %s", data.e, path))
 		print("-> " .. err)
 	end
 end
 
-function ResourceManager:getColorPalette(path)
-	if not self.colorPalettes[path] then error("Resource Bank tried to get an unknown color palette: " .. path) end
-	return self.colorPalettes[path]
+function ResourceManager:getResource(type, path)
+	local data = self.resources[type]
+
+	if not data.t[path] then
+		error(string.format("[ResourceManager] Attempt to get an unknown %s: %s", data.e, path))
+	end
+	return data.t[path]
 end
 
 
@@ -172,6 +161,9 @@ function ResourceManager:loadList(list)
 	end
 	if list.sounds then
 		for i, path in ipairs(list.sounds) do self:loadSound(path) end
+	end
+	if list.sound_events then
+		for i, path in ipairs(list.sound_events) do self:loadSoundEvent(path) end
 	end
 	if list.music then
 		for i, path in ipairs(list.music) do self:loadMusic(path) end
@@ -202,7 +194,7 @@ end
 
 function ResourceManager:stepLoadNext()
 	local objectType = nil
-	local order = {"images", "sprites", "sounds", "music", "particles", "fonts", "colorPalettes"}
+	local order = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "colorPalettes"}
 	-- loading a first object type from order
 	for i, v in ipairs(order) do
 		if self.stepLoadQueue[v] then
@@ -220,6 +212,8 @@ function ResourceManager:stepLoadNext()
 		self:loadSprite(data)
 	elseif objectType == "sounds" then
 		self:loadSound(data)
+	elseif objectType == "sound_events" then
+		self:loadSoundEvent(data)
 	elseif objectType == "music" then
 		self:loadMusic(data)
 	elseif objectType == "particles" then

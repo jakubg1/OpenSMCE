@@ -118,7 +118,7 @@ function Path:spawnChain()
 	table.insert(self.sphereChains, sphereChain)
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
-		game:playSound("sphere_chain_spawn")
+		game:playSound("sound_events/sphere_chain_spawn.json")
 	end
 end
 

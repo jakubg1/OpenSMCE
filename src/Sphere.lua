@@ -56,7 +56,6 @@ function Sphere:update(dt)
 			else
 				self.map.level.combo = 0
 			end
-			--if self.sphereGroup:shouldFit(index) then SOUNDS.hit2:play() end
 			if self.sphereGroup:shouldMatch(index) then self.sphereGroup:matchAndDelete(index) end
 		end
 	end

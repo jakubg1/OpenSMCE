@@ -123,7 +123,7 @@ function Shooter:swapColors()
 	local tmp = self.color
 	self:setColor(self.nextColor)
 	self:setNextColor(tmp)
-	game:playSound("shooter_swap", 1, self.pos)
+	game:playSound("sound_events/shooter_swap.json", 1, self.pos)
 end
 
 function Shooter:getNextColor()
@@ -147,7 +147,7 @@ end
 
 function Shooter:activate()
 	self.active = true
-	game:playSound("shooter_fill", 1, self.pos)
+	game:playSound("sound_events/shooter_fill.json", 1, self.pos)
 end
 
 function Shooter:shoot()

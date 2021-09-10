@@ -25,8 +25,7 @@ function UIWidget:new(name, data, parent)
 	self.pos = parseVec2(data.pos)
 	self.layer = data.layer
 	self.alpha = data.alpha
-	-- TODO remove the lines after "or" (when the development enters into "fit a converter" (last) phase)
-
+	
 	self.animations = {in_ = nil, out = nil}
 	if data.animations then
 		self.animations.in_ = data.animations.in_
@@ -34,8 +33,8 @@ function UIWidget:new(name, data, parent)
 	end
 	self.sounds = {in_ = nil, out = nil}
 	if data.sounds then
-		if data.sounds.in_ then self.sounds.in_ = game.resourceManager:getSound(data.sounds.in_) end
-		if data.sounds.out then self.sounds.out = game.resourceManager:getSound(data.sounds.out) end
+		if data.sounds.in_ then self.sounds.in_ = game.resourceManager:getSoundEvent(data.sounds.in_) end
+		if data.sounds.out then self.sounds.out = game.resourceManager:getSoundEvent(data.sounds.out) end
 	end
 
 	self.widget = nil
@@ -155,8 +154,7 @@ function UIWidget:show()
 			self.alpha = 1
 			if self.widget and self.widget.type == "particle" then self.widget:spawn() end
 		end
-		-- TODO: in future, this should use the sound event system
-		if self.sounds.in_ then self.sounds.in_:play(1, 1, nil, false) end
+		if self.sounds.in_ then self.sounds.in_:play() end
 	end
 	self.time = self.hideDelay
 
@@ -178,8 +176,7 @@ function UIWidget:hide()
 				self.animationTime = nil -- sets to 0 if animation exists, nil otherwise
 				if self.widget and self.widget.type == "particle" then self.widget:despawn() end
 			end
-			-- TODO: in future, this should use the sound event system
-			if self.sounds.out then self.sounds.out:play(1, 1, nil, false) end
+			if self.sounds.out then self.sounds.out:play() end
 			self.time = self.showDelay
 		else
 			self.time = nil
