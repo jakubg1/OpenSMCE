@@ -9,11 +9,12 @@ function SoundInstance:new(path)
     error("Failed to load sound: " .. path)
   end
 
+  self.volume = 1
   self.pos = NATIVE_RESOLUTION / 2
 end
 
 function SoundInstance:update(dt)
-	self:setVolume(game.runtimeManager.options:getEffectiveSoundVolume())
+	self.sound:setVolume(game.runtimeManager.options:getEffectiveSoundVolume() * self.volume)
 end
 
 function SoundInstance:play()
@@ -25,7 +26,7 @@ function SoundInstance:stop()
 end
 
 function SoundInstance:setVolume(volume)
-	self.sound:setVolume(volume)
+	self.volume = volume
 end
 
 function SoundInstance:setPitch(pitch)

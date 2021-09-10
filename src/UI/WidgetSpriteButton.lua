@@ -54,7 +54,9 @@ function UIWidgetSpriteButton:draw()
 	if hovered ~= self.hovered then
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end
-		--SOUNDS.buttonHover:play()
+		if hovered then
+			game:playSound("button_hover")
+		end
 	end
 
 	self.sprite:draw(pos, nil, self:getState(), nil, nil, nil, alpha)

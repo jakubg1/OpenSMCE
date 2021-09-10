@@ -209,12 +209,15 @@ end
 
 function Game:playSound(name, pitch, pos)
 	local soundEvent = self.configManager.config.general.soundEvents[name]
-	return self.resourceManager:getSound(soundEvent.sound):play(pitch, pos, soundEvent.loop)
+	pitch = pitch or 1
+	local eventVolume = parseNumber(soundEvent.volume) or 1
+	local eventPitch = parseNumber(soundEvent.pitch) or 1
+	return self.resourceManager:getSound(soundEvent.path):play(eventVolume, pitch * eventPitch, pos, soundEvent.loop)
 end
 
 function Game:stopSound(name)
 	local soundEvent = self.configManager.config.general.soundEvents[name]
-	self.resourceManager:getSound(soundEvent.sound):stop()
+	self.resourceManager:getSound(soundEvent.path):stop()
 end
 
 function Game:getMusic(name)
