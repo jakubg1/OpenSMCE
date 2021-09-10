@@ -26,6 +26,15 @@ function f.powerupSpawn(length, comboLv, chainLv, comboBoost)
   return (chainLv == 1 and comboBoost and comboLv % 3 == 0) or chainLv % 3 == 0
 end
 
+-- This function returns parameters for Game:playSound() when matching. Used for sound robustness.
+function f.matchSound(length, comboLv, chainLv, comboBoost)
+  local soundID = math.min(math.max(length - 2, 1), 5)
+  return {
+    name = "sphere_destroy_" .. tostring(soundID),
+    pitch = 1 + chainLv * 0.1
+  }
+end
+
 
 
 -- Now we need to carry all functions that we've inserted over to the engine.

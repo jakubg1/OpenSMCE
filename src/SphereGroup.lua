@@ -330,8 +330,8 @@ function SphereGroup:matchAndDelete(position)
 	local color = self.spheres[position].color
 	self:destroySpheres(position1, position2)
 
-	local soundID = math.min(math.max(length - 2, 1), 5)
-	game:playSound("sphere_destroy_" .. tostring(soundID), 1 + self.sphereChain.combo * 0.1, pos)
+	local soundParams = MOD_GAME.matchSound(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
+	game:playSound(soundParams.name, soundParams.pitch, pos)
 	self.sphereChain.combo = self.sphereChain.combo + 1
 	if boostCombo then self.map.level.combo = self.map.level.combo + 1 end
 
