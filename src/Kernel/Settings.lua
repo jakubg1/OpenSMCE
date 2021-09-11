@@ -16,9 +16,9 @@ function Settings:reset()
 
 	if self:getDiscordRPC() == nil then self:setDiscordRPC(true) end
 	if self:getBackToBoot() == nil then self:setBackToBoot(false) end
-	if self:getAimingRetical() == nil then self:setAimingRetical(true) end
-	if self:getConsoleWindow() == nil then self:setConsoleWindow(false) end
-	if self:get3DSound() == nil then self:set3DSound(true) end
+	if self:getAimingRetical() == nil then self:setAimingRetical(false) end
+	if self:getConsoleWindow() == nil then self:setConsoleWindow(true) end
+	if self:get3DSound() == nil then self:set3DSound(false) end
 end
 
 
