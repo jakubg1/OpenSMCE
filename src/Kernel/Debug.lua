@@ -238,15 +238,15 @@ end
 function Debug:drawVisibleText(text, pos, height, width, alpha)
 	alpha = alpha or 1
 
+	local t = love.graphics.newText(love.graphics.getFont(), text)
 	love.graphics.setColor(0, 0, 0, 0.7 * alpha)
 	if width then
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
 	else
-		local t = love.graphics.newText(love.graphics.getFont(), text)
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, t:getWidth() + 6, height)
 	end
 	love.graphics.setColor(1, 1, 1, alpha)
-	love.graphics.print(text, pos.x, pos.y)
+	love.graphics.draw(t, pos.x, pos.y)
 end
 
 function Debug:drawDebugInfo()
