@@ -116,17 +116,6 @@ function Level:update(dt)
 
 
 
-		-- Target widget
-		-- TODO: HARDCODED - make it more flexible
-		if game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.level_progress).widget.value == 1 then
-			game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):show()
-		else
-			game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):hide()
-			game.uiManager:getWidget(game.configManager.config.hudPathsTEMP.level_progresscomplete):clean()
-		end
-
-
-
 		-- Level start
 		-- TODO: HARDCODED - make it more flexible
 		if self.controlDelay then
