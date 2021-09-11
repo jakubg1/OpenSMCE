@@ -186,17 +186,25 @@ function Level:update(dt)
 
 	-- music fade in/out
 	local music = game:getMusic(self.musicName)
-	local dangerMusic = game:getMusic(self.dangerMusicName)
-	if not self.started or self.lost or self.won or self.pause then
-		music:setVolume(0)
-		dangerMusic:setVolume(0)
-	else
-		if self.danger then
+	if self.dangerMusicName then
+		local dangerMusic = game:getMusic(self.dangerMusicName)
+		if not self.started or self.lost or self.won or self.pause then
 			music:setVolume(0)
-			dangerMusic:setVolume(1)
+			dangerMusic:setVolume(0)
+		else
+			if self.danger then
+				music:setVolume(0)
+				dangerMusic:setVolume(1)
+			else
+				music:setVolume(1)
+				dangerMusic:setVolume(0)
+			end
+		end
+	else
+		if not self.started or self.lost or self.won or self.pause then
+			music:setVolume(0)
 		else
 			music:setVolume(1)
-			dangerMusic:setVolume(0)
 		end
 	end
 end
