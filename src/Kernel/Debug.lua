@@ -26,6 +26,7 @@ function Debug:new()
 
 	self.uiDebugVisible = false
 	self.uiDebugOffset = 0
+	self.uiWidgetCount = 0
 	self.e = false
 
 
@@ -143,6 +144,7 @@ function Debug:getDebugMain()
 	s = s .. "FPS = " .. tostring(love.timer.getFPS()) .. "\n"
 	s = s .. "Drawcalls = " .. tostring(love.graphics.getStats().drawcalls) .. "\n"
 	s = s .. "DrawcallsSaved = " .. tostring(love.graphics.getStats().drawcallsbatched) .. "\n"
+	s = s .. "UIWidgetCount = " .. tostring(self.uiWidgetCount) .. "\n"
 
 	return s
 end
@@ -420,12 +422,24 @@ function Debug:profDraw2Start()
 	self.profDraw2:start()
 end
 
-function Debug:profDraw2Checkpoint()
-	self.profDraw2:checkpoint()
+function Debug:profDraw2Checkpoint(n)
+	self.profDraw2:checkpoint(n)
 end
 
 function Debug:profDraw2Stop()
 	self.profDraw2:stop()
+end
+
+function Debug:profDrawLevelStart()
+	self.profDrawLevel:start()
+end
+
+function Debug:profDrawLevelCheckpoint(n)
+	self.profDrawLevel:checkpoint(n)
+end
+
+function Debug:profDrawLevelStop()
+	self.profDrawLevel:stop()
 end
 
 

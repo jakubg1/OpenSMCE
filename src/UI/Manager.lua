@@ -128,13 +128,38 @@ function UIManager:update(dt)
 end
 
 function UIManager:draw()
-	-- Widgets
-	for widgetN, widget in pairs(self.widgets) do
-		widget:generateDrawData()
-	end
+  --[[
+  -- APPROACHES 1, 2
+  for widgetN, widget in pairs(self.widgets) do
+    widget:generateDrawData()
+  end
+
+  dbg.uiWidgetCount = 0
+  for i, layer in ipairs(game.configManager.hudLayerOrder) do
+    for widgetN, widget in pairs(self.widgets) do
+      widget:draw(layer)
+    end
+  end
+  ]]--
+
+
+  
+  -- APPROACH 3
+  -- This table will contain the order in which widgets will be drawn.
+  local layers = {}
 	for i, layer in ipairs(game.configManager.hudLayerOrder) do
-		for widgetN, widget in pairs(self.widgets) do
-			widget:draw(layer)
+    layers[layer] = {}
+  end
+
+  -- Let every widget write into that table.
+	for widgetN, widget in pairs(self.widgets) do
+		widget:generateDrawData(layers, widgetN)
+	end
+
+  dbg.uiWidgetCount = 0
+	for i, layer in ipairs(game.configManager.hudLayerOrder) do
+		for j, names in ipairs(layers[layer]) do
+			self:getWidget(names):draw()
 		end
 	end
 end

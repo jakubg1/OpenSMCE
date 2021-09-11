@@ -25,7 +25,7 @@ function UIWidget:new(name, data, parent)
 	self.pos = parseVec2(data.pos)
 	self.layer = data.layer
 	self.alpha = data.alpha
-	
+
 	self.animations = {in_ = nil, out = nil}
 	if data.animations then
 		self.animations.in_ = data.animations.in_
@@ -255,6 +255,8 @@ end
 
 
 
+-- APPROACH 1: ORIGINAL
+--[[
 function UIWidget:generateDrawData()
 	for childN, child in pairs(self.children) do
 		child:generateDrawData()
@@ -268,9 +270,62 @@ function UIWidget:draw(layer)
 	for childN, child in pairs(self.children) do
 		child:draw(layer)
 	end
+	dbg.uiWidgetCount = dbg.uiWidgetCount + 1
 	if self:getAlpha() == 0 then return end -- why drawing excessively?
 	if self.widget and self:getLayer() == layer then self.widget:draw() end
 end
+]]--
+
+
+
+-- APPROACH 2: OPTIMIZED
+
+--[[
+function UIWidget:generateDrawData()
+	for childN, child in pairs(self.children) do
+		child:generateDrawData()
+	end
+	if self.widget and self.widget.type == "text" then
+		self.widget.textTmp = parseString(self.widget.text)
+	end
+end
+
+function UIWidget:draw(layer)
+	if self:getAlpha() == 0 then return end -- why drawing excessively?
+	for childN, child in pairs(self.children) do
+		child:draw(layer)
+	end
+	dbg.uiWidgetCount = dbg.uiWidgetCount + 1
+	if self.widget and self:getLayer() == layer then self.widget:draw() end
+end
+]]--
+
+
+-- APPROACH 3: MASSIVELY OPTIMIZED
+function UIWidget:generateDrawData(layers, startN)
+	for childN, child in pairs(self.children) do
+		child:generateDrawData(layers, startN)
+	end
+	if self.widget then
+		if self:getAlpha() > 0 then
+			local names = self:getNames()
+			names[1] = startN
+			table.insert(layers[self:getLayer()], names)
+		end
+		if self.widget.type == "text" then
+			self.widget.textTmp = parseString(self.widget.text)
+		end
+	end
+end
+
+function UIWidget:draw()
+	dbg.uiWidgetCount = dbg.uiWidgetCount + 1
+	self.widget:draw()
+end
+
+
+
+
 
 function UIWidget:getFullName()
 	if self.parent then
@@ -278,6 +333,12 @@ function UIWidget:getFullName()
 	else
 		return self.name
 	end
+end
+
+function UIWidget:getNames(t)
+	t = t or {}
+	table.insert(t, 1, self.name)
+	return self.parent and self.parent:getNames(t) or t
 end
 
 -- This function is phased out because it literally outputs itself but with less data.

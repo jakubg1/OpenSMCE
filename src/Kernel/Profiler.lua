@@ -24,6 +24,10 @@ function Profiler:new(name)
 	self.tc = {}
 	self.t = nil
 	self.totalLags = 0
+
+
+	self.showPercentage = false
+	self.percentageMode = false
 end
 
 function Profiler:start()
@@ -31,11 +35,16 @@ function Profiler:start()
 	self.t = love.timer.getTime()
 end
 
-function Profiler:checkpoint()
+function Profiler:checkpoint(n)
 	if not self.t then return end
 
 	local t = love.timer.getTime()
-	table.insert(self.tc, t - self.t)
+	local td = t - self.t
+	if n and self.tc[n] then
+		self.tc[n] = self.tc[n] + td
+	else
+		table.insert(self.tc, td)
+	end
 	self.t = t
 end
 
@@ -68,16 +77,31 @@ function Profiler:draw(pos)
 	-- Graph
 	for i, tc in ipairs(self.times) do
 		local ttot = 0
-		for j, t in ipairs(tc) do
-			local h1 = ttot * 30 * 100
-			ttot = ttot + t
-			local h2 = ttot * 30 * 100
-			if h2 > 200 then
-				h2 = 200
+		if self.percentageMode then
+			for j, t in ipairs(tc) do
+				ttot = ttot + t
 			end
-			love.graphics.setColor(unpack(self.COLORS[(j - 1) % 12 + 1]))
-			local p = pos + Vec2(i, -h2)
-			love.graphics.rectangle("fill", p.x, p.y, 1, h2 - h1)
+
+			local htot = 0
+			for j, t in ipairs(tc) do
+				local h = t / ttot * 200
+				htot = htot + h
+				love.graphics.setColor(unpack(self.COLORS[(j - 1) % 12 + 1]))
+				local p = pos + Vec2(i, -htot)
+				love.graphics.rectangle("fill", p.x, p.y, 1, h)
+			end
+		else
+			for j, t in ipairs(tc) do
+				local h1 = ttot * 30 * 100
+				ttot = ttot + t
+				local h2 = ttot * 30 * 100
+				if h2 > 200 then
+					h2 = 200
+				end
+				love.graphics.setColor(unpack(self.COLORS[(j - 1) % 12 + 1]))
+				local p = pos + Vec2(i, -h2)
+				love.graphics.rectangle("fill", p.x, p.y, 1, h2 - h1)
+			end
 		end
 
 		total = total + ttot
@@ -107,31 +131,53 @@ function Profiler:draw(pos)
 	end
 
 	-- Lines
-	love.graphics.setLineWidth(1)
-	local p1 = pos + Vec2(0, -200)
-	local p2 = pos + Vec2(300, -200)
-	love.graphics.setColor(1, 0, 0)
-	love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-	love.graphics.print("0.067 (1/15)", p1.x, p1.y - 16)
-	local p1 = pos + Vec2(0, -150)
-	local p2 = pos + Vec2(300, -150)
-	love.graphics.setColor(1, 0.5, 0)
-	love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-	love.graphics.print("0.050 (1/20)", p1.x, p1.y - 16)
-	local p1 = pos + Vec2(0, -100)
-	local p2 = pos + Vec2(300, -100)
-	love.graphics.setColor(1, 1, 0)
-	love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-	love.graphics.print("0.033 (1/30)", p1.x, p1.y - 16)
-	local p1 = pos + Vec2(0, -50)
-	local p2 = pos + Vec2(300, -50)
-	love.graphics.setColor(0, 1, 0)
-	love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-	love.graphics.print("0.016 (1/60)", p1.x, p1.y - 16)
-	local p1 = pos + Vec2(0, 0)
-	local p2 = pos + Vec2(300, 0)
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+	if not self.percentageMode then
+		love.graphics.setLineWidth(1)
+		local p1 = pos + Vec2(0, -200)
+		local p2 = pos + Vec2(300, -200)
+		love.graphics.setColor(1, 0, 0)
+		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+		love.graphics.print("0.067 (1/15)", p1.x, p1.y - 16)
+		local p1 = pos + Vec2(0, -150)
+		local p2 = pos + Vec2(300, -150)
+		love.graphics.setColor(1, 0.5, 0)
+		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+		love.graphics.print("0.050 (1/20)", p1.x, p1.y - 16)
+		local p1 = pos + Vec2(0, -100)
+		local p2 = pos + Vec2(300, -100)
+		love.graphics.setColor(1, 1, 0)
+		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+		love.graphics.print("0.033 (1/30)", p1.x, p1.y - 16)
+		local p1 = pos + Vec2(0, -50)
+		local p2 = pos + Vec2(300, -50)
+		love.graphics.setColor(0, 1, 0)
+		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+		love.graphics.print("0.016 (1/60)", p1.x, p1.y - 16)
+		local p1 = pos + Vec2(0, 0)
+		local p2 = pos + Vec2(300, 0)
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+	end
+
+
+
+	-- Percentage
+	if self.showPercentage and #self.times > 0 then
+		local tc = self.times[#self.times]
+		local ttot = 0
+		for i, t in ipairs(tc) do
+			ttot = ttot + t
+		end
+
+		local htot = 0
+		for i, t in ipairs(tc) do
+			local h = t / ttot * 200
+			htot = htot + h
+			love.graphics.setColor(unpack(self.COLORS[(i - 1) % 12 + 1]))
+			local p = pos + Vec2(0, -htot)
+			love.graphics.rectangle("fill", p.x, p.y, 10, h)
+		end
+	end
 end
 
 return Profiler
