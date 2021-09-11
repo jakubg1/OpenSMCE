@@ -10,6 +10,7 @@ function ConfigManager:new()
 	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
 	self.resourceList = {}
 	for i, type in ipairs(resourceTypes) do
+		print(string.format("[ConfigManager] Loading %s...", type))
 		self.resourceList[type] = {}
 		for j, path in ipairs(getDirListing(parsePath(type), "file", nil, true)) do
 			local name = type .. "/" .. path
