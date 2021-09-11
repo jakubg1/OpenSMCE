@@ -11,8 +11,8 @@ The first priority for now is to release the full 1.0.0 version.
 
 These are the things planned to do before full 1.0.0 version is released:
 - Split the game config file into respective files.
-- Split sound events and sprites into separate files for each.
-- Optimize sphere drawing routine.
+- ~~Split sound events and sprites into separate files for each.~~
+- ~~Optimize sphere drawing routine.~~
 - ~~Add remaining Luxor 1 functionality (profile selector).~~
 - Make progress autosave functionality, emergency save function.
 - Fix bugs.
@@ -70,6 +70,12 @@ However, we cannot tell you a way to download it, because it contains copyrighte
 
 - For modifying the engine:
   - same as above, a text editor (preferably *Atom* or *Notepad++*), Lua knowledge, JSON knowledge, LOVE 11.3 installed and the code repository program to easily manage the code and update it
+
+## Showcase
+Here are some videos showcasing the recent progress on the engine:
+
+[![Video 1](https://img.youtube.com/vi/vPKg8oilgqI/0.jpg)](https://www.youtube.com/watch?v=vPKg8oilgqI)
+[![Video 2](https://img.youtube.com/vi/_bZRL3-Cn8c/0.jpg)](https://www.youtube.com/watch?v=_bZRL3-Cn8c)
 
 ## Documentation
 The documentation will come at some point. Unfortunately, there is no documentation for now.
