@@ -16,7 +16,7 @@ end
 
 function SoundEvent:play(pitch, pos)
   if not self.sound then
-    return
+    return self
   end
   pitch = pitch or 1
   local eventVolume = parseNumber(self.volume)
