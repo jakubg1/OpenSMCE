@@ -207,7 +207,7 @@ function Shooter:draw()
 	if engineSettings:getAimingRetical() then
 		local targetPos = self:getTargetPos()
 		local color = self:getReticalColor()
-		local sphereConfig = game.spheres[self.color]
+		local sphereConfig = game.configManager.spheres[self.color]
 		if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
 			love.graphics.setLineWidth(3 * getResolutionScale())
 			love.graphics.setColor(color.r, color.g, color.b)
