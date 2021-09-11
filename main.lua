@@ -297,7 +297,9 @@ function getDirListing(path, filter, extFilter, recursive, pathRec)
 		end
 	end
 	-- Unmount it so we don't get into safety problems.
-	love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
+	if pathRec == "" then
+		love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
+	end
 	return result
 end
 
