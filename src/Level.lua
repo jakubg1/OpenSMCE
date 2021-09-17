@@ -14,9 +14,6 @@ function Level:new(data)
 	-- data specified in main config file
 	self.name = data.name
 
-	self.musicName = data.music
-	self.dangerMusicName = data.dangerMusic
-
 	-- data specified in level config file
 	local data = loadJson(parsePath(data.path))
 
@@ -37,6 +34,9 @@ function Level:new(data)
 	self.spawnDistance = data.spawnDistance
 	self.dangerDistance = data.dangerDistance
 	self.speeds = data.speeds
+
+	self.musicName = data.music
+	self.dangerMusicName = data.dangerMusic
 
 	-- Additional variables come from this method!
 	self:reset()
