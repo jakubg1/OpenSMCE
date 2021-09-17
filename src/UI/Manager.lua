@@ -56,8 +56,11 @@ function UIManager:new()
     profileGetScore = function() return game:getCurrentProfile():getScore() end,
     profileGetSession = function() return game:getCurrentProfile():getSession() end,
     profileGetLevelN = function() return game:getCurrentProfile():getLevel() end,
-    profileGetLevel = function() return game:getCurrentProfile():getCurrentLevelConfig() end,
-    profileGetNextLevel = function() return game:getCurrentProfile():getNextLevelConfig() end,
+    profileGetLevel = function() return game:getCurrentProfile():getLevelData() end,
+    -- Soon deprecated
+    profileGetLevelConf = function() return game:getCurrentProfile():getCurrentLevelConfig() end,
+    -- Soon deprecated
+    profileGetNextLevelConf = function() return game:getCurrentProfile():getNextLevelConfig() end,
     profileGetSavedLevel = function() return game:getCurrentProfile():getSavedLevel() end,
     profileGetMap = function() return game:getCurrentProfile():getMapData() end,
     profileGetCheckpoint = function() return game:getCurrentProfile():getCurrentCheckpointConfig() end,
@@ -143,7 +146,7 @@ function UIManager:draw()
   ]]--
 
 
-  
+
   -- APPROACH 3
   -- This table will contain the order in which widgets will be drawn.
   local layers = {}
