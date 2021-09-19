@@ -81,12 +81,12 @@ Here are some videos showcasing the recent progress on the engine:
 The documentation will come at some point. Unfortunately, there is no documentation for now.
 
 ## Notes
-This engine is on beta stage - currently, some modules are being overhauled and new features being added to fully support the Luxor game.
+This engine is on beta stage - currently, Luxor game is nearly fully supported and soon there will be first full releases.
 
 In current shape, it is intended to play the Luxor game along with its mods. Next steps will add support for Luxor Amun Rising, its huge variety of mods and Zuma respectively.
 
-ETA of leaving beta stage (original Luxor game fully working and playable) is January 17, 2021.
-Keep it mind that it might be delayed!
+ETA of leaving beta stage (original Luxor game fully working and playable) is around October of 2021.
+Keep in mind that it might be delayed!
 
 Stay tuned!
 
