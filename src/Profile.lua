@@ -5,11 +5,15 @@ function Profile:new(data, name)
 	self.name = name
 
 	self.levels = {}
-	self.checkpoints = {1}
+	self.checkpoints = {}
 	self.variables = {}
 
 	if data then
 		self:deserialize(data)
+	else
+		for i, checkpoint in ipairs(game.configManager.levelSet.startCheckpoints) do
+			self.checkpoints[i] = checkpoint
+		end
 	end
 end
 
