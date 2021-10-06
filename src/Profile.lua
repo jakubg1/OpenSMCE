@@ -23,7 +23,7 @@ end
 
 function Profile:getLevelData()
 	-- Returns what is written in levels/*.json.
-	return game.configManager.levels[self:getLevel()]
+	return game.configManager.levels[self:getLevelPath()]
 end
 
 function Profile:getMapData()
@@ -50,36 +50,52 @@ function Profile:getLevel()
 	return self.session.level
 end
 
-function Profile:setLevel(level)
-	self.session.level = level
+function Profile:getLevelStr()
+	return tostring(self.session.level.journey) .. "," .. tostring(self.session.level.level)
+end
+
+function Profile:getNextLevel()
+	local l = {journey = self.session.level.journey, level = self.session.level.level}
+
+	if self:getLevelsInJourney(l.journey) == l.level then
+		-- advance to next journey
+		l.journey = game.configManager.levelSet.journeys[l.journey].nextJourney
+		l.level = 1
+	else
+		l.level = l.level + 1
+	end
+
+	return l
+end
+
+function Profile:getLevelPath()
+	local l = self.session.level
+	return game.configManager.levelSet.journeys[l.journey].levels[l.level]
+end
+
+function Profile:setJourney(journey)
+	self.session.level.journey = journey
+end
+
+function Profile:getLevelsInJourney(journey)
+	return #game.configManager.levelSet.journeys[journey].levels
 end
 
 function Profile:incrementLevel()
-	self:setLevel(self:getLevel() + 1)
+	self.session.level = self:getNextLevel()
 end
 
-
-function Profile:getCurrentLevelConfig()
-	-- Returns what is written in config.json. Soon deprecated.
-	return game.configManager.config.levels[self:getLevel()]
-end
-
-function Profile:getNextLevelConfig()
-	-- Returns what is written in config.json. Soon deprecated.
-	return game.configManager.config.levels[self:getLevel() + 1]
-end
-
-function Profile:getCurrentCheckpointConfig()
-	return game.configManager.config.checkpoints[self:getCurrentLevelConfig().stage]
+function Profile:getCurrentJourney()
+	return game.configManager.levelSet.journeys[self.session.level.journey]
 end
 
 
 function Profile:getCurrentLevelData()
-	return self.levels[tostring(self:getLevel())]
+	return self.levels[self:getLevelStr()]
 end
 
 function Profile:setCurrentLevelData(data)
-	self.levels[tostring(self:getLevel())] = data
+	self.levels[self:getLevelStr()] = data
 end
 
 
@@ -165,7 +181,10 @@ function Profile:newGame(checkpoint)
 	self.session.coins = 0
 	self.session.score = 0
 	self.session.difficulty = 1
-	self:setLevel(game.configManager.config.checkpoints[checkpoint or 1].level)
+
+	self.session.level = {}
+	self.session.level.journey = game.configManager.levelSet.checkpoints[checkpoint or 1].journey
+	self.session.level.level = game.configManager.levelSet.checkpoints[checkpoint or 1].level
 end
 
 function Profile:deleteGame()
@@ -188,8 +207,11 @@ end
 function Profile:advanceLevel()
 	self:incrementLevel()
 	game:playSound("sound_events/level_advance.json")
-	if self:getCurrentLevelConfig().checkpoint > 0 then
-		self:unlockCheckpoint(self:getCurrentLevelConfig().checkpoint)
+	-- TODO: HARDCODED - make it more flexible
+	-- specifically, in this case we need more data in the future about levels:
+	-- when do we unlock or lock checkpoints
+	if self:getLevel().level == 1 then
+		self:unlockCheckpoint(self:getLevel().journey)
 	end
 end
 

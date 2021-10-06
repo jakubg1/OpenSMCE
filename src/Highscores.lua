@@ -45,7 +45,7 @@ function Highscores:storeProfile(profile, pos)
 		-- everyone who is lower than the new highscore goes down
 		self.data.entries[i + 1] = self:getEntry(i)
 	end
-	self.data.entries[pos] = {name = profile.name, score = profile:getScore(), level = profile:getCurrentLevelConfig().name}
+	self.data.entries[pos] = {name = profile.name, score = profile:getScore(), level = profile:getLevelData().name}
 
 	for i, entry in ipairs(self.data.entries) do print(entry.score, entry.name, entry.level) end
 	return true

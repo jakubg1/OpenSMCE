@@ -107,7 +107,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 	if self:levelExists() then
 		local l = self.session.level
 		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
-			p:getCurrentLevelConfig().name,
+			p:getLevelData().name,
 			l.won and "Complete!" or string.format("%s%%", math.floor((l.destroyedSpheres / l.target) * 100)),
 			p:getScore(),
 			p:getLives()

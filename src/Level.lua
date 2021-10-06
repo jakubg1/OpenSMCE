@@ -11,11 +11,8 @@ local Collectible = require("src/Collectible")
 local FloatingText = require("src/FloatingText")
 
 function Level:new(data)
-	-- data specified in main config file
-	self.name = data.name
-
 	-- data specified in level config file
-	local data = loadJson(parsePath(data.path))
+	self.name = data.name
 
 	self.map = Map(self, "maps/" .. data.map)
 	self.shooter = Shooter()
