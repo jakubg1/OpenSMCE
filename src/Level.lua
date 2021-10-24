@@ -11,14 +11,8 @@ local Collectible = require("src/Collectible")
 local FloatingText = require("src/FloatingText")
 
 function Level:new(data)
-	-- data specified in main config file
-	self.name = data.name
-
-	self.musicName = data.music
-	self.dangerMusicName = data.dangerMusic
-
 	-- data specified in level config file
-	local data = loadJson(parsePath(data.path))
+	self.name = data.name
 
 	self.map = Map(self, "maps/" .. data.map)
 	self.shooter = Shooter()
@@ -37,6 +31,9 @@ function Level:new(data)
 	self.spawnDistance = data.spawnDistance
 	self.dangerDistance = data.dangerDistance
 	self.speeds = data.speeds
+
+	self.musicName = data.music
+	self.dangerMusicName = data.dangerMusic
 
 	-- Additional variables come from this method!
 	self:reset()
@@ -130,7 +127,7 @@ function Level:update(dt)
 
 		-- Level finish
 		if self:getFinish() and not self.finish and not self.finishDelay then
-			self.finishDelay = 2
+			self.finishDelay = game.configManager.gameplay.level.finishDelay
 			self.shooter.active = false
 		end
 
@@ -149,11 +146,11 @@ function Level:update(dt)
 				self.bonusDelay = self.bonusDelay - dt
 				if self.bonusDelay <= 0 then
 					self.map.paths:get(self.bonusPathID):spawnBonusScarab()
-					self.bonusDelay = 1.5
+					self.bonusDelay = game.configManager.gameplay.level.bonusDelay
 					self.bonusPathID = self.bonusPathID + 1
 				end
 			else
-				self.wonDelay = 1.5
+				self.wonDelay = game.configManager.gameplay.level.wonDelay
 				self.bonusDelay = nil
 			end
 		end
@@ -164,11 +161,10 @@ function Level:update(dt)
 				self.wonDelay = nil
 				self.won = true
 				local newRecord = game:getCurrentProfile():getLevelHighscoreInfo(self.score)
-				if newRecord then
-					game.uiManager:executeCallback("levelCompleteRecord")
-				else
-					game.uiManager:executeCallback("levelComplete")
-				end
+				game.uiManager:executeCallback({
+					name = "levelComplete",
+					parameters = {newRecord}
+				})
 			end
 		end
 
@@ -334,7 +330,7 @@ end
 
 function Level:begin()
 	self.started = true
-	self.controlDelay = 2
+	self.controlDelay = game.configManager.gameplay.level.controlDelay
 	game:getMusic(self.musicName):reset()
 end
 
@@ -342,7 +338,9 @@ function Level:beginLoad()
 	self.started = true
 	game:getMusic(self.musicName):reset()
 	self.targetReached = self.destroyedSpheres == self.target
-	if not self.bonusDelay and not self.map.paths:get(self.bonusPathID) then self.wonDelay = 1.5 end
+	if not self.bonusDelay and not self.map.paths:get(self.bonusPathID) then
+		self.wonDelay = game.configManager.gameplay.level.wonDelay
+	end
 end
 
 function Level:save()
