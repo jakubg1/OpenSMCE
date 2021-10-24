@@ -44,23 +44,6 @@ There are no games publicly available right now, however three games are known t
 We will provide tools to convert and create games at some point.
 In future, we are considering bundling all releases with a builtin game - to save you hassle! More info soon.
 
-**The game listing below and descriptions are for informing purpose only. We cannot guarantee that all info below is genuine or up to date.**
-
-### Luxor
-The original Luxor game is the main one supported - however, due to copyright issues, we can't provide it along with the engine releases.
-However, if you do have the original game, there's a way to convert it.
-
-Check the README file in the main release directory for instructions. Note that there may be some outdated information.
-We will simplify the conversion process down the road, and we plan to make a video tutorial as well (once the full version is released).
-
-### Mario's Voyage
-This is the first Luxor mod to be successfully converted.
-However, for now there are just private playtest versions and the game is not publicly available yet.
-
-### Luxor 1 AR Mix
-This is the first OpenSMCE game which was built specifically for this engine.
-However, we cannot tell you a way to download it, because it contains copyrighted assets.
-
 ## What do I need?
 - For running the engine and playing the games:
   - just the executable, the files, the game and you're ready to go
@@ -70,6 +53,41 @@ However, we cannot tell you a way to download it, because it contains copyrighte
 
 - For modifying the engine:
   - same as above, a text editor (preferably *Atom* or *Notepad++*), Lua knowledge, JSON knowledge, LOVE 11.3 installed and the code repository program to easily manage the code and update it
+
+### Building instructions
+I am using a batch script for creating the OpenSMCE.exe file. This will work under a few assumptions:
+- You're using a Windows operating system.
+- You have 7-Zip installed on your computer and added to your PATH.
+- You have LOVE2D installed and it sits under `C:\Program Files\LOVE\love.exe`.
+- The OpenSMCE source code folder is located in the folder named `OpenSMCE` relative to the folder the script is in.
+- An `exlist.txt` file is located in the same folder the main batch script you're running is in, with the contents shown below.
+
+If some of the requirements above are not met, you may need to modify the batch script according to your requirements.
+
+Main batch file contents:
+```
+7z a compiled.zip .\OpenSMCE\* -x@exlist.txt
+copy /b "C:\Program Files\LOVE\love.exe"+compiled.zip "OpenSMCE.exe"
+del compiled.zip
+pause
+```
+
+`exlist.txt` contents:
+```
+assets\
+dll\
+doc\
+doc2\
+engine\
+games\
+.git\
+*.bat
+*.md
+*.ld
+*.txt
+LICENSE
+.gitignore
+```
 
 ## Showcase
 Here are some videos showcasing the recent progress on the engine:
