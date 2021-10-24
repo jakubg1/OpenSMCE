@@ -21,13 +21,8 @@ function Profile:getSession()
 	return self.session
 end
 
-function Profile:getLevelData()
-	-- Returns what is written in levels/*.json.
-	return game.configManager.levels[self:getLevel()]
-end
-
 function Profile:getMapData()
-	return game.configManager.maps[self:getLevelData().map]
+	return game.configManager.maps[game.configManager.levels[self:getLevel()].map]
 end
 
 
@@ -60,12 +55,10 @@ end
 
 
 function Profile:getCurrentLevelConfig()
-	-- Returns what is written in config.json. Soon deprecated.
 	return game.configManager.config.levels[self:getLevel()]
 end
 
 function Profile:getNextLevelConfig()
-	-- Returns what is written in config.json. Soon deprecated.
 	return game.configManager.config.levels[self:getLevel() + 1]
 end
 
