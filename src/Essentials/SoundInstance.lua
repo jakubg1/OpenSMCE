@@ -34,6 +34,11 @@ function SoundInstance:setPitch(pitch)
 end
 
 function SoundInstance:setPos(pos)
+  -- pos may be nilled by SoundEvent when flat flag is set
+  if not pos then
+    return
+  end
+
   if engineSettings:get3DSound() and pos then
     self.pos = pos
     local p = pos - NATIVE_RESOLUTION / 2

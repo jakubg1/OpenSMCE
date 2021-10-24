@@ -12,6 +12,7 @@ function SoundEvent:new(path)
   self.volume = data.volume or 1
   self.pitch = data.volume or 1
   self.loop = data.loop or false
+	self.flat = data.flat or false
 end
 
 function SoundEvent:play(pitch, pos)
@@ -21,7 +22,8 @@ function SoundEvent:play(pitch, pos)
   pitch = pitch or 1
   local eventVolume = parseNumber(self.volume)
   local eventPitch = parseNumber(self.pitch)
-  return self.sound:play(eventVolume, pitch * eventPitch, pos, self.loop)
+	local eventPos = not self.flat and pos
+  return self.sound:play(eventVolume, pitch * eventPitch, eventPos, self.loop)
 end
 
 function SoundEvent:stop()
