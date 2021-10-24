@@ -56,11 +56,12 @@ function UIManager:new()
     profileGetScore = function() return _Game:getCurrentProfile():getScore() end,
     profileGetSession = function() return _Game:getCurrentProfile():getSession() end,
     profileGetLevelN = function() return _Game:getCurrentProfile():getLevel() end,
-    profileGetLevel = function() return _Game:getCurrentProfile():getCurrentLevelConfig() end,
-    profileGetNextLevel = function() return _Game:getCurrentProfile():getNextLevelConfig() end,
+    profileGetLevel = function() return _Game:getCurrentProfile():getLevelData() end,
+    profileGetNextLevelN = function() return _Game:getCurrentProfile():getNextLevel() end,
     profileGetSavedLevel = function() return _Game:getCurrentProfile():getSavedLevel() end,
     profileGetMap = function() return _Game:getCurrentProfile():getMapData() end,
-    profileGetCheckpoint = function() return _Game:getCurrentProfile():getCurrentCheckpointConfig() end,
+    profileGetJourney = function() return _Game:getCurrentProfile():getCurrentJourney() end,
+    profileGetJourneyLevelCount = function(n) return _Game:getCurrentProfile():getLevelsInJourney(n) end,
     profileGetUnlockedCheckpoints = function() return _Game:getCurrentProfile():getUnlockedCheckpoints() end,
     profileIsCheckpointUnlocked = function(n) return _Game:getCurrentProfile():isCheckpointUnlocked(n) end,
 
@@ -71,9 +72,11 @@ function UIManager:new()
     highscoreGetEntry = function(n) return _Game.runtimeManager.highscores:getEntry(n) end,
 
     configGetLevelData = function(n) return _Game.configManager.config.levels[n] end,
-    configGetLevelData2 = function(n) return _Game.configManager.levels[n] end,
+    configGetLevelData2 = function(name) return _Game.configManager.levels[name] end,
     configGetMapData = function(name) return _Game.configManager.maps[name] end,
-    configGetCheckpointData = function(n) return _Game.configManager.config.checkpoints[n] end,
+    configGetCheckpointData = function(n) return _Game.configManager.levelSet.checkpoints[n] end,
+    configGetJourneyName = function(n) return _Game.configManager.levelSet.journeys[n].name end,
+    configGetLevelPath = function(p) return _Game.configManager.levelSet.journeys[p.journey].levels[p.level] end,
 
     optionsLoad = function() self:optionsLoad() end,
     optionsSave = function() self:optionsSave() end,
@@ -143,7 +146,7 @@ function UIManager:draw()
   ]]--
 
 
-  
+
   -- APPROACH 3
   -- This table will contain the order in which widgets will be drawn.
   local layers = {}

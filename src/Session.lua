@@ -46,7 +46,7 @@ end
 --- Initializes a new level.
 -- The level number is derived from the current Profile.
 function Session:startLevel()
-	self.level = Level(_Game:getCurrentProfile():getCurrentLevelConfig())
+	self.level = Level(_Game:getCurrentProfile():getLevelData())
 	local savedLevelData = _Game:getCurrentProfile():getSavedLevel()
 	if savedLevelData then
 		self.level:deserialize(savedLevelData)

@@ -33,6 +33,7 @@ function ConfigManager:new()
 	self.gameplay = _LoadJson(_ParsePath("config/gameplay.json"))
 	self.highscores = _LoadJson(_ParsePath("config/highscores.json"))
 	self.hudLayerOrder = _LoadJson(_ParsePath("config/hud_layer_order.json"))
+	self.levelSet = _LoadJson(_ParsePath("config/level_set.json"))
 	self.music = _LoadJson(_ParsePath("config/music.json"))
 	self.powerups = _LoadJson(_ParsePath("config/powerups.json"))
 
@@ -46,9 +47,9 @@ function ConfigManager:new()
 
 	self.levels = {}
 	self.maps = {}
-	for i, levelConfig in ipairs(self.config.levels) do
-		local level = _LoadJson(_ParsePath(levelConfig.path))
-		self.levels[i] = level
+	for i, path in ipairs(_GetDirListing(_ParsePath("levels"), "file")) do
+		local level = _LoadJson(_ParsePath("levels/" .. path))
+		self.levels["levels/" .. path] = level
 		if not self.maps[level.map] then
 			self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
 		end
