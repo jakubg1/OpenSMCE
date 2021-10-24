@@ -57,11 +57,13 @@ function UIManager:new()
     profileGetSession = function() return game:getCurrentProfile():getSession() end,
     profileGetLevelN = function() return game:getCurrentProfile():getLevel() end,
     profileGetLevel = function() return game:getCurrentProfile():getLevelData() end,
-    profileGetNextLevelN = function() return game:getCurrentProfile():getNextLevel() end,
+    -- Soon deprecated
+    profileGetLevelConf = function() return game:getCurrentProfile():getCurrentLevelConfig() end,
+    -- Soon deprecated
+    profileGetNextLevelConf = function() return game:getCurrentProfile():getNextLevelConfig() end,
     profileGetSavedLevel = function() return game:getCurrentProfile():getSavedLevel() end,
     profileGetMap = function() return game:getCurrentProfile():getMapData() end,
-    profileGetJourney = function() return game:getCurrentProfile():getCurrentJourney() end,
-    profileGetJourneyLevelCount = function(n) return game:getCurrentProfile():getLevelsInJourney(n) end,
+    profileGetCheckpoint = function() return game:getCurrentProfile():getCurrentCheckpointConfig() end,
     profileGetUnlockedCheckpoints = function() return game:getCurrentProfile():getUnlockedCheckpoints() end,
     profileIsCheckpointUnlocked = function(n) return game:getCurrentProfile():isCheckpointUnlocked(n) end,
 
@@ -72,11 +74,9 @@ function UIManager:new()
     highscoreGetEntry = function(n) return game.runtimeManager.highscores:getEntry(n) end,
 
     configGetLevelData = function(n) return game.configManager.config.levels[n] end,
-    configGetLevelData2 = function(name) return game.configManager.levels[name] end,
+    configGetLevelData2 = function(n) return game.configManager.levels[n] end,
     configGetMapData = function(name) return game.configManager.maps[name] end,
-    configGetCheckpointData = function(n) return game.configManager.levelSet.checkpoints[n] end,
-    configGetJourneyName = function(n) return game.configManager.levelSet.journeys[n].name end,
-    configGetLevelPath = function(p) return game.configManager.levelSet.journeys[p.journey].levels[p.level] end,
+    configGetCheckpointData = function(n) return game.configManager.config.checkpoints[n] end,
 
     optionsLoad = function() self:optionsLoad() end,
     optionsSave = function() self:optionsSave() end,

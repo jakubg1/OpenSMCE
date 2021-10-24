@@ -46,15 +46,10 @@ function jsonBeautify(s)
 		local pc = s:sub(i-1, i-1) -- previous character
 		local c = s:sub(i, i) -- this character
 		local nc = s:sub(i+1, i+1) -- next character
-		local strModePrev = false -- so we don't switch this back off on the way
-
-		if not strMode and c == "\"" then
-			strMode = true
-			strModePrev = true
-		end
+		if not strMode and c == "\"" then strMode = true end
 		if strMode then -- strings are not JSON syntax, so they omit the formatting rules
 			ln = ln .. c
-			if not strModePrev and c == "\"" and pc ~= "\\" then strMode = false end
+			if c == "\"" and pc ~= "\\" then strMode = false end
 		else
 			if (c == "]" or c == "}") and not (pc == "[" or pc == "{") then
 				indent = indent - 1
