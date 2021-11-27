@@ -82,11 +82,11 @@ end
 function Scorpion:explode()
 	local score = self.destroyedSpheres * 100
 	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score), self.path:getPos(self.offset), self.config.scoreFont)
+	game.session.level:spawnFloatingText(numStr(score), self:getPos(), self.config.scoreFont)
 	if self.destroyedSpheres == self.maxSpheres then
-		game.session.level:spawnCollectible(self.path:getPos(self.offset), {type = "coin"})
+		game.session.level:spawnCollectible(self:getPos(), {type = "coin"})
 	end
-	game:spawnParticle(self.config.destroyParticle, self.path:getPos(self.offset))
+	game:spawnParticle(self.config.destroyParticle, self:getPos())
 	game:playSound("sound_events/scorpion_destroy.json", 1, pos)
 end
 
@@ -99,13 +99,31 @@ end
 
 
 function Scorpion:draw(hidden, shadow)
-	if self.path:getHidden(self.offset) == hidden then
+	if self:getHidden() == hidden then
 		if shadow then
-			self.shadowSprite:draw(self.path:getPos(self.offset) + Vec2(4), Vec2(0.5))
+			self.shadowSprite:draw(self:getPos() + Vec2(4), Vec2(0.5))
 		else
-			self.sprite:draw(self.path:getPos(self.offset), Vec2(0.5), nil, nil, self.path:getAngle(self.offset) + math.pi, Color(self.path:getBrightness(self.offset)))
+			self.sprite:draw(self:getPos(), Vec2(0.5), nil, nil, self:getAngle() + math.pi, Color(self:getBrightness()))
 		end
 	end
+end
+
+
+
+function Scorpion:getPos()
+	return self.path:getPos(self.offset)
+end
+
+function Scorpion:getAngle()
+	return self.path:getAngle(self.offset)
+end
+
+function Scorpion:getBrightness()
+	return self.path:getBrightness(self.offset)
+end
+
+function Scorpion:getHidden()
+	return self.path:getHidden(self.offset)
 end
 
 

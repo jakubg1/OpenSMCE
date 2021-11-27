@@ -73,7 +73,7 @@ end
 
 
 function BonusScarab:draw(hidden, shadow)
-	if self.path:getHidden(self.offset) == hidden then
+	if self:getHidden() == hidden then
 		if shadow then
 			self.shadowSprite:draw(self:getPos() + Vec2(4), Vec2(0.5))
 		else
@@ -94,6 +94,10 @@ end
 
 function BonusScarab:getBrightness()
 	return self.path:getBrightness(self.offset)
+end
+
+function BonusScarab:getHidden()
+	return self.path:getHidden(self.offset)
 end
 
 
