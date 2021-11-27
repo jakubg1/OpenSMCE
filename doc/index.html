@@ -27,372 +27,58 @@
 <h1>ldoc</h1>
 
 
-<h2>Contents</h2>
-<ul>
-<li><a href="#Functions">Functions</a></li>
-</ul>
 
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><strong>Session</strong></li>
+  <li><a href="modules/com.discordrpc.html">com.discordrpc</a></li>
+  <li><a href="modules/games.luxor_o_4_unsupported.ui.script.html">games.luxor_o_4_unsupported.ui.script</a></li>
+  <li><a href="modules/games.luxor_o_5.ui.script.html">games.luxor_o_5.ui.script</a></li>
+  <li><a href="modules/Session.html">Session</a></li>
+  <li><a href="modules/Timer.html">Timer</a></li>
+  <li><a href="modules/mathmethods.html">mathmethods</a></li>
 </ul>
 
 </div>
 
 <div id="content">
 
-<h1>Module <code>Session</code></h1>
-<p>A root for all variable things during the game, such as level and player's progress.</p>
-<p></p>
 
+  <h2>does some simple but useful things</h2>
 
-<h2><a href="#Functions">Functions</a></h2>
-<table class="function_list">
+<h2>Modules</h2>
+<table class="module_list">
 	<tr>
-	<td class="name" nowrap><a href="#new">new ()</a></td>
-	<td class="summary">Object constructor.</td>
+		<td class="name"  nowrap><a href="modules/com.discordrpc.html">com.discordrpc</a></td>
+		<td class="summary"></td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#init">init ()</a></td>
-	<td class="summary">An initialization callback.</td>
+		<td class="name"  nowrap><a href="modules/games.luxor_o_4_unsupported.ui.script.html">games.luxor_o_4_unsupported.ui.script</a></td>
+		<td class="summary">GLOBAL CALLBACKS --</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#update">update (dt)</a></td>
-	<td class="summary">An update callback.</td>
+		<td class="name"  nowrap><a href="modules/games.luxor_o_5.ui.script.html">games.luxor_o_5.ui.script</a></td>
+		<td class="summary">GLOBAL CALLBACKS --</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#startLevel">startLevel ()</a></td>
-	<td class="summary">Initializes a new level.</td>
+		<td class="name"  nowrap><a href="modules/Session.html">Session</a></td>
+		<td class="summary">A root for all variable things during the game, such as level and player's progress.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#terminate">terminate ()</a></td>
-	<td class="summary">Triggers a Game Over.</td>
+		<td class="name"  nowrap><a href="modules/Timer.html">Timer</a></td>
+		<td class="summary">Provides base game timing calculation and quantizes the time to full frames.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#draw">draw ()</a></td>
-	<td class="summary">A drawing callback.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#newSphereColor">newSphereColor (omitDangerCheck)</a></td>
-	<td class="summary">Returns a random sphere color that is on the board.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#colorsMatch">colorsMatch (color1, color2)</a></td>
-	<td class="summary">Returns whether both provided colors can attract or make valid scoring combinations with each other.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#usePowerup">usePowerup (data)</a></td>
-	<td class="summary">Executes a powerup and plays an appropriate sound.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#destroyFunction">destroyFunction (t, scorePos)</a></td>
-	<td class="summary">Destroys all spheres on the board if a call of the function f(sphere, spherePos) returns true.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#destroyColor">destroyColor (color)</a></td>
-	<td class="summary">Destroys all spheres on the board if they are a given color.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#destroyRadius">destroyRadius (pos, radius)</a></td>
-	<td class="summary">Destroys all spheres that are closer than radius pixels to the pos position.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#destroyVertical">destroyVertical (x, width)</a></td>
-	<td class="summary">Destroys all spheres that are closer than width pixels to the x position on X coordinate.</td>
+		<td class="name"  nowrap><a href="modules/mathmethods.html">mathmethods</a></td>
+		<td class="summary">This module contains string methods which can be used anywhere in the code.</td>
 	</tr>
 </table>
-
-<br/>
-<br/>
-
-
-    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "new"></a>
-    <strong>new ()</strong>
-    </dt>
-    <dd>
-    Object constructor.
- A callback executed when this object is created.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "init"></a>
-    <strong>init ()</strong>
-    </dt>
-    <dd>
-    An initialization callback.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "update"></a>
-    <strong>update (dt)</strong>
-    </dt>
-    <dd>
-    An update callback.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">dt</span>
-            <span class="types"><span class="type">number</span></span>
-         Delta time in seconds.
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "startLevel"></a>
-    <strong>startLevel ()</strong>
-    </dt>
-    <dd>
-    Initializes a new level.
- The level number is derived from the current Profile.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "terminate"></a>
-    <strong>terminate ()</strong>
-    </dt>
-    <dd>
-    Triggers a Game Over.
- Deinitializates the level and shows an appropriate widget.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "draw"></a>
-    <strong>draw ()</strong>
-    </dt>
-    <dd>
-    A drawing callback.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "newSphereColor"></a>
-    <strong>newSphereColor (omitDangerCheck)</strong>
-    </dt>
-    <dd>
-    Returns a random sphere color that is on the board.
- If no spheres are on the board, this function returns the last sphere color that appeared on the board.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">omitDangerCheck</span>
-            <span class="types"><span class="type">boolean</span></span>
-         When it is set to true, gets just any random sphere color that is on board provided it is not special (e.g. wild).
- Setting this to false searches only in colors that are in the danger colors list, and if nothing was found there,
- it gets a random color from the entire board.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">number</span></span>
-        A sphere color.
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "colorsMatch"></a>
-    <strong>colorsMatch (color1, color2)</strong>
-    </dt>
-    <dd>
-    Returns whether both provided colors can attract or make valid scoring combinations with each other.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">color1</span>
-            <span class="types"><span class="type">number</span></span>
-         The first color to check.
-        </li>
-        <li><span class="parameter">color2</span>
-            <span class="types"><span class="type">number</span></span>
-         The second color to check.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><span class="type">boolean</span></span>
-        Whether the check has passed.
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "usePowerup"></a>
-    <strong>usePowerup (data)</strong>
-    </dt>
-    <dd>
-    Executes a powerup and plays an appropriate sound.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">data</span>
-         The data of the powerup to use.
- powerupdata is a quasi-type that conveys following information:<br/>
-   - name (string) - The name of the powerup, can be one of the following:<br/>
-     "slow", "stop", "reverse", "wild", "bomb", "lightning", "shotspeed", "colorbomb"<br/>
-   - color (number) - The powerup color, only exists if name == "colorbomb".
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "destroyFunction"></a>
-    <strong>destroyFunction (t, scorePos)</strong>
-    </dt>
-    <dd>
-    Destroys all spheres on the board if a call of the function f(sphere, spherePos) returns true.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">t</span>
-            <span class="types"><span class="type">function</span></span>
-         The function that has to return true in order for a given sphere to be deleted.
-        </li>
-        <li><span class="parameter">scorePos</span>
-            <span class="types"><span class="type">Vector2</span></span>
-         A position where the score text should be located.
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "destroyColor"></a>
-    <strong>destroyColor (color)</strong>
-    </dt>
-    <dd>
-    Destroys all spheres on the board if they are a given color.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">color</span>
-            <span class="types"><span class="type">number</span></span>
-         The sphere color to be deleted.
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "destroyRadius"></a>
-    <strong>destroyRadius (pos, radius)</strong>
-    </dt>
-    <dd>
-    Destroys all spheres that are closer than radius pixels to the pos position.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">pos</span>
-            <span class="types"><span class="type">Vector2</span></span>
-         A position relative to which the spheres will be destroyed.
-        </li>
-        <li><span class="parameter">radius</span>
-            <span class="types"><span class="type">number</span></span>
-         The range in pixels.
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "destroyVertical"></a>
-    <strong>destroyVertical (x, width)</strong>
-    </dt>
-    <dd>
-    Destroys all spheres that are closer than width pixels to the x position on X coordinate.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x</span>
-            <span class="types"><span class="type">number</span></span>
-         An X coordinate relative to which the spheres will be destroyed.
-        </li>
-        <li><span class="parameter">width</span>
-            <span class="types"><span class="type">number</span></span>
-         The range in pixels.
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
-
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-08-15 10:08:21 </i>
+<i style="float:right;">Last updated 2021-11-27 20:27:40 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

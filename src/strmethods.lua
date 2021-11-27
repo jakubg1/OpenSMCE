@@ -1,3 +1,7 @@
+---Splits a string `s` with the delimiter being `k`.
+---@param s string A string to be split.
+---@param k string A delimiter which determines where to split `s`.
+---@return table t A table of strings the input string has been split to.
 function _StrSplit(s, k)
 	local t = {}
 	local l = k:len()
@@ -13,6 +17,10 @@ function _StrSplit(s, k)
 	end
 end
 
+---Combines a table of strings together to produce a string.
+---@param t table A table of strings to be combined.
+---@param k string A delimiter which will separate the terms.
+---@return string s A combined string.
 function _StrJoin(t, k)
 	local s = ""
 	for i, n in ipairs(t) do
@@ -22,6 +30,10 @@ function _StrJoin(t, k)
 	return s
 end
 
+---Trims whitespace from both the beginning and the end of a given string.
+---Currently supported whitespace characters are `" "` and `"\t"`.
+---@param s string A string to be truncated.
+---@return string s A truncated string.
 function _StrTrim(s)
 	-- truncate leading whitespace
 	while s:sub(1, 1) == " " or s:sub(1, 1) == "\t" do s = s:sub(2) end
@@ -31,11 +43,20 @@ function _StrTrim(s)
 	return s
 end
 
+---Trims a line from a trailing comment.
+---The only supported comment marker is `//`.
+---
+---Example: `"abcdef   // ghijkl"` will be truncated to `"abcdef"`.
+---@param s string A string to be truncated.
+---@return string s A truncated string.
 function _StrTrimCom(s)
 	-- truncate the comment part and trim
 	return _StrTrim(_StrSplit(s, "//")[1])
 end
 
+---A simple function which makes JSON formatting nicer.
+---@param s string Raw JSON input.
+---@return string output Beautiful JSON output.
 function _JsonBeautify(s)
 	local indent = 0
 	local ret = "" -- returned string
