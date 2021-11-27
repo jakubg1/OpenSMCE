@@ -33,14 +33,14 @@ function CrashScreen:new(err)
 end
 
 function CrashScreen:update(dt)
-	mousePos = Vec2(love.mouse.getPosition())
+	_MousePos = Vec2(love.mouse.getPosition())
 	
 	-- URL hover
 	for i, button in ipairs(self.buttons) do
-		button.hovered = mousePos.x > button.pos.x and
-						mousePos.x < button.pos.x + button.size.x and
-						mousePos.y > button.pos.y and
-						mousePos.y < button.pos.y + button.size.y
+		button.hovered = _MousePos.x > button.pos.x and
+						_MousePos.x < button.pos.x + button.size.x and
+						_MousePos.y > button.pos.y and
+						_MousePos.y < button.pos.y + button.size.y
 	end
 end
 

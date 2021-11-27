@@ -20,9 +20,9 @@ function UIWidget:new(name, data, parent)
 	-- positions, alpha etc. are:
 	-- local in variables
 	-- global in methods
-	if type(data) == "string" then data = loadJson(parsePath(data)) end
+	if type(data) == "string" then data = _LoadJson(_ParsePath(data)) end
 
-	self.pos = parseVec2(data.pos)
+	self.pos = _ParseVec2(data.pos)
 	self.layer = data.layer
 	self.alpha = data.alpha
 
@@ -33,8 +33,8 @@ function UIWidget:new(name, data, parent)
 	end
 	self.sounds = {in_ = nil, out = nil}
 	if data.sounds then
-		if data.sounds.in_ then self.sounds.in_ = game.resourceManager:getSoundEvent(data.sounds.in_) end
-		if data.sounds.out then self.sounds.out = game.resourceManager:getSoundEvent(data.sounds.out) end
+		if data.sounds.in_ then self.sounds.in_ = _Game.resourceManager:getSoundEvent(data.sounds.in_) end
+		if data.sounds.out then self.sounds.out = _Game.resourceManager:getSoundEvent(data.sounds.out) end
 	end
 
 	self.widget = nil
@@ -92,7 +92,7 @@ function UIWidget:new(name, data, parent)
 		if self.animations.in_.type == "fade" then
 			self.alpha = self.animations.in_.startValue
 		elseif self.animations.in_.type == "move" then
-			self.pos = parseVec2(self.animations.in_.startPos)
+			self.pos = _ParseVec2(self.animations.in_.startPos)
 		end
 	end
 end
@@ -106,7 +106,7 @@ function UIWidget:update(dt)
 		if animation.type == "fade" then
 			self.alpha = animation.startValue * (1 - t) + animation.endValue * t
 		elseif animation.type == "move" then
-			self.pos = parseVec2(animation.startPos) * (1 - t) + parseVec2(animation.endPos) * t
+			self.pos = _ParseVec2(animation.startPos) * (1 - t) + _ParseVec2(animation.endPos) * t
 		end
 
 		if self.animationTime >= animation.time then
@@ -230,7 +230,7 @@ function UIWidget:textinput(t)
 end
 
 function UIWidget:setActive(r)
-	if not r then game.uiManager:resetActive() end
+	if not r then _Game.uiManager:resetActive() end
 
 	self.active = true
 
@@ -313,13 +313,13 @@ function UIWidget:generateDrawData(layers, startN)
 			table.insert(layers[self:getLayer()], names)
 		end
 		if self.widget.type == "text" then
-			self.widget.textTmp = parseString(self.widget.text)
+			self.widget.textTmp = _ParseString(self.widget.text)
 		end
 	end
 end
 
 function UIWidget:draw()
-	dbg.uiWidgetCount = dbg.uiWidgetCount + 1
+	_Debug.uiWidgetCount = _Debug.uiWidgetCount + 1
 	self.widget:draw()
 end
 
@@ -402,12 +402,12 @@ function UIWidget:executeAction(actionType)
 -- An action is a list of functions.
 	-- Execute defined functions (JSON)
 	if self.callbacks and self.callbacks[actionType] then
-		game.uiManager:executeCallback(self.callbacks[actionType])
+		_Game.uiManager:executeCallback(self.callbacks[actionType])
 	end
 	-- Execute scheduled functions (UI script)
 	if self.actions[actionType] then
 		for i, f in ipairs(self.actions[actionType]) do
-			f(game.uiManager.scriptFunctions)
+			f(_Game.uiManager.scriptFunctions)
 		end
 		self.actions[actionType] = nil
 	end

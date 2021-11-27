@@ -18,7 +18,7 @@ end
 function UIWidgetSpriteButtonSlider:click()
 	if not self.parent:isVisible() or not self.button.hovered or self.button.clicked then return end
 	self.button:click()
-	self.catchX = mousePos.x - self.parent.pos.x
+	self.catchX = _MousePos.x - self.parent.pos.x
 end
 
 function UIWidgetSpriteButtonSlider:unclick()
@@ -43,7 +43,7 @@ end
 
 function UIWidgetSpriteButtonSlider:draw()
 	if self.button.clicked then
-		self.parent.pos.x = math.min(math.max(mousePos.x - self.catchX, self.bounds[1]), self.bounds[2])
+		self.parent.pos.x = math.min(math.max(_MousePos.x - self.catchX, self.bounds[1]), self.bounds[2])
 		self.value = (self.parent.pos.x - self.bounds[1]) / (self.bounds[2] - self.bounds[1])
 	end
 	self.button:draw()

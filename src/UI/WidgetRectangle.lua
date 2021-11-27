@@ -6,16 +6,16 @@ function UIWidgetRectangle:new(parent, size, color)
 	
 	self.parent = parent
 	
-	self.size = parseVec2(size)
-	self.color = parseColor(color)
+	self.size = _ParseVec2(size)
+	self.color = _ParseColor(color)
 end
 
 
 
 function UIWidgetRectangle:draw()
 	love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.parent:getAlpha())
-	local pos = posOnScreen(self.parent:getPos())
-	local size = self.size * getResolutionScale()
+	local pos = _PosOnScreen(self.parent:getPos())
+	local size = self.size * _GetResolutionScale()
 	love.graphics.rectangle("fill", pos.x, pos.y, size.x, size.y)
 end
 

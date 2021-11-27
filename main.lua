@@ -34,18 +34,23 @@ NATIVE_RESOLUTION = Vec2(800, 600)
 
 
 -- GLOBAL ZONE
-displaySize = Vec2(800, 600)
-displayFullscreen = false
-mousePos = Vec2(0, 0)
-keyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
+_DisplaySize = Vec2(800, 600)
+_DisplayFullscreen = false
+_MousePos = Vec2(0, 0)
+_KeyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
 
-game = nil
-dbg = nil
+_Game = nil
+_Debug = nil
 
-variableSet = {}
+_VariableSet = {}
 
-totalTime = 0
-timeScale = 1
+_TotalTime = 0
+_TimeScale = 1
+
+
+
+_EngineSettings = nil
+_DiscordRPC = nil
 
 
 
@@ -59,125 +64,125 @@ function love.load()
 	--local s = loadFile("test.txt")
 	--print(s)
 	--print(jsonBeautify(s))
-	dbg = Debug()
-	engineSettings = Settings("engine/settings.json")
-	discordRPC = DiscordRichPresence()
+	_Debug = Debug()
+	_EngineSettings = Settings("engine/settings.json")
+	_DiscordRPC = DiscordRichPresence()
 	-- Init boot screen
-	loadBootScreen()
+	_LoadBootScreen()
 end
 
 function love.update(dt)
-	dbg:profUpdateStart()
+	_Debug:profUpdateStart()
 
-	mousePos = posFromScreen(Vec2(love.mouse.getPosition()))
-	if game then game:update(dt * timeScale) end
+	_MousePos = _PosFromScreen(Vec2(love.mouse.getPosition()))
+	if _Game then _Game:update(dt * _TimeScale) end
 
-	dbg:update(dt)
-	discordRPC:update(dt)
+	_Debug:update(dt)
+	_DiscordRPC:update(dt)
 
 	-- rainbow effect for the shooter and console cursor blink; to be phased out soon
-	totalTime = totalTime + dt
+	_TotalTime = _TotalTime + dt
 
-	dbg:profUpdateStop()
+	_Debug:profUpdateStop()
 end
 
 function love.draw()
 	--dbg:profDrawStart()
 
 	-- Main
-	if game then game:draw() end
+	if _Game then _Game:draw() end
 
 	-- Tests
-	dbg:draw()
+	_Debug:draw()
 
 	--dbg:profDrawStop()
 end
 
 function love.mousepressed(x, y, button)
-	if game then game:mousepressed(x, y, button) end
+	if _Game then _Game:mousepressed(x, y, button) end
 end
 
 function love.mousereleased(x, y, button)
-	if game then game:mousereleased(x, y, button) end
+	if _Game then _Game:mousereleased(x, y, button) end
 end
 
 function love.keypressed(key)
-	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = true end end
+	for k, v in pairs(_KeyModifiers) do if key == k then _KeyModifiers[k] = true end end
 	-- Backspace is treated exclusively and will trigger repeatedly when held.
 	love.keyboard.setKeyRepeat(key == "backspace")
 
-	if not dbg.console.active then
-		if game then game:keypressed(key) end
+	if not _Debug.console.active then
+		if _Game then _Game:keypressed(key) end
 	end
 
-	dbg:keypressed(key)
+	_Debug:keypressed(key)
 end
 
 function love.keyreleased(key)
-	for k, v in pairs(keyModifiers) do if key == k then keyModifiers[k] = false end end
+	for k, v in pairs(_KeyModifiers) do if key == k then _KeyModifiers[k] = false end end
 
-	if not dbg.console.active then
-		if game then game:keyreleased(key) end
+	if not _Debug.console.active then
+		if _Game then _Game:keyreleased(key) end
 	end
 
-	dbg:keyreleased(key)
+	_Debug:keyreleased(key)
 end
 
 function love.textinput(t)
-	if not dbg.console.active then
-		if game then game:textinput(t) end
+	if not _Debug.console.active then
+		if _Game then _Game:textinput(t) end
 	end
 
-	dbg:textinput(t)
+	_Debug:textinput(t)
 end
 
 function love.resize(w, h)
-	displaySize = Vec2(w, h)
+	_DisplaySize = Vec2(w, h)
 end
 
 function love.quit()
 	print("[] User-caused Exit... []")
-	if game and game.quit then game:quit(true) end
-	discordRPC:disconnect()
+	if _Game and _Game.quit then _Game:quit(true) end
+	_DiscordRPC:disconnect()
 end
 
 
 
 -- FUNCTION ZONE
-function loadGame(gameName)
-	game = Game(gameName)
-	game:init()
+function _LoadGame(gameName)
+	_Game = Game(gameName)
+	_Game:init()
 end
 
-function loadBootScreen()
-	game = BootScreen()
-	game:init()
-end
-
-
-
-
-
-
-function getDisplayOffsetX()
-	return (displaySize.x - NATIVE_RESOLUTION.x * getResolutionScale()) / 2
-end
-
-function getResolutionScale()
-	return displaySize.y / NATIVE_RESOLUTION.y
-end
-
-function posOnScreen(pos)
-	return pos * getResolutionScale() + Vec2(getDisplayOffsetX(), 0)
-end
-
-function posFromScreen(pos)
-	return (pos - Vec2(getDisplayOffsetX(), 0)) / getResolutionScale()
+function _LoadBootScreen()
+	_Game = BootScreen()
+	_Game:init()
 end
 
 
 
-function getRainbowColor(t)
+
+
+
+function _GetDisplayOffsetX()
+	return (_DisplaySize.x - NATIVE_RESOLUTION.x * _GetResolutionScale()) / 2
+end
+
+function _GetResolutionScale()
+	return _DisplaySize.y / NATIVE_RESOLUTION.y
+end
+
+function _PosOnScreen(pos)
+	return pos * _GetResolutionScale() + Vec2(_GetDisplayOffsetX(), 0)
+end
+
+function _PosFromScreen(pos)
+	return (pos - Vec2(_GetDisplayOffsetX(), 0)) / _GetResolutionScale()
+end
+
+
+
+function _GetRainbowColor(t)
 	t = t * 3
 	local r = math.min(math.max(2 * (1 - math.abs(t % 3)), 0), 1) + math.min(math.max(2 * (1 - math.abs((t % 3) - 3)), 0), 1)
 	local g = math.min(math.max(2 * (1 - math.abs((t % 3) - 1)), 0), 1)
@@ -189,7 +194,7 @@ end
 
 
 
-function loadFile(path)
+function _LoadFile(path)
 	local file = io.open(path, "r")
 	if not file then
 		print("WARNING: File \"" .. path .. "\" does not exist. Expect errors!")
@@ -201,13 +206,13 @@ function loadFile(path)
 	return contents
 end
 
-function loadJson(path)
-	return json.decode(loadFile(path))
+function _LoadJson(path)
+	return json.decode(_LoadFile(path))
 end
 
 -- This function allows to load images from external sources.
 -- This is an altered code from https://love2d.org/forums/viewtopic.php?t=85350#p221460
-function loadImageData(path)
+function _LoadImageData(path)
 	local f = io.open(path, "rb")
 	if f then
 		local data = f:read("*all")
@@ -220,8 +225,8 @@ function loadImageData(path)
 	end
 end
 
-function loadImage(path)
-	local imageData = loadImageData(path)
+function _LoadImage(path)
+	local imageData = _LoadImageData(path)
 	if not imageData then error("LOAD IMAGE FAIL: " .. path) end
 	local image = love.graphics.newImage(imageData)
 	return image
@@ -229,7 +234,7 @@ end
 
 -- This function allows to load sounds from external sources.
 -- This is an altered code from the above function.
-function loadSound(path, type)
+function _LoadSound(path, type)
 	local f = io.open(path, "rb")
 	if f then
 		local data = f:read("*all")
@@ -237,7 +242,7 @@ function loadSound(path, type)
 		if data then
 			-- to make everything work properly, we need to get the extension from the path, because it is used
 			-- source: https://love2d.org/wiki/love.filesystem.newFileData
-			local t = strSplit(path, ".")
+			local t = _StrSplit(path, ".")
 			local extension = t[#t]
 			data = love.filesystem.newFileData(data, "tempname." .. extension)
 			data = love.sound.newSoundData(data)
@@ -247,19 +252,19 @@ function loadSound(path, type)
 	end
 end
 
-function saveFile(path, data)
+function _SaveFile(path, data)
 	local file = io.open(path, "w")
 	io.output(file)
 	io.write(data)
 	io.close(file)
 end
 
-function saveJson(path, data)
+function _SaveJson(path, data)
 	print("Saving JSON data to " .. path .. "...")
-	saveFile(path, jsonBeautify(json.encode(data)))
+	_SaveFile(path, _JsonBeautify(json.encode(data)))
 end
 
-function getDirListing(path, filter, extFilter, recursive, pathRec)
+function _GetDirListing(path, filter, extFilter, recursive, pathRec)
 	-- Returns a list of directories and/or files in a given path.
 	-- filter can be "all", "dir" for directories only or "file" for files only.
 	filter = filter or "all"
@@ -286,7 +291,7 @@ function getDirListing(path, filter, extFilter, recursive, pathRec)
 				table.insert(result, pathRec .. item)
 			end
 			if recursive then
-				for j, file in ipairs(getDirListing(path, filter, extFilter, true, pathRec .. item .. "/")) do
+				for j, file in ipairs(_GetDirListing(path, filter, extFilter, true, pathRec .. item .. "/")) do
 					table.insert(result, file)
 				end
 			end
@@ -305,16 +310,16 @@ end
 
 
 
-function parseString(data, variables)
+function _ParseString(data, variables)
 	if not data then return nil end
 	if type(data) == "string" then return data end
-	str = ""
+	local str = ""
 	for i, compound in ipairs(data) do
 		if type(compound) == "string" then
 			str = str .. compound
 		else
 			if compound.type == "scoreFormat" then
-				str = str .. numStr(parseNumber(compound.value, variables))
+				str = str .. _NumStr(_ParseNumber(compound.value, variables))
 			elseif compound.type == "variable" then
 				if not variables[compound.name] then
 					-- print("FATAL: Invalid variable: " .. compound.name)
@@ -329,36 +334,36 @@ function parseString(data, variables)
 	return str
 end
 
-function parsePath(data, variables)
+function _ParsePath(data, variables)
 	if not data then return nil end
-	return "games/" .. game.name .. "/" .. parseString(data, variables)
+	return "games/" .. _Game.name .. "/" .. _ParseString(data, variables)
 end
 
-function parseNumber(data, variables, properties)
+function _ParseNumber(data, variables, properties)
 	if not data then return nil end
 	if type(data) == "number" then return data end
 	if type(data) == "string" then return tonumber(data) end
 	if data.type == "variable" then return variables[data.name] end
 	if data.type == "property" then return properties[data.name] end
 	if data.type == "randomSign" then
-		local value = parseNumber(data.value, variables, properties)
+		local value = _ParseNumber(data.value, variables, properties)
 		return math.random() < 0.5 and -value or value
 	end
 	if data.type == "randomInt" then
-		local min = parseNumber(data.min, variables, properties)
-		local max = parseNumber(data.max, variables, properties)
+		local min = _ParseNumber(data.min, variables, properties)
+		local max = _ParseNumber(data.max, variables, properties)
 		return math.random(min, max)
 	end
 	if data.type == "randomFloat" then
-		local min = parseNumber(data.min, variables, properties)
-		local max = parseNumber(data.max, variables, properties)
+		local min = _ParseNumber(data.min, variables, properties)
+		local max = _ParseNumber(data.max, variables, properties)
 		return min + math.random() * (max - min)
 	end
 	if data.type == "expr_graph" then
-		local value = parseNumber(data.value, variables, properties)
+		local value = _ParseNumber(data.value, variables, properties)
 		local points = {}
 		for i, point in ipairs(data.points) do
-			points[i] = parseVec2(point, variables, properties)
+			points[i] = _ParseVec2(point, variables, properties)
 		end
 		for i, point in ipairs(points) do
 			if value < point.x then
@@ -373,23 +378,23 @@ function parseNumber(data, variables, properties)
 		return points[#points].y
 	end
 	if data.type == "fromString" then
-		return tonumber(parseString(data.value, variables))
+		return tonumber(_ParseString(data.value, variables))
 	end
 end
 
-function parseVec2(data, variables, properties)
+function _ParseVec2(data, variables, properties)
 	if not data then return nil end
 	if data.type == "variable" then return variables[data.name] end
-	return Vec2(parseNumber(data.x, variables, properties), parseNumber(data.y, variables, properties))
+	return Vec2(_ParseNumber(data.x, variables, properties), _ParseNumber(data.y, variables, properties))
 end
 
-function parseColor(data, variables, properties)
+function _ParseColor(data, variables, properties)
 	if not data then return nil end
 	if data.type == "variable" then return variables[data.name] end
-	return Color(parseNumber(data.r, variables, properties), parseNumber(data.g, variables, properties), parseNumber(data.b, variables, properties))
+	return Color(_ParseNumber(data.r, variables, properties), _ParseNumber(data.g, variables, properties), _ParseNumber(data.b, variables, properties))
 end
 
-function numStr(n)
+function _NumStr(n)
 	local text = ""
 	local s = tostring(n)
 	local l = s:len()
@@ -405,9 +410,9 @@ end
 -- The given expression can be simplified, because we are defining A = 0 and D = 1.
 -- The shortened expression: y = B * 3x(1-x)^2 + C * 3x^2(1-x) + x^3
 -- x is t, B is p1 and C is p2.
-function bzLerp(t, p1, p2)
+function _BzLerp(t, p1, p2)
 	local b = p1 * (3 * t * math.pow(1 - t, 2))
 	local c = p2 * (math.pow(3 * t, 2) * (1 - t))
-	local d = math.pow(x, 3)
+	local d = math.pow(t, 3)
 	return b + c + d
 end

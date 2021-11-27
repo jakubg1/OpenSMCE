@@ -12,7 +12,7 @@ function UIWidgetSpriteButtonCheckbox:new(parent, sprites)
 
 	self.state = false
 
-	self.sprites = {game.resourceManager:getSprite(sprites[1]), game.resourceManager:getSprite(sprites[2])}
+	self.sprites = {_Game.resourceManager:getSprite(sprites[1]), _Game.resourceManager:getSprite(sprites[2])}
 end
 
 function UIWidgetSpriteButtonCheckbox:click()

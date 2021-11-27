@@ -7,7 +7,7 @@ local Color = require("src/Essentials/Color")
 function Scorpion:new(path, deserializationTable)
 	self.path = path
 
-	self.config = game.configManager.gameplay.scorpion
+	self.config = _Game.configManager.gameplay.scorpion
 
 
 
@@ -23,10 +23,10 @@ function Scorpion:new(path, deserializationTable)
 		self.maxChains = self.config.maxChains
 	end
 
-	self.sprite = game.resourceManager:getSprite(self.config.sprite)
-	self.shadowSprite = game.resourceManager:getSprite("sprites/game/ball_shadow.json")
+	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
+	self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
 
-	self.sound = game:playSound("sound_events/scorpion_loop.json", 1, self:getPos())
+	self.sound = _Game:playSound("sound_events/scorpion_loop.json", 1, self:getPos())
 
 	self.delQueue = false
 end
@@ -44,8 +44,8 @@ function Scorpion:update(dt)
 		local sphereGroup = self.path.sphereChains[1].sphereGroups[1]
 		if sphereGroup:getFrontPos() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
 			sphereGroup:destroySphere(#sphereGroup.spheres)
-			game.session.level:destroySphere()
-			game:playSound("sound_events/scorpion_destroys.json")
+			_Game.session.level:destroySphere()
+			_Game:playSound("sound_events/scorpion_destroys.json")
 			self.destroyedSpheres = self.destroyedSpheres + 1
 			-- if this sphere is the last sphere, the scorpion gets rekt
 			if not sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 1 and sphereGroup.spheres[1].color == 0 then
@@ -60,7 +60,7 @@ function Scorpion:update(dt)
 		while self.trailDistance < self.distance do
 			local offset = self.path.length - self.trailDistance
 			if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
-				game:spawnParticle(self.config.trailParticle, self.path:getPos(offset))
+				_Game:spawnParticle(self.config.trailParticle, self.path:getPos(offset))
 			end
 			self.trailDistance = self.trailDistance + self.config.trailParticleDistance
 		end
@@ -81,13 +81,13 @@ end
 
 function Scorpion:explode()
 	local score = self.destroyedSpheres * 100
-	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score), self:getPos(), self.config.scoreFont)
+	_Game.session.level:grantScore(score)
+	_Game.session.level:spawnFloatingText(_NumStr(score), self:getPos(), self.config.scoreFont)
 	if self.destroyedSpheres == self.maxSpheres then
-		game.session.level:spawnCollectible(self:getPos(), {type = "coin"})
+		_Game.session.level:spawnCollectible(self:getPos(), {type = "coin"})
 	end
-	game:spawnParticle(self.config.destroyParticle, self:getPos())
-	game:playSound("sound_events/scorpion_destroy.json", 1, pos)
+	_Game:spawnParticle(self.config.destroyParticle, self:getPos())
+	_Game:playSound("sound_events/scorpion_destroy.json", 1, self:getPos())
 end
 
 function Scorpion:destroy()

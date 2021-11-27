@@ -25,13 +25,13 @@ function Shooter:new()
 	-- the speed of the shooter when controlled via keyboard
 	self.moveKeySpeed = 500
 
-	self.shadowSprite = game.resourceManager:getSprite("sprites/game/shooter_shadow.json")
-	self.sprite = game.resourceManager:getSprite("sprites/game/shooter.json")
-	self.speedShotSprite = game.resourceManager:getSprite("sprites/particles/speed_shot_beam.json")
+	self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/shooter_shadow.json")
+	self.sprite = _Game.resourceManager:getSprite("sprites/game/shooter.json")
+	self.speedShotSprite = _Game.resourceManager:getSprite("sprites/particles/speed_shot_beam.json")
 
 	self.sphereEntity = nil
 
-	self.config = game.configManager.gameplay.shooter
+	self.config = _Game.configManager.gameplay.shooter
 end
 
 
@@ -39,21 +39,21 @@ end
 function Shooter:update(dt)
 	-- movement
 	-- how many pixels will the shooter move since the last frame (by mouse)?
-	local shooterDelta = self:getDelta(mousePos.x, true)
+	local shooterDelta = self:getDelta(_MousePos.x, true)
 	if shooterDelta == 0 then
 		-- if 0, then the keyboard can be freely used
 		if self.moveKeys.left then self:move(self.pos.x - self.moveKeySpeed * dt, false) end
 		if self.moveKeys.right then self:move(self.pos.x + self.moveKeySpeed * dt, false) end
 	else
 		-- else, the mouse takes advantage and overwrites the position
-		self:move(mousePos.x, true)
+		self:move(_MousePos.x, true)
 	end
 
 	-- filling
 	if self.active then
 		-- remove inexistant colors
-		if not game.session.colorManager:isColorExistent(self.color) then self:setColor(0) end
-		if not game.session.colorManager:isColorExistent(self.nextColor) then self:setNextColor(0) end
+		if not _Game.session.colorManager:isColorExistent(self.color) then self:setColor(0) end
+		if not _Game.session.colorManager:isColorExistent(self.nextColor) then self:setNextColor(0) end
 		self:fill()
 	end
 
@@ -73,7 +73,7 @@ function Shooter:translatePos(x)
 end
 
 function Shooter:move(x, fromMouse)
-	if game.session.level.pause then return end
+	if _Game.session.level.pause then return end
 	self.pos.x = self:translatePos(x)
 	if fromMouse then self.posMouse.x = self:translatePos(x) end
 end
@@ -119,16 +119,16 @@ end
 
 function Shooter:swapColors()
 	-- we must be careful not to swap the spheres when they're absent
-	if game.session.level.pause or self.color == 0 or self.nextColor == 0 or not game.configManager.spheres[self.color].interchangeable then return end
+	if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or not _Game.configManager.spheres[self.color].interchangeable then return end
 	local tmp = self.color
 	self:setColor(self.nextColor)
 	self:setNextColor(tmp)
-	game:playSound("sound_events/shooter_swap.json", 1, self.pos)
+	_Game:playSound("sound_events/shooter_swap.json", 1, self.pos)
 end
 
 function Shooter:getNextColor()
 	if self.multiColorCount == 0 then
-		return game.session.colorManager:pickColor()
+		return _Game.session.colorManager:pickColor()
 	else
 		self.multiColorCount = self.multiColorCount - 1
 		return self.multiColorColor
@@ -147,29 +147,29 @@ end
 
 function Shooter:activate()
 	self.active = true
-	game:playSound("sound_events/shooter_fill.json", 1, self.pos)
+	_Game:playSound("sound_events/shooter_fill.json", 1, self.pos)
 end
 
 function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
-	if game.session.level.pause or not self.active or self.color == 0 then return end
+	if _Game.session.level.pause or not self.active or self.color == 0 then return end
 
-	local sphereConfig = game.configManager.spheres[self.color]
+	local sphereConfig = _Game.configManager.spheres[self.color]
 	if sphereConfig.shootBehavior.type == "lightning" then
 		-- lightning spheres are not shot, they're deployed instantly
-		game:spawnParticle(sphereConfig.destroyParticle, self:spherePos())
-		game.session:destroyVerticalColor(self.pos.x, sphereConfig.shootBehavior.range, self.color)
+		_Game:spawnParticle(sphereConfig.destroyParticle, self:spherePos())
+		_Game.session:destroyVerticalColor(self.pos.x, sphereConfig.shootBehavior.range, self.color)
 		if sphereConfig.shootBehavior.resetCombo then
-			game.session.level.combo = 0 -- cuz that's how it works
+			_Game.session.level.combo = 0 -- cuz that's how it works
 		end
 	else
-		game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
+		_Game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
 		self.sphereEntity = nil
 		self.active = false
 	end
-	game:playSound(sphereConfig.shootSound, 1, self.pos)
+	_Game:playSound(sphereConfig.shootSound, 1, self.pos)
 	self.color = 0
-	game.session.level.spheresShot = game.session.level.spheresShot + 1
+	_Game.session.level.spheresShot = _Game.session.level.spheresShot + 1
 	--game.session.level.lightningStormCount = 0
 	--game.session.level.lightningStormTime = 0
 end
@@ -204,16 +204,16 @@ function Shooter:draw()
 	self.sprite:draw(self.pos, Vec2(0.5, 0))
 
 	-- retical
-	if engineSettings:getAimingRetical() then
+	if _EngineSettings:getAimingRetical() then
 		local targetPos = self:getTargetPos()
 		local color = self:getReticalColor()
-		local sphereConfig = game.configManager.spheres[self.color]
+		local sphereConfig = _Game.configManager.spheres[self.color]
 		if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
-			love.graphics.setLineWidth(3 * getResolutionScale())
+			love.graphics.setLineWidth(3 * _GetResolutionScale())
 			love.graphics.setColor(color.r, color.g, color.b)
-			local p1 = posOnScreen(targetPos + Vec2(-8, 8))
-			local p2 = posOnScreen(targetPos)
-			local p3 = posOnScreen(targetPos + Vec2(8, 8))
+			local p1 = _PosOnScreen(targetPos + Vec2(-8, 8))
+			local p2 = _PosOnScreen(targetPos)
+			local p3 = _PosOnScreen(targetPos + Vec2(8, 8))
 			love.graphics.line(p1.x, p1.y, p2.x, p2.y)
 			love.graphics.line(p2.x, p2.y, p3.x, p3.y)
 
@@ -222,9 +222,9 @@ function Shooter:draw()
 				--love.graphics.setColor(1, 0, 0)
 				local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
 				for i = 1, dotCount do
-					local angle = (2 * i * math.pi / dotCount) + totalTime / 2
-					local p = posOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
-					love.graphics.circle("fill", p.x, p.y, 2 * getResolutionScale())
+					local angle = (2 * i * math.pi / dotCount) + _TotalTime / 2
+					local p = _PosOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
+					love.graphics.circle("fill", p.x, p.y, 2 * _GetResolutionScale())
 				end
 				--love.graphics.setLineWidth(3 * getResolutionScale())
 				--love.graphics.circle("line", p2.x, p2.y, sphereConfig.hitBehavior.range)
@@ -234,12 +234,12 @@ function Shooter:draw()
 
 	-- this color
 	if self.sphereEntity then
-		local frame = self.sphereEntity.config.spriteAnimationSpeed and Vec2(math.floor(self.sphereEntity.config.spriteAnimationSpeed * totalTime), 1) or Vec2(1)
+		local frame = self.sphereEntity.config.spriteAnimationSpeed and Vec2(math.floor(self.sphereEntity.config.spriteAnimationSpeed * _TotalTime), 1) or Vec2(1)
 		self.sphereEntity.frame = frame
 		self.sphereEntity:draw()
 	end
 	-- next color
-	game.resourceManager:getSprite(game.configManager.spheres[self.nextColor].nextSprite):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
+	_Game.resourceManager:getSprite(_Game.configManager.spheres[self.nextColor].nextSprite):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
 
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
@@ -262,8 +262,8 @@ function Shooter:drawSpeedShotBeam()
 		scale.y = distanceUnit
 	elseif self.config.speedShotBeamRenderingType == "cut" then
 		-- if we need to cut the beam
-		local p = posOnScreen(Vec2(self.pos.x - self.speedShotSprite.size.x / 2, self.pos.y - distance))
-		local s = posOnScreen(Vec2(self.speedShotSprite.size.x, distance + 16))
+		local p = _PosOnScreen(Vec2(self.pos.x - self.speedShotSprite.size.x / 2, self.pos.y - distance))
+		local s = _PosOnScreen(Vec2(self.speedShotSprite.size.x, distance + 16))
 		love.graphics.setScissor(p.x, p.y, s.x, s.y)
 	end
 	-- apply color if wanted
@@ -286,9 +286,9 @@ end
 
 
 function Shooter:getReticalColor()
-	local color = game.configManager.spheres[self.color].color
+	local color = _Game.configManager.spheres[self.color].color
 	if type(color) == "string" then
-		return game.resourceManager:getColorPalette(color):getColor(totalTime * game.configManager.spheres[self.color].colorSpeed)
+		return _Game.resourceManager:getColorPalette(color):getColor(_TotalTime * _Game.configManager.spheres[self.color].colorSpeed)
 	else
 		return color
 	end
@@ -303,11 +303,11 @@ function Shooter:catchablePos(pos)
 end
 
 function Shooter:getTargetPos()
-	return game.session:getNearestSphereY(self.pos).targetPos
+	return _Game.session:getNearestSphereY(self.pos).targetPos
 end
 
 function Shooter:getShootingSpeed()
-	if game.configManager.spheres[self.color].shootSpeed then return game.configManager.spheres[self.color].shootSpeed end
+	if _Game.configManager.spheres[self.color].shootSpeed then return _Game.configManager.spheres[self.color].shootSpeed end
 	return self.speedShotTime > 0 and self.speedShotSpeed or self.config.shotSpeed
 end
 

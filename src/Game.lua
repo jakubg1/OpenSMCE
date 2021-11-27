@@ -47,7 +47,7 @@ function Game:init()
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
-	math.randomseed(os.time())
+	local _ = math.randomseed(os.time())
 
 	-- Step 4. Create a resource bank
 	self.resourceManager = ResourceManager()
@@ -123,7 +123,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 	else
 		line2 = string.format("In menus")
 	end
-	discordRPC:setStatus(line1, line2)
+	_DiscordRPC:setStatus(line1, line2)
 end
 
 function Game:sessionExists()
@@ -137,24 +137,24 @@ end
 
 
 function Game:draw()
-	dbg:profDraw2Start()
+	_Debug:profDraw2Start()
 
 	-- Session and level
 	if self:sessionExists() then
 		self.session:draw()
 	end
-	dbg:profDraw2Checkpoint()
+	_Debug:profDraw2Checkpoint()
 
 	-- Particles and UI
 	if self.particleManager then self.particleManager:draw() end
 	self.uiManager:draw()
-	dbg:profDraw2Checkpoint()
+	_Debug:profDraw2Checkpoint()
 
 	-- Borders
 	love.graphics.setColor(0, 0, 0)
-	love.graphics.rectangle("fill", 0, 0, getDisplayOffsetX(), displaySize.y)
-	love.graphics.rectangle("fill", displaySize.x - getDisplayOffsetX(), 0, getDisplayOffsetX(), displaySize.y)
-	dbg:profDraw2Stop()
+	love.graphics.rectangle("fill", 0, 0, _GetDisplayOffsetX(), _DisplaySize.y)
+	love.graphics.rectangle("fill", _DisplaySize.x - _GetDisplayOffsetX(), 0, _GetDisplayOffsetX(), _DisplaySize.y)
+	_Debug:profDraw2Stop()
 end
 
 
@@ -162,7 +162,7 @@ end
 function Game:mousepressed(x, y, button)
 	self.uiManager:mousepressed(x, y, button)
 
-	if self:levelExists() and mousePos.y < self.session.level.shooter.pos.y then
+	if self:levelExists() and _MousePos.y < self.session.level.shooter.pos.y then
 		if button == 1 then
 			self.session.level.shooter:shoot()
 		elseif button == 2 then
@@ -227,19 +227,19 @@ function Game:setFullscreen(fullscreen)
 	if fullscreen == love.window.getFullscreen() then return end
 	if fullscreen then
 		local _, _, flags = love.window.getMode()
-		displaySize = Vec2(love.window.getDesktopDimensions(flags.display))
+		_DisplaySize = Vec2(love.window.getDesktopDimensions(flags.display))
 	else
-		displaySize = NATIVE_RESOLUTION
+		_DisplaySize = NATIVE_RESOLUTION
 	end
-	love.window.setMode(displaySize.x, displaySize.y, {fullscreen = fullscreen, resizable = true})
+	love.window.setMode(_DisplaySize.x, _DisplaySize.y, {fullscreen = fullscreen, resizable = true})
 end
 
 function Game:quit(forced)
 	self:save()
 	self.resourceManager:unload()
-	if engineSettings:getBackToBoot() and not forced then
+	if _EngineSettings:getBackToBoot() and not forced then
 		love.window.setMode(800, 600) -- reset window size
-		loadBootScreen()
+		_LoadBootScreen()
 	else
 		love.event.quit()
 	end

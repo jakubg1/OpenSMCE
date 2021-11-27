@@ -15,24 +15,24 @@ function BootSettings:new(bootScreen)
 	self.fontBig = love.graphics.newFont(18)
 
 	-- buttons
-	self.menuBtn = Button("Save and Go Back", self.fontBig, Vec2(30, 546), Vec2(300, 24), function() engineSettings:save(); self.bootScreen:setScene("main") end)
+	self.menuBtn = Button("Save and Go Back", self.fontBig, Vec2(30, 546), Vec2(300, 24), function() _EngineSettings:save(); self.bootScreen:setScene("main") end)
 	self.settingCheckboxes = {
-    Checkbox("Enable Discord Rich Presence", self.fontBig, Vec2(40, 110), Vec2(760, 24), function(state) engineSettings:setDiscordRPC(state) end),
-    Checkbox("Go back to the boot menu when exiting a game", self.fontBig, Vec2(40, 140), Vec2(760, 24), function(state) engineSettings:setBackToBoot(state) end),
-    Checkbox("Aiming Retical", self.fontBig, Vec2(40, 170), Vec2(760, 24), function(state) engineSettings:setAimingRetical(state) end),
-    Checkbox("Debug console window (restart to see the effect)", self.fontBig, Vec2(40, 200), Vec2(760, 24), function(state) engineSettings:setConsoleWindow(state) end),
-    Checkbox("Enable 3D Sound", self.fontBig, Vec2(40, 230), Vec2(760, 24), function(state) engineSettings:set3DSound(state) end)
+    Checkbox("Enable Discord Rich Presence", self.fontBig, Vec2(40, 110), Vec2(760, 24), function(state) _EngineSettings:setDiscordRPC(state) end),
+    Checkbox("Go back to the boot menu when exiting a game", self.fontBig, Vec2(40, 140), Vec2(760, 24), function(state) _EngineSettings:setBackToBoot(state) end),
+    Checkbox("Aiming Retical", self.fontBig, Vec2(40, 170), Vec2(760, 24), function(state) _EngineSettings:setAimingRetical(state) end),
+    Checkbox("Debug console window (restart to see the effect)", self.fontBig, Vec2(40, 200), Vec2(760, 24), function(state) _EngineSettings:setConsoleWindow(state) end),
+    Checkbox("Enable 3D Sound", self.fontBig, Vec2(40, 230), Vec2(760, 24), function(state) _EngineSettings:set3DSound(state) end)
   }
 end
 
 
 
 function BootSettings:init()
-  self.settingCheckboxes[1].selected = engineSettings:getDiscordRPC()
-  self.settingCheckboxes[2].selected = engineSettings:getBackToBoot()
-  self.settingCheckboxes[3].selected = engineSettings:getAimingRetical()
-  self.settingCheckboxes[4].selected = engineSettings:getConsoleWindow()
-  self.settingCheckboxes[5].selected = engineSettings:get3DSound()
+  self.settingCheckboxes[1].selected = _EngineSettings:getDiscordRPC()
+  self.settingCheckboxes[2].selected = _EngineSettings:getBackToBoot()
+  self.settingCheckboxes[3].selected = _EngineSettings:getAimingRetical()
+  self.settingCheckboxes[4].selected = _EngineSettings:getConsoleWindow()
+  self.settingCheckboxes[5].selected = _EngineSettings:get3DSound()
 end
 
 

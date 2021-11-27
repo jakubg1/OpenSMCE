@@ -15,14 +15,14 @@ function Map:new(level, path, isDummy)
 	self.paths = List1()
 	self.sprites = List1()
 
-	local data = loadJson(parsePath(path .. "/config.json"))
+	local data = _LoadJson(_ParsePath(path .. "/config.json"))
 	self.name = data.name
 	for i, spriteData in ipairs(data.sprites) do
 		local spritePath = spriteData.path
 		if spriteData.internal then
 			spritePath = path .. "/" .. spritePath
 		end
-		self.sprites:append({pos = Vec2(spriteData.x, spriteData.y), sprite = Sprite(parsePath(spritePath)), background = spriteData.background})
+		self.sprites:append({pos = Vec2(spriteData.x, spriteData.y), sprite = Sprite(_ParsePath(spritePath)), background = spriteData.background})
 	end
 	for i, pathData in ipairs(data.paths) do
 		self.paths:append(Path(self, pathData))
@@ -48,7 +48,7 @@ function Map:draw()
 	end
 
 	-- Objects drawn before hidden spheres (background cheat mode)
-	if e then
+	if _Debug.e then
 		for i, sprite in ipairs(self.sprites.objects) do
 			if not sprite.background then
 				sprite.sprite:draw(sprite.pos)
@@ -58,14 +58,14 @@ function Map:draw()
 
 	-- Draw hidden spheres and other hidden path stuff
 	for i, path in ipairs(self.paths.objects) do
-		for sphereID, sphere in pairs(game.configManager.spheres) do
+		for sphereID, sphere in pairs(_Game.configManager.spheres) do
 			path:drawSpheres(sphereID, true)
 		end
 		path:draw(true)
 	end
 
 	-- Objects that will be drown when the BCM is off
-	if not e then
+	if not _Debug.e then
 		for i, sprite in ipairs(self.sprites.objects) do
 			if not sprite.background then
 				sprite.sprite:draw(sprite.pos)
@@ -76,7 +76,7 @@ end
 
 function Map:drawSpheres()
 	for i, path in ipairs(self.paths.objects) do
-		for sphereID, sphere in pairs(game.configManager.spheres) do
+		for sphereID, sphere in pairs(_Game.configManager.spheres) do
 			path:drawSpheres(sphereID, false)
 		end
 		path:draw(false)

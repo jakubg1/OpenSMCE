@@ -8,9 +8,9 @@ function ParticleSpawner:new(manager, packet, data)
 	self.packet = packet
 	self.packet.spawnerCount = self.packet.spawnerCount + 1
 	
-	self.pos = parseVec2(data.pos)
-	self.speed = parseVec2(data.speed)
-	self.acceleration = parseVec2(data.acceleration)
+	self.pos = _ParseVec2(data.pos)
+	self.speed = _ParseVec2(data.speed)
+	self.acceleration = _ParseVec2(data.acceleration)
 	self.lifespan = data.lifespan -- nil if it lives indefinitely
 	self.lifetime = self.lifespan
 	self.spawnMax = data.spawnMax
@@ -58,7 +58,7 @@ function ParticleSpawner:getPos()
 end
 
 function ParticleSpawner:draw()
-	local p = posOnScreen(self:getPos())
+	local p = _PosOnScreen(self:getPos())
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.setLineWidth(2)
 	love.graphics.rectangle("line", p.x - 10, p.y - 10, 20, 20)

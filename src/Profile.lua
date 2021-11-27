@@ -22,7 +22,7 @@ function Profile:getSession()
 end
 
 function Profile:getMapData()
-	return game.configManager.maps[game.configManager.levels[self:getLevel()].map]
+	return _Game.configManager.maps[_Game.configManager.levels[self:getLevel()].map]
 end
 
 
@@ -55,15 +55,15 @@ end
 
 
 function Profile:getCurrentLevelConfig()
-	return game.configManager.config.levels[self:getLevel()]
+	return _Game.configManager.config.levels[self:getLevel()]
 end
 
 function Profile:getNextLevelConfig()
-	return game.configManager.config.levels[self:getLevel() + 1]
+	return _Game.configManager.config.levels[self:getLevel() + 1]
 end
 
 function Profile:getCurrentCheckpointConfig()
-	return game.configManager.config.checkpoints[self:getCurrentLevelConfig().stage]
+	return _Game.configManager.config.checkpoints[self:getCurrentLevelConfig().stage]
 end
 
 
@@ -102,7 +102,7 @@ end
 function Profile:grantCoin()
 	self.session.coins = self.session.coins + 1
 	if self.session.coins == 30 then self:grantLife() end
-	game.uiManager:executeCallback("newCoin")
+	_Game.uiManager:executeCallback("newCoin")
 end
 
 
@@ -116,7 +116,7 @@ end
 function Profile:grantLife()
 	self.session.lives = self.session.lives + 1
 	self.session.coins = 0
-	game.uiManager:executeCallback("newLife")
+	_Game.uiManager:executeCallback("newLife")
 end
 
 function Profile:takeLife()
@@ -158,7 +158,7 @@ function Profile:newGame(checkpoint)
 	self.session.coins = 0
 	self.session.score = 0
 	self.session.difficulty = 1
-	self:setLevel(game.configManager.config.checkpoints[checkpoint or 1].level)
+	self:setLevel(_Game.configManager.config.checkpoints[checkpoint or 1].level)
 end
 
 function Profile:deleteGame()
@@ -180,7 +180,7 @@ end
 
 function Profile:advanceLevel()
 	self:incrementLevel()
-	game:playSound("sound_events/level_advance.json")
+	_Game:playSound("sound_events/level_advance.json")
 	if self:getCurrentLevelConfig().checkpoint > 0 then
 		self:unlockCheckpoint(self:getCurrentLevelConfig().checkpoint)
 	end
@@ -218,11 +218,11 @@ end
 
 
 function Profile:writeHighscore()
-	local pos = game.runtimeManager.highscores:getPosition(self:getScore())
+	local pos = _Game.runtimeManager.highscores:getPosition(self:getScore())
 	if not pos then return false end
 
 	-- returns the position if it got into top 10
-	game.runtimeManager.highscores:storeProfile(self, pos)
+	_Game.runtimeManager.highscores:storeProfile(self, pos)
 	return pos
 end
 

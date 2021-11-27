@@ -6,7 +6,7 @@ function UIWidgetSprite:new(parent, sprite)
 
 	self.parent = parent
 
-	self.sprite = game.resourceManager:getSprite(sprite)
+	self.sprite = _Game.resourceManager:getSprite(sprite)
 end
 
 

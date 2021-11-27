@@ -3,7 +3,7 @@ local Highscores = class:derive("Highscores")
 
 function Highscores:new(data)
 	self.data = data
-	self.config = game.configManager.highscores
+	self.config = _Game.configManager.highscores
 
 	-- default if not found
 	if not self.data then self:reset() end

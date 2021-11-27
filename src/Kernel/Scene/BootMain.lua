@@ -54,10 +54,10 @@ function BootMain:update(dt)
 	self.quitBtn:update(dt)
 
 	-- URL hover
-	self.urlHovered = mousePos.x > self.urlHoverPos.x and
-					mousePos.x < self.urlHoverPos.x + self.urlHoverSize.x and
-					mousePos.y > self.urlHoverPos.y and
-					mousePos.y < self.urlHoverPos.y + self.urlHoverSize.y
+	self.urlHovered = _MousePos.x > self.urlHoverPos.x and
+					_MousePos.x < self.urlHoverPos.x + self.urlHoverSize.x and
+					_MousePos.y > self.urlHoverPos.y and
+					_MousePos.y < self.urlHoverPos.y + self.urlHoverSize.y
 end
 
 
@@ -86,7 +86,7 @@ function BootMain:getSelectedGameVersionStatus()
 end
 
 function BootMain:loadSelectedGame()
-	loadGame(self:getSelectedGameName())
+	_LoadGame(self:getSelectedGameName())
 end
 
 function BootMain:convertSelectedGame()
@@ -206,16 +206,16 @@ function BootMain:draw()
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.fontBig)
 	love.graphics.print("Discord Integration: ", 30, 220)
-	if discordRPC.enabled and discordRPC.connected then
+	if _DiscordRPC.enabled and _DiscordRPC.connected then
 		love.graphics.setColor(0, 1, 0)
-		love.graphics.print(string.format("Connected! (%s)", discordRPC.username), 210, 220)
-	elseif discordRPC.enabled and not discordRPC.connected then
+		love.graphics.print(string.format("Connected! (%s)", _DiscordRPC.username), 210, 220)
+	elseif _DiscordRPC.enabled and not _DiscordRPC.connected then
 		love.graphics.setColor(1, 1, 0)
 		love.graphics.print("Connecting...", 210, 220)
-	elseif not discordRPC.enabled and discordRPC.connected then
+	elseif not _DiscordRPC.enabled and _DiscordRPC.connected then
 		love.graphics.setColor(1, 0.5, 0)
 		love.graphics.print("Disconnecting...", 210, 220)
-	elseif not discordRPC.enabled and not discordRPC.connected then
+	elseif not _DiscordRPC.enabled and not _DiscordRPC.connected then
 		love.graphics.setColor(0.75, 0.75, 0.75)
 		love.graphics.print("Inactive", 210, 220)
 	end

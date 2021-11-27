@@ -8,7 +8,7 @@ function Options:new(data)
 	if not self.data then self:reset() end
 	
 	-- fullscreen on start
-	if self:getFullscreen() then game:setFullscreen(true) end
+	if self:getFullscreen() then _Game:setFullscreen(true) end
 end
 
 
@@ -43,7 +43,7 @@ end
 
 function Options:setFullscreen(value)
 	self.data.fullscreen = value
-	game:setFullscreen(value)
+	_Game:setFullscreen(value)
 end
 
 function Options:getFullscreen()

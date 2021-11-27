@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global, undefined-field
 local ffi = require "ffi"
 local discordRPClib = ffi.load("dll/discord-rpc")
 

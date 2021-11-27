@@ -36,7 +36,7 @@ function BootScreen:init()
 	self:setScene("main")
 
 	-- discord rpc connection
-	discordRPC:setStatus(string.format("Boot Screen - Version: %s", VERSION_NAME), nil, true)
+	_DiscordRPC:setStatus(string.format("Boot Screen - Version: %s", VERSION_NAME), nil, true)
 end
 
 
@@ -65,9 +65,9 @@ function BootScreen:getGames()
 
 	local games = {}
 
-	for i, name in ipairs(getDirListing("games", "dir")) do
+	for i, name in ipairs(_GetDirListing("games", "dir")) do
 		print("Checking folder \"" .. name .. "\"...")
-		local success, result = pcall(function() return loadJson("games/" .. name .. "/config.json") end)
+		local success, result = pcall(function() return _LoadJson("games/" .. name .. "/config.json") end)
 		if success then
 			table.insert(games, {name = name, config = result})
 			print("SUCCESS!")

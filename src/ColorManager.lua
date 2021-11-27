@@ -23,7 +23,7 @@ function ColorManager:pickColor(omitDangerCheck)
 	local path = nil
 	if not omitDangerCheck then
 		-- Pick a random path
-		local paths = game.session.level.map.paths
+		local paths = _Game.session.level.map.paths
 		local pathsPool = {}
 		for i = 1, paths:size() do
 			table.insert(pathsPool, paths:get(i))
@@ -53,11 +53,11 @@ function ColorManager:pickColor(omitDangerCheck)
 				local sphere = sphereGroup.spheres[j]
 				local color = sphere.color
 				-- if this color is generatable, 25% chance to pass the check
-				if game.configManager.spheres[color].generatable and math.random() < 0.25 then
+				if _Game.configManager.spheres[color].generatable and math.random() < 0.25 then
 					return color
 				end
 				-- else, next sphere comes but if no more further spheres are generatable we will use it anyway
-				if game.configManager.spheres[color].generatable then
+				if _Game.configManager.spheres[color].generatable then
 					lastGoodColor = color
 				end
 			end
@@ -83,7 +83,7 @@ end
 
 --- Resets the onboard color counters back to 0.
 function ColorManager:reset()
-	for i, sphere in pairs(game.configManager.spheres) do
+	for i, sphere in pairs(_Game.configManager.spheres) do
 		if sphere.generatable then
 			self.sphereColorCounts[i] = 0
 			self.dangerSphereColorCounts[i] = 0

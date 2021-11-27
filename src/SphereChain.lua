@@ -72,7 +72,7 @@ function SphereChain:delete(joins)
 	-- mark the position to where the bonus scarab should arrive
 	if not joins and not self.map.level.lost then self.path.clearOffset = self.maxOffset end
 
-	if joins then game:playSound("sound_events/sphere_destroy_vise.json") end
+	if joins then _Game:playSound("sound_events/sphere_destroy_vise.json") end
 end
 
 function SphereChain:isMatchPredicted()

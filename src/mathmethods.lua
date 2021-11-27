@@ -1,4 +1,4 @@
-function mathWeightedRandom(weights)
+function _MathWeightedRandom(weights)
 	local t = 0
 	for i, w in ipairs(weights) do
 		t = t + w

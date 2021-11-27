@@ -6,9 +6,9 @@ local Color = require("src/Essentials/Color")
 
 function Font:new(path)
 	self.path = path
-	local data = loadJson(path)
+	local data = _LoadJson(path)
 
-	self.img = game.resourceManager:getImage(data.image)
+	self.img = _Game.resourceManager:getImage(data.image)
 	self.height = self.img.size.y
 	self.characters = {}
 	for characterN, character in pairs(data.characters) do
@@ -80,9 +80,9 @@ function Font:drawLine(text, pos, align)
 end
 
 function Font:drawCharacter(character, pos)
-	pos = posOnScreen(pos)
+	pos = _PosOnScreen(pos)
 	--if self.characters[character] then
-	self.img:draw(self:getCharacter(character).quad, pos.x, pos.y, 0, getResolutionScale())
+	self.img:draw(self:getCharacter(character).quad, pos.x, pos.y, 0, _GetResolutionScale())
 	--else
 	--	print("ERROR: Unexpected character: " .. character)
 	--end

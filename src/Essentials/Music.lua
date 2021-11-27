@@ -2,7 +2,7 @@ local class = require "com/class"
 local Music = class:derive("Music")
 
 function Music:new(path)
-	self.instance = loadSound(path, "stream")
+	self.instance = _LoadSound(path, "stream")
 	if not self.instance then error("Failed to load sound: " .. path) end
 	self.instance:setLooping(true)
 
@@ -25,7 +25,7 @@ function Music:update(dt)
 end
 
 function Music:updateVolume()
-	self.instance:setVolume(self.volume * game.runtimeManager.options:getEffectiveMusicVolume())
+	self.instance:setVolume(self.volume * _Game.runtimeManager.options:getEffectiveMusicVolume())
 end
 
 function Music:updatePlaying()

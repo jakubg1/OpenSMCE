@@ -9,9 +9,9 @@ function UIWidgetTextInput:new(parent, font, align, cursorSprite, maxLength)
 	self.parent = parent
 
 	self.text = ""
-	self.font = game.resourceManager:getFont(font)
-	self.align = align and parseVec2(align) or Vec2(0.5, 0)
-	self.cursorSprite = cursorSprite and game.resourceManager:getSprite(cursorSprite)
+	self.font = _Game.resourceManager:getFont(font)
+	self.align = align and _ParseVec2(align) or Vec2(0.5, 0)
+	self.cursorSprite = cursorSprite and _Game.resourceManager:getSprite(cursorSprite)
 	self.cursorSpriteBlink = 0
 	self.maxLength = maxLength
 end

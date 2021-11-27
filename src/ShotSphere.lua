@@ -48,43 +48,43 @@ function ShotSphere:moveStep()
 	-- old collission detection system:
 	--local nearestSphere = game.session:getNearestSphereY(self.pos)
 	--if nearestSphere.dist and nearestSphere.dist.y < 32 then
-	local nearestSphere = game.session:getNearestSphere(self.pos)
+	local nearestSphere = _Game.session:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < 32 then
 		self.hitSphere = nearestSphere
-		local sphereConfig = game.configManager.spheres[self.color]
+		local sphereConfig = _Game.configManager.spheres[self.color]
 		local hitColor = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
 		local badShot = false
 		if sphereConfig.hitBehavior.type == "destroySphere" then
-			if game.session:colorsMatch(self.color, hitColor) then
-				game.session:destroySingleSphere(self.hitSphere.sphere)
+			if _Game.session:colorsMatch(self.color, hitColor) then
+				_Game.session:destroySingleSphere(self.hitSphere.sphere)
 				self:destroy()
-				game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 			end
 		elseif sphereConfig.hitBehavior.type == "fireball" then
-			game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
+			_Game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
 			self:destroy()
-			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+			_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		elseif sphereConfig.hitBehavior.type == "colorCloud" then
-			game.session:replaceColorRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color, sphereConfig.hitBehavior.color)
+			_Game.session:replaceColorRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color, sphereConfig.hitBehavior.color)
 			self:destroy()
-			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+			_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		elseif sphereConfig.hitBehavior.type == "replaceColor" then
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
-			game.session:replaceColor(hitColor, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
+			_Game.session:replaceColor(hitColor, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
 			self:destroy()
-			game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+			_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		else
 			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
 			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitSphere.sphereID, self.color)
 			badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 		end
-		game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
+		_Game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
 	end
 	-- delete if outside of the board
 	if self.pos.y < -16 then
 		self:destroy()
-		game.session.level.combo = 0
+		_Game.session.level.combo = 0
 	end
 end
 
@@ -136,13 +136,13 @@ end
 function ShotSphere:drawDebug()
 	love.graphics.setColor(0, 1, 1)
 	for i = self.pos.y, 0, -self.PIXELS_PER_STEP do
-		local p = posOnScreen(Vec2(self.pos.x, i))
+		local p = _PosOnScreen(Vec2(self.pos.x, i))
 		love.graphics.circle("fill", p.x, p.y, 2)
-		local nearestSphere = game.session:getNearestSphere(Vec2(self.pos.x, i))
+		local nearestSphere = _Game.session:getNearestSphere(Vec2(self.pos.x, i))
 		if nearestSphere.dist and nearestSphere.dist < 32 then
 			love.graphics.setLineWidth(3)
-			local p = posOnScreen(nearestSphere.pos)
-			love.graphics.circle("line", p.x, p.y, 16 * getResolutionScale())
+			local p = _PosOnScreen(nearestSphere.pos)
+			love.graphics.circle("line", p.x, p.y, 16 * _GetResolutionScale())
 			break
 		end
 	end
@@ -167,7 +167,7 @@ function ShotSphere:deserialize(t)
 	self.speed = t.speed
 	self.steps = t.steps
 
-	self.shooter = game.session.level.shooter
+	self.shooter = _Game.session.level.shooter
 
 	self.hitSphere = nil
 	self.sphereEntity = nil
@@ -175,7 +175,7 @@ function ShotSphere:deserialize(t)
 	if t.hitSphere then
 		self.hitSphere = {
 			sphereID = t.hitSphere.sphereID,
-			sphereGroup = game.session.level.map.paths.objects[t.hitSphere.pathID].sphereChains[t.hitSphere.chainID].sphereGroups[t.hitSphere.groupID]
+			sphereGroup = _Game.session.level.map.paths.objects[t.hitSphere.pathID].sphereChains[t.hitSphere.chainID].sphereGroups[t.hitSphere.groupID]
 		}
 	else
 		self.sphereEntity = SphereEntity(self.pos, self.color)

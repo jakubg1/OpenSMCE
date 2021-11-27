@@ -52,7 +52,7 @@ function love.errorhandler(msg)
 	
 	love.graphics.origin()
 	
-	if discordRPC then discordRPC:disconnect() end
+	if _DiscordRPC then _DiscordRPC:disconnect() end
 	
 	local sanitizedmsg = {}
 	for char in msg:gmatch(utf8.charpattern) do
@@ -92,8 +92,6 @@ function love.errorhandler(msg)
 				return 1
 			elseif e == "keypressed" and a == "escape" then
 				return 1
-			elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
-				copyToClipboard()
 			elseif e == "mousepressed" then
 				crashScreen:mousepressed(a)
 			elseif e == "mousereleased" then

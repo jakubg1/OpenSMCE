@@ -105,7 +105,7 @@ function Path:update(dt)
 end
 
 function Path:shouldSpawn()
-	if game:levelExists() and (not self.map.level.started or self.map.level.targetReached or self.map.level.lost) then return false end
+	if _Game:levelExists() and (not self.map.level.started or self.map.level.targetReached or self.map.level.lost) then return false end
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * self.map.level.spawnDistance then return false end
 	end
@@ -118,7 +118,7 @@ function Path:spawnChain()
 	table.insert(self.sphereChains, sphereChain)
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
-		game:playSound("sound_events/sphere_chain_spawn.json")
+		_Game:playSound("sound_events/sphere_chain_spawn.json")
 	end
 end
 
@@ -207,7 +207,7 @@ end
 
 function Path:drawDebugFill()
 	love.graphics.setColor(1, 0.2, 0)
-	local pos = posOnScreen(self:getPos(self:getMaxOffset()))
+	local pos = _PosOnScreen(self:getPos(self:getMaxOffset()))
 	love.graphics.circle("fill", pos.x, pos.y, 10)
 end
 
@@ -232,16 +232,16 @@ function Path:getSpeed(pixels)
 				local t = (speed.distance - part) / (speed.distance - prevSpeed.distance)
 
 				-- between nodes
-				if game.satMode and game:getCurrentProfile().session then
-					return (prevSpeed.speed * t + speed.speed * (1 - t)) * (1 + (game:getCurrentProfile().session.level - 1) * 0.05)
+				if _Game.satMode and _Game:getCurrentProfile().session then
+					return (prevSpeed.speed * t + speed.speed * (1 - t)) * (1 + (_Game:getCurrentProfile().session.level - 1) * 0.05)
 				else
 					return prevSpeed.speed * t + speed.speed * (1 - t)
 				end
 			end
 
 			-- at the exact position of node or before first node
-			if game.satMode and game:getCurrentProfile().session then
-				return speed.speed * (1 + (game:getCurrentProfile().session.level - 1) * 0.05)
+			if _Game.satMode and _Game:getCurrentProfile().session then
+				return speed.speed * (1 + (_Game:getCurrentProfile().session.level - 1) * 0.05)
 			else
 				return speed.speed
 			end
@@ -249,8 +249,8 @@ function Path:getSpeed(pixels)
 	end
 
 	-- after last node
-	if game.satMode and game:getCurrentProfile().session then
-		return self.map.level.speeds[#self.map.level.speeds].speed * (1 + (game:getCurrentProfile().session.level - 1) * 0.05)
+	if _Game.satMode and _Game:getCurrentProfile().session then
+		return self.map.level.speeds[#self.map.level.speeds].speed * (1 + (_Game:getCurrentProfile().session.level - 1) * 0.05)
 	else
 		return self.map.level.speeds[#self.map.level.speeds].speed
 	end

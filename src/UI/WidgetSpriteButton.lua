@@ -14,14 +14,14 @@ function UIWidgetSpriteButton:new(parent, sprite)
 	self.enabled = true
 	self.enableForced = true
 
-	self.sprite = game.resourceManager:getSprite(sprite)
+	self.sprite = _Game.resourceManager:getSprite(sprite)
 	self.size = self.sprite.frameSize
 end
 
 function UIWidgetSpriteButton:click()
 	if not self.parent:isVisible() or not self.hovered or self.clicked then return end
 	self.clicked = true
-	game:playSound("sound_events/button_click.json")
+	_Game:playSound("sound_events/button_click.json")
 	print("Button clicked: " .. self.parent:getFullName())
 end
 
@@ -50,12 +50,12 @@ function UIWidgetSpriteButton:draw()
 	local alpha = self.parent:getAlpha()
 
 	self.enabled = self.enableForced and (alpha == 1 or self.parent.neverDisabled)
-	local hovered = self.enabled and self.parent.active and mousePos.x >= pos.x and mousePos.y >= pos.y and mousePos.x < pos2.x and mousePos.y < pos2.y
+	local hovered = self.enabled and self.parent.active and _MousePos.x >= pos.x and _MousePos.y >= pos.y and _MousePos.x < pos2.x and _MousePos.y < pos2.y
 	if hovered ~= self.hovered then
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end
 		if hovered then
-			game:playSound("sound_events/button_hover.json")
+			_Game:playSound("sound_events/button_hover.json")
 		end
 	end
 

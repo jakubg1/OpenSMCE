@@ -7,12 +7,12 @@ local Image = require("src/Essentials/Image")
 
 function Sprite:new(path)
 	self.path = path
-	local data = loadJson(path)
+	local data = _LoadJson(path)
 
 	if data.internal then
-		self.img = Image(parsePath(data.path))
+		self.img = Image(_ParsePath(data.path))
 	else
-		self.img = game.resourceManager:getImage(data.path)
+		self.img = _Game.resourceManager:getImage(data.path)
 	end
 	self.size = self.img.size
 	self.frameSize = data.frame_size
@@ -49,13 +49,13 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
 	color = color or Color()
 	alpha = alpha or 1
 	scale = scale or Vec2(1)
-	pos = posOnScreen(pos - (align * scale * self.frameSize):rotate(rot))
+	pos = _PosOnScreen(pos - (align * scale * self.frameSize):rotate(rot))
 	if color.r then -- temporary chunk
 		love.graphics.setColor(color.r, color.g, color.b, alpha)
 	else
 		love.graphics.setColor(unpack(color), alpha)
 	end
-	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * getResolutionScale(), scale.y * getResolutionScale())
+	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
 end
 
 return Sprite

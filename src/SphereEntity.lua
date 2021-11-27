@@ -11,11 +11,11 @@ function SphereEntity:new(pos, color)
 	self.frame = 0
 	self.colorM = Color()
 
-	self.config = game.configManager.spheres[color]
+	self.config = _Game.configManager.spheres[color]
 
-	self.shadowSprite = game.resourceManager:getSprite("sprites/game/ball_shadow.json")
-	self.sprite = game.resourceManager:getSprite(self.config.sprite)
-	self.particle = self.config.idleParticle and game:spawnParticle(self.config.idleParticle, pos)
+	self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
+	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
+	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, pos)
 end
 
 
@@ -29,8 +29,8 @@ end
 
 function SphereEntity:setColor(color)
 	self.color = color
-	self.config = game.configManager.spheres[color]
-	self.sprite = game.resourceManager:getSprite(self.config.sprite)
+	self.config = _Game.configManager.spheres[color]
+	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 
 	-- Particle stuff
 	if self.particle then
@@ -38,7 +38,7 @@ function SphereEntity:setColor(color)
 		self.particle = nil
 	end
 	if self.config.idleParticle then
-		self.particle = game:spawnParticle(self.config.idleParticle, self.pos)
+		self.particle = _Game:spawnParticle(self.config.idleParticle, self.pos)
 	end
 end
 
@@ -48,7 +48,7 @@ function SphereEntity:destroy(spawnParticle)
 		self.particle:destroy()
 		self.particle = nil
 	end
-	if spawnParticle and self.config.destroyParticle then game:spawnParticle(self.config.destroyParticle, self.pos) end
+	if spawnParticle and self.config.destroyParticle then _Game:spawnParticle(self.config.destroyParticle, self.pos) end
 end
 
 

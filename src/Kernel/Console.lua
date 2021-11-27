@@ -34,7 +34,7 @@ function Console:update(dt)
 end
 
 function Console:print(message)
-	table.insert(self.history, {text = message, time = totalTime})
+	table.insert(self.history, {text = message, time = _TotalTime})
 	local logText = "[CONSOLE] "
 	if type(message) == "table" then
 		for i = 1, #message / 2 do
@@ -56,7 +56,7 @@ function Console:toggleOpen(open)
 end
 
 function Console:draw()
-	local pos = Vec2(5, displaySize.y)
+	local pos = Vec2(5, _DisplaySize.y)
 	local size = Vec2(600, 200)
 
 	love.graphics.setColor(1, 1, 1)
@@ -65,21 +65,21 @@ function Console:draw()
 		local pos = pos - Vec2(0, 30 + 20 * i)
 		local message = self.history[#self.history - i + 1]
 		if message then
-			local t = totalTime - message.time
+			local t = _TotalTime - message.time
 			if self.open or t < 10 then
 				local a = 1
 				if not self.open then
 					a = math.min(10 - t, 1)
 				end
-				dbg:drawVisibleText(message.text, pos, 20, nil, a)
+				_Debug:drawVisibleText(message.text, pos, 20, nil, a)
 			end
 		end
 	end
 
 	if self.open then
 		local text = "> " .. self.command
-		if self.active and totalTime % 1 < 0.5 then text = text .. "_" end
-		dbg:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x)
+		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
+		_Debug:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x)
 	end
 	love.graphics.setFont(self.font)
 end
@@ -88,7 +88,7 @@ end
 
 function Console:keypressed(key)
 	-- the shortcut is Ctrl + `
-	if key == "`" and (keyModifiers["lctrl"] or keyModifiers["rctrl"]) then
+	if key == "`" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
 		self:toggleOpen()
 	end
 	if self.active then
@@ -125,7 +125,7 @@ function Console:inputBackspace()
 end
 
 function Console:inputEnter()
-	local success = dbg:runCommand(self.command)
+	local success = _Debug:runCommand(self.command)
 	if not success then self:print("Invalid command!") end
 	self.command = ""
 end

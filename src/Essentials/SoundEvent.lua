@@ -3,11 +3,11 @@ local SoundEvent = class:derive("SoundEvent")
 
 function SoundEvent:new(path)
 	self.path = path
-  local data = loadJson(path)
+  local data = _LoadJson(path)
 
   self.sound = nil
   if data.path then
-    self.sound = game.resourceManager:getSound(data.path)
+    self.sound = _Game.resourceManager:getSound(data.path)
   end
   self.volume = data.volume or 1
   self.pitch = data.volume or 1
@@ -20,8 +20,8 @@ function SoundEvent:play(pitch, pos)
     return self
   end
   pitch = pitch or 1
-  local eventVolume = parseNumber(self.volume)
-  local eventPitch = parseNumber(self.pitch)
+  local eventVolume = _ParseNumber(self.volume)
+  local eventPitch = _ParseNumber(self.pitch)
 	local eventPos = not self.flat and pos
   return self.sound:play(eventVolume, pitch * eventPitch, eventPos, self.loop)
 end

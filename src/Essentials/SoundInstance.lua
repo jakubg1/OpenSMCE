@@ -4,7 +4,7 @@ local SoundInstance = class:derive("SoundInstance")
 local Vec2 = require("src/Essentials/Vector2")
 
 function SoundInstance:new(path)
-  self.sound = loadSound(path, "static")
+  self.sound = _LoadSound(path, "static")
 	if not self.sound then
     error("Failed to load sound: " .. path)
   end
@@ -14,7 +14,7 @@ function SoundInstance:new(path)
 end
 
 function SoundInstance:update(dt)
-	self.sound:setVolume(game.runtimeManager.options:getEffectiveSoundVolume() * self.volume)
+	self.sound:setVolume(_Game.runtimeManager.options:getEffectiveSoundVolume() * self.volume)
 end
 
 function SoundInstance:play()
@@ -39,7 +39,7 @@ function SoundInstance:setPos(pos)
     return
   end
 
-  if engineSettings:get3DSound() and pos then
+  if _EngineSettings:get3DSound() and pos then
     self.pos = pos
     local p = pos - NATIVE_RESOLUTION / 2
     self.sound:setPosition(p.x, p.y, 0)

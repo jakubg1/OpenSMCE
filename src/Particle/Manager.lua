@@ -24,7 +24,7 @@ function ParticleManager:update(dt)
 end
 
 function ParticleManager:spawnParticlePacket(path, pos)
-	local data = game.resourceManager:getParticle(path)
+	local data = _Game.resourceManager:getParticle(path)
 	local packet = ParticlePacket(self, data, pos)
 	table.insert(self.particlePackets, packet)
 	return packet
@@ -97,7 +97,7 @@ function ParticleManager:draw()
 	for i, particlePiece in ipairs(self.particlePieces) do
 		particlePiece:draw()
 	end
-	if dbg.particleSpawnersVisible then
+	if _Debug.particleSpawnersVisible then
 		for i, particlePacket in ipairs(self.particlePackets) do
 			particlePacket:draw()
 		end

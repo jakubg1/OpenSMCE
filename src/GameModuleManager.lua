@@ -12,7 +12,7 @@ end
 
 function GameModuleManager:loadModule(name)
 	print(string.format("[GameModuleManager] Loading Module: %s", name))
-	local f = function() return require(string.format("games/%s/modules/%s", game.name, name)) end
+	local f = function() return require(string.format("games/%s/modules/%s", _Game.name, name)) end
 	local success, mod = pcall(f)
 	if success then
 		print("[GameModuleManager] Success!")

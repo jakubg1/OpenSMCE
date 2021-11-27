@@ -30,7 +30,7 @@ end
 
 --- An initialization callback.
 function Session:init()
-	game.uiManager:executeCallback("sessionInit")
+	_Game.uiManager:executeCallback("sessionInit")
 end
 
 
@@ -46,13 +46,13 @@ end
 --- Initializes a new level.
 -- The level number is derived from the current Profile.
 function Session:startLevel()
-	self.level = Level(game:getCurrentProfile():getCurrentLevelConfig())
-	local savedLevelData = game:getCurrentProfile():getSavedLevel()
+	self.level = Level(_Game:getCurrentProfile():getCurrentLevelConfig())
+	local savedLevelData = _Game:getCurrentProfile():getSavedLevel()
 	if savedLevelData then
 		self.level:deserialize(savedLevelData)
-		game.uiManager:executeCallback("levelLoaded")
+		_Game.uiManager:executeCallback("levelLoaded")
 	else
-		game.uiManager:executeCallback("levelStart")
+		_Game.uiManager:executeCallback("levelStart")
 	end
 end
 
@@ -80,7 +80,7 @@ end
 -- Deinitializates the level and shows an appropriate widget.
 function Session:terminate()
 	self.level = nil
-	game.uiManager:executeCallback("gameOver")
+	_Game.uiManager:executeCallback("gameOver")
 end
 
 
@@ -97,7 +97,7 @@ end
 -- @tparam number color2 The second color to check.
 -- @treturn boolean Whether the check has passed.
 function Session:colorsMatch(color1, color2)
-	local matches = game.configManager.spheres[color1].matches
+	local matches = _Game.configManager.spheres[color1].matches
 	for i, v in ipairs(matches) do
 		if v == color2 then return true end
 	end
@@ -178,7 +178,7 @@ function Session:destroyFunction(f, scorePos, scoreFont)
 		end
 	end
 	self.level:grantScore(score)
-	self.level:spawnFloatingText(numStr(score), scorePos, scoreFont or "fonts/score0.json")
+	self.level:spawnFloatingText(_NumStr(score), scorePos, scoreFont or "fonts/score0.json")
 end
 
 
@@ -221,7 +221,7 @@ end
 function Session:destroySingleSphere(s)
 	self:destroyFunction(
 		function(sphere, spherePos) return sphere == s end,
-		s:getPos(), game.configManager.spheres[s.color].matchFont
+		s:getPos(), _Game.configManager.spheres[s.color].matchFont
 	)
 end
 

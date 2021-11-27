@@ -17,8 +17,8 @@ end
 
 function RuntimeManager:load()
 	-- if runtime.json exists, then load it
-	if pcall(function() loadJson(parsePath("runtime.json")) end) then
-		local data = loadJson(parsePath("runtime.json"))
+	if pcall(function() _LoadJson(_ParsePath("runtime.json")) end) then
+		local data = _LoadJson(_ParsePath("runtime.json"))
 
 		self.profileManager = ProfileManager(data.profiles)
 		self.highscores = Highscores(data.highscores)
@@ -45,7 +45,7 @@ function RuntimeManager:save()
 	data.highscores = self.highscores.data
 	data.options = self.options.data
 
-	saveJson(parsePath("runtime.json"), data)
+	_SaveJson(_ParsePath("runtime.json"), data)
 end
 
 

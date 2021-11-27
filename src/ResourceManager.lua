@@ -27,7 +27,7 @@ function ResourceManager:new()
 		sound = {t = self.sounds, c = Sound, e = "sound"},
 		soundEvent = {t = self.soundEvents, c = SoundEvent, e = "sound event"},
 		music = {t = self.music, c = Music, e = "music"},
-		particle = {t = self.particles, c = loadJson, e = "particle"},
+		particle = {t = self.particles, c = _LoadJson, e = "particle"},
 		font = {t = self.fonts, c = Font, e = "font"},
 		colorPalette = {t = self.colorPalettes, c = ColorPalette, e = "color palette"},
 	}
@@ -133,7 +133,7 @@ function ResourceManager:loadResource(type, path)
 
 	--print(string.format("[RB] Loading %s: %s...", data.e, path))
 	local success, err = pcall(function()
-		data.t[path] = data.c(parsePath(path))
+		data.t[path] = data.c(_ParsePath(path))
 	end)
 	if not success then
 		print(string.format("[ResourceManager] FAILED to load %s: %s", data.e, path))

@@ -35,7 +35,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin)
 	end
 
 	if not self.map.isDummy and self.color > 0 then
-		game.session.colorManager:increment(self.color)
+		_Game.session.colorManager:increment(self.color)
 	end
 
 	self.danger = false
@@ -70,9 +70,9 @@ function Sphere:update(dt)
 		if self.danger ~= danger then
 			self.danger = danger
 			if danger then
-				game.session.colorManager:increment(self.color, true)
+				_Game.session.colorManager:increment(self.color, true)
 			else
-				game.session.colorManager:decrement(self.color, true)
+				_Game.session.colorManager:decrement(self.color, true)
 			end
 		end
 	end
@@ -84,11 +84,11 @@ function Sphere:updateOffset()
 end
 
 function Sphere:changeColor(color, particle)
-	game.session.colorManager:decrement(self.color)
-	game.session.colorManager:increment(color)
+	_Game.session.colorManager:decrement(self.color)
+	_Game.session.colorManager:increment(color)
 	self.color = color
 	if particle then
-		game:spawnParticle(particle, self:getPos())
+		_Game:spawnParticle(particle, self:getPos())
 	end
 end
 
@@ -101,14 +101,14 @@ function Sphere:delete()
 	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
 	-- update color count
 	if not self.map.isDummy and self.color > 0 then
-		game.session.colorManager:decrement(self.color)
+		_Game.session.colorManager:decrement(self.color)
 		if self.danger then
-			game.session.colorManager:decrement(self.color, true)
+			_Game.session.colorManager:decrement(self.color, true)
 		end
 	end
 	-- particles
 	if not self.map.isDummy and (not self.map.level.lost or self.color == 0) then
-		game:spawnParticle(game.configManager.spheres[self.color].destroyParticle, self:getPos())
+		_Game:spawnParticle(_Game.configManager.spheres[self.color].destroyParticle, self:getPos())
 	end
 end
 

@@ -5,7 +5,7 @@ local mathmethods = require("src/mathmethods")
 
 function CollectibleGeneratorEntry:new(manager, name)
   self.manager = manager
-  self.data = loadJson(parsePath(string.format("config/collectible_generators/%s.json", name)))
+  self.data = _LoadJson(_ParsePath(string.format("config/collectible_generators/%s.json", name)))
 end
 
 function CollectibleGeneratorEntry:generate()
@@ -17,7 +17,7 @@ function CollectibleGeneratorEntry:generate()
       for j, entry in ipairs(modifiedPool) do
         table.insert(weights, entry.weight or 1)
       end
-      local winner = modifiedPool[mathWeightedRandom(weights)]
+      local winner = modifiedPool[_MathWeightedRandom(weights)]
       return self:generateOutput(winner)
     end
   end
@@ -64,7 +64,7 @@ end
 
 function CollectibleGeneratorEntry:checkCondition(condition)
   if condition.type == "color_present" then
-    return game.session.colorManager:isColorExistent(condition.color)
+    return _Game.session.colorManager:isColorExistent(condition.color)
   end
 end
 

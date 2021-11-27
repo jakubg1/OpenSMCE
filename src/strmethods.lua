@@ -1,4 +1,4 @@
-function strSplit(s, k)
+function _StrSplit(s, k)
 	local t = {}
 	local l = k:len()
 	while true do
@@ -13,7 +13,7 @@ function strSplit(s, k)
 	end
 end
 
-function strJoin(t, k)
+function _StrJoin(t, k)
 	local s = ""
 	for i, n in ipairs(t) do
 		if i > 1 then s = s .. k end
@@ -22,7 +22,7 @@ function strJoin(t, k)
 	return s
 end
 
-function strTrim(s)
+function _StrTrim(s)
 	-- truncate leading whitespace
 	while s:sub(1, 1) == " " or s:sub(1, 1) == "\t" do s = s:sub(2) end
 	-- truncate trailing whitespace
@@ -31,12 +31,12 @@ function strTrim(s)
 	return s
 end
 
-function strTrimCom(s)
+function _StrTrimCom(s)
 	-- truncate the comment part and trim
-	return strTrim(strSplit(s, "//")[1])
+	return _StrTrim(_StrSplit(s, "//")[1])
 end
 
-function jsonBeautify(s)
+function _JsonBeautify(s)
 	local indent = 0
 	local ret = "" -- returned string
 	local ln = "" -- current line

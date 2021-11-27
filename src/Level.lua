@@ -18,7 +18,7 @@ function Level:new(data)
 	self.dangerMusicName = data.dangerMusic
 
 	-- data specified in level config file
-	local data = loadJson(parsePath(data.path))
+	local data = _LoadJson(_ParsePath(data.path))
 
 	self.map = Map(self, "maps/" .. data.map)
 	self.shooter = Shooter()
@@ -27,8 +27,8 @@ function Level:new(data)
 	self.colorStreak = data.colorStreak
 	self.powerupGenerator = data.powerupGenerator
 	self.gemColors = data.gems
-	if game.satMode then
-		self.spawnAmount = game:getCurrentProfile().session.level * 10
+	if _Game.satMode then
+		self.spawnAmount = _Game:getCurrentProfile().session.level * 10
 		self.target = self.spawnAmount
 	else
 		self.target = data.target
@@ -51,7 +51,7 @@ function Level:update(dt)
 		local d1 = self:getDanger() and not self.lost
 		local d2 = self.danger
 		if d1 and not d2 then
-			self.dangerSound = game:playSound("sound_events/warning_loop.json")
+			self.dangerSound = _Game:playSound("sound_events/warning_loop.json")
 		elseif not d1 and d2 then
 			self.dangerSound:stop()
 			self.dangerSound = nil
@@ -103,11 +103,11 @@ function Level:update(dt)
 			if self.warningDelay >= self.warningDelayMax then
 				for i, path in ipairs(self.map.paths.objects) do
 					if path:getMaxOffset() / path.length >= self.dangerDistance then
-						game:spawnParticle("particles/warning.json", path:getPos(path.length))
+						_Game:spawnParticle("particles/warning.json", path:getPos(path.length))
 					end
 				end
 				--game:playSound("sound_events/warning.json", 1 + (4 - self.warningDelayMax) / 6)
-				game:playSound("sound_events/warning.json")
+				_Game:playSound("sound_events/warning.json")
 				self.warningDelay = 0
 			end
 		else
@@ -163,11 +163,11 @@ function Level:update(dt)
 			if self.wonDelay <= 0 then
 				self.wonDelay = nil
 				self.won = true
-				local newRecord = game:getCurrentProfile():getLevelHighscoreInfo(self.score)
+				local newRecord = _Game:getCurrentProfile():getLevelHighscoreInfo(self.score)
 				if newRecord then
-					game.uiManager:executeCallback("levelCompleteRecord")
+					_Game.uiManager:executeCallback("levelCompleteRecord")
 				else
-					game.uiManager:executeCallback("levelComplete")
+					_Game.uiManager:executeCallback("levelComplete")
 				end
 			end
 		end
@@ -177,7 +177,7 @@ function Level:update(dt)
 		-- Level lose
 		-- TODO: HARDCODED - make it more flexible
 		if self.lost and self:getEmpty() and not self.restart then
-			game.uiManager:executeCallback("levelLost")
+			_Game.uiManager:executeCallback("levelLost")
 			self.restart = true
 		end
 	end
@@ -185,9 +185,9 @@ function Level:update(dt)
 
 
 	-- music fade in/out
-	local music = game:getMusic(self.musicName)
+	local music = _Game:getMusic(self.musicName)
 	if self.dangerMusicName then
-		local dangerMusic = game:getMusic(self.dangerMusicName)
+		local dangerMusic = _Game:getMusic(self.dangerMusicName)
 		if not self.started or self.lost or self.won or self.pause then
 			music:setVolume(0)
 			dangerMusic:setVolume(0)
@@ -214,7 +214,7 @@ function Level:newSphereColor()
 end
 
 function Level:newPowerupData()
-	return game.configManager.collectibleGeneratorManager:getEntry(self.powerupGenerator):generate()
+	return _Game.configManager.collectibleGeneratorManager:getEntry(self.powerupGenerator):generate()
 end
 
 function Level:newGemData()
@@ -223,12 +223,12 @@ end
 
 function Level:grantScore(score)
 	self.score = self.score + score
-	game:getCurrentProfile():grantScore(score)
+	_Game:getCurrentProfile():grantScore(score)
 end
 
 function Level:grantCoin()
 	self.coins = self.coins + 1
-	game:getCurrentProfile():grantCoin()
+	_Game:getCurrentProfile():grantCoin()
 end
 
 function Level:grantGem()
@@ -254,22 +254,22 @@ function Level:spawnLightningStormPiece()
 	-- spawn a particle, add points etc
 	local pos = sphere:getPos()
 	self:grantScore(100)
-	self:spawnFloatingText(numStr(100), pos, game.configManager.spheres[sphere.color].matchFont)
-	game:spawnParticle("particles/lightning_beam.json", pos)
-	game:playSound("sound_events/lightning_storm_destroy.json")
+	self:spawnFloatingText(_NumStr(100), pos, _Game.configManager.spheres[sphere.color].matchFont)
+	_Game:spawnParticle("particles/lightning_beam.json", pos)
+	_Game:playSound("sound_events/lightning_storm_destroy.json")
 	-- destroy it
 	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
 end
 
 function Level:getLightningStormSphere()
-	local ln = game.session:getLowestMatchLength()
+	local ln = _Game.session:getLowestMatchLength()
 	-- first, check for spheres that would make matching easier when destroyed
-	local spheres = game.session:getSpheresWithMatchLength(ln, true)
+	local spheres = _Game.session:getSpheresWithMatchLength(ln, true)
 	if #spheres > 0 then
 		return spheres[math.random(#spheres)]
 	end
 	-- if none, then check for any of the shortest groups
-	spheres = game.session:getSpheresWithMatchLength(ln)
+	spheres = _Game.session:getSpheresWithMatchLength(ln)
 	if #spheres > 0 then
 		return spheres[math.random(#spheres)]
 	end
@@ -324,38 +324,38 @@ function Level:getFinish()
 end
 
 function Level:tryAgain()
-	if game:getCurrentProfile():loseLevel() then
-		game.uiManager:executeCallback("levelStart")
+	if _Game:getCurrentProfile():loseLevel() then
+		_Game.uiManager:executeCallback("levelStart")
 		self:reset()
 	else
-		game.session:terminate()
+		_Game.session:terminate()
 	end
 end
 
 function Level:begin()
 	self.started = true
 	self.controlDelay = 2
-	game:getMusic(self.musicName):reset()
+	_Game:getMusic(self.musicName):reset()
 end
 
 function Level:beginLoad()
 	self.started = true
-	game:getMusic(self.musicName):reset()
+	_Game:getMusic(self.musicName):reset()
 	self.targetReached = self.destroyedSpheres == self.target
 	if not self.bonusDelay and not self.map.paths:get(self.bonusPathID) then self.wonDelay = 1.5 end
 end
 
 function Level:save()
-	game:getCurrentProfile():saveLevel(self:serialize())
+	_Game:getCurrentProfile():saveLevel(self:serialize())
 end
 
 function Level:unsave()
-	game:getCurrentProfile():unsaveLevel()
+	_Game:getCurrentProfile():unsaveLevel()
 end
 
 function Level:win()
-	game:getCurrentProfile():winLevel(self.score)
-	game:getCurrentProfile():unsaveLevel()
+	_Game:getCurrentProfile():winLevel(self.score)
+	_Game:getCurrentProfile():unsaveLevel()
 end
 
 function Level:destroy()
@@ -409,7 +409,7 @@ function Level:reset()
 	self.lightningStormTime = 0
 	self.lightningStormCount = 0
 	self.shooter.speedShotTime = 0
-	game.session.colorManager:reset()
+	_Game.session.colorManager:reset()
 end
 
 function Level:lose()
@@ -419,7 +419,7 @@ function Level:lose()
 	self.shooter:empty()
 	-- delete all shot balls
 	self.shotSpheres:clear()
-	game:playSound("sound_events/level_lose.json")
+	_Game:playSound("sound_events/level_lose.json")
 end
 
 function Level:setPause(pause)
@@ -437,7 +437,7 @@ end
 
 function Level:spawnCollectible(pos, data)
 	self.collectibles:append(Collectible(nil, pos, data))
-	game:playSound("sound_events/collectible_spawn_" .. data.type .. ".json", 1, pos)
+	_Game:playSound("sound_events/collectible_spawn_" .. data.type .. ".json", 1, pos)
 end
 
 function Level:spawnFloatingText(text, pos, font)
@@ -508,7 +508,7 @@ end
 -- Restores all data that was saved in the serialization method.
 function Level:deserialize(t)
 	-- Prepare the counters
-	game.session.colorManager:reset()
+	_Game.session.colorManager:reset()
 
 	-- Level stats
 	self.score = t.stats.score

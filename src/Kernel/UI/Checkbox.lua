@@ -19,10 +19,10 @@ end
 function Checkbox:update(dt)
 	if not self.visible then return end
 
-	self.hovered = mousePos.x > self.pos.x and
-					mousePos.x < self.pos.x + self.size.x and
-					mousePos.y > self.pos.y and
-					mousePos.y < self.pos.y + self.size.y
+	self.hovered = _MousePos.x > self.pos.x and
+					_MousePos.x < self.pos.x + self.size.x and
+					_MousePos.y > self.pos.y and
+					_MousePos.y < self.pos.y + self.size.y
 end
 
 function Checkbox:draw()

@@ -20,7 +20,7 @@ function DiscordRichPresence:new()
 	function discordRPCMain.ready(userId, username, discriminator, avatar)
 		self.connected = true
 		self.username = string.format("%s#%s", username, discriminator)
-		dbg.console:print({{0, 1, 1}, "[DiscordRPC] ", {0, 1, 0}, string.format("Connected! (username: %s)", self.username)})
+		_Debug.console:print({{0, 1, 1}, "[DiscordRPC] ", {0, 1, 0}, string.format("Connected! (username: %s)", self.username)})
 	end
 
 	function discordRPCMain.disconnected(errorCode, message)
@@ -40,7 +40,7 @@ function DiscordRichPresence:update(dt)
 end
 
 function DiscordRichPresence:updateEnabled()
-	local setting = engineSettings:getDiscordRPC()
+	local setting = _EngineSettings:getDiscordRPC()
 	if not self.enabled and setting then
 		self:connect()
 	end

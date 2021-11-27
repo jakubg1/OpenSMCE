@@ -4,15 +4,15 @@ local ConfigManager = class:derive("ConfigManager")
 local CollectibleGeneratorManager = require("src/CollectibleGenerator/Manager")
 
 function ConfigManager:new()
-	self.config = loadJson(parsePath("config.json"))
+	self.config = _LoadJson(_ParsePath("config.json"))
 
-	self.loadList = loadJson(parsePath("config/loadlist.json"))
+	self.loadList = _LoadJson(_ParsePath("config/loadlist.json"))
 	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
 	self.resourceList = {}
 	for i, type in ipairs(resourceTypes) do
 		print(string.format("[ConfigManager] Loading %s...", type))
 		self.resourceList[type] = {}
-		for j, path in ipairs(getDirListing(parsePath(type), "file", nil, true)) do
+		for j, path in ipairs(_GetDirListing(_ParsePath(type), "file", nil, true)) do
 			local name = type .. "/" .. path
 			local ok = true
 			if self.loadList[type] then
@@ -30,16 +30,16 @@ function ConfigManager:new()
 		end
 	end
 
-	self.gameplay = loadJson(parsePath("config/gameplay.json"))
-	self.highscores = loadJson(parsePath("config/highscores.json"))
-	self.hudLayerOrder = loadJson(parsePath("config/hud_layer_order.json"))
-	self.music = loadJson(parsePath("config/music.json"))
-	self.powerups = loadJson(parsePath("config/powerups.json"))
+	self.gameplay = _LoadJson(_ParsePath("config/gameplay.json"))
+	self.highscores = _LoadJson(_ParsePath("config/highscores.json"))
+	self.hudLayerOrder = _LoadJson(_ParsePath("config/hud_layer_order.json"))
+	self.music = _LoadJson(_ParsePath("config/music.json"))
+	self.powerups = _LoadJson(_ParsePath("config/powerups.json"))
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
 
 	self.spheres = {}
-	local configSpheres = loadJson(parsePath("config/spheres.json"))
+	local configSpheres = _LoadJson(_ParsePath("config/spheres.json"))
 	for k, v in pairs(configSpheres) do
 		self.spheres[tonumber(k)] = v
 	end
@@ -47,10 +47,10 @@ function ConfigManager:new()
 	self.levels = {}
 	self.maps = {}
 	for i, levelConfig in ipairs(self.config.levels) do
-		local level = loadJson(parsePath(levelConfig.path))
+		local level = _LoadJson(_ParsePath(levelConfig.path))
 		self.levels[i] = level
 		if not self.maps[level.map] then
-			self.maps[level.map] = loadJson(parsePath("maps/" .. level.map .. "/config.json"))
+			self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
 		end
 	end
 end

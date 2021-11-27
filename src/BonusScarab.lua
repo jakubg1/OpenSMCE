@@ -7,7 +7,7 @@ local Color = require("src/Essentials/Color")
 function BonusScarab:new(path, deserializationTable)
 	self.path = path
 
-	self.config = game.configManager.gameplay.bonusScarab
+	self.config = _Game.configManager.gameplay.bonusScarab
 
 
 
@@ -21,10 +21,10 @@ function BonusScarab:new(path, deserializationTable)
 	end
 	self.minOffset = math.max(path.clearOffset, 64)
 
-	self.sprite = game.resourceManager:getSprite(self.config.sprite)
-	self.shadowSprite = game.resourceManager:getSprite("sprites/game/ball_shadow.json")
+	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
+	self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
 
-	self.sound = game:playSound("sound_events/bonus_scarab_loop.json", 1, self:getPos())
+	self.sound = _Game:playSound("sound_events/bonus_scarab_loop.json", 1, self:getPos())
 end
 
 function BonusScarab:update(dt)
@@ -34,7 +34,7 @@ function BonusScarab:update(dt)
 	-- Coins
 	if self.config.coinDistance then
 		while self.coinDistance < self.distance do
-			if self.coinDistance > 0 then game.session.level:spawnCollectible(self:getPos(), {type = "coin"}) end
+			if self.coinDistance > 0 then _Game.session.level:spawnCollectible(self:getPos(), {type = "coin"}) end
 			self.coinDistance = self.coinDistance + self.config.coinDistance
 		end
 	end
@@ -43,7 +43,7 @@ function BonusScarab:update(dt)
 		while self.trailDistance < self.distance do
 			local offset = self.path.length - self.trailDistance
 			if not self.path:getHidden(offset) then -- the particles shouldn't be visible under obstacles
-				game:spawnParticle(self.config.trailParticle, self.path:getPos(offset))
+				_Game:spawnParticle(self.config.trailParticle, self.path:getPos(offset))
 			end
 			self.trailDistance = self.trailDistance + self.config.trailParticleDistance
 		end
@@ -58,10 +58,10 @@ function BonusScarab:explode()
 	local pos = self:getPos()
 	local score = math.max(math.floor((self.path.length - self.minOffset) / self.config.stepLength), 1) * self.config.pointsPerStep
 
-	game.session.level:grantScore(score)
-	game.session.level:spawnFloatingText(numStr(score) .. "\nBONUS", pos, self.config.scoreFont)
-	game:spawnParticle(self.config.destroyParticle, pos)
-	game:playSound("sound_events/bonus_scarab.json", 1, pos)
+	_Game.session.level:grantScore(score)
+	_Game.session.level:spawnFloatingText(_NumStr(score) .. "\nBONUS", pos, self.config.scoreFont)
+	_Game:spawnParticle(self.config.destroyParticle, pos)
+	_Game:playSound("sound_events/bonus_scarab.json", 1, pos)
 	self:destroy()
 end
 

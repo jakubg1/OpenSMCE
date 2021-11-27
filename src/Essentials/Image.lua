@@ -4,7 +4,7 @@ local Image = class:derive("Image")
 local Vec2 = require("src/Essentials/Vector2")
 
 function Image:new(path)
-	self.img = loadImage(path)
+	self.img = _LoadImage(path)
 	if not self.img then error("Failed to load image: " .. path) end
 	self.size = Vec2(self.img:getDimensions())
 end
