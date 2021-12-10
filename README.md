@@ -4,18 +4,15 @@
 This is a **LÖVE2D** project. The supported version of the engine is **11.3**
 
 ## Current Status
-This project is currently work-in-progress. Currently the most effort is spent to rework UI system, and soon Beta 4.0.0 will be released. This version will offer massive improvements compared to Beta 3.0.0, and will **not** be compatible with existing games.
+This project is currently work-in-progress. Currently I'm slowly working on Beta 5.0.0, which will add some level format changes. It might **not** be compatible with existing games.
 
 ### Plans
 The first priority for now is to release the full 1.0.0 version.
 
 These are the things planned to do before full 1.0.0 version is released:
-- Split the game config file into respective files.
-- ~~Split sound events and sprites into separate files for each.~~
-- ~~Optimize sphere drawing routine.~~
-- ~~Add remaining Luxor 1 functionality (profile selector).~~
 - Make progress autosave functionality, emergency save function.
 - Fix bugs.
+
 For more information, you can take a look [here](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Full+1.0+release%22).
 
 ### Further plans
@@ -96,10 +93,11 @@ Here are some videos showcasing the recent progress on the engine:
 [![Video 2](https://img.youtube.com/vi/_bZRL3-Cn8c/0.jpg)](https://www.youtube.com/watch?v=_bZRL3-Cn8c)
 
 ## Documentation
-The documentation will come at some point. Unfortunately, there is no documentation for now.
+Unfortunately, there is no documentation for now.
+However, it's currently being worked on - there will be game documentation first.
 
 ## Notes
-This engine is on beta stage - currently, Luxor game is nearly fully supported and soon there will be first full releases.
+This engine is on beta stage - currently, Luxor game is nearly fully supported and at some point in the future there will be first full releases.
 
 In current shape, it is intended to play the Luxor game along with its mods. Next steps will add support for Luxor Amun Rising, its huge variety of mods and Zuma respectively.
 
