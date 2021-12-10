@@ -49,7 +49,7 @@ In future, we are considering bundling all releases with a builtin game - to sav
   - same as above, plus some editors like you're modding Luxor, JSON knowledge (just a bit)
 
 - For modifying the engine:
-  - same as above, a text editor (preferably *Atom* or *Notepad++*), Lua knowledge, JSON knowledge, LOVE 11.3 installed and the code repository program to easily manage the code and update it
+  - same as above, a text editor (preferably *Visual Studio Code*), Lua knowledge, JSON knowledge, LÖVE 11.3 installed.
 
 ### Building instructions
 I am using a batch script for creating the OpenSMCE.exe file. This will work under a few assumptions:
