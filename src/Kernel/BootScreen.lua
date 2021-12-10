@@ -27,7 +27,7 @@ end
 
 function BootScreen:init()
 	-- window title and size
-	love.window.setTitle("OpenSMCE [" .. VERSION .. "] - Boot Menu")
+	love.window.setTitle("OpenSMCE [" .. _VERSION .. "] - Boot Menu")
 
 	-- game list
 	self.games = self:getGames()
@@ -36,7 +36,7 @@ function BootScreen:init()
 	self:setScene("main")
 
 	-- discord rpc connection
-	_DiscordRPC:setStatus(string.format("Boot Screen - Version: %s", VERSION_NAME), nil, true)
+	_DiscordRPC:setStatus(string.format("Boot Screen - Version: %s", _VERSION_NAME), nil, true)
 end
 
 

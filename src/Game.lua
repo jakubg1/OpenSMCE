@@ -42,7 +42,7 @@ function Game:init()
 	self.configManager = ConfigManager()
 
 	-- Step 2. Initialize the window
-	love.window.setTitle(self.configManager.config.general.windowTitle or ("OpenSMCE [" .. VERSION .. "] - " .. self.name))
+	love.window.setTitle(self.configManager.config.general.windowTitle or ("OpenSMCE [" .. _VERSION .. "] - " .. self.name))
 	love.window.setMode(self.configManager.config.general.nativeResolution.x, self.configManager.config.general.nativeResolution.y, {resizable = true})
 
 	-- Step 3. Initialize RNG and timer
@@ -85,7 +85,7 @@ end
 function Game:update(dt) -- callback from main.lua
 	self.timer:update(dt)
 	for i = 1, self.timer:getFrameCount() do
-		self:tick(self.timer.frameLength)
+		self:tick(self.timer.FRAME_LENGTH)
 	end
 end
 
@@ -229,7 +229,7 @@ function Game:setFullscreen(fullscreen)
 		local _, _, flags = love.window.getMode()
 		_DisplaySize = Vec2(love.window.getDesktopDimensions(flags.display))
 	else
-		_DisplaySize = NATIVE_RESOLUTION
+		_DisplaySize = _NATIVE_RESOLUTION
 	end
 	love.window.setMode(_DisplaySize.x, _DisplaySize.y, {fullscreen = fullscreen, resizable = true})
 end

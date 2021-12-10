@@ -139,7 +139,7 @@ end
 function Debug:getDebugMain()
 	local s = ""
 
-	s = s .. "Version = " .. VERSION .. "\n"
+	s = s .. "Version = " .. _VERSION .. "\n"
 	s = s .. "Game = " .. _Game.name .. "\n"
 	s = s .. "FPS = " .. tostring(love.timer.getFPS()) .. "\n"
 	s = s .. "Drawcalls = " .. tostring(love.graphics.getStats().drawcalls) .. "\n"

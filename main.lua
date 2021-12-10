@@ -21,13 +21,13 @@ local DiscordRichPresence = require("src/DiscordRichPresence")
 
 
 -- CONSTANT ZONE
-VERSION = "v0.40.0"
-VERSION_NAME = "Beta 4.0.0"
-DISCORD_APPLICATION_ID = "797956172539887657"
+_VERSION = "v0.41.0"
+_VERSION_NAME = "Beta 4.1.0"
+_DISCORD_APPLICATION_ID = "797956172539887657"
 
 
 -- TODO: at some point, get rid of this and make it configurable
-NATIVE_RESOLUTION = Vec2(800, 600)
+_NATIVE_RESOLUTION = Vec2(800, 600)
 
 
 
@@ -165,11 +165,11 @@ end
 
 
 function _GetDisplayOffsetX()
-	return (_DisplaySize.x - NATIVE_RESOLUTION.x * _GetResolutionScale()) / 2
+	return (_DisplaySize.x - _NATIVE_RESOLUTION.x * _GetResolutionScale()) / 2
 end
 
 function _GetResolutionScale()
-	return _DisplaySize.y / NATIVE_RESOLUTION.y
+	return _DisplaySize.y / _NATIVE_RESOLUTION.y
 end
 
 function _PosOnScreen(pos)

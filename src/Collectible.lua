@@ -42,13 +42,13 @@ function Collectible:update(dt)
 	if self.pos.x < 10 then -- left
 		self.pos.x = 10
 		self.speed.x = -self.speed.x
-	elseif self.pos.x > NATIVE_RESOLUTION.x - 10 then -- right
-		self.pos.x = NATIVE_RESOLUTION.x - 10
+	elseif self.pos.x > _NATIVE_RESOLUTION.x - 10 then -- right
+		self.pos.x = _NATIVE_RESOLUTION.x - 10
 		self.speed.x = -self.speed.x
 	elseif self.pos.y < 10 then -- up
 		self.pos.y = 10
 		self.speed.y = -self.speed.y
-	elseif self.pos.y > NATIVE_RESOLUTION.y + 20 then -- down - uncatched, falls down
+	elseif self.pos.y > _NATIVE_RESOLUTION.y + 20 then -- down - uncatched, falls down
 		self:destroy()
 	end
 

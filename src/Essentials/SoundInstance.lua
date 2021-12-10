@@ -10,7 +10,7 @@ function SoundInstance:new(path)
   end
 
   self.volume = 1
-  self.pos = NATIVE_RESOLUTION / 2
+  self.pos = _NATIVE_RESOLUTION / 2
 end
 
 function SoundInstance:update(dt)
@@ -41,9 +41,9 @@ function SoundInstance:setPos(pos)
 
   if _EngineSettings:get3DSound() and pos then
     self.pos = pos
-    local p = pos - NATIVE_RESOLUTION / 2
+    local p = pos - _NATIVE_RESOLUTION / 2
     self.sound:setPosition(p.x, p.y, 0)
-    self.sound:setAttenuationDistances(0, NATIVE_RESOLUTION.x)
+    self.sound:setAttenuationDistances(0, _NATIVE_RESOLUTION.x)
   else
     self.pos = Vec2()
     self.sound:setPosition(0, 0, 0)

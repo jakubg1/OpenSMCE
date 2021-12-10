@@ -69,7 +69,7 @@ end
 
 
 function Shooter:translatePos(x)
-	return math.min(math.max(x, 20), NATIVE_RESOLUTION.x - 20)
+	return math.min(math.max(x, 20), _NATIVE_RESOLUTION.x - 20)
 end
 
 function Shooter:move(x, fromMouse)

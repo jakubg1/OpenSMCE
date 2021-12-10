@@ -63,7 +63,7 @@ end
 function DiscordRichPresence:connect()
 	if self.enabled then return end
 	print("[DiscordRPC] Connecting...")
-	discordRPCMain.initialize(DISCORD_APPLICATION_ID, true)
+	discordRPCMain.initialize(_DISCORD_APPLICATION_ID, true)
 	self.enabled = true
 end
 
