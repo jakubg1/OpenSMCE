@@ -80,6 +80,7 @@ function Scorpion:shouldExplode()
 end
 
 function Scorpion:explode()
+	if self.delQueue then return end
 	local score = self.destroyedSpheres * 100
 	_Game.session.level:grantScore(score)
 	_Game.session.level:spawnFloatingText(_NumStr(score), self:getPos(), self.config.scoreFont)
@@ -88,6 +89,8 @@ function Scorpion:explode()
 	end
 	_Game:spawnParticle(self.config.destroyParticle, self:getPos())
 	_Game:playSound("sound_events/scorpion_destroy.json", 1, self:getPos())
+
+	self:destroy()
 end
 
 function Scorpion:destroy()
