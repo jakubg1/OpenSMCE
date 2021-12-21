@@ -263,6 +263,58 @@ function Level:destroySphere()
 	if self.destroyedSpheres == self.target then self.targetReached = true end
 end
 
+function Level:applyEffect(effect)
+	if effect.type == "replaceSphere" then
+		self.shooter:getSphere(effect.color)
+	elseif effect.type == "multiSphere" then
+		self.shooter:getMultiSphere(effect.color, effect.count)
+	elseif effect.type == "speedShot" then
+		self.shooter.speedShotTime = effect.time
+		self.shooter.speedShotSpeed = effect.speed
+	elseif effect.type == "slow" then
+		for i, path in ipairs(self.map.paths.objects) do
+			for j, sphereChain in ipairs(path.sphereChains) do
+				sphereChain.slowTime = effect.time
+				sphereChain.stopTime = 0
+				sphereChain.reverseTime = 0
+			end
+		end
+	elseif effect.type == "stop" then
+		for i, path in ipairs(self.map.paths.objects) do
+			for j, sphereChain in ipairs(path.sphereChains) do
+				sphereChain.slowTime = 0
+				sphereChain.stopTime = effect.time
+				sphereChain.reverseTime = 0
+			end
+		end
+	elseif effect.type == "reverse" then
+		for i, path in ipairs(self.map.paths.objects) do
+			for j, sphereChain in ipairs(path.sphereChains) do
+				sphereChain.slowTime = 0
+				sphereChain.stopTime = 0
+				sphereChain.reverseTime = effect.time
+			end
+		end
+	elseif effect.type == "destroyAllSpheres" then
+		-- DIRTY: replace this with an appropriate call within this function
+		-- when Session class gets removed.
+		_Game.session:destroyAllSpheres()
+	elseif effect.type == "destroyColor" then
+		-- Same as above.
+		_Game.session:destroyColor(effect.color)
+	elseif effect.type == "spawnScorpion" then
+		local path = self:getMostDangerousPath()
+		if path then
+			path:spawnScorpion()
+		end
+	elseif effect.type == "lightningStorm" then
+		self.lightningStormCount = effect.count
+	elseif effect.type == "changeGameSpeed" then
+		self.gameSpeed = effect.speed
+		self.gameSpeedTime = effect.duration
+	end
+end
+
 function Level:spawnLightningStormPiece()
 	-- get a sphere candidate to be destroyed
 	local sphere = self:getLightningStormSphere()

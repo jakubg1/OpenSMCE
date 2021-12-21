@@ -376,7 +376,7 @@ function Debug:runCommand(command)
 		self.console:print("Nuked!")
 		return true
 	elseif words[1] == "ppp" then
-		_Game.session:usePowerupEffect({type = "spawnScorpion"})
+		_Game.session.level:applyEffect({type = "spawnScorpion"})
 	elseif words[1] == "test" then
 		_Game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
 		return true

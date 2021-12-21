@@ -60,7 +60,7 @@ function Collectible:catch()
 	self:destroy()
 	if self.data.type == "powerup" then
 		for i, effect in ipairs(self.powerupConfig.effects) do
-			_Game.session:usePowerupEffect(effect)
+			_Game.session.level:applyEffect(effect)
 		end
 	end
 	_Game:playSound(self.soundEventName, 1, self.pos)
