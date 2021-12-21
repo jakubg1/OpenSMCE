@@ -68,11 +68,11 @@ function SphereGroup:update(dt)
 		end
 	end
 	if self.speed < self.maxSpeed then
-		--if self.map.level.lost then
-		--	self.speed = math.min(self.speed + 250 * dt, self.maxSpeed)
-		--else
+		if self.map.level.lost then
+			self.speed = math.min(self.speed + self.config.foulAcceleration * dt, self.maxSpeed)
+		else
 			self.speed = math.min(self.speed + self.config.acceleration * dt, self.maxSpeed)
-		--end
+		end
 	end
 	-- anti-slow-catapulting
 	if self.config.overspeedCheck and not self.map.level.lost and self.speed > speedBound then
