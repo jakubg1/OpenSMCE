@@ -43,155 +43,174 @@ function Level:new(data)
 end
 
 function Level:update(dt)
+	-- Game speed modifier is going to be calculated outside the main logic
+	-- function, as it messes with time itself.
+	if self.gameSpeedTime > 0 then
+		self.gameSpeedTime = self.gameSpeedTime - dt
+		if self.gameSpeedTime <= 0 then
+			-- The time has elapsed. Return to default speed.
+			self.gameSpeed = 1
+		end
+	end
+
 	if not self.pause then
-		self.map:update(dt)
-		self.shooter:update(dt)
+		self:updateLogic(dt * self.gameSpeed)
+	end
 
-		-- danger sound
-		local d1 = self:getDanger() and not self.lost
-		local d2 = self.danger
-		if d1 and not d2 then
-			self.dangerSound = _Game:playSound("sound_events/warning_loop.json")
-		elseif not d1 and d2 then
-			self.dangerSound:stop()
-			self.dangerSound = nil
-		end
+	self:updateMusic()
+end
 
-		self.danger = self:getDanger() and not self.lost
+function Level:updateLogic(dt)
+	self.map:update(dt)
+	self.shooter:update(dt)
 
+	-- danger sound
+	local d1 = self:getDanger() and not self.lost
+	local d2 = self.danger
+	if d1 and not d2 then
+		self.dangerSound = _Game:playSound("sound_events/warning_loop.json")
+	elseif not d1 and d2 then
+		self.dangerSound:stop()
+		self.dangerSound = nil
+	end
 
-
-		-- Shot spheres, collectibles, floating texts
-		for i, shotSphere in ipairs(self.shotSpheres.objects) do
-			shotSphere:update(dt)
-		end
-		for i, collectible in ipairs(self.collectibles.objects) do
-			collectible:update(dt)
-		end
-		for i, floatingText in ipairs(self.floatingTexts.objects) do
-			floatingText:update(dt)
-		end
+	self.danger = self:getDanger() and not self.lost
 
 
 
-		-- Lightning storm
-		if self.lightningStormCount > 0 then
-			self.lightningStormTime = self.lightningStormTime - dt
-			if self.lightningStormTime <= 0 then
-				self:spawnLightningStormPiece()
-				self.lightningStormCount = self.lightningStormCount - 1
-				if self.lightningStormCount == 0 then
-					self.lightningStormTime = 0
-				else
-					self.lightningStormTime = self.lightningStormTime + 0.3
-				end
-			end
-		end
+	-- Shot spheres, collectibles, floating texts
+	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+		shotSphere:update(dt)
+	end
+	for i, collectible in ipairs(self.collectibles.objects) do
+		collectible:update(dt)
+	end
+	for i, floatingText in ipairs(self.floatingTexts.objects) do
+		floatingText:update(dt)
+	end
 
 
 
-		-- Warning lights
-		local maxDistance = self:getMaxDistance()
-		if maxDistance >= self.dangerDistance and not self.lost then
-			self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 3.5 + 0.5, 0.5)
-		else
-			self.warningDelayMax = nil
-		end
-
-		if self.warningDelayMax then
-			self.warningDelay = self.warningDelay + dt
-			if self.warningDelay >= self.warningDelayMax then
-				for i, path in ipairs(self.map.paths.objects) do
-					if path:getMaxOffset() / path.length >= self.dangerDistance then
-						_Game:spawnParticle("particles/warning.json", path:getPos(path.length))
-					end
-				end
-				--game:playSound("sound_events/warning.json", 1 + (4 - self.warningDelayMax) / 6)
-				_Game:playSound("sound_events/warning.json")
-				self.warningDelay = 0
-			end
-		else
-			self.warningDelay = 0
-		end
-
-
-
-		-- Level start
-		-- TODO: HARDCODED - make it more flexible
-		if self.controlDelay then
-			self.controlDelay = self.controlDelay - dt
-			if self.controlDelay <= 0 then
-				self.controlDelay = nil
-				self.shooter:activate()
-			end
-		end
-
-
-
-		-- Level finish
-		if self:getFinish() and not self.finish and not self.finishDelay then
-			self.finishDelay = 2
-			self.shooter.active = false
-		end
-
-		if self.finishDelay then
-			self.finishDelay = self.finishDelay - dt
-			if self.finishDelay <= 0 then
-				self.finishDelay = nil
-				self.finish = true
-				self.bonusDelay = 0
-				self.shooter:empty()
-			end
-		end
-
-		if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths:get(self.bonusPathID - 1).bonusScarab) then
-			if self.map.paths:get(self.bonusPathID) then
-				self.bonusDelay = self.bonusDelay - dt
-				if self.bonusDelay <= 0 then
-					self.map.paths:get(self.bonusPathID):spawnBonusScarab()
-					self.bonusDelay = 1.5
-					self.bonusPathID = self.bonusPathID + 1
-				end
+	-- Lightning storm
+	if self.lightningStormCount > 0 then
+		self.lightningStormTime = self.lightningStormTime - dt
+		if self.lightningStormTime <= 0 then
+			self:spawnLightningStormPiece()
+			self.lightningStormCount = self.lightningStormCount - 1
+			if self.lightningStormCount == 0 then
+				self.lightningStormTime = 0
 			else
-				self.wonDelay = 1.5
-				self.bonusDelay = nil
+				self.lightningStormTime = self.lightningStormTime + 0.3
 			end
-		end
-
-		if self.wonDelay then
-			self.wonDelay = self.wonDelay - dt
-			if self.wonDelay <= 0 then
-				self.wonDelay = nil
-				self.won = true
-				local newRecord = _Game:getCurrentProfile():getLevelHighscoreInfo(self.score)
-				if newRecord then
-					_Game.uiManager:executeCallback("levelCompleteRecord")
-				else
-					_Game.uiManager:executeCallback("levelComplete")
-				end
-			end
-		end
-
-
-
-		-- Level lose
-		-- TODO: HARDCODED - make it more flexible
-		if self.lost and self:getEmpty() and not self.restart then
-			_Game.uiManager:executeCallback("levelLost")
-			self.restart = true
 		end
 	end
 
 
 
-	-- music fade in/out
+	-- Warning lights
+	local maxDistance = self:getMaxDistance()
+	if maxDistance >= self.dangerDistance and not self.lost then
+		self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 3.5 + 0.5, 0.5)
+	else
+		self.warningDelayMax = nil
+	end
+
+	if self.warningDelayMax then
+		self.warningDelay = self.warningDelay + dt
+		if self.warningDelay >= self.warningDelayMax then
+			for i, path in ipairs(self.map.paths.objects) do
+				if path:getMaxOffset() / path.length >= self.dangerDistance then
+					_Game:spawnParticle("particles/warning.json", path:getPos(path.length))
+				end
+			end
+			--game:playSound("sound_events/warning.json", 1 + (4 - self.warningDelayMax) / 6)
+			_Game:playSound("sound_events/warning.json")
+			self.warningDelay = 0
+		end
+	else
+		self.warningDelay = 0
+	end
+
+
+
+	-- Level start
+	-- TODO: HARDCODED - make it more flexible
+	if self.controlDelay then
+		self.controlDelay = self.controlDelay - dt
+		if self.controlDelay <= 0 then
+			self.controlDelay = nil
+			self.shooter:activate()
+		end
+	end
+
+
+
+	-- Level finish
+	if self:getFinish() and not self.finish and not self.finishDelay then
+		self.finishDelay = 2
+		self.shooter.active = false
+	end
+
+	if self.finishDelay then
+		self.finishDelay = self.finishDelay - dt
+		if self.finishDelay <= 0 then
+			self.finishDelay = nil
+			self.finish = true
+			self.bonusDelay = 0
+			self.shooter:empty()
+		end
+	end
+
+	if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths:get(self.bonusPathID - 1).bonusScarab) then
+		if self.map.paths:get(self.bonusPathID) then
+			self.bonusDelay = self.bonusDelay - dt
+			if self.bonusDelay <= 0 then
+				self.map.paths:get(self.bonusPathID):spawnBonusScarab()
+				self.bonusDelay = 1.5
+				self.bonusPathID = self.bonusPathID + 1
+			end
+		else
+			self.wonDelay = 1.5
+			self.bonusDelay = nil
+		end
+	end
+
+	if self.wonDelay then
+		self.wonDelay = self.wonDelay - dt
+		if self.wonDelay <= 0 then
+			self.wonDelay = nil
+			self.won = true
+			local newRecord = _Game:getCurrentProfile():getLevelHighscoreInfo(self.score)
+			if newRecord then
+				_Game.uiManager:executeCallback("levelCompleteRecord")
+			else
+				_Game.uiManager:executeCallback("levelComplete")
+			end
+		end
+	end
+
+
+
+	-- Level lose
+	if self.lost and self:getEmpty() and not self.restart then
+		_Game.uiManager:executeCallback("levelLost")
+		self.restart = true
+	end
+end
+
+function Level:updateMusic()
 	local music = _Game:getMusic(self.musicName)
+
 	if self.dangerMusicName then
 		local dangerMusic = _Game:getMusic(self.dangerMusicName)
+
+		-- If the level hasn't started yet, is lost, won or the game is paused,
+		-- mute the music.
 		if not self.started or self.lost or self.won or self.pause then
 			music:setVolume(0)
 			dangerMusic:setVolume(0)
 		else
+			-- Play the music accordingly to the danger flag.
 			if self.danger then
 				music:setVolume(0)
 				dangerMusic:setVolume(1)
@@ -201,6 +220,7 @@ function Level:update(dt)
 			end
 		end
 	else
+		-- If there's no danger music, then mute it or unmute in a similar fashion.
 		if not self.started or self.lost or self.won or self.pause then
 			music:setVolume(0)
 		else
@@ -208,6 +228,8 @@ function Level:update(dt)
 		end
 	end
 end
+
+
 
 function Level:newSphereColor()
 	return self.colors[math.random(1, #self.colors)]
@@ -406,6 +428,8 @@ function Level:reset()
 	self.bonusPathID = 1
 	self.bonusDelay = nil
 
+	self.gameSpeed = 1
+	self.gameSpeedTime = 0
 	self.lightningStormTime = 0
 	self.lightningStormCount = 0
 	self.shooter.speedShotTime = 0

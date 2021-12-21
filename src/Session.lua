@@ -149,6 +149,9 @@ function Session:usePowerupEffect(effect)
 		end
 	elseif effect.type == "lightningStorm" then
 		self.level.lightningStormCount = effect.count
+	elseif effect.type == "changeGameSpeed" then
+		self.level.gameSpeed = effect.speed
+		self.level.gameSpeedTime = effect.duration
 	end
 end
 
