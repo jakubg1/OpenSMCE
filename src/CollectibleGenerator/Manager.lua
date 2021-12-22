@@ -5,7 +5,7 @@ local CollectibleGeneratorEntry = require("src/CollectibleGenerator/Entry")
 
 function CollectibleGeneratorManager:new()
   self.generators = {}
-  local generatorList = _LoadJson(_ParsePath("config/collectible_generators.json"))
+  local generatorList = _GetDirListing(_ParsePath("config/collectible_generators"), "file")
   for i, name in ipairs(generatorList) do
     self.generators[name] = CollectibleGeneratorEntry(self, name)
   end

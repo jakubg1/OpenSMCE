@@ -232,7 +232,9 @@ function Level:newSphereColor()
 end
 
 function Level:newPowerupData()
-	return _Game.configManager.collectibleGeneratorManager:getEntry(self.powerupGenerator):generate()
+	local manager = _Game.configManager.collectibleGeneratorManager
+	local entry = manager:getEntry(self.powerupGenerator)
+	return entry:generate()
 end
 
 function Level:newGemData()

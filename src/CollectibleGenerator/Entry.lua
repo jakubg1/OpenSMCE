@@ -5,7 +5,7 @@ local mathmethods = require("src/mathmethods")
 
 function CollectibleGeneratorEntry:new(manager, name)
   self.manager = manager
-  self.data = _LoadJson(_ParsePath(string.format("config/collectible_generators/%s.json", name)))
+  self.data = _LoadJson(_ParsePath(string.format("config/collectible_generators/%s", name)))
 end
 
 function CollectibleGeneratorEntry:generate()
