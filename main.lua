@@ -38,6 +38,8 @@ _DisplaySize = Vec2(800, 600)
 _DisplayFullscreen = false
 _MousePos = Vec2(0, 0)
 _KeyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
+-- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
+_FSPrefix = ""
 
 _Game = nil
 _Debug = nil
@@ -275,7 +277,7 @@ function _GetDirListing(path, filter, extFilter, recursive, pathRec)
 	local result = {}
 	-- If it's compiled /fused/, this piece of code is needed to be able to read the external files
 	if love.filesystem.isFused() then
-		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), "")
+		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), _FSPrefix)
 		if not success then
 			local msg = string.format("Failed to read contents of folder: \"%s\". Report this error to a developer.", path)
 			error(msg)
@@ -338,7 +340,7 @@ end
 
 function _ParsePath(data, variables)
 	if not data then return nil end
-	return "games/" .. _Game.name .. "/" .. _ParseString(data, variables)
+	return _FSPrefix .. "games/" .. _Game.name .. "/" .. _ParseString(data, variables)
 end
 
 function _ParseNumber(data, variables, properties)

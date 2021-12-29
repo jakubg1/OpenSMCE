@@ -205,7 +205,7 @@ function SphereGroup:move(offset)
 	self:updateSphereOffsets()
 	-- if reached the end of the level, it's over
 	if self:getLastSphereOffset() >= self.sphereChain.path.length and not self:isMagnetizing() and not self:hasShotSpheres() and not self.map.isDummy then
-		if not self.map.level.lost then self.map.level:lose() end
+		self.map.level:lose()
 	end
 	if offset <= 0 then
 		-- if it's gonna crash into the previous group, move only what is needed
