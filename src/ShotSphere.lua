@@ -89,7 +89,6 @@ function ShotSphere:moveStep()
 			end
 			-- calculate length from the current position
 			local d = (self.pos - p):len()
-			print(self.hitSphere.sphereID)
 			-- calculate time
 			self.hitTimeMax = d / self.speed * 5
 			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitTimeMax, self.hitSphere.sphereID, self.color)

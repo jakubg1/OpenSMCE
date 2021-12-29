@@ -361,7 +361,10 @@ function SphereGroup:isMagnetizing()
 	--print("----- " .. (self.prevGroup and self.prevGroup:getDebugText() or "xxx") .. " -> " .. self:getDebugText() .. " -> " .. (self.nextGroup and self.nextGroup:getDebugText() or "xxx"))
 	--print("----- " .. tostring(self.sphereChain:getSphereGroupID(self.prevGroup)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self.nextGroup)))
 	if not self.prevGroup or self.prevGroup.delQueue or #self.spheres == 0 then return false end
-	return _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) or self.prevGroup:getLastSphere().color == 0
+	local byColor = _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color)
+	local byColorMature = self.prevGroup:getLastSphere().size == 1 and self.spheres[1].size == 1
+	local byScarab = self.prevGroup:getLastSphere().color == 0
+	return (byColor and byColorMature) or byScarab
 end
 
 
