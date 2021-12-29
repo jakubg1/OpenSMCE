@@ -18,6 +18,7 @@ function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 		self.sphereEntity = shooter.sphereEntity
 
 		self.hitTime = 0
+		self.hitTimeMax = 0
 		self.hitSphere = nil
 	end
 
@@ -31,7 +32,7 @@ function ShotSphere:update(dt)
 		-- increment the timer
 		self.hitTime = self.hitTime + dt
 		-- if the timer expired, destroy the entity and add the ball to the chain
-		if self.hitTime >= 0.15 then self:destroy() end
+		if self.hitTime >= self.hitTimeMax then self:destroy() end
 	else
 		-- move
 		self.steps = self.steps + self.speed * dt / self.PIXELS_PER_STEP
@@ -39,7 +40,7 @@ function ShotSphere:update(dt)
 	end
 end
 
--- by default, 1 step = 1 px
+-- by default, 1 step = 8 px
 -- you can do more pixels if it's not efficient (laggy), but that will decrease the accuracy
 function ShotSphere:moveStep()
 	self.steps = self.steps - 1
@@ -76,7 +77,22 @@ function ShotSphere:moveStep()
 		else
 			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
 			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
-			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitSphere.sphereID, self.color)
+			-- get the desired sphere position
+			local p
+			if self.hitSphere.sphereID <= #self.hitSphere.sphereGroup.spheres then
+				-- the inserted ball is NOT at the end of the group
+				p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
+			else
+				-- the inserted ball IS at the end of the group
+				local o = self.hitSphere.sphereGroup:getLastSphereOffset() + 32
+				p = self.hitSphere.path:getPos(o)
+			end
+			-- calculate length from the current position
+			local d = (self.pos - p):len()
+			print(self.hitSphere.sphereID)
+			-- calculate time
+			self.hitTimeMax = d / self.speed * 5
+			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitTimeMax, self.hitSphere.sphereID, self.color)
 			badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 		end
 		_Game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
@@ -126,7 +142,7 @@ end
 
 function ShotSphere:draw()
 	if not self.hitSphere then
-		self.sphereEntity:setPos(self.pos)
+		self.sphereEntity:setPos(self:getDrawPos())
 		self.sphereEntity:draw(true)
 		self.sphereEntity:draw()
 		--self:drawDebug()
@@ -148,6 +164,10 @@ function ShotSphere:drawDebug()
 	end
 end
 
+function ShotSphere:getDrawPos()
+	return self.pos + Vec2(0, -self.steps * self.PIXELS_PER_STEP)
+end
+
 
 
 function ShotSphere:serialize()
@@ -157,7 +177,8 @@ function ShotSphere:serialize()
 		speed = self.speed,
 		steps = self.steps,
 		hitSphere = self:getHitSphereIDs(),
-		hitTime = self.hitTime
+		hitTime = self.hitTime,
+		hitTimeMax = self.hitTimeMax
 	}
 end
 
@@ -183,6 +204,7 @@ function ShotSphere:deserialize(t)
 	end
 
 	self.hitTime = t.hitTime
+	self.hitTimeMax = t.hitTimeMax
 end
 
 return ShotSphere

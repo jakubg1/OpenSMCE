@@ -5,7 +5,7 @@ local Sphere = class:derive("Sphere")
 
 local Vec2 = require("src/Essentials/Vector2")
 
-function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin)
+function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime)
 	self.sphereGroup = sphereGroup
 	self.map = sphereGroup.map
 
@@ -21,6 +21,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin)
 		self.size = 1
 		self.boostCombo = false
 		self.shootOrigin = nil
+		self.shootTime = nil
 	end
 
 	self.frameOffset = math.random() * 32 -- move to the "else" part if you're a purist and want this to be saved
@@ -31,7 +32,9 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin)
 
 	if shootOrigin then
 		self.shootOrigin = shootOrigin
+		self.shootTime = shootTime
 		self.size = 0
+		self.frameOffset = 0
 	end
 
 	if not self.map.isDummy and self.color > 0 then
@@ -46,10 +49,11 @@ end
 function Sphere:update(dt)
 	-- for spheres that are being added
 	if self.size < 1 then
-		self.size = self.size + dt / 0.15
+		self.size = self.size + dt / self.shootTime
 		if self.size >= 1 then
 			self.size = 1
 			self.shootOrigin = nil
+			self.shootTime = nil
 			local index = self.sphereGroup:getSphereID(self)
 			if self.sphereGroup:shouldBoostCombo(index) then
 				self.boostCombo = true
@@ -131,7 +135,8 @@ function Sphere:serialize()
 	local t = {
 		color = self.color,
 		--frameOffset = self.frameOffset, -- who cares about that, you can uncomment this if you do
-		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil
+		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil,
+		shootTime = self.shootTime
 	}
 	if self.size ~= 1 then t.size = self.size end
 	if self.boostCombo then t.boostCombo = self.boostCombo end
@@ -144,6 +149,7 @@ function Sphere:deserialize(t)
 	self.size = t.size or 1
 	self.boostCombo = t.boostCombo or false
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
+	self.shootTime = t.shootTime
 end
 
 return Sphere

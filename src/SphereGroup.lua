@@ -108,9 +108,11 @@ function SphereGroup:update(dt)
 	end
 end
 
-function SphereGroup:addSphere(pos, position, color)
-	-- pos - position in where was the shot sphere, position - sphere ID (the new sphere will gain the given ID = creation BEHIND the sphere with the given ID)
-	local sphere = Sphere(self, nil, color, pos)
+function SphereGroup:addSphere(pos, time, position, color)
+	-- pos - position in where was the shot sphere,
+	-- time - how long will that sphere "grow" until it's completely in its place,
+	-- position - sphere ID (the new sphere will gain the given ID = creation BEHIND the sphere with the given ID)
+	local sphere = Sphere(self, nil, color, pos, time)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
 	sphere.prevSphere = prevSphere
@@ -498,7 +500,11 @@ function SphereGroup:getSphereOffset(sphereID)
 end
 
 function SphereGroup:getSphereID(sphere)
-	for i, sphereT in ipairs(self.spheres) do if sphereT == sphere then return i end end
+	for i, sphereT in ipairs(self.spheres) do
+		if sphereT == sphere then
+			return i
+		end
+	end
 end
 
 function SphereGroup:getLastSphereOffset()
@@ -507,7 +513,10 @@ end
 
 function SphereGroup:getLastGroup()
 	local group = self
-	while true do if group.nextGroup then group = group.nextGroup else return group end end
+	while group.nextGroup do
+		group = group.nextGroup
+	end
+	return group
 end
 
 function SphereGroup:getSpherePos(sphereID)
