@@ -164,10 +164,10 @@ function Sphere:draw(color, hidden, shadow)
 		pos = self.path:getPos(self:getOffset() + 16 - self.size * 16) * self.size + self.shootOrigin * (1 - self.size)
 	end
 
+	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
 	if shadow then
-		self.shadowSprite:draw(pos + Vec2(4), Vec2(0.5))
+		self.shadowSprite:draw(pos + Vec2(4), Vec2(0.5), nil, nil, angle)
 	else
-		local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
 		local frame = Vec2(1)
 		if self.config.spriteAnimationSpeed then
 			frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
