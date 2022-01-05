@@ -4,6 +4,7 @@ local class = require "com/class"
 local Sphere = class:derive("Sphere")
 
 local Vec2 = require("src/Essentials/Vector2")
+local Color = require("src/Essentials/Color")
 
 function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime)
 	self.sphereGroup = sphereGroup
@@ -131,23 +132,24 @@ function Sphere:getOffset()
 end
 
 function Sphere:getPos()
-	return self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self))
+	return self.path:getPos(self:getOffset())
 end
 
 function Sphere:getAngle()
-	return self.sphereGroup:getSphereAngle(self.sphereGroup:getSphereID(self))
+	return self.path:getAngle(self:getOffset())
 end
 
 function Sphere:getHidden()
-	return self.sphereGroup:getSphereHidden(self.sphereGroup:getSphereID(self))
+	return self.path:getHidden(self:getOffset())
 end
 
 function Sphere:getColor()
-	return self.sphereGroup:getSphereColor(self.sphereGroup:getSphereID(self))
+	local brightness = self.path:getBrightness(self:getOffset())
+	return Color(brightness)
 end
 
 function Sphere:isOffscreen()
-	return self.sphereGroup:getSphereOffset(self.sphereGroup:getSphereID(self)) < 64
+	return self:getOffset() < 64
 end
 
 
