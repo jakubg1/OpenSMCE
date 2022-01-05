@@ -7,6 +7,7 @@ local Vec2 = require("src/Essentials/Vector2")
 
 function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime)
 	self.sphereGroup = sphereGroup
+	self.path = sphereGroup.sphereChain.path
 	self.map = sphereGroup.map
 
 	-- these two are filled by the sphere group object
@@ -24,6 +25,10 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.shootTime = nil
 	end
 
+	self.config = _Game.configManager.spheres[self.color]
+	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
+	-- TODO/DEPRECATED: Remove default value
+	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
 	self.frameOffset = math.random() * 32 -- move to the "else" part if you're a purist and want this to be saved
 
 	if self.color == 0 then -- vises follow another way
@@ -121,12 +126,54 @@ function Sphere:getFrame()
 	return (self.frameOffset + self.offset + self.sphereGroup.offset) % 32
 end
 
+function Sphere:getOffset()
+	return self.sphereGroup.offset + self.offset
+end
+
 function Sphere:getPos()
 	return self.sphereGroup:getSpherePos(self.sphereGroup:getSphereID(self))
 end
 
+function Sphere:getAngle()
+	return self.sphereGroup:getSphereAngle(self.sphereGroup:getSphereID(self))
+end
+
+function Sphere:getHidden()
+	return self.sphereGroup:getSphereHidden(self.sphereGroup:getSphereID(self))
+end
+
+function Sphere:getColor()
+	return self.sphereGroup:getSphereColor(self.sphereGroup:getSphereID(self))
+end
+
 function Sphere:isOffscreen()
 	return self.sphereGroup:getSphereOffset(self.sphereGroup:getSphereID(self)) < 64
+end
+
+
+
+function Sphere:draw(color, hidden, shadow)
+	if self.color ~= color or self:getHidden() ~= hidden then
+		return
+	end
+
+	local pos = self:getPos()
+	if self.size < 1 then
+		pos = self.path:getPos(self:getOffset() + 16 - self.size * 16) * self.size + self.shootOrigin * (1 - self.size)
+	end
+
+	if shadow then
+		self.shadowSprite:draw(pos + Vec2(4), Vec2(0.5))
+	else
+		local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
+		local frame = Vec2(1)
+		if self.config.spriteAnimationSpeed then
+			frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
+		elseif self.size == 1 then
+			frame = Vec2(math.ceil(32 - self:getFrame()), 1)
+		end
+		self.sprite:draw(pos, Vec2(0.5), nil, frame, angle, self:getColor())
+	end
 end
 
 

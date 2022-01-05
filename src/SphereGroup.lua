@@ -25,7 +25,6 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	end
 
 	self.maxSpeed = 0
-	self.sphereShadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
 
 	self.config = _Game.configManager.gameplay.sphereBehaviour
 
@@ -375,27 +374,7 @@ function SphereGroup:draw(color, hidden, shadow)
 	-- shadow: to make all shadows rendered before spheres
 	--love.graphics.print(self:getDebugText2(), 10, 10 * #self.spheres)
 	for i, sphere in ipairs(self.spheres) do
-		if sphere.color == color and self:getSphereHidden(i) == hidden then
-			local pos = self:getSpherePos(i)
-			if sphere.size < 1 then
-				pos = self.sphereChain.path:getPos(self:getSphereOffset(i) + 16 - sphere.size * 16) * sphere.size + sphere.shootOrigin * (1 - sphere.size)
-			end
-
-			if shadow then
-				self.sphereShadowSprite:draw(pos + Vec2(4), Vec2(0.5))
-			else
-				local config = _Game.configManager.spheres[sphere.color]
-				local sprite = _Game.resourceManager:getSprite(config.sprite)
-				local angle = config.spriteAnimationSpeed and 0 or self:getSphereAngle(i)
-				local frame = Vec2(1)
-				if config.spriteAnimationSpeed then
-					frame = Vec2(math.floor(config.spriteAnimationSpeed * _TotalTime), 1)
-				elseif sphere.size == 1 then
-					frame = Vec2(math.ceil(32 - sphere:getFrame()), 1)
-				end
-				sprite:draw(pos, Vec2(0.5), nil, frame, angle, self:getSphereColor(i))
-			end
-		end
+		sphere:draw(color, hidden, shadow)
 	end
 	if _Debug.sphereDebugVisible2 then
 		self:drawDebug()
