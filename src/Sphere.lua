@@ -30,7 +30,8 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 	-- TODO/DEPRECATED: Remove default value
 	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
-	self.frameOffset = math.random() * 32 -- move to the "else" part if you're a purist and want this to be saved
+	self.frameCount = self.sprite.states[1].frameCount.x
+	self.frameOffset = math.random() * self.frameCount -- move to the "else" part if you're a purist and want this to be saved
 
 	if self.color == 0 then -- vises follow another way
 		self.frameOffset = 0
@@ -123,8 +124,7 @@ function Sphere:delete()
 end
 
 function Sphere:getFrame()
-	if self.color == 0 then return 1 end
-	return (self.frameOffset + self.offset + self.sphereGroup.offset) % 32
+	return ((self.frameOffset + self.offset + self.sphereGroup.offset) * self.frameCount / 32) % self.frameCount
 end
 
 function Sphere:getOffset()
@@ -172,7 +172,7 @@ function Sphere:draw(color, hidden, shadow)
 		if self.config.spriteAnimationSpeed then
 			frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
 		elseif self.size == 1 then
-			frame = Vec2(math.ceil(32 - self:getFrame()), 1)
+			frame = Vec2(math.ceil(self.frameCount - self:getFrame()), 1)
 		end
 		self.sprite:draw(pos, Vec2(0.5), nil, frame, angle, self:getColor())
 	end
