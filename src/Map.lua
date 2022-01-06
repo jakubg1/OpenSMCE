@@ -57,11 +57,13 @@ function Map:draw()
 	end
 
 	-- Draw hidden spheres and other hidden path stuff
-	for i, path in ipairs(self.paths.objects) do
-		for sphereID, sphere in pairs(_Game.configManager.spheres) do
-			path:drawSpheres(sphereID, true)
+	for x = 1, 2 do
+		for i, path in ipairs(self.paths.objects) do
+			for sphereID, sphere in pairs(_Game.configManager.spheres) do
+				path:drawSpheres(sphereID, true, x == 1)
+			end
+			path:draw(true)
 		end
-		path:draw(true)
 	end
 
 	-- Objects that will be drown when the BCM is off
@@ -75,11 +77,13 @@ function Map:draw()
 end
 
 function Map:drawSpheres()
-	for i, path in ipairs(self.paths.objects) do
-		for sphereID, sphere in pairs(_Game.configManager.spheres) do
-			path:drawSpheres(sphereID, false)
+	for x = 1, 2 do
+		for i, path in ipairs(self.paths.objects) do
+			for sphereID, sphere in pairs(_Game.configManager.spheres) do
+				path:drawSpheres(sphereID, false, x == 1)
+			end
+			path:draw(false)
 		end
-		path:draw(false)
 	end
 end
 

@@ -143,12 +143,11 @@ end
 
 
 
-function Path:drawSpheres(color, hidden)
+function Path:drawSpheres(color, hidden, shadow)
 	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	for i, sphereChain in pairs(self.sphereChains) do
-		sphereChain:draw(color, hidden, true)
-		sphereChain:draw(color, hidden, false)
+		sphereChain:draw(color, hidden, shadow)
 	end
 end
 
