@@ -13,7 +13,7 @@ function SphereEntity:new(pos, color)
 
 	self.config = _Game.configManager.spheres[color]
 
-	self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
+	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, pos)
 end
