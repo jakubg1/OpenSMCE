@@ -26,16 +26,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.shootTime = nil
 	end
 
-	self.config = _Game.configManager.spheres[self.color]
-	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
-	-- TODO/DEPRECATED: Remove default value
-	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
-	self.frameCount = self.sprite.states[1].frameCount.x
-	self.frameOffset = math.random() * self.frameCount -- move to the "else" part if you're a purist and want this to be saved
-
-	if self.color == 0 then -- vises follow another way
-		self.frameOffset = 0
-	end
+	self:loadConfig()
 
 	if shootOrigin then
 		self.shootOrigin = shootOrigin
@@ -98,6 +89,7 @@ function Sphere:changeColor(color, particle)
 	_Game.session.colorManager:decrement(self.color)
 	_Game.session.colorManager:increment(color)
 	self.color = color
+	self:loadConfig()
 	if particle then
 		_Game:spawnParticle(particle, self:getPos())
 	end
@@ -175,6 +167,21 @@ function Sphere:draw(color, hidden, shadow)
 			frame = Vec2(math.ceil(self.frameCount - self:getFrame()), 1)
 		end
 		self.sprite:draw(pos, Vec2(0.5), nil, frame, angle, self:getColor())
+	end
+end
+
+
+
+function Sphere:loadConfig()
+	self.config = _Game.configManager.spheres[self.color]
+	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
+	-- TODO/DEPRECATED: Remove default value
+	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
+	self.frameCount = self.sprite.states[1].frameCount.x
+	self.frameOffset = math.random() * self.frameCount -- move to the "else" part if you're a purist and want this to be saved
+
+	if self.color == 0 then -- vises follow another way
+		self.frameOffset = 0
 	end
 end
 

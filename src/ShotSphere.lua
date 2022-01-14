@@ -55,11 +55,14 @@ function ShotSphere:moveStep()
 		local sphereConfig = _Game.configManager.spheres[self.color]
 		local hitColor = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
 		local badShot = false
+		local shotCancelled = false
 		if sphereConfig.hitBehavior.type == "destroySphere" then
 			if _Game.session:colorsMatch(self.color, hitColor) then
 				_Game.session:destroySingleSphere(self.hitSphere.sphere)
 				self:destroy()
 				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+			else
+				shotCancelled = true
 			end
 		elseif sphereConfig.hitBehavior.type == "fireball" then
 			_Game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
@@ -94,7 +97,11 @@ function ShotSphere:moveStep()
 			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitTimeMax, self.hitSphere.sphereID, self.color)
 			badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 		end
-		_Game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
+		if shotCancelled then
+			self.hitSphere = nil -- avoid deleting this time
+		else
+			_Game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
+		end
 	end
 	-- delete if outside of the board
 	if self.pos.y < -16 then
