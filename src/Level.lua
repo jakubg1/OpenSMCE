@@ -22,7 +22,7 @@ function Level:new(data)
 	self.powerupGenerator = data.powerupGenerator
 	self.gemColors = data.gems
 	if _Game.satMode then
-		self.spawnAmount = _Game:getCurrentProfile().session.level * 10
+		self.spawnAmount = _Game:getCurrentProfile():getLevelNumber() * 10
 		self.target = self.spawnAmount
 	else
 		self.target = data.target
@@ -379,11 +379,11 @@ function Level:getMaxDistance()
 end
 
 function Level:getMostDangerousPath()
-	local distance = 0
+	local distance = nil
 	local mostDangerousPath = nil
 	for i, path in ipairs(self.map.paths.objects) do
 		local d = path:getMaxOffset() / path.length
-		if d > distance then
+		if not distance or d > distance then
 			distance = d
 			mostDangerousPath = path
 		end
@@ -391,8 +391,13 @@ function Level:getMostDangerousPath()
 	return mostDangerousPath
 end
 
+function Level:hasNoMoreSpheres()
+	-- Returns true when there are no more spheres on the board and no more spheres can spawn, too.
+	return self.targetReached and not self.lost and self:getEmpty()
+end
+
 function Level:getFinish()
-	return self.targetReached and not self.lost and self:getEmpty() and self.collectibles:empty()
+	return self:hasNoMoreSpheres() and self.collectibles:empty()
 end
 
 function Level:tryAgain()

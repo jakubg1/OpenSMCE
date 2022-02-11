@@ -93,6 +93,14 @@ function Profile:getCurrentJourney()
 	return _Game.configManager.levelSet.journeys[self.session.level.journey]
 end
 
+function Profile:getLevelNumber()
+	local n = self.session.level.level
+	for i = 1, self.session.level.journey - 1 do
+		n = n + self:getLevelsInJourney(i)
+	end
+	return n
+end
+
 
 function Profile:getCurrentLevelData()
 	return self.levels[self:getLevelStr()]
@@ -112,7 +120,7 @@ end
 
 function Profile:grantScore(score)
 	if self.ultimatelySatisfyingMode then
-		self.session.score = self.session.score + score * (1 + (self.session.level - 1) * 0.2)
+		self.session.score = self.session.score + score * (1 + (self:getLevelNumber() - 1) * 0.2)
 	else
 		self.session.score = self.session.score + score
 	end
