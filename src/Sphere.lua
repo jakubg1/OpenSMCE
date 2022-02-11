@@ -141,7 +141,7 @@ function Sphere:getColor()
 end
 
 function Sphere:isOffscreen()
-	return self:getOffset() < 64
+	return self:getOffset() < 32
 end
 
 
