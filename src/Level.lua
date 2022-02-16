@@ -35,6 +35,10 @@ function Level:new(data)
 	self.musicName = data.music
 	self.dangerMusicName = data.dangerMusic
 
+	self.dangerParticle = data.dangerParticle or "particles/warning.json"
+	self.dangerSound = data.dangerSound or "sound_events/warning.json"
+	self.dangerLoopSound = data.dangerLoopSound or "sound_events/warning_loop.json"
+
 	-- Additional variables come from this method!
 	self:reset()
 end
@@ -65,7 +69,7 @@ function Level:updateLogic(dt)
 	local d1 = self:getDanger() and not self.lost
 	local d2 = self.danger
 	if d1 and not d2 then
-		self.dangerSound = _Game:playSound("sound_events/warning_loop.json")
+		self.dangerSound = _Game:playSound(self.dangerLoopSound)
 	elseif not d1 and d2 then
 		self.dangerSound:stop()
 		self.dangerSound = nil
@@ -117,11 +121,11 @@ function Level:updateLogic(dt)
 		if self.warningDelay >= self.warningDelayMax then
 			for i, path in ipairs(self.map.paths.objects) do
 				if path:getMaxOffset() / path.length >= self.dangerDistance then
-					_Game:spawnParticle("particles/warning.json", path:getPos(path.length))
+					_Game:spawnParticle(self.dangerParticle, path:getPos(path.length))
 				end
 			end
-			--game:playSound("sound_events/warning.json", 1 + (4 - self.warningDelayMax) / 6)
-			_Game:playSound("sound_events/warning.json")
+			--game:playSound(self.dangerSound, 1 + (4 - self.warningDelayMax) / 6)
+			_Game:playSound(self.dangerSound)
 			self.warningDelay = 0
 		end
 	else
