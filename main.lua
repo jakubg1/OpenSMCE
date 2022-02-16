@@ -21,8 +21,8 @@ local DiscordRichPresence = require("src/DiscordRichPresence")
 
 
 -- CONSTANT ZONE
-_VERSION = "v0.50.0"
-_VERSION_NAME = "Beta 5.0.0"
+_VERSION = "v0.42.0"
+_VERSION_NAME = "Beta 4.2.0"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 
 
