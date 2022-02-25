@@ -116,8 +116,7 @@ function BootMain:draw()
 	-- Warning contents
 	love.graphics.setColor(1, 1, 0.2)
 	love.graphics.setFont(self.font)
-	love.graphics.print(
-		"This engine is in BETA DEVELOPMENT.\nThis version is dedicated to people who want to test the engine and examine it.\nThis version should not be treated like a full version yet, as the inner workings still may change heavily!\nRemember to post issues and feature suggestions at the following Github repository link.\nThank you for your support!", 45, 100)
+	love.graphics.print("This engine is in BETA DEVELOPMENT.\nThis version is dedicated to people who want to test the engine and examine it.\nThis version should not be treated like a full version yet, as the inner workings still may change heavily!\nRemember to post issues and feature suggestions at the following Github repository link.\nThank you for your support!", 45, 100)
 	-- Github link
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.fontBig)
