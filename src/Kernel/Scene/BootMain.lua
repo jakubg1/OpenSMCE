@@ -7,7 +7,7 @@ local Button = require("src/Kernel/UI/Button")
 
 
 function BootMain:new(bootScreen)
-  self.bootScreen = bootScreen
+  	self.bootScreen = bootScreen
 
 	-- prepare fonts of various sizes
 	self.font = love.graphics.newFont()
@@ -24,8 +24,8 @@ function BootMain:new(bootScreen)
 	self.selectedGame = nil
 
 	-- buttons
-  self.loadGameBtn = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end)
-  self.convertGameBtn = Button("Convert!", self.fontBig, Vec2(544, 448), Vec2(222, 24), function() self:convertSelectedGame() end)
+	self.loadGameBtn = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end)
+	self.convertGameBtn = Button("Convert!", self.fontBig, Vec2(544, 448), Vec2(222, 24), function() self:convertSelectedGame() end)
 	self.settingsBtn = Button("Engine Settings", self.fontBig, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end)
 	self.quitBtn = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
 end
@@ -116,7 +116,8 @@ function BootMain:draw()
 	-- Warning contents
 	love.graphics.setColor(1, 1, 0.2)
 	love.graphics.setFont(self.font)
-	love.graphics.print("This engine is in BETA DEVELOPMENT.\nExpect that it will be full of bugs. This version is dedicated to people who want to test the engine and examine it.\nThis version should NOT be treated like a full version.\nRemember to post issues and feature suggestions at the following Github repository link.", 45, 100)
+	love.graphics.print(
+		"This engine is in BETA DEVELOPMENT.\nThis version is dedicated to people who want to test the engine and examine it.\nThis version should not be treated like a full version yet, as the inner workings still may change heavily!\nRemember to post issues and feature suggestions at the following Github repository link.\nThank you for your support!", 45, 100)
 	-- Github link
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.fontBig)
