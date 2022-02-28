@@ -15,6 +15,11 @@ function DiscordRichPresence:new()
 
 	self.status = {}
 
+	local s, egg = pcall(self.getEgg)
+	if s and egg then
+		self.egg = egg
+	end
+
 
 
 	function discordRPCMain.ready(userId, username, discriminator, avatar)
@@ -84,6 +89,16 @@ function DiscordRichPresence:setStatus(line1, line2, countTime)
 		self.status.startTimestamp = nil
 	end
 	self.status.largeImageKey = "icon_rpc"
+	if self.egg then
+		self.status.largeImageText = self.egg
+	end
+end
+
+
+
+function DiscordRichPresence:getEgg()
+	local eggs = _StrSplit(_LoadFile("assets/eggs_rpc.txt"), "\n")
+	return eggs[math.random(1, #eggs)]
 end
 
 

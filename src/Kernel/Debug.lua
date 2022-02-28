@@ -381,22 +381,11 @@ function Debug:runCommand(command)
 		_Game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
 		return true
 	elseif words[1] == "crash" then
-		local witties = {
-			"Aw, that hurt!",
-			"Please stop doing that to me!",
-			"GET REKT",
-			"Was this a joke?",
-			"Ah shit, here we go again.",
-			"This is not funny!",
-			"WELL DONE!",
-			"If you fire a crash report now, I'm gonna be mad at you.",
-			">:C",
-			"Y-YAMETE KUDASAI!!~",
-			"Don’t you have anything better to do?",
-			"Game Over on hR 13-13 moment"
-		}
-		local witty = math.random(1, #witties)
-		error("Crashed manually. " .. witties[witty])
+		local s, witty = pcall(self.getWitty)
+		if not s or not witty then
+			witty = "I give up, no idea for the joke! Eh, I'll... just head out then. Cya!"
+		end
+		error(string.format("Manual crash [%s]", witty))
 	end
 
 	return false
@@ -440,6 +429,13 @@ end
 
 function Debug:profDrawLevelStop()
 	self.profDrawLevel:stop()
+end
+
+
+
+function Debug:getWitty()
+	local witties = _StrSplit(_LoadFile("assets/eggs_crash.txt"), "\n")
+	return witties[math.random(1, #witties)]
 end
 
 
