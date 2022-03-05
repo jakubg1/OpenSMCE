@@ -66,9 +66,14 @@ function love.load()
 	--local s = loadFile("test.txt")
 	--print(s)
 	--print(jsonBeautify(s))
+
+	-- Initialize RNG for Boot Screen
+	local _ = math.randomseed(os.time())
+
 	_Debug = Debug()
 	_EngineSettings = Settings("engine/settings.json")
 	_DiscordRPC = DiscordRichPresence()
+	
 	-- Init boot screen
 	_LoadBootScreen()
 end
