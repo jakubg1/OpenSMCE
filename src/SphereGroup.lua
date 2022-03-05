@@ -67,11 +67,17 @@ function SphereGroup:update(dt)
 		end
 	end
 	if self.speed < self.maxSpeed then
+		-- Acceleration rate used in this frame.
+		local accel = self.config.acceleration
+
+		-- Can be different if defined accordingly, such as when the level is lost or when this group is being attracted.
 		if self.map.level.lost then
-			self.speed = math.min(self.speed + self.config.foulAcceleration * dt, self.maxSpeed)
-		else
-			self.speed = math.min(self.speed + self.config.acceleration * dt, self.maxSpeed)
+			accel = self.config.foulAcceleration or accel
+		elseif self:isMagnetizing() then
+			accel = self.config.attractionAcceleration or accel
 		end
+
+		self.speed = math.min(self.speed + accel * dt, self.maxSpeed)
 	end
 	-- anti-slow-catapulting
 	if self.config.overspeedCheck and not self.map.level.lost and self.speed > speedBound then
