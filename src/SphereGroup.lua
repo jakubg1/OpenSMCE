@@ -359,11 +359,28 @@ end
 function SphereGroup:isMagnetizing()
 	--print("----- " .. (self.prevGroup and self.prevGroup:getDebugText() or "xxx") .. " -> " .. self:getDebugText() .. " -> " .. (self.nextGroup and self.nextGroup:getDebugText() or "xxx"))
 	--print("----- " .. tostring(self.sphereChain:getSphereGroupID(self.prevGroup)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self.nextGroup)))
-	if not self.prevGroup or self.prevGroup.delQueue or #self.spheres == 0 then return false end
-	local byColor = _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color)
-	local byColorMature = self.prevGroup:getLastSphere().size == 1 and self.spheres[1].size == 1
-	local byScarab = self.prevGroup:getLastSphere().color == 0
-	return (byColor and byColorMature) or byScarab
+
+	-- If this group is empty, is pending deletion or would have nothing to magnetize to, abort.
+	if not self.prevGroup or self.prevGroup.delQueue or #self.spheres == 0 then
+		return false
+	end
+
+	-- Get mature spheres on both ends.
+	local sphere1 = self.prevGroup:getLastMatureSphere()
+	local sphere2 = self:getFirstMatureSphere()
+
+	-- If there are no candidate spheres, abort.
+	if not sphere1 or not sphere2 then
+		return false
+	end
+
+	-- Check if on each side of the empty area there's the same color.
+	local byColor = _Game.session:colorsMatch(sphere1.color, sphere2.color)
+	-- The scarab can magnetize any color.
+	local byScarab = sphere1.color == 0
+
+
+	return byColor or byScarab
 end
 
 
@@ -473,8 +490,28 @@ function SphereGroup:getMatchBoundColorsInChain(position)
 	return self:getSphereInChain(position1) and self:getSphereInChain(position1).color, self:getSphereInChain(position2) and self:getSphereInChain(position2).color
 end
 
+function SphereGroup:getFirstSphere()
+	return self.spheres[1]
+end
+
 function SphereGroup:getLastSphere()
 	return self.spheres[#self.spheres]
+end
+
+function SphereGroup:getFirstMatureSphere()
+	for i = 1, #self.spheres do
+		if self.spheres[i].size == 1 then
+			return self.spheres[i]
+		end
+	end
+end
+
+function SphereGroup:getLastMatureSphere()
+	for i = #self.spheres, 1, -1 do
+		if self.spheres[i].size == 1 then
+			return self.spheres[i]
+		end
+	end
 end
 
 function SphereGroup:getSphereOffset(sphereID)
