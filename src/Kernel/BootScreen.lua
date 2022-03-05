@@ -97,4 +97,8 @@ function BootScreen:keyreleased(key)
 	-- STUB
 end
 
+function BootScreen:textinput(t)
+	-- STUB
+end
+
 return BootScreen
