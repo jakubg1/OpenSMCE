@@ -56,25 +56,30 @@ function SphereGroup:update(dt)
 	end
 
 	if self.speed > self.maxSpeed then
+		-- Decceleration rate used in this frame.
+		local deccel = self.config.decceleration
+
+		-- Can be different if defined accordingly, such as reverse powerup, magnetizing or under a slow powerup.
 		if self.sphereChain.reverseTime > 0 and not self:isMagnetizing() then
-			self.speed = self.maxSpeed
-		elseif self.prevGroup then -- magnetization
-			self.speed = math.max(self.speed - self.config.decceleration * dt, self.maxSpeed)
+			deccel = math.huge
+		elseif self:isMagnetizing() then
+			deccel = self.config.attractionAcceleration or deccel
+		elseif self.prevGroup then
+			deccel = self.config.decceleration or deccel
 		elseif self.sphereChain.slowTime > 0 or self.sphereChain.stopTime > 0 then
-			self.speed = math.max(self.speed - self.config.slowDecceleration * dt, self.maxSpeed)
-		else
-			self.speed = math.max(self.speed - self.config.decceleration * dt, self.maxSpeed)
+			deccel = self.config.slowDecceleration or deccel
 		end
+		
+		self.speed = math.max(self.speed - deccel * dt, self.maxSpeed)
 	end
+
 	if self.speed < self.maxSpeed then
 		-- Acceleration rate used in this frame.
 		local accel = self.config.acceleration
 
-		-- Can be different if defined accordingly, such as when the level is lost or when this group is being attracted.
+		-- Can be different if defined accordingly, such as when the level is lost.
 		if self.map.level.lost then
 			accel = self.config.foulAcceleration or accel
-		elseif self:isMagnetizing() then
-			accel = self.config.attractionAcceleration or accel
 		end
 
 		self.speed = math.min(self.speed + accel * dt, self.maxSpeed)
