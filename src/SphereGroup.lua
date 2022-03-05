@@ -243,7 +243,9 @@ function SphereGroup:join()
 		table.insert(self.prevGroup.spheres, sphere)
 		sphere.sphereGroup = self.prevGroup
 	end
-	if self.speed < 0 then self.prevGroup.speed = self.config.collisionSpeed * math.max(self.sphereChain.combo, 1) end
+	if self.speed < 0 then
+		self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self.sphereChain.combo, 1)
+	end
 	-- link the spheres from both groups
 	self.prevGroup.spheres[joinPosition].nextSphere = self.spheres[1]
 	self.spheres[1].prevSphere = self.prevGroup.spheres[joinPosition]
