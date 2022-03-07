@@ -17,8 +17,8 @@ function Options:reset()
 	print("Resetting Options...")
 	
 	self.data = {}
-	self:setMusicVolume(1)
-	self:setSoundVolume(1)
+	self:setMusicVolume(0.25)
+	self:setSoundVolume(0.25)
 	self:setFullscreen(false)
 	self:setMute(false)
 end
