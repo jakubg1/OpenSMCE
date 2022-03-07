@@ -1,0 +1,269 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="style.css">
+		<title>OpenSMCE Game Documentation</title>
+	</head>
+	
+	<body>
+		<div id="banner">
+			<h1>OpenSMCE Game Documentation</h1>
+		</div>
+		
+		<div id="navigation">
+			<h3>Navigation</h3>
+			<ul>
+				<li><a href="index.html">Main Page</a></li>
+				<li><a href="config.highscores.html">config/highscores.json</a></li>
+				<li><b>config/spheres.json</b></li>
+				<li><a href="config.powerups.html">config/powerups.json</a></li>
+				<li><a href="config.gameplay.html">config/gameplay.json</a></li>
+			</ul>
+		</div>
+		
+		<div id="main">
+			<h1>config/spheres.json</h1>
+			
+			<p>Defines all sphere types in the game.</p>
+			<p>
+				Each sphere type has its own unique ID, which is a number. However, due to JSON limitations, they are represented as strings.
+				To add a new sphere type, simply add an entry to the class with a new unique ID of choice.
+				There are some guidelines to be followed though:
+				<ol>
+					<li>ID = 0 is reserved by the sphere pusher (e.g. a scarab).</li>
+					<li>Negative IDs should be used for powerup balls (i.e. a fireball, dagger, color cloud, etc.).</li>
+					<li>Positive IDs should be used for ordinary balls which spawn in the game.</li>
+				</ol>
+			</p>
+			
+			<div class="json">
+				<ul class="json">
+					<li class="object">
+						The root entry. Object keys are strings, however they must be parseable to numbers.
+						<ul class="json">
+							<li class="object">
+								A sphere type.
+								<ul class="json">
+									<li class="str_sprite">
+										<span class="name">sprite</span>: A sprite to be drawn when the sphere is on the screen.
+									</li>
+									<li class="str_sprite">
+										<span class="nameOpt">shadowSprite</span>: A shadow sprite to be drawn along the sphere.
+										Defaults to <i>sprites/game/ball_shadow.json</i> if not defined.
+									</li>
+									<li class="number">
+										<span class="nameOpt">spriteAnimationSpeed</span>: When defined, the sphere sprite will animate with that speed in frames per second.
+										This disables rolling animation and rotation.
+										When left out, the sphere will have their usual rolling animation and will keep rotating.
+									</li>
+									<li class="str_sprite">
+										<span class="name">nextSprite</span>: A sprite used to draw the shooter's next color indicator.
+									</li>
+									<li class="str_particle">
+										<span class="nameOpt">idleParticle</span>: A particle packet used when the sphere is on the board. This is a persistent packet.
+									</li>
+									<li class="str_particle">
+										<span class="name">destroyParticle</span>: A particle packet used when the sphere is destroyed. This is a one-time packet.
+									</li>
+									<div class="jsonChoice">
+									<li>
+										Either one of two below:
+									</li>
+									<li class="color">
+										<span class="name">color</span>: The color used by shooting retical.
+									</li>
+									<li class="str_palette">
+										<span class="name">color</span>: The color palette used by shooting retical.
+									</li>
+									</div>
+									<li class="number">
+										<span class="nameOpt">colorSpeed</span>: Must be present only if <b>color</b> is a color palette pointer. Defines how fast (in pixels per second) will the palette be animated.
+									</li>
+									<li class="boolean">
+										<span class="name">generatable</span>: Whether this sphere type should appear in the shooter.
+									</li>
+									<li class="boolean">
+										<span class="name">interchangeable</span>: Whether this sphere can be changed when in the first slot of the shooter.
+									</li>
+									<li class="object">
+										<span class="name">shootBehavior</span>: Defines how this sphere should behave when it's shot. More info below.
+									</li>
+									<li class="number">
+										<span class="nameOpt">shootSpeed</span>: If specified, overrides the speed of this sphere when shot.
+									</li>
+									<li class="str_sound">
+										<span class="name">shootSound</span>: A sound event launched when this sphere is shot.
+									</li>
+									<li class="object">
+										<span class="name">hitBehavior</span>: Defines how this sphere should behave when it hits a sphere train. More info below.
+									</li>
+									<li class="str_sound">
+										<span class="name">hitSound</span>: A sound event launched when this sphere hits a sphere train.
+									</li>
+									<li class="str_sound">
+										<span class="nameOpt">hitSoundBad</span>: An optional sound event launched when this sphere hits a sphere train and doesn't match any neighboring spheres.
+									</li>
+									<li class="list">
+										<span class="name">matches</span>: A list of sphere type IDs (integers) this sphere type matches with.
+									</li>
+									<li class="str_font">
+										<span class="name">matchFont</span>: A font used to display a floating text when this sphere gives points.
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			
+			<h2>Possible shoot behaviors</h2>
+			
+			<p><i>Debug information: this can be checked in Shooter:shoot().</i></p>
+			
+			<h3><i>normal</i></h3>
+			
+			<p>The sphere gets launched and flies upwards with a speed defined by the shooter and whether the speed shot is active.</p>
+			
+			<div class="json">
+				<ul class="json">
+					<li class="object">
+						<span class="name">shootBehavior</span>: 
+						<ul class="json">
+							<li class="string">
+								<span class="name">type</span>: <b><i>normal</i></b>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			
+			<h3><i>lightning</i></h3>
+			
+			<p>The sphere does not get launched and instead is destroyed immediately, destroying nearby matching spheres in a straight vertical line.</p>
+			
+			<div class="json">
+				<ul class="json">
+					<li class="object">
+						<span class="name">shootBehavior</span>: 
+						<ul class="json">
+							<li class="string">
+								<span class="name">type</span>: <b><i>lightning</i></b>
+							</li>
+							<li class="number">
+								<span class="name">range</span>: How far the spheres can be from the center to be destroyed, in pixels.
+							</li>
+							<li class="boolean">
+								<span class="name">resetCombo</span>: Whether the player's combo count should revert to 0. This mimics the behavior from the original <i>Luxor</i> game.
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			
+			<h2>Possible hit behaviors</h2>
+			
+			<p><i>Debug information: this can be checked in ShotSphere:moveStep().</i></p>
+			
+			<h3><i>normal</i></h3>
+			
+			<p>The sphere gets appended to the sphere train where it landed.</p>
+			
+			<div class="json">
+				<ul class="json">
+					<li class="object">
+						<span class="name">hitBehavior</span>: 
+						<ul class="json">
+							<li class="string">
+								<span class="name">type</span>: <b><i>normal</i></b>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			
+			<h3><i>destroySphere</i></h3>
+			
+			<p>If the sphere hits a matching sphere, both spheres get destroyed. Else, nothing happens and the sphere flies on until another sphere is hit.</p>
+			<!-- <p>The sphere gets destroyed and destroys the sphere it hits, provided that its ID is in this sphere's <b>matches</b> list. If not, the sphere phases through and flies untouched.</p> -->
+			
+			<div class="json">
+				<ul class="json">
+					<li class="object">
+						<span class="name">hitBehavior</span>: 
+						<ul class="json">
+							<li class="string">
+								<span class="name">type</span>: <b><i>destroySphere</i></b>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			
+			<h3><i>fireball</i></h3>
+			
+			<p>The sphere gets destroyed and destroys the matching spheres around.</p>
+			
+			<div class="json">
+				<ul class="json">
+					<li class="object">
+						<span class="name">hitBehavior</span>: 
+						<ul class="json">
+							<li class="string">
+								<span class="name">type</span>: <b><i>fireball</i></b>
+							</li>
+							<li class="number">
+								<span class="name">range</span>: How far the spheres can be from the center to be destroyed, in pixels.
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			
+			<h3><i>colorCloud</i></h3>
+			
+			<p>The sphere gets destroyed and changes the color of the matching spheres around.</p>
+			
+			<div class="json">
+				<ul class="json">
+					<li class="object">
+						<span class="name">hitBehavior</span>: 
+						<ul class="json">
+							<li class="string">
+								<span class="name">type</span>: <b><i>colorCloud</i></b>
+							</li>
+							<li class="number">
+								<span class="name">range</span>: How far the spheres can be from the center to have their color changed, in pixels.
+							</li>
+							<li class="number">
+								<span class="name">color</span>: Which color the spheres will be changed to.
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			
+			<h3><i>replaceColor</i></h3>
+			
+			<p>The sphere gets destroyed and changes all spheres of a hit sphere's color to the specified color.</p>
+			
+			<div class="json">
+				<ul class="json">
+					<li class="object">
+						<span class="name">hitBehavior</span>: 
+						<ul class="json">
+							<li class="string">
+								<span class="name">type</span>: <b><i>replaceColor</i></b>
+							</li>
+							<li class="str_particle">
+								<span class="name">particle</span>: The one-time particle packet launched for all touched spheres.
+							</li>
+							<li class="number">
+								<span class="name">color</span>: Which color the spheres will be changed to.
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>

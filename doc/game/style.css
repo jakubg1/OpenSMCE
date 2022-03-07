@@ -11,10 +11,98 @@ body {
 
 #navigation {
 	background-color: #20A0A0;
-	width: 200px;
+	width: 300px;
 	float: left;
 }
 
 #main {
+	width: calc(100% - 320px);
 	float: left;
+	padding: 10px;
+}
+
+
+
+div.json {
+	background-color: #EEE;
+	border: 1px solid black;
+}
+
+div.jsonChoice {
+	background-color: #DDD;
+}
+
+.name, .nameOpt {
+	font-weight: bold;
+}
+
+.nameOpt {
+	font-style: italic;
+	color: #888;
+}
+
+
+
+ul.json li {
+	list-style: none;
+}
+
+ul.json li::before {
+	content: '';
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: left bottom;
+	width: 16px;
+	height: 16px;
+	margin-right: 6px;
+	margin-top: 6px;
+}
+
+ul.json li.boolean::before {
+	background-image: url("icons/boolean.png");
+}
+
+ul.json li.color::before {
+	background-image: url("icons/color.png");
+}
+
+ul.json li.list::before {
+	background-image: url("icons/list.png");
+}
+
+ul.json li.number::before {
+	background-image: url("icons/number.png");
+}
+
+ul.json li.object::before {
+	background-image: url("icons/object.png");
+}
+
+ul.json li.string::before {
+	background-image: url("icons/string.png");
+}
+
+ul.json li.str_font::before {
+	background-image: url("icons/str_font.png");
+}
+
+ul.json li.str_palette::before {
+	background-image: url("icons/str_palette.png");
+}
+
+ul.json li.str_particle::before {
+	background-image: url("icons/str_particle.png");
+}
+
+ul.json li.str_sound::before {
+	background-image: url("icons/str_sound.png");
+}
+
+ul.json li.str_sprite::before {
+	background-image: url("icons/str_sprite.png");
+}
+
+ul.json li.vec2::before {
+	background-image: url("icons/vec2.png");
 }
