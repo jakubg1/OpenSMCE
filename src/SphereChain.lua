@@ -30,26 +30,42 @@ function SphereChain:new(path, deserializationTable)
 			4: offset=278, spheres=[2,4,1](len=3)
 		--]]
 
-		self.sphereGroups = {
-			SphereGroup(self)
-		}
+		self.sphereGroups = {}
+
+		-- Generate the first group.
+		local group = SphereGroup(self)
 
 		-- Pregenerate spheres
-		self.sphereGroups[1].spheres[1] = Sphere(self.sphereGroups[1], nil, 0)
+		-- Spawn a vise.
+		group.spheres[1] = Sphere(group, nil, 0)
+		-- Generate a first color.
 		local color = self.map.level:newSphereColor()
+		-- Start spawning spheres.
 		for i = 1, self.map.level.spawnAmount do
-			if math.random() >= self.map.level.colorStreak then color = self.map.level:newSphereColor() end
-			self.sphereGroups[1].spheres[i + 1] = Sphere(self.sphereGroups[1], nil, color)
-			self.sphereGroups[1].spheres[i].nextSphere = self.sphereGroups[1].spheres[i + 1]
-			self.sphereGroups[1].spheres[i + 1].prevSphere = self.sphereGroups[1].spheres[i]
+			-- Each sphere: check whether we should generate a fresh new color (chance is colorStreak).
+			if math.random() >= self.map.level.colorStreak then
+				color = self.map.level:newSphereColor()
+			end
+			-- Add a new sphere.
+			group.spheres[i + 1] = Sphere(group, nil, color)
+			-- Update sphere links.
+			group.spheres[i].nextSphere = group.spheres[i + 1]
+			group.spheres[i + 1].prevSphere = group.spheres[i]
 		end
-		self.sphereGroups[1].offset = -32 * #self.sphereGroups[1].spheres -- 5000
+
+		-- Move the group so the front of it lands at the 0 spot.
+		group.offset = -32 * #group.spheres
+
+		-- Insert the group to the table.
+		self.sphereGroups[1] = group
 	end
 
 	self.maxOffset = 0
 
 	self.delQueue = false
 end
+
+
 
 function SphereChain:update(dt)
 	--print(self:getDebugText())
@@ -98,6 +114,14 @@ function SphereChain:join()
 	-- combine combos
 	prevChain.combo = prevChain.combo + self.combo
 	self:delete(true)
+end
+
+function SphereChain:generateSphere()
+	
+end
+
+function SphereChain:concludeGeneration()
+	-- Spawns a vise. Now eliminating a chain via removing all spheres contained is allowed.
 end
 
 

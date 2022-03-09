@@ -118,7 +118,18 @@ function SphereGroup:update(dt)
 	end
 end
 
-function SphereGroup:addSphere(pos, time, position, color)
+function SphereGroup:pushSphereFront(color)
+	-- color - the color of sphere.
+	-- This GENERATES a sphere without any animation.
+	local n = #self.spheres
+	-- Add a new sphere.
+	self.spheres[n + 1] = Sphere(self, nil, color)
+	-- Update sphere links.
+	self.spheres[n].nextSphere = self.spheres[n + 1]
+	self.spheres[n + 1].prevSphere = self.spheres[n]
+end
+
+function SphereGroup:addSphere(color, pos, time, position)
 	-- pos - position in where was the shot sphere,
 	-- time - how long will that sphere "grow" until it's completely in its place,
 	-- position - sphere ID (the new sphere will gain the given ID = creation BEHIND the sphere with the given ID)
@@ -137,7 +148,7 @@ function SphereGroup:addSphere(pos, time, position, color)
 	end
 end
 
-function SphereGroup:addSpherePos(position)
+function SphereGroup:getAddSpherePos(position)
 	-- we can't add spheres behind the vise
 	if not self.prevGroup and position == 1 then return 2 end
 	return position

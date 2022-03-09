@@ -73,13 +73,13 @@ function ShotSphere:moveStep()
 			self:destroy()
 			_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		elseif sphereConfig.hitBehavior.type == "replaceColor" then
-			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
+			self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
 			_Game.session:replaceColor(hitColor, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
 			self:destroy()
 			_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 		else
 			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
-			self.hitSphere.sphereID = self.hitSphere.sphereGroup:addSpherePos(self.hitSphere.sphereID)
+			self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
 			-- get the desired sphere position
 			local p
 			if self.hitSphere.sphereID <= #self.hitSphere.sphereGroup.spheres then
@@ -94,7 +94,7 @@ function ShotSphere:moveStep()
 			local d = (self.pos - p):len()
 			-- calculate time
 			self.hitTimeMax = d / self.speed * 5
-			self.hitSphere.sphereGroup:addSphere(self.pos, self.hitTimeMax, self.hitSphere.sphereID, self.color)
+			self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.hitSphere.sphereID)
 			badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 		end
 		if shotCancelled then
