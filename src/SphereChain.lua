@@ -24,7 +24,7 @@ function SphereChain:new(path, deserializationTable)
 
 
 		-- Generate the first group.
-		self.sphereGroups[1] = SphereGroup(self)
+		self.sphereGroups[1] = SphereGroup(self, nil, true)
 
 		-- Pregenerate spheres
 		for i = 1, self.map.level.spawnAmount do
@@ -128,6 +128,8 @@ function SphereChain:concludeGeneration()
 
 	-- Spawn a vise.
 	group:pushSphereBack(0)
+	-- Set the group as finished.
+	group:markAsFinished()
 
 	self.generationAllowed = false
 end
