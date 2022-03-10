@@ -32,6 +32,11 @@ function SphereGroup:new(sphereChain, deserializationTable)
 end
 
 function SphereGroup:update(dt)
+	-- Empty sphere groups are not updated.
+	if #self.spheres == 0 then
+		return
+	end
+
 	local speedBound = self.sphereChain.path:getSpeed(self:getLastSphereOffset())
 	if self:isMagnetizing() then
 		self.maxSpeed = self.config.attractionSpeed * math.max(self.sphereChain.combo, 1)
@@ -110,7 +115,10 @@ function SphereGroup:update(dt)
 	end
 
 	for i = #self.spheres, 1, -1 do
-		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then self:destroySphere(i) end
+		-- Remove spheres at the end of path when the level is lost/it's a dummy path.
+		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then
+			self:destroySphere(i)
+		end
 	end
 
 	for i, sphere in ipairs(self.spheres) do
@@ -118,15 +126,18 @@ function SphereGroup:update(dt)
 	end
 end
 
+function SphereGroup:pushSphereBack(color)
+	-- color - the color of sphere.
+	-- This GENERATES a sphere without any animation.
+	self:addSphere(color, nil, nil, 1)
+	-- Move the group back to make room for that new sphere.
+	--group.offset = group.offset - 32
+end
+
 function SphereGroup:pushSphereFront(color)
 	-- color - the color of sphere.
 	-- This GENERATES a sphere without any animation.
-	local n = #self.spheres
-	-- Add a new sphere.
-	self.spheres[n + 1] = Sphere(self, nil, color)
-	-- Update sphere links.
-	self.spheres[n].nextSphere = self.spheres[n + 1]
-	self.spheres[n + 1].prevSphere = self.spheres[n]
+	self:addSphere(color, nil, nil, #self.spheres + 1)
 end
 
 function SphereGroup:addSphere(color, pos, time, position)
@@ -142,7 +153,7 @@ function SphereGroup:addSphere(color, pos, time, position)
 	if nextSphere then nextSphere.prevSphere = sphere end
 	table.insert(self.spheres, position, sphere)
 	-- if it's a first sphere in the group, lower the offset
-	if self.prevGroup and position == 1 then
+	if position == 1 then
 		self.offset = self.offset - 32
 		self:updateSphereOffsets()
 	end

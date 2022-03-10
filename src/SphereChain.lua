@@ -1,10 +1,9 @@
 local class = require "com/class"
 local SphereChain = class:derive("SphereChain")
 
-local Vec2 = require("src/Essentials/Vector2")
-
 local SphereGroup = require("src/SphereGroup")
-local Sphere = require("src/Sphere")
+
+
 
 function SphereChain:new(path, deserializationTable)
 	self.path = path
@@ -19,45 +18,19 @@ function SphereChain:new(path, deserializationTable)
 		self.stopTime = 0
 		self.reverseTime = 0
 
-		--[[ example:
-			how it looks:
-			xoooo     oo ooooo    ooo
-
-			groups:
-			1: offset=0, spheres=[0,1,3,2,2](len=5)
-			2: offset=160, spheres=[4,1](len=2)
-			3: offset=192, spheres=[3,3,1,3,4](len=5)
-			4: offset=278, spheres=[2,4,1](len=3)
-		--]]
-
 		self.sphereGroups = {}
+		self.generationAllowed = true
+		self.generationColor = self.map.level:newSphereColor()
+
 
 		-- Generate the first group.
-		local group = SphereGroup(self)
+		self.sphereGroups[1] = SphereGroup(self)
 
 		-- Pregenerate spheres
-		-- Spawn a vise.
-		group.spheres[1] = Sphere(group, nil, 0)
-		-- Generate a first color.
-		local color = self.map.level:newSphereColor()
-		-- Start spawning spheres.
 		for i = 1, self.map.level.spawnAmount do
-			-- Each sphere: check whether we should generate a fresh new color (chance is colorStreak).
-			if math.random() >= self.map.level.colorStreak then
-				color = self.map.level:newSphereColor()
-			end
-			-- Add a new sphere.
-			group.spheres[i + 1] = Sphere(group, nil, color)
-			-- Update sphere links.
-			group.spheres[i].nextSphere = group.spheres[i + 1]
-			group.spheres[i + 1].prevSphere = group.spheres[i]
+			--self:generateSphere()
 		end
-
-		-- Move the group so the front of it lands at the 0 spot.
-		group.offset = -32 * #group.spheres
-
-		-- Insert the group to the table.
-		self.sphereGroups[1] = group
+		--self:concludeGeneration()
 	end
 
 	self.maxOffset = 0
@@ -69,11 +42,29 @@ end
 
 function SphereChain:update(dt)
 	--print(self:getDebugText())
+	-- Update all sphere groups.
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue then sphereGroup:update(dt) end
+		if not sphereGroup.delQueue then
+			sphereGroup:update(dt)
+		end
 	end
-	if #self.sphereGroups > 0 then self.maxOffset = self.sphereGroups[1]:getLastSphereOffset() end
-	if not self:isMatchPredicted() then self.combo = 0 end
+	-- Update max offset.
+	if #self.sphereGroups > 0 then
+		if self.generationAllowed then
+			while self:getLastSphereGroup().offset >= 0 do
+				self:generateSphere()
+			end
+			if self.map.level.targetReached then
+				self:concludeGeneration()
+			end
+		end
+
+		self.maxOffset = self.sphereGroups[1]:getLastSphereOffset()
+	end
+	-- Reset combo if necessary.
+	if not self:isMatchPredicted() then
+		self.combo = 0
+	end
 end
 
 function SphereChain:move(offset)
@@ -84,9 +75,13 @@ end
 function SphereChain:delete(joins)
 	if self.delQueue then return end
 	self.delQueue = true
+
+	-- Remove itself from their path.
 	table.remove(self.path.sphereChains, self.path:getSphereChainID(self))
 	-- mark the position to where the bonus scarab should arrive
-	if not joins and not self.map.level.lost then self.path.clearOffset = self.maxOffset end
+	if not joins and not self.map.level.lost then
+		self.path.clearOffset = self.maxOffset
+	end
 
 	if joins then _Game:playSound("sound_events/sphere_destroy_vise.json") end
 end
@@ -117,11 +112,24 @@ function SphereChain:join()
 end
 
 function SphereChain:generateSphere()
-	
+	local group = self:getLastSphereGroup()
+
+	-- Add a new sphere.
+	self:getLastSphereGroup():pushSphereBack(self.generationColor)
+	-- Each sphere: check whether we should generate a fresh new color (chance is colorStreak).
+	if math.random() >= self.map.level.colorStreak then
+		self.generationColor = self.map.level:newSphereColor()
+	end
 end
 
 function SphereChain:concludeGeneration()
 	-- Spawns a vise. Now eliminating a chain via removing all spheres contained is allowed.
+	local group = self:getLastSphereGroup()
+
+	-- Spawn a vise.
+	group:pushSphereBack(0)
+
+	self.generationAllowed = false
 end
 
 
@@ -202,11 +210,15 @@ function SphereChain:serialize()
 		slowTime = self.slowTime,
 		stopTime = self.stopTime,
 		reverseTime = self.reverseTime,
-		sphereGroups = {}
+		sphereGroups = {},
+		generationAllowed = self.generationAllowed,
+		generationColor = self.generationColor
 	}
+
 	for i, sphereGroup in ipairs(self.sphereGroups) do
 		table.insert(t.sphereGroups, sphereGroup:serialize())
 	end
+
 	return t
 end
 
@@ -216,6 +228,9 @@ function SphereChain:deserialize(t)
 	self.stopTime = t.stopTime
 	self.reverseTime = t.reverseTime
 	self.sphereGroups = {}
+	self.generationAllowed = t.generationAllowed
+	self.generationColor = t.generationColor
+
 	for i, sphereGroup in ipairs(t.sphereGroups) do
 		local s = SphereGroup(self, sphereGroup)
 		-- links are mandatory!!!
