@@ -9,7 +9,7 @@ local Sphere = require("src/Sphere")
 
 
 
-function SphereGroup:new(sphereChain, deserializationTable, isUnfinished)
+function SphereGroup:new(sphereChain, deserializationTable)
 	self.sphereChain = sphereChain
 	self.map = sphereChain.map
 
@@ -24,7 +24,6 @@ function SphereGroup:new(sphereChain, deserializationTable, isUnfinished)
 		self.speed = 0
 		self.spheres = {}
 		self.matchCheck = true -- this is used ONLY in vise destruction to not trigger a chain reaction
-		self.unfinished = isUnfinished -- this is used ONLY when this is the first group, and it's going to get appended more spheres to
 	end
 
 	self.maxSpeed = 0
@@ -187,6 +186,19 @@ function SphereGroup:destroySphere(position)
 		table.remove(self.spheres, position)
 		self.offset = self.offset + 32
 		self:updateSphereOffsets()
+
+		-- If this is an unfinished group, this means we're removing spheres at the spawn point.
+		-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
+		-- and flag that one as the new unfinished group.
+		if self:isUnfinished() then
+			local newGroup = SphereGroup(self.sphereChain, nil, true)
+			-- Update group links.
+			self.prevGroup = newGroup
+			newGroup.nextGroup = self
+
+			-- add to the master, on the back
+			table.insert(self.sphereChain.sphereGroups, newGroup)
+		end
 	elseif position == #self.spheres then
 		self.spheres[position]:delete()
 		table.remove(self.spheres, position)
@@ -215,6 +227,19 @@ function SphereGroup:destroySpheres(position1, position2)
 		end
 		self.offset = self.offset + position2 * 32
 		self:updateSphereOffsets()
+
+		-- If this is an unfinished group, this means we're removing spheres at the spawn point.
+		-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
+		-- and flag that one as the new unfinished group.
+		if self:isUnfinished() then
+			local newGroup = SphereGroup(self.sphereChain, nil, true)
+			-- Update group links.
+			self.prevGroup = newGroup
+			newGroup.nextGroup = self
+
+			-- add to the master, on the back
+			table.insert(self.sphereChain.sphereGroups, newGroup)
+		end
 	elseif position2 == #self.spheres then -- or maybe on the end?
 		for i = position1, position2 do
 			self.spheres[#self.spheres]:delete()
@@ -243,6 +268,10 @@ end
 
 
 function SphereGroup:checkDeletion()
+	-- abort if this group is unfinished
+	if self:isUnfinished() then
+		return
+	end
 	-- if this group contains no spheres, it gets yeeted
 	local shouldDelete = true
 	for i, sphere in ipairs(self.spheres) do
@@ -772,8 +801,8 @@ end
 
 
 
-function SphereGroup:markAsFinished()
-	self.isUnfinished = false
+function SphereGroup:isUnfinished()
+	return self.sphereChain.generationAllowed and not self.prevGroup
 end
 
 
@@ -820,8 +849,7 @@ function SphereGroup:serialize()
 		offset = self.offset,
 		speed = self.speed,
 		spheres = {},
-		matchCheck = self.matchCheck,
-		isUnfinished = self.isUnfinished
+		matchCheck = self.matchCheck
 	}
 	for i, sphere in ipairs(self.spheres) do
 		table.insert(t.spheres, sphere:serialize())
@@ -848,7 +876,6 @@ function SphereGroup:deserialize(t)
 		offset = offset + 32 * s.size
 	end
 	self.matchCheck = t.matchCheck
-	self.isUnfinished = t.isUnfinished
 end
 
 
