@@ -306,7 +306,7 @@ function SphereGroup:move(offset)
 	if offset <= 0 then
 		-- if it's gonna crash into the previous group, move only what is needed
 		-- join the previous group if this group starts to overlap the previous one
-		if self.prevGroup and self:getBackPos() - self.prevGroup:getFrontPos() < 0 then
+		if self.prevGroup and #self.prevGroup.spheres > 0 and self:getBackPos() - self.prevGroup:getFrontPos() < 0 then
 			self:join()
 		end
 	end
