@@ -14,7 +14,7 @@ function DummyLevel:new(path)
 	self.powerups = data.powerups
 	self.gemColors = data.gems
 	self.target = data.target
-	self.spawnAmount = data.spawnAmount
+	self.spawnRules = data.spawnRules
 	self.spawnDistance = data.spawnDistance
 	self.speeds = data.speeds
 end

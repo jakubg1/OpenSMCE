@@ -21,13 +21,17 @@ function Level:new(data)
 	self.colorStreak = data.colorStreak
 	self.powerupGenerator = data.powerupGenerator
 	self.gemColors = data.gems
+	self.target = data.target
+	self.spawnRules = data.spawnRules
 	if _Game.satMode then
-		self.spawnAmount = _Game:getCurrentProfile():getLevelNumber() * 10
-		self.target = self.spawnAmount
-	else
-		self.target = data.target
-		self.spawnAmount = data.spawnAmount
+		local n = _Game:getCurrentProfile():getLevelNumber() * 10
+		self.spawnRules = {
+			type = "waves",
+			amount = n
+		}
+		self.target = n
 	end
+	self.spawnAmount = 0;
 	self.spawnDistance = data.spawnDistance
 	self.dangerDistance = data.dangerDistance
 	self.speeds = data.speeds

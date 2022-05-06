@@ -19,18 +19,20 @@ function SphereChain:new(path, deserializationTable)
 		self.reverseTime = 0
 
 		self.sphereGroups = {}
-		self.generationAllowed = true
+		self.generationAllowed = self.map.level.spawnRules.type == "continuous"
 		self.generationColor = self.map.level:newSphereColor()
 
 
 		-- Generate the first group.
 		self.sphereGroups[1] = SphereGroup(self)
 
-		-- Pregenerate spheres
-		for i = 1, self.map.level.spawnAmount do
-			--self:generateSphere()
+		-- Pre-generate spheres if the level spawning rules allow doing so.
+		if self.map.level.spawnRules.type == "waves" then
+			for i = 1, self.map.level.spawnRules.amount do
+				self:generateSphere()
+			end
+			self:concludeGeneration()
 		end
-		--self:concludeGeneration()
 	end
 
 	self.maxOffset = 0
