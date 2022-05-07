@@ -423,7 +423,7 @@ end
 -- x is t, B is p1 and C is p2.
 function _BzLerp(t, p1, p2)
 	local b = p1 * (3 * t * math.pow(1 - t, 2))
-	local c = p2 * (math.pow(3 * t, 2) * (1 - t))
+	local c = p2 * (3 * math.pow(t, 2) * (1 - t))
 	local d = math.pow(t, 3)
 	return b + c + d
 end
