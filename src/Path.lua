@@ -6,7 +6,7 @@ local SphereChain = require("src/SphereChain")
 local BonusScarab = require("src/BonusScarab")
 local Scorpion = require("src/Scorpion")
 
-function Path:new(map, pathData)
+function Path:new(map, pathData, pathBehavior)
 	self.map = map
 
 	self.nodes = {}
@@ -22,6 +22,23 @@ function Path:new(map, pathData)
 		nodes[i] = {pos = Vec2(node.x, node.y), hidden = node.hidden, warp = node.warp}
 	end
 
+	self.colors = pathBehavior.colors
+	self.colorStreak = pathBehavior.colorStreak
+	self.spawnRules = pathBehavior.spawnRules
+	if _Game.satMode then
+		local n = _Game:getCurrentProfile():getLevelNumber() * 10
+		self.spawnRules = {
+			type = "waves",
+			amount = n
+		}
+		self.target = n
+	end
+	self.spawnAmount = 0;
+	self.spawnDistance = pathBehavior.spawnDistance
+	self.dangerDistance = pathBehavior.dangerDistance
+	self.dangerParticle = pathBehavior.dangerParticle or "particles/warning.json"
+	self.speeds = pathBehavior.speeds
+
 	--self:prepareNodes({Vec2(0, 200), Vec2(500, 200), Vec2(515, 200), Vec2(520, 205), Vec2(520, 220), Vec2(520, 400)})
 	self:prepareNodes(nodes)
 
@@ -30,6 +47,8 @@ function Path:new(map, pathData)
 	self.bonusScarab = nil
 	self.scorpions = {}
 end
+
+
 
 function Path:prepareNodes(nodes)
 	for i, node in ipairs(nodes) do
@@ -80,6 +99,8 @@ function Path:prepareNodes(nodes)
 	if #self.brightnesses == 0 then table.insert(self.brightnesses, {distance = 0, value = 1}) end
 end
 
+
+
 function Path:update(dt)
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue then
@@ -104,17 +125,27 @@ function Path:update(dt)
 	end
 end
 
+
+
+function Path:newSphereColor()
+	return self.colors[math.random(1, #self.colors)]
+end
+
 function Path:shouldSpawn()
 	if _Game:levelExists() and (not self.map.level.started or self.map.level.targetReached or self.map.level.lost) then return false end
 	for i, sphereChain in ipairs(self.sphereChains) do
-		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * self.map.level.spawnDistance then return false end
+		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * self.spawnDistance then return false end
 	end
 	return true
 end
 
+function Path:isInDanger()
+	return self:getDanger(self:getMaxOffset())
+end
+
 function Path:spawnChain()
 	local sphereChain = SphereChain(self)
-	if self.map.level.controlDelay then sphereChain.sphereGroups[1].speed = self.map.level.speeds[1].speed end
+	if self.map.level.controlDelay then sphereChain.sphereGroups[1].speed = self.speeds[1].speed end
 	table.insert(self.sphereChains, sphereChain)
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
@@ -210,6 +241,8 @@ function Path:drawDebugFill()
 	love.graphics.circle("fill", pos.x, pos.y, 10)
 end
 
+
+
 function Path:getSphereChainID(sphereChain)
 	for i, sphereChainT in pairs(self.sphereChains) do if sphereChainT == sphereChain then return i end end
 end
@@ -222,11 +255,19 @@ function Path:getMaxOffset()
 	return offset
 end
 
+function Path:getDangerProgress()
+	local maxOffset = self:getMaxOffset()
+	if not self:getDanger(maxOffset) then
+		return 0
+	end
+	return ((maxOffset / self.length) - self.dangerDistance) / (1 - self.dangerDistance)
+end
+
 function Path:getSpeed(pixels)
 	local part = pixels / self.length
-	for i, speed in ipairs(self.map.level.speeds) do
+	for i, speed in ipairs(self.speeds) do
 		if part < speed.distance then
-			local prevSpeed = self.map.level.speeds[i - 1]
+			local prevSpeed = self.speeds[i - 1]
 			if prevSpeed and speed.distance - prevSpeed.distance > 0 then
 				local t = (speed.distance - part) / (speed.distance - prevSpeed.distance)
 
@@ -249,9 +290,9 @@ function Path:getSpeed(pixels)
 
 	-- after last node
 	if _Game.satMode and _Game:getCurrentProfile().session then
-		return self.map.level.speeds[#self.map.level.speeds].speed * (1 + (_Game:getCurrentProfile():getLevelNumber() - 1) * 0.05)
+		return self.speeds[#self.speeds].speed * (1 + (_Game:getCurrentProfile():getLevelNumber() - 1) * 0.05)
 	else
-		return self.map.level.speeds[#self.map.level.speeds].speed
+		return self.speeds[#self.speeds].speed
 	end
 end
 
@@ -260,7 +301,7 @@ function Path:getEmpty()
 end
 
 function Path:getDanger(pixels)
-	return pixels / self.length >= self.map.level.dangerDistance
+	return pixels / self.length >= self.dangerDistance
 end
 
 function Path:getBookmarkID(pixels)

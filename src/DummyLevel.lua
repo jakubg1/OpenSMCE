@@ -7,16 +7,7 @@ function DummyLevel:new(path)
 	-- data specified in level config file
 	local data = _LoadJson(_ParsePath(path))
 	
-	self.map = Map(self, "maps/" .. data.map, true)
-	
-	self.colors = data.colors
-	self.colorStreak = data.colorStreak
-	self.powerups = data.powerups
-	self.gemColors = data.gems
-	self.target = data.target
-	self.spawnRules = data.spawnRules
-	self.spawnDistance = data.spawnDistance
-	self.speeds = data.speeds
+	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior, true)
 end
 
 function DummyLevel:update(dt)

@@ -14,32 +14,16 @@ function Level:new(data)
 	-- data specified in level config file
 	self.name = data.name
 
-	self.map = Map(self, "maps/" .. data.map)
+	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior)
 	self.shooter = Shooter()
 
-	self.colors = data.colors
-	self.colorStreak = data.colorStreak
 	self.powerupGenerator = data.powerupGenerator
 	self.gemColors = data.gems
 	self.target = data.target
-	self.spawnRules = data.spawnRules
-	if _Game.satMode then
-		local n = _Game:getCurrentProfile():getLevelNumber() * 10
-		self.spawnRules = {
-			type = "waves",
-			amount = n
-		}
-		self.target = n
-	end
-	self.spawnAmount = 0;
-	self.spawnDistance = data.spawnDistance
-	self.dangerDistance = data.dangerDistance
-	self.speeds = data.speeds
 
 	self.musicName = data.music
 	self.dangerMusicName = data.dangerMusic
 
-	self.dangerParticle = data.dangerParticle or "particles/warning.json"
 	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
 	self.dangerLoopSoundName = data.dangerLoopSound or "sound_events/warning_loop.json"
 
@@ -113,9 +97,9 @@ function Level:updateLogic(dt)
 
 
 	-- Warning lights
-	local maxDistance = self:getMaxDistance()
-	if maxDistance >= self.dangerDistance and not self.lost then
-		self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 3.5 + 0.5, 0.5)
+	local maxDistance = self:getMaxDangerProgress()
+	if maxDistance > 0 and not self.lost then
+		self.warningDelayMax = math.max((1 - maxDistance) * 3.5 + 0.5, 0.5)
 	else
 		self.warningDelayMax = nil
 	end
@@ -124,8 +108,8 @@ function Level:updateLogic(dt)
 		self.warningDelay = self.warningDelay + dt
 		if self.warningDelay >= self.warningDelayMax then
 			for i, path in ipairs(self.map.paths.objects) do
-				if path:getMaxOffset() / path.length >= self.dangerDistance then
-					_Game:spawnParticle(self.dangerParticle, path:getPos(path.length))
+				if path:isInDanger() then
+					_Game:spawnParticle(path.dangerParticle, path:getPos(path.length))
 				end
 			end
 			--game:playSound(self.dangerSoundName, 1 + (4 - self.warningDelayMax) / 6)
@@ -234,10 +218,6 @@ function Level:updateMusic()
 end
 
 
-
-function Level:newSphereColor()
-	return self.colors[math.random(1, #self.colors)]
-end
 
 function Level:newPowerupData()
 	local manager = _Game.configManager.collectibleGeneratorManager
@@ -382,6 +362,14 @@ function Level:getMaxDistance()
 	local distance = 0
 	for i, path in ipairs(self.map.paths.objects) do
 		distance = math.max(distance, path:getMaxOffset() / path.length)
+	end
+	return distance
+end
+
+function Level:getMaxDangerProgress()
+	local distance = 0
+	for i, path in ipairs(self.map.paths.objects) do
+		distance = math.max(distance, path:getDangerProgress())
 	end
 	return distance
 end

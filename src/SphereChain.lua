@@ -19,16 +19,16 @@ function SphereChain:new(path, deserializationTable)
 		self.reverseTime = 0
 
 		self.sphereGroups = {}
-		self.generationAllowed = self.map.level.spawnRules.type == "continuous"
-		self.generationColor = self.map.level:newSphereColor()
+		self.generationAllowed = self.path.spawnRules.type == "continuous"
+		self.generationColor = self.path:newSphereColor()
 
 
 		-- Generate the first group.
 		self.sphereGroups[1] = SphereGroup(self)
 
 		-- Pre-generate spheres if the level spawning rules allow doing so.
-		if self.map.level.spawnRules.type == "waves" then
-			for i = 1, self.map.level.spawnRules.amount do
+		if self.path.spawnRules.type == "waves" then
+			for i = 1, self.path.spawnRules.amount do
 				self:generateSphere()
 			end
 			self:concludeGeneration()
@@ -119,8 +119,8 @@ function SphereChain:generateSphere()
 	-- Add a new sphere.
 	self:getLastSphereGroup():pushSphereBack(self.generationColor)
 	-- Each sphere: check whether we should generate a fresh new color (chance is colorStreak).
-	if math.random() >= self.map.level.colorStreak then
-		self.generationColor = self.map.level:newSphereColor()
+	if math.random() >= self.path.colorStreak then
+		self.generationColor = self.path:newSphereColor()
 	end
 end
 

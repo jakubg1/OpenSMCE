@@ -7,7 +7,7 @@ local Sprite = require("src/Essentials/Sprite")
 
 local Path = require("src/Path")
 
-function Map:new(level, path, isDummy)
+function Map:new(level, path, pathsBehavior, isDummy)
 	self.level = level
 	-- whether it's just a decorative map, if false then it's meant to be playable
 	self.isDummy = isDummy
@@ -25,7 +25,10 @@ function Map:new(level, path, isDummy)
 		self.sprites:append({pos = Vec2(spriteData.x, spriteData.y), sprite = Sprite(_ParsePath(spritePath)), background = spriteData.background})
 	end
 	for i, pathData in ipairs(data.paths) do
-		self.paths:append(Path(self, pathData))
+		-- Loop around the path behavior list if not sufficient enough.
+		-- Useful if all paths should share the same behavior; you don't have to clone it.
+		local pathBehavior = pathsBehavior[(i - 1) % #pathsBehavior + 1]
+		self.paths:append(Path(self, pathData, pathBehavior))
 	end
 end
 
