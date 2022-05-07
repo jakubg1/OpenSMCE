@@ -216,7 +216,9 @@ end
 function _LoadJson(path)
 	local contents = _LoadFile(path)
 	assert(contents, string.format("Could not JSON-decode: %s, file does not exist", path))
-	return json.decode(contents)
+	local data = json.decode(contents)
+	assert(data, string.format("Could not JSON-decode: %s, error in file contents", path))
+	return data
 end
 
 -- This function allows to load images from external sources.
