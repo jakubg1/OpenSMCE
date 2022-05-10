@@ -264,36 +264,34 @@ function Path:getDangerProgress()
 end
 
 function Path:getSpeed(pixels)
+	local satModeMult = 1
+	if _Game.satMode and _Game:getCurrentProfile().session then
+		satModeMult = 1 + (_Game:getCurrentProfile():getLevelNumber() - 1) * 0.05
+	end
+
 	local part = pixels / self.length
 	for i, speed in ipairs(self.speeds) do
 		if part < speed.distance then
 			local prevSpeed = self.speeds[i - 1]
 			if prevSpeed and speed.distance - prevSpeed.distance > 0 then
-				local t = (speed.distance - part) / (speed.distance - prevSpeed.distance)
+				local t = 1 - (speed.distance - part) / (speed.distance - prevSpeed.distance)
 
 				-- between nodes
-				if _Game.satMode and _Game:getCurrentProfile().session then
-					return (prevSpeed.speed * t + speed.speed * (1 - t)) * (1 + (_Game:getCurrentProfile():getLevelNumber() - 1) * 0.05)
-				else
-					return prevSpeed.speed * t + speed.speed * (1 - t)
+				if prevSpeed.transition and prevSpeed.transition.type == "bezier" then
+					local p1 = prevSpeed.transition.point1
+					local p2 = prevSpeed.transition.point2
+					t = _BzLerp(t, p1, p2)
 				end
+				return (prevSpeed.speed * (1 - t) + speed.speed * t) * satModeMult
 			end
 
 			-- at the exact position of node or before first node
-			if _Game.satMode and _Game:getCurrentProfile().session then
-				return speed.speed * (1 + (_Game:getCurrentProfile():getLevelNumber() - 1) * 0.05)
-			else
-				return speed.speed
-			end
+			return speed.speed * satModeMult
 		end
 	end
 
 	-- after last node
-	if _Game.satMode and _Game:getCurrentProfile().session then
-		return self.speeds[#self.speeds].speed * (1 + (_Game:getCurrentProfile():getLevelNumber() - 1) * 0.05)
-	else
-		return self.speeds[#self.speeds].speed
-	end
+	return self.speeds[#self.speeds].speed * satModeMult
 end
 
 function Path:getEmpty()
