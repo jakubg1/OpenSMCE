@@ -26,8 +26,8 @@ function Profile:getSession()
 end
 
 function Profile:getLevelData()
-	-- Returns what is written in levels/*.json.
-	return _Game.configManager.levels[self:getLevelPath()]
+	-- Returns what is written in config/levels/level_*.json.
+	return _Game.configManager.levels[self:getLevelID()]
 end
 
 function Profile:getMapData()
@@ -49,65 +49,74 @@ end
 
 
 -- Core level stuff
+-- Level number: Starts at one and points towards an entry in the level order.
+-- Level ID: ID of a particular level file.
+-- Level data: Stores profile-related data per level, such as win/lose count or some other statistics.
 
+-- Returns the player's current level number.
 function Profile:getLevel()
 	return self.session.level
 end
 
+-- Returns the player's current level number as a string.
 function Profile:getLevelStr()
-	return tostring(self.session.level.journey) .. "," .. tostring(self.session.level.level)
+	return tostring(self.session.level)
 end
 
-function Profile:getNextLevel()
-	local l = {journey = self.session.level.journey, level = self.session.level.level}
-
-	if self:getLevelsInJourney(l.journey) == l.level then
-		-- advance to next journey
-		l.journey = _Game.configManager.levelSet.journeys[l.journey].nextJourney
-		l.level = 1
-	else
-		l.level = l.level + 1
-	end
-
-	return l
+-- Returns the player's current level ID.
+function Profile:getLevelID()
+	return _Game.configManager.levelSet.level_order[self.session.level]
 end
 
-function Profile:getLevelPath()
-	local l = self.session.level
-	return _Game.configManager.levelSet.journeys[l.journey].levels[l.level]
+-- Returns the player's current level ID as a string.
+function Profile:getLevelIDStr()
+	return tostring(self:getLevelID())
 end
 
-function Profile:setJourney(journey)
-	self.session.level.journey = journey
-end
-
-function Profile:getLevelsInJourney(journey)
-	return #_Game.configManager.levelSet.journeys[journey].levels
-end
-
+-- Adds one to the player's current level number.
 function Profile:incrementLevel()
-	self.session.level = self:getNextLevel()
+	self.session.level = self.session.level + 1
 end
 
-function Profile:getCurrentJourney()
-	return _Game.configManager.levelSet.journeys[self.session.level.journey]
-end
+-- Returns the checkpoint ID which is assigned to the most recent level
+-- compared to the player's current level number.
+function Profile:getLatestCheckpoint()
+	local checkpoint = nil
+	local diff = nil
 
-function Profile:getLevelNumber()
-	local n = self.session.level.level
-	for i = 1, self.session.level.journey - 1 do
-		n = n + self:getLevelsInJourney(i)
+	for i, level in ipairs(_Game.configManager.levelSet.checkpoints) do
+		if level == self.session.level then
+			return i
+		end
+		local d = self.session.level - level
+		if d > 0 and (not diff or diff > d) then
+			checkpoint = i
+			diff = d
+		end
 	end
-	return n
+
+	return checkpoint
+end
+
+-- Returns true if the player's next level number is on the checkpoint list.
+function Profile:isCheckpointUpcoming()
+	for i, level in ipairs(_Game.configManager.levelSet.checkpoints) do
+		if level == self.session.level + 1 then
+			return true
+		end
+	end
+	return false
 end
 
 
+-- Returns the player's current level data.
 function Profile:getCurrentLevelData()
-	return self.levels[self:getLevelStr()]
+	return self.levels[self:getLevelIDStr()]
 end
 
+-- Overwrites the player's current level data with the given data.
 function Profile:setCurrentLevelData(data)
-	self.levels[self:getLevelStr()] = data
+	self.levels[self:getLevelIDStr()] = data
 end
 
 
@@ -179,7 +188,9 @@ function Profile:isCheckpointUnlocked(n)
 end
 
 function Profile:unlockCheckpoint(n)
-	if self:isCheckpointUnlocked(n) then return end
+	if self:isCheckpointUnlocked(n) then
+		return
+	end
 	table.insert(self.checkpoints, n)
 end
 
@@ -194,9 +205,7 @@ function Profile:newGame(checkpoint)
 	self.session.score = 0
 	self.session.difficulty = 1
 
-	self.session.level = {}
-	self.session.level.journey = _Game.configManager.levelSet.checkpoints[checkpoint or 1].journey
-	self.session.level.level = _Game.configManager.levelSet.checkpoints[checkpoint or 1].level
+	self.session.level = _Game.configManager.levelSet.checkpoints[checkpoint]
 end
 
 function Profile:deleteGame()
@@ -222,9 +231,7 @@ function Profile:advanceLevel()
 	-- TODO: HARDCODED - make it more flexible
 	-- specifically, in this case we need more data in the future about levels:
 	-- when do we unlock or lock checkpoints
-	if self:getLevel().level == 1 then
-		self:unlockCheckpoint(self:getLevel().journey)
-	end
+	self:unlockCheckpoint(self:getLatestCheckpoint())
 end
 
 function Profile:getLevelHighscoreInfo(score)

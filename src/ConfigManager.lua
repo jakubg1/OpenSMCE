@@ -59,12 +59,15 @@ function ConfigManager:new()
 	-- Load level and map data.
 	self.levels = {}
 	self.maps = {}
-	local levelList = _GetDirListing(_ParsePath("levels"), "file")
+	local levelList = _GetDirListing(_ParsePath("config/levels"), "file")
 	for i, path in ipairs(levelList) do
-		local level = _LoadJson(_ParsePath("levels/" .. path))
-		self.levels["levels/" .. path] = level
+		local id = tonumber(string.sub(path, 7, -5))
+		print("Loading level" .. tostring(id) .. ", " .. tostring(path))
+		local level = _LoadJson(_ParsePath("config/levels/" .. path))
+		self.levels[id] = level
 		-- Load map data only if it hasn't been loaded yet.
 		if not self.maps[level.map] then
+			print("Loading map " .. level.map)
 			self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
 		end
 	end
