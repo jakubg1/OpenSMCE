@@ -159,18 +159,29 @@ function Debug:getDebugParticle()
 	return s
 end
 
-function Debug:getDebugLevel()
+function Debug:getDebugProfile()
+	local profile = _Game:getCurrentProfile()
 	local s = ""
 
-	s = s .. "LevelNumber = " .. tostring(_Game:getCurrentProfile().session.level) .. "\n"
-	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
-	s = s .. "LevelProgress = " .. tostring(_Game.session.level.destroyedSpheres) .. "/" .. tostring(_Game.session.level.target) .. "\n"
-	local levelData = _Game:getCurrentProfile():getCurrentLevelData()
+	s = s .. "LevelNumber = " .. profile:getLevelStr() .. "\n"
+	s = s .. "LevelID = " .. profile:getLevelIDStr() .. "\n"
+	s = s .. "LatestCheckpoint = " .. tostring(profile:getLatestCheckpoint()) .. "\n"
+	s = s .. "CheckpointUpcoming = " .. tostring(profile:isCheckpointUpcoming()) .. "\n"
+	local levelData = profile:getCurrentLevelData()
 	if levelData then
 		s = s .. "LevelRecord = " .. tostring(levelData.score) .. "\n"
 		s = s .. "Won = " .. tostring(levelData.won) .. "\n"
 		s = s .. "Lost = " .. tostring(levelData.lost) .. "\n"
 	end
+
+	return s
+end
+
+function Debug:getDebugLevel()
+	local s = ""
+
+	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
+	s = s .. "LevelProgress = " .. tostring(_Game.session.level.destroyedSpheres) .. "/" .. tostring(_Game.session.level.target) .. "\n"
 	s = s .. "\n"
 	s = s .. "Collectible# = " .. tostring(_Game.session.level.collectibles:size()) .. "\n"
 	s = s .. "FloatingText# = " .. tostring(_Game.session.level.floatingTexts:size()) .. "\n"
@@ -206,6 +217,10 @@ function Debug:getDebugInfo()
 	if _Game:sessionExists() then
 		s = s .. _Game.session.colorManager:getDebugText()
 	end
+	s = s .. "\n===== PROFILE =====\n"
+	if _Game:getCurrentProfile() then
+		s = s .. self:getDebugProfile()
+	end
 	s = s .. "\n===== LEVEL =====\n"
 	if _Game:levelExists() then
 		s = s .. self:getDebugLevel()
@@ -240,15 +255,18 @@ end
 function Debug:drawVisibleText(text, pos, height, width, alpha)
 	alpha = alpha or 1
 
-	local t = love.graphics.newText(love.graphics.getFont(), text)
+	if text == "" then
+		return
+	end
+
 	love.graphics.setColor(0, 0, 0, 0.7 * alpha)
 	if width then
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
 	else
-		love.graphics.rectangle("fill", pos.x - 3, pos.y, t:getWidth() + 6, height)
+		love.graphics.rectangle("fill", pos.x - 3, pos.y, love.graphics.getFont():getWidth(_StrUnformat(text)) + 6, height)
 	end
 	love.graphics.setColor(1, 1, 1, alpha)
-	love.graphics.draw(t, pos.x, pos.y)
+	love.graphics.print(text, pos.x, pos.y)
 end
 
 function Debug:drawDebugInfo()

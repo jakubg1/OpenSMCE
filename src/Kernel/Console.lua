@@ -35,14 +35,7 @@ end
 
 function Console:print(message)
 	table.insert(self.history, {text = message, time = _TotalTime})
-	local logText = "[CONSOLE] "
-	if type(message) == "table" then
-		for i = 1, #message / 2 do
-			logText = logText .. message[i * 2]
-		end
-	else
-		logText = logText .. message
-	end
+	local logText = "[CONSOLE] " .. _StrUnformat(message)
 	print(logText)
 end
 

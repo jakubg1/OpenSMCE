@@ -54,6 +54,19 @@ function _StrTrimCom(s)
 	return _StrTrim(_StrSplit(s, "//")[1])
 end
 
+-- Strips the formatted text from formatting, if exists.
+function _StrUnformat(s)
+	if type(s) == "table" then
+		local t = ""
+		for i = 1, #s / 2 do
+			t = t .. s[i * 2]
+		end
+		return t
+	else
+		return s
+	end
+end
+
 ---A simple function which makes JSON formatting nicer.
 ---@param s string Raw JSON input.
 ---@return string output Beautiful JSON output.
