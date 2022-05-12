@@ -63,9 +63,14 @@ function Profile:getLevelStr()
 	return tostring(self.session.level)
 end
 
+-- Returns the player's current level entry.
+function Profile:getLevelEntry()
+	return _Game.configManager.levelSet.level_order[self.session.level]
+end
+
 -- Returns the player's current level ID.
 function Profile:getLevelID()
-	return _Game.configManager.levelSet.level_order[self.session.level]
+	return self:getLevelEntry().level
 end
 
 -- Returns the player's current level ID as a string.
@@ -226,12 +231,16 @@ function Profile:winLevel(score)
 end
 
 function Profile:advanceLevel()
+	-- Check if beating this level unlocks some checkpoints.
+	local checkpoints = self:getLevelEntry().unlock_checkpoints_on_beat
+	if checkpoints then
+		for i, checkpoint in ipairs(checkpoints) do
+			self:unlockCheckpoint(checkpoint)
+		end
+	end
+
 	self:incrementLevel()
 	_Game:playSound("sound_events/level_advance.json")
-	-- TODO: HARDCODED - make it more flexible
-	-- specifically, in this case we need more data in the future about levels:
-	-- when do we unlock or lock checkpoints
-	self:unlockCheckpoint(self:getLatestCheckpoint())
 end
 
 function Profile:getLevelHighscoreInfo(score)
