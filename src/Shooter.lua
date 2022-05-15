@@ -14,8 +14,10 @@ function Shooter:new()
 	self.color = 0
 	self.nextColor = 0
 	self.active = false -- when the sphere is shot you can't shoot; same for start, win, lose
-	self.speedShotTime = 0
 	self.speedShotSpeed = 0
+	self.speedShotTime = 0
+	self.speedShotAnim = 0
+	self.speedShotParticle = nil
 
 	self.multiColorColor = nil
 	self.multiColorCount = 0
@@ -58,7 +60,21 @@ function Shooter:update(dt)
 	end
 
 	-- speed shot time counting
-	if self.speedShotTime > 0 then self.speedShotTime = math.max(self.speedShotTime - dt, 0) end
+	if self.speedShotTime > 0 then
+		self.speedShotTime = math.max(self.speedShotTime - dt, 0)
+		self.speedShotAnim = math.min(self.speedShotAnim + dt / self.config.speedShotBeamFadeTime, 1)
+		if self.speedShotParticle then
+			self.speedShotParticle.pos = self:spherePos()
+		else
+			self.speedShotParticle = _Game:spawnParticle(self.config.speedShotParticle, self:spherePos())
+		end
+	else
+		self.speedShotAnim = math.max(self.speedShotAnim - dt / self.config.speedShotBeamFadeTime, 0)
+		if self.speedShotParticle then
+			self.speedShotParticle:destroy()
+			self.speedShotParticle = nil
+		end
+	end
 
 	-- particle position update
 	if self.sphereEntity then
@@ -250,7 +266,9 @@ function Shooter:drawSpeedShotBeam()
 	-- "full" - the beam is always fully visible
 	-- "cut" - the beam is cut on the target position
 	-- "scale" - the beam is squished between the shooter and the target position
-	if self.speedShotTime == 0 then return end
+	if self.speedShotAnim == 0 then
+		return
+	end
 
 	local targetPos = self:getTargetPos()
 	local maxDistance = self.speedShotSprite.size.y
@@ -269,7 +287,7 @@ function Shooter:drawSpeedShotBeam()
 	-- apply color if wanted
 	local color = self.config.speedShotBeamColored and self:getReticalColor() or Color()
 	-- draw the beam
-	self.speedShotSprite:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, nil, color, self.speedShotTime * 2, scale)
+	self.speedShotSprite:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, nil, color, self.speedShotAnim, scale)
 	-- reset the scissor
 	if self.config.speedShotBeamRenderingType == "cut" then
 		love.graphics.setScissor()
