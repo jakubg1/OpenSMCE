@@ -73,4 +73,33 @@ function ConfigManager:new()
 	end
 end
 
+
+
+-- Gets the level number which the checkpoint points to.
+function ConfigManager:getCheckpointLevelN(checkpoint)
+	local entryN = self.levelSet.checkpoints[checkpoint]
+
+	return self:getLevelCountFromEntries(entryN - 1) + 1
+end
+
+-- Returns how many levels the first N level set entries have in total.
+function ConfigManager:getLevelCountFromEntries(entries)
+	local n = 0
+
+	-- If it's a single level, count 1.
+	-- If it's a randomizer, count that many levels as there are defined in the randomizer.
+	for i = 1, entries do
+		local entry = self.levelSet.level_order[i]
+		if entry.type == "level" then
+			n = n + 1
+		elseif entry.type == "randomizer" then
+			n = n + entry.count
+		end
+	end
+
+	return n
+end
+
+
+
 return ConfigManager

@@ -57,6 +57,7 @@ function UIManager:new()
     profileGetSession = function() return _Game:getCurrentProfile():getSession() end,
     profileGetLevelN = function() return _Game:getCurrentProfile():getLevel() end,
     profileGetLevel = function() return _Game:getCurrentProfile():getLevelData() end,
+    profileGetLevelName = function() return _Game:getCurrentProfile():getLevelName() end,
     profileGetSavedLevel = function() return _Game:getCurrentProfile():getSavedLevel() end,
     profileGetMap = function() return _Game:getCurrentProfile():getMapData() end,
     profileGetLatestCheckpoint = function() return _Game:getCurrentProfile():getLatestCheckpoint() end,
@@ -73,7 +74,9 @@ function UIManager:new()
     configGetLevelData = function(n) return _Game.configManager.levels[n] end,
     configGetMapData = function(name) return _Game.configManager.maps[name] end,
     configGetLevelID = function(n) return _Game.configManager.levelSet.level_order[n].level end,
+    configGetLevelName = function(n) return _Game.configManager.levelSet.level_order[n].name end,
     configGetCheckpointID = function(n) return _Game.configManager.levelSet.checkpoints[n] end,
+    configGetCheckpointLevel = function(n) return _Game.configManager:getCheckpointLevelN(n) end,
 
     optionsLoad = function() self:optionsLoad() end,
     optionsSave = function() self:optionsSave() end,

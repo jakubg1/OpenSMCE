@@ -49,18 +49,32 @@ end
 
 
 -- Core level stuff
--- Level number: Starts at one and points towards an entry in the level order.
+-- Level number: Starts at one, each level and each subsequent entry in randomizers count separately.
+-- Level pointer: Starts at one and points towards an entry in the level order.
 -- Level ID: ID of a particular level file.
 -- Level data: Stores profile-related data per level, such as win/lose count or some other statistics.
 
 -- Returns the player's current level number.
 function Profile:getLevel()
-	return self.session.level
+	-- Count (current level pointer - 1) entries from the level set.
+	local n = _Game.configManager:getLevelCountFromEntries(self.session.level - 1)
+
+	return n + self.session.sublevel
 end
 
 -- Returns the player's current level number as a string.
 function Profile:getLevelStr()
-	return tostring(self.session.level)
+	return tostring(self:getLevel())
+end
+
+-- Returns the player's current level pointer value.
+function Profile:getLevelPtr()
+	return self.session.level
+end
+
+-- Returns the player's current level pointer value as a string.
+function Profile:getLevelPtrStr()
+	return tostring(self:getLevel())
 end
 
 -- Returns the player's current level entry.
@@ -70,7 +84,7 @@ end
 
 -- Returns the player's current level ID.
 function Profile:getLevelID()
-	return self:getLevelEntry().level
+	return self.session.levelID
 end
 
 -- Returns the player's current level ID as a string.
@@ -78,9 +92,81 @@ function Profile:getLevelIDStr()
 	return tostring(self:getLevelID())
 end
 
--- Adds one to the player's current level number.
+-- Returns the player's current level name.
+function Profile:getLevelName()
+	local entry = self:getLevelEntry()
+	
+	if entry.type == "level" then
+		return entry.name
+	elseif entry.type == "randomizer" then
+		return entry.names[self.session.sublevel]
+	end
+end
+
+-- Goes on to a next level, either another one in a subset, or in a main level set.
 function Profile:incrementLevel()
-	self.session.level = self.session.level + 1
+	local entry = self:getLevelEntry()
+
+	-- Update the pointers.
+	if entry.type == "level" then
+		self.session.level = self.session.level + 1
+		self:setupLevel()
+	elseif entry.type == "randomizer" then
+		-- Check whether it's the last sublevel.  If so, get outta there and move on.
+		if self.session.sublevel == entry.count then
+			self.session.level = self.session.level + 1
+			self:setupLevel()
+		else
+			self.session.sublevel = self.session.sublevel + 1
+		end
+	end
+
+	-- Generate a new level ID.
+	self:generateLevelID()
+end
+
+-- Generates a new level ID, based on the current entry type and data.
+function Profile:generateLevelID()
+	local entry = self:getLevelEntry()
+
+	-- Now we are going to generate the level ID from the pool, if this is a randomizer,
+	-- or just replace it if it's a normal level.
+	if entry.type == "level" then
+		self.session.levelID = entry.level
+	elseif entry.type == "randomizer" then
+		-- Use local data to generate a level.
+		if entry.mode == "repeat" then
+			self.session.levelID = self.session.sublevel_pool[math.random(#self.session.sublevel_pool)]
+		elseif entry.mode == "no_repeat" then
+			local i = math.random(#self.session.sublevel_pool)
+			self.session.levelID = self.session.sublevel_pool[i]
+			table.remove(self.session.sublevel_pool, i)
+		elseif entry.mode == "order" then
+			while true do
+				local chance = (entry.count - self.session.sublevel + 1) / #self.session.sublevel_pool
+				local n = self.session.sublevel_pool[1]
+				table.remove(self.session.sublevel_pool, 1)
+				if chance then
+					self.session.levelID = n
+					break
+				end
+			end
+		end
+	end
+end
+
+-- Sets up values for a level set entry the level pointer is currently pointing to.
+function Profile:setupLevel()
+	local entry = self:getLevelEntry()
+
+	self.session.sublevel = 1
+	self.session.sublevel_pool = {}
+	-- If this entry is a randomizer, copy the pool to an internal profile field.
+	if entry.type == "randomizer" then
+		for i, levelID in ipairs(entry.pool) do
+			self.session.sublevel_pool[i] = levelID
+		end
+	end
 end
 
 -- Returns the checkpoint ID which is assigned to the most recent level
@@ -105,6 +191,13 @@ end
 
 -- Returns true if the player's next level number is on the checkpoint list.
 function Profile:isCheckpointUpcoming()
+	local entry = self:getLevelEntry()
+
+	-- A checkpoint can't be upcoming if we are in the middle of a randomizer section.
+	if entry.type == "randomizer" and self.session.sublevel < entry.count then
+		return
+	end
+
 	for i, level in ipairs(_Game.configManager.levelSet.checkpoints) do
 		if level == self.session.level + 1 then
 			return true
@@ -201,7 +294,7 @@ end
 
 
 
--- General
+-- Game
 
 function Profile:newGame(checkpoint)
 	self.session = {}
@@ -211,6 +304,12 @@ function Profile:newGame(checkpoint)
 	self.session.difficulty = 1
 
 	self.session.level = _Game.configManager.levelSet.checkpoints[checkpoint]
+	self.session.sublevel = 1
+	self.session.sublevel_pool = {}
+	self.session.levelID = 0
+	
+	self:setupLevel()
+	self:generateLevelID()
 end
 
 function Profile:deleteGame()
@@ -243,8 +342,8 @@ function Profile:advanceLevel()
 	_Game:playSound("sound_events/level_advance.json")
 end
 
+-- Returns true if score given in parameter would yield a new record for the current level.
 function Profile:getLevelHighscoreInfo(score)
-	-- Returns true if score given in parameter would yield a new record for the current level.
 	local levelData = self:getCurrentLevelData()
 	return not levelData or score > levelData.score
 end
@@ -260,6 +359,10 @@ function Profile:loseLevel()
 	return canRetry
 end
 
+
+
+-- Level saves
+
 function Profile:saveLevel(t)
 	self.session.levelSaveData = t
 end
@@ -273,6 +376,8 @@ function Profile:unsaveLevel()
 end
 
 
+
+-- Highscore
 
 function Profile:writeHighscore()
 	local pos = _Game.runtimeManager.highscores:getPosition(self:getScore())

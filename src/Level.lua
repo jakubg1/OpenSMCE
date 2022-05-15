@@ -12,8 +12,6 @@ local FloatingText = require("src/FloatingText")
 
 function Level:new(data)
 	-- data specified in level config file
-	self.name = data.name
-
 	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior)
 	self.shooter = Shooter()
 
