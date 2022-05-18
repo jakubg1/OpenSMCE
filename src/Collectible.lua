@@ -3,33 +3,21 @@ local Collectible = class:derive("Collectible")
 
 local Vec2 = require("src/Essentials/Vector2")
 
-function Collectible:new(deserializationTable, pos, data)
+function Collectible:new(deserializationTable, pos, name)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
-		self.data = data
+		self.name = name
 		self.pos = pos
 		local beh = _Game.configManager.gameplay.collectibleBehaviour
 		self.speed = _ParseVec2(beh.speed)
 		self.acceleration = _ParseVec2(beh.acceleration)
 	end
 
-	self.powerupConfig = nil
+	self.config = _Game.configManager.collectibles[self.name]
+	_Game:playSound(self.config.spawnSound, 1, self.pos)
 
-	local particleName = nil
-	self.soundEventName = nil
-	if self.data.type == "powerup" then
-		self.powerupConfig = _Game.configManager.powerups[self.data.name]
-		particleName = self.powerupConfig.particle
-		self.soundEventName = self.powerupConfig.pickupSound
-	elseif self.data.type == "gem" then
-		particleName = "particles/gem_" .. tostring(self.data.color) .. ".json"
-		self.soundEventName = "sound_events/collectible_catch_gem.json"
-	elseif self.data.type == "coin" then
-		particleName = "particles/powerup_coin.json"
-		self.soundEventName = "sound_events/collectible_catch_coin.json"
-	end
-	self.particle = _Game:spawnParticle(particleName, self.pos)
+	self.particle = _Game:spawnParticle(self.config.particle, self.pos)
 end
 
 function Collectible:update(dt)
@@ -58,37 +46,22 @@ end
 
 function Collectible:catch()
 	self:destroy()
-	if self.data.type == "powerup" then
-		for i, effect in ipairs(self.powerupConfig.effects) do
-			_Game.session.level:applyEffect(effect)
-		end
-	end
-	_Game:playSound(self.soundEventName, 1, self.pos)
 
-	local score = 0
-	if self.data.type == "coin" then
-		score = 250
-		_Game.session.level:grantCoin()
-	elseif self.data.type == "gem" then
-		score = self.data.color * 1000
-		_Game.session.level:grantGem(self.data.color)
+	for i, effect in ipairs(self.config.effects) do
+		_Game.session.level:applyEffect(effect, self.pos)
 	end
-	if score > 0 then
-		_Game.session.level:grantScore(score)
-		_Game.session.level:spawnFloatingText(_NumStr(score), self.pos, "fonts/score0.json")
+
+	_Game:playSound(self.config.pickupSound, 1, self.pos)
+	_Game:spawnParticle(self.config.pickupParticle, self.pos)
+	if self.config.pickupName then
+		_Game.session.level:spawnFloatingText(self.config.pickupName, self.pos, self.config.pickupFont)
 	end
-	if self.data.type == "powerup" then
-		local font = self.powerupConfig.pickupFont
-		if self.powerupConfig.colored then
-			font = _Game.configManager.spheres[self.data.color].matchFont
-		end
-		_Game.session.level:spawnFloatingText(self.powerupConfig.pickupName, self.pos, font)
-	end
-	_Game:spawnParticle("particles/powerup_catch.json", self.pos)
 end
 
 function Collectible:destroy()
-	if self._delQueue then return end
+	if self._delQueue then
+		return
+	end
 	self._list:destroy(self)
 	self.particle:destroy()
 end
@@ -103,7 +76,7 @@ end
 
 function Collectible:serialize()
 	return {
-		data = self.data,
+		name = self.name,
 		pos = {x = self.pos.x, y = self.pos.y},
 		speed = {x = self.speed.x, y = self.speed.y},
 		acceleration = {x = self.acceleration.x, y = self.acceleration.y}
@@ -111,7 +84,7 @@ function Collectible:serialize()
 end
 
 function Collectible:deserialize(t)
-	self.data = t.data
+	self.name = t.name
 	self.pos = Vec2(t.pos.x, t.pos.y)
 	self.speed = Vec2(t.speed.x, t.speed.y)
 	self.acceleration = Vec2(t.acceleration.x, t.acceleration.y)

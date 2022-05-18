@@ -485,7 +485,7 @@ function SphereGroup:matchAndDelete(position)
 
 	local spawnCoin = MOD_GAME.coinSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
 	if spawnCoin then
-		self.map.level:spawnCollectible(pos, {type = "coin"})
+		self.map.level:spawnCollectible(pos, "coin")
 	end
 
 	local spawnPowerup = MOD_GAME.powerupSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)

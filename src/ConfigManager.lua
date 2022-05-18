@@ -43,7 +43,7 @@ function ConfigManager:new()
 	self.hudLayerOrder = _LoadJson(_ParsePath("config/hud_layer_order.json"))
 	self.levelSet = _LoadJson(_ParsePath("config/level_set.json"))
 	self.music = _LoadJson(_ParsePath("config/music.json"))
-	self.powerups = _LoadJson(_ParsePath("config/powerups.json"))
+	self.collectibles = _LoadJson(_ParsePath("config/collectibles.json"))
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
 

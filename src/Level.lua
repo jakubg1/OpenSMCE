@@ -16,7 +16,7 @@ function Level:new(data)
 	self.shooter = Shooter()
 
 	self.powerupGenerator = data.powerupGenerator
-	self.gemColors = data.gems
+	self.gemGenerator = data.gemGenerator
 	self.target = data.target
 
 	self.musicName = data.music
@@ -217,14 +217,18 @@ end
 
 
 
-function Level:newPowerupData()
+function Level:generateCollectibleEntry(entryName)
 	local manager = _Game.configManager.collectibleGeneratorManager
-	local entry = manager:getEntry(self.powerupGenerator)
+	local entry = manager:getEntry(entryName)
 	return entry:generate()
 end
 
+function Level:newPowerupData()
+	return self:generateCollectibleEntry(self.powerupGenerator)
+end
+
 function Level:newGemData()
-	return {type = "gem", color = self.gemColors[math.random(1, #self.gemColors)]}
+	return self:generateCollectibleEntry(self.gemGenerator)
 end
 
 function Level:grantScore(score)
@@ -247,7 +251,7 @@ function Level:destroySphere()
 	if self.destroyedSpheres == self.target then self.targetReached = true end
 end
 
-function Level:applyEffect(effect)
+function Level:applyEffect(effect, TMP_pos)
 	if effect.type == "replaceSphere" then
 		self.shooter:getSphere(effect.color)
 	elseif effect.type == "multiSphere" then
@@ -296,6 +300,13 @@ function Level:applyEffect(effect)
 	elseif effect.type == "changeGameSpeed" then
 		self.gameSpeed = effect.speed
 		self.gameSpeedTime = effect.duration
+	elseif effect.type == "grantScore" then
+		self:grantScore(effect.score)
+		self:spawnFloatingText(_NumStr(effect.score), TMP_pos, "fonts/score0.json")
+	elseif effect.type == "grantCoin" then
+		self:grantCoin()
+	elseif effect.type == "incrementGemStat" then
+		self:grantGem()
 	end
 end
 
@@ -510,9 +521,8 @@ function Level:spawnShotSphere(shooter, pos, color, speed)
 	self.shotSpheres:append(ShotSphere(nil, shooter, pos, color, speed))
 end
 
-function Level:spawnCollectible(pos, data)
-	self.collectibles:append(Collectible(nil, pos, data))
-	_Game:playSound("sound_events/collectible_spawn_" .. data.type .. ".json", 1, pos)
+function Level:spawnCollectible(pos, name)
+	self.collectibles:append(Collectible(nil, pos, name))
 end
 
 function Level:spawnFloatingText(text, pos, font)

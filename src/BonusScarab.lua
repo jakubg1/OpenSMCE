@@ -34,7 +34,7 @@ function BonusScarab:update(dt)
 	-- Coins
 	if self.config.coinDistance then
 		while self.coinDistance < self.distance do
-			if self.coinDistance > 0 then _Game.session.level:spawnCollectible(self:getPos(), {type = "coin"}) end
+			if self.coinDistance > 0 then _Game.session.level:spawnCollectible(self:getPos(), "coin") end
 			self.coinDistance = self.coinDistance + self.config.coinDistance
 		end
 	end
