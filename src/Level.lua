@@ -156,7 +156,7 @@ function Level:updateLogic(dt)
 				self.bonusDelay = _Game.configManager.gameplay.level.bonusDelay
 				self.bonusPathID = self.bonusPathID + 1
 			end
-		else
+		elseif self:getFinish() then
 			self.wonDelay = _Game.configManager.gameplay.level.wonDelay
 			self.bonusDelay = nil
 		end
@@ -229,6 +229,10 @@ end
 
 function Level:newGemData()
 	return self:generateCollectibleEntry(self.gemGenerator)
+end
+
+function Level:newCoinData()
+	return self:generateCollectibleEntry("vanilla_coin.json")
 end
 
 function Level:grantScore(score)

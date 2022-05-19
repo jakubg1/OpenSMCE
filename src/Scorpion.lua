@@ -85,7 +85,7 @@ function Scorpion:explode()
 	_Game.session.level:grantScore(score)
 	_Game.session.level:spawnFloatingText(_NumStr(score), self:getPos(), self.config.scoreFont)
 	if self.destroyedSpheres == self.maxSpheres then
-		_Game.session.level:spawnCollectible(self:getPos(), "coin")
+		_Game.session.level:spawnCollectible(self:getPos(), _Game.session.level:newCoinData())
 	end
 	_Game:spawnParticle(self.config.destroyParticle, self:getPos())
 	_Game:playSound("sound_events/scorpion_destroy.json", 1, self:getPos())
