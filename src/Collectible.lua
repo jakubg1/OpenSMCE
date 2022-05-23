@@ -38,6 +38,11 @@ function Collectible:update(dt)
 		self.speed.y = -self.speed.y
 	elseif self.pos.y > _NATIVE_RESOLUTION.y + 20 then -- down - uncatched, falls down
 		self:destroy()
+		if self.config.dropEffects then
+			for i, effect in ipairs(self.config.dropEffects) do
+				_Game.session.level:applyEffect(effect, self.pos)
+			end
+		end
 	end
 
 	-- sprite
@@ -47,8 +52,10 @@ end
 function Collectible:catch()
 	self:destroy()
 
-	for i, effect in ipairs(self.config.effects) do
-		_Game.session.level:applyEffect(effect, self.pos)
+	if self.config.effects then
+		for i, effect in ipairs(self.config.effects) do
+			_Game.session.level:applyEffect(effect, self.pos)
+		end
 	end
 
 	_Game:playSound(self.config.pickupSound, 1, self.pos)
