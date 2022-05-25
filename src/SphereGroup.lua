@@ -43,7 +43,7 @@ function SphereGroup:update(dt)
 
 	local speedBound = self.sphereChain.path:getSpeed(self:getLastSphereOffset())
 	if self:isMagnetizing() then
-		self.maxSpeed = self.config.attractionSpeed * math.max(self.sphereChain.combo, 1)
+		self.maxSpeed = self.config.attractionSpeedBase + self.config.attractionSpeedMult * math.max(self.sphereChain.combo, 1)
 	else
 		self.maxSpeed = 0
 		if not self.matchCheck then self.matchCheck = true end
