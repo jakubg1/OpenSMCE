@@ -166,7 +166,7 @@ function BootMain:draw()
       love.graphics.print("This game is intended to work with\na newer version of the engine!", 544, 338)
     elseif versionStatus == 3 then
 			love.graphics.setColor(1, 0, 0)
-      love.graphics.print("You have a too new engine version!\nYou can't convert this game to the\nnew version!\n\nUse the previous version of the engine\nin order to play this game.", 544, 338)
+      love.graphics.print("You have a too new engine version!\nYou can't convert this game to\nthis version!\n\nUse an older version of this engine\nin order to play this game.", 544, 338)
 		end
 	end
 	self.loadGameBtn:draw()
