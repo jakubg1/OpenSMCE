@@ -75,6 +75,23 @@ end
 
 
 
+-- Returns the game name if specified, else the internal (folder) name.
+function ConfigManager:getGameName()
+	return self.config.name or _Game.name
+end
+
+-- Returns a title the window should have.
+function ConfigManager:getWindowTitle()
+	return self.config.window_title or string.format("OpenSMCE [%s] - %s", _VERSION, self:getGameName())
+end
+
+-- Returns whether the Discord Rich Presence should be on in this game.
+function ConfigManager:isRichPresenceEnabled()
+	return self.config.rich_presence.enabled
+end
+
+
+
 -- Gets the level number which the checkpoint points to.
 function ConfigManager:getCheckpointLevelN(checkpoint)
 	local entryN = self.levelSet.checkpoints[checkpoint]

@@ -46,6 +46,10 @@ end
 
 function DiscordRichPresence:updateEnabled()
 	local setting = _EngineSettings:getDiscordRPC()
+	if _Game.configManager then
+		setting = setting and _Game.configManager:isRichPresenceEnabled()
+	end
+	
 	if not self.enabled and setting then
 		self:connect()
 	end

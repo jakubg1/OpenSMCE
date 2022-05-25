@@ -42,8 +42,9 @@ function Game:init()
 	self.configManager = ConfigManager()
 
 	-- Step 2. Initialize the window
-	love.window.setTitle(self.configManager.config.general.windowTitle or ("OpenSMCE [" .. _VERSION .. "] - " .. self.name))
-	love.window.setMode(self.configManager.config.general.nativeResolution.x, self.configManager.config.general.nativeResolution.y, {resizable = true})
+	local res = self.configManager.config.native_resolution
+	love.window.setMode(res.x, res.y, {resizable = true})
+	love.window.setTitle(self.configManager:getWindowTitle())
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -98,12 +99,20 @@ function Game:tick(dt) -- always with 1/60 seconds
 
 	self.uiManager:update(dt)
 
-	if self.particleManager then self.particleManager:update(dt) end
+	if self.particleManager then
+		self.particleManager:update(dt)
+	end
 
-	-- Discord Rich Presence
+	if self.configManager.config.rich_presence.enabled then
+		self:updateRichPresence()
+	end
+end
+
+function Game:updateRichPresence()
 	local p = self:getCurrentProfile()
-	local line1 = "Playing: " .. self.name
+	local line1 = "Playing: " .. self.configManager:getGameName()
 	local line2 = ""
+
 	if self:levelExists() then
 		local l = self.session.level
 		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
@@ -116,13 +125,11 @@ function Game:tick(dt) -- always with 1/60 seconds
 			line1 = line1 .. " - Paused"
 		end
 	elseif p and p:getSession() then
-		line2 = string.format("In menus, Score: %s, Lives: %s",
-			p:getScore(),
-			p:getLives()
-		)
+		line2 = string.format("In menus, Score: %s, Lives: %s", p:getScore(), p:getLives())
 	else
 		line2 = string.format("In menus")
 	end
+
 	_DiscordRPC:setStatus(line1, line2)
 end
 

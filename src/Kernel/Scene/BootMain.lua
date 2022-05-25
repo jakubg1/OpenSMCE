@@ -78,7 +78,8 @@ function BootMain:getSelectedGameName()
 end
 
 function BootMain:getSelectedGameVersion()
-  return self.bootScreen.games[self.selectedGame].config.engineVersion
+	local c = self.bootScreen.games[self.selectedGame].config
+  return c.engine_version or c.engineVersion
 end
 
 function BootMain:getSelectedGameVersionStatus()
