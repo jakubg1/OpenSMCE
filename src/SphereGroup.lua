@@ -287,7 +287,7 @@ function SphereGroup:checkDeletion()
 	if not self.prevGroup and not self.nextGroup and #self.spheres == 1 and self.spheres[1].color == 0 then
 		-- Spawn a gem only if the level is not lost and this is not a dummy level.
 		if not self.map.isDummy and not self.map.level.lost then
-			self.map.level:spawnCollectible(self:getSpherePos(1), self.map.level:newGemData())
+			self.map.level:spawnGem(self:getSpherePos(1))
 		end
 		self.spheres[1]:delete()
 		self.sphereChain:delete(false)
@@ -485,12 +485,12 @@ function SphereGroup:matchAndDelete(position)
 
 	local spawnCoin = MOD_GAME.coinSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
 	if spawnCoin then
-		self.map.level:spawnCollectible(pos, self.map.level:newCoinData())
+		self.map.level:spawnCoin(pos)
 	end
 
 	local spawnPowerup = MOD_GAME.powerupSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
 	if spawnPowerup then
-		self.map.level:spawnCollectible(pos, self.map.level:newPowerupData())
+		self.map.level:spawnPowerup(pos)
 	end
 
 	self.map.level.maxCombo = math.max(self.map.level.combo, self.map.level.maxCombo)

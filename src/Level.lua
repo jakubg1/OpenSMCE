@@ -217,22 +217,25 @@ end
 
 
 
-function Level:generateCollectibleEntry(entryName)
+function Level:spawnCollectiblesFromEntry(pos, entryName)
 	local manager = _Game.configManager.collectibleGeneratorManager
 	local entry = manager:getEntry(entryName)
-	return entry:generate()
+	local collectibles = entry:generate()
+	for i, collectible in ipairs(collectibles) do
+		self:spawnCollectible(pos, collectible)
+	end
 end
 
-function Level:newPowerupData()
-	return self:generateCollectibleEntry(self.powerupGenerator)
+function Level:spawnPowerup(pos)
+	self:spawnCollectiblesFromEntry(pos, self.powerupGenerator)
 end
 
-function Level:newGemData()
-	return self:generateCollectibleEntry(self.gemGenerator)
+function Level:spawnGem(pos)
+	self:spawnCollectiblesFromEntry(pos, self.gemGenerator)
 end
 
-function Level:newCoinData()
-	return self:generateCollectibleEntry("vanilla_coin.json")
+function Level:spawnCoin(pos)
+	self:spawnCollectiblesFromEntry(pos, "vanilla_coin.json")
 end
 
 function Level:grantScore(score)

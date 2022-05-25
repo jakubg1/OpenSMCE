@@ -15,8 +15,9 @@ function Collectible:new(deserializationTable, pos, name)
 	end
 
 	self.config = _Game.configManager.collectibles[self.name]
-	_Game:playSound(self.config.spawnSound, 1, self.pos)
+	assert(self.config, string.format("Unknown powerup: \"%s\"", self.name))
 
+	_Game:playSound(self.config.spawnSound, 1, self.pos)
 	self.particle = _Game:spawnParticle(self.config.particle, self.pos)
 end
 

@@ -13,65 +13,54 @@ end
 
 
 function CollectibleGeneratorEntry:generate()
-  -- We iterate through pools until one of them returns a collectible.
-  for i, pool in ipairs(self.data) do
-    local modifiedPool = self:getModifiedPool(pool)
-    if #modifiedPool > 0 then
-      local weights = {}
-      for j, entry in ipairs(modifiedPool) do
-        table.insert(weights, entry.weight or 1)
-      end
-      local winner = modifiedPool[_MathWeightedRandom(weights)]
-      return self:generateOutput(winner)
-    end
-  end
+  return self:evaluate(self.data)
 end
 
 
 
-function CollectibleGeneratorEntry:generateOutput(entry)
+function CollectibleGeneratorEntry:evaluate(entry)
+  -- Return an empty list if the conditions don't meet.
+  if not self:checkConditions(entry.conditions) then
+    return {}
+  end
+
+  -- If the conditions do meet, proceed.
   if entry.type == "collectible" then
-    return entry.name
+    return {entry.name}
   elseif entry.type == "collectible_generator" then
     return self.manager:getEntry(entry.name):generate()
-  end
-end
-
-
-
-function CollectibleGeneratorEntry:getModifiedPool(pool)
-  -- Returns a pool with removed entries, for which the conditions do not meet.
-  local newPool = {}
-
-  for i, entry in ipairs(pool) do
-    local ok = true
-    ok = ok and self:checkConditions(entry.conditions)
-    if entry.type == "collectible_generator" then
-      local childEntry = self.manager:getEntry(entry.name)
-      ok = ok and childEntry:canGenerate()
+  elseif entry.type == "repeat" then
+    local t = {}
+    for i = 1, entry.count do
+      local eval = self:evaluate(entry.entry)
+      -- Append the results of each roll.
+      for j, e in ipairs(eval) do
+        table.insert(t, e)
+      end
     end
-    if ok then
-      table.insert(newPool, entry)
+    return t
+  elseif entry.type == "random_pick" then
+    -- Create a pool copy.
+    local p = {}
+    local weights = {}
+    for i, e in ipairs(entry.pool) do
+      -- Evaluate each entry from the pool.
+      local eval = self:evaluate(e.entry)
+      local w = e.weight or 1
+      -- Do not pick from empty entries.
+      if #eval > 0 then
+        table.insert(p, eval)
+        table.insert(weights, w)
+      end
+    end
+    -- Choose a random item from the pool.
+    if #p > 0 then
+      return p[_MathWeightedRandom(weights)]
+    else
+      -- If there's nothing to pick from, return an empty list.
+      return {}
     end
   end
-  return newPool
-end
-
-
-
-function CollectibleGeneratorEntry:canGenerate()
-  for i, pool in ipairs(self.data) do
-    if self:canPoolGenerate(pool) then
-      return true
-    end
-  end
-  return false
-end
-
-
-
-function CollectibleGeneratorEntry:canPoolGenerate(pool)
-  return #self:getModifiedPool(pool) > 0
 end
 
 
