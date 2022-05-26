@@ -266,28 +266,13 @@ function Level:applyEffect(effect, TMP_pos)
 	elseif effect.type == "speedShot" then
 		self.shooter.speedShotTime = effect.time
 		self.shooter.speedShotSpeed = effect.speed
-	elseif effect.type == "slow" then
+	elseif effect.type == "speedOverride" then
 		for i, path in ipairs(self.map.paths.objects) do
 			for j, sphereChain in ipairs(path.sphereChains) do
-				sphereChain.slowTime = effect.time
-				sphereChain.stopTime = 0
-				sphereChain.reverseTime = 0
-			end
-		end
-	elseif effect.type == "stop" then
-		for i, path in ipairs(self.map.paths.objects) do
-			for j, sphereChain in ipairs(path.sphereChains) do
-				sphereChain.slowTime = 0
-				sphereChain.stopTime = effect.time
-				sphereChain.reverseTime = 0
-			end
-		end
-	elseif effect.type == "reverse" then
-		for i, path in ipairs(self.map.paths.objects) do
-			for j, sphereChain in ipairs(path.sphereChains) do
-				sphereChain.slowTime = 0
-				sphereChain.stopTime = 0
-				sphereChain.reverseTime = effect.time
+				sphereChain.speedOverrideBase = effect.speedBase
+				sphereChain.speedOverrideMult = effect.speedMultiplier
+				sphereChain.speedOverrideDecc = effect.decceleration
+				sphereChain.speedOverrideTime = effect.time
 			end
 		end
 	elseif effect.type == "destroyAllSpheres" then

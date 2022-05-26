@@ -42,26 +42,33 @@ function SphereGroup:update(dt)
 	end
 
 	local speedBound = self.sphereChain.path:getSpeed(self:getLastSphereOffset())
+	local speedDesired = self.sphereChain.speedOverrideBase + speedBound * self.sphereChain.speedOverrideMult
 	if self:isMagnetizing() then
 		self.maxSpeed = self.config.attractionSpeedBase + self.config.attractionSpeedMult * math.max(self.sphereChain.combo, 1)
 	else
 		self.maxSpeed = 0
-		if not self.matchCheck then self.matchCheck = true end
+		self.matchCheck = true
 	end
-	-- the vise is pushing
-	if not self.prevGroup and self.sphereChain.reverseTime == 0 then
-		-- normal movement
-		self.maxSpeed = speedBound
-		-- slow
-		if self.sphereChain.slowTime > 0 then self.maxSpeed = self.maxSpeed * self.config.slowSpeedMultiplier end
-		-- stop
-		if self.sphereChain.stopTime > 0 then self.maxSpeed = 0 end
-		-- when the level is over
-		if self.map.level.lost then self.maxSpeed = self.config.foulSpeed end
+
+	-- If this group is the first one, it can push spheres forward.
+	if not self.prevGroup then
+		if self.map.level.lost then
+			-- If this level is lost, apply the foul speed.
+			self.maxSpeed = self.config.foulSpeed
+		elseif speedDesired >= 0 then
+			-- Note that this group only pushes, so it must have positive speed in order to work!
+			self.maxSpeed = speedDesired
+		end
 	end
-	-- if the vise is pulling (reverse)
-	if not self.map.level.lost and not self.nextGroup and not self:isMagnetizing() and self.sphereChain.reverseTime > 0 then
-		self.maxSpeed = self.config.reverseSpeed
+	-- If this group is last, it can pull spheres back when the speed is going to be negative.
+	if not self.nextGroup then
+		-- If the level is lost or this group is magnetizing at this moment, do not apply any other speed.
+		if not self.map.level.lost and not self:isMagnetizing() then
+			if speedDesired < 0 then
+				-- Note that this group only pulls, so it must have negative speed in order to work!
+				self.maxSpeed = speedDesired
+			end
+		end
 	end
 
 	if self.speed > self.maxSpeed then
@@ -69,14 +76,14 @@ function SphereGroup:update(dt)
 		local deccel = self.config.decceleration
 
 		-- Can be different if defined accordingly, such as reverse powerup, magnetizing or under a slow powerup.
-		if self.sphereChain.reverseTime > 0 and not self:isMagnetizing() then
-			deccel = math.huge
+		if self.sphereChain.speedOverrideTime > 0 and speedDesired < 0 and not self:isMagnetizing() then
+			deccel = self.sphereChain.speedOverrideDecc or deccel
 		elseif self:isMagnetizing() then
 			deccel = self.config.attractionAcceleration or deccel
 		elseif self.prevGroup then
 			deccel = self.config.decceleration or deccel
-		elseif self.sphereChain.slowTime > 0 or self.sphereChain.stopTime > 0 then
-			deccel = self.config.slowDecceleration or deccel
+		elseif self.sphereChain.speedOverrideTime > 0 then
+			deccel = self.sphereChain.speedOverrideDecc or deccel
 		end
 		
 		self.speed = math.max(self.speed - deccel * dt, self.maxSpeed)
@@ -103,19 +110,25 @@ function SphereGroup:update(dt)
 
 	self:move(self.speed * dt)
 
-	-- tick the powerup timers
-	-- the vise is pushing
-	if not self.prevGroup and self.sphereChain.reverseTime == 0 then
-		if self.sphereChain.slowTime > 0 and self.speed == self.maxSpeed then self.sphereChain.slowTime = math.max(self.sphereChain.slowTime - dt, 0) end
-		if self.sphereChain.stopTime > 0 and self.speed == self.maxSpeed then self.sphereChain.stopTime = math.max(self.sphereChain.stopTime - dt, 0) end
-	end
-	-- if the vise is pulling (reverse)
-	if not self.nextGroup and self.sphereChain.reverseTime > 0 then
-		if self.speed == self.maxSpeed and not self:isMagnetizing() then
-			self.sphereChain.reverseTime = math.max(self.sphereChain.reverseTime - dt, 0)
+	-- Tick the powerup timers, but only if the current speed matches the desired value.
+	if self.sphereChain.speedOverrideTime > 0 then
+		local fw = not self.prevGroup and speedDesired >= 0 and speedDesired == self.speed
+		local bw = not self.nextGroup and speedDesired < 0 and speedDesired == self.speed
+
+		if fw or bw then
+			self.sphereChain.speedOverrideTime = math.max(self.sphereChain.speedOverrideTime - dt, 0)
 		end
-		-- if it goes too far, nuke the powerup
-		if self:getLastSphereOffset() < 0 then self.sphereChain.reverseTime = 0 end
+
+		-- Reset the timer if the spheres are outside of the screen.
+		if not self.nextGroup and self:getLastSphereOffset() < 0 and speedDesired <= 0 then
+			self.sphereChain.speedOverrideTime = 0
+		end
+
+		if self.sphereChain.speedOverrideTime == 0 then
+			-- The time has elapsed, reset values.
+			self.sphereChain.speedOverrideBase = 0
+			self.sphereChain.speedOverrideMult = 1
+		end
 	end
 
 	for i = #self.spheres, 1, -1 do

@@ -14,9 +14,10 @@ function SphereChain:new(path, deserializationTable)
 	else
 		self.combo = 0
 
-		self.slowTime = 0
-		self.stopTime = 0
-		self.reverseTime = 0
+		self.speedOverrideBase = 0
+		self.speedOverrideMult = 1
+		self.speedOverrideDecc = 0
+		self.speedOverrideTime = 0
 
 		self.sphereGroups = {}
 		self.generationAllowed = self.path.spawnRules.type == "continuous"
@@ -209,9 +210,10 @@ end
 function SphereChain:serialize()
 	local t = {
 		combo = self.combo,
-		slowTime = self.slowTime,
-		stopTime = self.stopTime,
-		reverseTime = self.reverseTime,
+		speedOverrideBase = self.speedOverrideBase,
+		speedOverrideMult = self.speedOverrideMult,
+		speedOverrideDecc = self.speedOverrideDecc,
+		speedOverrideTime = self.speedOverrideTime,
 		sphereGroups = {},
 		generationAllowed = self.generationAllowed,
 		generationColor = self.generationColor
@@ -226,9 +228,10 @@ end
 
 function SphereChain:deserialize(t)
 	self.combo = t.combo
-	self.slowTime = t.slowTime
-	self.stopTime = t.stopTime
-	self.reverseTime = t.reverseTime
+	self.speedOverrideBase = t.speedOverrideBase
+	self.speedOverrideMult = t.speedOverrideMult
+	self.speedOverrideDecc = t.speedOverrideDecc
+	self.speedOverrideTime = t.speedOverrideTime
 	self.sphereGroups = {}
 	self.generationAllowed = t.generationAllowed
 	self.generationColor = t.generationColor
