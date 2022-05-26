@@ -35,7 +35,7 @@ function BonusScarab:update(dt)
 	if self.config.coinDistance then
 		while self.coinDistance < self.distance do
 			if self.coinDistance > 0 then
-				_Game.session.level:spawnCoin(self:getPos())
+				_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), self.config.coinGenerator)
 			end
 			self.coinDistance = self.coinDistance + self.config.coinDistance
 		end
@@ -62,7 +62,7 @@ function BonusScarab:explode()
 
 	_Game.session.level:grantScore(score)
 	_Game.session.level:spawnFloatingText(_NumStr(score) .. "\nBONUS", pos, self.config.scoreFont)
-	--_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), "bs_gems.json")
+	_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyGenerator)
 	_Game:spawnParticle(self.config.destroyParticle, pos)
 	_Game:playSound("sound_events/bonus_scarab.json", 1, pos)
 	self:destroy()
