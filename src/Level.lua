@@ -218,6 +218,10 @@ end
 
 
 function Level:spawnCollectiblesFromEntry(pos, entryName)
+	if not entryName then
+		return
+	end
+
 	local manager = _Game.configManager.collectibleGeneratorManager
 	local entry = manager:getEntry(entryName)
 	local collectibles = entry:generate()
