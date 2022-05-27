@@ -24,6 +24,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.boostCombo = false
 		self.shootOrigin = nil
 		self.shootTime = nil
+		self.effects = {}
 	end
 
 	self:loadConfig()
@@ -58,9 +59,46 @@ function Sphere:update(dt)
 			else
 				self.map.level.combo = 0
 			end
-			if self.sphereGroup:shouldMatch(index) then self.sphereGroup:matchAndDelete(index) end
+			-- DEBUG: apply effect.
+			self:applyEffect("poison")
+			if self.sphereGroup:shouldMatch(index) then
+				self.sphereGroup:matchAndDelete(index)
+			end
 		end
 	end
+
+	-- Update the effects.
+	for i, effect in ipairs(self.effects) do
+		-- Load a configuration for the given effect.
+		local effectConfig = _Game.configManager.sphereEffects[effect.name]
+		-- Update particle position.
+		effect.particle.pos = self:getPos()
+		-- If it has to infect...
+		if effect.infectionSize > 0 then
+			-- Tick the infection timer.
+			effect.infectionTime = effect.infectionTime - dt
+			-- If the timer elapses, infect neighbors.
+			if effect.infectionTime <= 0 then
+				effect.infectionTime = effect.infectionTime + effectConfig.infection_time
+				effect.infectionSize = effect.infectionSize - 1
+				if self.prevSphere and self.prevSphere.color ~= 0 then -- TODO: make a sphere tag in order to determine which spheres to infect.
+					self.prevSphere:applyEffect(effect.name, effect.infectionSize)
+				end
+				if self.nextSphere and self.nextSphere.color ~= 0 then -- TODO: as above.
+					self.nextSphere:applyEffect(effect.name, effect.infectionSize)
+				end
+			end
+		else
+			-- Tick the timer.
+			effect.time = effect.time - dt
+			-- If the timer elapses, destroy this sphere.
+			if effect.time <= 0 then
+				self.sphereGroup:destroySphere(self.sphereGroup:getSphereID(self))
+				self.map.level:grantScore(100)
+			end
+		end
+	end
+
 	-- if the sphere was flagged as it was a part of a combo but got obstructed then it's unflagged
 	if self.boostCombo then
 		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) then self.boostCombo = false end
@@ -95,25 +133,76 @@ function Sphere:changeColor(color, particle)
 	end
 end
 
+
+
+-- Removes this sphere.
+-- Warning! The removal of the sphere itself is done in SphereGroup.lua!
+-- Please do not call this function if you want to remove this sphere from the board.
 function Sphere:delete()
-	if self.delQueue then return end
+	if self.delQueue then
+		return
+	end
+
 	self.delQueue = true
-	if not self.map.isDummy and self.color ~= 0 then self.map.level:destroySphere() end
-	-- update links !!!
+	-- Increment sphere collapse count.
+	if not self.map.isDummy and self.color ~= 0 then
+		self.map.level:destroySphere()
+	end
+	-- Update links !!!
 	if self.prevSphere then self.prevSphere.nextSphere = self.nextSphere end
 	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
-	-- update color count
+	-- Update color count.
 	if not self.map.isDummy and self.color > 0 then
-		_Game.session.colorManager:decrement(self.color)
-		if self.danger then
-			_Game.session.colorManager:decrement(self.color, true)
-		end
+		_Game.session.colorManager:decrement(self.color, self.danger)
 	end
-	-- particles
+	-- Spawn particles.
 	if not self.map.isDummy and (not self.map.level.lost or self.color == 0) then
 		_Game:spawnParticle(_Game.configManager.spheres[self.color].destroyParticle, self:getPos())
 	end
+	-- Remove all effect particles.
+	for i, effect in ipairs(self.effects) do
+		effect.particle:destroy()
+	end
 end
+
+
+
+-- Applies an effect to this sphere.
+function Sphere:applyEffect(name, infectionSize)
+	-- Don't allow a single sphere to have the same effect applied twice.
+	if self:hasEffect(name) then
+		return
+	end
+
+	-- Load a configuration for the given effect.
+	local effectConfig = _Game.configManager.sphereEffects[name]
+	-- Prepare effect data and insert it.
+	local effect = {
+		name = name,
+		time = effectConfig.time,
+		infectionSize = infectionSize or effectConfig.infection_size,
+		infectionTime = effectConfig.infection_time,
+		particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+	}
+	table.insert(self.effects, effect)
+	-- Sound effect.
+	_Game:playSound(effectConfig.apply_sound, 1, self:getPos())
+end
+
+
+
+-- Returns true if this sphere has already that effect applied.
+function Sphere:hasEffect(name)
+	for i, effect in ipairs(self.effects) do
+		if effect.name == name then
+			return true
+		end
+	end
+
+	return false
+end
+
+
 
 function Sphere:getFrame()
 	return ((self.frameOffset + self.offset + self.sphereGroup.offset) * self.frameCount / 32) % self.frameCount
@@ -192,10 +281,27 @@ function Sphere:serialize()
 		color = self.color,
 		--frameOffset = self.frameOffset, -- who cares about that, you can uncomment this if you do
 		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil,
-		shootTime = self.shootTime
+		shootTime = self.shootTime,
+		effects = {}
 	}
-	if self.size ~= 1 then t.size = self.size end
-	if self.boostCombo then t.boostCombo = self.boostCombo end
+
+	if self.size ~= 1 then
+		t.size = self.size
+	end
+	if self.boostCombo then
+		t.boostCombo = self.boostCombo
+	end
+
+	for i, effect in ipairs(self.effects) do
+		local tt = {
+			name = effect.name,
+			time = effect.time,
+			infectionSize = effect.infectionSize,
+			infectionTime = effect.infectionTime
+		}
+		table.insert(t.effects, tt)
+	end
+
 	return t
 end
 
@@ -206,6 +312,19 @@ function Sphere:deserialize(t)
 	self.boostCombo = t.boostCombo or false
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
 	self.shootTime = t.shootTime
+
+	self.effects = {}
+	for i, effect in ipairs(t.effects) do
+		local effectConfig = _Game.configManager.sphereEffects[effect.name]
+		local e = {
+			name = effect.name,
+			time = effect.time,
+			infectionSize = effect.infectionSize,
+			infectionTime = effect.infectionTime,
+			particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+		}
+		table.insert(self.effects, e)
+	end
 end
 
 return Sphere

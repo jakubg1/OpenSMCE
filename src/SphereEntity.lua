@@ -43,12 +43,16 @@ function SphereEntity:setColor(color)
 end
 
 function SphereEntity:destroy(spawnParticle)
-	if spawnParticle == nil then spawnParticle = true end
+	if spawnParticle == nil then
+		spawnParticle = true
+	end
 	if self.particle then
 		self.particle:destroy()
 		self.particle = nil
 	end
-	if spawnParticle and self.config.destroyParticle then _Game:spawnParticle(self.config.destroyParticle, self.pos) end
+	if spawnParticle and self.config.destroyParticle then
+		_Game:spawnParticle(self.config.destroyParticle, self.pos)
+	end
 end
 
 
