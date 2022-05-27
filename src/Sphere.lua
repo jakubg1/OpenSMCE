@@ -82,10 +82,11 @@ function Sphere:update(dt)
 				effect.infectionTime = effect.infectionTime + effectConfig.infection_time
 				effect.infectionSize = effect.infectionSize - 1
 				if self.prevSphere and self.prevSphere.color ~= 0 then -- TODO: make a sphere tag in order to determine which spheres to infect.
-					self.prevSphere:applyEffect(effect.name, effect.infectionSize)
+					self.prevSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime)
 				end
 				if self.nextSphere and self.nextSphere.color ~= 0 then -- TODO: as above.
-					self.nextSphere:applyEffect(effect.name, effect.infectionSize)
+					-- We need to compensate the time for the next sphere, because it will be updated in this tick!
+					self.nextSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime + dt)
 				end
 			end
 		else
@@ -168,7 +169,7 @@ end
 
 
 -- Applies an effect to this sphere.
-function Sphere:applyEffect(name, infectionSize)
+function Sphere:applyEffect(name, infectionSize, infectionTime)
 	-- Don't allow a single sphere to have the same effect applied twice.
 	if self:hasEffect(name) then
 		return
@@ -181,7 +182,7 @@ function Sphere:applyEffect(name, infectionSize)
 		name = name,
 		time = effectConfig.time,
 		infectionSize = infectionSize or effectConfig.infection_size,
-		infectionTime = effectConfig.infection_time,
+		infectionTime = infectionTime or effectConfig.infection_time,
 		particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
 	}
 	table.insert(self.effects, effect)
@@ -256,6 +257,11 @@ function Sphere:draw(color, hidden, shadow)
 			frame = Vec2(math.ceil(self.frameCount - self:getFrame()), 1)
 		end
 		self.sprite:draw(pos, Vec2(0.5), nil, frame, angle, self:getColor())
+		--if self.effects[1] then
+		--	local p = _PosOnScreen(pos)
+		--	love.graphics.print(string.format("%.3f", self.effects[1].infectionTime), p.x - 20, p.y + 20)
+		--	love.graphics.print(string.format("%.3f", self.effects[1].time), p.x - 20, p.y + 35)
+		--end
 	end
 end
 

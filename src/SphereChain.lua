@@ -46,9 +46,15 @@ end
 function SphereChain:update(dt)
 	--print(self:getDebugText())
 	-- Update all sphere groups.
-	for i, sphereGroup in ipairs(self.sphereGroups) do
+	-- Ultra-Safe Loop (TM)
+	local i = 1
+	while self.sphereGroups[i] do
+		local sphereGroup = self.sphereGroups[i]
 		if not sphereGroup.delQueue then
 			sphereGroup:update(dt)
+		end
+		if self.sphereGroups[i] == sphereGroup then
+			i = i + 1
 		end
 	end
 	-- Update max offset.

@@ -138,8 +138,16 @@ function SphereGroup:update(dt)
 		end
 	end
 
-	for i, sphere in ipairs(self.spheres) do
-		if not sphere.delQueue then sphere:update(dt) end
+	-- Ultra-Safe Loop (TM)
+	local i = 1
+	while self.spheres[i] do
+		local sphere = self.spheres[i]
+		if not sphere.delQueue then
+			sphere:update(dt)
+		end
+		if self.spheres[i] == sphere then
+			i = i + 1
+		end
 	end
 end
 
