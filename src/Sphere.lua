@@ -5,6 +5,7 @@ local Sphere = class:derive("Sphere")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
+local SphereEntity = require("src/SphereEntity")
 
 function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime)
 	self.sphereGroup = sphereGroup
@@ -14,12 +15,12 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 	-- these two are filled by the sphere group object
 	self.prevSphere = nil
 	self.nextSphere = nil
+	self.offset = 0
 
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
 		self.color = color
-		self.offset = 0
 		self.size = 1
 		self.boostCombo = false
 		self.shootOrigin = nil
@@ -42,6 +43,8 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 
 	self.danger = false
 
+	self.entity = SphereEntity(self:getPos(), self.color)
+
 	self.delQueue = false
 end
 
@@ -60,7 +63,7 @@ function Sphere:update(dt)
 				self.map.level.combo = 0
 			end
 			-- DEBUG: apply effect.
-			self:applyEffect("poison")
+			--self:applyEffect("poison")
 			if self.sphereGroup:shouldMatch(index) then
 				self.sphereGroup:matchAndDelete(index)
 			end
@@ -154,12 +157,13 @@ function Sphere:delete()
 	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
 	-- Update color count.
 	if not self.map.isDummy and self.color > 0 then
-		_Game.session.colorManager:decrement(self.color, self.danger)
+		_Game.session.colorManager:decrement(self.color)
+		if self.danger then
+			_Game.session.colorManager:decrement(self.color, true)
+		end
 	end
-	-- Spawn particles.
-	if not self.map.isDummy and (not self.map.level.lost or self.color == 0) then
-		_Game:spawnParticle(_Game.configManager.spheres[self.color].destroyParticle, self:getPos())
-	end
+	-- Remove the entity.
+	self.entity:destroy()
 	-- Remove all effect particles.
 	for i, effect in ipairs(self.effects) do
 		effect.particle:destroy()
@@ -247,22 +251,23 @@ function Sphere:draw(color, hidden, shadow)
 	end
 
 	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
-	if shadow then
-		self.shadowSprite:draw(pos + Vec2(4), Vec2(0.5), nil, nil, angle)
-	else
-		local frame = Vec2(1)
-		if self.config.spriteAnimationSpeed then
-			frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
-		elseif self.size == 1 then
-			frame = Vec2(math.ceil(self.frameCount - self:getFrame()), 1)
-		end
-		self.sprite:draw(pos, Vec2(0.5), nil, frame, angle, self:getColor())
-		--if self.effects[1] then
-		--	local p = _PosOnScreen(pos)
-		--	love.graphics.print(string.format("%.3f", self.effects[1].infectionTime), p.x - 20, p.y + 20)
-		--	love.graphics.print(string.format("%.3f", self.effects[1].time), p.x - 20, p.y + 35)
-		--end
+
+	local frame = Vec2(1)
+	if self.config.spriteAnimationSpeed then
+		frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
+	elseif self.size == 1 then
+		frame = Vec2(math.ceil(self.frameCount - self:getFrame()), 1)
 	end
+
+	local colorM = self:getColor()
+
+	-- Update the entity position.
+	self.entity:setPos(pos)
+	self.entity:setAngle(angle)
+	self.entity:setFrame(frame)
+	self.entity:setColorM(colorM)
+
+	self.entity:draw(shadow)
 end
 
 
@@ -326,8 +331,8 @@ function Sphere:deserialize(t)
 			name = effect.name,
 			time = effect.time,
 			infectionSize = effect.infectionSize,
-			infectionTime = effect.infectionTime,
-			particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+			infectionTime = effect.infectionTime
+			--particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
 		}
 		table.insert(self.effects, e)
 	end

@@ -5,11 +5,11 @@ local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
 function SphereEntity:new(pos, color)
-	self.color = color
 	self.pos = pos
 	self.angle = 0
-	self.frame = 0
+	self.frame = Vec2(1)
 	self.colorM = Color()
+	self.color = color
 
 	self.config = _Game.configManager.spheres[color]
 
@@ -20,6 +20,7 @@ end
 
 
 
+-- Moves the sphere entity to a given location.
 function SphereEntity:setPos(pos)
 	self.pos = pos
 	if self.particle then
@@ -27,6 +28,30 @@ function SphereEntity:setPos(pos)
 	end
 end
 
+
+
+-- Rotates the sphere entity to a given angle.
+function SphereEntity:setAngle(angle)
+	self.angle = angle
+end
+
+
+
+-- Sets the frame of this sphere entity to be displayed.
+function SphereEntity:setFrame(frame)
+	self.frame = frame
+end
+
+
+
+-- Sets the color modifier of this sphere entity.
+function SphereEntity:setColorM(colorM)
+	self.colorM = colorM
+end
+
+
+
+-- Changes the color of this sphere entity.
 function SphereEntity:setColor(color)
 	self.color = color
 	self.config = _Game.configManager.spheres[color]
@@ -42,6 +67,9 @@ function SphereEntity:setColor(color)
 	end
 end
 
+
+
+-- Destroys this sphere entity, optionally emitting destruction particles.
 function SphereEntity:destroy(spawnParticle)
 	if spawnParticle == nil then
 		spawnParticle = true

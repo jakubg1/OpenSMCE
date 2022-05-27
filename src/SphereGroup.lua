@@ -188,6 +188,7 @@ function SphereGroup:addSphere(color, pos, time, position)
 		self.offset = self.offset - 32
 		self:updateSphereOffsets()
 	end
+	sphere:updateOffset()
 end
 
 
