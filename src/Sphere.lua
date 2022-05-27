@@ -163,7 +163,7 @@ function Sphere:delete()
 		end
 	end
 	-- Remove the entity.
-	self.entity:destroy()
+	self.entity:destroy(not ((self.map.level.lost or self.map.isDummy) and self:getOffset() >= self.path.length))
 	-- Remove all effect particles.
 	for i, effect in ipairs(self.effects) do
 		effect.particle:destroy()
