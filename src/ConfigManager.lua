@@ -49,12 +49,13 @@ function ConfigManager:new()
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
 
 	-- Load sphere data.
-	-- Note the sphere IDs are converted from strings to numbers.
-	-- This is because JSON can't do sparse arrays.
 	self.spheres = {}
-	local configSpheres = _LoadJson(_ParsePath("config/spheres.json"))
-	for k, v in pairs(configSpheres) do
-		self.spheres[tonumber(k)] = v
+	local sphereList = _GetDirListing(_ParsePath("config/spheres"), "file")
+	for i, path in ipairs(sphereList) do
+		local id = tonumber(string.sub(path, 8, -5))
+		print("Loading sphere " .. tostring(id) .. ", " .. tostring(path))
+		local sphere = _LoadJson(_ParsePath("config/spheres/" .. path))
+		self.spheres[id] = sphere
 	end
 
 	-- Load level and map data.
@@ -63,7 +64,7 @@ function ConfigManager:new()
 	local levelList = _GetDirListing(_ParsePath("config/levels"), "file")
 	for i, path in ipairs(levelList) do
 		local id = tonumber(string.sub(path, 7, -5))
-		print("Loading level" .. tostring(id) .. ", " .. tostring(path))
+		print("Loading level " .. tostring(id) .. ", " .. tostring(path))
 		local level = _LoadJson(_ParsePath("config/levels/" .. path))
 		self.levels[id] = level
 		-- Load map data only if it hasn't been loaded yet.
