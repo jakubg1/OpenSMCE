@@ -296,6 +296,8 @@ function Level:applyEffect(effect, TMP_pos)
 	elseif effect.type == "changeGameSpeed" then
 		self.gameSpeed = effect.speed
 		self.gameSpeedTime = effect.duration
+	elseif effect.type == "setCombo" then
+		self.combo = effect.combo
 	elseif effect.type == "grantScore" then
 		self:grantScore(effect.score)
 		self:spawnFloatingText(_NumStr(effect.score), TMP_pos, "fonts/score0.json")

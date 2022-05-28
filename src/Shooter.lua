@@ -175,13 +175,15 @@ function Shooter:shoot()
 		-- lightning spheres are not shot, they're deployed instantly
 		_Game:spawnParticle(sphereConfig.destroyParticle, self:spherePos())
 		_Game.session:destroyVerticalColor(self.pos.x, sphereConfig.shootBehavior.range, self.color)
-		if sphereConfig.shootBehavior.resetCombo then
-			_Game.session.level.combo = 0 -- cuz that's how it works
-		end
 	else
 		_Game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
 		self.sphereEntity = nil
 		self.active = false
+	end
+	if sphereConfig.shootEffects then
+		for i, effect in ipairs(sphereConfig.shootEffects) do
+			_Game.session.level:applyEffect(effect)
+		end
 	end
 	_Game:playSound(sphereConfig.shootSound, 1, self.pos)
 	self.color = 0
