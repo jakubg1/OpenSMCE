@@ -495,6 +495,7 @@ function SphereGroup:matchAndDelete(position)
 	end
 	score = score * self.sphereChain.combo
 	self.map.level:grantScore(score)
+	self.sphereChain.comboScore = self.sphereChain.comboScore + score
 
 	local scoreText = _NumStr(score)
 	if boostCombo and self.map.level.combo > 2 then

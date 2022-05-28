@@ -13,6 +13,7 @@ function SphereChain:new(path, deserializationTable)
 		self:deserialize(deserializationTable)
 	else
 		self.combo = 0
+		self.comboScore = 0
 
 		self.speedOverrideBase = 0
 		self.speedOverrideMult = 1
@@ -72,7 +73,7 @@ function SphereChain:update(dt)
 	end
 	-- Reset combo if necessary.
 	if not self:isMatchPredicted() then
-		self.combo = 0
+		self:endCombo()
 	end
 end
 
@@ -99,6 +100,19 @@ function SphereChain:isMatchPredicted()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
 		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres()) then return true end
 	end
+end
+
+function SphereChain:endCombo()
+	if self.combo == 0 then
+		return
+	end
+	--print(self.comboScore)
+	_Game.uiManager:executeCallback({
+		name = "comboEnded",
+		parameters = {combo, comboScore}
+	})
+	self.combo = 0
+	self.comboScore = 0
 end
 
 function SphereChain:join()
@@ -216,6 +230,7 @@ end
 function SphereChain:serialize()
 	local t = {
 		combo = self.combo,
+		comboScore = self.comboScore,
 		speedOverrideBase = self.speedOverrideBase,
 		speedOverrideMult = self.speedOverrideMult,
 		speedOverrideDecc = self.speedOverrideDecc,
@@ -234,6 +249,7 @@ end
 
 function SphereChain:deserialize(t)
 	self.combo = t.combo
+	self.comboScore = t.comboScore
 	self.speedOverrideBase = t.speedOverrideBase
 	self.speedOverrideMult = t.speedOverrideMult
 	self.speedOverrideDecc = t.speedOverrideDecc
