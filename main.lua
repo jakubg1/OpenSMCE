@@ -216,7 +216,8 @@ end
 function _LoadJson(path)
 	local contents = _LoadFile(path)
 	assert(contents, string.format("Could not JSON-decode: %s, file does not exist", path))
-	local data = json.decode(contents)
+	local success, data = pcall(function() return json.decode(contents) end)
+	assert(success, string.format("Could not JSON-decode: %s: %s", path, data))
 	assert(data, string.format("Could not JSON-decode: %s, error in file contents", path))
 	return data
 end
