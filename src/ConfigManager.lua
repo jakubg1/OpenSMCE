@@ -50,7 +50,7 @@ function ConfigManager:new()
 
 	-- Load sphere data.
 	self.spheres = {}
-	local sphereList = _GetDirListing(_ParsePath("config/spheres"), "file")
+	local sphereList = _GetDirListing(_ParsePath("config/spheres"), "file", "json")
 	for i, path in ipairs(sphereList) do
 		local id = tonumber(string.sub(path, 8, -5))
 		print("Loading sphere " .. tostring(id) .. ", " .. tostring(path))
@@ -61,7 +61,7 @@ function ConfigManager:new()
 	-- Load level and map data.
 	self.levels = {}
 	self.maps = {}
-	local levelList = _GetDirListing(_ParsePath("config/levels"), "file")
+	local levelList = _GetDirListing(_ParsePath("config/levels"), "file", "json")
 	for i, path in ipairs(levelList) do
 		local id = tonumber(string.sub(path, 7, -5))
 		print("Loading level " .. tostring(id) .. ", " .. tostring(path))
