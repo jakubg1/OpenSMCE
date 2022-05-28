@@ -109,7 +109,7 @@ function SphereChain:endCombo()
 	--print(self.comboScore)
 	_Game.uiManager:executeCallback({
 		name = "comboEnded",
-		parameters = {combo, comboScore}
+		parameters = {self.combo, self.comboScore}
 	})
 	self.combo = 0
 	self.comboScore = 0
