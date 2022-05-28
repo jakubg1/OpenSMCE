@@ -43,17 +43,26 @@ function ConfigManager:new()
 	self.hudLayerOrder = _LoadJson(_ParsePath("config/hud_layer_order.json"))
 	self.levelSet = _LoadJson(_ParsePath("config/level_set.json"))
 	self.music = _LoadJson(_ParsePath("config/music.json"))
-	self.collectibles = _LoadJson(_ParsePath("config/collectibles.json"))
 	self.sphereEffects = _LoadJson(_ParsePath("config/sphere_effects.json"))
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
+
+	-- Load collectible data.
+	self.collectibles = {}
+	local collectibleList = _GetDirListing(_ParsePath("config/collectibles"), "file", "json")
+	for i, path in ipairs(collectibleList) do
+		local id = string.sub(path, 1, -6)
+		print("[ConfigManager] Loading collectible " .. tostring(id) .. ", " .. tostring(path))
+		local collectible = _LoadJson(_ParsePath("config/collectibles/" .. path))
+		self.collectibles[id] = collectible
+	end
 
 	-- Load sphere data.
 	self.spheres = {}
 	local sphereList = _GetDirListing(_ParsePath("config/spheres"), "file", "json")
 	for i, path in ipairs(sphereList) do
-		local id = tonumber(string.sub(path, 8, -5))
-		print("Loading sphere " .. tostring(id) .. ", " .. tostring(path))
+		local id = tonumber(string.sub(path, 8, -6))
+		print("[ConfigManager] Loading sphere " .. tostring(id) .. ", " .. tostring(path))
 		local sphere = _LoadJson(_ParsePath("config/spheres/" .. path))
 		self.spheres[id] = sphere
 	end
@@ -63,13 +72,13 @@ function ConfigManager:new()
 	self.maps = {}
 	local levelList = _GetDirListing(_ParsePath("config/levels"), "file", "json")
 	for i, path in ipairs(levelList) do
-		local id = tonumber(string.sub(path, 7, -5))
-		print("Loading level " .. tostring(id) .. ", " .. tostring(path))
+		local id = tonumber(string.sub(path, 7, -6))
+		print("[ConfigManager] Loading level " .. tostring(id) .. ", " .. tostring(path))
 		local level = _LoadJson(_ParsePath("config/levels/" .. path))
 		self.levels[id] = level
 		-- Load map data only if it hasn't been loaded yet.
 		if not self.maps[level.map] then
-			print("Loading map " .. level.map)
+			print("[ConfigManager] Loading map " .. level.map)
 			self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
 		end
 	end

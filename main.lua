@@ -308,7 +308,7 @@ function _GetDirListing(path, filter, extFilter, recursive, pathRec)
 				end
 			end
 		else
-			if filter == "all" or filter == "file" and (not extFilter or item:sub(item:len() - extFilter:len(), item:len()) == extFilter) then
+			if filter == "all" or filter == "file" and (not extFilter or item:sub(item:len() - extFilter:len() + 1) == extFilter) then
 				table.insert(result, pathRec .. item)
 			end
 		end
