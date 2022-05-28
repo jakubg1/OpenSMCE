@@ -131,6 +131,7 @@ function Sphere:changeColor(color, particle)
 	_Game.session.colorManager:decrement(self.color)
 	_Game.session.colorManager:increment(color)
 	self.color = color
+	self.entity:setColor(color)
 	self:loadConfig()
 	if particle then
 		_Game:spawnParticle(particle, self:getPos())
