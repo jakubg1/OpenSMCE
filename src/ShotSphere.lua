@@ -94,7 +94,7 @@ function ShotSphere:moveStep()
 			local d = (self.pos - p):len()
 			-- calculate time
 			self.hitTimeMax = d / self.speed * 5
-			self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.hitSphere.sphereID)
+			self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects)
 			badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 		end
 		if shotCancelled then

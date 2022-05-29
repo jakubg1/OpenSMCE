@@ -171,10 +171,11 @@ end
 
 
 
-function SphereGroup:addSphere(color, pos, time, position)
+function SphereGroup:addSphere(color, pos, time, position, effects)
 	-- pos - position in where was the shot sphere,
 	-- time - how long will that sphere "grow" until it's completely in its place,
 	-- position - sphere ID (the new sphere will gain the given ID = creation BEHIND the sphere with the given ID)
+	-- effects - a list of effects to apply
 	local sphere = Sphere(self, nil, color, pos, time)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
@@ -183,6 +184,11 @@ function SphereGroup:addSphere(color, pos, time, position)
 	if prevSphere then prevSphere.nextSphere = sphere end
 	if nextSphere then nextSphere.prevSphere = sphere end
 	table.insert(self.spheres, position, sphere)
+	if effects then
+		for i, effect in ipairs(effects) do
+			sphere:applyEffect(effect)
+		end
+	end
 	-- if it's a first sphere in the group, lower the offset
 	if position == 1 then
 		self.offset = self.offset - 32
