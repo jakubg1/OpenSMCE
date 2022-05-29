@@ -44,6 +44,7 @@ function ConfigManager:new()
 	self.levelSet = _LoadJson(_ParsePath("config/level_set.json"))
 	self.music = _LoadJson(_ParsePath("config/music.json"))
 	self.sphereEffects = _LoadJson(_ParsePath("config/sphere_effects.json"))
+	self.colorGenerators = _LoadJson(_ParsePath("config/color_generators.json"))
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
 

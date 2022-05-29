@@ -19,6 +19,9 @@ function Level:new(data)
 	self.gemGenerator = data.gemGenerator
 	self.target = data.target
 
+	self.colorGeneratorNormal = data.colorGeneratorNormal
+	self.colorGeneratorDanger = data.colorGeneratorDanger
+
 	self.musicName = data.music
 	self.dangerMusicName = data.dangerMusic
 
@@ -348,6 +351,71 @@ end
 
 
 
+-- Returns currently used color generator data.
+function Level:getCurrentColorGenerator()
+	if self.danger then
+		return _Game.configManager.colorGenerators[self.colorGeneratorDanger]
+	else
+		return _Game.configManager.colorGenerators[self.colorGeneratorNormal]
+	end
+end
+
+
+
+-- Generates a new color for the Shooter.
+function Level:getNewShooterColor()
+	local data = self:getCurrentColorGenerator()
+	if data.type == "random" then
+		-- Make a pool with colors which are on the board.
+		local pool = {}
+		for i, color in ipairs(data.colors) do
+			if not data.has_to_exist or _Game.session.colorManager:isColorExistent(color) then
+				table.insert(pool, color)
+			end
+		end
+		-- Return a random item from the pool.
+		if #pool > 0 then
+			return pool[math.random(#pool)]
+		end
+		-- Else, return a fallback value.
+		return data.fallback
+	elseif data.type == "near_end" then
+		-- Select a random path.
+		local path = _Game.session.level:getRandomPath(true, data.paths_in_danger_only)
+		if not path:getEmpty() then
+			-- Get a SphereChain nearest to the pyramid
+			local sphereChain = path.sphereChains[1]
+			-- Iterate through all groups and then spheres in each group
+			local lastGoodColor = nil
+			-- reverse iteration!!!
+			for i, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for j = #sphereGroup.spheres, 1, -1 do
+					local sphere = sphereGroup.spheres[j]
+					local color = sphere.color
+					-- If this color is generatable, check if we're lucky this time.
+					if _MathIsValueInTable(data.colors, color) then
+						if math.random() < data.select_chance then
+							return color
+						end
+						-- Save this color in case if no more spheres are left.
+						lastGoodColor = color
+					end
+				end
+			end
+			-- no more spheres left, get the last good one if exists
+			if lastGoodColor then
+				return lastGoodColor
+			end
+		end
+		-- Else, return a fallback value.
+		return data.fallback
+	end
+end
+
+
+
+
+
 function Level:getEmpty()
 	for i, path in ipairs(self.map.paths.objects) do
 		if not path:getEmpty() then return false end
@@ -392,6 +460,32 @@ function Level:getMostDangerousPath()
 		end
 	end
 	return mostDangerousPath
+end
+
+-- Returns a randomly selected path.
+-- If notEmpty is set to true, it will prioritize paths which are not empty.
+-- If inDanger is set to true, it will prioritize paths which are in danger.
+function Level:getRandomPath(notEmpty, inDanger)
+	-- Set up a pool of paths.
+	local paths = self.map.paths
+	local pool = {}
+	for i = 1, paths:size() do
+		local path = paths:get(i)
+		-- Insert a path into the pool if it meets the criteria.
+		if not (notEmpty and path:getEmpty()) and not (inDanger and not path:isInDanger()) then
+			table.insert(pool, path)
+		end
+	end
+	-- If any path meets the criteria, pick a random one.
+	if #pool > 0 then
+		return pool[math.random(#pool)]
+	end
+	-- Else, loosen the criteria.
+	if inDanger then
+		return self:getRandomPath(notEmpty, false)
+	else
+		return self:getRandomPath()
+	end
 end
 
 function Level:hasNoMoreSpheres()

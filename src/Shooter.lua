@@ -53,9 +53,14 @@ function Shooter:update(dt)
 
 	-- filling
 	if self.active then
-		-- remove inexistant colors
-		if not _Game.session.colorManager:isColorExistent(self.color) then self:setColor(0) end
-		if not _Game.session.colorManager:isColorExistent(self.nextColor) then self:setNextColor(0) end
+		-- remove nonexistent colors, but only if the current color generator allows removing these colors
+		local remTable = _Game.session.level:getCurrentColorGenerator().colors_remove_if_nonexistent
+		if _MathIsValueInTable(remTable, self.color) and not _Game.session.colorManager:isColorExistent(self.color) then
+			self:setColor(0)
+		end
+		if _MathIsValueInTable(remTable, self.nextColor) and not _Game.session.colorManager:isColorExistent(self.nextColor) then
+			self:setNextColor(0)
+		end
 		self:fill()
 	end
 
@@ -144,7 +149,7 @@ end
 
 function Shooter:getNextColor()
 	if self.multiColorCount == 0 then
-		return _Game.session.colorManager:pickColor()
+		return _Game.session.level:getNewShooterColor()
 	else
 		self.multiColorCount = self.multiColorCount - 1
 		return self.multiColorColor
