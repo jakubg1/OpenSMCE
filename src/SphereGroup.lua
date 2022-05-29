@@ -528,6 +528,30 @@ end
 
 
 
+-- Similar to the one above, because it also grants score and destroys spheres collectively, however the bounds are based on an effect.
+function SphereGroup:matchAndDeleteEffect(position, effect)
+	local position1, position2 = self:getEffectBounds(position, effect)
+	local length = (position2 - position1 + 1)
+	local effectConfig = _Game.configManager.sphereEffects[effect]
+
+	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
+	self:destroySpheres(position1, position2)
+
+	_Game:playSound(effectConfig.destroy_sound, 1, pos)
+	if self.sphereChain.combo == 0 then
+		self.sphereChain.combo = self.sphereChain.combo + 1
+	end
+
+	local score = length * 100
+	self.map.level:grantScore(score)
+	self.sphereChain.comboScore = self.sphereChain.comboScore + score
+
+	local scoreText = _NumStr(score)
+	self.map.level:spawnFloatingText(scoreText, pos, effectConfig.destroy_font)
+end
+
+
+
 function SphereGroup:isMagnetizing()
 	--print("----- " .. (self.prevGroup and self.prevGroup:getDebugText() or "xxx") .. " -> " .. self:getDebugText() .. " -> " .. (self.nextGroup and self.nextGroup:getDebugText() or "xxx"))
 	--print("----- " .. tostring(self.sphereChain:getSphereGroupID(self.prevGroup)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self.nextGroup)))
@@ -632,6 +656,31 @@ function SphereGroup:getMatchBounds(position)
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
 		if not self.spheres[position2] or not _Game.session:colorsMatch(self.spheres[position2].color, self.spheres[position2 - 1].color) then
+			break
+		end
+	end
+	return position1 + 1, position2 - 1
+end
+
+
+
+function SphereGroup:getEffectBounds(position, effect)
+	local position1 = position
+	local position2 = position
+	local color = self.spheres[position].color
+	-- seek backwards
+	while true do
+		position1 = position1 - 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self.spheres[position1] or not self.spheres[position1]:hasEffect(effect) then
+			break
+		end
+	end
+	-- seek forwards
+	while true do
+		position2 = position2 + 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self.spheres[position2] or not self.spheres[position2]:hasEffect(effect) then
 			break
 		end
 	end

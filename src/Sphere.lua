@@ -62,8 +62,6 @@ function Sphere:update(dt)
 			else
 				self.map.level.combo = 0
 			end
-			-- DEBUG: apply effect.
-			--self:applyEffect("poison")
 			if self.sphereGroup:shouldMatch(index) then
 				self.sphereGroup:matchAndDelete(index)
 			end
@@ -97,8 +95,7 @@ function Sphere:update(dt)
 			effect.time = effect.time - dt
 			-- If the timer elapses, destroy this sphere.
 			if effect.time <= 0 then
-				self.sphereGroup:destroySphere(self.sphereGroup:getSphereID(self))
-				self.map.level:grantScore(100)
+				self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), effect.name)
 			end
 		end
 	end
