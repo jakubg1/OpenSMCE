@@ -4,9 +4,11 @@ body {
 }
 
 #banner {
-	background-color: #2020A0;
+	background-color: #092977;
 	height: 150px;
+	width: 50%;
 	color: white;
+	float: left;
 }
 
 #navigation {
