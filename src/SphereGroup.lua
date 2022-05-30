@@ -538,9 +538,6 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	self:destroySpheres(position1, position2)
 
 	_Game:playSound(effectConfig.destroy_sound, 1, pos)
-	if self.sphereChain.combo == 0 then
-		self.sphereChain.combo = self.sphereChain.combo + 1
-	end
 
 	local score = length * 100
 	self.map.level:grantScore(score)

@@ -103,7 +103,7 @@ function SphereChain:isMatchPredicted()
 end
 
 function SphereChain:endCombo()
-	if self.combo == 0 then
+	if self.combo == 0 and self.comboScore == 0 then
 		return
 	end
 	_Debug.console:print(self.comboScore)
