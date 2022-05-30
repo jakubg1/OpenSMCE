@@ -43,30 +43,13 @@ function ConfigManager:new()
 	self.hudLayerOrder = _LoadJson(_ParsePath("config/hud_layer_order.json"))
 	self.levelSet = _LoadJson(_ParsePath("config/level_set.json"))
 	self.music = _LoadJson(_ParsePath("config/music.json"))
-	self.sphereEffects = _LoadJson(_ParsePath("config/sphere_effects.json"))
-	self.colorGenerators = _LoadJson(_ParsePath("config/color_generators.json"))
+
+	self.collectibles = self:loadFolder("config/collectibles", "collectible")
+	self.spheres = self:loadFolder("config/spheres", "sphere", true)
+	self.sphereEffects = self:loadFolder("config/sphere_effects", "sphere effect")
+	self.colorGenerators = self:loadFolder("config/color_generators", "color generator")
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
-
-	-- Load collectible data.
-	self.collectibles = {}
-	local collectibleList = _GetDirListing(_ParsePath("config/collectibles"), "file", "json")
-	for i, path in ipairs(collectibleList) do
-		local id = string.sub(path, 1, -6)
-		print("[ConfigManager] Loading collectible " .. tostring(id) .. ", " .. tostring(path))
-		local collectible = _LoadJson(_ParsePath("config/collectibles/" .. path))
-		self.collectibles[id] = collectible
-	end
-
-	-- Load sphere data.
-	self.spheres = {}
-	local sphereList = _GetDirListing(_ParsePath("config/spheres"), "file", "json")
-	for i, path in ipairs(sphereList) do
-		local id = tonumber(string.sub(path, 8, -6))
-		print("[ConfigManager] Loading sphere " .. tostring(id) .. ", " .. tostring(path))
-		local sphere = _LoadJson(_ParsePath("config/spheres/" .. path))
-		self.spheres[id] = sphere
-	end
 
 	-- Load level and map data.
 	self.levels = {}
@@ -83,6 +66,26 @@ function ConfigManager:new()
 			self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
 		end
 	end
+end
+
+
+
+-- Loads and returns multiple items from a folder.
+function ConfigManager:loadFolder(folderPath, name, isNumbers)
+	local t = {}
+
+	local fileList = _GetDirListing(_ParsePath(folderPath), "file", "json")
+	for i, path in ipairs(fileList) do
+		local id = string.sub(path, 1, -6)
+		if isNumbers then
+			id = tonumber(string.sub(path, 2 + string.len(name), -6))
+		end
+		print(string.format("[ConfigManager] Loading %s %s, %s", name, id, path))
+		local item = _LoadJson(_ParsePath(folderPath .. "/" .. path))
+		t[id] = item
+	end
+
+	return t
 end
 
 
