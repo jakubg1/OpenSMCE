@@ -95,7 +95,7 @@ function Sphere:update(dt)
 			effect.time = effect.time - dt
 			-- If the timer elapses, destroy this sphere.
 			if effect.time <= 0 then
-				self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), effect.name)
+				self:matchEffect(effect.name)
 			end
 		end
 	end
@@ -194,10 +194,74 @@ end
 
 
 
+-- Destroys this and any number of connected spheres with a given effect.
+function Sphere:matchEffect(name)
+	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), name)
+end
+
+
+
+-- Destroys this and any number of connected spheres with a fragile effect.
+function Sphere:matchEffectFragile()
+	local name = nil
+	for i, effect in ipairs(self.effects) do
+		local effectConfig = _Game.configManager.sphereEffects[effect.name]
+		if effectConfig.fragile then
+			name = effect.name
+			break
+		end
+	end
+	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), name)
+end
+
+
+
 -- Returns true if this sphere has already that effect applied.
 function Sphere:hasEffect(name)
 	for i, effect in ipairs(self.effects) do
 		if effect.name == name then
+			return true
+		end
+	end
+
+	return false
+end
+
+
+
+-- Returns true if this sphere has an effect which prevents the level from being lost.
+function Sphere:hasLossProtection()
+	for i, effect in ipairs(self.effects) do
+		local effectConfig = _Game.configManager.sphereEffects[effect.name]
+		if effectConfig.level_loss_protection then
+			return true
+		end
+	end
+
+	return false
+end
+
+
+
+-- Returns true if this sphere has an effect which makes it immobile.
+function Sphere:isImmobile()
+	for i, effect in ipairs(self.effects) do
+		local effectConfig = _Game.configManager.sphereEffects[effect.name]
+		if effectConfig.immobile then
+			return true
+		end
+	end
+
+	return false
+end
+
+
+
+-- Returns true if this sphere has an effect which makes it fragile.
+function Sphere:isFragile()
+	for i, effect in ipairs(self.effects) do
+		local effectConfig = _Game.configManager.sphereEffects[effect.name]
+		if effectConfig.fragile then
 			return true
 		end
 	end
@@ -290,8 +354,7 @@ function Sphere:serialize()
 		color = self.color,
 		--frameOffset = self.frameOffset, -- who cares about that, you can uncomment this if you do
 		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil,
-		shootTime = self.shootTime,
-		effects = {}
+		shootTime = self.shootTime
 	}
 
 	if self.size ~= 1 then
@@ -299,6 +362,9 @@ function Sphere:serialize()
 	end
 	if self.boostCombo then
 		t.boostCombo = self.boostCombo
+	end
+	if #self.effects > 0 then
+		t.effects = {}
 	end
 
 	for i, effect in ipairs(self.effects) do
@@ -323,16 +389,18 @@ function Sphere:deserialize(t)
 	self.shootTime = t.shootTime
 
 	self.effects = {}
-	for i, effect in ipairs(t.effects) do
-		local effectConfig = _Game.configManager.sphereEffects[effect.name]
-		local e = {
-			name = effect.name,
-			time = effect.time,
-			infectionSize = effect.infectionSize,
-			infectionTime = effect.infectionTime
-			--particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
-		}
-		table.insert(self.effects, e)
+	if t.effects then
+		for i, effect in ipairs(t.effects) do
+			--local effectConfig = _Game.configManager.sphereEffects[effect.name]
+			local e = {
+				name = effect.name,
+				time = effect.time,
+				infectionSize = effect.infectionSize,
+				infectionTime = effect.infectionTime
+				--particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+			}
+			table.insert(self.effects, e)
+		end
 	end
 end
 

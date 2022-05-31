@@ -58,6 +58,9 @@ function SphereGroup:update(dt)
 		if self.map.level.lost then
 			-- If this level is lost, apply the foul speed.
 			self.maxSpeed = self.config.foulSpeed
+		elseif self:hasImmobileSpheres() then
+			-- If this group has immobile spheres, prevent from moving.
+			self.maxSpeed = 0
 		elseif speedDesired >= 0 then
 			-- Note that this group only pushes, so it must have positive speed in order to work!
 			self.maxSpeed = speedDesired
@@ -331,7 +334,7 @@ function SphereGroup:move(offset)
 	self.offset = self.offset + offset
 	self:updateSphereOffsets()
 	-- if reached the end of the level, it's over
-	if self:getLastSphereOffset() >= self.sphereChain.path.length and not self:isMagnetizing() and not self:hasShotSpheres() and not self.map.isDummy then
+	if self:getLastSphereOffset() >= self.sphereChain.path.length and not self:isMagnetizing() and not self:hasShotSpheres() and not self:hasLossProtectedSpheres() and not self.map.isDummy then
 		self.map.level:lose()
 	end
 	if offset <= 0 then
@@ -882,7 +885,42 @@ end
 
 function SphereGroup:hasShotSpheres()
 	for i, sphere in ipairs(self.spheres) do
-		if sphere.size < 1 then return true end
+		if sphere.size < 1 then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+function SphereGroup:hasLossProtectedSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:hasLossProtection() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+function SphereGroup:hasImmobileSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:isImmobile() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+function SphereGroup:hasFragileSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:isFragile() then
+			return true
+		end
 	end
 	return false
 end

@@ -51,56 +51,61 @@ function ShotSphere:moveStep()
 	--if nearestSphere.dist and nearestSphere.dist.y < 32 then
 	local nearestSphere = _Game.session:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < 32 then
-		self.hitSphere = nearestSphere
-		local sphereConfig = _Game.configManager.spheres[self.color]
-		local hitColor = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
-		local badShot = false
-		local shotCancelled = false
-		if sphereConfig.hitBehavior.type == "destroySphere" then
-			if _Game.session:colorsMatch(self.color, hitColor) then
-				_Game.session:destroySingleSphere(self.hitSphere.sphere)
+		-- If hit sphere is fragile, destroy the fragile spheres instead of hitting.
+		if nearestSphere.sphere:isFragile() then
+			nearestSphere.sphere:matchEffectFragile()
+		else
+			self.hitSphere = nearestSphere
+			local sphereConfig = _Game.configManager.spheres[self.color]
+			local hitColor = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
+			local badShot = false
+			local shotCancelled = false
+			if sphereConfig.hitBehavior.type == "destroySphere" then
+				if _Game.session:colorsMatch(self.color, hitColor) then
+					_Game.session:destroySingleSphere(self.hitSphere.sphere)
+					self:destroy()
+					_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+				else
+					shotCancelled = true
+				end
+			elseif sphereConfig.hitBehavior.type == "fireball" then
+				_Game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
+				self:destroy()
+				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+			elseif sphereConfig.hitBehavior.type == "colorCloud" then
+				_Game.session:replaceColorRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color, sphereConfig.hitBehavior.color)
+				self:destroy()
+				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
+			elseif sphereConfig.hitBehavior.type == "replaceColor" then
+				self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
+				_Game.session:replaceColor(hitColor, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
 				self:destroy()
 				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 			else
-				shotCancelled = true
+				if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
+				self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
+				-- get the desired sphere position
+				local p
+				if self.hitSphere.sphereID <= #self.hitSphere.sphereGroup.spheres then
+					-- the inserted ball is NOT at the end of the group
+					p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
+				else
+					-- the inserted ball IS at the end of the group
+					local o = self.hitSphere.sphereGroup:getLastSphereOffset() + 32
+					p = self.hitSphere.path:getPos(o)
+				end
+				-- calculate length from the current position
+				local d = (self.pos - p):len()
+				-- calculate time
+				self.hitTimeMax = d / self.speed * 5
+				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects)
+				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 			end
-		elseif sphereConfig.hitBehavior.type == "fireball" then
-			_Game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
-			self:destroy()
-			_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
-		elseif sphereConfig.hitBehavior.type == "colorCloud" then
-			_Game.session:replaceColorRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color, sphereConfig.hitBehavior.color)
-			self:destroy()
-			_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
-		elseif sphereConfig.hitBehavior.type == "replaceColor" then
-			self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
-			_Game.session:replaceColor(hitColor, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
-			self:destroy()
-			_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
-		else
-			if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
-			self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
-			-- get the desired sphere position
-			local p
-			if self.hitSphere.sphereID <= #self.hitSphere.sphereGroup.spheres then
-				-- the inserted ball is NOT at the end of the group
-				p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
+			if shotCancelled then
+				self.hitSphere = nil -- avoid deleting this time
 			else
-				-- the inserted ball IS at the end of the group
-				local o = self.hitSphere.sphereGroup:getLastSphereOffset() + 32
-				p = self.hitSphere.path:getPos(o)
+				_Game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
 			end
-			-- calculate length from the current position
-			local d = (self.pos - p):len()
-			-- calculate time
-			self.hitTimeMax = d / self.speed * 5
-			self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects)
-			badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
-		end
-		if shotCancelled then
-			self.hitSphere = nil -- avoid deleting this time
-		else
-			_Game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
 		end
 	end
 	-- delete if outside of the board
