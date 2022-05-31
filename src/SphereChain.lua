@@ -131,6 +131,9 @@ function SphereChain:isMatchPredicted()
 end
 
 function SphereChain:isPushingFrontTrain()
+	if self.delQueue then
+		return false
+	end
 	-- The previous chain (in front of this one) must exist.
 	local prevChain = self:getPreviousChain()
 	if prevChain and not prevChain.delQueue then
