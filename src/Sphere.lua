@@ -191,7 +191,9 @@ function Sphere:applyEffect(name, infectionSize, infectionTime)
 	}
 	table.insert(self.effects, effect)
 	-- Sound effect.
-	_Game:playSound(effectConfig.apply_sound, 1, self:getPos())
+	if effectConfig.apply_sound then
+		_Game:playSound(effectConfig.apply_sound, 1, self:getPos())
+	end
 end
 
 
