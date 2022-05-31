@@ -71,7 +71,9 @@ function Sphere:update(dt)
 	-- Update the effects.
 	for i, effect in ipairs(self.effects) do
 		-- Update particle position.
-		effect.particle.pos = self:getPos()
+		if effect.particle then
+			effect.particle.pos = self:getPos()
+		end
 		-- If it has to infect...
 		if effect.infectionSize > 0 then
 			-- Tick the infection timer.
@@ -162,7 +164,9 @@ function Sphere:delete()
 	self.entity:destroy(not ((self.map.level.lost or self.map.isDummy) and self:getOffset() >= self.path.length))
 	-- Remove all effect particles.
 	for i, effect in ipairs(self.effects) do
-		effect.particle:destroy()
+		if effect.particle then
+			effect.particle:destroy()
+		end
 		if effect.config.destroy_particle then
 			_Game:spawnParticle(effect.config.destroy_particle, self:getPos())
 		end
@@ -186,10 +190,13 @@ function Sphere:applyEffect(name, infectionSize, infectionTime)
 		config = effectConfig,
 		time = effectConfig.time,
 		infectionSize = infectionSize or effectConfig.infection_size,
-		infectionTime = infectionTime or effectConfig.infection_time,
-		particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+		infectionTime = infectionTime or effectConfig.infection_time
 	}
+	if effectConfig.particle then
+		effect.particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+	end
 	table.insert(self.effects, effect)
+
 	-- Sound effect.
 	if effectConfig.apply_sound then
 		_Game:playSound(effectConfig.apply_sound, 1, self:getPos())
