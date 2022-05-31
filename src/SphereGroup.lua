@@ -528,48 +528,6 @@ function SphereGroup:matchAndDelete(position)
 	for i = position1, position2 do
 		self.spheres[i]:applyEffect("match", nil, nil, effectGroupID)
 	end
-
-	--[[
-
-	self:destroySpheres(position1, position2)
-
-	local soundParams = MOD_GAME.matchSound(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-	_Game:playSound(soundParams.name, soundParams.pitch, pos)
-	self.sphereChain.combo = self.sphereChain.combo + 1
-	if boostCombo then
-		self.map.level.combo = self.map.level.combo + 1
-	end
-
-	local score = length * 100
-	if boostCombo then
-		score = score + math.max(self.map.level.combo - 3, 0) * 100
-	end
-	score = score * self.sphereChain.combo
-	self.map.level:grantScore(score)
-	self.sphereChain.comboScore = self.sphereChain.comboScore + score
-
-	local scoreText = _NumStr(score)
-	if boostCombo and self.map.level.combo > 2 then
-		scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo)
-	end
-	if self.sphereChain.combo ~= 1 then
-		scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo)
-	end
-	self.map.level:spawnFloatingText(scoreText, pos, _Game.configManager.spheres[color].matchFont)
-
-	local spawnCoin = MOD_GAME.coinSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-	if spawnCoin then
-		self.map.level:spawnCoin(pos)
-	end
-
-	local spawnPowerup = MOD_GAME.powerupSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-	if spawnPowerup then
-		self.map.level:spawnPowerup(pos)
-	end
-
-	self.map.level.maxCombo = math.max(self.map.level.combo, self.map.level.maxCombo)
-	self.map.level.maxChain = math.max(self.sphereChain.combo, self.map.level.maxChain)
-	]]
 end
 
 
