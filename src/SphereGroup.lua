@@ -41,7 +41,10 @@ function SphereGroup:update(dt)
 		return
 	end
 
-	local speedBound = self.sphereChain.path:getSpeed(self:getLastSphereOffset())
+	-- Correct the speed bound if this chain is daisy-chained with another chain.
+	local speedGrp = self:getLastChainedGroup()
+	local speedBound = speedGrp.sphereChain.path:getSpeed(speedGrp:getLastSphereOffset())
+
 	local speedDesired = self.sphereChain.speedOverrideBase + speedBound * self.sphereChain.speedOverrideMult
 	if self:isMagnetizing() then
 		self.maxSpeed = self.config.attractionSpeedBase + self.config.attractionSpeedMult * math.max(self.sphereChain.combo, 1)
@@ -796,6 +799,16 @@ function SphereGroup:getLastGroup()
 	local group = self
 	while group.nextGroup do
 		group = group.nextGroup
+	end
+	return group
+end
+
+
+
+function SphereGroup:getLastChainedGroup()
+	local group = self
+	while not group.nextGroup and group.sphereChain:isPushingFrontTrain() do
+		group = group.sphereChain:getPreviousChain():getLastSphereGroup()
 	end
 	return group
 end

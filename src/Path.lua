@@ -105,19 +105,6 @@ function Path:update(dt)
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue then
 			sphereChain:update(dt)
-			local prevChain = self.sphereChains[i - 1]
-			if prevChain and not prevChain.delQueue then
-				-- Check whether this sphere chain collides with a front one.
-				local dist = prevChain:getLastSphereGroup():getSphereOffset(1) - sphereChain.sphereGroups[1]:getLastSphereOffset()
-				if dist <= 32 then
-					-- If so, either destroy the scarab or move the frontmost chain.
-					if _Game.configManager.gameplay.sphereBehaviour.invincible_scarabs then
-						prevChain:getLastSphereGroup():move(32 - dist)
-					else
-						prevChain:join()
-					end
-				end
-			end
 		end
 	end
 	if self:shouldSpawn() then self:spawnChain() end

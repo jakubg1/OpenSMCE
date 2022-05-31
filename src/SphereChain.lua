@@ -46,6 +46,24 @@ end
 
 function SphereChain:update(dt)
 	--print(self:getDebugText())
+
+	-- Deal with chains overlapping.
+	if not self.delQueue then
+		local prevChain = self:getPreviousChain()
+		if prevChain and not prevChain.delQueue then
+			-- Check whether this sphere chain collides with a front one.
+			local dist = prevChain:getLastSphereGroup():getSphereOffset(1) - self.sphereGroups[1]:getLastSphereOffset()
+			if dist <= 32 then
+				-- If so, either destroy the scarab or move the frontmost chain.
+				if _Game.configManager.gameplay.sphereBehaviour.invincible_scarabs then
+					prevChain:getLastSphereGroup():move(32 - dist)
+				else
+					prevChain:join()
+				end
+			end
+		end
+	end
+	
 	-- Update all sphere groups.
 	-- Ultra-Safe Loop (TM)
 	local i = 1
@@ -58,6 +76,7 @@ function SphereChain:update(dt)
 			i = i + 1
 		end
 	end
+
 	-- Update max offset.
 	if #self.sphereGroups > 0 then
 		if self.generationAllowed then
@@ -71,6 +90,7 @@ function SphereChain:update(dt)
 
 		self.maxOffset = self.sphereGroups[1]:getLastSphereOffset()
 	end
+
 	-- Reset combo if necessary.
 	if not self:isMatchPredicted() then
 		self:endCombo()
@@ -96,9 +116,27 @@ function SphereChain:delete(joins)
 	if joins then _Game:playSound("sound_events/sphere_destroy_vise.json") end
 end
 
+function SphereChain:getPreviousChain()
+	return self.path.sphereChains[self.path:getSphereChainID(self) - 1]
+end
+
+function SphereChain:getNextChain()
+	return self.path.sphereChains[self.path:getSphereChainID(self) + 1]
+end
+
 function SphereChain:isMatchPredicted()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
 		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres()) then return true end
+	end
+end
+
+function SphereChain:isPushingFrontTrain()
+	-- The previous chain (in front of this one) must exist.
+	local prevChain = self:getPreviousChain()
+	if prevChain and not prevChain.delQueue then
+		-- Check whether this sphere chain collides with a front one. If so, return true.
+		local dist = prevChain:getLastSphereGroup():getSphereOffset(1) - self.sphereGroups[1]:getLastSphereOffset()
+		return dist <= 32
 	end
 end
 
