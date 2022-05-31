@@ -70,8 +70,6 @@ function Sphere:update(dt)
 
 	-- Update the effects.
 	for i, effect in ipairs(self.effects) do
-		-- Load a configuration for the given effect.
-		local effectConfig = _Game.configManager.sphereEffects[effect.name]
 		-- Update particle position.
 		effect.particle.pos = self:getPos()
 		-- If it has to infect...
@@ -80,7 +78,7 @@ function Sphere:update(dt)
 			effect.infectionTime = effect.infectionTime - dt
 			-- If the timer elapses, infect neighbors.
 			if effect.infectionTime <= 0 then
-				effect.infectionTime = effect.infectionTime + effectConfig.infection_time
+				effect.infectionTime = effect.infectionTime + effect.config.infection_time
 				effect.infectionSize = effect.infectionSize - 1
 				if self.prevSphere and self.prevSphere.color ~= 0 then -- TODO: make a sphere tag in order to determine which spheres to infect.
 					self.prevSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime)
@@ -165,6 +163,9 @@ function Sphere:delete()
 	-- Remove all effect particles.
 	for i, effect in ipairs(self.effects) do
 		effect.particle:destroy()
+		if effect.config.destroy_particle then
+			_Game:spawnParticle(effect.config.destroy_particle, self:getPos())
+		end
 	end
 end
 
@@ -182,6 +183,7 @@ function Sphere:applyEffect(name, infectionSize, infectionTime)
 	-- Prepare effect data and insert it.
 	local effect = {
 		name = name,
+		config = effectConfig,
 		time = effectConfig.time,
 		infectionSize = infectionSize or effectConfig.infection_size,
 		infectionTime = infectionTime or effectConfig.infection_time,
@@ -205,8 +207,7 @@ end
 function Sphere:matchEffectFragile()
 	local name = nil
 	for i, effect in ipairs(self.effects) do
-		local effectConfig = _Game.configManager.sphereEffects[effect.name]
-		if effectConfig.fragile then
+		if effect.config.fragile then
 			name = effect.name
 			break
 		end
@@ -232,8 +233,7 @@ end
 -- Returns true if this sphere has an effect which prevents the level from being lost.
 function Sphere:hasLossProtection()
 	for i, effect in ipairs(self.effects) do
-		local effectConfig = _Game.configManager.sphereEffects[effect.name]
-		if effectConfig.level_loss_protection then
+		if effect.config.level_loss_protection then
 			return true
 		end
 	end
@@ -246,8 +246,7 @@ end
 -- Returns true if this sphere has an effect which makes it immobile.
 function Sphere:isImmobile()
 	for i, effect in ipairs(self.effects) do
-		local effectConfig = _Game.configManager.sphereEffects[effect.name]
-		if effectConfig.immobile then
+		if effect.config.immobile then
 			return true
 		end
 	end
@@ -260,8 +259,7 @@ end
 -- Returns true if this sphere has an effect which makes it fragile.
 function Sphere:isFragile()
 	for i, effect in ipairs(self.effects) do
-		local effectConfig = _Game.configManager.sphereEffects[effect.name]
-		if effectConfig.fragile then
+		if effect.config.fragile then
 			return true
 		end
 	end
@@ -391,9 +389,10 @@ function Sphere:deserialize(t)
 	self.effects = {}
 	if t.effects then
 		for i, effect in ipairs(t.effects) do
-			--local effectConfig = _Game.configManager.sphereEffects[effect.name]
+			local effectConfig = _Game.configManager.sphereEffects[effect.name]
 			local e = {
 				name = effect.name,
+				config = effectConfig,
 				time = effect.time,
 				infectionSize = effect.infectionSize,
 				infectionTime = effect.infectionTime
