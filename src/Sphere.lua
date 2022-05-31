@@ -102,7 +102,9 @@ function Sphere:update(dt)
 
 	-- if the sphere was flagged as it was a part of a combo but got obstructed then it's unflagged
 	if self.boostCombo then
-		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) then self.boostCombo = false end
+		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) and not self:canKeepCombo() then
+			self.boostCombo = false
+		end
 	end
 
 	-- count/uncount the sphere from the danger sphere counts
@@ -269,6 +271,19 @@ end
 function Sphere:isFragile()
 	for i, effect in ipairs(self.effects) do
 		if effect.config.fragile then
+			return true
+		end
+	end
+
+	return false
+end
+
+
+
+-- Returns true if this sphere has an effect which makes it able to keep combo.
+function Sphere:canKeepCombo()
+	for i, effect in ipairs(self.effects) do
+		if effect.config.can_keep_combo then
 			return true
 		end
 	end

@@ -1007,6 +1007,17 @@ end
 
 
 
+function SphereGroup:hasKeepComboSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:canKeepCombo() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
 function SphereGroup:isUnfinished()
 	return self.sphereChain.generationAllowed and not self.prevGroup
 end

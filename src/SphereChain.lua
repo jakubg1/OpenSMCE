@@ -126,7 +126,9 @@ end
 
 function SphereChain:isMatchPredicted()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres()) then return true end
+		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres() or sphereGroup:hasKeepComboSpheres()) then
+			return true
+		end
 	end
 end
 
