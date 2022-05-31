@@ -116,6 +116,13 @@ function SphereChain:delete(joins)
 	if joins then _Game:playSound("sound_events/sphere_destroy_vise.json") end
 end
 
+-- Unloads this chain.
+function SphereChain:destroy()
+	for i, sphereGroup in ipairs(self.sphereGroups) do
+		sphereGroup:destroy()
+	end
+end
+
 function SphereChain:getPreviousChain()
 	return self.path.sphereChains[self.path:getSphereChainID(self) - 1]
 end

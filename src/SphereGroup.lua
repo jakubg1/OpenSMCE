@@ -461,6 +461,15 @@ end
 
 
 
+-- Unloads this group.
+function SphereGroup:destroy()
+	for i, sphere in ipairs(self.spheres) do
+		sphere:destroy()
+	end
+end
+
+
+
 function SphereGroup:shouldFit(position)
 	return
 		self:getSphereInChain(position - 1) and _Game.session:colorsMatch(self:getSphereInChain(position - 1).color, self.spheres[position].color)

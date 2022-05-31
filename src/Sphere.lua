@@ -70,10 +70,6 @@ function Sphere:update(dt)
 
 	-- Update the effects.
 	for i, effect in ipairs(self.effects) do
-		-- Update particle position.
-		if effect.particle then
-			effect.particle.pos = self:getPos()
-		end
 		-- If it has to infect...
 		if effect.infectionSize > 0 then
 			-- Tick the infection timer.
@@ -177,6 +173,19 @@ function Sphere:delete()
 		end
 		-- Decrement the sphere effect group counter.
 		self.path:decrementSphereEffectGroup(effect.effectGroupID)
+	end
+end
+
+
+
+-- Unloads this sphere.
+function Sphere:destroy()
+	self.entity:destroy(false)
+	for i, effect in ipairs(self.effects) do
+		-- Remove particles.
+		if effect.particle then
+			effect.particle:destroy()
+		end
 	end
 end
 
@@ -375,6 +384,13 @@ function Sphere:draw(color, hidden, shadow)
 
 	self.entity:draw(shadow)
 
+	-- Update particle positions.
+	for i, effect in ipairs(self.effects) do
+		if effect.particle then
+			effect.particle.pos = self:getPos()
+		end
+	end
+
 	-- debug: you can peek some sphere-related values here
 
 	--if not shadow and self:hasEffect("match") then
@@ -396,6 +412,28 @@ function Sphere:loadConfig()
 	if self.color == 0 then -- vises follow another way
 		self.frameOffset = 0
 	end
+end
+
+
+
+function Sphere:getIDs()
+	local s = self
+	local g = s.sphereGroup
+	local c = g.sphereChain
+	local p = c.path
+	local m = p.map
+
+	local sphereID = g:getSphereID(s)
+	local groupID = c:getSphereGroupID(g)
+	local chainID = p:getSphereChainID(c)
+	local pathID = m:getPathID(p)
+
+	return {
+		sphereID = sphereID,
+		groupID = groupID,
+		chainID = chainID,
+		pathID = pathID
+	}
 end
 
 
@@ -423,7 +461,8 @@ function Sphere:serialize()
 			name = effect.name,
 			time = effect.time,
 			infectionSize = effect.infectionSize,
-			infectionTime = effect.infectionTime
+			infectionTime = effect.infectionTime,
+			effectGroupID = effect.effectGroupID
 		}
 		table.insert(t.effects, tt)
 	end
@@ -448,8 +487,9 @@ function Sphere:deserialize(t)
 				config = effectConfig,
 				time = effect.time,
 				infectionSize = effect.infectionSize,
-				infectionTime = effect.infectionTime
-				--particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+				infectionTime = effect.infectionTime,
+				effectGroupID = effect.effectGroupID,
+				particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
 			}
 			table.insert(self.effects, e)
 		end

@@ -202,6 +202,9 @@ end
 
 
 function Path:destroy()
+	for i, sphereChain in ipairs(self.sphereChains) do
+		sphereChain:destroy()
+	end
 	if self.bonusScarab then
 		self.bonusScarab:destroy()
 	end
@@ -431,13 +434,20 @@ function Path:serialize()
 		sphereChains = {},
 		clearOffset = self.clearOffset,
 		bonusScarab = self.bonusScarab and self.bonusScarab:serialize() or nil,
-		scorpions = {}
+		scorpions = {},
+		sphereEffectGroups = {}
 	}
 	for i, sphereChain in ipairs(self.sphereChains) do
 		table.insert(t.sphereChains, sphereChain:serialize())
 	end
 	for i, scorpion in ipairs(self.scorpions) do
 		table.insert(t.scorpions, scorpion:serialize())
+	end
+	for i, sphereEffectGroup in pairs(self.sphereEffectGroups) do
+		local tt = {}
+		tt.count = sphereEffectGroup.count
+		tt.cause = sphereEffectGroup.cause:getIDs()
+		t.sphereEffectGroups[tostring(i)] = tt
 	end
 	return t
 end
@@ -452,6 +462,13 @@ function Path:deserialize(t)
 	self.scorpions = {}
 	for i, scorpion in ipairs(t.scorpions) do
 		table.insert(self.scorpions, Scorpion(self, scorpion))
+	end
+	self.sphereEffectGroups = {}
+	for i, sphereEffectGroup in pairs(t.sphereEffectGroups) do
+		local tt = {}
+		tt.count = sphereEffectGroup.count
+		tt.cause = self.sphereChains[sphereEffectGroup.cause.chainID].sphereGroups[sphereEffectGroup.cause.groupID].spheres[sphereEffectGroup.cause.sphereID]
+		self.sphereEffectGroups[tonumber(i)] = tt
 	end
 end
 
