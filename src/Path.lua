@@ -33,7 +33,7 @@ function Path:new(map, pathData, pathBehavior)
 		}
 		self.target = n
 	end
-	self.spawnAmount = 0;
+	self.spawnAmount = 0
 	self.spawnDistance = pathBehavior.spawnDistance
 	self.dangerDistance = pathBehavior.dangerDistance
 	self.dangerParticle = pathBehavior.dangerParticle or "particles/warning.json"
@@ -46,6 +46,7 @@ function Path:new(map, pathData, pathBehavior)
 	self.clearOffset = 0
 	self.bonusScarab = nil
 	self.scorpions = {}
+	self.sphereEffectGroups = {}
 end
 
 
@@ -154,6 +155,51 @@ end
 function Path:spawnScorpion()
 	table.insert(self.scorpions, Scorpion(self))
 end
+
+
+
+-- Creates a new sphere effect group.
+-- These are used to group spheres which have the same effect caused by a single sphere.
+function Path:createSphereEffectGroup(sphere)
+	-- Generate first non-occupied sphere effect group ID.
+	local n = 1
+	while self.sphereEffectGroups[n] do
+		n = n + 1
+	end
+	-- Insert startup data.
+	self.sphereEffectGroups[n] = {
+		count = 0,
+		cause = sphere
+	}
+	-- Return the ID of the group for usage in the future.
+	return n
+end
+
+
+
+-- Returns data of a sphere effect group with given ID.
+function Path:getSphereEffectGroup(n)
+	return self.sphereEffectGroups[n]
+end
+
+
+
+-- Increments a sphere effect group counter.
+function Path:incrementSphereEffectGroup(n)
+	self.sphereEffectGroups[n].count = self.sphereEffectGroups[n].count + 1
+end
+
+
+
+-- Decrements a sphere effect group counter. If it reaches 0, it's destroyed.
+function Path:decrementSphereEffectGroup(n)
+	self.sphereEffectGroups[n].count = self.sphereEffectGroups[n].count - 1
+	if self.sphereEffectGroups[n].count == 0 then
+		self.sphereEffectGroups[n] = nil
+	end
+end
+
+
 
 function Path:destroy()
 	if self.bonusScarab then

@@ -511,8 +511,22 @@ function SphereGroup:matchAndDelete(position)
 
 	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
 	local color = self.spheres[position].color
+
+	-- First, check if any of the matched spheres do have the match effect already.
+	local effectGroupID = nil
 	for i = position1, position2 do
-		self.spheres[i]:applyEffect("match")
+		if self.spheres[i]:hasEffect("match") then
+			effectGroupID = self.spheres[i]:getEffectGroupID("match")
+			break
+		end
+	end
+	-- If not found, create a new sphere effect group with a sphere at position, so that sphere is noted down as a cause.
+	if not effectGroupID then
+		effectGroupID = self.sphereChain.path:createSphereEffectGroup(self.spheres[position])
+	end
+	-- Now, apply the effect.
+	for i = position1, position2 do
+		self.spheres[i]:applyEffect("match", nil, nil, effectGroupID)
 	end
 
 	--[[
@@ -562,23 +576,40 @@ end
 
 -- Similar to the one above, because it also grants score and destroys spheres collectively, however the bounds are based on an effect.
 function SphereGroup:matchAndDeleteEffect(position, effect)
-	local position1, position2 = self:getEffectBounds(position, effect)
-	local length = (position2 - position1 + 1)
+	local effectGroupID = self.spheres[position]:getEffectGroupID(effect)
+	-- Prepare a list of spheres to be destroyed.
+	local spheres = {}
+	local position1 = nil
+	local position2 = 0
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:hasEffect(effect, effectGroupID) then
+			table.insert(spheres, sphere)
+			if not position1 then
+				position1 = i
+			end
+			position2 = i
+		end
+	end
+	--local position1, position2 = self:getEffectBounds(position, effect, effectGroupID)
+	local length = #spheres
 	local effectConfig = _Game.configManager.sphereEffects[effect]
 
 	local boostCombo = false
 	-- Abort if any sphere from the given ones has not joined yet and see if we have to boost the combo.
-	for i = position1, position2 do
-		if self.spheres[i].size < 1 then
+	for i, sphere in ipairs(spheres) do
+		if sphere.size < 1 then
 			return
 		end
-		boostCombo = boostCombo or self.spheres[i].boostCombo
+		boostCombo = boostCombo or sphere.boostCombo
 	end
 	boostCombo = boostCombo and effectConfig.can_boost_combo
 
 	-- Determine the center position and destroy spheres.
 	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
-	self:destroySpheres(position1, position2)
+	local color = self.sphereChain.path:getSphereEffectGroup(effectGroupID).cause.color
+	for i = #spheres, 1, -1 do
+		self:destroySphere(self:getSphereID(spheres[i]))
+	end
 
 	-- Play a sound.
 	if effectConfig.destroy_sound == "hardcoded" then
@@ -614,7 +645,11 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	if effectConfig.apply_chain_multiplier and self.sphereChain.combo ~= 1 then
 		scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo)
 	end
-	self.map.level:spawnFloatingText(scoreText, pos, effectConfig.destroy_font)
+	local scoreFont = effectConfig.destroy_font
+	if scoreFont == "hardcoded" then
+		scoreFont = _Game.configManager.spheres[color].matchFont
+	end
+	self.map.level:spawnFloatingText(scoreText, pos, scoreFont)
 
 	-- Spawn a coin if applicable.
 	local spawnCoin = effectConfig.can_spawn_coin and MOD_GAME.coinSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
@@ -747,15 +782,14 @@ end
 
 
 
-function SphereGroup:getEffectBounds(position, effect)
+function SphereGroup:getEffectBounds(position, effect, effectGroupID)
 	local position1 = position
 	local position2 = position
-	local color = self.spheres[position].color
 	-- seek backwards
 	while true do
 		position1 = position1 - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position1] or not self.spheres[position1]:hasEffect(effect) then
+		if not self.spheres[position1] or not self.spheres[position1]:hasEffect(effect, effectGroupID) then
 			break
 		end
 	end
@@ -763,7 +797,7 @@ function SphereGroup:getEffectBounds(position, effect)
 	while true do
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position2] or not self.spheres[position2]:hasEffect(effect) then
+		if not self.spheres[position2] or not self.spheres[position2]:hasEffect(effect, effectGroupID) then
 			break
 		end
 	end

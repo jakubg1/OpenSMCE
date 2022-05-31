@@ -83,11 +83,11 @@ function Sphere:update(dt)
 				effect.infectionTime = effect.infectionTime + effect.config.infection_time
 				effect.infectionSize = effect.infectionSize - 1
 				if self.prevSphere and self.prevSphere.color ~= 0 then -- TODO: make a sphere tag in order to determine which spheres to infect.
-					self.prevSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime)
+					self.prevSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime, effect.effectGroupID)
 				end
 				if self.nextSphere and self.nextSphere.color ~= 0 then -- TODO: as above.
 					-- We need to compensate the time for the next sphere, because it will be updated in this tick!
-					self.nextSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime + dt)
+					self.nextSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime + dt, effect.effectGroupID)
 				end
 			end
 		else
@@ -164,21 +164,26 @@ function Sphere:delete()
 	end
 	-- Remove the entity.
 	self.entity:destroy(not ((self.map.level.lost or self.map.isDummy) and self:getOffset() >= self.path.length))
-	-- Remove all effect particles.
+
+	-- Remove all effects.
 	for i, effect in ipairs(self.effects) do
+		-- Remove particles.
 		if effect.particle then
 			effect.particle:destroy()
 		end
+		-- Emit destroy particles.
 		if effect.config.destroy_particle then
 			_Game:spawnParticle(effect.config.destroy_particle, self:getPos())
 		end
+		-- Decrement the sphere effect group counter.
+		self.path:decrementSphereEffectGroup(effect.effectGroupID)
 	end
 end
 
 
 
 -- Applies an effect to this sphere.
-function Sphere:applyEffect(name, infectionSize, infectionTime)
+function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
 	-- Don't allow a single sphere to have the same effect applied twice.
 	if self:hasEffect(name) then
 		return
@@ -186,13 +191,19 @@ function Sphere:applyEffect(name, infectionSize, infectionTime)
 
 	-- Load a configuration for the given effect.
 	local effectConfig = _Game.configManager.sphereEffects[name]
+	-- Create an effect group if it doesn't exist.
+	if not effectGroupID then
+		effectGroupID = self.path:createSphereEffectGroup(self)
+	end
+	self.path:incrementSphereEffectGroup(effectGroupID)
 	-- Prepare effect data and insert it.
 	local effect = {
 		name = name,
 		config = effectConfig,
 		time = effectConfig.time,
 		infectionSize = infectionSize or effectConfig.infection_size,
-		infectionTime = infectionTime or effectConfig.infection_time
+		infectionTime = infectionTime or effectConfig.infection_time,
+		effectGroupID = effectGroupID
 	}
 	if effectConfig.particle then
 		effect.particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
@@ -228,10 +239,21 @@ end
 
 
 
--- Returns true if this sphere has already that effect applied.
-function Sphere:hasEffect(name)
+-- Returns the effect group ID of a given effect of this sphere.
+function Sphere:getEffectGroupID(name)
 	for i, effect in ipairs(self.effects) do
 		if effect.name == name then
+			return effect.effectGroupID
+		end
+	end
+end
+
+
+
+-- Returns true if this sphere has already that effect applied.
+function Sphere:hasEffect(name, effectGroupID)
+	for i, effect in ipairs(self.effects) do
+		if effect.name == name and (not effectGroupID or effect.effectGroupID == effectGroupID) then
 			return true
 		end
 	end
@@ -352,6 +374,13 @@ function Sphere:draw(color, hidden, shadow)
 	self.entity:setColorM(colorM)
 
 	self.entity:draw(shadow)
+
+	-- debug: you can peek some sphere-related values here
+
+	--if not shadow and self:hasEffect("match") then
+	--	local p = _PosOnScreen(self:getPos())
+	--	love.graphics.print(self:getEffectGroupID("match"), p.x, p.y + 20)
+	--end
 end
 
 
