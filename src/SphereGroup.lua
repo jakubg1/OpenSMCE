@@ -69,7 +69,7 @@ function SphereGroup:update(dt)
 	-- If this group is last, it can pull spheres back when the speed is going to be negative.
 	if not self.nextGroup then
 		-- If the level is lost or this group is magnetizing at this moment, do not apply any other speed.
-		if not self.map.level.lost and not self:isMagnetizing() then
+		if not self.map.level.lost and not self:isMagnetizing() and not self:hasImmobileSpheres() then
 			if speedDesired < 0 then
 				-- Note that this group only pulls, so it must have negative speed in order to work!
 				self.maxSpeed = speedDesired
@@ -381,6 +381,9 @@ function SphereGroup:join()
 	if not self.map.level.lost and _Game.session:colorsMatch(self.prevGroup.spheres[joinPosition].color, self.spheres[1].color) and self.matchCheck and self.prevGroup:shouldMatch(joinPosition) then
 		self.prevGroup:matchAndDelete(joinPosition)
 	end
+	-- check for fragile spheres
+	self:destroyFragileSpheres()
+	-- play a sound
 	_Game:playSound("sound_events/sphere_group_join.json", 1, self.sphereChain.path:getPos(self.offset))
 end
 
@@ -438,6 +441,22 @@ function SphereGroup:delete()
 		self.nextGroup.prevGroup = self.prevGroup
 	end
 	table.remove(self.sphereChain.sphereGroups, self.sphereChain:getSphereGroupID(self))
+end
+
+
+
+function SphereGroup:destroyFragileSpheres()
+	-- Ultra-Safe Loop (TM)
+	local i = 1
+	while self.spheres[i] do
+		local sphere = self.spheres[i]
+		if not sphere.delQueue and sphere:isFragile() then
+			sphere:matchEffectFragile()
+		end
+		if self.spheres[i] == sphere then
+			i = i + 1
+		end
+	end
 end
 
 
