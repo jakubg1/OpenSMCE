@@ -1,5 +1,41 @@
+=========================================================================================================================================================================
+
+
+F	index
+N	Main Page
+
+P	Welcome! This is work in progress!
+P	TBD:
+P	Configuration Files
+P	
+P	    config.json
+P	    runtime.json
+P	    config/hud_layer_order.json
+P	    config/level_set.json
+P	    config/loadlist.json
+P	    config/music.json
+P	    Collectible Generators
+P	
+P	Asset Files
+P	
+P	    Fonts
+P	    Levels
+P	    Maps
+P	    Particles
+P	    Sound Events
+P	    Sprites
+P	    UI Widgets
+P	    UI Widget Script
+
+E
+
+
+=========================================================================================================================================================================
+
+
 F	config.highscores
 N	config/highscores.json
+
 P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
 D	- (object) |The root entry.
 D		- size (number) |How many entries should be stored in a single highscore list.
@@ -8,16 +44,25 @@ D			- (object) |A highscore entry.
 D				- name (number) |A player name which should be displayed.
 D				- score (number) |How much points the player has scored.
 D				- level (string) |The level on which the player has ended their game.
+
 E
 
+
+=========================================================================================================================================================================
 
 
 F	config.gameplay
 N	config/gameplay.json
+
 P	Defines behavior of various game elements.
 D	- (object) |The root entry.
 D		- shooter (object) |Defines the shooter behavior and appearance.
-D			- speedShotBeamRenderingType (string) |Defines how the speed shot beam is rendered. Available values are: <i>full</i> - the full beam is always visible, <i>cut</i> - the beam is cut where it intersects a sphere train, <i>scale</i> - the beam is shrunk so its top is touching a sphere train.
+D			- speedShotBeamRenderingType (string) |Defines how the speed shot beam is rendered. Available values are:
+D			R <ol>
+D			R <li><b>full</b> - The full beam is always visible.</li>
+D			R <li><b>cut</b> - The beam is cut where it intersects a sphere train.</li>
+D			R <li><b>scale</b> - The beam is shrunk so its top is touching a sphere train.</li>
+D			R </ol>
 D			- speedShotBeamColored (boolean) |Whether the beam should be colored with the current sphere color.
 D			- speedShotBeamFadeTime (number) |How long the speed shot beam should fade in or out, in seconds.
 D			- speedShotParticle* (Particle*) |Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes.
@@ -38,6 +83,7 @@ D			- knockbackSpeedBase (number) |Speed induced when a group of spheres crashes
 D			- knockbackSpeedMult (number) |The second value used in the formula. Look above for description.
 D			- foulSpeed (number) |Maximum speed of spheres when the player fails to complete a level.
 D			- overspeedCheck (boolean) |If true, spheres will never move faster than the maximum speed defined at a given point of the path.
+D			- invincible_scarabs (boolean) |If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
 D		- collectibleBehaviour (object) |Defines how Collectibles behave.
 D			- speed (vec2) |A starting speed of the Collectibles.
 D			- acceleration (vec2) |An acceleration rate of the Collectibles.
@@ -62,12 +108,16 @@ D			- trailParticle* (Particle*) |A one-time particle packet which the Scorpion 
 D			- trailParticleDistance* (number) |Every how many pixels a specified particle will spawn. May not exist if <b>trailParticle</b> is not specified.
 D			- destroyParticle (Particle*) |A one-time particle packet which the Scorpion will launch upon destruction.
 D			- scoreFont (Font*) |A font to be used to display the score value on the screen.
+
 E
 
+
+=========================================================================================================================================================================
 
 
 F	config.collectibles
 N	config/collectibles/*.json
+
 P	Defines all collectibles in the game.
 P	Each collectibles is stored in a separate file, located in <i>config/collectibles/*.json</i>. The name of the file is the same as ID of that collectible.
 P	To add a new collectible, simply create a new file in the aforementioned folder.
@@ -163,12 +213,117 @@ H3	<i>incrementGemStat</i>
 P	Adds one to the gem pickup statistics for the current level.
 D	- (object) |A powerup effect.
 D		- type (string) |<b><i>incrementGemStat</i></b>
+
 E
 
+
+=========================================================================================================================================================================
+
+
+F	config.collectible_generators
+N	config/collectible_generators/*.json
+
+P	Defines all Collectible Generators in the game.
+P	Each collectible generator is stored in a separate file, located in <i>config/collectible_generators/*.json</i>. The name of the file is the same as ID of that generator.
+P	To add a new collectible generator, simply create a new file in the aforementioned folder.
+P	A single collectible generator is a single entry. Various entry types allow chaining or picking from multiple different entries.
+P	All entries evaluate to a list of collectibles, and the collectible generator result is evaluated from the root entry.
+
+H2	Allowed collectible generator entry types
+P	<i>Debug information: this can be checked in CollectibleGeneratorEntry:evaluate().</i>
+
+H3	<i>collectible</i>
+P	Evaluates to a single collectible.
+D	- (object) |A single entry.
+D		- type (string) |<b><i>collectible</i></b>
+D		- name (string) |A collectible ID to be evaluated to.
+D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
+
+H3	<i>collectible_generator</i>
+P	Evaluates to another collectible generator result.
+D	- (object) |A single entry.
+D		- type (string) |<b><i>collectible_generator</i></b>
+D		- name (string) |A collectible generator ID to be evaluated.
+D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
+
+H3	<i>repeat</i>
+P	Evaluates a given entry a number of times and returns a list of all collectibles generated.
+D	- (object) |A single entry.
+D		- type (string) |<b><i>repeat</i></b>
+D		- entry (object) |A collectible entry to be evaluated.
+D		- count (number) |How many times the entry should be evaluated.
+D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
+
+H3	<i>random_pick</i>
+P	Evaluates all the choices, discards empty ones, and selects one of the remaining results at random.
+D	- (object) |A single entry.
+D		- type (string) |<b><i>random_pick</i></b>
+D		- pool (list) |A list of choices to be picked from.
+D			- (object) |A single choice.
+D				- entry (object) |A collectible entry to be evaluated.
+D				- weight* (number) |The bigger this number is, the more likely this option is to be chosen. Defaults to 1.
+D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
+
+H2	Allowed collectible generator conditions
+P	<i>Debug information: this can be checked in CollectibleGeneratorEntry:checkCondition().</i>
+
+H3	<i>color_present</i>
+P	Returns true if a given color is present on the board.
+D	- (object) |A single condition.
+D		- type (string) |<b><i>color_present</i></b>
+D		- color (number) |A color to be checked.
+
+H3	<i>cmp_latest_checkpoint</i>
+P	Returns true if the profile latest checkpoint value is within defined bounds.
+D	- (object) |A single condition.
+D		- type (string) |<b><i>cmp_latest_checkpoint</i></b>
+D		- min* (number) |If the checked value is lower than this value, this check will fail.
+D		- max* (number) |If the checked value is greater than this value, this check will fail.
+D		- value* (number) |If the checked value is not equal to this value, this check will fail.
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.sphere_effects
+N	config/sphere_effects/*.json
+
+P	Defines all Sphere Effects in the game.
+P	A sphere effect can be applied to any sphere. After a certain time, spheres "infected" with a given effect will be destroyed.
+P	A sphere can also infect neighbors, if it has been configured to do so. Until the infection size gets to 0, the infection time is counted each time. When it gets to 0, the main destruction timer starts.
+P	When the sphere effect timer gets to 0, all spheres which have that same effect and were caused by the same sphere will be destroyed.
+D	- (object) |The root entry.
+D		- particle* (Particle*) |A persistent particle packet which will be applied to any affected sphere.
+D		- time (number) |After how many seconds the spheres will be destroyed.
+D		- infection_size (number) |How many times the effect expansion should occur.
+D		- infection_time (number) |Time between the expansions, in seconds.
+D		- apply_sound* (SoundEvent*) |A sound event to be played when a sphere gets this effect.
+D		- destroy_sound (SoundEvent*) |A sound event to be played when spheres afflicted with this effect are destroyed.
+D			R Can be set to <b>hardcoded</b>, in that case the destroy sound from a game module is prioritized.
+D		- destroy_font (Font*) |A font to be used for the score value displayed on the screen.
+D			R Can be set to <b>hardcoded</b>, in that case the font used is of the "cause" sphere's <i>matchFont</i> value.
+D		- destroy_particle* (Particle*) |A one-time particle packet used when a sphere with this effect is destroyed.
+D		- level_loss_protection (boolean) |If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
+D		- immobile (boolean) |If true, the spheres affected with this effect will stop.
+D		- fragile (boolean) |If true, the spheres affected with this effect can be destroyed by shooting through them.
+D		- can_boost_combo (boolean) |If true, the level combo value may rise after destroying a group with this effect.
+D		- can_boost_chain (boolean) |As above, but regarding the chain combo value.
+D		- apply_chain_multiplier (boolean) |If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
+D		- can_spawn_coin (boolean) |If true, destroying this group will cause the level-defined coin collectible generator to be applied when the game module permits to do so.
+D		- can_spawn_powerup (boolean) |As above, but regarding the powerup collectible.
+D		- can_keep_combo (boolean) |Whether shot spheres with this effect should not be counted towards combo reset.
+
+E
+
+
+=========================================================================================================================================================================
 
 
 F	config.spheres
 N	config/spheres/sphere_*.json
+
 P	Defines all sphere types in the game.
 P	Each sphere is stored in a separate file, located in <i>config/spheres/sphere_*.json</i>, where the asterisk is your sphere ID.
 P	To add a new sphere, simply create a new file in the aforementioned folder, making sure that you name it correctly and the ID is unique.
@@ -185,9 +340,11 @@ D		- spriteAnimationSpeed* (number) |When defined, the sphere sprite will animat
 D		- nextSprite (Sprite*) |A sprite used to draw the shooter's next color indicator.
 D		- idleParticle* (Particle*) |A persistent particle packet used when the sphere is on the board.
 D		- destroyParticle (Particle*) |A one-time particle packet used when the sphere is destroyed.
-D		* Either one of two below:
+D		R <div class="jsonChoice">
+D		R Either one of two below:
 D			- color (Color) |The color used by shooting retical.
 D			- color (ColorPalette*) |The color palette used by shooting retical.
+D		R </div>
 D		- colorSpeed* (number) |Must be present only if <b>color</b> is a color palette pointer. Defines how fast (in pixels per second) will the palette be animated.
 D		- interchangeable (boolean) |Whether this sphere can be changed when in the first slot of the shooter.
 D		- shootBehavior (object) |Defines how this sphere should behave when it's shot. More info below.
@@ -246,4 +403,51 @@ D	- hitBehavior (object) |
 D		- type (string) |<b><i>replaceColor</i></b>
 D		- particle (Particle*) |A one-time particle packet launched for all affected spheres.
 D		- color (number) |Which color the spheres will be changed to.
+
 E
+
+
+=========================================================================================================================================================================
+
+
+F	config.level_set
+N	config/level_set.json
+
+P	Contains information about level order and checkpoints.
+P	A checkpoint is a place, where the player can start a new game.
+D	- (object) |The root entry.
+D		- level_order (list) |A list which contains level entries. Levels will be played in this order. More info below.
+D		- checkpoints (list) |A list of integers, containing index numbers corresponding to level IDs in the <i>level_order</i> field.
+D		- startCheckpoints (list) |A list of checkpoint IDs, which are unlocked upon profile creation.
+
+H2	Possible level order entry types
+P	<i>Debug information: this can be checked in Profile:getLevelName(), Profile:incrementLevel(), Profile:generateLevelID() and a number of other functions in Profile class.</i>
+
+H3	<i>level</i>
+P	A single level to be played.
+D	- (object) |A single level entry.
+D		- type (string) |<b><i>level</i></b>
+D		- level (number) |A level ID to be loaded and played.
+D		- name (string) |A level name.
+D		- unlock_checkpoints_on_beat* (list) |If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
+
+H3	<i>randomizer</i>
+P	A group of levels to be played in random order.
+D	- (object) |A single level entry.
+D		- type (string) |<b><i>randomizer</i></b>
+D		- pool (list) |A list of level IDs to be chosen from.
+D		- names (list) |A list of level names. It is not shuffled, and this list should have the same lenth as <i>count</i>.
+D		- count (number) |How many levels are to be picked from the pool.
+D		- mode (string) |How the levels will be randomized. There are three possible values:
+D		R <ol>
+D		R <li><b>repeat</b> - Every next level is simply drawn at random from the list.</li>
+D		R <li><b>no_repeat</b> - Same as above, but an entry is removed from the pool once it's been picked.</li>
+D		R <li><b>order</b> - Chooses <i>count</i> entries from the pool, without changing their order.</li>
+D		R <li>Both <b>no_repeat</b> and <b>order</b> modes need the pool size to be greater or equal to the <i>count</i>.</li>
+D		R </ol>
+D		- unlock_checkpoints_on_beat* (list) |If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
+
+E
+
+
+=========================================================================================================================================================================

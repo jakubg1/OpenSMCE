@@ -68,7 +68,6 @@ def main():
 			
 			page_content += "<div id=\"navigation\"> <h3>Navigation</h3>"
 			page_content += "<ul>"
-			page_content += "<li><a href=\"index.html\">Main Page</a></li>"
 			for i in range(len(page_paths)):
 				path = page_paths[i]
 				name = page_names[i]
@@ -132,6 +131,8 @@ def main():
 				else:
 					page_content += "<span class=\"name\">" + name + "</span>: " + description
 				page_content += "</li>"
+			elif l[0] == "R":
+				page_content += l[2:]
 		
 		
 		
