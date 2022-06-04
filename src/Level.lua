@@ -17,6 +17,8 @@ function Level:new(data)
 
 	self.powerupGenerator = data.powerupGenerator
 	self.gemGenerator = data.gemGenerator
+	self.matchEffect = data.matchEffect
+
 	self.target = data.target
 
 	self.colorGeneratorNormal = data.colorGeneratorNormal

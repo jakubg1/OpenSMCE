@@ -522,10 +522,11 @@ function SphereGroup:matchAndDelete(position)
 	local color = self.spheres[position].color
 
 	-- First, check if any of the matched spheres do have the match effect already.
+	local effectName = self.map.level.matchEffect
 	local effectGroupID = nil
 	for i = position1, position2 do
-		if self.spheres[i]:hasEffect("match") then
-			effectGroupID = self.spheres[i]:getEffectGroupID("match")
+		if self.spheres[i]:hasEffect(effectName) then
+			effectGroupID = self.spheres[i]:getEffectGroupID(effectName)
 			break
 		end
 	end
@@ -535,7 +536,7 @@ function SphereGroup:matchAndDelete(position)
 	end
 	-- Now, apply the effect.
 	for i = position1, position2 do
-		self.spheres[i]:applyEffect("match", nil, nil, effectGroupID)
+		self.spheres[i]:applyEffect(effectName, nil, nil, effectGroupID)
 	end
 end
 
