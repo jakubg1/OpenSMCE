@@ -54,7 +54,9 @@ function BootMain:initGameButtons()
 		if not game then
 			break
 		end
-		table.insert(self.gameButtons, Button(game.name, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(id) end))
+		local button = Button(game.name, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(id) end)
+		button.selected = self.selectedGame == id
+		table.insert(self.gameButtons, button)
 	end
 end
 
@@ -104,9 +106,7 @@ function BootMain:selectGame(id)
 	self.selectedGame = id
 	self.buttons.loadGame.visible = self:getSelectedGameVersionStatus() ~= 3
 	self.buttons.convertGame.visible = self:getSelectedGameVersionStatus() == 0
-	for i, button in ipairs(self.gameButtons) do
-		button.selected = i == id
-	end
+	self:initGameButtons()
 end
 
 
