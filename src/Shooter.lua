@@ -38,14 +38,20 @@ end
 
 
 
+
+
 function Shooter:update(dt)
 	-- movement
 	-- how many pixels will the shooter move since the last frame (by mouse)?
 	local shooterDelta = self:getDelta(_MousePos.x, true)
 	if shooterDelta == 0 then
 		-- if 0, then the keyboard can be freely used
-		if self.moveKeys.left then self:move(self.pos.x - self.moveKeySpeed * dt, false) end
-		if self.moveKeys.right then self:move(self.pos.x + self.moveKeySpeed * dt, false) end
+		if self.moveKeys.left then
+			self:move(self.pos.x - self.moveKeySpeed * dt, false)
+		end
+		if self.moveKeys.right then
+			self:move(self.pos.x + self.moveKeySpeed * dt, false)
+		end
 	else
 		-- else, the mouse takes advantage and overwrites the position
 		self:move(_MousePos.x, true)
@@ -81,7 +87,7 @@ function Shooter:update(dt)
 		end
 	end
 
-	-- particle position update
+	-- Update the sphere entity position.
 	if self.sphereEntity then
 		self.sphereEntity:setPos(self:spherePos())
 	end
@@ -93,11 +99,20 @@ function Shooter:translatePos(x)
 	return math.min(math.max(x, 20), _NATIVE_RESOLUTION.x - 20)
 end
 
+
+
 function Shooter:move(x, fromMouse)
-	if _Game.session.level.pause then return end
+	-- Cannot move when the level is paused.
+	if _Game.session.level.pause then
+		return
+	end
 	self.pos.x = self:translatePos(x)
-	if fromMouse then self.posMouse.x = self:translatePos(x) end
+	if fromMouse then
+		self.posMouse.x = self:translatePos(x)
+	end
 end
+
+
 
 function Shooter:getDelta(x, fromMouse)
 	if fromMouse then
@@ -125,9 +140,13 @@ function Shooter:setColor(color)
 	end
 end
 
+
+
 function Shooter:setNextColor(color)
 	self.nextColor = color
 end
+
+
 
 function Shooter:empty()
 	self.active = false
@@ -138,14 +157,20 @@ function Shooter:empty()
 	self.speedShotTime = 0
 end
 
+
+
 function Shooter:swapColors()
 	-- we must be careful not to swap the spheres when they're absent
-	if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or not _Game.configManager.spheres[self.color].interchangeable then return end
+	if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or not self:getSphereConfig().interchangeable then
+		return
+	end
 	local tmp = self.color
 	self:setColor(self.nextColor)
 	self:setNextColor(tmp)
 	_Game:playSound("sound_events/shooter_swap.json", 1, self.pos)
 end
+
+
 
 function Shooter:getNextColor()
 	if self.multiColorCount == 0 then
@@ -155,6 +180,8 @@ function Shooter:getNextColor()
 		return self.multiColorColor
 	end
 end
+
+
 
 function Shooter:fill()
 	if self.nextColor == 0 then
@@ -166,16 +193,22 @@ function Shooter:fill()
 	end
 end
 
+
+
 function Shooter:activate()
 	self.active = true
 	_Game:playSound("sound_events/shooter_fill.json", 1, self.pos)
 end
 
+
+
 function Shooter:shoot()
 	-- if nothing to shoot, it's pointless
-	if _Game.session.level.pause or not self.active or self.color == 0 then return end
+	if _Game.session.level.pause or not self.active or self.color == 0 then
+		return
+	end
 
-	local sphereConfig = _Game.configManager.spheres[self.color]
+	local sphereConfig = self:getSphereConfig()
 	if sphereConfig.shootBehavior.type == "lightning" then
 		-- lightning spheres are not shot, they're deployed instantly
 		_Game:spawnParticle(sphereConfig.destroyParticle, self:spherePos())
@@ -193,9 +226,9 @@ function Shooter:shoot()
 	_Game:playSound(sphereConfig.shootSound, 1, self.pos)
 	self.color = 0
 	_Game.session.level.spheresShot = _Game.session.level.spheresShot + 1
-	--game.session.level.lightningStormCount = 0
-	--game.session.level.lightningStormTime = 0
 end
+
+
 
 function Shooter:destroy()
 	if self.sphereEntity then
@@ -213,12 +246,16 @@ function Shooter:getSphere(color)
 	end
 end
 
+
+
 function Shooter:getMultiSphere(color, count)
 	self.multiColorColor = color
 	self.multiColorCount = count
 	self:setColor(0)
 	self:setNextColor(0)
 end
+
+
 
 
 
@@ -230,7 +267,7 @@ function Shooter:draw()
 	if _EngineSettings:getAimingRetical() then
 		local targetPos = self:getTargetPos()
 		local color = self:getReticalColor()
-		local sphereConfig = _Game.configManager.spheres[self.color]
+		local sphereConfig = self:getSphereConfig()
 		if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
 			love.graphics.setLineWidth(3 * _GetResolutionScale())
 			love.graphics.setColor(color.r, color.g, color.b)
@@ -257,16 +294,19 @@ function Shooter:draw()
 
 	-- this color
 	if self.sphereEntity then
-		local frame = self.sphereEntity.config.spriteAnimationSpeed and Vec2(math.floor(self.sphereEntity.config.spriteAnimationSpeed * _TotalTime), 1) or Vec2(1)
-		self.sphereEntity.frame = frame
+		self.sphereEntity.frame = self:getSphereFrame()
 		self.sphereEntity:draw()
 	end
 	-- next color
-	_Game.resourceManager:getSprite(_Game.configManager.spheres[self.nextColor].nextSprite):draw(self.pos + Vec2(0, 21), Vec2(0.5, 0))
+	local sprite = _Game.resourceManager:getSprite(self:getNextSphereConfig().nextSprite)
+	local frame = self:getNextSphereFrame()
+	sprite:draw(self.pos + Vec2(0, 21), Vec2(0.5, 0), nil, frame)
 
 	--local p4 = posOnScreen(self.pos)
 	--love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
 end
+
+
 
 function Shooter:drawSpeedShotBeam()
 	-- rendering options:
@@ -304,36 +344,87 @@ end
 
 
 function Shooter:spawnSphereEntity()
-	if self.color == 0 or self.sphereEntity then return end
+	if self.color == 0 or self.sphereEntity then
+		return
+	end
 	self.sphereEntity = SphereEntity(self:spherePos(), self.color)
 end
 
 
 
 function Shooter:getReticalColor()
-	local color = _Game.configManager.spheres[self.color].color
+	local color = self:getSphereConfig().color
 	if type(color) == "string" then
-		return _Game.resourceManager:getColorPalette(color):getColor(_TotalTime * _Game.configManager.spheres[self.color].colorSpeed)
+		return _Game.resourceManager:getColorPalette(color):getColor(_TotalTime * self:getSphereConfig().colorSpeed)
 	else
 		return color
 	end
 end
 
+
+
 function Shooter:spherePos()
 	return self.pos - Vec2(0, -5)
 end
+
+
 
 function Shooter:catchablePos(pos)
 	return math.abs(self.pos.x - pos.x) < 80 and math.abs(self.pos.y - pos.y) < 15
 end
 
+
+
 function Shooter:getTargetPos()
 	return _Game.session:getNearestSphereY(self.pos).targetPos
 end
 
+
+
 function Shooter:getShootingSpeed()
-	if _Game.configManager.spheres[self.color].shootSpeed then return _Game.configManager.spheres[self.color].shootSpeed end
-	return self.speedShotTime > 0 and self.speedShotSpeed or self.config.shotSpeed
+	local sphereSpeed = self:getSphereConfig().shootSpeed
+	if sphereSpeed then
+		return sphereSpeed
+	elseif self.speedShotTime > 0 then
+		return self.speedShotSpeed
+	end
+	return self.config.shotSpeed
+end
+
+
+
+-- Returns config for the current sphere.
+function Shooter:getSphereConfig()
+	return _Game.configManager.spheres[self.color]
+end
+
+
+
+-- Returns config for the next sphere.
+function Shooter:getNextSphereConfig()
+	return _Game.configManager.spheres[self.nextColor]
+end
+
+
+
+-- Returns the current sphere's animation frame.
+function Shooter:getSphereFrame()
+	local animationSpeed = self:getSphereConfig().spriteAnimationSpeed
+	if animationSpeed then
+		return Vec2(math.floor(animationSpeed * _TotalTime), 1)
+	end
+	return Vec2(1)
+end
+
+
+
+-- Returns the next sphere's animation frame.
+function Shooter:getNextSphereFrame()
+	local animationSpeed = self:getNextSphereConfig().nextSpriteAnimationSpeed
+	if animationSpeed then
+		return Vec2(math.floor(animationSpeed * _TotalTime), 1)
+	end
+	return Vec2(1)
 end
 
 

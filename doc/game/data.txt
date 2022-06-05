@@ -338,6 +338,7 @@ D		- sprite (Sprite*) |A sprite to be drawn when the sphere is on the screen.
 D		- shadowSprite* (Sprite*) |A shadow sprite to be drawn along the sphere. Defaults to <i>sprites/game/ball_shadow.json</i> if not defined.
 D		- spriteAnimationSpeed* (number) |When defined, the sphere sprite will animate with that speed in frames per second. This disables rolling animation and rotation. When left out, the sphere will have their usual rolling animation and will keep rotating.
 D		- nextSprite (Sprite*) |A sprite used to draw the shooter's next color indicator.
+D		- nextSpriteAnimationSpeed* (number) |When defined, the next sphere sprite will animate with that speed in frames per second.
 D		- idleParticle* (Particle*) |A persistent particle packet used when the sphere is on the board.
 D		- destroyParticle (Particle*) |A one-time particle packet used when the sphere is destroyed.
 D		R <div class="jsonChoice">
