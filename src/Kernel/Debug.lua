@@ -1,12 +1,11 @@
 local class = require "com/class"
 local Debug = class:derive("Debug")
 
-local strmethods = require("src/strmethods")
-
 local Vec2 = require("src/Essentials/Vector2")
 
 local Profiler = require("src/Kernel/Profiler")
 local Console = require("src/Kernel/Console")
+local Expression = require("src/Expression")
 
 function Debug:new()
 	self.console = Console()
@@ -404,6 +403,11 @@ function Debug:runCommand(command)
 			witty = "I give up, no idea for the joke! Eh, I'll... just head out then. Cya!"
 		end
 		error(string.format("Manual crash [%s]", witty))
+	elseif words[1] == "expr" then
+		local e = Expression(words[2])
+		local result = e:evaluate()
+		self.console:print(result)
+		return true
 	end
 
 	return false
