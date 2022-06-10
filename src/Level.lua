@@ -15,7 +15,6 @@ function Level:new(data)
 	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior)
 	self.shooter = Shooter()
 
-	self.powerupGenerator = data.powerupGenerator
 	self.gemGenerator = data.gemGenerator
 	self.matchEffect = data.matchEffect
 
@@ -229,22 +228,15 @@ function Level:spawnCollectiblesFromEntry(pos, entryName)
 
 	local manager = _Game.configManager.collectibleGeneratorManager
 	local entry = manager:getEntry(entryName)
+	assert(entry, string.format("Cound not find collectible entry: %s", entryName))
 	local collectibles = entry:generate()
 	for i, collectible in ipairs(collectibles) do
 		self:spawnCollectible(pos, collectible)
 	end
 end
 
-function Level:spawnPowerup(pos)
-	self:spawnCollectiblesFromEntry(pos, self.powerupGenerator)
-end
-
 function Level:spawnGem(pos)
 	self:spawnCollectiblesFromEntry(pos, self.gemGenerator)
-end
-
-function Level:spawnCoin(pos)
-	self:spawnCollectiblesFromEntry(pos, "vanilla_coin.json")
 end
 
 function Level:grantScore(score)

@@ -40,6 +40,7 @@ function CollectibleGeneratorEntry:evaluate(entry)
         table.insert(t, ee)
       end
     end
+    return t
   
   elseif entry.type == "repeat" then
     local t = {}

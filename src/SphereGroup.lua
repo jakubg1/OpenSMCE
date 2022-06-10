@@ -620,15 +620,12 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	self.map.level:spawnFloatingText(scoreText, pos, scoreFont)
 
 	-- Spawn a coin if applicable.
-	local spawnCoin = effectConfig.can_spawn_coin and MOD_GAME.coinSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-	if spawnCoin then
-		self.map.level:spawnCoin(pos)
-	end
-
-	-- Spawn a powerup if applicable.
-	local spawnPowerup = effectConfig.can_spawn_powerup and MOD_GAME.powerupSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-	if spawnPowerup then
-		self.map.level:spawnPowerup(pos)
+	--_Vars:set("length", length)
+	--_Vars:set("comboLv", self.map.level.combo)
+	--_Vars:set("chainLv", self.sphereChain.combo)
+	--_Vars:set("comboBoost", boostCombo)
+	if effectConfig.destroy_collectible then
+		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroy_collectible)
 	end
 
 	-- Update max combo and max chain stats.

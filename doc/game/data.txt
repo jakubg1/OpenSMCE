@@ -312,14 +312,13 @@ D			R Can be set to <b>hardcoded</b>, in that case the destroy sound from a game
 D		- destroy_font (Font*) |A font to be used for the score value displayed on the screen.
 D			R Can be set to <b>hardcoded</b>, in that case the font used is of the "cause" sphere's <i>matchFont</i> value.
 D		- destroy_particle* (Particle*) |A one-time particle packet used when a sphere with this effect is destroyed.
+D		- destroy_collectible* (CollectibleGenerator*) |The collectible generator to be used when spheres with this effect are destroyed.
 D		- level_loss_protection (boolean) |If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
 D		- immobile (boolean) |If true, the spheres affected with this effect will stop.
 D		- fragile (boolean) |If true, the spheres affected with this effect can be destroyed by shooting through them.
 D		- can_boost_combo (boolean) |If true, the level combo value may rise after destroying a group with this effect.
 D		- can_boost_chain (boolean) |As above, but regarding the chain combo value.
 D		- apply_chain_multiplier (boolean) |If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
-D		- can_spawn_coin (boolean) |If true, destroying this group will cause the level-defined coin collectible generator to be applied when the game module permits to do so.
-D		- can_spawn_powerup (boolean) |As above, but regarding the powerup collectible.
 D		- can_keep_combo (boolean) |Whether shot spheres with this effect should not be counted towards combo reset.
 
 E
