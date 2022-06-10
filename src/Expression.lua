@@ -20,6 +20,17 @@ function Expression:compile(str)
 	-- Stores a list of RPN "steps".
 	local t = {}
 
+	-- Remove any spaces.
+	local s = ""
+	for i = 1, str:len() do
+		local c = str:sub(i, i)
+		if c ~= " " then
+			s = s .. c
+		end
+	end
+	str = s
+
+
 	-- If the whole expression is in a bracket, remove it.
 	if str:sub(1, 1) == "(" and str:sub(str:len()) == ")" then
 		local pos = 2
@@ -82,7 +93,7 @@ function Expression:compile(str)
 					table.insert(t, step)
 				end
 				-- Insert an operator and return the result.
-				table.insert(t, op)
+				table.insert(t, {type = "operator", value = op})
 				return t
 			end
 			pos = pos + 1
@@ -90,24 +101,28 @@ function Expression:compile(str)
 	end
 
 	-- If there are no operators, convert this value to an appropriate type and return itself.
-	local val = nil
-
 	if str == "true" or str == "false" then
 		-- Boolean value.
-		val = str == "true"
+		return {
+			{type = "value", value = str == "true"}
+		}
 	elseif str:sub(1, 1) == "[" and str:sub(str:len()) == "]" then
 		-- Variable value.
-		local n = str:sub(2, str:len() - 1)
-		val = _Vars:get(n)
+		return {
+			{type = "value", value = str:sub(2, str:len() - 1)},
+			{type = "operator", value = "get"}
+		}
 	elseif str == "random" then
 		-- Random value from 0 to 1, uniform.
-		val = math.random()
+		return {
+			{type = "operator", value = "rnd"}
+		}
 	else
 		-- Number value.
-		val = tonumber(str)
+		return {
+			{type = "value", value = tonumber(str)}
+		}
 	end
-
-	return {val}
 end
 
 
@@ -117,67 +132,77 @@ function Expression:evaluate()
 	local stack = {}
 
 	for i, step in ipairs(self.data) do
-		if type(step) == "number" or type(step) == "boolean" then
-			table.insert(stack, step)
-		elseif type(step) == "string" then
+		if step.type == "value" then
+			table.insert(stack, step.value)
+		elseif step.type == "operator" then
+			local op = step.value
 			-- Operators.
 			-- Artithmetic: Takes two last numbers in the stack, performs an operation and puts the result number back.
-			if step == "+" then
+			if op == "+" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a + b)
-			elseif step == "-" then
+			elseif op == "-" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a - b)
-			elseif step == "*" then
+			elseif op == "*" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a * b)
-			elseif step == "/" then
+			elseif op == "/" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a / b)
-			elseif step == "%" then
+			elseif op == "%" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a % b)
 
 			-- Comparison: Compares two numbers or strings in the stack, consuming them and puts the result boolean back.
-			elseif step == "==" then
+			elseif op == "==" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a == b)
-			elseif step == "!=" then
+			elseif op == "!=" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a ~= b)
-			elseif step == ">" then
+			elseif op == ">" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a > b)
-			elseif step == "<" then
+			elseif op == "<" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a < b)
-			elseif step == ">=" then
+			elseif op == ">=" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a >= b)
-			elseif step == "<=" then
+			elseif op == "<=" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a <= b)
 
 			-- Logic: Performs a logic operation on two booleans, consuming them and puts back one boolean result.
-			elseif step == "||" then
+			elseif op == "||" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a or b)
-			elseif step == "&&" then
+			elseif op == "&&" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a and b)
+
+			-- Miscellaneous.
+			elseif op == "rnd" then
+				-- Generate a random number.
+				table.insert(stack, math.random())
+			elseif op == "get" then
+				-- Get a value of a variable.
+				local a = table.remove(stack)
+				table.insert(stack, _Vars:get(a))
 			end
 		end
 	end
@@ -194,10 +219,10 @@ function Expression:getDebug()
 		if i > 1 then
 			s = s .. ", "
 		end
-		if type(step) == "number" or type(step) == "boolean" then
-			s = s .. tostring(step)
-		elseif type(step) == "string" then
-			s = s .. "(" .. step .. ")"
+		if step.type == "value" then
+			s = s .. tostring(step.value)
+		elseif step.type == "operator" then
+			s = s .. "(" .. step.value .. ")"
 		end
 	end
 	s = s .. "]"
