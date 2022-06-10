@@ -34,6 +34,9 @@ function Console:update(dt)
 end
 
 function Console:print(message)
+	if type(message) ~= "string" and type(message) ~= "table" then
+		message = tostring(message)
+	end
 	table.insert(self.history, {text = message, time = _TotalTime})
 	local logText = "[CONSOLE] " .. _StrUnformat(message)
 	print(logText)

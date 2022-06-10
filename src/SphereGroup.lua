@@ -620,10 +620,10 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	self.map.level:spawnFloatingText(scoreText, pos, scoreFont)
 
 	-- Spawn a coin if applicable.
-	--_Vars:set("length", length)
-	--_Vars:set("comboLv", self.map.level.combo)
-	--_Vars:set("chainLv", self.sphereChain.combo)
-	--_Vars:set("comboBoost", boostCombo)
+	_Vars:set("length", length)
+	_Vars:set("comboLv", self.map.level.combo)
+	_Vars:set("chainLv", self.sphereChain.combo)
+	_Vars:set("comboBoost", boostCombo)
 	if effectConfig.destroy_collectible then
 		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroy_collectible)
 	end

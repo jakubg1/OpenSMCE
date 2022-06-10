@@ -1,7 +1,7 @@
 local class = require "com/class"
 local CollectibleGeneratorEntry = class:derive("CollectibleGeneratorEntry")
 
-local mathmethods = require("src/mathmethods")
+local Expression = require("src/Expression")
 
 
 
@@ -80,7 +80,11 @@ end
 
 
 function CollectibleGeneratorEntry:checkCondition(condition)
-  if condition.type == "color_present" then
+  if condition.type == "expression" then
+    -- Returns true if the expression evaluates to true.
+		local e = Expression(condition.expression)
+		return e:evaluate()
+  elseif condition.type == "color_present" then
     -- Returns true if `color` is present on the board.
     return _Game.session.colorManager:isColorExistent(condition.color)
   elseif condition.type == "cmp_latest_checkpoint" then

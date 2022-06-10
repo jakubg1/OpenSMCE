@@ -406,7 +406,7 @@ function Debug:runCommand(command)
 	elseif words[1] == "expr" then
 		local e = Expression(words[2])
 		local result = e:evaluate()
-		self.console:print(result)
+		self.console:print(string.format("expr(%s): %s", words[2], result))
 		return true
 	end
 

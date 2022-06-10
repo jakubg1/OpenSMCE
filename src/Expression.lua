@@ -54,16 +54,16 @@ function Expression:compile(str)
 		str = "0" .. str
 	end
 
-	-- Four basic operators are supported by now. Start from the lowest priority!!!
-	local operators = {"+", "-", "*", "/"}
-	for i = 1, 4 do
-		local op = operators[i]
+	-- Operators start from the lowest priority!!!
+	local operators = {"||", "&&", "==", "!=", ">", "<", ">=", "<=", "+", "-", "*", "/", "%"}
+	for i, op in ipairs(operators) do
 		local pos = 1
 		local brackets = 0
 
-		while pos <= str:len() do
+		while pos <= str:len() - op:len() + 1 do
 			-- Get the character.
 			local c = str:sub(pos, pos)
+			local cop = str:sub(pos, pos + op:len() - 1)
 			-- Update the bracket count.
 			if c == "(" then
 				brackets = brackets + 1
@@ -71,10 +71,10 @@ function Expression:compile(str)
 				brackets = brackets - 1
 			end
 			-- If we're not in a bracket and an operator has been found, proceed.
-			if brackets == 0 and c == op then
+			if brackets == 0 and cop == op then
 				-- Calculate both hand sides and compile them.
 				local lhs = str:sub(1, pos - 1)
-				local rhs = str:sub(pos + 1)
+				local rhs = str:sub(pos + op:len())
 				for j, step in ipairs(self:compile(lhs)) do
 					table.insert(t, step)
 				end
@@ -89,8 +89,25 @@ function Expression:compile(str)
 		end
 	end
 
-	-- If there are no operators, convert this value to a number and return itself.
-	return {tonumber(str)}
+	-- If there are no operators, convert this value to an appropriate type and return itself.
+	local val = nil
+
+	if str == "true" or str == "false" then
+		-- Boolean value.
+		val = str == "true"
+	elseif str:sub(1, 1) == "[" and str:sub(str:len()) == "]" then
+		-- Variable value.
+		local n = str:sub(2, str:len() - 1)
+		val = _Vars:get(n)
+	elseif str == "random" then
+		-- Random value from 0 to 1, uniform.
+		val = math.random()
+	else
+		-- Number value.
+		val = tonumber(str)
+	end
+
+	return {val}
 end
 
 
@@ -100,9 +117,11 @@ function Expression:evaluate()
 	local stack = {}
 
 	for i, step in ipairs(self.data) do
-		if type(step) == "number" then
+		if type(step) == "number" or type(step) == "boolean" then
 			table.insert(stack, step)
 		elseif type(step) == "string" then
+			-- Operators.
+			-- Artithmetic: Takes two last numbers in the stack, performs an operation and puts the result number back.
 			if step == "+" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
@@ -119,6 +138,46 @@ function Expression:evaluate()
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a / b)
+			elseif step == "%" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a % b)
+
+			-- Comparison: Compares two numbers or strings in the stack, consuming them and puts the result boolean back.
+			elseif step == "==" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a == b)
+			elseif step == "!=" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a ~= b)
+			elseif step == ">" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a > b)
+			elseif step == "<" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a < b)
+			elseif step == ">=" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a >= b)
+			elseif step == "<=" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a <= b)
+
+			-- Logic: Performs a logic operation on two booleans, consuming them and puts back one boolean result.
+			elseif step == "||" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a or b)
+			elseif step == "&&" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a and b)
 			end
 		end
 	end
@@ -135,7 +194,7 @@ function Expression:getDebug()
 		if i > 1 then
 			s = s .. ", "
 		end
-		if type(step) == "number" then
+		if type(step) == "number" or type(step) == "boolean" then
 			s = s .. tostring(step)
 		elseif type(step) == "string" then
 			s = s .. "(" .. step .. ")"

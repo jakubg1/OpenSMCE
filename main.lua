@@ -3,8 +3,11 @@
 -- custom error handler
 require("crash")
 
+-- global utility methods
+require("src/strmethods")
+require("src/mathmethods")
+
 local json = require("com/json")
-local strmethods = require("src/strmethods")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
@@ -14,6 +17,7 @@ local Debug = require("src/Kernel/Debug")
 local BootScreen = require("src/Kernel/BootScreen")
 local Game = require("src/Game")
 
+local ExpressionVariables = require("src/ExpressionVariables")
 local Settings = require("src/Kernel/Settings")
 
 local DiscordRichPresence = require("src/DiscordRichPresence")
@@ -44,7 +48,9 @@ _FSPrefix = ""
 _Game = nil
 _Debug = nil
 
+-- to be deleted soon, is there any use for it? check later
 _VariableSet = {}
+_Vars = ExpressionVariables()
 
 _TotalTime = 0
 _TimeScale = 1
