@@ -27,8 +27,20 @@ function CollectibleGeneratorEntry:evaluate(entry)
   -- If the conditions do meet, proceed.
   if entry.type == "collectible" then
     return {entry.name}
+  
   elseif entry.type == "collectible_generator" then
     return self.manager:getEntry(entry.name):generate()
+  
+  elseif entry.type == "combine" then
+    local t = {}
+    for i, e in ipairs(entry.entries) do
+      -- Evaluate each entry from the pool and insert the results.
+      local eval = self:evaluate(e)
+      for j, ee in ipairs(eval) do
+        table.insert(t, ee)
+      end
+    end
+  
   elseif entry.type == "repeat" then
     local t = {}
     for i = 1, entry.count do
@@ -39,6 +51,7 @@ function CollectibleGeneratorEntry:evaluate(entry)
       end
     end
     return t
+  
   elseif entry.type == "random_pick" then
     -- Create a pool copy.
     local p = {}

@@ -246,6 +246,13 @@ D		- type (string) |<b><i>collectible_generator</i></b>
 D		- name (string) |A collectible generator ID to be evaluated.
 D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
 
+H3	<i>combine</i>
+P	Evaluates a list of given entries and returns a list of all collectibles generated.
+D	- (object) |A single entry.
+D		- type (string) |<b><i>combine</i></b>
+D		- entries (list) |A list of collectible entries to be evaluated.
+D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
+
 H3	<i>repeat</i>
 P	Evaluates a given entry a number of times and returns a list of all collectibles generated.
 D	- (object) |A single entry.
