@@ -11,10 +11,8 @@ P
 P	    config.json
 P	    runtime.json
 P	    config/hud_layer_order.json
-P	    config/level_set.json
 P	    config/loadlist.json
 P	    config/music.json
-P	    Collectible Generators
 P	
 P	Asset Files
 P	
@@ -26,6 +24,36 @@ P	    Sound Events
 P	    Sprites
 P	    UI Widgets
 P	    UI Widget Script
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	overview
+N	Overview
+
+P	This page explains various value types and symbols assigned to it.
+D	- (number) |A number value.
+D	- (string) |A string value.
+D	- (boolean) |A boolean value (true or false).
+D	- (list) |A list.
+D	- (object) |A JSON object.
+D	- (Vec2) |A 2D vector. It is a table which contains the following values:
+D		- x (number) |The length of the vector along X axis.
+D		- y (number) |The length of the vector along Y axis.
+D	- (Color) |A color. It is a table which contains the following values:
+D		- r (number) |The red component, of a value ranging from 0 to 1.
+D		- g (number) |The green component, of a value ranging from 0 to 1.
+D		- b (number) |The blue component, of a value ranging from 0 to 1.
+D	- (Expression) |An expression. There will be a separate page dedicated for it.
+D	- (CollectibleGenerator*) |A pointer which points to a Collectible Generator, in format: "X.json".
+D	- (ColorPalette*) |A pointer which points to a Color Palette, i.e. "images/powerups/wild_pal.png".
+D	- (Font*) |A pointer which points to a Font, in format: "fonts/X.json".
+D	- (Particle*) |A pointer which points to a particle packet, in format: "particles/X.json".
+D	- (SoundEvent*) |A pointer which points to a Sound Event, in format: "sound_events/X.json".
+D	- (Sprite*) |A pointer which points to a Sprite, in format: "sprites/X.json".
 
 E
 
@@ -258,7 +286,7 @@ P	Evaluates a given entry a number of times and returns a list of all collectibl
 D	- (object) |A single entry.
 D		- type (string) |<b><i>repeat</i></b>
 D		- entry (object) |A collectible entry to be evaluated.
-D		- count (number) |How many times the entry should be evaluated.
+D		- count (Expression) |How many times the entry should be evaluated. -> number
 D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
 
 H3	<i>random_pick</i>
@@ -273,6 +301,12 @@ D		- conditions* (list) |A list of conditions. All of them must be satisfied. In
 
 H2	Allowed collectible generator conditions
 P	<i>Debug information: this can be checked in CollectibleGeneratorEntry:checkCondition().</i>
+
+H3	<i>expression</i>
+P	Returns true if the provided expression returns true.
+D	- (object) |A single condition.
+D		- type (string) |<b><i>expression</i></b>
+D		- expression (Expression) |An expression to be evaluated. -> boolean
 
 H3	<i>color_present</i>
 P	Returns true if a given color is present on the board.

@@ -10,7 +10,8 @@ def main():
 		"ColorPalette*": "str_palette",
 		"Particle*": "str_particle",
 		"SoundEvent*": "str_sound",
-		"Sprite*": "str_sprite"
+		"Sprite*": "str_sprite",
+		"Expression": "expression"
 	}
 	
 	

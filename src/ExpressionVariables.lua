@@ -23,6 +23,9 @@ end
 
 -- Gets a value.
 function ExpressionVariables:get(name)
+    if self.data[name] == nil then
+        error(string.format("[ExpressionVariables] Tried to get a nonexistent variable: %s", name))
+    end
     return self.data[name]
 end
 

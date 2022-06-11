@@ -60,6 +60,7 @@ function BonusScarab:explode()
 	local pos = self:getPos()
 	local score = math.max(math.floor((self.path.length - self.minOffset) / self.config.stepLength), 1) * self.config.pointsPerStep
 
+	_Vars:set("distance", self.distance)
 	_Game.session.level:grantScore(score)
 	_Game.session.level:spawnFloatingText(_NumStr(score) .. "\nBONUS", pos, self.config.scoreFont)
 	_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyGenerator)

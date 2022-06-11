@@ -17,6 +17,14 @@ end
 
 -- Compiles a given expression.
 function Expression:compile(str)
+	-- If this is not a string, but instead a number, then there's nothing to talk about.
+	if type(str) == "number" then
+		-- Number value.
+		return {
+			{type = "value", value = str}
+		}
+	end
+
 	-- Stores a list of RPN "steps".
 	local t = {}
 
@@ -30,39 +38,29 @@ function Expression:compile(str)
 	end
 	str = s
 
-
 	-- If the whole expression is in a bracket, remove it.
-	if str:sub(1, 1) == "(" and str:sub(str:len()) == ")" then
-		local pos = 2
-		local brackets = 1
-		local ok = true
-
-		-- Test whether this is the same bracket at the beginning and at the end.
-		while pos < str:len() do
-			-- Get the character.
-			local c = str:sub(pos, pos)
-			-- Update the bracket count.
-			if c == "(" then
-				brackets = brackets + 1
-			elseif c == ")" then
-				brackets = brackets - 1
-			end
-			-- If we're out of the root bracket, don't remove it.
-			if brackets == 0 then
-				ok = false
-				break
-			end
-			pos = pos + 1
-		end
-
-		if ok then
-			return self:compile(str:sub(2, str:len() - 1))
-		end
+	if _StrIsInWholeBracket(str) then
+		return self:compile(str:sub(2, str:len() - 1))
 	end
 
 	-- If there is an unary minus, then we're going to cheat by adding a leading zero to the expression.
 	if str:sub(1, 1) == "-" then
 		str = "0" .. str
+	end
+
+	-- If this is a function, compile the parameters and add an appropriate RPN step.
+	local functions = {"floor", "ceil", "round", "random"}
+	for i, f in ipairs(functions) do
+		local cf = str:sub(1, f:len())
+		local cother = str:sub(f:len() + 1, str:len())
+		if cf == f and _StrIsInWholeBracket(cother) then
+			for j, step in ipairs(self:compile(cother)) do
+				table.insert(t, step)
+			end
+			-- Insert an operator and return the result.
+			table.insert(t, {type = "operator", value = f})
+			return t
+		end
 	end
 
 	-- Operators start from the lowest priority!!!
@@ -195,10 +193,20 @@ function Expression:evaluate()
 				local a = table.remove(stack)
 				table.insert(stack, a and b)
 
-			-- Miscellaneous.
-			elseif op == "rnd" then
-				-- Generate a random number.
+			-- Functions.
+			elseif op == "floor" then
+				local a = table.remove(stack)
+				table.insert(stack, math.floor(a))
+			elseif op == "ceil" then
+				local a = table.remove(stack)
+				table.insert(stack, math.ceil(a))
+			elseif op == "round" then
+				local a = table.remove(stack)
+				table.insert(stack, math.floor(a + 0.5))
+			elseif op == "random" then
 				table.insert(stack, math.random())
+
+			-- Miscellaneous.
 			elseif op == "get" then
 				-- Get a value of a variable.
 				local a = table.remove(stack)

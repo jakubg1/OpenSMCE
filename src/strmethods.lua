@@ -17,6 +17,8 @@ function _StrSplit(s, k)
 	end
 end
 
+
+
 ---Combines a table of strings together to produce a string.
 ---@param t table A table of strings to be combined.
 ---@param k string A delimiter which will separate the terms.
@@ -29,6 +31,8 @@ function _StrJoin(t, k)
 	end
 	return s
 end
+
+
 
 ---Trims whitespace from both the beginning and the end of a given string.
 ---Currently supported whitespace characters are `" "` and `"\t"`.
@@ -43,6 +47,8 @@ function _StrTrim(s)
 	return s
 end
 
+
+
 ---Trims a line from a trailing comment.
 ---The only supported comment marker is `//`.
 ---
@@ -53,6 +59,8 @@ function _StrTrimCom(s)
 	-- truncate the comment part and trim
 	return _StrTrim(_StrSplit(s, "//")[1])
 end
+
+
 
 -- Strips the formatted text from formatting, if exists.
 function _StrUnformat(s)
@@ -66,6 +74,39 @@ function _StrUnformat(s)
 		return s
 	end
 end
+
+
+
+-- Checks whether the whole string is in a single bracket.
+function _StrIsInWholeBracket(s)
+	if s:sub(1, 1) ~= "(" or s:sub(s:len()) ~= ")" then
+		return false
+	end
+	
+	local pos = 2
+	local brackets = 1
+
+	-- Test whether this is the same bracket at the beginning and at the end.
+	while pos < s:len() do
+		-- Get the character.
+		local c = s:sub(pos, pos)
+		-- Update the bracket count.
+		if c == "(" then
+			brackets = brackets + 1
+		elseif c == ")" then
+			brackets = brackets - 1
+		end
+		-- If we're out of the root bracket, return false.
+		if brackets == 0 then
+			return false
+		end
+		pos = pos + 1
+	end
+	
+	return true
+end
+
+
 
 ---A simple function which makes JSON formatting nicer.
 ---@param s string Raw JSON input.

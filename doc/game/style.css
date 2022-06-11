@@ -69,6 +69,10 @@ ul.json li.color::before {
 	background-image: url("icons/color.png");
 }
 
+ul.json li.expression::before {
+	background-image: url("icons/expression.png");
+}
+
 ul.json li.list::before {
 	background-image: url("icons/list.png");
 }

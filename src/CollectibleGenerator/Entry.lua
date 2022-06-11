@@ -45,7 +45,7 @@ function CollectibleGeneratorEntry:evaluate(entry)
   
   elseif entry.type == "repeat" then
     local t = {}
-    for i = 1, entry.count do
+    for i = 1, entry.count:evaluate() do
       local eval = self:evaluate(entry.entry)
       -- Append the results of each roll.
       for j, e in ipairs(eval) do
@@ -129,6 +129,7 @@ function CollectibleGeneratorEntry:compileExpressions(data)
   
   elseif data.type == "repeat" then
     self:compileExpressions(data.entry)
+    data.count = Expression(data.count)
   
   elseif data.type == "random_pick" then
     for i, entry in ipairs(data.pool) do
@@ -142,10 +143,8 @@ function CollectibleGeneratorEntry:compileExpressions(data)
   end
   -- Compile all expression type conditions.
   for i, condition in ipairs(data.conditions) do
-    print(condition.type)
     if condition.type == "expression" then
       condition.expression = Expression(condition.expression)
-      print("Compiled expression: " .. condition.expression:getDebug())
     end
   end
 end
