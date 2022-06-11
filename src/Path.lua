@@ -201,6 +201,18 @@ end
 
 
 
+function Path:dumpOffsetVars(offset)
+	-- Three different variables, to use whichever works best.
+	-- offset: ranging from 0 to path length, from start point.
+	_Vars:set("offset", offset)
+	-- offsetE: ranging from 0 to path length, from end point.
+	_Vars:set("offsetE", self.length - offset)
+	-- distance: ranging from 0 to 1, from start point. Universal formula for end point: 1 - [distance].
+	_Vars:set("distance", offset / self.length)
+end
+
+
+
 function Path:destroy()
 	for i, sphereChain in ipairs(self.sphereChains) do
 		sphereChain:destroy()

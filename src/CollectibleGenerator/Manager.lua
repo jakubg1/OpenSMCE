@@ -16,6 +16,7 @@ end
 
 
 function CollectibleGeneratorManager:getEntry(name)
+	assert(self.generators[name], string.format("Cound not find collectible entry: %s", name))
   return self.generators[name]
 end
 

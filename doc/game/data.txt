@@ -381,6 +381,7 @@ D		- nextSprite (Sprite*) |A sprite used to draw the shooter's next color indica
 D		- nextSpriteAnimationSpeed* (number) |When defined, the next sphere sprite will animate with that speed in frames per second.
 D		- idleParticle* (Particle*) |A persistent particle packet used when the sphere is on the board.
 D		- destroyParticle (Particle*) |A one-time particle packet used when the sphere is destroyed.
+D		- destroy_collectible* (CollectibleGenerator*) |A collectible generator used when the sphere is destroyed.
 D		R <div class="jsonChoice">
 D		R Either one of two below:
 D			- color (Color) |The color used by shooting retical.

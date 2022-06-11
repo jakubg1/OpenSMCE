@@ -319,10 +319,6 @@ function SphereGroup:checkDeletion()
 
 	-- if there's only a vise in this chain, the whole chain gets yeeted!
 	if not self.prevGroup and not self.nextGroup and #self.spheres == 1 and self.spheres[1].color == 0 then
-		-- Spawn a gem only if the level is not lost and this is not a dummy level.
-		if not self.map.isDummy and not self.map.level.lost then
-			self.map.level:spawnGem(self:getSpherePos(1))
-		end
 		self.spheres[1]:delete()
 		self.sphereChain:delete(false)
 	end

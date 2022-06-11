@@ -37,7 +37,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.frameOffset = 0
 	end
 
-	if not self.map.isDummy and self.color > 0 then
+	if not self.map.isDummy then
 		_Game.session.colorManager:increment(self.color)
 	end
 
@@ -104,7 +104,7 @@ function Sphere:update(dt)
 	end
 
 	-- count/uncount the sphere from the danger sphere counts
-	if not self.map.isDummy and self.color > 0 and not self.delQueue then
+	if not self.map.isDummy and not self.delQueue then
 		local danger = self.sphereGroup.sphereChain:getDanger()
 		if self.danger ~= danger then
 			self.danger = danger
@@ -144,20 +144,27 @@ function Sphere:delete()
 	end
 
 	self.delQueue = true
-	-- Increment sphere collapse count.
-	if not self.map.isDummy and self.color ~= 0 then
-		self.map.level:destroySphere()
-	end
-	-- Update links !!!
-	if self.prevSphere then self.prevSphere.nextSphere = self.nextSphere end
-	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
-	-- Update color count.
-	if not self.map.isDummy and self.color > 0 then
+	if not self.map.isDummy then
+		-- Increment sphere collapse count.
+		if self.color ~= 0 then
+			self.map.level:destroySphere()
+		end
+		-- Spawn collectibles, if any.
+		self.path:dumpOffsetVars(self:getOffset())
+		if self.config.destroy_collectible and not self.map.level.lost then
+			self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroy_collectible)
+		end
+		-- Update color count.
 		_Game.session.colorManager:decrement(self.color)
 		if self.danger then
 			_Game.session.colorManager:decrement(self.color, true)
 		end
 	end
+
+	-- Update links !!!
+	if self.prevSphere then self.prevSphere.nextSphere = self.nextSphere end
+	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
+
 	-- Remove the entity.
 	self.entity:destroy(not ((self.map.level.lost or self.map.isDummy) and self:getOffset() >= self.path.length))
 
