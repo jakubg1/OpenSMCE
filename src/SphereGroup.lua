@@ -46,7 +46,7 @@ function SphereGroup:update(dt)
 	local speedBound = speedGrp.sphereChain.path:getSpeed(speedGrp:getLastSphereOffset())
 
 	local speedDesired = self.sphereChain.speedOverrideBase + speedBound * self.sphereChain.speedOverrideMult
-	if self:isMagnetizing() then
+	if self:isMagnetizing() and not self:hasImmobileSpheres() then
 		self.maxSpeed = self.config.attractionSpeedBase + self.config.attractionSpeedMult * math.max(self.sphereChain.combo, 1)
 	else
 		self.maxSpeed = 0
@@ -378,6 +378,7 @@ function SphereGroup:join()
 		self.prevGroup:matchAndDelete(joinPosition)
 	end
 	-- check for fragile spheres
+	self.prevGroup:destroyFragileSpheres()
 	self:destroyFragileSpheres()
 	-- play a sound
 	_Game:playSound("sound_events/sphere_group_join.json", 1, self.sphereChain.path:getPos(self.offset))
@@ -540,23 +541,32 @@ end
 
 -- Similar to the one above, because it also grants score and destroys spheres collectively, however the bounds are based on an effect.
 function SphereGroup:matchAndDeleteEffect(position, effect)
+	local effectConfig = _Game.configManager.sphereEffects[effect]
 	local effectGroupID = self.spheres[position]:getEffectGroupID(effect)
+
 	-- Prepare a list of spheres to be destroyed.
 	local spheres = {}
 	local position1 = nil
 	local position2 = 0
-	for i, sphere in ipairs(self.spheres) do
-		if sphere:hasEffect(effect, effectGroupID) then
-			table.insert(spheres, sphere)
-			if not position1 then
-				position1 = i
+	if effectConfig.cause_check then
+		-- Cause check: destroy all spheres in the same group if they have the same cause.
+		for i, sphere in ipairs(self.spheres) do
+			if sphere:hasEffect(effect, effectGroupID) then
+				table.insert(spheres, sphere)
+				if not position1 then
+					position1 = i
+				end
+				position2 = i
 			end
-			position2 = i
+		end
+	else
+		-- No cause check: destroy all spheres in the same group if they lay near each other.
+		position1, position2 = self:getEffectBounds(position, effect)
+		for i = position1, position2 do
+			table.insert(spheres, self.spheres[i])
 		end
 	end
-	--local position1, position2 = self:getEffectBounds(position, effect, effectGroupID)
 	local length = #spheres
-	local effectConfig = _Game.configManager.sphereEffects[effect]
 
 	local boostCombo = false
 	-- Abort if any sphere from the given ones has not joined yet and see if we have to boost the combo.
