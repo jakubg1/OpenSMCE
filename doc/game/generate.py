@@ -120,11 +120,16 @@ def main():
 				if optional:
 					name = name[:-1]
 				
-				type = s[1][:-1]
-				if type in type_assoc:
-					type = type_assoc[type]
+				types = s[1][:-1].split("|")
 				
-				page_content += "<li class=\"" + type + "\">"
+				page_content += "<li>"
+				
+				for type in types:
+					type_res = type
+					if type in type_assoc:
+						type_res = type_assoc[type]
+					page_content += "<img class=\"type\" src=\"icons/" + type_res + ".png\" title=\"" + type + "\" width=\"16px\" height=\"16px\">"
+				
 				if len(name) == 0:
 					page_content += description
 				elif optional:
