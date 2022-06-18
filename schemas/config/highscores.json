@@ -2,6 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
     "properties": {
+        "$schema": true,
         "size": {
             "type": "integer",
             "minimum": 1,
@@ -27,8 +28,19 @@
                         "type": "string",
                         "description": "The level on which the player has ended their game."
                     }
-                }
+                },
+                "required": [
+                    "name",
+                    "score",
+                    "level"
+                ],
+                "additionalProperties": false
             }
         }
-    }
+    },
+    "required": [
+        "size",
+        "default_scores"
+    ],
+    "additionalProperties": false
 }

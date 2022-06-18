@@ -2,13 +2,17 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
     "properties": {
+        "$schema": true,
         "shooter": {
             "type": "object",
             "description": "Defines the shooter behavior and appearance.",
             "properties": {
                 "speedShotBeamRenderingType": {
-                    "type": "string",
-                    "pattern": "^(full|cut|scale)$",
+                    "enum": [
+                        "full",
+                        "cut",
+                        "scale"
+                    ],
                     "description": "Defines how the speed shot beam is rendered. Available values are:\n- full - The full beam is always visible.\n- cut - The beam is cut where it intersects a sphere train.\n- scale - The beam is shrunk so its top is touching a sphere train.",
                     "markdownDescription": "Defines how the speed shot beam is rendered. Available values are:\n- `\"full\"` - The full beam is always visible.\n- `\"cut\"` - The beam is cut where it intersects a sphere train.\n- `\"scale\"` - The beam is shrunk so its top is touching a sphere train."
                 },
@@ -36,7 +40,8 @@
                 "speedShotBeamColored",
                 "speedShotBeamFadeTime",
                 "shotSpeed"
-            ]
+            ],
+            "additionalProperties": false
         },
         "level": {
             "type": "object",
@@ -68,7 +73,8 @@
                 "finishDelay",
                 "bonusDelay",
                 "wonDelay"
-            ]
+            ],
+            "additionalProperties": false
         },
         "sphereBehaviour": {
             "type": "object",
@@ -135,7 +141,8 @@
                 "foulSpeed",
                 "overspeedCheck",
                 "invincible_scarabs"
-            ]
+            ],
+            "additionalProperties": false
         },
         "collectibleBehaviour": {
             "type": "object",
@@ -153,7 +160,8 @@
             "required": [
                 "speed",
                 "acceleration"
-            ]
+            ],
+            "additionalProperties": false
         },
         "bonusScarab": {
             "type": "object",
@@ -218,7 +226,8 @@
                 "speed",
                 "destroyParticle",
                 "scoreFont"
-            ]
+            ],
+            "additionalProperties": false
         },
         "scorpion": {
             "type": "object",
@@ -267,7 +276,8 @@
                 "speed",
                 "destroyParticle",
                 "scoreFont"
-            ]
+            ],
+            "additionalProperties": false
         }
     },
     "required": [
@@ -276,5 +286,6 @@
         "sphereBehaviour",
         "collectibleBehaviour",
         "bonusScarab"
-    ]
+    ],
+    "additionalProperties": false
 }

@@ -174,6 +174,7 @@ P	Spawns a certain amount of a defined sphere to the shooter. This can be used t
 D	- (object) |A powerup effect.
 D		- type (string) |<b><i>multiSphere</i></b>
 D		- color (number) |A sphere ID of a sphere the shooter should get.
+D		- count (number) |How many spheres of that type should be given.
 
 H3	<i>speedShot</i>
 P	Replaces the default shooting speed and spawns a speed shot beam effect.
@@ -187,7 +188,7 @@ P	Changes the speed of spheres on the board.
 D	- (object) |A powerup effect.
 D		- type (string) |<b><i>speedOverride</i></b>
 D		- speedBase (number) |A value to be added to the multiplied sphere speed.
-D		- speedOverride (number) |A multiplier by which the nominal path speed will be multiplied. The formula for the final speed is: <i>speedBase + (pathSpeed * speedOverride)</i>.
+D		- speedMultiplier (number) |A multiplier by which the nominal path speed will be multiplied. The formula for the final speed is: <i>speedBase + (pathSpeed * speedMultiplier)</i>.
 D		- decceleration (number) |A sphere decceleration rate which will be applied alongside speed changes.
 D		- time (number) |The duration of the effect in seconds.
 
@@ -208,7 +209,7 @@ D	- (object) |A powerup effect.
 D		- type (string) |<b><i>spawnScorpion</i></b>
 
 H3	<i>lightningStorm</i>
-P	Replaces the current sphere the shooter has with a defined sphere. This can be used to spawn otherwise unobtainable bonus balls, i.e. wild or lightning.
+P	Starts a lightning storm, spawning a given amount of strikes which destroy single spheres.
 D	- (object) |A powerup effect.
 D		- type (string) |<b><i>lightningStorm</i></b>
 D		- count (number) |The amount of strikes.

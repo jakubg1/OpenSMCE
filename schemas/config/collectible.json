@@ -1,0 +1,52 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "$schema": true,
+        "particle": {
+            "type": "string",
+            "description": "A persistent particle packet which will follow the collectible entity."
+        },
+        "pickupParticle": {
+            "type": "string",
+            "description": "A one-time particle packet which will be launched when the collectible is catched."
+        },
+        "spawnSound": {
+            "type": "string",
+            "description": "A sound event which will play when the collectible is spawned."
+        },
+        "pickupSound": {
+            "type": "string",
+            "description": "A sound event which will play when the collectible is collected."
+        },
+        "pickupName": {
+            "type": "string",
+            "description": "A label which will appear above the shooter when the powerup is collected."
+        },
+        "pickupFont": {
+            "type": "string",
+            "description": "A font which will be used for the label."
+        },
+        "effects": {
+            "type": "array",
+            "description": "A list of effects to be applied when the powerup is collected.",
+            "items": {
+                "$ref": "collectible_effect.json"
+            }
+        },
+        "dropEffects": {
+            "type": "array",
+            "description": "A list of effects to be applied when the powerup is not collected and falls out of the screen.",
+            "items": {
+                "$ref": "collectible_effect.json"
+            }
+        }
+    },
+    "required": [
+        "particle",
+        "pickupParticle",
+        "spawnSound",
+        "pickupSound"
+    ],
+    "additionalProperties": false
+}
