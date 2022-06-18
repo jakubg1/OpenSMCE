@@ -1,14 +1,11 @@
 local class = require "com/class"
 local CollectibleGeneratorEntry = class:derive("CollectibleGeneratorEntry")
 
-local Expression = require("src/Expression")
-
 
 
 function CollectibleGeneratorEntry:new(manager, name)
   self.manager = manager
   self.data = _LoadJson(_ParsePath(string.format("config/collectible_generators/%s", name)))
-  self:compileExpressions(self.data)
 end
 
 
@@ -45,7 +42,7 @@ function CollectibleGeneratorEntry:evaluate(entry)
   
   elseif entry.type == "repeat" then
     local t = {}
-    for i = 1, entry.count:evaluate() do
+    for i = 1, _Vars:evaluateExpression(entry.count) do
       local eval = self:evaluate(entry.entry)
       -- Append the results of each roll.
       for j, e in ipairs(eval) do
@@ -83,7 +80,7 @@ end
 function CollectibleGeneratorEntry:checkCondition(condition)
   if condition.type == "expression" then
     -- Returns true if the expression evaluates to true.
-		return condition.expression:evaluate()
+		return _Vars:evaluateExpression(condition.expression)
   elseif condition.type == "color_present" then
     -- Returns true if `color` is present on the board.
     return _Game.session.colorManager:isColorExistent(condition.color)
@@ -116,37 +113,6 @@ function CollectibleGeneratorEntry:checkConditions(conditions)
     end
   end
   return true
-end
-
-
-
-function CollectibleGeneratorEntry:compileExpressions(data)
-  -- Check children first.
-  if data.type == "combine" then
-    for i, entry in ipairs(data.entries) do
-      self:compileExpressions(entry)
-    end
-  
-  elseif data.type == "repeat" then
-    self:compileExpressions(data.entry)
-    data.count = Expression(data.count)
-  
-  elseif data.type == "random_pick" then
-    for i, entry in ipairs(data.pool) do
-      self:compileExpressions(entry.entry)
-    end
-  end
-
-  -- No conditions for this one - don't proceed.
-  if not data.conditions then
-    return
-  end
-  -- Compile all expression type conditions.
-  for i, condition in ipairs(data.conditions) do
-    if condition.type == "expression" then
-      condition.expression = Expression(condition.expression)
-    end
-  end
 end
 
 

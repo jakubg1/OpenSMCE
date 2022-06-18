@@ -5,7 +5,6 @@ local Vec2 = require("src/Essentials/Vector2")
 
 local Profiler = require("src/Kernel/Profiler")
 local Console = require("src/Kernel/Console")
-local Expression = require("src/Expression")
 
 function Debug:new()
 	self.console = Console()
@@ -404,8 +403,7 @@ function Debug:runCommand(command)
 		end
 		error(string.format("Manual crash [%s]", witty))
 	elseif words[1] == "expr" then
-		local e = Expression(words[2])
-		local result = e:evaluate()
+		local result = _Vars:evaluateExpression(words[2])
 		self.console:print(string.format("expr(%s): %s", words[2], result))
 		return true
 	end
