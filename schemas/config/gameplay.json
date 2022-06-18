@@ -1,0 +1,280 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "shooter": {
+            "type": "object",
+            "description": "Defines the shooter behavior and appearance.",
+            "properties": {
+                "speedShotBeamRenderingType": {
+                    "type": "string",
+                    "pattern": "^(full|cut|scale)$",
+                    "description": "Defines how the speed shot beam is rendered. Available values are:\n- full - The full beam is always visible.\n- cut - The beam is cut where it intersects a sphere train.\n- scale - The beam is shrunk so its top is touching a sphere train.",
+                    "markdownDescription": "Defines how the speed shot beam is rendered. Available values are:\n- `\"full\"` - The full beam is always visible.\n- `\"cut\"` - The beam is cut where it intersects a sphere train.\n- `\"scale\"` - The beam is shrunk so its top is touching a sphere train."
+                },
+                "speedShotBeamColored": {
+                    "type": "boolean",
+                    "description": "Whether the beam should be colored with the current sphere color."
+                },
+                "speedShotBeamFadeTime": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "How long the speed shot beam should fade in or out, in seconds."
+                },
+                "speedShotParticle": {
+                    "type": "string",
+                    "description": "Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes."
+                },
+                "shotSpeed": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "The default speed of how fast the shot spheres will be, in pixels per second."
+                }
+            },
+            "required": [
+                "speedShotBeamRenderingType",
+                "speedShotBeamColored",
+                "speedShotBeamFadeTime",
+                "shotSpeed"
+            ]
+        },
+        "level": {
+            "type": "object",
+            "description": "Defines some key level times.",
+            "properties": {
+                "controlDelay": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Time between launching the first spheres in a level and the shooter activation in seconds."
+                },
+                "finishDelay": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Time between considering the level complete (win condition met and empty board) and releasing the first bonus scarab."
+                },
+                "bonusDelay": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Time between each consecutive bonus scarab launch in multi-path levels in seconds."
+                },
+                "wonDelay": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Time between the last bonus scarab destruction and considering the level fully won."
+                }
+            },
+            "required": [
+                "controlDelay",
+                "finishDelay",
+                "bonusDelay",
+                "wonDelay"
+            ]
+        },
+        "sphereBehaviour": {
+            "type": "object",
+            "description": "Defines behavior of the spheres.",
+            "properties": {
+                "acceleration": {
+                    "type": "number",
+                    "description": "The default acceleration rate of spheres being pushed."
+                },
+                "foulAcceleration": {
+                    "type": "number",
+                    "description": "The acceleration rate of spheres used only when the player fails to complete a level."
+                },
+                "attractionAcceleration": {
+                    "type": "number",
+                    "description": "The acceleration rate of spheres magnetizing to each other."
+                },
+                "decceleration": {
+                    "type": "number",
+                    "description": "The default decceleration rate of spheres."
+                },
+                "attractionSpeedBase": {
+                    "type": "number",
+                    "description": "Base maximum attraction speed of groups of like color being attracted together.",
+                    "markdownDescription": "Maximum attraction speed of groups of like color being attracted together.\nThis and `attractionSpeedMult` form a final value together using this expression: `attractionSpeedBase + max(1, chain) * attractionSpeedMult`."
+                },
+                "attractionSpeedMult": {
+                    "type": "number",
+                    "description": "The maximum attraction speed multiplier, multiplied by the chain combo value",
+                    "markdownDescription": "The second value used in the formula. For description look at `attractionSpeedBase`."
+                },
+                "knockbackSpeedBase": {
+                    "type": "number",
+                    "description": "Base speed induced when a group of spheres crashes into another sphere group behind it.",
+                    "markdownDescription": "Speed induced when a group of spheres crashes into another sphere group behind it.\nThis and `knockbackSpeedMult` form a final value together using this expression: `knockbackSpeedBase + max(1, chain) * knockbackSpeedMult`."
+                },
+                "knockbackSpeedMult": {
+                    "type": "number",
+                    "description": "The multiplier, multiplied by the chain combo value, of a speed induced when a group of spheres crashes into another sphere group behind it.",
+                    "markdownDescription": "The second value used in the formula. For description look at `knockbackSpeedBase`."
+                },
+                "foulSpeed": {
+                    "type": "number",
+                    "description": "Maximum speed of spheres when the player fails to complete a level."
+                },
+                "overspeedCheck": {
+                    "type": "boolean",
+                    "description": "If true, spheres will never move faster than the maximum speed defined at a given point of the path.",
+                    "markdownDescription": "If `true`, spheres will never move faster than the maximum speed defined at a given point of the path."
+                },
+                "invincible_scarabs": {
+                    "type": "boolean",
+                    "description": "If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.",
+                    "markdownDescription": "If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed."
+                }
+            },
+            "required": [
+                "acceleration",
+                "decceleration",
+                "attractionSpeedBase",
+                "attractionSpeedMult",
+                "knockbackSpeedBase",
+                "knockbackSpeedMult",
+                "foulSpeed",
+                "overspeedCheck",
+                "invincible_scarabs"
+            ]
+        },
+        "collectibleBehaviour": {
+            "type": "object",
+            "description": "Defines how Collectibles behave.",
+            "properties": {
+                "speed": {
+                    "$ref": "../_structures/Vector2.json",
+                    "description": "A starting speed of the Collectibles."
+                },
+                "acceleration": {
+                    "$ref": "../_structures/Vector2.json",
+                    "description": "An acceleration rate of the Collectibles."
+                }
+            },
+            "required": [
+                "speed",
+                "acceleration"
+            ]
+        },
+        "bonusScarab": {
+            "type": "object",
+            "description": "Defines the Bonus Scarab.",
+            "properties": {
+                "sprite": {
+                    "type": "string",
+                    "description": "The sprite to be used by the Bonus Scarab."
+                },
+                "stepLength": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "The length of a single segment, which gives points.",
+                    "markdownDescription": "The length of a single segment, which gives points. The formula defining how many points are given is as follows: `max(floor(distance / stepLength), 1) * pointsPerStep`."
+                },
+                "pointsPerStep": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "How many points are given for each step. The bonus score will be always a multiple of this value."
+                },
+                "coinDistance": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "The delay between generating collectibles. If omitted, the Bonus Scarab will not spawn any collectibles."
+                },
+                "coinGenerator": {
+                    "type": "string",
+                    "description": "A collectible generator used periodically."
+                },
+                "speed": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "How fast does the Bonus Scarab move, in pixels per second."
+                },
+                "trailParticle": {
+                    "type": "string",
+                    "description": "A one-time particle packet which the Bonus Scarab would emit. May be omitted if no particles are supposed to be generated."
+                },
+                "trailParticleDistance": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Every how many pixels a specified particle will spawn. May not exist if trailParticle is not specified.",
+                    "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified."
+                },
+                "destroyParticle": {
+                    "type": "string",
+                    "description": "A one-time particle packet which the Bonus Scarab will launch upon destruction."
+                },
+                "destroyGenerator": {
+                    "type": "string",
+                    "description": "A collectible generator used when the Bonus Scarab is destroyed."
+                },
+                "scoreFont": {
+                    "type": "string",
+                    "description": "A font to be used to display the bonus value on the screen."
+                }
+            },
+            "required": [
+                "sprite",
+                "stepLength",
+                "pointsPerStep",
+                "speed",
+                "destroyParticle",
+                "scoreFont"
+            ]
+        },
+        "scorpion": {
+            "type": "object",
+            "description": "Defines the Scorpion.",
+            "properties": {
+                "sprite": {
+                    "type": "string",
+                    "description": "The sprite to be used by the Scorpion."
+                },
+                "maxSpheres": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "The maximum amount of spheres the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected."
+                },
+                "maxChains": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "The maximum amount of chains the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected."
+                },
+                "speed": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "How fast does the Scorpion move, in pixels per second."
+                },
+                "trailParticle": {
+                    "type": "string",
+                    "description": "A one-time particle packet which the Scorpion would emit. May be omitted if no particles are supposed to be generated."
+                },
+                "trailParticleDistance": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "description": "Every how many pixels a specified particle will spawn. May not exist if trailParticle is not specified.",
+                    "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified."
+                },
+                "destroyParticle": {
+                    "type": "string",
+                    "description": "A one-time particle packet which the Scorpion will launch upon destruction."
+                },
+                "scoreFont": {
+                    "type": "string",
+                    "description": "A font to be used to display the bonus value on the screen."
+                }
+            },
+            "required": [
+                "sprite",
+                "speed",
+                "destroyParticle",
+                "scoreFont"
+            ]
+        }
+    },
+    "required": [
+        "shooter",
+        "level",
+        "sphereBehaviour",
+        "collectibleBehaviour",
+        "bonusScarab"
+    ]
+}

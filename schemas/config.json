@@ -1,0 +1,40 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "The game name to be displayed in Rich Presence and in the game window."
+        },
+        "window_title": {
+            "type": "string",
+            "description": "The window title which the engine window will have, if defined."
+        },
+        "engine_version": {
+            "type": "string",
+            "description": "Specifies the version a game is for. Not really used at the moment, but mandatory."
+        },
+        "native_resolution": {
+            "$ref": "_structures/Vector2.json",
+            "description": "The native resolution of the game. Not really used at the moment, but mandatory."
+        },
+        "rich_presence": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Should be always true, unless you want the game to be a secret. In that case, loading a game with this flag set to false causes Rich Presence to disconnect.",
+                    "markdownDescription": "Should be always `true`, unless you want the game to be a secret. In that case, loading a game with this flag set to `false` causes Rich Presence to disconnect."
+                }
+            },
+            "required": [
+                "enabled"
+            ]
+        }
+    },
+    "required": [
+        "engine_version",
+        "native_resolution",
+        "rich_presence"
+    ]
+}

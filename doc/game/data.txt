@@ -105,7 +105,7 @@ D			- acceleration (number) |The default acceleration rate of spheres being push
 D			- foulAcceleration* (number) |The acceleration rate of spheres used only when the player fails to complete a level.
 D			- attractionAcceleration* (number) |The acceleration rate of spheres magnetizing to each other.
 D			- decceleration (number) |The default decceleration rate of spheres.
-D			- attractionSpeedBase (number) |Maximum attraction speed of groups of like color being attracted together. This and <i>attractionSpeedMult</i> form a final value together using this expression: <i>attractionSpeedBase + max(1, chain) * attractionSpeedMult</i>."
+D			- attractionSpeedBase (number) |Maximum attraction speed of groups of like color being attracted together. This and <i>attractionSpeedMult</i> form a final value together using this expression: <i>attractionSpeedBase + max(1, chain) * attractionSpeedMult</i>.
 D			- attractionSpeedMult (number) |The second value used in the formula. Look above for description.
 D			- knockbackSpeedBase (number) |Speed induced when a group of spheres crashes into another sphere group behind it. This and <i>knockbackSpeedMult</i> form a final value together using this expression: <i>knockbackSpeedBase + max(1, chain) * knockbackSpeedMult</i>.
 D			- knockbackSpeedMult (number) |The second value used in the formula. Look above for description.
@@ -127,7 +127,7 @@ D			- trailParticleDistance* (number) |Every how many pixels a specified particl
 D			- destroyParticle (Particle*) |A one-time particle packet which the Bonus Scarab will launch upon destruction.
 D			- destroyGenerator* (CollectibleGenerator*) |A collectible generator used when the Bonus Scarab is destroyed.
 D			- scoreFont (Font*) |A font to be used to display the bonus value on the screen.
-D		- scorpion (object) |Defines the Scorpion.
+D		- scorpion* (object) |Defines the Scorpion.
 D			- sprite (Sprite*) |The sprite to be used by the Scorpion.
 D			- maxSpheres* (number) |The maximum amount of spheres the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.
 D			- maxChains* (number) |The maximum amount of chains the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.
