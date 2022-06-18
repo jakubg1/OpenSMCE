@@ -1,14 +1,14 @@
 # OpenSMCE
 **Open-source Sphere Matcher Community Engine** - an engine that is made to run various Sphere Matching games.
 
+# **Important! Current progress can be found on the `dev-beta5` branch. The master branch is not being updated, hence no progress here.**
+
 This is a **LÖVE2D** project. The supported version of the engine is **11.4**
 
 ## Current Status
 This project is currently work-in-progress. Currently I'm slowly working on Beta 5.0.0, which will introduce a bunch of heavy changes. It will **not** be compatible with existing games.
 
 This project is on stall at the moment and will be brought back to alive after May 7th.
-
-**Current progress can be found on the `dev-beta5` branch. The master branch is not being updated, hence no progress here.**
 
 ### Plans
 The first priority for now is to release the full 1.0.0 version.
