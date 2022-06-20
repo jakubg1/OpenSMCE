@@ -20,6 +20,7 @@
         },
         "rich_presence": {
             "type": "object",
+            "description": "Defines the Discord Rich Presence behavior.",
             "properties": {
                 "enabled": {
                     "type": "boolean",
@@ -29,12 +30,14 @@
             },
             "required": [
                 "enabled"
-            ]
+            ],
+            "additionalProperties": false
         }
     },
     "required": [
         "engine_version",
         "native_resolution",
         "rich_presence"
-    ]
+    ],
+    "additionalProperties": false
 }
