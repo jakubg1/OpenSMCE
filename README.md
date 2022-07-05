@@ -1,23 +1,35 @@
 # OpenSMCE
 **Open-source Sphere Matcher Community Engine** - an engine that is made to run various Sphere Matching games.
 
-# **Important! Current progress can be found on the `dev-beta5` branch. The master branch is not being updated, hence no progress here.**
+# **Important!**
+## **Current progress can be found on the `dev-beta5` branch. The master branch is not being updated, hence no progress here.**
 
-This is a **LÖVE2D** project. The supported version of the engine is **11.4**
+This is a **LÖVE2D** project. The supported version of the engine is **11.3**.
 
 ## Current Status
-This project is currently work-in-progress. Currently I'm slowly working on Beta 5.0.0, which will introduce a bunch of heavy changes. It will **not** be compatible with existing games.
-
-This project is on stall at the moment and will be brought back to alive after May 7th.
+This project is currently work-in-progress. While heavily rebuilt and having big changes each version, the releases should be stable and no bugs are to be expected.
+If otherwise, [feel free to submit a bug report](https://github.com/jakubg1/OpenSMCE/issues).
 
 ### Plans
-The first priority for now is to release the full 1.0.0 version.
+The ongoing plan is to keep releasing Beta 4.x versions, containing new functionalities.
 
-These are the things planned to do before full 1.0.0 version is released:
-- Make progress autosave functionality, emergency save function.
-- Fix bugs.
+Some of the features planned include:
+- Sphere tags
+- Sphere selectors
+- Difficulty system
+- Shooter types (as in, presets)
+- Massively enhanced sound effects
+  - Split sound effects into actual effect files and sound definitions (number of samples, stream/load etc.)
+- Complete rewrite of UI system
+- Progress autosave
 
-For more information, you can take a look [here](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Full+1.0+release%22).
+Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished. This includes both a reference manual and JSON schemas. For more information you can look at the following folders:
+- Reference manual (generated automatically from a Python script, uses data contained in `data.txt`): `doc/game`
+- JSON schemas: `schemas`
+
+If you want to help me, don't hesitate to do so! If you have any questions or you need more information, make a ticket on the Issues page. Any support is greatly appreciated.
+
+For more information, you can take a look at the [1.0 issue list](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Full+1.0+release%22).
 
 ### Further plans
 After 1.0.0 is released, I'll focus on making new features and working on *Luxor: Amun Rising* support.
