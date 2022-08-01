@@ -45,10 +45,8 @@ end
 function ShotSphere:moveStep()
 	self.steps = self.steps - 1
 	self.pos.y = self.pos.y - self.PIXELS_PER_STEP
+
 	-- add if there's a sphere nearby
-	-- old collission detection system:
-	--local nearestSphere = game.session:getNearestSphereY(self.pos)
-	--if nearestSphere.dist and nearestSphere.dist.y < 32 then
 	local nearestSphere = _Game.session:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < 32 then
 		-- If hit sphere is fragile, destroy the fragile spheres instead of hitting.
@@ -82,7 +80,9 @@ function ShotSphere:moveStep()
 				self:destroy()
 				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 			else
-				if self.hitSphere.half then self.hitSphere.sphereID = self.hitSphere.sphereID + 1 end
+				if self.hitSphere.half then
+					self.hitSphere.sphereID = self.hitSphere.sphereID + 1
+				end
 				self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
 				-- get the desired sphere position
 				local p
@@ -98,7 +98,7 @@ function ShotSphere:moveStep()
 				local d = (self.pos - p):len()
 				-- calculate time
 				self.hitTimeMax = d / self.speed * 5
-				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects)
+				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects)
 				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 			end
 			if shotCancelled then

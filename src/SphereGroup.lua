@@ -162,7 +162,7 @@ end
 function SphereGroup:pushSphereBack(color)
 	-- color - the color of sphere.
 	-- This GENERATES a sphere without any animation.
-	self:addSphere(color, nil, nil, 1)
+	self:addSphere(color, nil, nil, nil, 1)
 	-- Move the group back to make room for that new sphere.
 	--group.offset = group.offset - 32
 end
@@ -172,17 +172,18 @@ end
 function SphereGroup:pushSphereFront(color)
 	-- color - the color of sphere.
 	-- This GENERATES a sphere without any animation.
-	self:addSphere(color, nil, nil, #self.spheres + 1)
+	self:addSphere(color, nil, nil, nil, #self.spheres + 1)
 end
 
 
 
-function SphereGroup:addSphere(color, pos, time, position, effects)
+function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects)
 	-- pos - position in where was the shot sphere,
 	-- time - how long will that sphere "grow" until it's completely in its place,
+	-- sphereEntity - a sphere entity to be used (nil = create a new entity)
 	-- position - sphere ID (the new sphere will gain the given ID = creation BEHIND the sphere with the given ID)
-	-- effects - a list of effects to apply
-	local sphere = Sphere(self, nil, color, pos, time)
+	-- effects - a list of effects to be applied
+	local sphere = Sphere(self, nil, color, pos, time, sphereEntity)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
 	sphere.prevSphere = prevSphere

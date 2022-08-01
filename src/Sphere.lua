@@ -7,7 +7,7 @@ local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 local SphereEntity = require("src/SphereEntity")
 
-function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime)
+function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity)
 	self.sphereGroup = sphereGroup
 	self.path = sphereGroup.sphereChain.path
 	self.map = sphereGroup.map
@@ -43,7 +43,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 
 	self.danger = false
 
-	self.entity = SphereEntity(self:getPos(), self.color)
+	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
 
 	self.delQueue = false
 end
