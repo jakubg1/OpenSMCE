@@ -47,9 +47,6 @@ _FSPrefix = ""
 
 _Game = nil
 _Debug = nil
-
--- to be deleted soon, is there any use for it? check later
-_VariableSet = {}
 _Vars = ExpressionVariables()
 
 _TotalTime = 0
