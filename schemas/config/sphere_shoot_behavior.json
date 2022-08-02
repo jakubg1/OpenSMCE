@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "type": {
+            "enum": [
+                "normal",
+                "lightning"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "A sphere shoot behavior."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "normal",
+                        "description": "The sphere gets launched and flies upwards with a speed defined by the shooter and whether the speed shot is active."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true
+                },
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "lightning",
+                        "description": "The sphere does not get launched and instead is destroyed immediately, destroying nearby matching spheres in a straight vertical line."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "range": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "How close the spheres must be from the center in order to be destroyed, in pixels."
+                    }
+                },
+                "required": [
+                    "range"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}

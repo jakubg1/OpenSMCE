@@ -1,0 +1,129 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "$schema": true,
+        "sprite": {
+            "type": "string",
+            "description": "A sprite to be drawn when the sphere is on the screen."
+        },
+        "shadowSprite": {
+            "type": "string",
+            "description": "A shadow sprite to be drawn along the sphere. Defaults to sprites/game/ball_shadow.json.",
+            "markdownDescription": "A shadow sprite to be drawn along the sphere.\nDefaults to `sprites/game/ball_shadow.json`."
+        },
+        "spriteAnimationSpeed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "When defined, the sphere sprite will animate with that speed in frames per second. This disables rolling animation and rotation. When left out, the sphere will have their usual rolling animation and will keep rotating."
+        },
+        "nextSprite": {
+            "type": "string",
+            "description": "A sprite used to draw the shooter's next color indicator."
+        },
+        "nextSpriteAnimationSpeed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "When defined, the next sphere sprite will animate with that speed in frames per second."
+        },
+        "idleParticle": {
+            "type": "string",
+            "description": "A persistent particle packet used when the sphere is on the board."
+        },
+        "destroyParticle": {
+            "type": "string",
+            "description": "A one-time particle packet used when the sphere is destroyed."
+        },
+        "destroy_collectible": {
+            "type": "string",
+            "description": "A collectible generator used when the sphere is destroyed."
+        },
+        "color": {
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "$ref": "../_structures/Color.json"
+                }
+            ],
+            "description": "The color or color palette used by shooting retical."
+        },
+        "colorSpeed": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Must be present only if color is a color palette pointer. Defines how fast (in pixels per second) will the palette be animated.",
+            "markdownDescription": "Must be present only if `color` is a color palette pointer. Defines how fast (in pixels per second) will the palette be animated."
+        },
+        "interchangeable": {
+            "type": "boolean",
+            "description": "Whether this sphere can be changed when in the first slot of the shooter."
+        },
+        "shootBehavior": {
+            "$comment": "I'll leave this for later........... Fun !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >:(>:(>:(!",
+            "$ref": "sphere_shoot_behavior.json",
+            "description": "A persistent particle packet used when the sphere is on the board."
+        },
+        "shootEffects": {
+            "type": "array",
+            "description": "A list of collectible effects to be applied when this sphere is shot.",
+            "items": {
+                "$ref": "collectible_effect.json"
+            }
+        },
+        "shootSpeed": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "If specified, overrides the speed of this sphere when shot."
+        },
+        "shootSound": {
+            "type": "string",
+            "description": "A sound event launched when this sphere is shot."
+        },
+        "hitBehavior": {
+            "$ref": "sphere_hit_behavior.json",
+            "description": "Defines how this sphere should behave when it hits a sphere train."
+        },
+        "hitSound": {
+            "type": "string",
+            "description": "A sound event launched when this sphere hits a sphere train."
+        },
+        "hitSoundBad": {
+            "type": "string",
+            "description": "An optional sound event launched when this sphere hits a sphere train and doesn't match any neighboring spheres."
+        },
+        "type": {
+            "enum": [
+                "normal",
+                "stone"
+            ],
+            "description": "The sphere type. If stone, a sphere can be destroyed by a nearby match."
+        },
+        "matches": {
+            "type": "array",
+            "description": "A list of sphere type IDs (integers) this sphere type matches with.",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "matchFont": {
+            "type": "string",
+            "description": "A font used to display a floating text when this sphere gives points."
+        }
+    },
+    "required": [
+        "sprite",
+        "nextSprite",
+        "destroyParticle",
+        "color",
+        "interchangeable",
+        "shootBehavior",
+        "shootSound",
+        "hitBehavior",
+        "hitSound",
+        "type",
+        "matches",
+        "matchFont"
+    ],
+    "additionalProperties": false
+}
