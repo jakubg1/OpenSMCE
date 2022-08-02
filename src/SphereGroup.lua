@@ -163,8 +163,6 @@ function SphereGroup:pushSphereBack(color)
 	-- color - the color of sphere.
 	-- This GENERATES a sphere without any animation.
 	self:addSphere(color, nil, nil, nil, 1)
-	-- Move the group back to make room for that new sphere.
-	--group.offset = group.offset - 32
 end
 
 
@@ -208,7 +206,9 @@ end
 
 function SphereGroup:getAddSpherePos(position)
 	-- we can't add spheres behind the vise
-	if not self.prevGroup and position == 1 then return 2 end
+	if not self.prevGroup and position == 1 then
+		return 2
+	end
 	return position
 end
 
@@ -568,6 +568,8 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		end
 	end
 	local length = #spheres
+	local prevSphere = self.spheres[position1 - 1]
+	local nextSphere = self.spheres[position2 + 1]
 
 	local boostCombo = false
 	-- Abort if any sphere from the given ones has not joined yet and see if we have to boost the combo.
@@ -579,11 +581,21 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	end
 	boostCombo = boostCombo and effectConfig.can_boost_combo
 
+	
+
 	-- Determine the center position and destroy spheres.
 	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
 	local color = self.sphereChain.path:getSphereEffectGroup(effectGroupID).cause.color
 	for i = #spheres, 1, -1 do
 		self:destroySphere(self:getSphereID(spheres[i]))
+	end
+
+	-- Destroy adjacent spheres if they are stone spheres.
+	if nextSphere and nextSphere:isStone() then
+		self.nextGroup:destroySphere(self.nextGroup:getSphereID(nextSphere))
+	end
+	if prevSphere and prevSphere:isStone() then
+		self:destroySphere(self:getSphereID(prevSphere))
 	end
 
 	-- Play a sound.

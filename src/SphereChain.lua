@@ -97,6 +97,20 @@ function SphereChain:update(dt)
 	if not self:isMatchPredicted() then
 		self:endCombo()
 	end
+
+	-- Destroy itself if holds only non-generatable spheres.
+	--[[
+	if not self:hasGeneratableSpheres() then
+		for i, sphereGroup in ipairs(self.sphereGroups) do
+			local n = 1
+			-- Avoid the vise. It has its own destruction routine.
+			if i == #self.sphereGroups then
+				n = 2
+			end
+			sphereGroup:destroySpheres(n, #sphereGroup.spheres)
+		end
+	end
+	]]
 end
 
 function SphereChain:move(offset)
@@ -139,6 +153,23 @@ function SphereChain:isMatchPredicted()
 			return true
 		end
 	end
+end
+
+-- FUNCTION UNUSED; DON'T USE
+function SphereChain:hasGeneratableSpheres()
+	-- todo: do something in the menu spheres
+	if not _Game.session or not _Game.session.level then
+		return true
+	end
+	for i, sphereGroup in ipairs(self.sphereGroups) do
+		local remTable = _Game.session.level:getCurrentColorGenerator().colors
+		for j, sphere in ipairs(sphereGroup.spheres) do
+			if _MathIsValueInTable(remTable, sphere.color) then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 function SphereChain:isPushingFrontTrain()

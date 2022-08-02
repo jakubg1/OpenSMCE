@@ -234,6 +234,13 @@ end
 
 
 
+-- Returns true if this sphere is a stone sphere.
+function Sphere:isStone()
+	return self.config.type == "stone"
+end
+
+
+
 -- Destroys this and any number of connected spheres with a given effect.
 function Sphere:matchEffect(name)
 	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), name)
