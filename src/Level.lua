@@ -352,7 +352,13 @@ end
 
 -- Generates a new color for the Shooter.
 function Level:getNewShooterColor()
-	local data = self:getCurrentColorGenerator()
+	return self:generateColor(self:getCurrentColorGenerator())
+end
+
+
+
+-- Generates a new color based on the data.
+function Level:generateColor(data)
 	if data.type == "random" then
 		-- Make a pool with colors which are on the board.
 		local pool = {}
@@ -365,8 +371,7 @@ function Level:getNewShooterColor()
 		if #pool > 0 then
 			return pool[math.random(#pool)]
 		end
-		-- Else, return a fallback value.
-		return data.fallback
+
 	elseif data.type == "near_end" then
 		-- Select a random path.
 		local path = _Game.session.level:getRandomPath(true, data.paths_in_danger_only)
@@ -395,9 +400,13 @@ function Level:getNewShooterColor()
 				return lastGoodColor
 			end
 		end
-		-- Else, return a fallback value.
-		return data.fallback
 	end
+
+	-- Else, return a fallback value.
+	if type(data.fallback) == "table" then
+		return self:generateColor(data.fallback)
+	end
+	return data.fallback
 end
 
 
