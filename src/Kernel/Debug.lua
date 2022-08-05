@@ -6,6 +6,8 @@ local Vec2 = require("src/Essentials/Vector2")
 local Profiler = require("src/Kernel/Profiler")
 local Console = require("src/Kernel/Console")
 
+local Expression = require("src/Expression")
+
 function Debug:new()
 	self.console = Console()
 
@@ -405,6 +407,12 @@ function Debug:runCommand(command)
 	elseif words[1] == "expr" then
 		local result = _Vars:evaluateExpression(words[2])
 		self.console:print(string.format("expr(%s): %s", words[2], result))
+		return true
+	elseif words[1] == "exprt" then
+		local ce = Expression(words[2])
+		for i, step in ipairs(ce.data) do
+			print(step.type, step.value)
+		end
 		return true
 	end
 

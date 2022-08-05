@@ -64,7 +64,7 @@ function Expression:compile(str)
 	end
 
 	-- Operators start from the lowest priority!!!
-	local operators = {"||", "&&", "==", "!=", ">", "<", ">=", "<=", "+", "-", "*", "/", "%"}
+	local operators = {"?", ":", "||", "&&", "==", "!=", ">", "<", ">=", "<=", "+", "-", "*", "/", "%"}
 	for i, op in ipairs(operators) do
 		local pos = 1
 		local brackets = 0
@@ -192,6 +192,14 @@ function Expression:evaluate()
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a and b)
+			
+			-- Ternary (the only available) "if" operation.
+			-- The colon is ignored; serves as a separator.
+			elseif op == "?" then
+				local c = table.remove(stack)
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a and b or c)
 
 			-- Functions.
 			elseif op == "floor" then
