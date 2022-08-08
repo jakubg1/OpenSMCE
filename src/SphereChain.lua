@@ -56,9 +56,7 @@ function SphereChain:update(dt)
 			if dist <= 32 then
 				-- If so, either destroy the scarab or move the frontmost chain.
 				if _Game.configManager.gameplay.sphereBehaviour.invincible_scarabs then
-					if not prevChain:getLastSphereGroup():hasImmobileSpheres() then
-						prevChain:getLastSphereGroup():move(32 - dist)
-					end
+					prevChain:getLastSphereGroup():move(32 - dist)
 				else
 					prevChain:join()
 				end
