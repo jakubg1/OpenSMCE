@@ -52,11 +52,11 @@ function SphereChain:update(dt)
 		local prevChain = self:getPreviousChain()
 		if prevChain and not prevChain.delQueue then
 			-- Check whether this sphere chain collides with a front one.
-			local dist = prevChain:getLastSphereGroup():getSphereOffset(1) - self.sphereGroups[1]:getLastSphereOffset()
-			if dist <= 32 then
+			local dist = prevChain:getLastSphereGroup():getBackPos() - self.sphereGroups[1]:getFrontPos()
+			if dist < 0 then
 				-- If so, either destroy the scarab or move the frontmost chain.
 				if _Game.configManager.gameplay.sphereBehaviour.invincible_scarabs then
-					prevChain:getLastSphereGroup():move(32 - dist)
+					prevChain:getLastSphereGroup():move(-dist)
 				else
 					prevChain:join()
 				end
