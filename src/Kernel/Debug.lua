@@ -329,7 +329,7 @@ function Debug:drawSphereInfo()
 				end
 				if j > 1 then
 					local a = sphereChain:getPreviousChain():getLastSphereGroup():getBackPos()
-					local b = sphereChain.sphereGroups[1]:getFrontPos()
+					local b = sphereChain:getFirstSphereGroup():getFrontPos()
 					love.graphics.setColor(1, 1, 1)
 					love.graphics.print(tostring(math.floor(a - b)) .. "px", p.x + 20, p.y + n)
 				end
