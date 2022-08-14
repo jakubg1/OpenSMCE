@@ -242,14 +242,16 @@ end
 
 function _LoadImage(path)
 	local imageData = _LoadImageData(path)
-	if not imageData then error("LOAD IMAGE FAIL: " .. path) end
+	if not imageData then
+		error("LOAD IMAGE FAIL: " .. path)
+	end
 	local image = love.graphics.newImage(imageData)
 	return image
 end
 
 -- This function allows to load sounds from external sources.
 -- This is an altered code from the above function.
-function _LoadSound(path, type)
+function _LoadSoundData(path)
 	local f = io.open(path, "rb")
 	if f then
 		local data = f:read("*all")
@@ -261,10 +263,30 @@ function _LoadSound(path, type)
 			local extension = t[#t]
 			data = love.filesystem.newFileData(data, "tempname." .. extension)
 			data = love.sound.newSoundData(data)
-			local sound = love.audio.newSource(data, type)
-			return sound
+			return data
 		end
 	end
+end
+
+function _LoadSound(path, type)
+	local soundData = _LoadSoundData(path)
+	if not soundData then
+		error("LOAD SOUND FAIL: " .. path)
+	end
+	local sound = love.audio.newSource(soundData, type)
+	return sound
+end
+
+function _LoadSounds(path, type, instanceCount)
+	local soundData = _LoadSoundData(path)
+	if not soundData then
+		error("LOAD SOUND FAIL: " .. path)
+	end
+	local sounds = {}
+	for i = 1, instanceCount do
+		table.insert(sounds, love.audio.newSource(soundData, type))
+	end
+	return sounds
 end
 
 function _SaveFile(path, data)

@@ -10,14 +10,15 @@ function ConfigManager:new()
 	-- The load list is loaded to ensure that no resource will be loaded twice.
 	self.loadList = _LoadJson(_ParsePath("config/loadlist.json"))
 	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
+	local resourcePaths = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
 	self.resourceList = {}
 	for i, type in ipairs(resourceTypes) do
 		-- For each type...
 		print(string.format("[ConfigManager] Loading %s...", type))
 		self.resourceList[type] = {}
 		-- ...get a list of resources to be loaded.
-		for j, path in ipairs(_GetDirListing(_ParsePath(type), "file", nil, true)) do
-			local name = type .. "/" .. path
+		for j, path in ipairs(_GetDirListing(_ParsePath(resourcePaths[i]), "file", nil, true)) do
+			local name = resourcePaths[i] .. "/" .. path
 			local ok = true
 			if self.loadList[type] then
 				-- Forbid loading the same resource twice,

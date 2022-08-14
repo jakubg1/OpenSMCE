@@ -7,8 +7,9 @@ function Sound:new(path)
 	self.INSTANCE_COUNT = 8
 	-- Each sound has 8 instances of it so it can play up to 8 instances at the same time.
 	self.instances = {}
+	local sounds = _LoadSounds(path, "static", self.INSTANCE_COUNT)
 	for i = 1, self.INSTANCE_COUNT do
-		self.instances[i] = SoundInstance(path)
+		self.instances[i] = SoundInstance(nil, sounds[i])
 	end
 end
 

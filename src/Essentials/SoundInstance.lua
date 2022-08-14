@@ -3,10 +3,14 @@ local SoundInstance = class:derive("SoundInstance")
 
 local Vec2 = require("src/Essentials/Vector2")
 
-function SoundInstance:new(path)
-  self.sound = _LoadSound(path, "static")
-	if not self.sound then
-    error("Failed to load sound: " .. path)
+function SoundInstance:new(path, instance)
+  if path then
+    self.sound = _LoadSound(path, "static")
+    if not self.sound then
+      error("Failed to load sound: " .. path)
+    end
+  elseif instance then
+    self.sound = instance
   end
 
   self.volume = 1
