@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class Level
+---@overload fun(data):Level
 local Level = class:derive("Level")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -9,6 +12,8 @@ local Shooter = require("src/Shooter")
 local ShotSphere = require("src/ShotSphere")
 local Collectible = require("src/Collectible")
 local FloatingText = require("src/FloatingText")
+
+
 
 function Level:new(data)
 	-- data specified in level config file

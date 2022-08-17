@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class Checkbox
+---@overload fun(name, font, pos, size, onClick):Checkbox
 local Checkbox = class:derive("Checkbox")
 
 local Vec2 = require("src/Essentials/Vector2")
+
+
 
 function Checkbox:new(name, font, pos, size, onClick)
 	self.name = name

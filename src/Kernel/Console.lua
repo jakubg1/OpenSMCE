@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class Console
+---@overload fun():Console
 local Console = class:derive("Console")
 
 local Vec2 = require("src/Essentials/Vector2")
+
+
 
 function Console:new()
 	self.history = {}

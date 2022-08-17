@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class Map
+---@overload fun(level, path, pathsBehavior, isDummy):Map
 local Map = class:derive("Map")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -6,6 +9,8 @@ local List1 = require("src/Essentials/List1")
 local Sprite = require("src/Essentials/Sprite")
 
 local Path = require("src/Path")
+
+
 
 function Map:new(level, path, pathsBehavior, isDummy)
 	self.level = level

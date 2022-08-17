@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Vector2
+---@overload fun(x, y):Vector2
 local Vec2 = class:derive("Vec2")
+
+
 
 function Vec2:new(x, y)
 	self.x = x or 0

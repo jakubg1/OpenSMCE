@@ -1,8 +1,13 @@
 local class = require "com/class"
+
+---@class UIWidgetSpriteButtonCheckbox
+---@overload fun(parent, sprites):UIWidgetSpriteButtonCheckbox
 local UIWidgetSpriteButtonCheckbox = class:derive("UIWidgetSpriteButtonCheckbox")
 
 local Vec2 = require("src/Essentials/Vector2")
 local UIWidgetSpriteButton = require("src/UI/WidgetSpriteButton")
+
+
 
 function UIWidgetSpriteButtonCheckbox:new(parent, sprites)
 	self.type = "spriteButtonCheckbox"

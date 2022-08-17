@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Music
+---@overload fun(path):Music
 local Music = class:derive("Music")
+
+
 
 function Music:new(path)
 	self.instance = _LoadSound(path, "stream")

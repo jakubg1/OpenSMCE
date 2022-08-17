@@ -1,8 +1,13 @@
 local class = require "com/class"
+
+---@class UIWidgetParticle
+---@overload fun(parent, path):UIWidgetParticle
 local UIWidgetParticle = class:derive("UIWidgetParticle")
 
 local Vec2 = require("src/Essentials/Vector2")
 local ParticleManager = require("src/Particle/Manager")
+
+
 
 function UIWidgetParticle:new(parent, path)
 	self.type = "particle"

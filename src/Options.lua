@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Options
+---@overload fun(data):Options
 local Options = class:derive("Options")
+
+
 
 function Options:new(data)
 	self.data = data

@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class ConfigManager
+---@overload fun():ConfigManager
 local ConfigManager = class:derive("ConfigManager")
 
 local CollectibleGeneratorManager = require("src/CollectibleGenerator/Manager")
+
+
 
 function ConfigManager:new()
 	self.config = _LoadJson(_ParsePath("config.json"))
@@ -77,6 +82,7 @@ function ConfigManager:loadFolder(folderPath, name, isNumbers)
 
 	local fileList = _GetDirListing(_ParsePath(folderPath), "file", "json")
 	for i, path in ipairs(fileList) do
+		---@type string|number?
 		local id = string.sub(path, 1, -6)
 		if isNumbers then
 			id = tonumber(string.sub(path, 2 + string.len(name), -6))

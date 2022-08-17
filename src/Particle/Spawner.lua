@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class ParticleSpawner
+---@overload fun(manager, packet, data):ParticleSpawner
 local ParticleSpawner = class:derive("ParticleSpawner")
 
 local Vec2 = require("src/Essentials/Vector2")
+
+
 
 function ParticleSpawner:new(manager, packet, data)
 	self.manager = manager

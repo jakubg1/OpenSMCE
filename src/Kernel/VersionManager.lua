@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class VersionManager
+---@overload fun(path):VersionManager
 local VersionManager = class:derive("VersionManager")
+
+
 
 function VersionManager:new(path)
   -- versions sorted from most recent to oldest

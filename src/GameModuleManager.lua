@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class GameModuleManager
+---@overload fun():GameModuleManager
 local GameModuleManager = class:derive("GameModuleManager")
 
 

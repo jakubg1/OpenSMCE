@@ -3,6 +3,9 @@
 
 
 local class = require "com/class"
+
+---@class ExpressionVariables
+---@overload fun():ExpressionVariables
 local ExpressionVariables = class:derive("ExpressionVariables")
 
 local Expression = require("src/Expression")

@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Color
+---@overload fun(r, g, b):Color
 local Color = class:derive("Color")
+
+
 
 function Color:new(r, g, b)
 	self.r = r or 1

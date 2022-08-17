@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class BootScreen
+---@overload fun():BootScreen
 local BootScreen = class:derive("BootScreen")
 
 local Vec2 = require("src/Essentials/Vector2")

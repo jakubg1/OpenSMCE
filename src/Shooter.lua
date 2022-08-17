@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class Shooter
+---@overload fun():Shooter
 local Shooter = class:derive("Shooter")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -7,6 +10,8 @@ local Color = require("src/Essentials/Color")
 
 local SphereEntity = require("src/SphereEntity")
 local ShotSphere = require("src/ShotSphere")
+
+
 
 function Shooter:new()
 	self.pos = Vec2(0, 526)

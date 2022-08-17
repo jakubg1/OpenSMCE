@@ -1,10 +1,15 @@
 local class = require "com/class"
+
+---@class Path
+---@overload fun(map, pathData, pathBehavior):Path
 local Path = class:derive("Path")
 
 local Vec2 = require("src/Essentials/Vector2")
 local SphereChain = require("src/SphereChain")
 local BonusScarab = require("src/BonusScarab")
 local Scorpion = require("src/Scorpion")
+
+
 
 function Path:new(map, pathData, pathBehavior)
 	self.map = map

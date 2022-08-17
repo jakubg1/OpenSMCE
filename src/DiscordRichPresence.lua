@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class DiscordRichPresence
+---@overload fun():DiscordRichPresence
 local DiscordRichPresence = class:derive("DiscordRichPresence")
 
 local discordRPCMain = require("com/discordRPC")

@@ -1,11 +1,16 @@
 ### This class is not used yet. All sphere algorithms are stored in SphereGroup.lua.
 
 local class = require "com/class"
+
+---@class Sphere
+---@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity):Sphere
 local Sphere = class:derive("Sphere")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 local SphereEntity = require("src/SphereEntity")
+
+
 
 function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity)
 	self.sphereGroup = sphereGroup

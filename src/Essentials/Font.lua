@@ -1,8 +1,13 @@
 local class = require "com/class"
+
+---@class ColorPalette
+---@overload fun(path):ColorPalette
 local Font = class:derive("Font")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
+
+
 
 function Font:new(path)
 	self.path = path

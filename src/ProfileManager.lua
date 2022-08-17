@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class ProfileManager
+---@overload fun(data):ProfileManager
 local ProfileManager = class:derive("ProfileManager")
 
 local Profile = require("src/Profile")
+
+
 
 function ProfileManager:new(data)
 	self.order = {}

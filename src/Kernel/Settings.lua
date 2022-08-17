@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Settings
+---@overload fun(path):Settings
 local Settings = class:derive("Settings")
+
+
 
 function Settings:new(path)
 	self.path = path

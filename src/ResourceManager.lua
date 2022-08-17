@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class ResourceManager
+---@overload fun():ResourceManager
 local ResourceManager = class:derive("ResourceManager")
 
 local Image = require("src/Essentials/Image")
@@ -8,6 +11,8 @@ local SoundEvent = require("src/Essentials/SoundEvent")
 local Music = require("src/Essentials/Music")
 local Font = require("src/Essentials/Font")
 local ColorPalette = require("src/Essentials/ColorPalette")
+
+
 
 function ResourceManager:new()
 	self.images = {}
@@ -82,6 +87,9 @@ function ResourceManager:loadSound(path)
 	self:loadResource("sound", path)
 end
 
+---Retrieves a Sound by given path.
+---@param path string The resource path.
+---@return Sound
 function ResourceManager:getSound(path)
 	return self:getResource("sound", path)
 end

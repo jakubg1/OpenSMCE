@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Highscores
+---@overload fun(data):Highscores
 local Highscores = class:derive("Highscores")
+
+
 
 function Highscores:new(data)
 	self.data = data

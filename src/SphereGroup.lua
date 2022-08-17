@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class SphereGroup
+---@overload fun(sphereChain, deserializationTable):SphereGroup
 local SphereGroup = class:derive("SphereGroup")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -229,7 +232,7 @@ function SphereGroup:destroySphere(position)
 		-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
 		-- and flag that one as the new unfinished group.
 		if self:isUnfinished() then
-			local newGroup = SphereGroup(self.sphereChain, nil, true)
+			local newGroup = SphereGroup(self.sphereChain, nil)
 			-- Update group links.
 			self.prevGroup = newGroup
 			newGroup.nextGroup = self
@@ -270,7 +273,7 @@ function SphereGroup:destroySpheres(position1, position2)
 		-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
 		-- and flag that one as the new unfinished group.
 		if self:isUnfinished() then
-			local newGroup = SphereGroup(self.sphereChain, nil, true)
+			local newGroup = SphereGroup(self.sphereChain, nil)
 			-- Update group links.
 			self.prevGroup = newGroup
 			newGroup.nextGroup = self

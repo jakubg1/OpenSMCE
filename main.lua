@@ -45,6 +45,7 @@ _KeyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rc
 -- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
 _FSPrefix = ""
 
+---@type Game
 _Game = nil
 _Debug = nil
 _Vars = ExpressionVariables()

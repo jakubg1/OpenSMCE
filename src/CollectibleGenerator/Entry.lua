@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class CollectibleGeneratorEntry
+---@overload fun(manager, name):CollectibleGeneratorEntry
 local CollectibleGeneratorEntry = class:derive("CollectibleGeneratorEntry")
 
 

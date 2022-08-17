@@ -1,9 +1,14 @@
 local class = require "com/class"
+
+---@class RuntimeManager
+---@overload fun():RuntimeManager
 local RuntimeManager = class:derive("RuntimeManager")
 
 local ProfileManager = require("src/ProfileManager")
 local Highscores = require("src/Highscores")
 local Options = require("src/Options")
+
+
 
 function RuntimeManager:new()
 	print("Initializing RuntimeManager...")

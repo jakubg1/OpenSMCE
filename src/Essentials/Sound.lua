@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class Sound
+---@overload fun(path):Sound
 local Sound = class:derive("Sound")
 
 local SoundInstance = require("src/Essentials/SoundInstance")
+
+
 
 function Sound:new(path)
 	self.INSTANCE_COUNT = 8
@@ -27,6 +32,11 @@ function Sound:getFreeInstance()
 	end
 end
 
+---@param volume number: The sound volume.
+---@param pitch number: The sound pitch.
+---@param pos Vector2: The onscreen position where the sound is played.
+---@param loop boolean: Whether the sound should loop.
+---@return SoundInstance|nil: A SoundInstance object reference if the sound has been played; nil otherwise.
 function Sound:play(volume, pitch, pos, loop)
 	pitch = pitch or 1
 	local instance = self:getFreeInstance()

@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class ParticlePacket
+---@overload fun(manager, data, pos):ParticlePacket
 local ParticlePacket = class:derive("ParticlePacket")
+
+
 
 function ParticlePacket:new(manager, data, pos)
 	self.manager = manager

@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class UIWidgetSpriteButton
+---@overload fun(parent, sprite):UIWidgetSpriteButton
 local UIWidgetSpriteButton = class:derive("UIWidgetSpriteButton")
 
 local Vec2 = require("src/Essentials/Vector2")
+
+
 
 function UIWidgetSpriteButton:new(parent, sprite)
 	self.type = "spriteButton"

@@ -4,6 +4,9 @@
 
 
 local class = require "com/class"
+
+---@class Expression
+---@overload fun(str):Expression
 local Expression = class:derive("Expression")
 
 

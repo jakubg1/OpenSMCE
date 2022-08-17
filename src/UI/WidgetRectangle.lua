@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class UIWidgetRectangle
+---@overload fun(parent, size, color):UIWidgetRectangle
 local UIWidgetRectangle = class:derive("UIWidgetRectangle")
+
+
 
 function UIWidgetRectangle:new(parent, size, color)
 	self.type = "rectangle"

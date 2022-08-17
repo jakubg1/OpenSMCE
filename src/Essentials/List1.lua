@@ -13,6 +13,9 @@ Rules:
 
 -- Class identification
 local class = require "com/class"
+
+---@class List1
+---@overload fun():List1
 local List1 = class:derive("List1")
 
 

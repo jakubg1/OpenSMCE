@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Game
+---@overload fun(name):Game
 local Game = class:derive("Game")
+
+
 
 local strmethods = require("src/strmethods")
 
@@ -15,6 +20,8 @@ local Session = require("src/Session")
 
 local UIManager = require("src/UI/Manager")
 local ParticleManager = require("src/Particle/Manager")
+
+
 
 function Game:new(name)
 	self.name = name

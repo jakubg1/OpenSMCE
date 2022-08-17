@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class UIWidget
+---@overload fun(name, data, parent):UIWidget
 local UIWidget = class:derive("UIWidget")
 
 local UIWidgetRectangle = require("src/UI/WidgetRectangle")
@@ -13,6 +16,8 @@ local UIWidgetParticle = require("src/UI/WidgetParticle")
 local UIWidgetLevel = require("src/UI/WidgetLevel")
 
 local Vec2 = require("src/Essentials/Vector2")
+
+
 
 function UIWidget:new(name, data, parent)
 	self.name = name

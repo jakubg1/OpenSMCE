@@ -1,8 +1,16 @@
 local class = require "com/class"
+
+---@class SoundInstance
+---@overload fun(path, instance):SoundInstance
 local SoundInstance = class:derive("SoundInstance")
 
 local Vec2 = require("src/Essentials/Vector2")
 
+
+
+---Constructs a new Sound Instance.
+---@param path string? A path to the sound file.
+---@param instance love.sound? A sound instance, if preloaded.
 function SoundInstance:new(path, instance)
   if path then
     self.sound = _LoadSound(path, "static")

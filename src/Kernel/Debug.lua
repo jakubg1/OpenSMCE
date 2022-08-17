@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class Debug
+---@overload fun():Debug
 local Debug = class:derive("Debug")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -7,6 +10,8 @@ local Profiler = require("src/Kernel/Profiler")
 local Console = require("src/Kernel/Console")
 
 local Expression = require("src/Expression")
+
+
 
 function Debug:new()
 	self.console = Console()

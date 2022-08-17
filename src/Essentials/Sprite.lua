@@ -1,9 +1,14 @@
 local class = require "com/class"
+
+---@class Sprite
+---@overload fun(path):Sprite
 local Sprite = class:derive("Sprite")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 local Image = require("src/Essentials/Image")
+
+
 
 function Sprite:new(path)
 	self.path = path

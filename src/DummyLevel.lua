@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class DummyLevel
+---@overload fun(path):DummyLevel
 local DummyLevel = class:derive("DummyLevel")
 
 local Map = require("src/Map")
+
+
 
 function DummyLevel:new(path)
 	-- data specified in level config file

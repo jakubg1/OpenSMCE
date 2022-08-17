@@ -1,10 +1,15 @@
 local class = require "com/class"
+
+---@class ShotSphere
+---@overload fun(deserializationTable, shooter, pos, color, speed):ShotSphere
 local ShotSphere = class:derive("ShotSphere")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
 local SphereEntity = require("src/SphereEntity")
+
+
 
 function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 	if deserializationTable then

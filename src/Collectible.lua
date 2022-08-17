@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class Collectible
+---@overload fun(deserializationTable, pos, name):Collectible
 local Collectible = class:derive("Collectible")
 
 local Vec2 = require("src/Essentials/Vector2")
+
+
 
 function Collectible:new(deserializationTable, pos, name)
 	if deserializationTable then

@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Profile
+---@overload fun(data, name):Profile
 local Profile = class:derive("Profile")
+
+
 
 function Profile:new(data, name)
 	self.name = name

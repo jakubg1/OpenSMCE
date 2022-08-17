@@ -8,6 +8,9 @@
 
 -- Class identification
 local class = require "com/class"
+
+---@class Session
+---@overload fun(path, deserializationTable):Session
 local Session = class:derive("Session")
 
 -- Include commons

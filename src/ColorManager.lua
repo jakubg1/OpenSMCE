@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class ColorManager
+---@overload fun():ColorManager
 local ColorManager = class:derive("ColorManager")
+
+
 
 -- Counts spheres on the board
 function ColorManager:new()

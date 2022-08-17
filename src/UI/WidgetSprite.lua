@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class UIWidgetSprite
+---@overload fun(parent, sprite):UIWidgetSprite
 local UIWidgetSprite = class:derive("UIWidgetSprite")
+
+
 
 function UIWidgetSprite:new(parent, sprite)
 	self.type = "sprite"
