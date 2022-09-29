@@ -23,6 +23,9 @@ function Level:new(data)
 	self.matchEffect = data.matchEffect
 
 	self.target = data.target
+	if _Game.satMode then
+		self.target = _Game:getCurrentProfile():getUSMNumber() * 10
+	end
 
 	self.colorGeneratorNormal = data.colorGeneratorNormal
 	self.colorGeneratorDanger = data.colorGeneratorDanger

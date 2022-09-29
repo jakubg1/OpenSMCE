@@ -217,9 +217,15 @@ function Profile:getCurrentLevelData()
 	return self.levels[self:getLevelIDStr()]
 end
 
--- Overwrites the player's current level data with the given data.
+---Overwrites the player's current level data with the given data.
+---@param data any
 function Profile:setCurrentLevelData(data)
 	self.levels[self:getLevelIDStr()] = data
+end
+
+-- Temporary function for UltimatelySatisfyingMode.
+function Profile:getUSMNumber()
+	return self:getSession() and self:getLevelPtr() or 1
 end
 
 
@@ -232,7 +238,7 @@ end
 
 function Profile:grantScore(score)
 	if self.ultimatelySatisfyingMode then
-		self.session.score = self.session.score + score * (1 + (self:getLevelNumber() - 1) * 0.2)
+		self.session.score = self.session.score + score * (1 + (self:getUSMNumber() - 1) * 0.2)
 	else
 		self.session.score = self.session.score + score
 	end

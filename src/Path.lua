@@ -31,12 +31,12 @@ function Path:new(map, pathData, pathBehavior)
 	self.colorStreak = pathBehavior.colorStreak
 	self.spawnRules = pathBehavior.spawnRules
 	if _Game.satMode then
-		local n = _Game:getCurrentProfile():getLevelNumber() * 10
+		local n = _Game:getCurrentProfile():getUSMNumber() * 10
 		self.spawnRules = {
-			type = "waves",
-			amount = n
+			--type = "waves",
+			--amount = n
+			type = "continuous"
 		}
-		self.target = n
 	end
 	self.spawnAmount = 0
 	self.spawnDistance = pathBehavior.spawnDistance
@@ -326,7 +326,7 @@ end
 function Path:getSpeed(pixels)
 	local satModeMult = 1
 	if _Game.satMode and _Game:getCurrentProfile().session then
-		satModeMult = 1 + (_Game:getCurrentProfile():getLevelNumber() - 1) * 0.05
+		satModeMult = 1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.05
 	end
 
 	local part = pixels / self.length
