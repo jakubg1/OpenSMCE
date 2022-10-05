@@ -274,13 +274,37 @@ function Shooter:draw()
 		local color = self:getReticalColor()
 		local sphereConfig = self:getSphereConfig()
 		if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
-			love.graphics.setLineWidth(3 * _GetResolutionScale())
-			love.graphics.setColor(color.r, color.g, color.b)
-			local p1 = _PosOnScreen(targetPos + Vec2(-8, 8))
-			local p2 = _PosOnScreen(targetPos)
-			local p3 = _PosOnScreen(targetPos + Vec2(8, 8))
-			love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-			love.graphics.line(p2.x, p2.y, p3.x, p3.y)
+            if self.config.reticleSprite then
+                local reticle = _Game.resourceManager:getSprite(self.config.reticleSprite)
+				local location = _PosOnScreen(targetPos)
+				local offset = _ParseVec2(self.config.reticleOffset or {x=0,y=0})
+				location.x = location.x + offset.x
+				location.y = location.y + offset.y
+                reticle:draw(location, Vec2(0.5, 0), nil, nil, nil, color)
+				if self.config.reticleNextBallSprite then
+                    local next = _Game.resourceManager:getSprite(self.config.reticleNextBallSprite)
+                    local nextColor = self:getNextReticalColor()
+                    -- Have the location be relative to the shooter, default to
+					-- it's top-left just like assigning shooter's nextBall
+					local nextBallOffset = _ParseVec2(self.config.reticleNextBallOffset or {x=0,y=0})
+                    local relativeLocation = location
+                    relativeLocation.x = location.x - (reticle.size.x / 2) + nextBallOffset.x
+					relativeLocation.y = location.y + nextBallOffset.y
+					next:draw(relativeLocation, Vec2(0,0), nil, nil, nil, nextColor)
+				end
+            else
+				love.graphics.setLineWidth(3 * _GetResolutionScale())
+				love.graphics.setColor(color.r, color.g, color.b)
+				local p1 = _PosOnScreen(targetPos + Vec2(-8, 8))
+				local p2 = _PosOnScreen(targetPos)
+				local p3 = _PosOnScreen(targetPos + Vec2(8, 8))
+				love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+				love.graphics.line(p2.x, p2.y, p3.x, p3.y)
+			end
+
+			--_Game.resourceManager.
+
+			-- TODO: Add custom reticle support ~Shambles_SM
 
 			-- Fireball range highlight
 			if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
@@ -367,6 +391,14 @@ function Shooter:getReticalColor()
 end
 
 
+function Shooter:getNextReticalColor()
+	local color = self:getNextSphereConfig().color
+	if type(color) == "string" then
+		return _Game.resourceManager:getColorPalette(color):getColor(_TotalTime * self:getSphereConfig().colorSpeed)
+	else
+		return color
+	end
+end
 
 function Shooter:spherePos()
 	return self.pos - Vec2(0, -5)

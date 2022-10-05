@@ -33,6 +33,22 @@
                     "type": "number",
                     "exclusiveMinimum": 0,
                     "description": "The default speed of how fast the shot spheres will be, in pixels per second."
+                },
+                "reticleSprite": {
+                    "type": "string",
+                    "description": "The aiming reticle sprite to use when Aiming Retical is on. Will fallback to the default drawn caret if not defined."
+                },
+                "reticleOffset": {
+                    "$ref": "../_structures/Vector2.json",
+                    "description": "The aiming reticle's offset, relative to the position the cursor is aiming at."
+                },
+                "reticleNextBallSprite": {
+                    "type": "string",
+                    "description": "The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if reticleSprite is defined."
+                },
+                "reticleNextBallOffset": {
+                    "$ref": "../_structures/Vector2.json",
+                    "description": "The aiming reticle's offset, relative to the top-left of the aiming retical."
                 }
             },
             "required": [
