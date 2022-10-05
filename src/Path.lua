@@ -11,6 +11,10 @@ local Scorpion = require("src/Scorpion")
 
 
 
+---Constructs a new Path instance.
+---@param map Map The map which this Path belongs to.
+---@param pathData table A list of nodes this path has.
+---@param pathBehavior table Path behavior which is going to be used in this level.
 function Path:new(map, pathData, pathBehavior)
 	self.map = map
 
@@ -56,6 +60,8 @@ end
 
 
 
+---Generates necessary data from node positions.
+---@param nodes table The list of nodes.
 function Path:prepareNodes(nodes)
 	for i, node in ipairs(nodes) do
 		local length = 0
@@ -107,6 +113,8 @@ end
 
 
 
+---Updates the Path.
+---@param dt number Delta time in seconds.
 function Path:update(dt)
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue then
@@ -127,10 +135,16 @@ end
 
 
 
+---Returns a random entry from the list of sphere types this Path can spawn.
+---@return integer
 function Path:newSphereColor()
 	return self.colors[math.random(1, #self.colors)]
 end
 
+
+
+---Returns `true` if this Path will spawn a new Sphere Chain right now.
+---@return boolean
 function Path:shouldSpawn()
 	if _Game:levelExists() and (not self.map.level.started or self.map.level.targetReached or self.map.level.lost) then return false end
 	for i, sphereChain in ipairs(self.sphereChains) do
@@ -139,10 +153,17 @@ function Path:shouldSpawn()
 	return true
 end
 
+
+
+---Returns whether this path is in danger (spheres exist past the danger offset).
+---@return boolean
 function Path:isInDanger()
 	return self:getDanger(self:getMaxOffset())
 end
 
+
+
+---Summons a new Sphere Chain on this Path.
 function Path:spawnChain()
 	local sphereChain = SphereChain(self)
 	if self.map.level.controlDelay then sphereChain.sphereGroups[1].speed = self.speeds[1].speed end
@@ -153,18 +174,28 @@ function Path:spawnChain()
 	end
 end
 
+
+
+---Spawns a Bonus Scarab on this Path.
 function Path:spawnBonusScarab()
 	self.bonusScarab = BonusScarab(self)
 end
 
+
+
+---Spawns a Scorpion on this Path.
 function Path:spawnScorpion()
 	table.insert(self.scorpions, Scorpion(self))
 end
 
 
 
--- Creates a new sphere effect group.
--- These are used to group spheres which have the same effect caused by a single sphere.
+-- TODO: Make a Sphere Effect Group a separate class.
+
+---Creates a new sphere effect group and returns its ID.
+---These are used to group spheres which have the same effect caused by a single sphere.
+---@param sphere Sphere The "cause" sphere.
+---@return integer
 function Path:createSphereEffectGroup(sphere)
 	-- Generate first non-occupied sphere effect group ID.
 	local n = 1
@@ -182,21 +213,25 @@ end
 
 
 
--- Returns data of a sphere effect group with given ID.
+---Returns data of a sphere effect group with given ID.
+---@param n integer The ID of a sphere effect.
+---@return table
 function Path:getSphereEffectGroup(n)
 	return self.sphereEffectGroups[n]
 end
 
 
 
--- Increments a sphere effect group counter.
+---Increments a sphere effect group counter.
+---@param n integer The ID of a sphere effect.
 function Path:incrementSphereEffectGroup(n)
 	self.sphereEffectGroups[n].count = self.sphereEffectGroups[n].count + 1
 end
 
 
 
--- Decrements a sphere effect group counter. If it reaches 0, it's destroyed.
+---Decrements a sphere effect group counter. If it reaches 0, it's destroyed.
+---@param n integer The ID of a sphere effect.
 function Path:decrementSphereEffectGroup(n)
 	self.sphereEffectGroups[n].count = self.sphereEffectGroups[n].count - 1
 	if self.sphereEffectGroups[n].count == 0 then
@@ -206,6 +241,9 @@ end
 
 
 
+---Sets three Expression Variables corresponding to this Path to be used in Expressions.
+---These variables are named: `offset`, `offsetE` and `distance`.
+---@param offset number The path offset to be used in calculation, in pixels.
 function Path:dumpOffsetVars(offset)
 	-- Three different variables, to use whichever works best.
 	-- offset: ranging from 0 to path length, from start point.
@@ -218,6 +256,7 @@ end
 
 
 
+---Deinitializes this Path and its components.
 function Path:destroy()
 	for i, sphereChain in ipairs(self.sphereChains) do
 		sphereChain:destroy()
@@ -234,6 +273,10 @@ end
 
 
 
+---Draws spheres on this Path.
+---@param color integer Only spheres with this ID will be drawn.
+---@param hidden boolean Whether to draw spheres in the hidden pass.
+---@param shadow boolean If `true`, the shadows will be drawn. Else, the actual sprites.
 function Path:drawSpheres(color, hidden, shadow)
 	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
@@ -242,6 +285,10 @@ function Path:drawSpheres(color, hidden, shadow)
 	end
 end
 
+
+
+---Draws entities which are on this Path.
+---@param hidden boolean Whether to draw the entities in the hidden pass.
 function Path:draw(hidden)
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	if self.bonusScarab then
@@ -257,6 +304,9 @@ function Path:draw(hidden)
 	--if not hidden then self:drawDebugFill() end
 end
 
+
+
+---Debug stuff.
 function Path:drawDebug()
 	-- todo: make the mouse position global
 	--local mx, my = love.mouse.getPosition()
@@ -272,6 +322,9 @@ function Path:drawDebug()
 	end
 end
 
+
+
+---Another debug function.
 function Path:drawDebugBrightness()
 	for i = 1, 800 do
 		local h = self:getSpeed(i) / 20
@@ -287,6 +340,9 @@ function Path:drawDebugBrightness()
 	end
 end
 
+
+
+---Yet another debug function.
 function Path:drawDebugLine()
 	for i = 0, self.length, 5 do
 		love.graphics.setColor(math.sqrt(self:getSpeed(i)) / 30, 0, 0)
@@ -295,6 +351,9 @@ function Path:drawDebugLine()
 	end
 end
 
+
+
+---Even one more debug function.
 function Path:drawDebugFill()
 	love.graphics.setColor(1, 0.2, 0)
 	local pos = _PosOnScreen(self:getPos(self:getMaxOffset()))
@@ -303,10 +362,21 @@ end
 
 
 
+---Returns the ID of a given Sphere Chain. If not found, returns `nil`.
+---@param sphereChain SphereChain The Sphere Chain of which ID will be returned.
+---@return integer|nil
 function Path:getSphereChainID(sphereChain)
-	for i, sphereChainT in pairs(self.sphereChains) do if sphereChainT == sphereChain then return i end end
+	for i, sphereChainT in pairs(self.sphereChains) do
+		if sphereChainT == sphereChain then
+			return i
+		end
+	end
 end
 
+
+
+---Returns the offset of the frontmost sphere on this Path.
+---@return number
 function Path:getMaxOffset()
 	local offset = 0
 	for i, sphereChain in ipairs(self.sphereChains) do
@@ -315,6 +385,10 @@ function Path:getMaxOffset()
 	return offset
 end
 
+
+
+---Returns 0 if this path is not in danger, and linearly interpolates from 0 (danger point) to 1 (end of the path).
+---@return number
 function Path:getDangerProgress()
 	local maxOffset = self:getMaxOffset()
 	if not self:getDanger(maxOffset) then
@@ -323,6 +397,11 @@ function Path:getDangerProgress()
 	return ((maxOffset / self.length) - self.dangerDistance) / (1 - self.dangerDistance)
 end
 
+
+
+---Returns the path speed at a given offset.
+---@param pixels number The path offset to be checked, in pixels.
+---@return number
 function Path:getSpeed(pixels)
 	local satModeMult = 1
 	if _Game.satMode and _Game:getCurrentProfile().session then
@@ -354,18 +433,39 @@ function Path:getSpeed(pixels)
 	return self.speeds[#self.speeds].speed * satModeMult
 end
 
+
+
+---Returns `true` if this Path does not contain any spheres.
+---Warning: this does NOT check for Scorpions or Bonus Scarabs.
+---@return boolean
 function Path:getEmpty()
 	return #self.sphereChains == 0
 end
 
+
+
+---Returns `true` if the given offset is past the danger point.
+---@param pixels number The path offset to be considered, in pixels.
+---@return boolean
 function Path:getDanger(pixels)
 	return pixels / self.length >= self.dangerDistance
 end
 
+
+
+---Unused, or at least that's what they told me. Or did I tell that to myself?
+---@param pixels number The path offset to be considered, in pixels.
+---@return integer
 function Path:getBookmarkID(pixels)
 	return math.min(math.floor(pixels / self.NODE_BOOKMARK_DELAY), self.nodeBookmarkCount - 1)
 end
 
+
+
+---Returns a node ID and how many pixels afterwards the given position is.
+---@param pixels number The path offset to be considered, in pixels.
+---@return integer
+---@return number
 function Path:getNodeID(pixels)
 	if pixels < 0 then return 0, pixels end
 
@@ -383,6 +483,12 @@ function Path:getNodeID(pixels)
 	return nodeID, remainder
 end
 
+
+
+---Returns the onscreen position at the given offset of this Path.
+---Why `nil` can be returned here?
+---@param pixels number The path offset to be considered, in pixels.
+---@return Vector2|nil
 function Path:getPos(pixels)
 	if pixels then
 		local nodeID, remainder = self:getNodeID(pixels)
@@ -395,6 +501,12 @@ function Path:getPos(pixels)
 	end
 end
 
+
+
+---Returns the path angle at the given offset of this Path, in radians.
+---Same question as above ???
+---@param pixels number The path offset to be considered, in pixels.
+---@return number|nil
 function Path:getAngle(pixels)
 	if pixels then
 		local p1 = self:getPos(pixels - 16)
@@ -423,6 +535,11 @@ function Path:getAngle(pixels)
 	end
 end
 
+
+
+---Returns `true` if this path is hidden at a given offset.
+---@param pixels number The path offset to be considered, in pixels.
+---@return boolean
 function Path:getHidden(pixels)
 	local nodeID = self:getNodeID(pixels)
 	if nodeID == 0 then return self.nodes[1].hidden end
@@ -430,6 +547,11 @@ function Path:getHidden(pixels)
 	return self.nodes[nodeID].hidden
 end
 
+
+
+---Returns the path brightness at a given point of the path.
+---@param pixels number The path offset to be considered, in pixels.
+---@return number
 function Path:getBrightness(pixels)
 	for i, brightness in ipairs(self.brightnesses) do
 		if pixels < brightness.distance then
@@ -446,6 +568,8 @@ end
 
 
 
+---Returns serialized data of this Path to be saved.
+---@return table
 function Path:serialize()
 	local t = {
 		sphereChains = {},
@@ -469,6 +593,10 @@ function Path:serialize()
 	return t
 end
 
+
+
+---Deserializes and loads data from previously serialized data.
+---@param t table Data to be deserialized.
 function Path:deserialize(t)
 	self.sphereChains = {}
 	for i, sphereChain in ipairs(t.sphereChains) do
@@ -488,5 +616,7 @@ function Path:deserialize(t)
 		self.sphereEffectGroups[tonumber(i)] = tt
 	end
 end
+
+
 
 return Path

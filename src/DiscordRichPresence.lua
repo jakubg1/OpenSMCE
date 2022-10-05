@@ -8,6 +8,7 @@ local discordRPCMain = require("com/discordRPC")
 
 
 
+---Constructs this class.
 function DiscordRichPresence:new()
 	self.enabled = false
 	self.connected = false
@@ -42,11 +43,18 @@ function DiscordRichPresence:new()
 	end
 end
 
+
+
+---Updates the Discord Rich Presence.
+---@param dt number Delta time in seconds.
 function DiscordRichPresence:update(dt)
 	self:updateEnabled()
 	self:updateRun(dt)
 end
 
+
+
+---Checks whether the Discord Rich Presence setting has changed and turns Rich Presence on or off accordingly.
 function DiscordRichPresence:updateEnabled()
 	local setting = _EngineSettings:getDiscordRPC()
 	if _Game.configManager then
@@ -61,6 +69,11 @@ function DiscordRichPresence:updateEnabled()
 	end
 end
 
+
+
+---Actual update function for Discord Rich Presence.
+---Internal function; use `:update()` instead.
+---@param dt number Delta time in seconds.
 function DiscordRichPresence:updateRun(dt)
 	self.updateTime = self.updateTime + dt
 	if self.updateTime >= self.UPDATE_INTERVAL then
@@ -72,6 +85,7 @@ end
 
 
 
+---Connects Discord Rich Presence.
 function DiscordRichPresence:connect()
 	if self.enabled then return end
 	print("[DiscordRPC] Connecting...")
@@ -79,6 +93,9 @@ function DiscordRichPresence:connect()
 	self.enabled = true
 end
 
+
+
+---Disconnects Discord Rich Presence.
 function DiscordRichPresence:disconnect()
 	if not self.enabled then return end
 	print("[DiscordRPC] Disconnecting...")
@@ -88,6 +105,12 @@ function DiscordRichPresence:disconnect()
 	self.username = nil
 end
 
+
+
+---Updates information to be displayed in the player's Discord Rich Presence section.
+---@param line1 string The first line.
+---@param line2 string The second line.
+---@param countTime boolean Whether to count time. If set to `true`, the timer will start at 00:00 and will be counting up.
 function DiscordRichPresence:setStatus(line1, line2, countTime)
 	self.status = {details = line1, state = line2}
 	if countTime then
@@ -103,6 +126,8 @@ end
 
 
 
+---Returns a random witty comment to be shown... uh, somewhere.
+---@return string
 function DiscordRichPresence:getEgg()
 	local eggs = _StrSplit(_LoadFile("assets/eggs_rpc.txt"), "\n")
 	return eggs[math.random(1, #eggs)]

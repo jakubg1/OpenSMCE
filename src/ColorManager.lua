@@ -1,12 +1,13 @@
 local class = require "com/class"
 
+---Counts spheres on the board.
 ---@class ColorManager
 ---@overload fun():ColorManager
 local ColorManager = class:derive("ColorManager")
 
 
 
--- Counts spheres on the board
+---Constructs a new ColorManager.
 function ColorManager:new()
 	self.sphereColorCounts = {}
 	self.lastSphereColor = 1
@@ -16,7 +17,7 @@ end
 
 
 
--- Resets the onboard color counters back to 0.
+---Resets the onboard color counters back to 0.
 function ColorManager:reset()
 	for i, sphere in pairs(_Game.configManager.spheres) do
 		self.sphereColorCounts[i] = {
@@ -26,7 +27,11 @@ function ColorManager:reset()
 	end
 end
 
--- Increments the given color counter by one.
+
+
+---Increments the given color counter by one.
+---@param color integer The color ID of which counter is to be incremented.
+---@param danger boolean? Whether we are changing the danger zone counter.
 function ColorManager:increment(color, danger)
 	if danger then
 		self.sphereColorCounts[color].danger = self.sphereColorCounts[color].danger + 1
@@ -35,7 +40,11 @@ function ColorManager:increment(color, danger)
 	end
 end
 
--- Decrements the given color counter by one.
+
+
+---Decrements the given color counter by one.
+---@param color integer The color ID of which counter is to be decremented.
+---@param danger boolean? Whether we are changing the danger zone counter.
 function ColorManager:decrement(color, danger)
 	if danger then
 		self.sphereColorCounts[color].danger = self.sphereColorCounts[color].danger - 1
@@ -47,12 +56,17 @@ end
 
 
 
+---Returns `true` if at least one sphere of a given color exists on the board.
+---@param color integer The color ID to be checked against.
+---@return boolean
 function ColorManager:isColorExistent(color)
 	return self.sphereColorCounts[color].normal > 0
 end
 
 
 
+---Returns a debug text used by the debug screen.
+---@return string
 function ColorManager:getDebugText()
 	local s = ""
 

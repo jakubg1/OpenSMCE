@@ -12,7 +12,7 @@ local Expression = require("src/Expression")
 
 
 
--- Constructor.
+---Constructor.
 function ExpressionVariables:new()
 	self.data = {}
     self.expressionCache = {}
@@ -20,14 +20,18 @@ end
 
 
 
--- Sets a value.
+---Sets a variable to be used by Expressions.
+---@param name string The variable name.
+---@param value any The value to be stored.
 function ExpressionVariables:set(name, value)
     self.data[name] = value
 end
 
 
 
--- Gets a value.
+---Obtains a variable value.
+---@param name string The variable name.
+---@return any
 function ExpressionVariables:get(name)
     if self.data[name] == nil then
         error(string.format("[ExpressionVariables] Tried to get a nonexistent variable: %s", name))
@@ -37,7 +41,9 @@ end
 
 
 
--- Evaluates an expression.
+---Evaluates an Expression and caches it, or evaluates an already cached Expression. Returns the result.
+---@param expression string The expression string.
+---@return number
 function ExpressionVariables:evaluateExpression(expression)
     -- Get an already cached and compiled expression if exists.
     local c = self.expressionCache[expression]
@@ -49,8 +55,6 @@ function ExpressionVariables:evaluateExpression(expression)
     self.expressionCache[expression] = e
     return e:evaluate()
 end
-
-
 
 
 

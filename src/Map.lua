@@ -12,6 +12,11 @@ local Path = require("src/Path")
 
 
 
+---Constructs a new Map.
+---@param level Level The level which is tied to this Map.
+---@param path string Path to the Map's folder.
+---@param pathsBehavior table A table of Path Behaviors.
+---@param isDummy boolean Whether this Map corresponds to a Dummy Level.
 function Map:new(level, path, pathsBehavior, isDummy)
 	self.level = level
 	-- whether it's just a decorative map, if false then it's meant to be playable
@@ -37,16 +42,32 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	end
 end
 
+
+
+---Updates this Map.
+---@param dt number Delta time in seconds.
 function Map:update(dt)
-	for i, path in ipairs(self.paths.objects) do path:update(dt) end
+	for i, path in ipairs(self.paths.objects) do
+		path:update(dt)
+	end
 end
 
+
+
+---Returns the ID of a given Path, or `nil` if not found.
+---@param path Path The Path of which ID is to be obtained.
+---@return integer|nil
 function Map:getPathID(path)
-	for i, pathT in ipairs(self.paths.objects) do if pathT == path then return i end end
+	for i, pathT in ipairs(self.paths.objects) do
+		if pathT == path then
+			return i
+		end
+	end
 end
 
 
 
+---Draws this Map.
 function Map:draw()
 	-- Background
 	for i, sprite in ipairs(self.sprites.objects) do
@@ -84,6 +105,9 @@ function Map:draw()
 	end
 end
 
+
+
+---Draws spheres on this map.
 function Map:drawSpheres()
 	for x = 1, 2 do
 		for i, path in ipairs(self.paths.objects) do
@@ -97,6 +121,8 @@ end
 
 
 
+---Serializes the Map's data to be saved.
+---@return table
 function Map:serialize()
 	local t = {}
 	self.paths:iterate(function(i, o)
@@ -105,10 +131,16 @@ function Map:serialize()
 	return t
 end
 
+
+
+---Deserializes the Map's data.
+---@param t table The data to be loaded.
 function Map:deserialize(t)
 	for i, path in ipairs(t) do
 		self.paths:get(i):deserialize(path)
 	end
 end
+
+
 
 return Map

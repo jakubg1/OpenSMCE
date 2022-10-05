@@ -11,14 +11,17 @@ local Expression = class:derive("Expression")
 
 
 
--- Constructor. Creates and compiles an expression.
+---Constructs and compiles a new Expression.
+---@param str string|number The expression to be compiled.
 function Expression:new(str)
 	self.data = self:compile(str)
 end
 
 
 
--- Compiles a given expression.
+---Compiles a given expression.
+---@param str string|number The expression to be compiled.
+---@return table
 function Expression:compile(str)
 	-- If this is not a string, but instead a number, then there's nothing to talk about.
 	if type(str) == "number" then
@@ -128,7 +131,8 @@ end
 
 
 
--- Evaluates this expression and returns the result.
+---Evaluates this expression and returns the result.
+---@return number
 function Expression:evaluate()
 	local stack = {}
 
@@ -195,7 +199,7 @@ function Expression:evaluate()
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a and b)
-			
+
 			-- Ternary (the only available) "if" operation.
 			-- The colon is ignored; serves as a separator.
 			elseif op == "?" then
@@ -231,7 +235,8 @@ end
 
 
 
--- Returns the data of this expression as a string.
+---Returns the data of this expression as a string.
+---@return string
 function Expression:getDebug()
 	local s = "["
 	for i, step in ipairs(self.data) do
@@ -248,8 +253,6 @@ function Expression:getDebug()
 
 	return s
 end
-
-
 
 
 

@@ -23,6 +23,8 @@ local ParticleManager = require("src/Particle/Manager")
 
 
 
+---Constructs a new instance of Game.
+---@param name string The name of the game, equivalent to the folder name in `games` directory.
 function Game:new(name)
 	self.name = name
 
@@ -42,6 +44,9 @@ function Game:new(name)
 	love.graphics.setFont(love.graphics.newFont())
 end
 
+
+
+---Initializes the game and all its components.
 function Game:init()
 	print("Selected game: " .. self.name)
 
@@ -76,11 +81,16 @@ function Game:init()
 	self.uiManager:initSplash()
 end
 
+
+
+---Loads all game resources.
 function Game:loadMain()
-	-- Loads all game resources
 	self.resourceManager:stepLoadList(self.configManager.resourceList)
 end
 
+
+
+---Initializes the game session, as well as UI and particle managers.
 function Game:initSession()
 	-- Setup the UI and particles
 	self.uiManager:init()
@@ -90,6 +100,10 @@ function Game:initSession()
 	self.session:init()
 end
 
+
+
+---Updates the game.
+---@param dt number Delta time in seconds.
 function Game:update(dt) -- callback from main.lua
 	self.timer:update(dt)
 	for i = 1, self.timer:getFrameCount() do
@@ -97,6 +111,10 @@ function Game:update(dt) -- callback from main.lua
 	end
 end
 
+
+
+---Updates the game logic. Contrary to `:update()`, this function will always have its delta time given as a multiple of 1/60.
+---@param dt number Delta time in seconds.
 function Game:tick(dt) -- always with 1/60 seconds
 	self.resourceManager:update(dt)
 
@@ -115,6 +133,9 @@ function Game:tick(dt) -- always with 1/60 seconds
 	end
 end
 
+
+
+---Updates the game's Rich Presence information.
 function Game:updateRichPresence()
 	local p = self:getCurrentProfile()
 	local line1 = "Playing: " .. self.configManager:getGameName()
@@ -140,16 +161,26 @@ function Game:updateRichPresence()
 	_DiscordRPC:setStatus(line1, line2)
 end
 
+
+
+---Returns... not really a boolean?! But acts like one. Don't mess with the programmer.
+---Oh and by the way, this function is self-explanatory.
+---@return Session|nil
 function Game:sessionExists()
 	return self.session
 end
 
+
+
+---This is even weirder. Don't ever try to use the returned result in any other way than a boolean!!!
+---@return Level|nil
 function Game:levelExists()
 	return self.session and self.session.level
 end
 
 
 
+---Draws the game contents.
 function Game:draw()
 	_Debug:profDraw2Start()
 
@@ -168,11 +199,20 @@ function Game:draw()
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.rectangle("fill", 0, 0, _GetDisplayOffsetX(), _DisplaySize.y)
 	love.graphics.rectangle("fill", _DisplaySize.x - _GetDisplayOffsetX(), 0, _GetDisplayOffsetX(), _DisplaySize.y)
+
+	love.graphics.setColor(1, 1, 1)
+	if not self.resourceManager.stepLoading and self.resourceManager.stepLoadProcessedObjs > 0 then
+		--self.resourceManager:getSprite("sprites/game/ball_1.json").img:draw(0, 0)
+	end
 	_Debug:profDraw2Stop()
 end
 
 
 
+---Callback from `main.lua`.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button which was pressed.
 function Game:mousepressed(x, y, button)
 	self.uiManager:mousepressed(x, y, button)
 
@@ -185,10 +225,20 @@ function Game:mousepressed(x, y, button)
 	end
 end
 
+
+
+---Callback from `main.lua`.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button which was released.
 function Game:mousereleased(x, y, button)
 	self.uiManager:mousereleased(x, y, button)
 end
 
+
+
+---Callback from `main.lua`.
+---@param key string The pressed key code.
 function Game:keypressed(key)
 	self.uiManager:keypressed(key)
 	-- shooter
@@ -201,6 +251,10 @@ function Game:keypressed(key)
 	end
 end
 
+
+
+---Callback from `main.lua`.
+---@param key string The released key code.
 function Game:keyreleased(key)
 	-- shooter
 	if self:levelExists() then
@@ -210,10 +264,17 @@ function Game:keyreleased(key)
 	end
 end
 
+
+
+---Callback from `main.lua`.
+---@param t string Something which makes text going.
 function Game:textinput(t)
 	self.uiManager:textinput(t)
 end
 
+
+
+---Saves the game.
 function Game:save()
 	if self:levelExists() then self.session.level:save() end
 	self.runtimeManager:save()
@@ -221,22 +282,46 @@ end
 
 
 
+---Plays a sound and returns its instance for modification.
+---@param name string The name of the Sound Effect to be played.
+---@param pitch number? The pitch of the sound.
+---@param pos Vector2? The position of the sound.
+---@return SoundInstance
 function Game:playSound(name, pitch, pos)
 	return self.resourceManager:getSoundEvent(name):play(pitch, pos)
 end
 
+
+
+---Returns a Music instance given its name.
+---@param name string The music name.
+---@return Music
 function Game:getMusic(name)
 	return self.resourceManager:getMusic(self.configManager.music[name])
 end
 
+
+
+---Returns the currently selected Profile.
+---@return Profile
 function Game:getCurrentProfile()
 	return self.runtimeManager.profileManager:getCurrentProfile()
 end
 
+
+
+---Spawns and returns a particle packet.
+---@param name string The name of a particle packet.
+---@param pos Vector2 The position for the particle packet to be spawned.
+---@return ParticlePacket
 function Game:spawnParticle(name, pos)
 	return self.particleManager:spawnParticlePacket(name, pos)
 end
 
+
+
+---Enables or disables fullscreen.
+---@param fullscreen boolean Whether the fullscreen mode should be active.
 function Game:setFullscreen(fullscreen)
 	if fullscreen == love.window.getFullscreen() then return end
 	if fullscreen then
@@ -248,6 +333,10 @@ function Game:setFullscreen(fullscreen)
 	love.window.setMode(_DisplaySize.x, _DisplaySize.y, {fullscreen = fullscreen, resizable = true})
 end
 
+
+
+---Exits the game.
+---@param forced boolean If `true`, the engine will exit completely even if the "Return to Boot Screen" option is enabled.
 function Game:quit(forced)
 	self:save()
 	self.resourceManager:unload()

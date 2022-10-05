@@ -8,6 +8,10 @@ local Vec2 = require("src/Essentials/Vector2")
 
 
 
+---Constructs a new Collectible.
+---@param deserializationTable table? If specified, data from this table will be used to load the entity state.
+---@param pos Vector2 The starting position of this Collectible.
+---@param name string The collectible ID.
 function Collectible:new(deserializationTable, pos, name)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
@@ -26,6 +30,10 @@ function Collectible:new(deserializationTable, pos, name)
 	self.particle = _Game:spawnParticle(self.config.particle, self.pos)
 end
 
+
+
+---Updates this Collectible.
+---@param dt number The delta time in seconds.
 function Collectible:update(dt)
 	-- speed and position
 	self.speed = self.speed + self.acceleration * dt
@@ -55,6 +63,9 @@ function Collectible:update(dt)
 	self.particle.pos = self.pos
 end
 
+
+
+---Destroys this Collectible and activates its effects.
 function Collectible:catch()
 	self:destroy()
 
@@ -71,6 +82,9 @@ function Collectible:catch()
 	end
 end
 
+
+
+---Removes this Collectible from the level.
 function Collectible:destroy()
 	if self._delQueue then
 		return
@@ -81,12 +95,16 @@ end
 
 
 
+---Why did I keep this function?
+---Oh and by the way, Collectibles are drawn by ParticleManagers. Quirky, huh?
 function Collectible:draw()
-
+	-- *crickets*
 end
 
 
 
+---Serializes the Collectible's internal data for saving.
+---@return table
 function Collectible:serialize()
 	return {
 		name = self.name,
@@ -96,11 +114,17 @@ function Collectible:serialize()
 	}
 end
 
+
+
+---Deserializes the Collectible's data, or in other words restores previously saved state.
+---@param t table The data to be deserialized.
 function Collectible:deserialize(t)
 	self.name = t.name
 	self.pos = Vec2(t.pos.x, t.pos.y)
 	self.speed = Vec2(t.speed.x, t.speed.y)
 	self.acceleration = Vec2(t.acceleration.x, t.acceleration.y)
 end
+
+
 
 return Collectible

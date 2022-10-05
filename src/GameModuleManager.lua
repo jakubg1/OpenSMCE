@@ -1,3 +1,5 @@
+-- This class will be soon deprecated, and thus will not be documented.
+
 local class = require "com/class"
 
 ---@class GameModuleManager

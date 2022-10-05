@@ -10,6 +10,8 @@ local Image = require("src/Essentials/Image")
 
 
 
+---Constructs a new Sprite.
+---@param path string A path to the sprite file.
 function Sprite:new(path)
 	self.path = path
 	local data = _LoadJson(path)
