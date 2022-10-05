@@ -275,22 +275,16 @@ function Shooter:draw()
 		local sphereConfig = self:getSphereConfig()
 		if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
             if self.config.reticleSprite then
+				-- TODO: load sprite once
                 local reticle = _Game.resourceManager:getSprite(self.config.reticleSprite)
-				local location = _PosOnScreen(targetPos)
-				local offset = _ParseVec2(self.config.reticleOffset or {x=0,y=0})
-				location.x = location.x + offset.x
-				location.y = location.y + offset.y
+				local location = targetPos + (_ParseVec2(self.config.reticleOffset) or Vec2())
                 reticle:draw(location, Vec2(0.5, 0), nil, nil, nil, color)
 				if self.config.reticleNextBallSprite then
+					-- TODO: load sprite once
                     local next = _Game.resourceManager:getSprite(self.config.reticleNextBallSprite)
                     local nextColor = self:getNextReticalColor()
-                    -- Have the location be relative to the shooter, default to
-					-- it's top-left just like assigning shooter's nextBall
-					local nextBallOffset = _ParseVec2(self.config.reticleNextBallOffset or {x=0,y=0})
-                    local relativeLocation = location
-                    relativeLocation.x = location.x - (reticle.size.x / 2) + nextBallOffset.x
-					relativeLocation.y = location.y + nextBallOffset.y
-					next:draw(relativeLocation, Vec2(0,0), nil, nil, nil, nextColor)
+                    local nextLocation = location + (_ParseVec2(self.config.reticleNextBallOffset) or Vec2())
+					next:draw(nextLocation, Vec2(0.5, 0), nil, nil, nil, nextColor)
 				end
             else
 				love.graphics.setLineWidth(3 * _GetResolutionScale())
