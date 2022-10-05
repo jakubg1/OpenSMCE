@@ -274,13 +274,31 @@ function Shooter:draw()
 		local color = self:getReticalColor()
 		local sphereConfig = self:getSphereConfig()
 		if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
-			love.graphics.setLineWidth(3 * _GetResolutionScale())
-			love.graphics.setColor(color.r, color.g, color.b)
-			local p1 = _PosOnScreen(targetPos + Vec2(-8, 8))
-			local p2 = _PosOnScreen(targetPos)
-			local p3 = _PosOnScreen(targetPos + Vec2(8, 8))
-			love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-			love.graphics.line(p2.x, p2.y, p3.x, p3.y)
+            if self.config.reticleSprite then
+				-- TODO: load sprite once
+                local reticle = _Game.resourceManager:getSprite(self.config.reticleSprite)
+				local location = targetPos + (_ParseVec2(self.config.reticleOffset) or Vec2())
+                reticle:draw(location, Vec2(0.5, 0), nil, nil, nil, color)
+				if self.config.reticleNextBallSprite then
+					-- TODO: load sprite once
+                    local next = _Game.resourceManager:getSprite(self.config.reticleNextBallSprite)
+                    local nextColor = self:getNextReticalColor()
+                    local nextLocation = location + (_ParseVec2(self.config.reticleNextBallOffset) or Vec2())
+					next:draw(nextLocation, Vec2(0.5, 0), nil, nil, nil, nextColor)
+				end
+            else
+				love.graphics.setLineWidth(3 * _GetResolutionScale())
+				love.graphics.setColor(color.r, color.g, color.b)
+				local p1 = _PosOnScreen(targetPos + Vec2(-8, 8))
+				local p2 = _PosOnScreen(targetPos)
+				local p3 = _PosOnScreen(targetPos + Vec2(8, 8))
+				love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+				love.graphics.line(p2.x, p2.y, p3.x, p3.y)
+			end
+
+			--_Game.resourceManager.
+
+			-- TODO: Add custom reticle support ~Shambles_SM
 
 			-- Fireball range highlight
 			if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
@@ -367,6 +385,14 @@ function Shooter:getReticalColor()
 end
 
 
+function Shooter:getNextReticalColor()
+	local color = self:getNextSphereConfig().color
+	if type(color) == "string" then
+		return _Game.resourceManager:getColorPalette(color):getColor(_TotalTime * self:getSphereConfig().colorSpeed)
+	else
+		return color
+	end
+end
 
 function Shooter:spherePos()
 	return self.pos - Vec2(0, -5)
