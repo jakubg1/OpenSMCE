@@ -2,7 +2,7 @@
 **Open-source Sphere Matcher Community Engine** - an engine that is made to run various Sphere Matching games.
 
 # **Important!**
-## **Current progress can be found on the `dev-beta5` branch. The master branch is not being updated, hence no progress here.**
+## **Current progress can be found on the [`dev-beta5`](https://github.com/jakubg1/OpenSMCE/tree/dev-beta5) branch. The master branch is not being updated, hence no progress here.**
 
 This is a **LÖVE2D** project. The supported version of the engine is **11.3**.
 
