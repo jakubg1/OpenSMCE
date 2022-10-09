@@ -302,8 +302,7 @@ function Shooter:draw()
             if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
                 if self.radiusReticleSprite then
                     local location = targetPos + (_ParseVec2(self.config.reticleOffset) or Vec2())
-                    --if reticle.size.x ~= reticle.size.y then reticle.size.y = reticle.size.x end
-                    local scale = Vec2(sphereConfig.hitBehavior.range * 2 / reticle.size.x)
+                    local scale = Vec2(sphereConfig.hitBehavior.range * 2) / self.radiusReticleSprite.size
                     self.radiusReticleSprite:draw(location, Vec2(0.5, 0.5), nil, nil, nil, color, nil, scale)
                 else
                     --love.graphics.setColor(1, 0, 0)
