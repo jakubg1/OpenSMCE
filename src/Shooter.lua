@@ -38,9 +38,9 @@ function Shooter:new()
     self.sprite = _Game.resourceManager:getSprite("sprites/game/shooter.json")
     self.speedShotSprite = _Game.resourceManager:getSprite("sprites/particles/speed_shot_beam.json")
 
-	self.reticleSprite = self.config.reticleSprite and _Game.resourceManager:getSprite(self.config.reticleSprite)
-	self.reticleNextSprite = self.config.reticleNextBallSprite and _Game.resourceManager:getSprite(self.config.reticleNextBallSprite)
-	self.radiusReticleSprite = self.config.radiusReticleSprite and _Game.resourceManager:getSprite(self.config.radiusReticleSprite)
+    self.reticleSprite = self.config.reticleSprite and _Game.resourceManager:getSprite(self.config.reticleSprite)
+    self.reticleNextSprite = self.config.reticleNextBallSprite and _Game.resourceManager:getSprite(self.config.reticleNextBallSprite)
+    self.radiusReticleSprite = self.config.radiusReticleSprite and _Game.resourceManager:getSprite(self.config.radiusReticleSprite)
 
     self.sphereEntity = nil
 end
