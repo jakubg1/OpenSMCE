@@ -32,13 +32,17 @@ function Shooter:new()
     -- the speed of the shooter when controlled via keyboard
     self.moveKeySpeed = 500
 
+    self.config = _Game.configManager.gameplay.shooter
+
     self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/shooter_shadow.json")
     self.sprite = _Game.resourceManager:getSprite("sprites/game/shooter.json")
     self.speedShotSprite = _Game.resourceManager:getSprite("sprites/particles/speed_shot_beam.json")
 
-    self.sphereEntity = nil
+	self.reticleSprite = self.config.reticleSprite and _Game.resourceManager:getSprite(self.config.reticleSprite)
+	self.reticleNextSprite = self.config.reticleNextBallSprite and _Game.resourceManager:getSprite(self.config.reticleNextBallSprite)
+	self.radiusReticleSprite = self.config.radiusReticleSprite and _Game.resourceManager:getSprite(self.config.radiusReticleSprite)
 
-    self.config = _Game.configManager.gameplay.shooter
+    self.sphereEntity = nil
 end
 
 
@@ -274,17 +278,13 @@ function Shooter:draw()
         local color = self:getReticalColor()
         local sphereConfig = self:getSphereConfig()
         if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
-            if self.config.reticleSprite then
-                -- TODO: load sprite once
-                local reticle = _Game.resourceManager:getSprite(self.config.reticleSprite)
+            if self.reticleSprite then
                 local location = targetPos + (_ParseVec2(self.config.reticleOffset) or Vec2())
-                reticle:draw(location, Vec2(0.5, 0), nil, nil, nil, color)
-                if self.config.reticleNextBallSprite then
-                    -- TODO: load sprite once
-                    local next = _Game.resourceManager:getSprite(self.config.reticleNextBallSprite)
+                self.reticleSprite:draw(location, Vec2(0.5, 0), nil, nil, nil, color)
+                if self.reticleNextSprite then
                     local nextColor = self:getNextReticalColor()
                     local nextLocation = location + (_ParseVec2(self.config.reticleNextBallOffset) or Vec2())
-                    next:draw(nextLocation, Vec2(0.5, 0), nil, nil, nil, nextColor)
+                    self.reticleNextSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, nil, nextColor)
                 end
             else
                 love.graphics.setLineWidth(3 * _GetResolutionScale())
@@ -300,13 +300,11 @@ function Shooter:draw()
 
             -- Fireball range highlight
             if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
-                if self.config.radiusReticleSprite then
-                    -- TODO: load sprite once
-                    local reticle = _Game.resourceManager:getSprite(self.config.radiusReticleSprite)
+                if self.radiusReticleSprite then
                     local location = targetPos + (_ParseVec2(self.config.reticleOffset) or Vec2())
                     --if reticle.size.x ~= reticle.size.y then reticle.size.y = reticle.size.x end
                     local scale = Vec2(sphereConfig.hitBehavior.range * 2 / reticle.size.x)
-                    reticle:draw(location, Vec2(0.5, 0.5), nil, nil, nil, color, nil, scale)
+                    self.radiusReticleSprite:draw(location, Vec2(0.5, 0.5), nil, nil, nil, color, nil, scale)
                 else
                     --love.graphics.setColor(1, 0, 0)
                     local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
