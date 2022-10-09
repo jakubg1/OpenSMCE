@@ -49,6 +49,10 @@
                 "reticleNextBallOffset": {
                     "$ref": "../_structures/Vector2.json",
                     "description": "The aiming reticle's offset, relative to the top-left of the aiming retical."
+                },
+                "radiusReticleSprite": {
+                    "type": "string",
+                    "description": "The aiming reticle's sprite for spheres with fireball or colorCloud hitBehavior."
                 }
             },
             "required": [
