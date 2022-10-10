@@ -144,7 +144,7 @@ function Game:updateRichPresence()
 	if self:levelExists() then
 		local l = self.session.level
 		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
-			p:getLevelData().name,
+			p:getLevelName(),
 			l.won and "Complete!" or string.format("%s%%", math.floor((l.destroyedSpheres / l.target) * 100)),
 			p:getScore(),
 			p:getLives()
