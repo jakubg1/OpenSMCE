@@ -37,6 +37,30 @@
 			"",
 			"return ${TM_FILENAME_BASE}"
 		],
-		"description": "Generate a class stub"
+		"description": "Generate a class stub."
+	},
+	"Class definition with custom name": {
+		"scope": "lua",
+		"prefix": "!classn",
+		"body": [
+			"local class = require \"com/class\"",
+			"",
+			"---@class ${1:${TM_FILENAME_BASE}}",
+			"---@overload fun(${2:params}):${1:${TM_FILENAME_BASE}}",
+			"local ${1:${TM_FILENAME_BASE}} = class:derive(\"${1:${TM_FILENAME_BASE}}\")",
+			"",
+			"-- Place your imports here",
+			"",
+			"",
+			"",
+			"function ${1:${TM_FILENAME_BASE}}:new(${2:params})",
+			"\t$0",
+			"end",
+			"",
+			"",
+			"",
+			"return ${1:${TM_FILENAME_BASE}}"
+		],
+		"description": "Generate a class stub with a custom name."
 	}
 }
