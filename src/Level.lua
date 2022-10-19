@@ -33,6 +33,7 @@ function Level:new(data)
 
 	self.musicName = data.music
 	self.dangerMusicName = data.dangerMusic
+	self.ambientMusicName = data.ambientMusic
 
 	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
 	self.dangerLoopSoundName = data.dangerLoopSound or "sound_events/warning_loop.json"
@@ -236,6 +237,13 @@ function Level:updateMusic()
 			music:setVolume(1)
 		end
 	end
+
+	if self.ambientMusicName then
+		local ambientMusic = _Game:getMusic(self.ambientMusicName)
+
+		-- Ambient music plays all the time.
+		ambientMusic:setVolume(1)
+	end
 end
 
 
@@ -330,6 +338,8 @@ function Level:applyEffect(effect, TMP_pos)
 		end
 	elseif effect.type == "lightningStorm" then
 		self.lightningStormCount = effect.count
+	elseif effect.type == "activateNet" then
+		self.netTime = effect.time
 	elseif effect.type == "changeGameSpeed" then
 		self.gameSpeed = effect.speed
 		self.gameSpeedTime = effect.duration
@@ -651,6 +661,13 @@ function Level:destroy()
 	end
 	for i, path in ipairs(self.map.paths.objects) do
 		path:destroy()
+	end
+
+	if self.ambientMusicName then
+		local ambientMusic = _Game:getMusic(self.ambientMusicName)
+
+		-- Stop any ambient music.
+		ambientMusic:setVolume(0)
 	end
 end
 
