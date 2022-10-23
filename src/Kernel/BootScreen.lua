@@ -39,7 +39,7 @@ function BootScreen:init()
 	self:setScene("main")
 
 	-- discord rpc connection
-	_DiscordRPC:setStatus(string.format("Boot Screen - Version: %s", _VERSION_NAME), nil, true)
+	_DiscordRPC:setStatus(string.format("Boot Screen - Version: %s (Build %s)", _VERSION_NAME, _BUILD_NUMBER), nil, true)
 end
 
 

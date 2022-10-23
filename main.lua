@@ -28,6 +28,7 @@ local DiscordRichPresence = require("src/DiscordRichPresence")
 _VERSION = "v0.46.0"
 _VERSION_NAME = "Beta 4.6.0"
 _DISCORD_APPLICATION_ID = "797956172539887657"
+_BUILD_NUMBER = "unknown"
 
 
 -- TODO: at some point, get rid of this and make it configurable

@@ -146,15 +146,19 @@ function BootMain:draw()
 	-- HEADER
 	-----------------------------
 	love.graphics.setFont(self.fontBig)
-	love.graphics.print("OpenSMCE Boot Menu", 30, 30)
+	love.graphics.print("OpenSMCE Boot Menu", 30, 25)
 	local s = string.format("Version: %s (%s)", _VERSION_NAME, _VERSION)
-	love.graphics.print(s, 770 - self.fontBig:getWidth(s), 30)
+	love.graphics.print(s, 770 - self.fontBig:getWidth(s), 25)
+	s = string.format("Build %s", _BUILD_NUMBER)
+	love.graphics.setFont(self.font)
+	love.graphics.print(s, 770 - self.font:getWidth(s), 44)
 
 	-----------------------------
 	-- NOTES
 	-----------------------------
 	-- Warning text
 	love.graphics.setColor(1, 0.2, 0.2)
+	love.graphics.setFont(self.fontBig)
 	love.graphics.print("WARNING", 45, 75)
 	-- Warning contents
 	love.graphics.setColor(1, 1, 0.2)
