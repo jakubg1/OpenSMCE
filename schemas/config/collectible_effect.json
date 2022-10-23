@@ -12,6 +12,7 @@
                 "destroyColor",
                 "spawnScorpion",
                 "lightningStorm",
+                "activateNet",
                 "changeGameSpeed",
                 "setCombo",
                 "grantScore",
@@ -249,6 +250,33 @@
                 },
                 "required": [
                     "count"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "activateNet",
+                        "description": "Activates a net which collects collectibles for a given amount of time."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "time": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "The duration of the effect in seconds."
+                    }
+                },
+                "required": [
+                    "time"
                 ],
                 "additionalProperties": false
             }

@@ -115,6 +115,16 @@ function Level:updateLogic(dt)
 
 
 
+	-- Net
+	if self.netTime > 0 then
+		self.netTime = self.netTime - dt
+		if self.netTime <= 0 then
+			self.netTime = 0
+		end
+	end
+
+
+
 	-- Warning lights
 	local maxDistance = self:getMaxDangerProgress()
 	if maxDistance > 0 and not self.lost then
@@ -713,6 +723,7 @@ function Level:reset()
 	self.gameSpeedTime = 0
 	self.lightningStormTime = 0
 	self.lightningStormCount = 0
+	self.netTime = 0
 	self.shooter.speedShotTime = 0
 	_Game.session.colorManager:reset()
 end
