@@ -149,6 +149,10 @@
                     "type": "boolean",
                     "description": "If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.",
                     "markdownDescription": "If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed."
+                },
+                "luxorized": {
+                    "type": "boolean",
+                    "description": "Enables sphere physics gimmicks specific to the original Luxor game to mimic it better."
                 }
             },
             "required": [

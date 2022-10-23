@@ -150,7 +150,7 @@ end
 
 function SphereChain:isMatchPredicted()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres() or sphereGroup:hasKeepComboSpheres()) then
+		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres() or sphereGroup:hasKeepComboSpheres() or (_Game.configManager.gameplay.sphereBehaviour.luxorized and sphereGroup.speed < 0)) then
 			return true
 		end
 	end
