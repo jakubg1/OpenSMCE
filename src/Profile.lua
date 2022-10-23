@@ -6,9 +6,14 @@ local Profile = class:derive("Profile")
 
 
 
+---Constructs a Profile.
+---@param data table? Data to be deserialized, if any.
+---@param name string The profile name.
 function Profile:new(data, name)
 	self.name = name
 
+	-- TODO: Consider extracting this variable and associated functions to ProfileSession.lua
+	self.session = nil
 	self.levels = {}
 	self.checkpoints = {}
 	self.variables = {}
@@ -26,15 +31,24 @@ end
 
 -- Core stuff
 
+---Returns the player's session data. This does NOT return a Session instance; they are separate entities.
+---@return table
 function Profile:getSession()
 	return self.session
 end
 
+
+
+---Returns the player's current level data. This is the raw level data which is written in `config/levels/level_*.json`.
+---@return table
 function Profile:getLevelData()
-	-- Returns what is written in config/levels/level_*.json.
 	return _Game.configManager.levels[self:getLevelID()]
 end
 
+
+
+---Returns the player's current level's map data. This is the raw map data which is written in `maps/*/config.json`.
+---@return table
 function Profile:getMapData()
 	return _Game.configManager.maps[self:getLevelData().map]
 end
@@ -43,10 +57,18 @@ end
 
 -- Variables
 
+---Sets the player's variable. Used to store various states per profile, saved between opens.
+---@param name string The name of the variable.
+---@param value any The value to be stored. Only primitive types are allowed.
 function Profile:setVariable(name, value)
 	self.variables[name] = value
 end
 
+
+
+---Retrieves a previously stored profile variable. If it has not been stored, this function will return `nil`.
+---@param name string The name of a previously stored variable.
+---@return any
 function Profile:getVariable(name)
 	return self.variables[name]
 end
@@ -59,7 +81,8 @@ end
 -- Level ID: ID of a particular level file.
 -- Level data: Stores profile-related data per level, such as win/lose count or some other statistics.
 
--- Returns the player's current level number.
+---Returns the player's current level number.
+---@return integer
 function Profile:getLevel()
 	-- Count (current level pointer - 1) entries from the level set.
 	local n = _Game.configManager:getLevelCountFromEntries(self.session.level - 1)
@@ -67,48 +90,66 @@ function Profile:getLevel()
 	return n + self.session.sublevel
 end
 
--- Returns the player's current level number as a string.
+---Returns the player's current level number as a string.
+---@return string
 function Profile:getLevelStr()
 	return tostring(self:getLevel())
 end
 
--- Returns the player's current level pointer value.
+
+
+---Returns the player's current level pointer value.
+---@return integer
 function Profile:getLevelPtr()
 	return self.session.level
 end
 
--- Returns the player's current level pointer value as a string.
+---Returns the player's current level pointer value as a string.
+---@return string
 function Profile:getLevelPtrStr()
 	return tostring(self:getLevel())
 end
 
--- Returns the player's current level entry.
+
+
+---Returns the player's current level entry.
+---@return table
 function Profile:getLevelEntry()
 	return _Game.configManager.levelSet.level_order[self.session.level]
 end
 
--- Returns the player's current level ID.
+
+
+---Returns the player's current level ID.
+---@return integer
 function Profile:getLevelID()
 	return self.session.levelID
 end
 
--- Returns the player's current level ID as a string.
+---Returns the player's current level ID as a string.
+---@return string
 function Profile:getLevelIDStr()
 	return tostring(self:getLevelID())
 end
 
--- Returns the player's current level name.
+
+
+---Returns the player's current level name.
+---@return string
 function Profile:getLevelName()
 	local entry = self:getLevelEntry()
-	
+
 	if entry.type == "level" then
 		return entry.name
 	elseif entry.type == "randomizer" then
 		return entry.names[self.session.sublevel]
 	end
+	return "ERROR"
 end
 
--- Goes on to a next level, either another one in a subset, or in a main level set.
+
+
+---Goes on to a next level, either another one in a subset, or in a main level set.
 function Profile:incrementLevel()
 	local entry = self:getLevelEntry()
 
@@ -130,7 +171,9 @@ function Profile:incrementLevel()
 	self:generateLevelID()
 end
 
--- Generates a new level ID, based on the current entry type and data.
+
+
+---Generates a new level ID, based on the current entry type and data.
 function Profile:generateLevelID()
 	local entry = self:getLevelEntry()
 
@@ -151,7 +194,7 @@ function Profile:generateLevelID()
 				local chance = (entry.count - self.session.sublevel + 1) / #self.session.sublevel_pool
 				local n = self.session.sublevel_pool[1]
 				table.remove(self.session.sublevel_pool, 1)
-				if chance then
+				if math.random() < chance then
 					self.session.levelID = n
 					break
 				end
@@ -160,7 +203,9 @@ function Profile:generateLevelID()
 	end
 end
 
--- Sets up values for a level set entry the level pointer is currently pointing to.
+
+
+---Sets up values for a level set entry the level pointer is currently pointing to.
 function Profile:setupLevel()
 	local entry = self:getLevelEntry()
 
@@ -174,8 +219,10 @@ function Profile:setupLevel()
 	end
 end
 
--- Returns the checkpoint ID which is assigned to the most recent level
--- compared to the player's current level number.
+
+
+---Returns the checkpoint ID which is assigned to the most recent level compared to the player's current level number.
+---@return integer
 function Profile:getLatestCheckpoint()
 	local checkpoint = nil
 	local diff = nil
@@ -194,13 +241,16 @@ function Profile:getLatestCheckpoint()
 	return checkpoint
 end
 
--- Returns true if the player's next level number is on the checkpoint list.
+
+
+---Returns `true` if the player's next level number is on the checkpoint list.
+---@return boolean
 function Profile:isCheckpointUpcoming()
 	local entry = self:getLevelEntry()
 
 	-- A checkpoint can't be upcoming if we are in the middle of a randomizer section.
 	if entry.type == "randomizer" and self.session.sublevel < entry.count then
-		return
+		return false
 	end
 
 	for i, level in ipairs(_Game.configManager.levelSet.checkpoints) do
@@ -212,18 +262,23 @@ function Profile:isCheckpointUpcoming()
 end
 
 
--- Returns the player's current level data.
+
+---Returns the player's current level data. This is NOT level data which is stored on any config file!
+---The returned level data structure contains information about win and lose count, and level record.
+---@return table
 function Profile:getCurrentLevelData()
 	return self.levels[self:getLevelIDStr()]
 end
 
 ---Overwrites the player's current level data with the given data.
----@param data any
+---See `Profile:getCurrentLevelData()` for more information about the data.
+---@param data table
 function Profile:setCurrentLevelData(data)
 	self.levels[self:getLevelIDStr()] = data
 end
 
--- Temporary function for UltimatelySatisfyingMode.
+---Temporary function for UltimatelySatisfyingMode.
+---@return integer
 function Profile:getUSMNumber()
 	return self:getSession() and self:getLevelPtr() or 1
 end
@@ -232,13 +287,17 @@ end
 
 -- Score
 
+---Returns the player's current score.
+---@return integer
 function Profile:getScore()
 	return self.session.score
 end
 
+---Adds a given amount of points to the player's current score.
+---@param score integer The score to be added.
 function Profile:grantScore(score)
 	if self.ultimatelySatisfyingMode then
-		self.session.score = self.session.score + score * (1 + (self:getUSMNumber() - 1) * 0.2)
+		self.session.score = self.session.score + score * math.floor(1 + (self:getUSMNumber() - 1) * 0.2)
 	else
 		self.session.score = self.session.score + score
 	end
@@ -248,13 +307,19 @@ end
 
 -- Coins
 
+---Returns the player's current coin count.
+---@return integer
 function Profile:getCoins()
 	return self.session.coins
 end
 
+---Adds one coin to the player's current coin count. If reached 30, the player is granted an extra life, and the coin counter is reset back to 0.
 function Profile:grantCoin()
 	self.session.coins = self.session.coins + 1
-	if self.session.coins == 30 then self:grantLife() end
+	if self.session.coins == 30 then
+		self:grantLife()
+		self.session.coins = 0
+	end
 	_Game.uiManager:executeCallback("newCoin")
 end
 
@@ -262,18 +327,24 @@ end
 
 -- Lives
 
+---Returns the player's current life count.
+---@return unknown
 function Profile:getLives()
 	return self.session.lives
 end
 
+---Grants an extra life to the player.
 function Profile:grantLife()
 	self.session.lives = self.session.lives + 1
-	self.session.coins = 0
 	_Game.uiManager:executeCallback("newLife")
 end
 
+---Takes one life away from the player and returns `true`, if the player has any. If not, returns `false`.
+---@return boolean
 function Profile:takeLife()
-	if self.session.lives == 0 then return false end
+	if self.session.lives == 0 then
+		return false
+	end
 	self.session.lives = self.session.lives - 1
 	-- returns true if the player can retry
 	return true
@@ -283,19 +354,21 @@ end
 
 -- Unlocked checkpoints
 
+---Returns a list of checkpoints this player has unlocked.
+---@return table
 function Profile:getUnlockedCheckpoints()
 	return self.checkpoints
 end
 
+---Returns whether this player has unlocked a given checkpoint.
+---@param n integer The checkpoint ID to be checked.
+---@return boolean
 function Profile:isCheckpointUnlocked(n)
-	for i, o in ipairs(self.checkpoints) do
-		if n == o then
-			return true
-		end
-	end
-	return false
+	return _MathIsValueInTable(self.checkpoints, n)
 end
 
+---Unlocks a given checkpoint for the player if it has not been unlocked yet.
+---@param n integer The checkpoint ID to be unlocked.
 function Profile:unlockCheckpoint(n)
 	if self:isCheckpointUnlocked(n) then
 		return
@@ -307,6 +380,8 @@ end
 
 -- Game
 
+---Starts a new game for this player, starting from a specified checkpoint.
+---@param checkpoint integer The checkpoint ID of the game's starting point.
 function Profile:newGame(checkpoint)
 	self.session = {}
 	self.session.lives = 2
@@ -323,6 +398,7 @@ function Profile:newGame(checkpoint)
 	self:generateLevelID()
 end
 
+---Ends a game for the player and removes all its data.
 function Profile:deleteGame()
 	self.session = nil
 end
@@ -331,6 +407,9 @@ end
 
 -- Level
 
+---Increments the level win count, updates the level record if needed and removes the saved level data.
+---Does not increment the level itself!
+---@param score integer The level score.
 function Profile:winLevel(score)
 	local levelData = self:getCurrentLevelData() or {score = 0, won = 0, lost = 0}
 
@@ -340,6 +419,9 @@ function Profile:winLevel(score)
 	self:unsaveLevel()
 end
 
+
+
+---Advances the profile to the next level.
 function Profile:advanceLevel()
 	-- Check if beating this level unlocks some checkpoints.
 	local checkpoints = self:getLevelEntry().unlock_checkpoints_on_beat
@@ -353,12 +435,21 @@ function Profile:advanceLevel()
 	_Game:playSound("sound_events/level_advance.json")
 end
 
--- Returns true if score given in parameter would yield a new record for the current level.
+
+
+---Returns `true` if score given in parameter would yield a new record for the current level.
+---@param score integer The score value to be checked against.
+---@return boolean
 function Profile:getLevelHighscoreInfo(score)
 	local levelData = self:getCurrentLevelData()
 	return not levelData or score > levelData.score
 end
 
+
+
+---Increments the level lose count and takes one life. Returns `false` if the player has had already zero lives, per `Profile:takeLife()`.
+---@see Profile:loseLevel()
+---@return boolean
 function Profile:loseLevel()
 	local levelData = self:getCurrentLevelData() or {score = 0, won = 0, lost = 0}
 
@@ -374,14 +465,19 @@ end
 
 -- Level saves
 
+---Saves a level to the profile.
+---@param t table The serialized level data to be saved.
 function Profile:saveLevel(t)
 	self.session.levelSaveData = t
 end
 
+---Returns a previously saved level from the profile.
+---@return table
 function Profile:getSavedLevel()
 	return self.session.levelSaveData
 end
 
+---Removes level save data from this profile.
 function Profile:unsaveLevel()
 	self.session.levelSaveData = nil
 end
@@ -390,9 +486,14 @@ end
 
 -- Highscore
 
+---Writes this profile onto the highscore list using its current score.
+---If successful, returns the position on the leaderboard. If not, returns `false`.
+---@return integer|boolean
 function Profile:writeHighscore()
 	local pos = _Game.runtimeManager.highscores:getPosition(self:getScore())
-	if not pos then return false end
+	if not pos then
+		return false
+	end
 
 	-- returns the position if it got into top 10
 	_Game.runtimeManager.highscores:storeProfile(self, pos)
@@ -403,6 +504,8 @@ end
 
 -- Serialization
 
+---Serializes the Profile's data for saving purposes.
+---@return table
 function Profile:serialize()
 	local t = {
 		session = self.session,
@@ -414,6 +517,10 @@ function Profile:serialize()
 	return t
 end
 
+
+
+---Restores all data which has been saved by the serialization function.
+---@param t table The data to be serialized.
 function Profile:deserialize(t)
 	self.session = t.session
 	self.levels = t.levels
