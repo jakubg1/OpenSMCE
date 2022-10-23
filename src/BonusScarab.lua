@@ -30,9 +30,9 @@ function BonusScarab:new(path, deserializationTable)
 	self.minOffset = math.max(path.clearOffset, 64)
 
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
-	self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
+	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite)
 
-	self.sound = _Game:playSound("sound_events/bonus_scarab_loop.json", 1, self:getPos())
+	self.sound = _Game:playSound(self.config.loopSound, 1, self:getPos())
 end
 
 
@@ -80,7 +80,8 @@ function BonusScarab:explode()
 	_Game.session.level:spawnFloatingText(_NumStr(score) .. "\nBONUS", pos, self.config.scoreFont)
 	_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyGenerator)
 	_Game:spawnParticle(self.config.destroyParticle, pos)
-	_Game:playSound("sound_events/bonus_scarab.json", 1, pos)
+	_Game:playSound(self.config.destroySound, 1, pos)
+
 	self:destroy()
 end
 

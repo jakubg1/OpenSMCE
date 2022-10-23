@@ -195,6 +195,10 @@
                     "type": "string",
                     "description": "The sprite to be used by the Bonus Scarab."
                 },
+                "shadowSprite": {
+                    "type": "string",
+                    "description": "The shadow sprite to be used by the Bonus Scarab."
+                },
                 "stepLength": {
                     "type": "number",
                     "exclusiveMinimum": 0,
@@ -230,6 +234,14 @@
                     "description": "Every how many pixels a specified particle will spawn. May not exist if trailParticle is not specified.",
                     "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified."
                 },
+                "loopSound": {
+                    "type": "string",
+                    "description": "A looping sound event which is played during Bonus Scarab's existence."
+                },
+                "destroySound": {
+                    "type": "string",
+                    "description": "A sound event which will be played when the Bonus Scarab is destroyed."
+                },
                 "destroyParticle": {
                     "type": "string",
                     "description": "A one-time particle packet which the Bonus Scarab will launch upon destruction."
@@ -245,9 +257,12 @@
             },
             "required": [
                 "sprite",
+                "shadowSprite",
                 "stepLength",
                 "pointsPerStep",
                 "speed",
+                "loopSound",
+                "destroySound",
                 "destroyParticle",
                 "scoreFont"
             ],
@@ -260,6 +275,10 @@
                 "sprite": {
                     "type": "string",
                     "description": "The sprite to be used by the Scorpion."
+                },
+                "shadowSprite": {
+                    "type": "string",
+                    "description": "The shadow sprite to be used by the Scorpion."
                 },
                 "maxSpheres": {
                     "type": "number",
@@ -286,9 +305,25 @@
                     "description": "Every how many pixels a specified particle will spawn. May not exist if trailParticle is not specified.",
                     "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified."
                 },
+                "loopSound": {
+                    "type": "string",
+                    "description": "A looping sound event which is played during Scorpion's existence."
+                },
+                "sphereDestroySound": {
+                    "type": "string",
+                    "description": "A sound event which will be played when the Scorpion destroys a sphere."
+                },
+                "destroySound": {
+                    "type": "string",
+                    "description": "A sound event which will be played when the Scorpion is destroyed."
+                },
                 "destroyParticle": {
                     "type": "string",
                     "description": "A one-time particle packet which the Scorpion will launch upon destruction."
+                },
+                "destroyGenerator": {
+                    "type": "string",
+                    "description": "A collectible generator used when the Scorpion is destroyed."
                 },
                 "scoreFont": {
                     "type": "string",
@@ -297,7 +332,11 @@
             },
             "required": [
                 "sprite",
+                "shadowSprite",
                 "speed",
+                "loopSound",
+                "sphereDestroySound",
+                "destroySound",
                 "destroyParticle",
                 "scoreFont"
             ],

@@ -29,9 +29,9 @@ function Scorpion:new(path, deserializationTable)
 	end
 
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
-	self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
+	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite)
 
-	self.sound = _Game:playSound("sound_events/scorpion_loop.json", 1, self:getPos())
+	self.sound = _Game:playSound(self.config.loopSound, 1, self:getPos())
 
 	self.delQueue = false
 end
@@ -45,12 +45,14 @@ function Scorpion:update(dt)
 		-- Attempt to erase one sphere per iteration
 		-- The routine simply finds the closest sphere to the pyramid
 		-- If it's too far away, the loop ends
-		if self.path:getEmpty() then break end
+		if self.path:getEmpty() then
+			break
+		end
 		local sphereGroup = self.path.sphereChains[1].sphereGroups[1]
 		if sphereGroup:getFrontPos() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
 			sphereGroup:destroySphere(#sphereGroup.spheres)
 			_Game.session.level:destroySphere()
-			_Game:playSound("sound_events/scorpion_destroys.json")
+			_Game:playSound(self.config.sphereDestroySound, 1, self:getPos())
 			self.destroyedSpheres = self.destroyedSpheres + 1
 			-- if this sphere is the last sphere, the scorpion gets rekt
 			if not sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 1 and sphereGroup.spheres[1].color == 0 then
@@ -85,21 +87,26 @@ function Scorpion:shouldExplode()
 end
 
 function Scorpion:explode()
-	if self.delQueue then return end
-	local score = self.destroyedSpheres * 100
-	_Game.session.level:grantScore(score)
-	_Game.session.level:spawnFloatingText(_NumStr(score), self:getPos(), self.config.scoreFont)
-	if self.destroyedSpheres == self.maxSpheres then
-		_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyGenerator)
+	if self.delQueue then
+		return
 	end
-	_Game:spawnParticle(self.config.destroyParticle, self:getPos())
-	_Game:playSound("sound_events/scorpion_destroy.json", 1, self:getPos())
+
+	local pos = self:getPos()
+	local score = self.destroyedSpheres * 100
+
+	_Game.session.level:grantScore(score)
+	_Game.session.level:spawnFloatingText(_NumStr(score), pos, self.config.scoreFont)
+	_Game.session.level:spawnCollectiblesFromEntry(pos, self.config.destroyGenerator)
+	_Game:spawnParticle(self.config.destroyParticle, pos)
+	_Game:playSound(self.config.destroySound, 1, pos)
 
 	self:destroy()
 end
 
 function Scorpion:destroy()
-	if self.delQueue then return end
+	if self.delQueue then
+		return
+	end
 	self.delQueue = true
 	self.sound:stop()
 end
