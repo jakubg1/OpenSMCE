@@ -112,10 +112,22 @@ function Expression:compile(str)
 		}
 	elseif str:sub(1, 1) == "[" and str:sub(str:len()) == "]" then
 		-- Variable value.
-		return {
-			{type = "value", value = str:sub(2, str:len() - 1)},
-			{type = "operator", value = "get"}
-		}
+		local sp = _StrSplit(str:sub(2, str:len() - 1), "|")
+		if #sp == 1 then
+			return {
+				{type = "value", value = sp[1]},
+				{type = "operator", value = "get"}
+			}
+		elseif #sp == 2 then
+			local tt = {
+				{type = "value", value = sp[1]}
+			}
+			for i, step in ipairs(self:compile(sp[2])) do
+				table.insert(tt, step)
+			end
+			table.insert(tt, {type = "operator", value = "getd"})
+			return tt
+		end
 	elseif str == "random" then
 		-- Random value from 0 to 1, uniform.
 		return {
@@ -226,6 +238,11 @@ function Expression:evaluate()
 				-- Get a value of a variable.
 				local a = table.remove(stack)
 				table.insert(stack, _Vars:get(a))
+			elseif op == "getd" then
+				-- Get a value of a variable, or return a specified value if nil.
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, _Vars:get(a, b))
 			end
 		end
 	end

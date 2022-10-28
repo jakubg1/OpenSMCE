@@ -425,6 +425,7 @@ function Debug:runCommand(command)
 		for i, step in ipairs(ce.data) do
 			print(step.type, step.value)
 		end
+		self.console:print(string.format("exprt(%s): %s", words[2], ce:getDebug()))
 		return true
 	end
 
