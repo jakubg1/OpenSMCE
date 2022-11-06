@@ -28,7 +28,7 @@ function Font:new(path)
 
 		self.reportedCharacters = {}
 	elseif self.type == "truetype" then
-		self.font = love.graphics.newFont(_ParsePath(data.path), data.size)
+		self.font = _LoadFont(_ParsePath(data.path), data.size)
 		self.color = _ParseColor(data.color)
 	end
 end

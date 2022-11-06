@@ -244,9 +244,7 @@ end
 
 function _LoadImage(path)
 	local imageData = _LoadImageData(path)
-	if not imageData then
-		error("LOAD IMAGE FAIL: " .. path)
-	end
+	assert(imageData, string.format("LOAD IMAGE FAIL: %s", path))
 	local image = love.graphics.newImage(imageData)
 	return image
 end
@@ -272,24 +270,44 @@ end
 
 function _LoadSound(path, type)
 	local soundData = _LoadSoundData(path)
-	if not soundData then
-		error("LOAD SOUND FAIL: " .. path)
-	end
+	assert(soundData, string.format("LOAD SOUND FAIL: %s", path))
 	local sound = love.audio.newSource(soundData, type)
 	return sound
 end
 
 function _LoadSounds(path, type, instanceCount)
 	local soundData = _LoadSoundData(path)
-	if not soundData then
-		error("LOAD SOUND FAIL: " .. path)
-	end
+	assert(soundData, string.format("LOAD SOUND FAIL: %s", path))
 	local sounds = {}
 	for i = 1, instanceCount do
 		table.insert(sounds, love.audio.newSource(soundData, type))
 	end
 	return sounds
 end
+
+-- This function allows to load fonts from external sources.
+-- This is an altered code from the above function.
+function _LoadFontData(path, size)
+	local f = io.open(path, "rb")
+	if f then
+		local data = f:read("*all")
+		f:close()
+		if data then
+			data = love.filesystem.newFileData(data, "tempname")
+			data = love.font.newRasterizer(data, size)
+			return data
+		end
+	end
+end
+
+function _LoadFont(path, size)
+	local fontData = _LoadFontData(path, size)
+	assert(fontData, string.format("LOAD FONT FAIL: %s", path))
+	local font = love.graphics.newFont(fontData)
+	return font
+end
+
+
 
 function _SaveFile(path, data)
 	local file = io.open(path, "w")
