@@ -55,6 +55,7 @@ function ConfigManager:new()
 	self.spheres = self:loadFolder("config/spheres", "sphere", true)
 	self.sphereEffects = self:loadFolder("config/sphere_effects", "sphere effect")
 	self.colorGenerators = self:loadFolder("config/color_generators", "color generator")
+	self.shooters = self:loadFolder("config/shooters", "shooter")
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
 

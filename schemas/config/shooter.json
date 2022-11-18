@@ -1,0 +1,100 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "$schema": true,
+        "sprite": {
+            "type": "string",
+            "description": "The sprite for the shooter to be used."
+        },
+        "shadowSprite": {
+            "type": "string",
+            "description": "The shadow sprite for the shooter to be used."
+        },
+        "reticle": {
+            "type": "object",
+            "description": "Describes the appearance of a shooting reticle.",
+            "properties": {
+                "sprite": {
+                    "type": "string",
+                    "description": "The aiming reticle sprite to use when Aiming Retical is on. Will fallback to the default drawn caret if not defined."
+                },
+                "offset": {
+                    "$ref": "../_structures/Vector2.json",
+                    "description": "The aiming reticle's offset, relative to the position the cursor is aiming at."
+                },
+                "nextBallSprite": {
+                    "type": "string",
+                    "description": "The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if reticleSprite is defined."
+                },
+                "nextBallOffset": {
+                    "$ref": "../_structures/Vector2.json",
+                    "description": "The aiming reticle's offset, relative to the top-left of the aiming retical."
+                },
+                "radiusSprite": {
+                    "type": "string",
+                    "description": "The aiming reticle's sprite for spheres with fireball or colorCloud hitBehavior."
+                }
+            },
+            "additionalProperties": false
+        },
+        "speedShotBeam": {
+            "type": "object",
+            "description": "Describes the appearance of a speed shot beam.",
+            "properties": {
+                "sprite": {
+                    "type": "string",
+                    "description": "The sprite to be used by the Speed Shot beam."
+                },
+                "fadeTime": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "How long the speed shot beam should fade in or out, in seconds."
+                },
+                "renderingType": {
+                    "enum": [
+                        "full",
+                        "cut",
+                        "scale"
+                    ],
+                    "description": "Defines how the speed shot beam is rendered. Available values are:\n- full - The full beam is always visible.\n- cut - The beam is cut where it intersects a sphere train.\n- scale - The beam is shrunk so its top is touching a sphere train.",
+                    "markdownDescription": "Defines how the speed shot beam is rendered. Available values are:\n- `\"full\"` - The full beam is always visible.\n- `\"cut\"` - The beam is cut where it intersects a sphere train.\n- `\"scale\"` - The beam is shrunk so its top is touching a sphere train."
+                },
+                "colored": {
+                    "type": "boolean",
+                    "description": "Whether the beam should be colored with the current sphere color."
+                }
+            },
+            "required": [
+                "sprite",
+                "fadeTime",
+                "renderingType",
+                "colored"
+            ],
+            "additionalProperties": false
+        },
+        "speedShotParticle": {
+            "type": "string",
+            "description": "Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes."
+        },
+        "shootSpeed": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "The default speed of how fast the shot spheres will be, in pixels per second."
+        },
+        "hitboxSize": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The size of the Shooter's hitbox in pixels."
+        }
+    },
+    "required": [
+        "sprite",
+        "shadowSprite",
+        "reticle",
+        "speedShotBeam",
+        "speedShotParticle",
+        "shootSpeed",
+        "hitboxSize"
+    ],
+    "additionalProperties": false
+}

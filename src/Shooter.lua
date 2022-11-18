@@ -13,6 +13,7 @@ local ShotSphere = require("src/ShotSphere")
 
 
 
+---Constructs a new Shooter.
 function Shooter:new()
     self.pos = Vec2(0, 526)
     self.posMouse = self.pos:clone()
@@ -32,15 +33,15 @@ function Shooter:new()
     -- the speed of the shooter when controlled via keyboard
     self.moveKeySpeed = 500
 
-    self.config = _Game.configManager.gameplay.shooter
+    self.config = _Game.configManager.shooters.default
 
-    self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/shooter_shadow.json")
-    self.sprite = _Game.resourceManager:getSprite("sprites/game/shooter.json")
-    self.speedShotSprite = _Game.resourceManager:getSprite("sprites/particles/speed_shot_beam.json")
+    self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
+    self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite)
+    self.speedShotSprite = _Game.resourceManager:getSprite(self.config.speedShotBeam.sprite)
 
-    self.reticleSprite = self.config.reticleSprite and _Game.resourceManager:getSprite(self.config.reticleSprite)
-    self.reticleNextSprite = self.config.reticleNextBallSprite and _Game.resourceManager:getSprite(self.config.reticleNextBallSprite)
-    self.radiusReticleSprite = self.config.radiusReticleSprite and _Game.resourceManager:getSprite(self.config.radiusReticleSprite)
+    self.reticleSprite = self.config.reticle.sprite and _Game.resourceManager:getSprite(self.config.reticle.sprite)
+    self.reticleNextSprite = self.config.reticle.nextBallSprite and _Game.resourceManager:getSprite(self.config.reticle.nextBallSprite)
+    self.radiusReticleSprite = self.config.reticle.radiusSprite and _Game.resourceManager:getSprite(self.config.reticle.radiusSprite)
 
     self.sphereEntity = nil
 end
@@ -49,6 +50,8 @@ end
 
 
 
+---Updates the Shooter.
+---@param dt number Delta time in seconds.
 function Shooter:update(dt)
     -- movement
     -- how many pixels will the shooter move since the last frame (by mouse)?
@@ -82,14 +85,14 @@ function Shooter:update(dt)
     -- speed shot time counting
     if self.speedShotTime > 0 then
         self.speedShotTime = math.max(self.speedShotTime - dt, 0)
-        self.speedShotAnim = math.min(self.speedShotAnim + dt / self.config.speedShotBeamFadeTime, 1)
+        self.speedShotAnim = math.min(self.speedShotAnim + dt / self.config.speedShotBeam.fadeTime, 1)
         if self.speedShotParticle then
-            self.speedShotParticle.pos = self:spherePos()
+            self.speedShotParticle.pos = self:getSpherePos()
         else
-            self.speedShotParticle = _Game:spawnParticle(self.config.speedShotParticle, self:spherePos())
+            self.speedShotParticle = _Game:spawnParticle(self.config.speedShotParticle, self:getSpherePos())
         end
     else
-        self.speedShotAnim = math.max(self.speedShotAnim - dt / self.config.speedShotBeamFadeTime, 0)
+        self.speedShotAnim = math.max(self.speedShotAnim - dt / self.config.speedShotBeam.fadeTime, 0)
         if self.speedShotParticle then
             self.speedShotParticle:destroy()
             self.speedShotParticle = nil
@@ -98,18 +101,24 @@ function Shooter:update(dt)
 
     -- Update the sphere entity position.
     if self.sphereEntity then
-        self.sphereEntity:setPos(self:spherePos())
+        self.sphereEntity:setPos(self:getSpherePos())
     end
 end
 
 
 
+---Clamps the given X position to restrict it from getting closer than 20 pixels from either of the vertical screen edges.
+---@param x number The X value to be clamped.
+---@return number
 function Shooter:translatePos(x)
     return math.min(math.max(x, 20), _NATIVE_RESOLUTION.x - 20)
 end
 
 
 
+---Moves the shooter to a given X position.
+---@param x number The X position of the shooter to be moved to.
+---@param fromMouse boolean Whether this shooter movement comes from mouse movement.
 function Shooter:move(x, fromMouse)
     -- Cannot move when the level is paused.
     if _Game.session.level.pause then
@@ -123,6 +132,10 @@ end
 
 
 
+---Calculates the difference between the given X position and an actual X position of the shooter.
+---@param x number The X position to be compared against.
+---@param fromMouse boolean Whether to compare with the mouse shooter position, or keyboard shooter position.
+---@return number
 function Shooter:getDelta(x, fromMouse)
     if fromMouse then
         return self:translatePos(x) - self.posMouse.x
@@ -133,6 +146,8 @@ end
 
 
 
+---Sets the primary sphere color to a given sphere color ID.
+---@param color integer The ID of a sphere color to be changed to. `0` will empty this slot.
 function Shooter:setColor(color)
     self.color = color
 
@@ -144,19 +159,22 @@ function Shooter:setColor(color)
         if self.sphereEntity then
             self.sphereEntity:setColor(color)
         else
-            self.sphereEntity = SphereEntity(self:spherePos(), color)
+            self.sphereEntity = SphereEntity(self:getSpherePos(), color)
         end
     end
 end
 
 
 
+---Sets the secondary sphere color to a given sphere color ID.
+---@param color integer The ID of a sphere color to be changed to. `0` will empty this slot.
 function Shooter:setNextColor(color)
     self.nextColor = color
 end
 
 
 
+---Empties and deactivates this shooter. This includes removing all effects, such as speed shot or multi-color spheres.
 function Shooter:empty()
     self.active = false
     self:setColor(0)
@@ -168,6 +186,7 @@ end
 
 
 
+---Swaps this and next sphere colors with each other, if possible.
 function Shooter:swapColors()
     -- we must be careful not to swap the spheres when they're absent
     if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or not self:getSphereConfig().interchangeable then
@@ -181,6 +200,8 @@ end
 
 
 
+---Generates a new sphere color ID for this shooter.
+---@return integer
 function Shooter:getNextColor()
     if self.multiColorCount == 0 then
         return _Game.session.level:getNewShooterColor()
@@ -192,6 +213,7 @@ end
 
 
 
+---Fills any empty spaces in the shooter.
 function Shooter:fill()
     if self.nextColor == 0 then
         self:setNextColor(self:getNextColor())
@@ -204,6 +226,7 @@ end
 
 
 
+---Activates the shooter and plays a shooter fill sound.
 function Shooter:activate()
     self.active = true
     _Game:playSound("sound_events/shooter_fill.json", 1, self.pos)
@@ -211,6 +234,7 @@ end
 
 
 
+---Launches the current sphere, if possible.
 function Shooter:shoot()
     -- if nothing to shoot, it's pointless
     if _Game.session.level.pause or not self.active or self.color == 0 then
@@ -220,10 +244,10 @@ function Shooter:shoot()
     local sphereConfig = self:getSphereConfig()
     if sphereConfig.shootBehavior.type == "lightning" then
         -- lightning spheres are not shot, they're deployed instantly
-        _Game:spawnParticle(sphereConfig.destroyParticle, self:spherePos())
+        _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos())
         _Game.session:destroyVerticalColor(self.pos.x, sphereConfig.shootBehavior.range, self.color)
     else
-        _Game.session.level:spawnShotSphere(self, self:spherePos(), self.color, self:getShootingSpeed())
+        _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.color, self:getShootingSpeed())
         self.sphereEntity = nil
         self.active = false
     end
@@ -239,6 +263,7 @@ end
 
 
 
+---Deinitialization function.
 function Shooter:destroy()
     if self.sphereEntity then
         self.sphereEntity:destroy(false)
@@ -247,6 +272,8 @@ end
 
 
 
+---Replaces the first non-empty slot of the shooter with a given sphere color.
+---@param color integer The sphere color ID to be changed to.
 function Shooter:getSphere(color)
     if self.color ~= 0 then
         self:setColor(color)
@@ -257,6 +284,9 @@ end
 
 
 
+---Activates the multi-sphere mode and applies a given amount of spheres of a given color.
+---@param color integer The sphere color ID to be changed to.
+---@param count integer The amount of spheres of that color to be given.
 function Shooter:getMultiSphere(color, count)
     self.multiColorColor = color
     self.multiColorCount = count
@@ -268,55 +298,14 @@ end
 
 
 
+---Drawing callback function.
 function Shooter:draw()
     self.shadowSprite:draw(self.pos + Vec2(8, 8), Vec2(0.5, 0))
     self.sprite:draw(self.pos, Vec2(0.5, 0))
 
     -- retical
     if _EngineSettings:getAimingRetical() then
-        local targetPos = self:getTargetPos()
-        local color = self:getReticalColor()
-        local sphereConfig = self:getSphereConfig()
-        if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
-            if self.reticleSprite then
-                local location = targetPos + (_ParseVec2(self.config.reticleOffset) or Vec2())
-                self.reticleSprite:draw(location, Vec2(0.5, 0), nil, nil, nil, color)
-                if self.reticleNextSprite then
-                    local nextColor = self:getNextReticalColor()
-                    local nextLocation = location + (_ParseVec2(self.config.reticleNextBallOffset) or Vec2())
-                    self.reticleNextSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, nil, nextColor)
-                end
-            else
-                love.graphics.setLineWidth(3 * _GetResolutionScale())
-                love.graphics.setColor(color.r, color.g, color.b)
-                local p1 = _PosOnScreen(targetPos + Vec2(-8, 8))
-                local p2 = _PosOnScreen(targetPos)
-                local p3 = _PosOnScreen(targetPos + Vec2(8, 8))
-                love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-                love.graphics.line(p2.x, p2.y, p3.x, p3.y)
-            end
-
-            --_Game.resourceManager.
-
-            -- Fireball range highlight
-            if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
-                if self.radiusReticleSprite then
-                    local location = targetPos + (_ParseVec2(self.config.reticleOffset) or Vec2())
-                    local scale = Vec2(sphereConfig.hitBehavior.range * 2) / self.radiusReticleSprite.size
-                    self.radiusReticleSprite:draw(location, Vec2(0.5, 0.5), nil, nil, nil, color, nil, scale)
-                else
-                    --love.graphics.setColor(1, 0, 0)
-                    local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
-                    for i = 1, dotCount do
-                        local angle = (2 * i * math.pi / dotCount) + _TotalTime / 2
-                        local p = _PosOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
-                        love.graphics.circle("fill", p.x, p.y, 2 * _GetResolutionScale())
-                    end
-                    --love.graphics.setLineWidth(3 * getResolutionScale())
-                    --love.graphics.circle("line", p2.x, p2.y, sphereConfig.hitBehavior.range)
-                end
-            end
-        end
+        self:drawReticle()
     end
 
     -- this color
@@ -335,6 +324,7 @@ end
 
 
 
+---Draws the speed shot beam.
 function Shooter:drawSpeedShotBeam()
     -- rendering options:
     -- "full" - the beam is always fully visible
@@ -349,36 +339,88 @@ function Shooter:drawSpeedShotBeam()
     local distance = math.min(targetPos and self.pos.y - targetPos.y or self.pos.y, maxDistance)
     local distanceUnit = distance / maxDistance
     local scale = Vec2(1)
-    if self.config.speedShotBeamRenderingType == "scale" then
+    if self.config.speedShotBeam.renderingType == "scale" then
         -- if we need to scale the beam
         scale.y = distanceUnit
-    elseif self.config.speedShotBeamRenderingType == "cut" then
+    elseif self.config.speedShotBeam.renderingType == "cut" then
         -- if we need to cut the beam
         local p = _PosOnScreen(Vec2(self.pos.x - self.speedShotSprite.size.x / 2, self.pos.y - distance))
         local s = _PosOnScreen(Vec2(self.speedShotSprite.size.x, distance + 16))
         love.graphics.setScissor(p.x, p.y, s.x, s.y)
     end
     -- apply color if wanted
-    local color = self.config.speedShotBeamColored and self:getReticalColor() or Color()
+    local color = self.config.speedShotBeam.colored and self:getReticalColor() or Color()
     -- draw the beam
-    self.speedShotSprite:draw(self:spherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, nil, color, self.speedShotAnim, scale)
+    self.speedShotSprite:draw(self:getSpherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, nil, color, self.speedShotAnim, scale)
     -- reset the scissor
-    if self.config.speedShotBeamRenderingType == "cut" then
+    if self.config.speedShotBeam.renderingType == "cut" then
         love.graphics.setScissor()
     end
 end
 
 
 
-function Shooter:spawnSphereEntity()
-    if self.color == 0 or self.sphereEntity then
-        return
+---Draws the reticle.
+function Shooter:drawReticle()
+    local targetPos = self:getTargetPos()
+    local color = self:getReticalColor()
+    local sphereConfig = self:getSphereConfig()
+    if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
+        if self.reticleSprite then
+            local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2())
+            self.reticleSprite:draw(location, Vec2(0.5, 0), nil, nil, nil, color)
+            if self.reticleNextSprite then
+                local nextColor = self:getNextReticalColor()
+                local nextLocation = location + (_ParseVec2(self.config.reticle.nextBallOffset) or Vec2())
+                self.reticleNextSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, nil, nextColor)
+            end
+        else
+            love.graphics.setLineWidth(3 * _GetResolutionScale())
+            love.graphics.setColor(color.r, color.g, color.b)
+            local p1 = _PosOnScreen(targetPos + Vec2(-8, 8))
+            local p2 = _PosOnScreen(targetPos)
+            local p3 = _PosOnScreen(targetPos + Vec2(8, 8))
+            love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+            love.graphics.line(p2.x, p2.y, p3.x, p3.y)
+        end
+
+        --_Game.resourceManager.
+
+        -- Fireball range highlight
+        if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
+            if self.radiusReticleSprite then
+                local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2())
+                local scale = Vec2(sphereConfig.hitBehavior.range * 2) / self.radiusReticleSprite.size
+                self.radiusReticleSprite:draw(location, Vec2(0.5), nil, nil, nil, color, nil, scale)
+            else
+                --love.graphics.setColor(1, 0, 0)
+                local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
+                for i = 1, dotCount do
+                    local angle = (2 * i * math.pi / dotCount) + _TotalTime / 2
+                    local p = _PosOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
+                    love.graphics.circle("fill", p.x, p.y, 2 * _GetResolutionScale())
+                end
+                --love.graphics.setLineWidth(3 * getResolutionScale())
+                --love.graphics.circle("line", p2.x, p2.y, sphereConfig.hitBehavior.range)
+            end
+        end
     end
-    self.sphereEntity = SphereEntity(self:spherePos(), self.color)
 end
 
 
 
+---Spawns a sphere entity which is used to draw the primary sphere.
+function Shooter:spawnSphereEntity()
+    if self.color == 0 or self.sphereEntity then
+        return
+    end
+    self.sphereEntity = SphereEntity(self:getSpherePos(), self.color)
+end
+
+
+
+---Returns the primary sphere color.
+---@return table
 function Shooter:getReticalColor()
     local color = self:getSphereConfig().color
     if type(color) == "string" then
@@ -388,7 +430,8 @@ function Shooter:getReticalColor()
     end
 end
 
-
+---Returns the secondary sphere color.
+---@return table
 function Shooter:getNextReticalColor()
     local color = self:getNextSphereConfig().color
     if type(color) == "string" then
@@ -398,24 +441,36 @@ function Shooter:getNextReticalColor()
     end
 end
 
-function Shooter:spherePos()
+
+
+---Returns the center position of the primary sphere.
+---@return Vector2
+function Shooter:getSpherePos()
+---@diagnostic disable-next-line: return-type-mismatch
     return self.pos - Vec2(0, -5)
 end
 
 
 
-function Shooter:catchablePos(pos)
-    return math.abs(self.pos.x - pos.x) < 80 and math.abs(self.pos.y - pos.y) < 15
+---Returns `true` if the given position is inside this Shooter's hitbox.
+---@param pos Vector2 The position to be checked against.
+---@return boolean
+function Shooter:isPosCatchable(pos)
+    return math.abs(self.pos.x - pos.x) < self.config.hitboxSize.x / 2 and math.abs(self.pos.y - pos.y) < self.config.hitboxSize.y / 2
 end
 
 
 
+---Returns the reticle position.
+---@return Vector2
 function Shooter:getTargetPos()
     return _Game.session:getNearestSphereY(self.pos).targetPos
 end
 
 
 
+---Returns the current effective shooting speed.
+---@return number
 function Shooter:getShootingSpeed()
     local sphereSpeed = self:getSphereConfig().shootSpeed
     if sphereSpeed then
@@ -423,26 +478,29 @@ function Shooter:getShootingSpeed()
     elseif self.speedShotTime > 0 then
         return self.speedShotSpeed
     end
-    return self.config.shotSpeed
+    return self.config.shootSpeed
 end
 
 
 
--- Returns config for the current sphere.
+---Returns config for the current sphere.
+---@return table
 function Shooter:getSphereConfig()
     return _Game.configManager.spheres[self.color]
 end
 
 
 
--- Returns config for the next sphere.
+---Returns config for the next sphere.
+---@return table
 function Shooter:getNextSphereConfig()
     return _Game.configManager.spheres[self.nextColor]
 end
 
 
 
--- Returns the current sphere's animation frame.
+---Returns the current sphere's animation frame.
+---@return Vector2
 function Shooter:getSphereFrame()
     local animationSpeed = self:getSphereConfig().spriteAnimationSpeed
     if animationSpeed then
@@ -453,7 +511,8 @@ end
 
 
 
--- Returns the next sphere's animation frame.
+---Returns the next sphere's animation frame.
+---@return Vector2
 function Shooter:getNextSphereFrame()
     local animationSpeed = self:getNextSphereConfig().nextSpriteAnimationSpeed
     if animationSpeed then
@@ -464,6 +523,8 @@ end
 
 
 
+---Serializes this Shooter's data for saving purposes.
+---@return table
 function Shooter:serialize()
     return {
         color = self.color,
@@ -476,6 +537,10 @@ function Shooter:serialize()
     }
 end
 
+
+
+---Deserializes and loads previosly saved serialized data.
+---@param t table
 function Shooter:deserialize(t)
     self.color = t.color
     self.nextColor = t.nextColor
@@ -489,5 +554,7 @@ function Shooter:deserialize(t)
 
     self:spawnSphereEntity()
 end
+
+
 
 return Shooter
