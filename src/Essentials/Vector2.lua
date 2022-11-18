@@ -22,6 +22,10 @@ function Vec2.ceil(o) return Vec2(math.ceil(o.x), math.floor(o.y)) end
 function Vec2.swap(o) return Vec2(o.y, o.x) end
 function Vec2.rotate(o, r) return Vec2(o.x * math.cos(r) - o.y * math.sin(r), o.x * math.sin(r) + o.y * math.cos(r)) end
 
+---Compares two vectors.
+---@param o1 Vector2
+---@param o2 Vector2|number
+---@return boolean
 function Vec2.__eq(o1, o2)
 	if type(o2) == "number" then
 		return o1.x == o2 and o1.y == o2
@@ -30,6 +34,10 @@ function Vec2.__eq(o1, o2)
 	end
 end
 
+---Add two vectors.
+---@param o1 Vector2
+---@param o2 Vector2|number
+---@return Vector2
 function Vec2.__add(o1, o2)
 	if type(o2) == "number" then
 		return Vec2(o1.x + o2, o1.y + o2)
@@ -38,6 +46,10 @@ function Vec2.__add(o1, o2)
 	end
 end
 
+---Subtract two vectors.
+---@param o1 Vector2
+---@param o2 Vector2|number
+---@return Vector2
 function Vec2.__sub(o1, o2)
 	if type(o2) == "number" then
 		return Vec2(o1.x - o2, o1.y - o2)
@@ -46,6 +58,10 @@ function Vec2.__sub(o1, o2)
 	end
 end
 
+---Multiply two vectors.
+---@param o1 Vector2
+---@param o2 Vector2|number
+---@return Vector2
 function Vec2.__mul(o1, o2)
 	if type(o2) == "number" then
 		return Vec2(o1.x * o2, o1.y * o2)
@@ -54,6 +70,10 @@ function Vec2.__mul(o1, o2)
 	end
 end
 
+---Divide two vectors.
+---@param o1 Vector2
+---@param o2 Vector2|number
+---@return Vector2
 function Vec2.__div(o1, o2)
 	if type(o2) == "number" then
 		return Vec2(o1.x / o2, o1.y / o2)
@@ -62,6 +82,10 @@ function Vec2.__div(o1, o2)
 	end
 end
 
+---Get a vector of minimum component values.
+---@param o1 Vector2
+---@param o2 Vector2|number
+---@return Vector2
 function Vec2.min(o1, o2)
 	if type(o2) == "number" then
 		return Vec2(math.min(o1.x, o2), math.min(o1.y, o2))
@@ -70,6 +94,10 @@ function Vec2.min(o1, o2)
 	end
 end
 
+---Get a vector of maximum component values.
+---@param o1 Vector2
+---@param o2 Vector2|number
+---@return Vector2
 function Vec2.max(o1, o2)
 	if type(o2) == "number" then
 		return Vec2(math.max(o1.x, o2), math.max(o1.y, o2))
