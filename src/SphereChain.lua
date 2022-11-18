@@ -202,7 +202,7 @@ end
 function SphereChain:join()
 	-- Joins with the previous group and deletes a vise from this group.
 	local prevChain = self.path.sphereChains[self.path:getSphereChainID(self) + 1]
-	self:getLastSphereGroup():destroySphere(1)
+	self:getLastSphereGroup():destroySphere(1, true)
 	-- update group links
 	self:getLastSphereGroup().prevGroup = prevChain.sphereGroups[1]
 	prevChain.sphereGroups[1].nextGroup = self:getLastSphereGroup()

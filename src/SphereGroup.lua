@@ -220,10 +220,10 @@ end
 
 
 
-function SphereGroup:destroySphere(position)
+function SphereGroup:destroySphere(position, crushed)
 	-- no need to divide if it's the first or last sphere in this group
 	if position == 1 then
-		self.spheres[position]:delete()
+		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
 		self.offset = self.offset + 32
 		self:updateSphereOffsets()
@@ -241,11 +241,11 @@ function SphereGroup:destroySphere(position)
 			table.insert(self.sphereChain.sphereGroups, newGroup)
 		end
 	elseif position == #self.spheres then
-		self.spheres[position]:delete()
+		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
 	else
 		self:divide(position)
-		self.spheres[position]:delete()
+		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
 	end
 

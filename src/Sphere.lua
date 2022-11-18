@@ -143,7 +143,7 @@ end
 -- Removes this sphere.
 -- Warning! The removal of the sphere itself is done in SphereGroup.lua!
 -- Please do not call this function if you want to remove this sphere from the board.
-function Sphere:delete()
+function Sphere:delete(crushed)
 	if self.delQueue then
 		return
 	end
@@ -156,8 +156,9 @@ function Sphere:delete()
 		end
 		-- Spawn collectibles, if any.
 		self.path:dumpOffsetVars(self:getOffset())
-		if self.config.destroy_collectible and not self.map.level.lost then
-			self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroy_collectible)
+		if self.config.destroyCollectible and not self.map.level.lost then
+			_Vars:set("crushed", crushed or false)
+			self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectible)
 		end
 		-- Update color count.
 		_Game.session.colorManager:decrement(self.color)
