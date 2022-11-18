@@ -70,7 +70,7 @@ function Expression:compile(str)
 	end
 
 	-- Operators start from the lowest priority!!!
-	local operators = {"?", ":", "||", "&&", "==", "!=", ">", "<", ">=", "<=", "+", "-", "*", "/", "%"}
+	local operators = {"?", ":", "||", "&&", "!", "==", "!=", ">", "<", ">=", "<=", "+", "-", "*", "/", "%"}
 	for i, op in ipairs(operators) do
 		local pos = 1
 		local brackets = 0
@@ -90,8 +90,10 @@ function Expression:compile(str)
 				-- Calculate both hand sides and compile them.
 				local lhs = str:sub(1, pos - 1)
 				local rhs = str:sub(pos + op:len())
-				for j, step in ipairs(self:compile(lhs)) do
-					table.insert(t, step)
+				if op ~= "!" then -- '!' is special; no left hand side expression is expected.
+					for j, step in ipairs(self:compile(lhs)) do
+						table.insert(t, step)
+					end
 				end
 				for j, step in ipairs(self:compile(rhs)) do
 					table.insert(t, step)
@@ -202,7 +204,7 @@ function Expression:evaluate()
 				local a = table.remove(stack)
 				table.insert(stack, a <= b)
 
-			-- Logic: Performs a logic operation on two booleans, consuming them and puts back one boolean result.
+			-- Logic: Performs a logic operation on one or two booleans, consuming them and puts back one boolean result.
 			elseif op == "||" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
@@ -211,6 +213,9 @@ function Expression:evaluate()
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a and b)
+			elseif op == "!" then
+				local a = table.remove(stack)
+				table.insert(stack, not a)
 
 			-- Ternary (the only available) "if" operation.
 			-- The colon is ignored; serves as a separator.
