@@ -153,21 +153,21 @@ end
 
 
 function CrashScreen:emergencySave()
-	print("[CrashScreen] Emergency Saving...")
+	_Log:printt("CrashScreen", "Emergency Saving...")
 
 	-- Does a game exist?
 	if _Game.name then
 		local success = pcall(function() _Game:save() end)
 		if success then
 			self.bottomText2 = "Saved successfully!"
-			print("[CrashScreen] Save successful!")
+			_Log:printt("CrashScreen", "Save successful!")
 		else
 			self.bottomText2 = "Save unsuccessful!"
-			print("[CrashScreen] Save unsuccessful!")
+			_Log:printt("CrashScreen", "Save unsuccessful!")
 		end
 	else
 		self.bottomText2 = "There was nothing to save, you were in Boot Screen, duh."
-		print("[CrashScreen] No, we're ending here")
+		_Log:printt("CrashScreen", "No, we're ending here")
 	end
 end
 

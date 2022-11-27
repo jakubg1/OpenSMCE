@@ -48,7 +48,7 @@ end
 
 ---Initializes the game and all its components.
 function Game:init()
-	print("Selected game: " .. self.name)
+	_Log:printt("Game", "Selected game: " .. self.name)
 
 	-- Step 1. Load the config
 	self.configManager = ConfigManager()

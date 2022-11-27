@@ -423,7 +423,7 @@ function Debug:runCommand(command)
 	elseif words[1] == "exprt" then
 		local ce = Expression(words[2])
 		for i, step in ipairs(ce.data) do
-			print(step.type, step.value)
+			_Log:printt("Debug", string.format("%s   %s", step.type, step.value))
 		end
 		self.console:print(string.format("exprt(%s): %s", words[2], ce:getDebug()))
 		return true

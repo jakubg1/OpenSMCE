@@ -22,7 +22,7 @@ end
 
 ---Resets all options to default values.
 function Options:reset()
-	print("Resetting Options...")
+	_Log:printt("Options", "Resetting Options...")
 
 	self.data = {}
 	self:setMusicVolume(0.25)

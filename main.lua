@@ -12,6 +12,7 @@ local json = require("com/json")
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
+local Log = require("src/Kernel/Log")
 local Debug = require("src/Kernel/Debug")
 
 local BootScreen = require("src/Kernel/BootScreen")
@@ -46,17 +47,27 @@ _KeyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rc
 -- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
 _FSPrefix = ""
 
----@type Game
+---@type Game|BootScreen
 _Game = nil
+
+---@type Log
+_Log = nil
+
+---@type Debug
 _Debug = nil
+
+---@type ExpressionVariables
 _Vars = ExpressionVariables()
+
+
 
 _TotalTime = 0
 _TimeScale = 1
 
-
-
+---@type Settings
 _EngineSettings = nil
+
+---@type DiscordRichPresence
 _DiscordRPC = nil
 
 
@@ -75,6 +86,8 @@ function love.load()
 	-- Initialize RNG for Boot Screen
 	local _ = math.randomseed(os.time())
 
+	-- Initialize some classes
+	_Log = Log()
 	_Debug = Debug()
 	_EngineSettings = Settings("engine/settings.json")
 	_DiscordRPC = DiscordRichPresence()
@@ -89,6 +102,7 @@ function love.update(dt)
 	_MousePos = _PosFromScreen(Vec2(love.mouse.getPosition()))
 	if _Game then _Game:update(dt * _TimeScale) end
 
+	_Log:update(dt)
 	_Debug:update(dt)
 	_DiscordRPC:update(dt)
 
@@ -153,9 +167,10 @@ function love.resize(w, h)
 end
 
 function love.quit()
-	print("[] User-caused Exit... []")
+	_Log:printt("main", "User-caused Exit...")
 	if _Game and _Game.quit then _Game:quit(true) end
 	_DiscordRPC:disconnect()
+	_Log:save(true)
 end
 
 
@@ -209,7 +224,7 @@ end
 function _LoadFile(path)
 	local file = io.open(path, "r")
 	if not file then
-		print("WARNING: File \"" .. path .. "\" does not exist. Expect errors!")
+		_Log:printt("main", "WARNING: File \"" .. path .. "\" does not exist. Expect errors!")
 		return
 	end
 	io.input(file)
@@ -317,7 +332,7 @@ function _SaveFile(path, data)
 end
 
 function _SaveJson(path, data)
-	print("Saving JSON data to " .. path .. "...")
+	_Log:printt("main", "Saving JSON data to " .. path .. "...")
 	_SaveFile(path, _JsonBeautify(json.encode(data)))
 end
 

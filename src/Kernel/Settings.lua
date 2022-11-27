@@ -15,7 +15,7 @@ end
 
 function Settings:reset()
 	if not self.data then
-		print("Resetting Engine Settings...")
+		_Log:printt("Settings", "Resetting Engine Settings...")
 		self.data = {}
 	end
 

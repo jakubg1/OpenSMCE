@@ -43,8 +43,7 @@ function Console:print(message)
 		message = tostring(message)
 	end
 	table.insert(self.history, {text = message, time = _TotalTime})
-	local logText = "[CONSOLE] " .. _StrUnformat(message)
-	print(logText)
+	_Log:printt("CONSOLE", _StrUnformat(message))
 end
 
 function Console:setOpen(open)

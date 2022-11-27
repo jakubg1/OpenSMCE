@@ -20,7 +20,7 @@ function ConfigManager:new()
 	self.resourceList = {}
 	for i, type in ipairs(resourceTypes) do
 		-- For each type...
-		print(string.format("[ConfigManager] Loading %s...", type))
+		_Log:printt("ConfigManager", string.format("Loading %s...", type))
 		self.resourceList[type] = {}
 		-- ...get a list of resources to be loaded.
 		for j, path in ipairs(_GetDirListing(_ParsePath(resourcePaths[i]), "file", nil, true)) do
@@ -65,12 +65,12 @@ function ConfigManager:new()
 	local levelList = _GetDirListing(_ParsePath("config/levels"), "file", "json")
 	for i, path in ipairs(levelList) do
 		local id = tonumber(string.sub(path, 7, -6))
-		print("[ConfigManager] Loading level " .. tostring(id) .. ", " .. tostring(path))
+		_Log:printt("ConfigManager", "Loading level " .. tostring(id) .. ", " .. tostring(path))
 		local level = _LoadJson(_ParsePath("config/levels/" .. path))
 		self.levels[id] = level
 		-- Load map data only if it hasn't been loaded yet.
 		if not self.maps[level.map] then
-			print("[ConfigManager] Loading map " .. level.map)
+			_Log:printt("ConfigManager", "Loading map " .. level.map)
 			self.maps[level.map] = _LoadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
 		end
 	end
@@ -92,7 +92,7 @@ function ConfigManager:loadFolder(folderPath, name, isNumbers)
 		if isNumbers then
 			id = tonumber(string.sub(path, 2 + string.len(name), -6))
 		end
-		print(string.format("[ConfigManager] Loading %s %s, %s", name, id, path))
+		_Log:printt("ConfigManager", string.format("Loading %s %s, %s", name, id, path))
 		local item = _LoadJson(_ParsePath(folderPath .. "/" .. path))
 		t[id] = item
 	end

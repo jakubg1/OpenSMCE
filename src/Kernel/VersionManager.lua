@@ -78,7 +78,7 @@ end
 function VersionManager:convertGameStep(name, version)
   local nextVersion = self.versions[self:getVersionID(version) - 1]
   local nextVersionFile = _StrJoin(_StrSplit(nextVersion, "."), "_")
-  print(string.format("[VersionManager] Conversion: %s from %s to %s", name, version, nextVersion))
+  _Log:printt("VersionManager", string.format("Conversion: %s from %s to %s", name, version, nextVersion))
   local mod = require(string.format("src/Kernel/Version/%s", nextVersionFile))
   mod.main(string.format("games/%s/", name))
 end

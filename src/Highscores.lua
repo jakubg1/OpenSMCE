@@ -20,7 +20,7 @@ end
 
 ---Resets the leaderboard to default values.
 function Highscores:reset()
-	print("Resetting Highscores...")
+	_Log:printt("Highscores", "Resetting Highscores...")
 
 	self.data = {entries = {}}
 	for i = 1, self.config.size do
@@ -76,8 +76,6 @@ function Highscores:storeProfile(profile, pos)
 		self.data.entries[i + 1] = self:getEntry(i)
 	end
 	self.data.entries[pos] = {name = profile.name, score = profile:getScore(), level = profile:getLevelName()}
-
-	for i, entry in ipairs(self.data.entries) do print(entry.score, entry.name, entry.level) end
 end
 
 

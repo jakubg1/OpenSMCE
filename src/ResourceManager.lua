@@ -144,8 +144,8 @@ function ResourceManager:loadResource(type, path)
 		data.t[path] = data.c(_ParsePath(path))
 	end)
 	if not success then
-		print(string.format("[ResourceManager] FAILED to load %s: %s", data.e, path))
-		print("-> " .. err)
+		_Log:printt("ResourceManager", string.format("FAILED to load %s: %s", data.e, path))
+		_Log:printt("ResourceManager", "-> " .. err)
 	end
 end
 

@@ -35,11 +35,11 @@ function DiscordRichPresence:new()
 	function discordRPCMain.disconnected(errorCode, message)
 		self.connected = false
 		self.username = nil
-		print(string.format("[DiscordRPC] disconnected (%d: %s)", errorCode, message))
+		_Log:printt("DiscordRPC", string.format("Disconnected (%d: %s)", errorCode, message))
 	end
 
 	function discordRPCMain.errored(errorCode, message)
-		print(string.format("[DiscordRPC] error (%d: %s)", errorCode, message))
+		_Log:printt("DiscordRPC", string.format("Error (%d: %s)", errorCode, message))
 	end
 end
 
@@ -88,7 +88,7 @@ end
 ---Connects Discord Rich Presence.
 function DiscordRichPresence:connect()
 	if self.enabled then return end
-	print("[DiscordRPC] Connecting...")
+	_Log:printt("DiscordRPC", "Connecting...")
 	discordRPCMain.initialize(_DISCORD_APPLICATION_ID, true)
 	self.enabled = true
 end
@@ -98,7 +98,7 @@ end
 ---Disconnects Discord Rich Presence.
 function DiscordRichPresence:disconnect()
 	if not self.enabled then return end
-	print("[DiscordRPC] Disconnecting...")
+	_Log:printt("DiscordRPC", "Disconnecting...")
     discordRPCMain.shutdown()
 	self.enabled = false
 	self.connected = false
