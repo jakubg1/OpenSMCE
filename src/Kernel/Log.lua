@@ -15,7 +15,7 @@ function Log:new()
 
 
 
-    self:print(string.format("[Log] OpenSMCE Log - Version: %s (Build: %s)", _VERSION, _BUILD_NUMBER))
+    self:printt("Log", string.format("OpenSMCE Log - Version: %s (Build: %s)", _VERSION, _BUILD_NUMBER))
 end
 
 
@@ -38,7 +38,7 @@ end
 ---Appends a new line to the log.
 ---@param text string The text to be written to log.
 function Log:print(text)
-    self.contents = self.contents .. string.format("[%.6f] %s\n", _TotalTime, text)
+    self.contents = self.contents .. string.format("[%.6f] %s\n", _GetPreciseTime(), text)
     print("[ LOG ]   " .. text)
 end
 

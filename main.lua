@@ -30,6 +30,7 @@ _VERSION = "v0.46.1"
 _VERSION_NAME = "Beta 4.6.1"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 _BUILD_NUMBER = "unknown"
+_START_TIME = love.timer.getTime()
 
 
 -- TODO: at some point, get rid of this and make it configurable
@@ -208,6 +209,13 @@ function _PosFromScreen(pos)
 end
 
 
+
+---Returns precise time amount since this program has been launched.
+---The output is more precise than the `_TotalTime` field.
+---@return number
+function _GetPreciseTime()
+	return love.timer.getTime() - _START_TIME
+end
 
 function _GetRainbowColor(t)
 	t = t * 3
