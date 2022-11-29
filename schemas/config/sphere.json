@@ -34,7 +34,7 @@
             "type": "string",
             "description": "A one-time particle packet used when the sphere is destroyed."
         },
-        "destroy_collectible": {
+        "destroyCollectible": {
             "type": "string",
             "description": "A collectible generator used when the sphere is destroyed."
         },
