@@ -57,6 +57,9 @@ There are no games publicly available right now, however three games are known t
 We will provide tools to convert and create games at some point.
 In future, we are considering bundling all releases with a builtin game - to save you hassle! More info soon.
 
+The game converter has its own separate repository: https://github.com/jakubg1/OpenSMCE_Converter.
+It currently supports only Luxor 1. If you want to help with other versions/games, feel free to open a ticket on its issue list, or contribute!
+
 ## What do I need?
 - For running the engine and playing the games:
   - just the executable, the files, the game and you're ready to go
