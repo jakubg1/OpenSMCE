@@ -54,7 +54,7 @@ function SoundInstance:setPos(pos)
   if _EngineSettings:get3DSound() and pos then
     self.pos = pos
     local p = pos - _NATIVE_RESOLUTION / 2
-    self.sound:setPosition(p.x, p.y, 0)
+    self.sound:setPosition(p.x, p.y, _NATIVE_RESOLUTION.x * 2.5)
     self.sound:setAttenuationDistances(0, _NATIVE_RESOLUTION.x)
   else
     self.pos = Vec2()
