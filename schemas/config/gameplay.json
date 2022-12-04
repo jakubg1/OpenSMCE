@@ -85,7 +85,7 @@
                     "description": "If true, spheres will never move faster than the maximum speed defined at a given point of the path.",
                     "markdownDescription": "If `true`, spheres will never move faster than the maximum speed defined at a given point of the path."
                 },
-                "invincible_scarabs": {
+                "invincibleScarabs": {
                     "type": "boolean",
                     "description": "If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.",
                     "markdownDescription": "If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed."
@@ -93,6 +93,14 @@
                 "luxorized": {
                     "type": "boolean",
                     "description": "Enables sphere physics gimmicks specific to the original Luxor game to mimic it better."
+                },
+                "joinSound": {
+                    "type": "string",
+                    "description": "A sound event to be played when two groups of spheres hit each other."
+                },
+                "newGroupSound": {
+                    "type": "string",
+                    "description": "A sound event to be played when a new sphere chain appears on the board."
                 }
             },
             "required": [
@@ -104,7 +112,9 @@
                 "knockbackSpeedMult",
                 "foulSpeed",
                 "overspeedCheck",
-                "invincible_scarabs"
+                "invincibleScarabs",
+                "joinSound",
+                "newGroupSound"
             ],
             "additionalProperties": false
         },

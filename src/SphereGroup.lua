@@ -388,7 +388,7 @@ function SphereGroup:join()
 	self.prevGroup:destroyFragileSpheres()
 	self:destroyFragileSpheres()
 	-- play a sound
-	_Game:playSound("sound_events/sphere_group_join.json", 1, self.sphereChain.path:getPos(self.offset))
+	_Game:playSound(self.config.joinSound, 1, self.sphereChain.path:getPos(self.offset))
 end
 
 
