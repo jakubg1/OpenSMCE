@@ -129,8 +129,6 @@ function SphereChain:delete(joins)
 	if not joins and not self.map.level.lost then
 		self.path.clearOffset = self.maxOffset
 	end
-
-	if joins then _Game:playSound("sound_events/sphere_destroy_vise.json") end
 end
 
 -- Unloads this chain.

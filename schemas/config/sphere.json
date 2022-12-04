@@ -38,6 +38,10 @@
             "type": "string",
             "description": "A collectible generator used when the sphere is destroyed."
         },
+        "destroySound": {
+            "type": "string",
+            "description": "A sound event to be played when a sphere of this type is destroyed. Note: This will be played for each single sphere removed from the board. You may want to check out match sound events instead. Warning! This works only for crushed scarabs for now."
+        },
         "color": {
             "anyOf": [
                 {

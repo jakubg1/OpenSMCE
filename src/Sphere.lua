@@ -154,11 +154,17 @@ function Sphere:delete(crushed)
 		if self.color ~= 0 then
 			self.map.level:destroySphere()
 		end
-		-- Spawn collectibles, if any.
-		self.path:dumpOffsetVars(self:getOffset())
-		if self.config.destroyCollectible and not self.map.level.lost then
-			_Vars:set("crushed", crushed or false)
-			self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectible)
+		if not self.map.level.lost then
+			-- Spawn collectibles, if any.
+			self.path:dumpOffsetVars(self:getOffset())
+			if self.config.destroyCollectible then
+				_Vars:set("crushed", crushed or false)
+				self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectible)
+			end
+			-- Play a sound.
+			if self.config.destroySound and crushed then
+				_Game:playSound(self.config.destroySound, 1, self:getPos())
+			end
 		end
 		-- Update color count.
 		_Game.session.colorManager:decrement(self.color)
