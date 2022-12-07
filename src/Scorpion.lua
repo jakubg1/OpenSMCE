@@ -9,6 +9,9 @@ local Color = require("src/Essentials/Color")
 
 
 
+---Constructs a new Scorpion.
+---@param path Path The path this Scorpion is on.
+---@param deserializationTable table? The data to be loaded from if loading a saved game.
 function Scorpion:new(path, deserializationTable)
 	self.path = path
 
@@ -36,6 +39,10 @@ function Scorpion:new(path, deserializationTable)
 	self.delQueue = false
 end
 
+
+
+---Updates the Scorpion's logic.
+---@param dt number Delta time in seconds.
 function Scorpion:update(dt)
 	-- Offset and distance
 	self.offset = self.offset - self.config.speed * dt
@@ -80,12 +87,19 @@ function Scorpion:update(dt)
 	end
 end
 
+
+
+---Returns whether the Scorpion should be now destroyed.
+---@return boolean
 function Scorpion:shouldExplode()
 	return self.offset <= 64
 	or (self.destroyedSpheres and self.destroyedSpheres == self.maxSpheres)
 	or (self.destroyedChains and self.destroyedChains == self.maxChains)
 end
 
+
+
+---Destroys the Scorpion, adds points to score, plays a sound etc.
 function Scorpion:explode()
 	if self.delQueue then
 		return
@@ -103,6 +117,9 @@ function Scorpion:explode()
 	self:destroy()
 end
 
+
+
+---Destructor.
 function Scorpion:destroy()
 	if self.delQueue then
 		return
@@ -113,6 +130,9 @@ end
 
 
 
+---Draws this Scorpion on the screen.
+---@param hidden boolean Whether this drawing call comes from a hidden sphere pass.
+---@param shadow boolean Whether to draw the actual entity or its shadow.
 function Scorpion:draw(hidden, shadow)
 	if self:getHidden() == hidden then
 		if shadow then
@@ -125,24 +145,40 @@ end
 
 
 
+---Returns the onscreen position of this Scorpion.
+---@return Vector2
 function Scorpion:getPos()
 	return self.path:getPos(self.offset)
 end
 
+
+
+---Returns the current angle of this Scorpion.
+---@return number
 function Scorpion:getAngle()
 	return self.path:getAngle(self.offset)
 end
 
+
+
+---Returns the current brightness of this Scorpion.
+---@return number
 function Scorpion:getBrightness()
 	return self.path:getBrightness(self.offset)
 end
 
+
+
+---Returns whether this Scorpion is marked as hidden.
+---@return boolean
 function Scorpion:getHidden()
 	return self.path:getHidden(self.offset)
 end
 
 
 
+---Serializes this Scorpion to a set of values which can be reimported later.
+---@return table
 function Scorpion:serialize()
 	local t = {
 		offset = self.offset,
@@ -156,6 +192,10 @@ function Scorpion:serialize()
 	return t
 end
 
+
+
+---Loads previously saved data from a given table.
+---@param t table The data to be loaded.
 function Scorpion:deserialize(t)
 	self.offset = t.offset
 	self.distance = t.distance
@@ -165,5 +205,7 @@ function Scorpion:deserialize(t)
 	self.maxSpheres = t.maxSpheres
 	self.maxChains = t.maxChains
 end
+
+
 
 return Scorpion

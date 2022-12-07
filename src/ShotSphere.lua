@@ -11,6 +11,12 @@ local SphereEntity = require("src/SphereEntity")
 
 
 
+---Constructs a new Shot Sphere.
+---@param deserializationTable table? The deserialization data to be used instead of the fields below if loading a previously saved game.
+---@param shooter Shooter? The shooter which this sphere has been shot from.
+---@param pos Vector2? The inital position of this Shot Sphere.
+---@param color integer The color of this Shot sphere.
+---@param speed number The initial speed of this Shot Sphere.
 function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
@@ -32,6 +38,10 @@ function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
 	self.delQueue = false
 end
 
+
+
+---Updates the Shot Sphere logic.
+---@param dt number Delta time in seconds.
 function ShotSphere:update(dt)
 	if self.hitSphere then
 		-- increment the timer
@@ -45,9 +55,12 @@ function ShotSphere:update(dt)
 	end
 end
 
--- by default, 1 step = 8 px
--- you can do more pixels if it's not efficient (laggy), but that will decrease the accuracy
+
+
+---Performs a single movement step of `PIXELS_PER_STEP` length (default is 8 px).
+---This allows the shot sphere behavior to be consistent while not being too laggy.
 function ShotSphere:moveStep()
+	-- you can do more pixels if it's not efficient (laggy), but that will decrease the accuracy
 	self.steps = self.steps - 1
 	self.pos.y = self.pos.y - self.PIXELS_PER_STEP
 
@@ -120,30 +133,21 @@ function ShotSphere:moveStep()
 	end
 end
 
+
+
+---Returns a table of IDs of the hit sphere. Used for serialization purposes.
+---@return table?
 function ShotSphere:getHitSphereIDs()
 	if not self.hitSphere then
 		return nil
 	end
 
-	local s = self.hitSphere
-	local g = s.sphereGroup
-	local c = g.sphereChain
-	local p = c.path
-	local m = p.map
-
-	local sphereID = s.sphereID
-	local groupID = c:getSphereGroupID(g)
-	local chainID = p:getSphereChainID(c)
-	local pathID = m:getPathID(p)
-
-	return {
-		sphereID = sphereID,
-		groupID = groupID,
-		chainID = chainID,
-		pathID = pathID
-	}
+	return self.hitSphere.sphere:getIDs()
 end
 
+
+
+---Deinitializates itself, destroys the associated sphere entity and allows the shooter to shoot again.
 function ShotSphere:destroy()
 	if self.delQueue then return end
 	self._list:destroy(self)
@@ -156,6 +160,7 @@ end
 
 
 
+---Draws the associated sphere entity.
 function ShotSphere:draw()
 	if not self.hitSphere then
 		self.sphereEntity:setPos(self:getDrawPos())
@@ -165,6 +170,9 @@ function ShotSphere:draw()
 	end
 end
 
+
+
+---Draws something which is meant to debug.
 function ShotSphere:drawDebug()
 	love.graphics.setColor(0, 1, 1)
 	for i = self.pos.y, 0, -self.PIXELS_PER_STEP do
@@ -180,12 +188,18 @@ function ShotSphere:drawDebug()
 	end
 end
 
+
+
+---Returns the position at which the entity should be drawn. This is different to the real position so the ball movement is smooth visually.
+---@return number
 function ShotSphere:getDrawPos()
 	return self.pos + Vec2(0, -self.steps * self.PIXELS_PER_STEP)
 end
 
 
 
+---Serializes this entity's data so it can be reused again during reload.
+---@return table
 function ShotSphere:serialize()
 	return {
 		pos = {x = self.pos.x, y = self.pos.y},
@@ -198,6 +212,10 @@ function ShotSphere:serialize()
 	}
 end
 
+
+
+---Loads previously saved entity data.
+---@param t table Deserialization data.
 function ShotSphere:deserialize(t)
 	self.pos = Vec2(t.pos.x, t.pos.y)
 	self.color = t.color
@@ -222,5 +240,7 @@ function ShotSphere:deserialize(t)
 	self.hitTime = t.hitTime
 	self.hitTimeMax = t.hitTimeMax
 end
+
+
 
 return ShotSphere
