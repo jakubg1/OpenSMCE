@@ -4,6 +4,7 @@ local class = require "com/class"
 ---@overload fun():Console
 local Console = class:derive("Console")
 
+local utf8 = require("utf8")
 local Vec2 = require("src/Essentials/Vector2")
 
 
@@ -121,7 +122,10 @@ end
 
 function Console:inputBackspace()
 	if not self.active then return end
-	self.command = self.command:sub(1, -2)
+	local offset = utf8.offset(self.command, -1)
+	if offset then
+		self.command = self.command:sub(1, offset - 1)
+	end
 end
 
 function Console:inputEnter()
