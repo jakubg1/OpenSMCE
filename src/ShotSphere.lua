@@ -1,7 +1,7 @@
 local class = require "com/class"
 
 ---@class ShotSphere
----@overload fun(deserializationTable, shooter, pos, color, speed):ShotSphere
+---@overload fun(deserializationTable, shooter, pos, angle, color, speed):ShotSphere
 local ShotSphere = class:derive("ShotSphere")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -13,16 +13,18 @@ local SphereEntity = require("src/SphereEntity")
 
 ---Constructs a new Shot Sphere.
 ---@param deserializationTable table? The deserialization data to be used instead of the fields below if loading a previously saved game.
----@param shooter Shooter? The shooter which this sphere has been shot from.
----@param pos Vector2? The inital position of this Shot Sphere.
----@param color integer The color of this Shot sphere.
+---@param shooter Shooter The shooter which this sphere has been shot from.
+---@param pos Vector2 The inital position of this Shot Sphere.
+---@param angle number The initial movement direction of this Shot Sphere, in radians. 0 is up.
+---@param color integer The color of this Shot Sphere.
 ---@param speed number The initial speed of this Shot Sphere.
-function ShotSphere:new(deserializationTable, shooter, pos, color, speed)
+function ShotSphere:new(deserializationTable, shooter, pos, angle, color, speed)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
 		self.shooter = shooter
 		self.pos = pos
+		self.angle = angle
 		self.steps = 0
 		self.color = color
 		self.speed = speed
@@ -62,7 +64,7 @@ end
 function ShotSphere:moveStep()
 	-- you can do more pixels if it's not efficient (laggy), but that will decrease the accuracy
 	self.steps = self.steps - 1
-	self.pos.y = self.pos.y - self.PIXELS_PER_STEP
+	self.pos = self.pos + Vec2(0, -self.PIXELS_PER_STEP):rotate(self.angle)
 
 	-- add if there's a sphere nearby
 	local nearestSphere = _Game.session:getNearestSphere(self.pos)
@@ -127,10 +129,18 @@ function ShotSphere:moveStep()
 		end
 	end
 	-- delete if outside of the board
-	if self.pos.y < -16 then
+	if self:isOutsideBoard() then
 		self:destroy()
 		_Game.session.level.combo = 0
 	end
+end
+
+
+
+---Returns whether this Shot Sphere is outside of the board.
+---@return boolean
+function ShotSphere:isOutsideBoard()
+	return self.pos.x < -16 or self.pos.x > _NATIVE_RESOLUTION.x + 16 or self.pos.y < -16 or self.pos.y > _NATIVE_RESOLUTION.y + 16
 end
 
 
@@ -164,6 +174,7 @@ end
 function ShotSphere:draw()
 	if not self.hitSphere then
 		self.sphereEntity:setPos(self:getDrawPos())
+		self.sphereEntity:setAngle(self.angle)
 		self.sphereEntity:draw(true)
 		self.sphereEntity:draw()
 		--self:drawDebug()
@@ -191,9 +202,9 @@ end
 
 
 ---Returns the position at which the entity should be drawn. This is different to the real position so the ball movement is smooth visually.
----@return number
+---@return Vector2
 function ShotSphere:getDrawPos()
-	return self.pos + Vec2(0, -self.steps * self.PIXELS_PER_STEP)
+	return self.pos + Vec2(0, self.steps * -self.PIXELS_PER_STEP):rotate(self.angle)
 end
 
 
@@ -203,6 +214,7 @@ end
 function ShotSphere:serialize()
 	return {
 		pos = {x = self.pos.x, y = self.pos.y},
+		angle = self.angle,
 		color = self.color,
 		speed = self.speed,
 		steps = self.steps,
@@ -218,6 +230,7 @@ end
 ---@param t table Deserialization data.
 function ShotSphere:deserialize(t)
 	self.pos = Vec2(t.pos.x, t.pos.y)
+	self.angle = t.angle
 	self.color = t.color
 	self.speed = t.speed
 	self.steps = t.steps
@@ -234,7 +247,7 @@ function ShotSphere:deserialize(t)
 		}
 	else
 		self.sphereEntity = SphereEntity(self.pos, self.color)
-		self.sphereEntity.frame = Vec2(1)
+		self.sphereEntity:setAngle(self.angle)
 	end
 
 	self.hitTime = t.hitTime

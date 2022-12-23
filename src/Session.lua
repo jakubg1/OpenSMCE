@@ -383,7 +383,7 @@ end
 
 
 
----Returns the nearest sphere to the given position along the Y axis along with some extra data.
+---Returns the first sphere to collide with a provided line of sight along with some extra data.
 ---The returned table has the following fields:
 ---
 --- - `path` (Path),
@@ -395,9 +395,10 @@ end
 --- - `dist` (number) - the distance to this sphere,
 --- - `targetPos` (Vector2) - the collision position (used for i.e. drawing the reticle),
 --- - `half` (boolean) - if `true`, this is a half pointing to the end of the path, `false` if to the beginning of said path.
----@param pos Vector2 The position to be checked against.
+---@param pos Vector2 The starting position of the line of sight.
+---@param angle number The angle of the line. 0 is up.
 ---@return table
-function Session:getNearestSphereY(pos)
+function Session:getNearestSphereOnLine(pos, angle)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, targetPos = nil, half = nil}
 	for i, path in ipairs(self.level.map.paths.objects) do
 		for j, sphereChain in ipairs(path.sphereChains) do
@@ -407,8 +408,11 @@ function Session:getNearestSphereY(pos)
 					local sphereAngle = sphereGroup:getSphereAngle(l)
 					local sphereHidden = sphereGroup:getSphereHidden(l)
 
-					local sphereTargetY = spherePos.y + math.sqrt(math.pow(16 --[[half of sphere size // note for placing constant here]], 2) - math.pow(pos.x - spherePos.x, 2))
-					local sphereDist = Vec2(pos.x - spherePos.x, pos.y - sphereTargetY)
+					-- 16 is half of the sphere size
+					local sphereTargetCPos = (spherePos - pos):rotate(-angle) + pos
+					local sphereTargetY = sphereTargetCPos.y + math.sqrt(math.pow(16, 2) - math.pow(pos.x - sphereTargetCPos.x, 2))
+					local sphereTargetPos = (Vec2(pos.x, sphereTargetY) - pos):rotate(angle) + pos
+					local sphereDist = Vec2(pos.x - sphereTargetCPos.x, pos.y - sphereTargetY)
 
 					local sphereDistAngle = (pos - spherePos):angle()
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
@@ -422,7 +426,7 @@ function Session:getNearestSphereY(pos)
 						nearestData.sphere = sphere
 						nearestData.pos = spherePos
 						nearestData.dist = sphereDist
-						nearestData.targetPos = Vec2(pos.x, sphereTargetY)
+						nearestData.targetPos = sphereTargetPos
 						nearestData.half = sphereHalf
 					end
 				end

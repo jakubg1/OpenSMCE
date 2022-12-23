@@ -17,6 +17,8 @@ local ShotSphere = require("src/ShotSphere")
 function Shooter:new()
     self.pos = Vec2(0, 526)
     self.posMouse = self.pos:clone()
+    self.angle = 0
+
     self.color = 0
     self.nextColor = 0
     self.active = false -- when the sphere is shot you can't shoot; same for start, win, lose
@@ -54,19 +56,25 @@ end
 ---@param dt number Delta time in seconds.
 function Shooter:update(dt)
     -- movement
-    -- how many pixels will the shooter move since the last frame (by mouse)?
-    local shooterDelta = self:getDelta(_MousePos.x, true)
-    if shooterDelta == 0 then
-        -- if 0, then the keyboard can be freely used
-        if self.moveKeys.left then
-            self:move(self.pos.x - self.moveKeySpeed * dt, false)
-        end
-        if self.moveKeys.right then
-            self:move(self.pos.x + self.moveKeySpeed * dt, false)
+    if false then
+        -- how many pixels will the shooter move since the last frame (by mouse)?
+        local shooterDelta = self:getDelta(_MousePos.x, true)
+        if shooterDelta == 0 then
+            -- if 0, then the keyboard can be freely used
+            if self.moveKeys.left then
+                self:move(self.pos.x - self.moveKeySpeed * dt, false)
+            end
+            if self.moveKeys.right then
+                self:move(self.pos.x + self.moveKeySpeed * dt, false)
+            end
+        else
+            -- else, the mouse takes advantage and overwrites the position
+            self:move(_MousePos.x, true)
         end
     else
-        -- else, the mouse takes advantage and overwrites the position
-        self:move(_MousePos.x, true)
+        -- zuma shooter test
+        self.pos = _NATIVE_RESOLUTION / 2
+        self.angle = (_MousePos - self.pos):angle() + math.pi / 2
     end
 
     -- filling
@@ -247,7 +255,7 @@ function Shooter:shoot()
         _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos())
         _Game.session:destroyVerticalColor(self.pos.x, sphereConfig.shootBehavior.range, self.color)
     else
-        _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.color, self:getShootingSpeed())
+        _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self.color, self:getShootingSpeed())
         self.sphereEntity = nil
         self.active = false
     end
@@ -300,8 +308,8 @@ end
 
 ---Drawing callback function.
 function Shooter:draw()
-    self.shadowSprite:draw(self.pos + Vec2(8, 8), Vec2(0.5, 0))
-    self.sprite:draw(self.pos, Vec2(0.5, 0))
+    self.shadowSprite:draw(self.pos + Vec2(8, 8):rotate(self.angle), Vec2(0.5, 0), nil, nil, self.angle)
+    self.sprite:draw(self.pos, Vec2(0.5, 0), nil, nil, self.angle)
 
     -- retical
     if _EngineSettings:getAimingRetical() then
@@ -310,13 +318,15 @@ function Shooter:draw()
 
     -- this color
     if self.sphereEntity then
-        self.sphereEntity.frame = self:getSphereFrame()
+        self.sphereEntity:setPos(self:getSpherePos())
+        self.sphereEntity:setAngle(self.angle)
+        self.sphereEntity:setFrame(self:getSphereFrame())
         self.sphereEntity:draw()
     end
     -- next color
     local sprite = _Game.resourceManager:getSprite(self:getNextSphereConfig().nextSprite)
     local frame = self:getNextSphereFrame()
-    sprite:draw(self.pos + Vec2(0, 21), Vec2(0.5, 0), nil, frame)
+    sprite:draw(self.pos + Vec2(0, 21):rotate(self.angle), Vec2(0.5, 0), nil, frame, self.angle)
 
     --local p4 = posOnScreen(self.pos)
     --love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
@@ -336,7 +346,7 @@ function Shooter:drawSpeedShotBeam()
 
     local targetPos = self:getTargetPos()
     local maxDistance = self.speedShotSprite.size.y
-    local distance = math.min(targetPos and self.pos.y - targetPos.y or self.pos.y, maxDistance)
+    local distance = math.min(targetPos and (self.pos - targetPos):len() or maxDistance, maxDistance)
     local distanceUnit = distance / maxDistance
     local scale = Vec2(1)
     if self.config.speedShotBeam.renderingType == "scale" then
@@ -344,17 +354,26 @@ function Shooter:drawSpeedShotBeam()
         scale.y = distanceUnit
     elseif self.config.speedShotBeam.renderingType == "cut" then
         -- if we need to cut the beam
-        local p = _PosOnScreen(Vec2(self.pos.x - self.speedShotSprite.size.x / 2, self.pos.y - distance))
-        local s = _PosOnScreen(Vec2(self.speedShotSprite.size.x, distance + 16))
-        love.graphics.setScissor(p.x, p.y, s.x, s.y)
+        -- make a polygon: determine all four corners first
+        local p1 = _PosOnScreen(self.pos + Vec2(-self.speedShotSprite.size.x / 2, -distance):rotate(self.angle))
+        local p2 = _PosOnScreen(self.pos + Vec2(self.speedShotSprite.size.x / 2, -distance):rotate(self.angle))
+        local p3 = _PosOnScreen(self.pos + Vec2(self.speedShotSprite.size.x / 2, 16):rotate(self.angle))
+        local p4 = _PosOnScreen(self.pos + Vec2(-self.speedShotSprite.size.x / 2, 16):rotate(self.angle))
+        -- mark all pixels within the polygon with value of 1
+        love.graphics.stencil(function()
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.polygon("fill", p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y)
+        end, "replace", 1)
+        -- mark only these pixels as the pixels which can be affected
+        love.graphics.setStencilTest("equal", 1)
     end
     -- apply color if wanted
     local color = self.config.speedShotBeam.colored and self:getReticalColor() or Color()
     -- draw the beam
-    self.speedShotSprite:draw(self:getSpherePos() + Vec2(0, 16), Vec2(0.5, 1), nil, nil, nil, color, self.speedShotAnim, scale)
+    self.speedShotSprite:draw(self:getSpherePos() + Vec2(0, 16):rotate(self.angle), Vec2(0.5, 1), nil, nil, self.angle, color, self.speedShotAnim, scale)
     -- reset the scissor
     if self.config.speedShotBeam.renderingType == "cut" then
-        love.graphics.setScissor()
+        love.graphics.setStencilTest()
     end
 end
 
@@ -367,19 +386,19 @@ function Shooter:drawReticle()
     local sphereConfig = self:getSphereConfig()
     if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
         if self.reticleSprite then
-            local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2())
-            self.reticleSprite:draw(location, Vec2(0.5, 0), nil, nil, nil, color)
+            local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2()):rotate(self.angle)
+            self.reticleSprite:draw(location, Vec2(0.5, 0), nil, nil, self.angle, color)
             if self.reticleNextSprite then
                 local nextColor = self:getNextReticalColor()
-                local nextLocation = location + (_ParseVec2(self.config.reticle.nextBallOffset) or Vec2())
-                self.reticleNextSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, nil, nextColor)
+                local nextLocation = location + (_ParseVec2(self.config.reticle.nextBallOffset) or Vec2()):rotate(self.angle)
+                self.reticleNextSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, self.angle, nextColor)
             end
         else
             love.graphics.setLineWidth(3 * _GetResolutionScale())
             love.graphics.setColor(color.r, color.g, color.b)
-            local p1 = _PosOnScreen(targetPos + Vec2(-8, 8))
+            local p1 = _PosOnScreen(targetPos + Vec2(-8, 8):rotate(self.angle))
             local p2 = _PosOnScreen(targetPos)
-            local p3 = _PosOnScreen(targetPos + Vec2(8, 8))
+            local p3 = _PosOnScreen(targetPos + Vec2(8, 8):rotate(self.angle))
             love.graphics.line(p1.x, p1.y, p2.x, p2.y)
             love.graphics.line(p2.x, p2.y, p3.x, p3.y)
         end
@@ -446,8 +465,7 @@ end
 ---Returns the center position of the primary sphere.
 ---@return Vector2
 function Shooter:getSpherePos()
----@diagnostic disable-next-line: return-type-mismatch
-    return self.pos - Vec2(0, -5)
+    return self.pos - Vec2(0, -5):rotate(self.angle)
 end
 
 
@@ -464,7 +482,7 @@ end
 ---Returns the reticle position.
 ---@return Vector2
 function Shooter:getTargetPos()
-    return _Game.session:getNearestSphereY(self.pos).targetPos
+    return _Game.session:getNearestSphereOnLine(self.pos, self.angle).targetPos
 end
 
 

@@ -216,7 +216,7 @@ end
 function Game:mousepressed(x, y, button)
 	self.uiManager:mousepressed(x, y, button)
 
-	if self:levelExists() and _MousePos.y < self.session.level.shooter.pos.y then
+	if self:levelExists() and _MousePos.y < 560 then
 		if button == 1 then
 			self.session.level.shooter:shoot()
 		elseif button == 2 then

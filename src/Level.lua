@@ -762,10 +762,11 @@ end
 ---Spawns a new Shot Sphere into the level.
 ---@param shooter Shooter The shooter which has shot the sphere.
 ---@param pos Vector2 Where the Shot Sphere should be spawned at.
+---@param angle number Which direction the Shot Sphere should be moving, in radians. 0 is up.
 ---@param color integer The sphere ID to be shot.
 ---@param speed number The sphere speed.
-function Level:spawnShotSphere(shooter, pos, color, speed)
-	self.shotSpheres:append(ShotSphere(nil, shooter, pos, color, speed))
+function Level:spawnShotSphere(shooter, pos, angle, color, speed)
+	self.shotSpheres:append(ShotSphere(nil, shooter, pos, angle, color, speed))
 end
 
 
