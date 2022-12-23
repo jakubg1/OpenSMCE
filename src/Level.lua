@@ -316,7 +316,7 @@ end
 
 ---Applies an effect to the level.
 ---@param effect table The effect data to be applied.
----@param TMP_pos Vector2 The position of the effect.
+---@param TMP_pos Vector2? The position of the effect.
 function Level:applyEffect(effect, TMP_pos)
 	if effect.type == "replaceSphere" then
 		self.shooter:getSphere(effect.color)
