@@ -110,7 +110,7 @@ end
 ---Updates information to be displayed in the player's Discord Rich Presence section.
 ---@param line1 string The first line.
 ---@param line2 string The second line.
----@param countTime boolean Whether to count time. If set to `true`, the timer will start at 00:00 and will be counting up.
+---@param countTime boolean? Whether to count time. If set to `true`, the timer will start at 00:00 and will be counting up.
 function DiscordRichPresence:setStatus(line1, line2, countTime)
 	self.status = {details = line1, state = line2}
 	if countTime then

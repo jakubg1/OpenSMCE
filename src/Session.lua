@@ -304,7 +304,7 @@ end
 
 ---Returns a list of spheres which can be destroyed by Lightning Storm the next time it decides to impale a sphere.
 ---@param matchLength integer? The exact length of a single-color group which will be targeted.
----@param encourageMatches boolean If `true`, the function will prioritize groups which have the same color on either end.
+---@param encourageMatches boolean? If `true`, the function will prioritize groups which have the same color on either end.
 ---@return table
 function Session:getSpheresWithMatchLength(matchLength, encourageMatches)
 	if not matchLength then return {} end
