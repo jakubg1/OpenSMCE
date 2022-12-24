@@ -276,6 +276,9 @@ function Shooter:destroy()
     if self.sphereEntity then
         self.sphereEntity:destroy(false)
     end
+    if self.speedShotParticle then
+        self.speedShotParticle:destroy()
+    end
 end
 
 
