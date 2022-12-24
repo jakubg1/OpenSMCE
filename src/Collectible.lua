@@ -28,6 +28,8 @@ function Collectible:new(deserializationTable, pos, name)
 
 	_Game:playSound(self.config.spawnSound, 1, self.pos)
 	self.particle = _Game:spawnParticle(self.config.particle, self.pos)
+
+	self.delQueue = false
 end
 
 
@@ -88,10 +90,10 @@ end
 
 ---Removes this Collectible from the level.
 function Collectible:destroy()
-	if self._delQueue then
+	if self.delQueue then
 		return
 	end
-	self._list:destroy(self)
+	self.delQueue = true
 	self.particle:destroy()
 end
 

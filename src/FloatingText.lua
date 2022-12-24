@@ -18,6 +18,8 @@ function FloatingText:new(text, pos, font)
 	self.font = _Game.resourceManager:getFont(font)
 
 	self.time = 0
+
+	self.delQueue = false
 end
 
 
@@ -26,14 +28,16 @@ end
 ---@param dt number Delta time in seconds.
 function FloatingText:update(dt)
 	self.time = self.time + dt
-	if self.time >= 1 then self:destroy() end
+	if self.time >= 1 then
+		self:destroy()
+	end
 end
 
 
 
 ---Removes itself from the level.
 function FloatingText:destroy()
-	self._list:destroy(self)
+	self.delQueue = true
 end
 
 

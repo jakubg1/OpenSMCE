@@ -120,7 +120,7 @@ function Session:destroyFunction(f, scorePos, scoreFont)
 	-- we pass a function in the f variable
 	-- if f(param1, param2, ...) returns true, the sphere is nuked
 	local score = 0
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j = #path.sphereChains, 1, -1 do
 			local sphereChain = path.sphereChains[j]
 			for k = #sphereChain.sphereGroups, 1, -1 do
@@ -149,7 +149,7 @@ end
 function Session:setColorFunction(f, color, particle)
 	-- we pass a function in the f variable
 	-- if f(param1, param2, ...) returns true, the sphere color is changed
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j = #path.sphereChains, 1, -1 do
 			local sphereChain = path.sphereChains[j]
 			for k = #sphereChain.sphereGroups, 1, -1 do
@@ -282,7 +282,7 @@ end
 ---@return integer
 function Session:getLowestMatchLength()
 	local lowest = nil
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -309,7 +309,7 @@ end
 function Session:getSpheresWithMatchLength(matchLength, encourageMatches)
 	if not matchLength then return {} end
 	local spheres = {}
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -350,7 +350,7 @@ end
 ---@return table
 function Session:getNearestSphere(pos)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, half = nil}
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -400,7 +400,7 @@ end
 ---@return table
 function Session:getNearestSphereOnLine(pos, angle)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, targetPos = nil, half = nil}
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do

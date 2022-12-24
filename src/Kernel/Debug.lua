@@ -188,9 +188,9 @@ function Debug:getDebugLevel()
 	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
 	s = s .. "LevelProgress = " .. tostring(_Game.session.level.destroyedSpheres) .. "/" .. tostring(_Game.session.level.target) .. "\n"
 	s = s .. "\n"
-	s = s .. "Collectible# = " .. tostring(_Game.session.level.collectibles:size()) .. "\n"
-	s = s .. "FloatingText# = " .. tostring(_Game.session.level.floatingTexts:size()) .. "\n"
-	s = s .. "ShotSphere# = " .. tostring(_Game.session.level.shotSpheres:size()) .. "\n"
+	s = s .. "Collectible# = " .. tostring(#_Game.session.level.collectibles) .. "\n"
+	s = s .. "FloatingText# = " .. tostring(#_Game.session.level.floatingTexts) .. "\n"
+	s = s .. "ShotSphere# = " .. tostring(#_Game.session.level.shotSpheres) .. "\n"
 
 	return s
 end
@@ -306,7 +306,7 @@ function Debug:drawSphereInfo()
 	local m = 0
 
 	if _Game:levelExists() then
-		for i, path in ipairs(_Game.session.level.map.paths.objects) do
+		for i, path in ipairs(_Game.session.level.map.paths) do
 			love.graphics.setColor(1, 1, 1)
 			love.graphics.print("Path " .. tostring(i), p.x + 10, p.y + 10 + n)
 			n = n + 25

@@ -5,7 +5,6 @@ local class = require "com/class"
 local Level = class:derive("Level")
 
 local Vec2 = require("src/Essentials/Vector2")
-local List1 = require("src/Essentials/List1")
 
 local Map = require("src/Map")
 local Shooter = require("src/Shooter")
@@ -87,14 +86,26 @@ function Level:updateLogic(dt)
 
 
 	-- Shot spheres, collectibles, floating texts
-	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+	for i, shotSphere in ipairs(self.shotSpheres) do
 		shotSphere:update(dt)
 	end
-	for i, collectible in ipairs(self.collectibles.objects) do
+	for i = #self.shotSpheres, 1, -1 do
+		local shotSphere = self.shotSpheres[i]
+		if shotSphere.delQueue then table.remove(self.shotSpheres, i) end
+	end
+	for i, collectible in ipairs(self.collectibles) do
 		collectible:update(dt)
 	end
-	for i, floatingText in ipairs(self.floatingTexts.objects) do
+	for i = #self.collectibles, 1, -1 do
+		local collectible = self.collectibles[i]
+		if collectible.delQueue then table.remove(self.collectibles, i) end
+	end
+	for i, floatingText in ipairs(self.floatingTexts) do
 		floatingText:update(dt)
+	end
+	for i = #self.floatingTexts, 1, -1 do
+		local floatingText = self.floatingTexts[i]
+		if floatingText.delQueue then table.remove(self.floatingTexts, i) end
 	end
 
 
@@ -136,7 +147,7 @@ function Level:updateLogic(dt)
 	if self.warningDelayMax then
 		self.warningDelay = self.warningDelay + dt
 		if self.warningDelay >= self.warningDelayMax then
-			for i, path in ipairs(self.map.paths.objects) do
+			for i, path in ipairs(self.map.paths) do
 				if path:isInDanger() then
 					_Game:spawnParticle(path.dangerParticle, path:getPos(path.length))
 				end
@@ -179,11 +190,11 @@ function Level:updateLogic(dt)
 		end
 	end
 
-	if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths:get(self.bonusPathID - 1).bonusScarab) then
-		if self.map.paths:get(self.bonusPathID) then
+	if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths[self.bonusPathID - 1].bonusScarab) then
+		if self.map.paths[self.bonusPathID] then
 			self.bonusDelay = self.bonusDelay - dt
 			if self.bonusDelay <= 0 then
-				self.map.paths:get(self.bonusPathID):spawnBonusScarab()
+				self.map.paths[self.bonusPathID]:spawnBonusScarab()
 				self.bonusDelay = _Game.configManager.gameplay.level.bonusDelay
 				self.bonusPathID = self.bonusPathID + 1
 			end
@@ -326,7 +337,7 @@ function Level:applyEffect(effect, TMP_pos)
 		self.shooter.speedShotTime = effect.time
 		self.shooter.speedShotSpeed = effect.speed
 	elseif effect.type == "speedOverride" then
-		for i, path in ipairs(self.map.paths.objects) do
+		for i, path in ipairs(self.map.paths) do
 			for j, sphereChain in ipairs(path.sphereChains) do
 				sphereChain.speedOverrideBase = effect.speedBase
 				sphereChain.speedOverrideMult = effect.speedMultiplier
@@ -493,7 +504,7 @@ end
 ---Returns `true` if no Paths on this Level's Map contain any Spheres.
 ---@return boolean
 function Level:getEmpty()
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		if not path:getEmpty() then
 			return false
 		end
@@ -506,7 +517,7 @@ end
 ---Returns `true` if any Paths on this Level's Map are in danger.
 ---@return boolean
 function Level:getDanger()
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			if sphereChain:getDanger() then
 				return true
@@ -522,7 +533,7 @@ end
 ---@return number
 function Level:getMaxDistance()
 	local distance = 0
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		distance = math.max(distance, path:getMaxOffset() / path.length)
 	end
 	return distance
@@ -535,7 +546,7 @@ end
 ---@return number
 function Level:getMaxDangerProgress()
 	local distance = 0
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		distance = math.max(distance, path:getDangerProgress())
 	end
 	return distance
@@ -548,7 +559,7 @@ end
 function Level:getMostDangerousPath()
 	local distance = nil
 	local mostDangerousPath = nil
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		local d = path:getMaxOffset() / path.length
 		if not distance or d > distance then
 			distance = d
@@ -568,8 +579,7 @@ function Level:getRandomPath(notEmpty, inDanger)
 	-- Set up a pool of paths.
 	local paths = self.map.paths
 	local pool = {}
-	for i = 1, paths:size() do
-		local path = paths:get(i)
+	for i, path in ipairs(paths) do
 		-- Insert a path into the pool if it meets the criteria.
 		if not (notEmpty and path:getEmpty()) and not (inDanger and not path:isInDanger()) then
 			table.insert(pool, path)
@@ -600,7 +610,7 @@ end
 ---Returns `true` if the level has been finished, i.e. there are no more spheres and no more collectibles.
 ---@return boolean
 function Level:getFinish()
-	return self:hasNoMoreSpheres() and self.collectibles:empty()
+	return self:hasNoMoreSpheres() and #self.collectibles == 0
 end
 
 
@@ -631,7 +641,7 @@ function Level:beginLoad()
 	self.started = true
 	_Game:getMusic(self.musicName):reset()
 	self.targetReached = self.destroyedSpheres == self.target
-	if not self.bonusDelay and not self.map.paths:get(self.bonusPathID) then
+	if not self.bonusDelay and not self.map.paths[self.bonusPathID] then
 		self.wonDelay = _Game.configManager.gameplay.level.wonDelay
 	end
 end
@@ -663,13 +673,13 @@ end
 ---Uninitialization function. Uninitializes Level's elements which need deinitializing.
 function Level:destroy()
 	self.shooter:destroy()
-	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+	for i, shotSphere in ipairs(self.shotSpheres) do
 		shotSphere:destroy()
 	end
-	for i, collectible in ipairs(self.collectibles.objects) do
+	for i, collectible in ipairs(self.collectibles) do
 		collectible:destroy()
 	end
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		path:destroy()
 	end
 
@@ -696,9 +706,9 @@ function Level:reset()
 	self.maxChain = 0
 	self.maxCombo = 0
 
-	self.shotSpheres = List1()
-	self.collectibles = List1()
-	self.floatingTexts = List1()
+	self.shotSpheres = {}
+	self.collectibles = {}
+	self.floatingTexts = {}
 
 	self.targetReached = false
 	self.danger = false
@@ -737,7 +747,10 @@ function Level:lose()
 	-- empty the shooter
 	self.shooter:empty()
 	-- delete all shot balls
-	self.shotSpheres:clear()
+	for i, shotSphere in ipairs(self.shotSpheres) do
+		shotSphere:destroy()
+	end
+	self.shotSpheres = {}
 	_Game:playSound("sound_events/level_lose.json")
 end
 
@@ -766,7 +779,7 @@ end
 ---@param color integer The sphere ID to be shot.
 ---@param speed number The sphere speed.
 function Level:spawnShotSphere(shooter, pos, angle, color, speed)
-	self.shotSpheres:append(ShotSphere(nil, shooter, pos, angle, color, speed))
+	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, color, speed))
 end
 
 
@@ -775,7 +788,7 @@ end
 ---@param pos Vector2 Where the Collectible should be spawned at.
 ---@param name string The collectible ID.
 function Level:spawnCollectible(pos, name)
-	self.collectibles:append(Collectible(nil, pos, name))
+	table.insert(self.collectibles, Collectible(nil, pos, name))
 end
 
 
@@ -785,7 +798,7 @@ end
 ---@param pos Vector2 The starting position of this text.
 ---@param font string Path to the Font which is going to be used.
 function Level:spawnFloatingText(text, pos, font)
-	self.floatingTexts:append(FloatingText(text, pos, font))
+	table.insert(self.floatingTexts, FloatingText(text, pos, font))
 end
 
 
@@ -797,13 +810,13 @@ function Level:draw()
 	self.map:drawSpheres()
 	self.shooter:draw()
 
-	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+	for i, shotSphere in ipairs(self.shotSpheres) do
 		shotSphere:draw()
 	end
-	for i, collectible in ipairs(self.collectibles.objects) do
+	for i, collectible in ipairs(self.collectibles) do
 		collectible:draw()
 	end
-	for i, floatingText in ipairs(self.floatingTexts.objects) do
+	for i, floatingText in ipairs(self.floatingTexts) do
 		floatingText:draw()
 	end
 
@@ -842,10 +855,10 @@ function Level:serialize()
 		paths = self.map:serialize(),
 		lost = self.lost
 	}
-	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+	for i, shotSphere in ipairs(self.shotSpheres) do
 		table.insert(t.shotSpheres, shotSphere:serialize())
 	end
-	for i, collectible in ipairs(self.collectibles.objects) do
+	for i, collectible in ipairs(self.collectibles) do
 		table.insert(t.collectibles, collectible:serialize())
 	end
 	return t
@@ -881,13 +894,13 @@ function Level:deserialize(t)
 	-- Shooter
 	self.shooter:deserialize(t.shooter)
 	-- Shot spheres, collectibles
-	self.shotSpheres:clear()
+	self.shotSpheres = {}
 	for i, tShotSphere in ipairs(t.shotSpheres) do
-		self.shotSpheres:append(ShotSphere(tShotSphere))
+		table.insert(self.shotSpheres, ShotSphere(tShotSphere))
 	end
-	self.collectibles:clear()
+	self.collectibles = {}
 	for i, tCollectible in ipairs(t.collectibles) do
-		self.collectibles:append(Collectible(tCollectible))
+		table.insert(self.collectibles, Collectible(tCollectible))
 	end
 	-- Effects
 	self.lightningStormCount = t.lightningStormCount

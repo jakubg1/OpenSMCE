@@ -145,7 +145,7 @@ end
 
 
 
----Returns a table of IDs of the hit sphere. Used for serialization purposes.
+---Returns a table of IDs of the hit sphere, or `nil` if this sphere did not hit anything yet. Used for serialization purposes.
 ---@return table?
 function ShotSphere:getHitSphereIDs()
 	if not self.hitSphere then
@@ -159,13 +159,16 @@ end
 
 ---Deinitializates itself, destroys the associated sphere entity and allows the shooter to shoot again.
 function ShotSphere:destroy()
-	if self.delQueue then return end
-	self._list:destroy(self)
+	if self.delQueue then
+		return
+	end
 	if self.sphereEntity then
 		self.sphereEntity:destroy(false)
 	end
 	self.delQueue = true
-	self.shooter:activate()
+	if not _Game.session.level.lost then
+		self.shooter:activate()
+	end
 end
 
 
@@ -243,7 +246,7 @@ function ShotSphere:deserialize(t)
 	if t.hitSphere then
 		self.hitSphere = {
 			sphereID = t.hitSphere.sphereID,
-			sphereGroup = _Game.session.level.map.paths.objects[t.hitSphere.pathID].sphereChains[t.hitSphere.chainID].sphereGroups[t.hitSphere.groupID]
+			sphereGroup = _Game.session.level.map.paths[t.hitSphere.pathID].sphereChains[t.hitSphere.chainID].sphereGroups[t.hitSphere.groupID]
 		}
 	else
 		self.sphereEntity = SphereEntity(self.pos, self.color)

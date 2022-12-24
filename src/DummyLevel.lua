@@ -39,7 +39,7 @@ end
 ---@return number
 function DummyLevel:getMaxDistance()
 	local distance = 0
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		distance = math.max(distance, path:getMaxOffset() / path.length)
 	end
 	return distance
