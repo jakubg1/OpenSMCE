@@ -11,13 +11,13 @@ This project is currently work-in-progress. While heavily rebuilt and having big
 If otherwise, [feel free to submit a bug report](https://github.com/jakubg1/OpenSMCE/issues).
 
 ### Plans
-The ongoing plan is to keep releasing Beta 4.x versions, containing new functionalities.
+The ongoing plan is to keep releasing Beta 4.x versions, which will contain new functionalities.
 
 Some of the features planned include:
 - Sphere tags
 - Sphere selectors
 - Difficulty system
-- Shooter types (as in, presets)
+- Shooter types/presets
 - Massively enhanced sound effects
   - Split sound effects into actual effect files and sound definitions (number of samples, stream/load etc.)
 - Complete rewrite of UI system
@@ -39,15 +39,13 @@ This engine was made in order to help the Sphere Matcher community.
 Sphere Matching game genre is niche and only a few good titles are released.
 In order to make the gameplay less boring and more challenging, the community decided to start modding games, most notably the first version of *Luxor*, along with *Luxor: Amun Rising*.
 
-However, the original engine, while it allows for some flexibility, is filled with bugs and hardcoded parts which can't be changed without decompiling the original executable, which is prohibited.
+However, the original engine, while it allows for some flexibility, is filled with bugs and hardcoded parts which can't be changed without decompiling the original executable, a time-consuming and arguably illegal process.
 There were also no attempts to rewrite and improve the original engine, in order for modders to have more control of what they can do.
 This is why *OpenSMCE* was created - a project that is attempting to rewrite the Luxor game (not reverse engineer!) along with making it much more flexible and open-source.
 
-The engine is still in development - but you can help!
-
 ## Launching
 If you have LÖVE2D installed, you can run the game by launching `start.bat`.
-Note that you may need to change the LÖVE executable path.
+Note that you may need to change the LÖVE executable path in that file first.
 
 ## Games
 The engine runs games and thus you need to have some installed.
@@ -55,7 +53,7 @@ You can install games by putting them in the `games` directory where the executa
 
 There are no games publicly available right now, however three games are known to be converted.
 We will provide tools to convert and create games at some point.
-In future, we are considering bundling all releases with a builtin game - to save you hassle! More info soon.
+In the future, we are considering bundling all releases with a builtin game - to save you the hassle! More info soon.
 
 The game converter has its own separate repository: https://github.com/jakubg1/OpenSMCE_Converter.
 It currently supports only Luxor 1. If you want to help with other versions/games, feel free to open a ticket on its issue list, or contribute!
@@ -68,7 +66,7 @@ It currently supports only Luxor 1. If you want to help with other versions/game
   - same as above, plus some editors like you're modding Luxor, JSON knowledge (just a bit)
 
 - For modifying the engine:
-  - same as above, a text editor (preferably *Visual Studio Code*), Lua knowledge, JSON knowledge, LÖVE 11.3 installed.
+  - same as above, a text editor (preferably *Visual Studio Code*), Lua knowledge, JSON knowledge, LÖVE 11.3 installed. You can also take a look at contribution guidelines.
 
 ### Building instructions
 I am using a batch script for creating the OpenSMCE.exe file. This will work under a few assumptions:
@@ -112,18 +110,11 @@ Here are some videos showcasing the recent progress on the engine:
 [![Video 2](https://img.youtube.com/vi/_bZRL3-Cn8c/0.jpg)](https://www.youtube.com/watch?v=_bZRL3-Cn8c)
 
 ## Documentation
-Unfortunately, there is no documentation for now.
-However, it's currently being worked on - there will be game documentation first.
+Both code and game documentation are currently work in progress.
 
-## Notes
-This engine is on beta stage - currently, Luxor game is nearly fully supported and at some point in the future there will be first full releases.
+Code documentation is done by LDoc annotations in source files which are parsed and displayed in Visual Studio Code. See contribution guidelines for more info.
 
-In current shape, it is intended to play the Luxor game along with its mods. Next steps will add support for Luxor Amun Rising, its huge variety of mods and Zuma respectively.
-
-ETA of leaving beta stage (original Luxor game fully working and playable) is around October of 2021.
-Keep in mind that it might be delayed!
-
-Stay tuned!
+Game documentation is done in the form of schemas - there are only a few structures documented, but this will be built upon in the future.
 
 
 
