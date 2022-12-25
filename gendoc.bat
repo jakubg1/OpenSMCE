@@ -1,2 +1,0 @@
-ldoc .
-pause
