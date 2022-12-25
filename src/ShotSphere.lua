@@ -261,7 +261,7 @@ end
 ---Serializes this entity's data so it can be reused again during reload.
 ---@return table
 function ShotSphere:serialize()
-	return {
+	local t = {
 		pos = {x = self.pos.x, y = self.pos.y},
 		angle = self.angle,
 		color = self.color,
@@ -271,6 +271,17 @@ function ShotSphere:serialize()
 		hitTime = self.hitTime,
 		hitTimeMax = self.hitTimeMax
 	}
+
+	if #self.gapsTraversed > 0 then
+		t.gaps = {}
+		for i, gap in ipairs(self.gapsTraversed) do
+			local gapT = gap.group:getIDs()
+			gapT.size = gap.size
+			table.insert(t.gaps, gapT)
+		end
+	end
+
+	return t
 end
 
 
@@ -285,6 +296,14 @@ function ShotSphere:deserialize(t)
 	self.steps = t.steps
 
 	self.shooter = _Game.session.level.shooter
+
+	self.gapsTraversed = {}
+	if t.gaps then
+		for i, gap in ipairs(t.gaps) do
+			local group = _Game.session.level.map.paths[gap.pathID].sphereChains[gap.chainID].sphereGroups[gap.groupID]
+			table.insert(self.gapsTraversed, {group = group, size = gap.size})
+		end
+	end
 
 	self.hitSphere = nil
 	self.sphereEntity = nil

@@ -481,10 +481,10 @@ function Sphere:serialize()
 	if self.boostCombo then
 		t.boostCombo = self.boostCombo
 	end
+
 	if #self.effects > 0 then
 		t.effects = {}
 	end
-
 	for i, effect in ipairs(self.effects) do
 		local tt = {
 			name = effect.name,
@@ -494,6 +494,10 @@ function Sphere:serialize()
 			effectGroupID = effect.effectGroupID
 		}
 		table.insert(t.effects, tt)
+	end
+
+	if #self.gaps > 0 then
+		t.gaps = self.gaps
 	end
 
 	return t
@@ -523,6 +527,8 @@ function Sphere:deserialize(t)
 			table.insert(self.effects, e)
 		end
 	end
+
+	self.gaps = t.gaps or {}
 end
 
 return Sphere

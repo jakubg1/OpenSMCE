@@ -1095,6 +1095,25 @@ end
 
 
 
+function SphereGroup:getIDs()
+	local g = self
+	local c = g.sphereChain
+	local p = c.path
+	local m = p.map
+
+	local groupID = c:getSphereGroupID(g)
+	local chainID = p:getSphereChainID(c)
+	local pathID = m:getPathID(p)
+
+	return {
+		groupID = groupID,
+		chainID = chainID,
+		pathID = pathID
+	}
+end
+
+
+
 function SphereGroup:serialize()
 	local t = {
 		offset = self.offset,
