@@ -4,9 +4,6 @@ local class = require "com/class"
 ---@overload fun(parent, path):UIWidgetParticle
 local UIWidgetParticle = class:derive("UIWidgetParticle")
 
-local Vec2 = require("src/Essentials/Vector2")
-local ParticleManager = require("src/Particle/Manager")
-
 
 
 function UIWidgetParticle:new(parent, path)
@@ -15,12 +12,10 @@ function UIWidgetParticle:new(parent, path)
 	self.parent = parent
 	self.path = path
 
-	self.manager = ParticleManager()
 	self.packet = nil
 end
 
 function UIWidgetParticle:update(dt)
-	self.manager:update(dt)
 	if self.packet then
 		self.packet.pos = self.parent:getPos()
 		if self.packet.delQueue then
@@ -31,17 +26,18 @@ function UIWidgetParticle:update(dt)
 end
 
 function UIWidgetParticle:spawn()
-	self.packet = self.manager:spawnParticlePacket(self.path, self.parent:getPos())
+	self.packet = _Game:spawnParticle(self.path, self.parent:getPos(), self.parent.layer)
 end
 
 function UIWidgetParticle:despawn()
-	self.manager:clear()
+	if self.packet then
+		self.packet:destroy()
+	end
 end
 
 
 
 function UIWidgetParticle:draw()
-	self.manager:draw()
 end
 
 return UIWidgetParticle

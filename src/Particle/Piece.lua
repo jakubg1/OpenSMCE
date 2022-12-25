@@ -22,6 +22,8 @@ function ParticlePiece:new(manager, spawner, data)
 		self.startPos = self.spawner:getPos()
 	end
 	self.pos = self.startPos
+	
+	self.layer = self.spawner.layer
 
 
 
@@ -161,8 +163,10 @@ function ParticlePiece:getAlpha()
 	end
 end
 
-function ParticlePiece:draw()
-	self.sprite:draw(self:getPos(), Vec2(0.5), nil, Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha())
+function ParticlePiece:draw(layer)
+	if self.layer == layer then
+		self.sprite:draw(self:getPos(), Vec2(0.5), nil, Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha())
+	end
 end
 
 return ParticlePiece

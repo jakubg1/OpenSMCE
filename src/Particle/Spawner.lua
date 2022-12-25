@@ -12,6 +12,7 @@ function ParticleSpawner:new(manager, packet, data)
 	self.manager = manager
 	self.packet = packet
 	self.packet.spawnerCount = self.packet.spawnerCount + 1
+	self.layer = self.packet.layer
 
 	self.pos = _ParseVec2(data.pos)
 	self.speed = _ParseVec2(data.speed)

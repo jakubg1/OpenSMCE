@@ -167,6 +167,9 @@ function UIManager:draw()
 		for j, names in ipairs(layers[layer]) do
 			self:getWidget(names):draw()
 		end
+    if _Game.particleManager then
+      _Game.particleManager:draw(layer)
+    end
 	end
 end
 
