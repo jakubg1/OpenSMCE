@@ -568,6 +568,59 @@ end
 
 
 
+---Returns the path offset(s) at which the given line intersects this path. Only crossings with a single distinct point count.
+---@param p1 Vector2 The start point of the line.
+---@param p2 Vector2 The end point of the line.
+---@return table
+function Path:getIntersectionPoints(p1, p2)
+	local distance = 0
+	local intersections = {}
+
+	for i, node in ipairs(self.nodes) do
+		local node2 = self.nodes[i + 1]
+		if not node2 then -- this is the last node; no line there
+			break
+		end
+		-- We're going to use the algorithm from https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+		-- For convenience, we will arrange and name the variables so that they match the ones described in the website above.
+		local p = p1
+		local q = node.pos
+		local r = p2 - p1
+		local s = node2.pos - q
+		local t = (q - p):cross(s / r:cross(s))
+		local u = (q - p):cross(r / r:cross(s))
+		-- t/u < 1 instead of t/u <= 1 is intentional - this way if the line crosses a node perfectly it won't count as two intersections.
+		if r:cross(s) ~= 0 and t >= 0 and t < 1 and u >= 0 and u < 1 then
+			table.insert(intersections, distance + node.length * u)
+		end
+		distance = distance + node.length
+	end
+
+	return intersections
+end
+
+
+
+---If this path has no spheres at a given offset and is in the middle of a sphere chain, returns the length of the gap and the first sphere group enclosing it, `nil` otherwise.
+---@param offset number Path offset in pixels.
+---@return number?
+---@return SphereGroup?
+function Path:getGapSize(offset)
+	for i, sphereChain in ipairs(self.sphereChains) do
+		-- Consider only a sphere chain which has the given offset inside itself.
+		if sphereChain:getFirstSphereGroup():getFrontPos() > offset and sphereChain:getLastSphereGroup():getBackPos() < offset then
+			for j, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				if sphereGroup.nextGroup and sphereGroup.nextGroup:getBackPos() > offset and sphereGroup:getFrontPos() < offset then
+					return sphereGroup.nextGroup:getBackPos() - sphereGroup:getFrontPos(), sphereGroup
+				end
+			end
+		end
+	end
+	return nil, nil
+end
+
+
+
 ---Returns serialized data of this Path to be saved.
 ---@return table
 function Path:serialize()

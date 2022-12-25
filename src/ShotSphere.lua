@@ -30,6 +30,8 @@ function ShotSphere:new(deserializationTable, shooter, pos, angle, color, speed)
 		self.speed = speed
 		self.sphereEntity = shooter.sphereEntity
 
+		self.gapsTraversed = {}
+
 		self.hitTime = 0
 		self.hitTimeMax = 0
 		self.hitSphere = nil
@@ -64,7 +66,25 @@ end
 function ShotSphere:moveStep()
 	-- you can do more pixels if it's not efficient (laggy), but that will decrease the accuracy
 	self.steps = self.steps - 1
+	local oldPos = self.pos
 	self.pos = self.pos + Vec2(0, -self.PIXELS_PER_STEP):rotate(self.angle)
+
+	-- count the gaps
+	for i, path in ipairs(_Game.session.level.map.paths) do
+		local offsets = path:getIntersectionPoints(oldPos, self.pos)
+		for j, offset in ipairs(offsets) do
+			local size, group = path:getGapSize(offset)
+			if group then
+				-- We've traversed a gap.
+				if not self:didTraverseGap(group) then
+					table.insert(self.gapsTraversed, {size = size, group = group})
+					local pos = path:getPos(offset)
+					_Game:spawnParticle("particles/collapse_vise.json", pos)
+					_Debug.console:print(size)
+				end
+			end
+		end
+	end
 
 	-- add if there's a sphere nearby
 	local nearestSphere = _Game.session:getNearestSphere(self.pos)
@@ -118,7 +138,7 @@ function ShotSphere:moveStep()
 				local d = (self.pos - p):len()
 				-- calculate time
 				self.hitTimeMax = d / self.speed * 5
-				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects)
+				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects, self:getGapSizeList())
 				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
 			end
 			if shotCancelled then
@@ -128,6 +148,7 @@ function ShotSphere:moveStep()
 			end
 		end
 	end
+
 	-- delete if outside of the board
 	if self:isOutsideBoard() then
 		self:destroy()
@@ -141,6 +162,31 @@ end
 ---@return boolean
 function ShotSphere:isOutsideBoard()
 	return self.pos.x < -16 or self.pos.x > _NATIVE_RESOLUTION.x + 16 or self.pos.y < -16 or self.pos.y > _NATIVE_RESOLUTION.y + 16
+end
+
+
+
+---Returns whether this Shot Sphere has already traversed a gap identified by a given Sphere Group.
+---@param group SphereGroup The sphere group which identifies a gap.
+function ShotSphere:didTraverseGap(group)
+	for i, gap in ipairs(self.gapsTraversed) do
+		if gap.group == group then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+---Returns a simplified version of traversed gap list, consisting only of sizes of each gaps in pixels.
+---@return table
+function ShotSphere:getGapSizeList()
+	local gaps = {}
+	for i, gap in ipairs(self.gapsTraversed) do
+		table.insert(gaps, gap.size)
+	end
+	return gaps
 end
 
 

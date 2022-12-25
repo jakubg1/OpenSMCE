@@ -181,13 +181,16 @@ end
 
 
 
-function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects)
-	-- pos - position in where was the shot sphere,
-	-- time - how long will that sphere "grow" until it's completely in its place,
-	-- sphereEntity - a sphere entity to be used (nil = create a new entity)
-	-- position - sphere ID (the new sphere will gain the given ID = creation BEHIND the sphere with the given ID)
-	-- effects - a list of effects to be applied
-	local sphere = Sphere(self, nil, color, pos, time, sphereEntity)
+---Adds a new sphere to this group.
+---@param color integer The color of a sphere to be inserted.
+---@param pos Vector2? The position in where was the shot sphere.
+---@param time number? How long will that sphere "grow" until it's completely in its place.
+---@param sphereEntity SphereEntity? A sphere entity to be used (nil = create a new entity).
+---@param position integer The new sphere will gain this ID, which means it will be created BEHIND a sphere of this ID in this group.
+---@param effects table? A list of effects to be applied.
+---@param gaps table? A list of gaps through which this sphere has traversed.
+function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps)
+	local sphere = Sphere(self, nil, color, pos, time, sphereEntity, gaps)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
 	sphere.prevSphere = prevSphere
@@ -587,7 +590,10 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	end
 	boostCombo = boostCombo and effectConfig.can_boost_combo
 
-	
+	-- Retrieve and simplify a list of gaps. Only the cause sphere is checked.
+	local gaps = self.spheres[position].gaps
+
+
 
 	-- Determine the center position and destroy spheres.
 	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
@@ -637,6 +643,10 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	end
 	if effectConfig.apply_chain_multiplier and self.sphereChain.combo ~= 1 then
 		scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo)
+	end
+	local scoreGapTexts = {"GAP BONUS!", "DOUBLE GAP BONUS!", "TRIPLE GAP BONUS!", "QUADRUPLE GAP BONUS!", "QUINTUPLE GAP BONUS!"}
+	if #gaps > 0 then
+		scoreText = scoreText .. "\n" .. scoreGapTexts[#gaps]
 	end
 	local scoreFont = effectConfig.destroy_font
 	if scoreFont == "hardcoded" then

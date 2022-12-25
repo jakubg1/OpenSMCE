@@ -128,6 +128,14 @@ function Vec2.max(o1, o2)
 	end
 end
 
+---Returns a cross product of two vectors.
+---@param o1 Vector2
+---@param o2 Vector2
+---@return number
+function Vec2.cross(o1, o2)
+	return o1.x * o2.y - o1.y * o2.x
+end
+
 --function Vec2.__idiv(o1, o2) return Vec2(o1.x // o2.x, o1.y // o2.y) end
 
 

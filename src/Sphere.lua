@@ -12,7 +12,7 @@ local SphereEntity = require("src/SphereEntity")
 
 
 
-function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity)
+function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps)
 	self.sphereGroup = sphereGroup
 	self.path = sphereGroup.sphereChain.path
 	self.map = sphereGroup.map
@@ -31,6 +31,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.shootOrigin = nil
 		self.shootTime = nil
 		self.effects = {}
+		self.gaps = gaps or {}
 	end
 
 	self:loadConfig()
@@ -105,6 +106,8 @@ function Sphere:update(dt)
 	if self.boostCombo then
 		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) and not self:canKeepCombo() then
 			self.boostCombo = false
+			-- we also erase any gap information
+			self.gaps = {}
 		end
 	end
 
