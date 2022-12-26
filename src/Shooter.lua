@@ -34,6 +34,7 @@ function Shooter:new()
     self.moveKeys = {left = false, right = false}
     -- the speed of the shooter when controlled via keyboard
     self.moveKeySpeed = 500
+    self.rotateKeySpeed = 4
 
     self.config = _Game.configManager.shooters.default
 
@@ -56,26 +57,41 @@ end
 ---@param dt number Delta time in seconds.
 function Shooter:update(dt)
     -- movement
-    if false then
-        -- how many pixels will the shooter move since the last frame (by mouse)?
-        local shooterDelta = self:getDelta(_MousePos.x, true)
-        if shooterDelta == 0 then
-            -- if 0, then the keyboard can be freely used
+    local zumaMode = false
+    if zumaMode then
+        -- zuma shooter
+        self.pos = _NATIVE_RESOLUTION / 2
+        if _MousePos == self.posMouse then
+            -- if the mouse position hasn't changed, then the keyboard can be freely used
             if self.moveKeys.left then
-                self:move(self.pos.x - self.moveKeySpeed * dt, false)
+                self.angle = self.angle - self.rotateKeySpeed * dt
             end
             if self.moveKeys.right then
-                self:move(self.pos.x + self.moveKeySpeed * dt, false)
+                self.angle = self.angle + self.rotateKeySpeed * dt
+            end
+        else
+            -- else, the mouse takes advantage and overwrites the angle
+            self.angle = (_MousePos - self.pos):angle() + math.pi / 2
+        end
+        -- make the angle be in the interval [-pi, pi)
+        self.angle = (self.angle + math.pi) % (math.pi * 2) - math.pi
+    else
+        -- luxor shooter
+        if _MousePos == self.posMouse then
+            -- if the mouse position hasn't changed, then the keyboard can be freely used
+            if self.moveKeys.left then
+                self.pos.x = self.pos.x - self.moveKeySpeed * dt
+            end
+            if self.moveKeys.right then
+                self.pos.x = self.pos.x + self.moveKeySpeed * dt
             end
         else
             -- else, the mouse takes advantage and overwrites the position
-            self:move(_MousePos.x, true)
+            self.pos.x = _MousePos.x
         end
-    else
-        -- zuma shooter test
-        self.pos = _NATIVE_RESOLUTION / 2
-        self.angle = (_MousePos - self.pos):angle() + math.pi / 2
+        self.pos.x = math.min(math.max(self.pos.x, 20), _NATIVE_RESOLUTION.x - 20)
     end
+    self.posMouse = _MousePos
 
     -- filling
     if self.active then
@@ -110,45 +126,6 @@ function Shooter:update(dt)
     -- Update the sphere entity position.
     if self.sphereEntity then
         self.sphereEntity:setPos(self:getSpherePos())
-    end
-end
-
-
-
----Clamps the given X position to restrict it from getting closer than 20 pixels from either of the vertical screen edges.
----@param x number The X value to be clamped.
----@return number
-function Shooter:translatePos(x)
-    return math.min(math.max(x, 20), _NATIVE_RESOLUTION.x - 20)
-end
-
-
-
----Moves the shooter to a given X position.
----@param x number The X position of the shooter to be moved to.
----@param fromMouse boolean Whether this shooter movement comes from mouse movement.
-function Shooter:move(x, fromMouse)
-    -- Cannot move when the level is paused.
-    if _Game.session.level.pause then
-        return
-    end
-    self.pos.x = self:translatePos(x)
-    if fromMouse then
-        self.posMouse.x = self:translatePos(x)
-    end
-end
-
-
-
----Calculates the difference between the given X position and an actual X position of the shooter.
----@param x number The X position to be compared against.
----@param fromMouse boolean Whether to compare with the mouse shooter position, or keyboard shooter position.
----@return number
-function Shooter:getDelta(x, fromMouse)
-    if fromMouse then
-        return self:translatePos(x) - self.posMouse.x
-    else
-        return self:translatePos(x) - self.pos.x
     end
 end
 
