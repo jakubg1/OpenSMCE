@@ -15,9 +15,10 @@ local ShotSphere = require("src/ShotSphere")
 
 ---Constructs a new Shooter.
 function Shooter:new()
-    self.pos = Vec2(0, 526)
-    self.posMouse = self.pos:clone()
-    self.angle = 0
+    self.config = _Game.configManager.shooters.default
+
+    self.pos = self:getInitialPos()
+    self.angle = self:getInitialAngle()
 
     self.color = 0
     self.nextColor = 0
@@ -32,11 +33,10 @@ function Shooter:new()
 
     -- memorizing the pressed keys for keyboard control of the shooter
     self.moveKeys = {left = false, right = false}
+    self.mousePos = _MousePos
     -- the speed of the shooter when controlled via keyboard
     self.moveKeySpeed = 500
     self.rotateKeySpeed = 4
-
-    self.config = _Game.configManager.shooters.default
 
     self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
     self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite)
@@ -57,11 +57,25 @@ end
 ---@param dt number Delta time in seconds.
 function Shooter:update(dt)
     -- movement
-    local zumaMode = false
-    if zumaMode then
+    if self.config.movement.type == "linear" then
+        -- luxor shooter
+        if _MousePos == self.mousePos then
+            -- if the mouse position hasn't changed, then the keyboard can be freely used
+            if self.moveKeys.left then
+                self.pos.x = self.pos.x - self.moveKeySpeed * dt
+            end
+            if self.moveKeys.right then
+                self.pos.x = self.pos.x + self.moveKeySpeed * dt
+            end
+        else
+            -- else, the mouse takes advantage and overwrites the position
+            self.pos.x = _MousePos.x
+        end
+        -- clamp to bounds defined in config
+        self.pos.x = math.min(math.max(self.pos.x, self.config.movement.xMin), self.config.movement.xMax)
+    elseif self.config.movement.type == "circular" then
         -- zuma shooter
-        self.pos = _NATIVE_RESOLUTION / 2
-        if _MousePos == self.posMouse then
+        if _MousePos == self.mousePos then
             -- if the mouse position hasn't changed, then the keyboard can be freely used
             if self.moveKeys.left then
                 self.angle = self.angle - self.rotateKeySpeed * dt
@@ -75,23 +89,8 @@ function Shooter:update(dt)
         end
         -- make the angle be in the interval [-pi, pi)
         self.angle = (self.angle + math.pi) % (math.pi * 2) - math.pi
-    else
-        -- luxor shooter
-        if _MousePos == self.posMouse then
-            -- if the mouse position hasn't changed, then the keyboard can be freely used
-            if self.moveKeys.left then
-                self.pos.x = self.pos.x - self.moveKeySpeed * dt
-            end
-            if self.moveKeys.right then
-                self.pos.x = self.pos.x + self.moveKeySpeed * dt
-            end
-        else
-            -- else, the mouse takes advantage and overwrites the position
-            self.pos.x = _MousePos.x
-        end
-        self.pos.x = math.min(math.max(self.pos.x, 20), _NATIVE_RESOLUTION.x - 20)
     end
-    self.posMouse = _MousePos
+    self.mousePos = _MousePos
 
     -- filling
     if self.active then
@@ -438,6 +437,32 @@ function Shooter:getNextReticalColor()
     else
         return color
     end
+end
+
+
+
+---Returns the initial position of this Shooter, based on its config.
+---@return Vector2
+function Shooter:getInitialPos()
+    local mc = self.config.movement
+    if mc.type == "linear" then
+        return Vec2((mc.xMin + mc.xMax) / 2, mc.y)
+    elseif mc.type == "circular" then
+        return Vec2(mc.x, mc.y)
+    end
+    return Vec2()
+end
+
+---Returns the initial angle of this Shooter in radians, based on its config.
+---@return number
+function Shooter:getInitialAngle()
+    local mc = self.config.movement
+    if mc.type == "linear" then
+        return mc.angle / 180 * math.pi
+    elseif mc.type == "circular" then
+        return 0
+    end
+    return 0
 end
 
 

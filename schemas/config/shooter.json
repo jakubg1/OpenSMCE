@@ -3,6 +3,99 @@
     "type": "object",
     "properties": {
         "$schema": true,
+        "movement": {
+            "type": "object",
+            "description": "Describes the positioning and movement of the shooter.",
+            "properties": {
+                "type": {
+                    "enum": [
+                        "linear",
+                        "circular"
+                    ]
+                }
+            },
+            "allOf": [
+                {
+                    "properties": {
+                        "type": {
+                            "description": "A movement effect type."
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "linear",
+                                "description": "The shooter will move on a line along the X axis."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "xMin": {
+                                "type": "number",
+                                "description": "The minimum X position of the shooter. The player cannot move it past this value."
+                            },
+                            "xMax": {
+                                "type": "number",
+                                "description": "The maximum X position of the shooter. The player cannot move it past this value."
+                            },
+                            "y": {
+                                "type": "number",
+                                "description": "The Y position of the shooter."
+                            },
+                            "angle": {
+                                "type": "number",
+                                "description": "The rotation angle of the shooter, in degrees. 0 is up."
+                            }
+                        },
+                        "required": [
+                            "xMin",
+                            "xMax",
+                            "y",
+                            "angle"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "circular",
+                                "description": "The shooter will be stuck in one position and can freely rotate around the center point."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "x": {
+                                "type": "number",
+                                "description": "The X position of the shooter."
+                            },
+                            "y": {
+                                "type": "number",
+                                "description": "The Y position of the shooter."
+                            }
+                        },
+                        "required": [
+                            "x",
+                            "y"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            ]
+        },
         "sprite": {
             "type": "string",
             "description": "The sprite for the shooter to be used."
@@ -88,6 +181,7 @@
         }
     },
     "required": [
+        "movement",
         "sprite",
         "shadowSprite",
         "reticle",
