@@ -14,133 +14,245 @@ local Expression = class:derive("Expression")
 ---Constructs and compiles a new Expression.
 ---@param str string|number The expression to be compiled.
 function Expression:new(str)
-	self.data = self:compile(str)
+	self.data = self:prepare(str)
 end
 
 
 
----Compiles a given expression.
----@param str string|number The expression to be compiled.
+---Prepares and compiles a given expression if it's a string.
+---@param str any The expression to be compiled.
 ---@return table
-function Expression:compile(str)
+function Expression:prepare(str)
 	-- If this is not a string, but instead a number, then there's nothing to talk about.
-	if type(str) == "number" then
+	if type(str) ~= "string" then
 		-- Number value.
 		return {
 			{type = "value", value = str}
 		}
 	end
 
-	-- Stores a list of RPN "steps".
-	local t = {}
+	return self:compile(self:tokenize(str))
+end
 
-	-- Remove any spaces.
-	local s = ""
-	for i = 1, str:len() do
-		local c = str:sub(i, i)
-		if c ~= " " then
-			s = s .. c
-		end
-	end
-	str = s
 
-	-- If the whole expression is in a bracket, remove it.
-	if _StrIsInWholeBracket(str) then
-		return self:compile(str:sub(2, str:len() - 1))
-	end
 
-	-- If there is an unary minus, then we're going to cheat by adding a leading zero to the expression.
-	if str:sub(1, 1) == "-" then
-		str = "0" .. str
-	end
+---Performs a tokenization step: in the given string, the first token is returned as raw token data and the remainder is returned as a string.
+---Returns `nil`, `<error message>` if the tokenization step fails.
+---@param str string The string to be tokenized.
+---@return table?
+---@return string?
+function Expression:getToken(str)
+	str = _StrTrim(str)
 
-	-- If this is a function, compile the parameters and add an appropriate RPN step.
-	local functions = {"floor", "ceil", "round", "random"}
-	for i, f in ipairs(functions) do
-		local cf = str:sub(1, f:len())
-		local cother = str:sub(f:len() + 1, str:len())
-		if cf == f and _StrIsInWholeBracket(cother) then
-			for j, step in ipairs(self:compile(cother)) do
-				table.insert(t, step)
-			end
-			-- Insert an operator and return the result.
-			table.insert(t, {type = "operator", value = f})
-			return t
+	-- Let's compare the first character.
+	local c = string.sub(str, 1, 1)
+	local type = nil
+	local PATTERNS = {
+		{pattern = "%d", type = "number"},
+		{pattern = "\"", type = "string"},
+		{pattern = "[%a_]", type = "literal"},
+		{pattern = "[%+%-%/%*%%%^%|%&%=%!%<%>%?%,%:%.]", type = "operator"},
+		{pattern = "[%(%)%[%]]", type = "bracket"}
+	}
+	for i, pattern in ipairs(PATTERNS) do
+		if string.find(c, pattern.pattern) then
+			type = pattern.type
+			break
 		end
 	end
 
-	-- Operators start from the lowest priority!!!
-	local operators = {"?", ":", "||", "&&", "!", "==", "!=", ">", "<", ">=", "<=", "+", "-", "*", "/", "%"}
-	for i, op in ipairs(operators) do
-		local pos = 1
-		local brackets = 0
+	-- Each type has its own ending sequence.
+	local value = nil
+	if type == "number" then
+		-- The format can be either <digits>.<digits> or <digits>
+		local a, b = string.find(str, "^%d+%.%d+")
+		if not a or not b then
+			a, b = string.find(str, "^%d+")
+		end
+		value = tonumber(string.sub(str, a, b))
+		str = string.sub(str, b + 1)
 
-		while pos <= str:len() - op:len() + 1 do
-			-- Get the character.
-			local c = str:sub(pos, pos)
-			local cop = str:sub(pos, pos + op:len() - 1)
-			-- Update the bracket count.
-			if c == "(" then
-				brackets = brackets + 1
-			elseif c == ")" then
-				brackets = brackets - 1
+	elseif type == "string" then
+		-- We need to avoid escaped quotation marks.
+		local a, b = 2, nil
+		for i = 2, string.len(str) do
+			if string.sub(str, i, i) == "\"" and string.sub(str, i - 1, i - 1) ~= "\\" then
+				b = i - 1
+				break
 			end
-			-- If we're not in a bracket and an operator has been found, proceed.
-			if brackets == 0 and cop == op then
-				-- Calculate both hand sides and compile them.
-				local lhs = str:sub(1, pos - 1)
-				local rhs = str:sub(pos + op:len())
-				if op ~= "!" then -- '!' is special; no left hand side expression is expected.
-					for j, step in ipairs(self:compile(lhs)) do
-						table.insert(t, step)
-					end
+		end
+		-- No matching quotation mark found; abort!
+		if not b then
+			return nil, "No matching quotation mark found"
+		end
+		value = string.gsub(string.sub(str, a, b), "\\\"", "\"")
+		str = string.sub(str, b + 2)
+
+	elseif type == "literal" then
+		local a, b = string.find(str, "^[%a%d_]+")
+		value = string.sub(str, a, b)
+		-- Convert to a boolean.
+		if value == "true" or value == "false" then
+			type = "boolean"
+			value = value == "true"
+		end
+		str = string.sub(str, b + 1)
+
+	elseif type == "operator" then
+		-- Some operators consist of 2 characters.
+		local a, b = 1, 1
+		local t = string.sub(str, 1, 2)
+		if t == "//" or t == "||" or t == "&&" or t == "==" or t == "!=" or t == "<=" or t == ">=" or t == ".." then
+			b = 2
+		end
+		value = string.sub(str, a, b)
+		str = string.sub(str, b + 1)
+
+	elseif type == "bracket" then
+		local a, b = 1, 1
+		value = string.sub(str, a, b)
+		str = string.sub(str, b + 1)
+	end
+
+	if value and type then
+		return {value = value, type = type}, str
+	end
+	return nil, string.format("Unknown token type (%s, %s)", value, type)
+end
+
+
+
+---Breaks a given expression string down to single tokens.
+---@param str any
+---@return table
+function Expression:tokenize(str)
+	local origStr = str
+
+	local tokens = {}
+	while str ~= "" do
+		local token, newStr = self:getToken(str)
+		-- Detect an error.
+		assert(token, string.format("Expression tokenization failed: %s at col %s in expression: %s", newStr, string.len(origStr) - string.len(str), origStr))
+		str = newStr
+		-- Detect unary minuses.
+		if token.type == "operator" and token.value == "-" and
+			(#tokens == 0 or tokens[#tokens].type == "operator" or (tokens[#tokens].type == "bracket" and tokens[#tokens].value == "(")) then
+				token.value = "-u"
+		end
+		-- Detect functions.
+		if token.type == "bracket" and token.value == "(" and #tokens ~= 0 and tokens[#tokens].type == "literal" then
+			tokens[#tokens].type = "function"
+		end
+		table.insert(tokens, token)
+	end
+	return tokens
+end
+
+
+
+---Compiles the given token list into an RPN notation and returns it.
+---@param tokens table A list of tokens of which this expression is built.
+---@return table
+function Expression:compile(tokens)
+	-- This function uses an extended version of the shunting yard algorithm.
+	-- https://en.wikipedia.org/wiki/Shunting_yard_algorithm
+	local OPERATORS = {
+		["^"] = {precedence = 10, rightAssoc = true},
+		["!"] = {precedence = 9, rightAssoc = true},
+		["-u"] = {precedence = 9, rightAssoc = true},
+		["*"] = {precedence = 8, rightAssoc = false},
+		["/"] = {precedence = 8, rightAssoc = false},
+		["%"] = {precedence = 8, rightAssoc = false},
+		["+"] = {precedence = 7, rightAssoc = false},
+		["-"] = {precedence = 7, rightAssoc = false},
+		[".."] = {precedence = 6, rightAssoc = true},
+		[">"] = {precedence = 5, rightAssoc = false},
+		[">="] = {precedence = 5, rightAssoc = false},
+		["<"] = {precedence = 5, rightAssoc = false},
+		["<="] = {precedence = 5, rightAssoc = false},
+		["=="] = {precedence = 4, rightAssoc = false},
+		["!="] = {precedence = 4, rightAssoc = false},
+		["&&"] = {precedence = 3, rightAssoc = false},
+		["||"] = {precedence = 2, rightAssoc = false},
+		["?"] = {precedence = 1, rightAssoc = true},
+		[":"] = {precedence = 1, rightAssoc = true}
+	}
+
+	local steps = {}
+	local opStack = {}
+
+	for i, token in ipairs(tokens) do
+		if token.type == "number" or token.type == "boolean" or token.type == "string" or token.type == "literal" then
+			table.insert(steps, {type = "value", value = token.value})
+		elseif token.type == "bracket" then
+			local op = token.value
+			local opData = OPERATORS[op]
+			if op == "(" then
+				table.insert(opStack, {type = "operator", value = op})
+			elseif op == ")" then
+				-- Pop operators until the matching bracket is found.
+				while #opStack > 0 and opStack[#opStack].value ~= "(" do
+					table.insert(steps, {type = "operator", value = opStack[#opStack].value})
+					table.remove(opStack)
 				end
-				for j, step in ipairs(self:compile(rhs)) do
-					table.insert(t, step)
+				assert(#opStack > 0, string.format("Missing ( in Expression(%s)!", self.data))
+				-- Pop the parenthesis.
+				table.remove(opStack)
+				-- If there's a function name beforehand, add it.
+				if opStack[#opStack].type == "function" then
+					table.insert(steps, {type = "operator", value = opStack[#opStack].value})
+					table.remove(opStack)
 				end
-				-- Insert an operator and return the result.
-				table.insert(t, {type = "operator", value = op})
-				return t
+			elseif op == "[" then
+				table.insert(opStack, {type = "function", value = "get"})
+				table.insert(opStack, {type = "operator", value = op})
+			elseif op == "]" then
+				-- Pop operators until the matching bracket is found.
+				while #opStack > 0 and opStack[#opStack].value ~= "[" do
+					table.insert(steps, {type = "operator", value = opStack[#opStack].value})
+					table.remove(opStack)
+				end
+				assert(#opStack > 0, string.format("Missing [ in Expression(%s)!", self.data))
+				-- Pop the parenthesis.
+				table.remove(opStack)
+				-- If there's a function name beforehand, add it.
+				if opStack[#opStack].type == "function" then
+					table.insert(steps, {type = "operator", value = opStack[#opStack].value})
+					table.remove(opStack)
+				end
 			end
-			pos = pos + 1
+		elseif token.type == "operator" then
+			local op = token.value
+			local opData = OPERATORS[op]
+			if op == "|" then
+				-- This is a symbol which changes get to getd.
+				assert(#opStack > 1 and opStack[#opStack - 1].type == "function" and opStack[#opStack - 1].value == "get", string.format("| in incorrect place in Expression(%s)!", self.data))
+				opStack[#opStack - 1].value = "getd"
+			elseif OPERATORS[op] then
+				-- Pop any required operators.
+				local opLast = opStack[#opStack] and opStack[#opStack].value
+				local opLastData = OPERATORS[opLast]
+				while opLast and opLast ~= "(" and (opData.precedence < opLastData.precedence or (opData.precedence == opLastData.precedence and not opData.rightAssoc)) do
+					table.insert(steps, {type = "operator", value = opLast})
+					table.remove(opStack)
+					opLast = opStack[#opStack] and opStack[#opStack].value
+					opLastData = OPERATORS[opLast]
+				end
+				table.insert(opStack, {type = "operator", value = op})
+			end
+		elseif token.type == "function" then
+			table.insert(opStack, {type = "function", value = token.value})
 		end
 	end
 
-	-- If there are no operators, convert this value to an appropriate type and return itself.
-	if str == "true" or str == "false" then
-		-- Boolean value.
-		return {
-			{type = "value", value = str == "true"}
-		}
-	elseif str:sub(1, 1) == "[" and str:sub(str:len()) == "]" then
-		-- Variable value.
-		local sp = _StrSplit(str:sub(2, str:len() - 1), "|")
-		if #sp == 1 then
-			return {
-				{type = "value", value = sp[1]},
-				{type = "operator", value = "get"}
-			}
-		elseif #sp == 2 then
-			local tt = {
-				{type = "value", value = sp[1]}
-			}
-			for i, step in ipairs(self:compile(sp[2])) do
-				table.insert(tt, step)
-			end
-			table.insert(tt, {type = "operator", value = "getd"})
-			return tt
-		end
-	elseif str == "random" then
-		-- Random value from 0 to 1, uniform.
-		return {
-			{type = "operator", value = "rnd"}
-		}
-	else
-		-- Number value.
-		return {
-			{type = "value", value = tonumber(str)}
-		}
+	-- Flush the operator stack.
+	for i = #opStack, 1, -1 do
+		assert(opStack[i].value ~= "(", string.format("Missing ) in Expression(%s)!", self.data))
+		assert(opStack[i].value ~= "[", string.format("Missing ] in Expression(%s)!", self.data))
+		table.insert(steps, {type = "operator", value = opStack[i].value})
 	end
+
+	return steps
 end
 
 
@@ -156,7 +268,7 @@ function Expression:evaluate()
 		elseif step.type == "operator" then
 			local op = step.value
 			-- Operators.
-			-- Artithmetic: Takes two last numbers in the stack, performs an operation and puts the result number back.
+			-- Artithmetic: Takes two last numbers in the stack (one in case of unary minus), performs an operation and puts the result number back.
 			if op == "+" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
@@ -165,6 +277,9 @@ function Expression:evaluate()
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a - b)
+			elseif op == "-u" then
+				local a = table.remove(stack)
+				table.insert(stack, -a)
 			elseif op == "*" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
@@ -173,10 +288,20 @@ function Expression:evaluate()
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a / b)
+			elseif op == "^" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, a ^ b)
 			elseif op == "%" then
 				local b = table.remove(stack)
 				local a = table.remove(stack)
 				table.insert(stack, a % b)
+
+			-- String manipulation: Takes two last strings in the stack, performs an operation and puts the result number back.
+			elseif op == ".." then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, tostring(a) .. tostring(b))
 
 			-- Comparison: Compares two numbers or strings in the stack, consuming them and puts the result boolean back.
 			elseif op == "==" then

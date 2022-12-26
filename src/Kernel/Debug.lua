@@ -427,6 +427,22 @@ function Debug:runCommand(command)
 		end
 		self.console:print(string.format("exprt(%s): %s", words[2], ce:getDebug()))
 		return true
+	elseif words[1] == "ex" then
+		local ce = Expression("2")
+		self.console:print(string.format("ex(%s):", words[2]))
+		local tokens = ce:tokenize(words[2])
+		for i, token in ipairs(tokens) do
+			self.console:print(string.format("%s   %s", token.value, token.type))
+		end
+		self.console:print("")
+		self.console:print("")
+		self.console:print("Compilation result:")
+		ce.data = ce:compile(tokens)
+		for i, step in ipairs(ce.data) do
+			self.console:print(string.format("%s   %s", step.type, step.value))
+		end
+		self.console:print(string.format("ex(%s): %s", words[2], ce:evaluate()))
+		return true
 	end
 
 	return false

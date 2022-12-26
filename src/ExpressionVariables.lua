@@ -16,6 +16,8 @@ local Expression = require("src/Expression")
 function ExpressionVariables:new()
 	self.data = {}
     self.expressionCache = {}
+
+    self:set("pi", math.pi)
 end
 
 
