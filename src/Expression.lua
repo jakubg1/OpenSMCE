@@ -140,7 +140,7 @@ function Expression:tokenize(str)
 				token.value = "-u"
 		end
 		-- Detect functions.
-		if token.type == "bracket" and token.value == "(" and #tokens ~= 0 and tokens[#tokens].type == "literal" then
+		if token.type == "bracket" and token.value == "(" and #tokens > 0 and tokens[#tokens].type == "literal" then
 			tokens[#tokens].type = "function"
 		end
 		table.insert(tokens, token)
@@ -199,7 +199,7 @@ function Expression:compile(tokens)
 				-- Pop the parenthesis.
 				table.remove(opStack)
 				-- If there's a function name beforehand, add it.
-				if opStack[#opStack].type == "function" then
+				if #opStack > 0 and opStack[#opStack].type == "function" then
 					table.insert(steps, {type = "operator", value = opStack[#opStack].value})
 					table.remove(opStack)
 				end
