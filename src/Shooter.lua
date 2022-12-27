@@ -14,8 +14,13 @@ local ShotSphere = require("src/ShotSphere")
 
 
 ---Constructs a new Shooter.
-function Shooter:new()
-    self.config = _Game.configManager.shooters.default
+---@param data? table Data for the shooter.
+function Shooter:new(data)
+    self.config = _Game.configManager.shooters[data and data.name or "default"]
+    self.movement = self.config.movement
+    if data and data.movement then
+        self.movement = data.movement
+    end
 
     self.pos = self:getInitialPos()
     self.angle = self:getInitialAngle()
@@ -57,7 +62,7 @@ end
 ---@param dt number Delta time in seconds.
 function Shooter:update(dt)
     -- movement
-    if self.config.movement.type == "linear" then
+    if self.movement.type == "linear" then
         -- luxor shooter
         if _MousePos == self.mousePos then
             -- if the mouse position hasn't changed, then the keyboard can be freely used
@@ -72,8 +77,8 @@ function Shooter:update(dt)
             self.pos.x = _MousePos.x
         end
         -- clamp to bounds defined in config
-        self.pos.x = math.min(math.max(self.pos.x, self.config.movement.xMin), self.config.movement.xMax)
-    elseif self.config.movement.type == "circular" then
+        self.pos.x = math.min(math.max(self.pos.x, self.movement.xMin), self.movement.xMax)
+    elseif self.movement.type == "circular" then
         -- zuma shooter
         if _MousePos == self.mousePos then
             -- if the mouse position hasn't changed, then the keyboard can be freely used
@@ -444,11 +449,10 @@ end
 ---Returns the initial position of this Shooter, based on its config.
 ---@return Vector2
 function Shooter:getInitialPos()
-    local mc = self.config.movement
-    if mc.type == "linear" then
-        return Vec2((mc.xMin + mc.xMax) / 2, mc.y)
-    elseif mc.type == "circular" then
-        return Vec2(mc.x, mc.y)
+    if self.movement.type == "linear" then
+        return Vec2((self.movement.xMin + self.movement.xMax) / 2, self.movement.y)
+    elseif self.movement.type == "circular" then
+        return Vec2(self.movement.x, self.movement.y)
     end
     return Vec2()
 end
@@ -456,10 +460,9 @@ end
 ---Returns the initial angle of this Shooter in radians, based on its config.
 ---@return number
 function Shooter:getInitialAngle()
-    local mc = self.config.movement
-    if mc.type == "linear" then
-        return mc.angle / 180 * math.pi
-    elseif mc.type == "circular" then
+    if self.movement.type == "linear" then
+        return self.movement.angle / 180 * math.pi
+    elseif self.movement.type == "circular" then
         return 0
     end
     return 0
