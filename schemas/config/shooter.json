@@ -29,7 +29,8 @@
                 },
                 "nextBallSprite": {
                     "type": "string",
-                    "description": "The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if reticleSprite is defined."
+                    "description": "The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if reticleSprite is defined.",
+                    "markdownDescription": "The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if `reticleSprite` is defined."
                 },
                 "nextBallOffset": {
                     "$ref": "../_structures/Vector2.json",
@@ -40,6 +41,7 @@
                     "description": "The aiming reticle's sprite for spheres with fireball or colorCloud hitBehavior."
                 }
             },
+            "required": [],
             "additionalProperties": false
         },
         "speedShotBeam": {
