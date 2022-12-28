@@ -19,6 +19,7 @@ local RuntimeManager = require("src/RuntimeManager")
 local Session = require("src/Session")
 
 local UIManager = require("src/UI/Manager")
+local UI2Manager = require("src/UI2/Manager")
 local ParticleManager = require("src/Particle/Manager")
 
 
@@ -37,6 +38,7 @@ function Game:new(name)
 	self.session = nil
 
 	self.uiManager = nil
+	self.ui2Manager = nil
 	self.particleManager = nil
 
 
@@ -79,6 +81,9 @@ function Game:init()
 	-- Step 8. Set up the UI Manager
 	self.uiManager = UIManager()
 	self.uiManager:initSplash()
+
+	-- Step 9. Set upt the experimental UI2 Manager
+	--self.ui2Manager = UI2Manager()
 end
 
 
@@ -184,6 +189,8 @@ end
 
 ---Draws the game contents.
 function Game:draw()
+	--love.graphics.setDefaultFilter("nearest", "nearest")
+
 	_Debug:profDraw2Start()
 
 	-- Session and level
@@ -193,8 +200,11 @@ function Game:draw()
 	_Debug:profDraw2Checkpoint()
 
 	-- Particles and UI
-	if self.particleManager then self.particleManager:draw() end
+	if self.particleManager then
+		self.particleManager:draw()
+	end
 	self.uiManager:draw()
+	--self.ui2Manager:draw()
 	_Debug:profDraw2Checkpoint()
 
 	-- Borders
