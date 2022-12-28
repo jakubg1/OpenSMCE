@@ -16,7 +16,7 @@ local ShotSphere = require("src/ShotSphere")
 ---Constructs a new Shooter.
 ---@param data? table Data for the shooter.
 function Shooter:new(data)
-    self.config = _Game.configManager.shooters[data and data.name or "default"]
+    self.config = _Game.configManager:getShooter(data and data.name or "default")
     self.movement = self.config.movement
     if data and data.movement then
         self.movement = data.movement
@@ -43,13 +43,13 @@ function Shooter:new(data)
     self.moveKeySpeed = 500
     self.rotateKeySpeed = 4
 
-    self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
-    self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite)
-    self.speedShotSprite = _Game.resourceManager:getSprite(self.config.speedShotBeam.sprite)
+    self.sprite = self.config.sprite
+    self.shadowSprite = self.config.shadowSprite
+    self.speedShotSprite = self.config.speedShotBeam.sprite
 
-    self.reticleSprite = self.config.reticle.sprite and _Game.resourceManager:getSprite(self.config.reticle.sprite)
-    self.reticleNextSprite = self.config.reticle.nextBallSprite and _Game.resourceManager:getSprite(self.config.reticle.nextBallSprite)
-    self.radiusReticleSprite = self.config.reticle.radiusSprite and _Game.resourceManager:getSprite(self.config.reticle.radiusSprite)
+    self.reticleSprite = self.config.reticle.sprite
+    self.reticleNextSprite = self.config.reticle.nextBallSprite
+    self.radiusReticleSprite = self.config.reticle.radiusSprite
 
     self.sphereEntity = nil
 end

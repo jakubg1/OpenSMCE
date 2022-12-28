@@ -92,6 +92,8 @@ end
 
 ---Initializes the game session, as well as UI and particle managers.
 function Game:initSession()
+	-- Load whatever needs loading the new way from config.
+	self.configManager:loadStuffAfterResources()
 	-- Setup the UI and particles
 	self.uiManager:init()
 	self.particleManager = ParticleManager()

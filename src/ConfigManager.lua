@@ -6,6 +6,8 @@ local ConfigManager = class:derive("ConfigManager")
 
 local CollectibleGeneratorManager = require("src/CollectibleGenerator/Manager")
 
+local ShooterConfig = require("src/Configs/Shooter")
+
 
 
 ---Constructs a new ConfigManager and initializes all lists.
@@ -55,7 +57,6 @@ function ConfigManager:new()
 	self.spheres = self:loadFolder("config/spheres", "sphere", true)
 	self.sphereEffects = self:loadFolder("config/sphere_effects", "sphere effect")
 	self.colorGenerators = self:loadFolder("config/color_generators", "color generator")
-	self.shooters = self:loadFolder("config/shooters", "shooter")
 
 	self.collectibleGeneratorManager = CollectibleGeneratorManager()
 
@@ -78,12 +79,20 @@ end
 
 
 
+---Loads config files which are implemented the new way so that they require to be loaded after the resources.
+function ConfigManager:loadStuffAfterResources()
+	self.shooters = self:loadFolder("config/shooters", "shooter", false, ShooterConfig)
+end
+
+
+
 ---Loads and returns multiple items from a folder.
 ---@param folderPath string The path to a folder where the files are stored.
 ---@param name string The name to be used when logging; also a file prefix if `isNumbers` is set to `true`.
 ---@param isNumbers boolean? If set to `true`, all IDs will be converted to numbers instead of being strings.
+---@param constructor any? The config class constructor. If set, the returned table will contain instances of this class instead of raw data structures.
 ---@return table
-function ConfigManager:loadFolder(folderPath, name, isNumbers)
+function ConfigManager:loadFolder(folderPath, name, isNumbers, constructor)
 	local t = {}
 
 	local fileList = _GetDirListing(_ParsePath(folderPath), "file", "json")
@@ -94,10 +103,22 @@ function ConfigManager:loadFolder(folderPath, name, isNumbers)
 		end
 		_Log:printt("ConfigManager", string.format("Loading %s %s, %s", name, id, path))
 		local item = _LoadJson(_ParsePath(folderPath .. "/" .. path))
+		if constructor then
+			item = constructor(item)
+		end
 		t[id] = item
 	end
 
 	return t
+end
+
+
+
+---Returns a shooter config for a given shooter name.
+---@param name string The name of the shooter.
+---@return ShooterConfig
+function ConfigManager:getShooter(name)
+	return self.shooters[name]
 end
 
 
