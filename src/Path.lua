@@ -488,51 +488,51 @@ end
 ---Returns the onscreen position at the given offset of this Path.
 ---Why `nil` can be returned here?
 ---@param pixels number The path offset to be considered, in pixels.
----@return Vector2|nil
+---@return Vector2
 function Path:getPos(pixels)
-	if pixels then
-		local nodeID, remainder = self:getNodeID(pixels)
-		if nodeID == 0 then return self.nodes[1].pos end
-		if nodeID > #self.nodes then return self.nodes[#self.nodes].pos end -- + Vec2(0, -remainder):rotate(self.nodes[#self.nodes].angle) end
-		local part = remainder / self.nodes[nodeID].length
-		return self.nodes[nodeID].pos * (1 - part) + self.nodes[nodeID + 1].pos * part
-	else
-		return nil
+	local nodeID, remainder = self:getNodeID(pixels)
+	if nodeID == 0 then
+		return self.nodes[1].pos
+	elseif nodeID > #self.nodes then
+		return self.nodes[#self.nodes].pos
+		-- uncomment the below one for extending after the final node
+		--return self.nodes[#self.nodes].pos + Vec2(0, -remainder):rotate(self.nodes[#self.nodes].angle) end
 	end
+	local part = remainder / self.nodes[nodeID].length
+	---@type Vector2
+	local p1 = self.nodes[nodeID].pos
+	---@type Vector2
+	local p2 = self.nodes[nodeID + 1].pos
+	return p1 * (1 - part) + p2 * part
 end
 
 
 
 ---Returns the path angle at the given offset of this Path, in radians.
----Same question as above ???
 ---@param pixels number The path offset to be considered, in pixels.
----@return number|nil
+---@return number
 function Path:getAngle(pixels)
-	if pixels then
-		local p1 = self:getPos(pixels - 16)
-		local p2 = self:getPos(pixels + 16)
-		-- get IDs of this node, and ID of nodes 16 pixels behind and 16 pixels ahead
-		local id1 = self:getNodeID(pixels - 16)
-		local id = self:getNodeID(pixels)
-		local id2 = self:getNodeID(pixels + 16)
-		-- look for warp nodes behind
-		for i = id1, id - 1 do
-			if self.nodes[i] and self.nodes[i].warp then
-				p1 = self.nodes[i + 1].pos
-				break
-			end
+	local p1 = self:getPos(pixels - 16)
+	local p2 = self:getPos(pixels + 16)
+	-- get IDs of this node, and ID of nodes 16 pixels behind and 16 pixels ahead
+	local id1 = self:getNodeID(pixels - 16)
+	local id = self:getNodeID(pixels)
+	local id2 = self:getNodeID(pixels + 16)
+	-- look for warp nodes behind
+	for i = id1, id - 1 do
+		if self.nodes[i] and self.nodes[i].warp then
+			p1 = self.nodes[i + 1].pos
+			break
 		end
-		-- and ahead
-		for i = id, id2 do
-			if self.nodes[i] and self.nodes[i].warp then
-				p2 = self.nodes[i].pos
-				break
-			end
-		end
-		return (p2 - p1):angle() + math.pi / 2
-	else
-		return nil
 	end
+	-- and ahead
+	for i = id, id2 do
+		if self.nodes[i] and self.nodes[i].warp then
+			p2 = self.nodes[i].pos
+			break
+		end
+	end
+	return (p2 - p1):angle() + math.pi / 2
 end
 
 
