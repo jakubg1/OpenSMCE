@@ -184,7 +184,7 @@ function Shooter:swapColors()
     local tmp = self.color
     self:setColor(self.nextColor)
     self:setNextColor(tmp)
-    _Game:playSound("sound_events/shooter_swap.json", 1, self.pos)
+    _Game:playSound(self.config.sounds.sphereSwap, 1, self.pos)
 end
 
 
@@ -218,7 +218,7 @@ end
 ---Activates the shooter and plays a shooter fill sound.
 function Shooter:activate()
     self.active = true
-    _Game:playSound("sound_events/shooter_fill.json", 1, self.pos)
+    _Game:playSound(self.config.sounds.sphereFill, 1, self.pos)
 end
 
 
@@ -292,8 +292,8 @@ end
 
 ---Drawing callback function.
 function Shooter:draw()
-    self.shadowSprite:draw(self.pos + Vec2(8, 8):rotate(self.angle), Vec2(0.5, 0), nil, nil, self.angle)
-    self.sprite:draw(self.pos, Vec2(0.5, 0), nil, nil, self.angle)
+    self.shadowSprite:draw(self.pos + self.config.shadowSpriteOffset:rotate(self.angle), self.config.shadowSpriteAnchor, nil, nil, self.angle)
+    self.sprite:draw(self.pos + self.config.spriteOffset:rotate(self.angle), self.config.spriteAnchor, nil, nil, self.angle)
 
     -- retical
     if _EngineSettings:getAimingRetical() then
@@ -310,7 +310,7 @@ function Shooter:draw()
     -- next color
     local sprite = _Game.resourceManager:getSprite(self:getNextSphereConfig().nextSprite)
     local frame = self:getNextSphereFrame()
-    sprite:draw(self.pos + Vec2(0, 21):rotate(self.angle), Vec2(0.5, 0), nil, frame, self.angle)
+    sprite:draw(self.pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, frame, self.angle)
 
     --local p4 = posOnScreen(self.pos)
     --love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)

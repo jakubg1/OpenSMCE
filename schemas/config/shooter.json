@@ -11,9 +11,33 @@
             "type": "string",
             "description": "The sprite for the shooter to be used."
         },
+        "spriteOffset": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The offset of the shooter sprite."
+        },
+        "spriteAnchor": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The anchor point of the shooter sprite."
+        },
         "shadowSprite": {
             "type": "string",
             "description": "The shadow sprite for the shooter to be used."
+        },
+        "shadowSpriteOffset": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The offset of the shooter shadow sprite."
+        },
+        "shadowSpriteAnchor": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The anchor point of the shooter shadow sprite."
+        },
+        "nextBallOffset": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The offset of the shooter's next ball sprite."
+        },
+        "nextBallAnchor": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The anchor point of the shooter's next ball sprite."
         },
         "reticle": {
             "type": "object",
@@ -79,6 +103,25 @@
             ],
             "additionalProperties": false
         },
+        "sounds": {
+            "type": "object",
+            "description": "Defines the sounds the shooter makes.",
+            "properties": {
+                "sphereSwap": {
+                    "type": "string",
+                    "description": "A sound event played when the shooter's spheres are swapped."
+                },
+                "sphereFill": {
+                    "type": "string",
+                    "description": "A sound event played when the shooter is filled with newly generated spheres."
+                }
+            },
+            "required": [
+                "sphereSwap",
+                "sphereFill"
+            ],
+            "additionalProperties": false
+        },
         "speedShotParticle": {
             "type": "string",
             "description": "Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes."
@@ -96,8 +139,15 @@
     "required": [
         "movement",
         "sprite",
+        "spriteOffset",
+        "spriteAnchor",
         "shadowSprite",
+        "shadowSpriteOffset",
+        "shadowSpriteAnchor",
+        "nextBallOffset",
+        "nextBallAnchor",
         "reticle",
+        "sounds",
         "speedShotBeam",
         "speedShotParticle",
         "shootSpeed",
