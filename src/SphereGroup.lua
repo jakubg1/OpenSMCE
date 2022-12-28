@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class SphereGroup
+---@overload fun(sphereChain, deserializationTable):SphereGroup
 local SphereGroup = class:derive("SphereGroup")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -6,6 +9,8 @@ local Sprite = require("src/Essentials/Sprite")
 local Color = require("src/Essentials/Color")
 
 local Sphere = require("src/Sphere")
+
+
 
 function SphereGroup:new(sphereChain, deserializationTable)
 	self.sphereChain = sphereChain
@@ -25,54 +30,87 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	end
 
 	self.maxSpeed = 0
-	self.sphereShadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
 
 	self.config = _Game.configManager.gameplay.sphereBehaviour
 
 	self.delQueue = false
 end
 
+
+
 function SphereGroup:update(dt)
-	local speedBound = self.sphereChain.path:getSpeed(self:getLastSphereOffset())
-	if self:isMagnetizing() then
-		self.maxSpeed = self.config.attractionSpeed * math.max(self.sphereChain.combo, 1)
+	-- Empty sphere groups are not updated.
+	if #self.spheres == 0 then
+		return
+	end
+
+	-- Correct the speed bound if this chain is daisy-chained with another chain.
+	local speedGrp = self:getLastChainedGroup()
+	local speedBound = speedGrp.sphereChain.path:getSpeed(speedGrp:getLastSphereOffset())
+
+	local speedDesired = self.sphereChain.speedOverrideBase + speedBound * self.sphereChain.speedOverrideMult
+	if self:isMagnetizing() and not self:hasImmobileSpheres() then
+		self.maxSpeed = self.config.attractionSpeedBase + self.config.attractionSpeedMult * math.max(self.sphereChain.combo, 1)
 	else
 		self.maxSpeed = 0
-		if not self.matchCheck then self.matchCheck = true end
+		self.matchCheck = true
 	end
-	-- the vise is pushing
-	if not self.prevGroup and self.sphereChain.reverseTime == 0 then
-		-- normal movement
-		self.maxSpeed = speedBound
-		-- slow
-		if self.sphereChain.slowTime > 0 then self.maxSpeed = self.maxSpeed * self.config.slowSpeedMultiplier end
-		-- stop
-		if self.sphereChain.stopTime > 0 then self.maxSpeed = 0 end
-		-- when the level is over
-		if self.map.level.lost then self.maxSpeed = self.config.foulSpeed end
+
+	-- If this group is the first one, it can push spheres forward.
+	if not self.prevGroup then
+		if self.map.level.lost then
+			-- If this level is lost, apply the foul speed.
+			self.maxSpeed = self.config.foulSpeed
+		elseif self:hasImmobileSpheres() then
+			-- If this group has immobile spheres, prevent from moving.
+			self.maxSpeed = 0
+		elseif speedGrp:hasImmobileSpheres() then
+			-- The same goes for the first daisy-chained group.
+			self.maxSpeed = 0
+		elseif speedDesired >= 0 then
+			-- Note that this group only pushes, so it must have positive speed in order to work!
+			self.maxSpeed = speedDesired
+		end
 	end
-	-- if the vise is pulling (reverse)
-	if not self.map.level.lost and not self.nextGroup and not self:isMagnetizing() and self.sphereChain.reverseTime > 0 then
-		self.maxSpeed = self.config.reverseSpeed
+	-- If this group is last, it can pull spheres back when the speed is going to be negative.
+	if not self.nextGroup then
+		-- If the level is lost or this group is magnetizing at this moment, do not apply any other speed.
+		if not self.map.level.lost and not self:isMagnetizing() and not self:hasImmobileSpheres() then
+			if speedDesired < 0 then
+				-- Note that this group only pulls, so it must have negative speed in order to work!
+				self.maxSpeed = speedDesired
+			end
+		end
 	end
 
 	if self.speed > self.maxSpeed then
-		if self.sphereChain.reverseTime > 0 and not self:isMagnetizing() then
-			self.speed = self.maxSpeed
-		elseif self.prevGroup then -- magnetization
-			self.speed = math.max(self.speed - self.config.decceleration * dt, self.maxSpeed)
-		elseif self.sphereChain.slowTime > 0 or self.sphereChain.stopTime > 0 then
-			self.speed = math.max(self.speed - self.config.slowDecceleration * dt, self.maxSpeed)
-		else
-			self.speed = math.max(self.speed - self.config.decceleration * dt, self.maxSpeed)
+		-- Decceleration rate used in this frame.
+		local deccel = self.config.decceleration
+
+		-- Can be different if defined accordingly, such as reverse powerup, magnetizing or under a slow powerup.
+		if self.sphereChain.speedOverrideTime > 0 and speedDesired < 0 and not self:isMagnetizing() then
+			deccel = self.sphereChain.speedOverrideDecc or deccel
+		elseif self:isMagnetizing() then
+			deccel = self.config.attractionAcceleration or deccel
+		elseif self.prevGroup then
+			deccel = self.config.decceleration or deccel
+		elseif self.sphereChain.speedOverrideTime > 0 then
+			deccel = self.sphereChain.speedOverrideDecc or deccel
 		end
+		
+		self.speed = math.max(self.speed - deccel * dt, self.maxSpeed)
 	end
+
 	if self.speed < self.maxSpeed then
+		-- Acceleration rate used in this frame.
+		local accel = self.config.acceleration
+
+		-- Can be different if defined accordingly, such as when the level is lost.
 		if self.map.level.lost then
-			self.speed = math.min(self.speed + self.config.foulAcceleration * dt, self.maxSpeed)
-		else
-			self.speed = math.min(self.speed + self.config.acceleration * dt, self.maxSpeed)
+			accel = self.config.foulAcceleration or accel
 		end
+
+		self.speed = math.min(self.speed + accel * dt, self.maxSpeed)
 	end
 	-- anti-slow-catapulting
 	if self.config.overspeedCheck and not self.map.level.lost and self.speed > speedBound then
@@ -84,33 +122,75 @@ function SphereGroup:update(dt)
 
 	self:move(self.speed * dt)
 
-	-- tick the powerup timers
-	-- the vise is pushing
-	if not self.prevGroup and self.sphereChain.reverseTime == 0 then
-		if self.sphereChain.slowTime > 0 and self.speed == self.maxSpeed then self.sphereChain.slowTime = math.max(self.sphereChain.slowTime - dt, 0) end
-		if self.sphereChain.stopTime > 0 and self.speed == self.maxSpeed then self.sphereChain.stopTime = math.max(self.sphereChain.stopTime - dt, 0) end
-	end
-	-- if the vise is pulling (reverse)
-	if not self.nextGroup and self.sphereChain.reverseTime > 0 then
-		if self.speed == self.maxSpeed and not self:isMagnetizing() then
-			self.sphereChain.reverseTime = math.max(self.sphereChain.reverseTime - dt, 0)
+	-- Tick the powerup timers, but only if the current speed matches the desired value.
+	if self.sphereChain.speedOverrideTime > 0 then
+		local fw = not self.prevGroup and speedDesired >= 0 and speedDesired == self.speed
+		local bw = not self.nextGroup and speedDesired < 0 and speedDesired == self.speed
+
+		if fw or bw then
+			self.sphereChain.speedOverrideTime = math.max(self.sphereChain.speedOverrideTime - dt, 0)
 		end
-		-- if it goes too far, nuke the powerup
-		if self:getLastSphereOffset() < 0 then self.sphereChain.reverseTime = 0 end
+
+		-- Reset the timer if the spheres are outside of the screen.
+		if not self.nextGroup and self:getLastSphereOffset() < 0 and speedDesired <= 0 then
+			self.sphereChain.speedOverrideTime = 0
+		end
+
+		if self.sphereChain.speedOverrideTime == 0 then
+			-- The time has elapsed, reset values.
+			self.sphereChain.speedOverrideBase = 0
+			self.sphereChain.speedOverrideMult = 1
+		end
 	end
 
 	for i = #self.spheres, 1, -1 do
-		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then self:destroySphere(i) end
+		-- Remove spheres at the end of path when the level is lost/it's a dummy path.
+		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then
+			self:destroySphere(i)
+		end
 	end
 
-	for i, sphere in ipairs(self.spheres) do
-		if not sphere.delQueue then sphere:update(dt) end
+	-- Ultra-Safe Loop (TM)
+	local i = 1
+	while self.spheres[i] do
+		local sphere = self.spheres[i]
+		if not sphere.delQueue then
+			sphere:update(dt)
+		end
+		if self.spheres[i] == sphere then
+			i = i + 1
+		end
 	end
 end
 
-function SphereGroup:addSphere(pos, position, color)
-	-- pos - position in where was the shot sphere, position - sphere ID (the new sphere will gain the given ID = creation BEHIND the sphere with the given ID)
-	local sphere = Sphere(self, nil, color, pos)
+
+
+function SphereGroup:pushSphereBack(color)
+	-- color - the color of sphere.
+	-- This GENERATES a sphere without any animation.
+	self:addSphere(color, nil, nil, nil, 1)
+end
+
+
+
+function SphereGroup:pushSphereFront(color)
+	-- color - the color of sphere.
+	-- This GENERATES a sphere without any animation.
+	self:addSphere(color, nil, nil, nil, #self.spheres + 1)
+end
+
+
+
+---Adds a new sphere to this group.
+---@param color integer The color of a sphere to be inserted.
+---@param pos Vector2? The position in where was the shot sphere.
+---@param time number? How long will that sphere "grow" until it's completely in its place.
+---@param sphereEntity SphereEntity? A sphere entity to be used (nil = create a new entity).
+---@param position integer The new sphere will gain this ID, which means it will be created BEHIND a sphere of this ID in this group.
+---@param effects table? A list of effects to be applied.
+---@param gaps table? A list of gaps through which this sphere has traversed.
+function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps)
+	local sphere = Sphere(self, nil, color, pos, time, sphereEntity, gaps)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
 	sphere.prevSphere = prevSphere
@@ -118,37 +198,64 @@ function SphereGroup:addSphere(pos, position, color)
 	if prevSphere then prevSphere.nextSphere = sphere end
 	if nextSphere then nextSphere.prevSphere = sphere end
 	table.insert(self.spheres, position, sphere)
+	if effects then
+		for i, effect in ipairs(effects) do
+			sphere:applyEffect(effect)
+		end
+	end
 	-- if it's a first sphere in the group, lower the offset
-	if self.prevGroup and position == 1 then
+	if position == 1 then
 		self.offset = self.offset - 32
 		self:updateSphereOffsets()
 	end
+	sphere:updateOffset()
 end
 
-function SphereGroup:addSpherePos(position)
+
+
+function SphereGroup:getAddSpherePos(position)
 	-- we can't add spheres behind the vise
-	if not self.prevGroup and position == 1 then return 2 end
+	if not self.prevGroup and position == 1 then
+		return 2
+	end
 	return position
 end
 
-function SphereGroup:destroySphere(position)
+
+
+function SphereGroup:destroySphere(position, crushed)
 	-- no need to divide if it's the first or last sphere in this group
 	if position == 1 then
-		self.spheres[position]:delete()
+		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
 		self.offset = self.offset + 32
 		self:updateSphereOffsets()
+
+		-- If this is an unfinished group, this means we're removing spheres at the spawn point.
+		-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
+		-- and flag that one as the new unfinished group.
+		if self:isUnfinished() then
+			local newGroup = SphereGroup(self.sphereChain, nil)
+			-- Update group links.
+			self.prevGroup = newGroup
+			newGroup.nextGroup = self
+
+			-- add to the master, on the back
+			table.insert(self.sphereChain.sphereGroups, newGroup)
+		end
 	elseif position == #self.spheres then
-		self.spheres[position]:delete()
+		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
 	else
 		self:divide(position)
-		self.spheres[position]:delete()
+		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
 	end
 
 	self:checkDeletion()
 end
+
+
 
 function SphereGroup:destroySpheres(position1, position2)
 	-- to avoid more calculation than is needed
@@ -164,6 +271,19 @@ function SphereGroup:destroySpheres(position1, position2)
 		end
 		self.offset = self.offset + position2 * 32
 		self:updateSphereOffsets()
+
+		-- If this is an unfinished group, this means we're removing spheres at the spawn point.
+		-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
+		-- and flag that one as the new unfinished group.
+		if self:isUnfinished() then
+			local newGroup = SphereGroup(self.sphereChain, nil)
+			-- Update group links.
+			self.prevGroup = newGroup
+			newGroup.nextGroup = self
+
+			-- add to the master, on the back
+			table.insert(self.sphereChain.sphereGroups, newGroup)
+		end
 	elseif position2 == #self.spheres then -- or maybe on the end?
 		for i = position1, position2 do
 			self.spheres[#self.spheres]:delete()
@@ -181,49 +301,71 @@ function SphereGroup:destroySpheres(position1, position2)
 	self:checkDeletion()
 end
 
+
+
 function SphereGroup:updateSphereOffsets()
-	for i, sphere in ipairs(self.spheres) do sphere:updateOffset() end
+	for i, sphere in ipairs(self.spheres) do
+		sphere:updateOffset()
+	end
 end
 
+
+
 function SphereGroup:checkDeletion()
+	-- abort if this group is unfinished
+	if self:isUnfinished() then
+		return
+	end
 	-- if this group contains no spheres, it gets yeeted
 	local shouldDelete = true
 	for i, sphere in ipairs(self.spheres) do
-		if not sphere.delQueue then shouldDelete = false end
+		if not sphere.delQueue then
+			shouldDelete = false
+		end
 	end
-	if shouldDelete then self:delete() end
+	if shouldDelete then
+		self:delete()
+	end
+
 	-- if there's only a vise in this chain, the whole chain gets yeeted!
 	if not self.prevGroup and not self.nextGroup and #self.spheres == 1 and self.spheres[1].color == 0 then
-		if not self.map.isDummy and not self.map.level.lost then self.map.level:spawnCollectible(self:getSpherePos(1), self.map.level:newGemData()) end
 		self.spheres[1]:delete()
 		self.sphereChain:delete(false)
 	end
 end
 
+
+
 function SphereGroup:move(offset)
 	self.offset = self.offset + offset
 	self:updateSphereOffsets()
 	-- if reached the end of the level, it's over
-	if self:getLastSphereOffset() >= self.sphereChain.path.length and not self:isMagnetizing() and not self:hasShotSpheres() and not self.map.isDummy then
-		if not self.map.level.lost then self.map.level:lose() end
+	if self:getLastSphereOffset() >= self.sphereChain.path.length and not self:isMagnetizing() and not self:hasShotSpheres() and not self:hasLossProtectedSpheres() and not self.map.isDummy then
+		self.map.level:lose()
 	end
 	if offset <= 0 then
 		-- if it's gonna crash into the previous group, move only what is needed
-		local crashes = self.prevGroup and self:getBackPos() - self.prevGroup:getFrontPos() < 0
 		-- join the previous group if this group starts to overlap the previous one
-		if crashes then self:join() end
+		if self.prevGroup and #self.prevGroup.spheres > 0 and self:getBackPos() - self.prevGroup:getFrontPos() < 0 then
+			self:join()
+		end
 	end
 	-- check the other direction too
 	if offset > 0 then
-		local crashes = self.nextGroup and self.nextGroup:getBackPos() - self:getFrontPos() < 0
-		if crashes then self.nextGroup:join() end
+		if self.nextGroup and self.nextGroup:getBackPos() - self:getFrontPos() < 0 then
+			self.nextGroup:join()
+		end
 	end
 end
+
+
 
 function SphereGroup:join()
 	-- join this group with a previous group
 	-- the first group has nothing to join to
-	if not self.prevGroup then return end
+	if not self.prevGroup then
+		return
+	end
 	-- deploy the value to check for combo and linking later
 	local joinPosition = #self.prevGroup.spheres
 	-- modify the previous group to contain the joining spheres
@@ -231,7 +373,9 @@ function SphereGroup:join()
 		table.insert(self.prevGroup.spheres, sphere)
 		sphere.sphereGroup = self.prevGroup
 	end
-	if self.speed < 0 then self.prevGroup.speed = self.config.collisionSpeed * math.max(self.sphereChain.combo, 1) end
+	if self.speed < 0 then
+		self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self.sphereChain.combo, 1)
+	end
 	-- link the spheres from both groups
 	self.prevGroup.spheres[joinPosition].nextSphere = self.spheres[1]
 	self.spheres[1].prevSphere = self.prevGroup.spheres[joinPosition]
@@ -243,8 +387,14 @@ function SphereGroup:join()
 	if not self.map.level.lost and _Game.session:colorsMatch(self.prevGroup.spheres[joinPosition].color, self.spheres[1].color) and self.matchCheck and self.prevGroup:shouldMatch(joinPosition) then
 		self.prevGroup:matchAndDelete(joinPosition)
 	end
-	_Game:playSound("sound_events/sphere_group_join.json", 1, self.sphereChain.path:getPos(self.offset))
+	-- check for fragile spheres
+	self.prevGroup:destroyFragileSpheres()
+	self:destroyFragileSpheres()
+	-- play a sound
+	_Game:playSound(self.config.joinSound, 1, self.sphereChain.path:getPos(self.offset))
 end
+
+
 
 function SphereGroup:divide(position)
 	-- example:
@@ -256,7 +406,7 @@ function SphereGroup:divide(position)
 	-- first, create a new group and give its properties there
 	local newGroup = SphereGroup(self.sphereChain)
 	newGroup.offset = self:getSphereOffset(position + 1)
-	newGroup.speed = self.speed
+	newGroup.speed = (_Game.configManager.gameplay.sphereBehaviour.luxorized and self.sphereChain.combo > 1) and 0 or self.speed
 	for i = position + 1, #self.spheres do
 		local sphere = self.spheres[i]
 		sphere.sphereGroup = newGroup
@@ -271,7 +421,9 @@ function SphereGroup:divide(position)
 	-- rearrange group links
 	newGroup.prevGroup = self
 	newGroup.nextGroup = self.nextGroup
-	if self.nextGroup then self.nextGroup.prevGroup = newGroup end
+	if self.nextGroup then
+		self.nextGroup.prevGroup = newGroup
+	end
 	-- here, the previous group stays the same
 	self.nextGroup = newGroup
 
@@ -279,8 +431,12 @@ function SphereGroup:divide(position)
 	table.insert(self.sphereChain.sphereGroups, self.sphereChain:getSphereGroupID(self), newGroup)
 end
 
+
+
 function SphereGroup:delete()
-	if self.delQueue then return end
+	if self.delQueue then
+		return
+	end
 	-- do this if this group is empty
 	self.delQueue = true
 	-- update links !!!
@@ -288,9 +444,38 @@ function SphereGroup:delete()
 		self.prevGroup.nextGroup = self.nextGroup
 		self.prevGroup:checkDeletion() -- if the vise might be alone in its own group and last spheres ahead of him are being just destroyed
 	end
-	if self.nextGroup then self.nextGroup.prevGroup = self.prevGroup end
+	if self.nextGroup then
+		self.nextGroup.prevGroup = self.prevGroup
+	end
 	table.remove(self.sphereChain.sphereGroups, self.sphereChain:getSphereGroupID(self))
 end
+
+
+
+function SphereGroup:destroyFragileSpheres()
+	-- Ultra-Safe Loop (TM)
+	local i = 1
+	while self.spheres[i] do
+		local sphere = self.spheres[i]
+		if not sphere.delQueue and sphere:isFragile() then
+			sphere:matchEffectFragile()
+		end
+		if self.spheres[i] == sphere then
+			i = i + 1
+		end
+	end
+end
+
+
+
+-- Unloads this group.
+function SphereGroup:destroy()
+	for i, sphere in ipairs(self.spheres) do
+		sphere:destroy()
+	end
+end
+
+
 
 function SphereGroup:shouldFit(position)
 	return
@@ -299,21 +484,33 @@ function SphereGroup:shouldFit(position)
 		self:getSphereInChain(position + 1) and _Game.session:colorsMatch(self:getSphereInChain(position + 1).color, self.spheres[position].color)
 end
 
+
+
 function SphereGroup:shouldBoostCombo(position)
 	return self:getMatchLengthInChain(position) >= 3
 end
 
+
+
 function SphereGroup:shouldMatch(position)
 	local position1, position2 = self:getMatchBounds(position)
 	-- if not enough spheres
-	if position2 - position1 < 2 then return false end
+	if position2 - position1 < 2 then
+		return false
+	end
 	-- if is magnetizing with previous group and we want to maximize the count of spheres
-	if self.prevGroup and not self.prevGroup.delQueue and _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) and position1 == 1 then return false end
+	if self.prevGroup and not self.prevGroup.delQueue and _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) and position1 == 1 then
+		return false
+	end
 	-- same check with the next group
-	if self.nextGroup and not self.nextGroup.delQueue and _Game.session:colorsMatch(self:getLastSphere().color, self.nextGroup.spheres[1].color) and position2 == #self.spheres then return false end
+	if self.nextGroup and not self.nextGroup.delQueue and _Game.session:colorsMatch(self:getLastSphere().color, self.nextGroup.spheres[1].color) and position2 == #self.spheres then
+		return false
+	end
 	-- all checks passed?
 	return true
 end
+
+
 
 function SphereGroup:matchAndDelete(position)
 	local position1, position2 = self:getMatchBounds(position)
@@ -322,45 +519,185 @@ function SphereGroup:matchAndDelete(position)
 	local boostCombo = false
 	-- abort if any sphere from the given ones has not joined yet and see if we have to boost the combo
 	for i = position1, position2 do
-		if self.spheres[i].size < 1 then return end
+		if self.spheres[i].size < 1 then
+			return
+		end
 		boostCombo = boostCombo or self.spheres[i].boostCombo
 	end
 
 	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
 	local color = self.spheres[position].color
-	self:destroySpheres(position1, position2)
 
-	local soundParams = MOD_GAME.matchSound(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-	_Game:playSound(soundParams.name, soundParams.pitch, pos)
-	self.sphereChain.combo = self.sphereChain.combo + 1
-	if boostCombo then self.map.level.combo = self.map.level.combo + 1 end
+	-- First, check if any of the matched spheres do have the match effect already.
+	local effectName = self.map.level.matchEffect
+	local effectGroupID = nil
+	for i = position1, position2 do
+		if self.spheres[i]:hasEffect(effectName) then
+			effectGroupID = self.spheres[i]:getEffectGroupID(effectName)
+			break
+		end
+	end
+	-- If not found, create a new sphere effect group with a sphere at position, so that sphere is noted down as a cause.
+	if not effectGroupID then
+		effectGroupID = self.sphereChain.path:createSphereEffectGroup(self.spheres[position])
+	end
+	-- Now, apply the effect.
+	for i = position1, position2 do
+		self.spheres[i]:applyEffect(effectName, nil, nil, effectGroupID)
+	end
+end
 
+
+
+-- Similar to the one above, because it also grants score and destroys spheres collectively, however the bounds are based on an effect.
+function SphereGroup:matchAndDeleteEffect(position, effect)
+	local effectConfig = _Game.configManager.sphereEffects[effect]
+	local effectGroupID = self.spheres[position]:getEffectGroupID(effect)
+
+	-- Prepare a list of spheres to be destroyed.
+	local spheres = {}
+	local position1 = nil
+	local position2 = 0
+	if effectConfig.cause_check then
+		-- Cause check: destroy all spheres in the same group if they have the same cause.
+		for i, sphere in ipairs(self.spheres) do
+			if sphere:hasEffect(effect, effectGroupID) then
+				table.insert(spheres, sphere)
+				if not position1 then
+					position1 = i
+				end
+				position2 = i
+			end
+		end
+	else
+		-- No cause check: destroy all spheres in the same group if they lay near each other.
+		position1, position2 = self:getEffectBounds(position, effect)
+		for i = position1, position2 do
+			table.insert(spheres, self.spheres[i])
+		end
+	end
+	local length = #spheres
+	local prevSphere = self.spheres[position1 - 1]
+	local nextSphere = self.spheres[position2 + 1]
+
+	local boostCombo = false
+	-- Abort if any sphere from the given ones has not joined yet and see if we have to boost the combo.
+	for i, sphere in ipairs(spheres) do
+		if sphere.size < 1 then
+			return
+		end
+		boostCombo = boostCombo or sphere.boostCombo
+	end
+	boostCombo = boostCombo and effectConfig.can_boost_combo
+
+	-- Retrieve and simplify a list of gaps. Only the cause sphere is checked.
+	local gaps = self.spheres[position].gaps
+
+
+
+	-- Determine the center position and destroy spheres.
+	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
+	local color = self.sphereChain.path:getSphereEffectGroup(effectGroupID).cause.color
+	for i = #spheres, 1, -1 do
+		self:destroySphere(self:getSphereID(spheres[i]))
+	end
+
+	-- Destroy adjacent spheres if they are stone spheres.
+	if nextSphere and nextSphere:isStone() then
+		self.nextGroup:destroySphere(self.nextGroup:getSphereID(nextSphere))
+	end
+	if prevSphere and prevSphere:isStone() then
+		self:destroySphere(self:getSphereID(prevSphere))
+	end
+
+	-- Play a sound.
+	if effectConfig.destroy_sound == "hardcoded" then
+		local soundParams = MOD_GAME.matchSound(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
+		_Game:playSound(soundParams.name, soundParams.pitch, pos)
+	else
+		_Game:playSound(effectConfig.destroy_sound, 1, pos)
+	end
+	-- Boost chain and combo values.
+	if effectConfig.can_boost_chain then
+		self.sphereChain.combo = self.sphereChain.combo + 1
+	end
+	if boostCombo then
+		self.map.level.combo = self.map.level.combo + 1
+	end
+
+	-- Calculate and grant score.
 	local score = length * 100
-	if boostCombo then score = score + math.max(self.map.level.combo - 3, 0) * 100 end
-	score = score * self.sphereChain.combo
+	if boostCombo then
+		score = score + math.max(self.map.level.combo - 3, 0) * 100
+	end
+	if effectConfig.apply_chain_multiplier then
+		score = score * self.sphereChain.combo
+	end
 	self.map.level:grantScore(score)
+	self.sphereChain.comboScore = self.sphereChain.comboScore + score
 
+	-- Determine and display the floating text.
 	local scoreText = _NumStr(score)
-	if boostCombo and self.map.level.combo > 2 then scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo) end
-	if self.sphereChain.combo ~= 1 then scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo) end
-	self.map.level:spawnFloatingText(scoreText, pos, _Game.configManager.spheres[color].matchFont)
+	if boostCombo and self.map.level.combo > 2 then
+		scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo)
+	end
+	if effectConfig.apply_chain_multiplier and self.sphereChain.combo ~= 1 then
+		scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo)
+	end
+	local scoreGapTexts = {"GAP BONUS!", "DOUBLE GAP BONUS!", "TRIPLE GAP BONUS!", "QUADRUPLE GAP BONUS!", "QUINTUPLE GAP BONUS!"}
+	if #gaps > 0 then
+		scoreText = scoreText .. "\n" .. scoreGapTexts[#gaps]
+	end
+	local scoreFont = effectConfig.destroy_font
+	if scoreFont == "hardcoded" then
+		scoreFont = _Game.configManager.spheres[color].matchFont
+	end
+	self.map.level:spawnFloatingText(scoreText, pos, scoreFont)
 
-	local spawnCoin = MOD_GAME.coinSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-	if spawnCoin then self.map.level:spawnCollectible(pos, {type = "coin"}) end
+	-- Spawn a coin if applicable.
+	_Vars:set("length", length)
+	_Vars:set("comboLv", self.map.level.combo)
+	_Vars:set("chainLv", self.sphereChain.combo)
+	_Vars:set("comboBoost", boostCombo)
+	if effectConfig.destroy_collectible then
+		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroy_collectible)
+	end
 
-	local spawnPowerup = MOD_GAME.powerupSpawn(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-	if spawnPowerup then self.map.level:spawnCollectible(pos, self.map.level:newPowerupData()) end
-
+	-- Update max combo and max chain stats.
 	self.map.level.maxCombo = math.max(self.map.level.combo, self.map.level.maxCombo)
 	self.map.level.maxChain = math.max(self.sphereChain.combo, self.map.level.maxChain)
 end
 
+
+
 function SphereGroup:isMagnetizing()
 	--print("----- " .. (self.prevGroup and self.prevGroup:getDebugText() or "xxx") .. " -> " .. self:getDebugText() .. " -> " .. (self.nextGroup and self.nextGroup:getDebugText() or "xxx"))
 	--print("----- " .. tostring(self.sphereChain:getSphereGroupID(self.prevGroup)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self.nextGroup)))
-	if not self.prevGroup or self.prevGroup.delQueue or #self.spheres == 0 then return false end
-	return _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) or self.prevGroup:getLastSphere().color == 0
+
+	-- If this group is empty, is pending deletion or would have nothing to magnetize to, abort.
+	if not self.prevGroup or self.prevGroup.delQueue or #self.spheres == 0 then
+		return false
+	end
+
+	-- Get mature spheres on both ends.
+	local sphere1 = self.prevGroup:getLastMatureSphere()
+	local sphere2 = self:getFirstMatureSphere()
+
+	-- If there are no candidate spheres, abort.
+	if not sphere1 or not sphere2 then
+		return false
+	end
+
+	-- Check if on each side of the empty area there's the same color.
+	local byColor = _Game.session:colorsMatch(sphere1.color, sphere2.color)
+	-- The scarab can magnetize any color.
+	local byScarab = sphere1.color == 0
+
+
+	return byColor or byScarab
 end
+
+
 
 
 
@@ -370,32 +707,14 @@ function SphereGroup:draw(color, hidden, shadow)
 	-- shadow: to make all shadows rendered before spheres
 	--love.graphics.print(self:getDebugText2(), 10, 10 * #self.spheres)
 	for i, sphere in ipairs(self.spheres) do
-		if sphere.color == color and self:getSphereHidden(i) == hidden then
-			local pos = self:getSpherePos(i)
-			if sphere.size < 1 then
-				pos = self.sphereChain.path:getPos(self:getSphereOffset(i) + 16 - sphere.size * 16) * sphere.size + sphere.shootOrigin * (1 - sphere.size)
-			end
-
-			if shadow then
-				self.sphereShadowSprite:draw(pos + Vec2(4), Vec2(0.5))
-			else
-				local config = _Game.configManager.spheres[sphere.color]
-				local sprite = _Game.resourceManager:getSprite(config.sprite)
-				local angle = config.spriteAnimationSpeed and 0 or self:getSphereAngle(i)
-				local frame = Vec2(1)
-				if config.spriteAnimationSpeed then
-					frame = Vec2(math.floor(config.spriteAnimationSpeed * _TotalTime), 1)
-				elseif sphere.size == 1 then
-					frame = Vec2(math.ceil(32 - sphere:getFrame()), 1)
-				end
-				sprite:draw(pos, Vec2(0.5), nil, frame, angle, self:getSphereColor(i))
-			end
-		end
+		sphere:draw(color, hidden, shadow)
 	end
 	if _Debug.sphereDebugVisible2 then
 		self:drawDebug()
 	end
 end
+
+
 
 function SphereGroup:drawDebug()
 	local pos = _PosOnScreen(self.sphereChain.path:getPos(self:getFrontPos()))
@@ -406,6 +725,8 @@ function SphereGroup:drawDebug()
 	love.graphics.circle("fill", pos.x, pos.y, 6)
 end
 
+
+
 function SphereGroup:getMatchPositions(position)
 	local positions = {position}
 	local color = self.spheres[position].color
@@ -414,7 +735,9 @@ function SphereGroup:getMatchPositions(position)
 	while true do
 		seekPosition = seekPosition - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[seekPosition] or not _Game.session:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition + 1].color) then break end
+		if not self.spheres[seekPosition] or not _Game.session:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition + 1].color) then
+			break
+		end
 		--if self.spheres[seekPosition].size < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
 		table.insert(positions, seekPosition)
 	end
@@ -423,12 +746,16 @@ function SphereGroup:getMatchPositions(position)
 	while true do
 		seekPosition = seekPosition + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[seekPosition] or not _Game.session:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition - 1].color) then break end
+		if not self.spheres[seekPosition] or not _Game.session:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition - 1].color) then
+			break
+		end
 		--if self.spheres[seekPosition].size < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
 		table.insert(positions, seekPosition)
 	end
 	return positions
 end
+
+
 
 function SphereGroup:getMatchBounds(position)
 	local position1 = position
@@ -438,16 +765,46 @@ function SphereGroup:getMatchBounds(position)
 	while true do
 		position1 = position1 - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position1] or not _Game.session:colorsMatch(self.spheres[position1].color, self.spheres[position1 + 1].color) then break end
+		if not self.spheres[position1] or not _Game.session:colorsMatch(self.spheres[position1].color, self.spheres[position1 + 1].color) then
+			break
+		end
 	end
 	-- seek forwards
 	while true do
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position2] or not _Game.session:colorsMatch(self.spheres[position2].color, self.spheres[position2 - 1].color) then break end
+		if not self.spheres[position2] or not _Game.session:colorsMatch(self.spheres[position2].color, self.spheres[position2 - 1].color) then
+			break
+		end
 	end
 	return position1 + 1, position2 - 1
 end
+
+
+
+function SphereGroup:getEffectBounds(position, effect, effectGroupID)
+	local position1 = position
+	local position2 = position
+	-- seek backwards
+	while true do
+		position1 = position1 - 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self.spheres[position1] or not self.spheres[position1]:hasEffect(effect, effectGroupID) then
+			break
+		end
+	end
+	-- seek forwards
+	while true do
+		position2 = position2 + 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self.spheres[position2] or not self.spheres[position2]:hasEffect(effect, effectGroupID) then
+			break
+		end
+	end
+	return position1 + 1, position2 - 1
+end
+
+
 
 function SphereGroup:getMatchLengthInChain(position)
 	-- special seek for a shouldBoostCombo function
@@ -458,16 +815,22 @@ function SphereGroup:getMatchLengthInChain(position)
 	while true do
 		position1 = position1 - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self:getSphereInChain(position1) or not _Game.session:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then break end
+		if not self:getSphereInChain(position1) or not _Game.session:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then
+			break
+		end
 	end
 	-- seek forwards
 	while true do
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self:getSphereInChain(position2) or not _Game.session:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then break end
+		if not self:getSphereInChain(position2) or not _Game.session:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then
+			break
+		end
 	end
 	return position2 - position1 - 1
 end
+
+
 
 function SphereGroup:getMatchBoundColorsInChain(position)
 	-- special seek for a lightning storm search algorithm
@@ -478,76 +841,153 @@ function SphereGroup:getMatchBoundColorsInChain(position)
 	while true do
 		position1 = position1 - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self:getSphereInChain(position1) or not _Game.session:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then break end
+		if not self:getSphereInChain(position1) or not _Game.session:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then
+			break
+		end
 	end
 	-- seek forwards
 	while true do
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self:getSphereInChain(position2) or not _Game.session:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then break end
+		if not self:getSphereInChain(position2) or not _Game.session:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then
+			break
+		end
 	end
 	return self:getSphereInChain(position1) and self:getSphereInChain(position1).color, self:getSphereInChain(position2) and self:getSphereInChain(position2).color
 end
+
+
+
+function SphereGroup:getFirstSphere()
+	return self.spheres[1]
+end
+
+
 
 function SphereGroup:getLastSphere()
 	return self.spheres[#self.spheres]
 end
 
+
+
+function SphereGroup:getFirstMatureSphere()
+	for i = 1, #self.spheres do
+		if self.spheres[i].size == 1 then
+			return self.spheres[i]
+		end
+	end
+end
+
+
+
+function SphereGroup:getLastMatureSphere()
+	for i = #self.spheres, 1, -1 do
+		if self.spheres[i].size == 1 then
+			return self.spheres[i]
+		end
+	end
+end
+
+
+
 function SphereGroup:getSphereOffset(sphereID)
 	return self.offset + self.spheres[sphereID].offset
 end
 
+
+
 function SphereGroup:getSphereID(sphere)
-	for i, sphereT in ipairs(self.spheres) do if sphereT == sphere then return i end end
+	for i, sphereT in ipairs(self.spheres) do
+		if sphereT == sphere then
+			return i
+		end
+	end
 end
+
+
 
 function SphereGroup:getLastSphereOffset()
 	return self:getSphereOffset(#self.spheres)
 end
 
+
+
 function SphereGroup:getLastGroup()
 	local group = self
-	while true do if group.nextGroup then group = group.nextGroup else return group end end
+	while group.nextGroup do
+		group = group.nextGroup
+	end
+	return group
 end
+
+
+
+function SphereGroup:getLastChainedGroup()
+	local group = self
+	while not group.nextGroup and group.sphereChain:isPushingFrontTrain() do
+		group = group.sphereChain:getPreviousChain():getLastSphereGroup()
+	end
+	return group
+end
+
+
 
 function SphereGroup:getSpherePos(sphereID)
 	return self.sphereChain.path:getPos(self:getSphereOffset(sphereID))
 end
 
+
+
 function SphereGroup:getSphereAngle(sphereID)
 	return self.sphereChain.path:getAngle(self:getSphereOffset(sphereID))
 end
 
+
+
 function SphereGroup:getSphereHidden(sphereID)
 	return self.sphereChain.path:getHidden(self:getSphereOffset(sphereID))
 end
+
+
 
 function SphereGroup:getSphereColor(sphereID)
 	local brightness = self.sphereChain.path:getBrightness(self:getSphereOffset(sphereID))
 	return Color(brightness)
 end
 
+
+
 function SphereGroup:getLastSpherePos()
 	return self:getSpherePos(#self.spheres)
 end
+
+
 
 function SphereGroup:getFrontPos()
 	return self:getLastSphereOffset() + 16
 end
 
+
+
 function SphereGroup:getBackPos()
 	return self:getSphereOffset(1) - 32 * self.spheres[1].size + 16
 end
+
+
 
 function SphereGroup:getSphereInChain(sphereID)
 	-- values out of bounds are possible, it will seek in neighboring spheres then
 	if sphereID < 1 then
 		-- previous group
-		if not self.prevGroup or self.prevGroup.delQueue then return nil end
+		if not self.prevGroup or self.prevGroup.delQueue then
+			return nil
+		end
 		return self.prevGroup:getSphereInChain(sphereID + #self.prevGroup.spheres)
 	elseif sphereID > #self.spheres then
 		-- next group
-		if not self.nextGroup or self.nextGroup.delQueue then return nil end
+		if not self.nextGroup or self.nextGroup.delQueue then
+			return nil
+		end
 		return self.nextGroup:getSphereInChain(sphereID - #self.spheres)
 	else
 		-- this group
@@ -555,12 +995,68 @@ function SphereGroup:getSphereInChain(sphereID)
 	end
 end
 
+
+
 function SphereGroup:hasShotSpheres()
 	for i, sphere in ipairs(self.spheres) do
-		if sphere.size < 1 then return true end
+		if sphere.size < 1 then
+			return true
+		end
 	end
 	return false
 end
+
+
+
+function SphereGroup:hasLossProtectedSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:hasLossProtection() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+function SphereGroup:hasImmobileSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:isImmobile() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+function SphereGroup:hasFragileSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:isFragile() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+function SphereGroup:hasKeepComboSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:canKeepCombo() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+function SphereGroup:isUnfinished()
+	return self.sphereChain.generationAllowed and not self.prevGroup
+end
+
+
 
 
 
@@ -573,6 +1069,8 @@ function SphereGroup:getDebugText()
 	text = text .. "]"
 	return text
 end
+
+
 
 function SphereGroup:getDebugText2()
 	local text = ""
@@ -595,6 +1093,27 @@ end
 
 
 
+
+
+function SphereGroup:getIDs()
+	local g = self
+	local c = g.sphereChain
+	local p = c.path
+	local m = p.map
+
+	local groupID = c:getSphereGroupID(g)
+	local chainID = p:getSphereChainID(c)
+	local pathID = m:getPathID(p)
+
+	return {
+		groupID = groupID,
+		chainID = chainID,
+		pathID = pathID
+	}
+end
+
+
+
 function SphereGroup:serialize()
 	local t = {
 		offset = self.offset,
@@ -607,6 +1126,8 @@ function SphereGroup:serialize()
 	end
 	return t
 end
+
+
 
 function SphereGroup:deserialize(t)
 	self.offset = t.offset
@@ -626,5 +1147,7 @@ function SphereGroup:deserialize(t)
 	end
 	self.matchCheck = t.matchCheck
 end
+
+
 
 return SphereGroup

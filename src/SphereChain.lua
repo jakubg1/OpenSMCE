@@ -1,10 +1,12 @@
 local class = require "com/class"
+
+---@class SphereChain
+---@overload fun(path, deserializationTable):SphereChain
 local SphereChain = class:derive("SphereChain")
 
-local Vec2 = require("src/Essentials/Vector2")
-
 local SphereGroup = require("src/SphereGroup")
-local Sphere = require("src/Sphere")
+
+
 
 function SphereChain:new(path, deserializationTable)
 	self.path = path
@@ -14,36 +16,28 @@ function SphereChain:new(path, deserializationTable)
 		self:deserialize(deserializationTable)
 	else
 		self.combo = 0
+		self.comboScore = 0
 
-		self.slowTime = 0
-		self.stopTime = 0
-		self.reverseTime = 0
+		self.speedOverrideBase = 0
+		self.speedOverrideMult = 1
+		self.speedOverrideDecc = 0
+		self.speedOverrideTime = 0
 
-		--[[ example:
-			how it looks:
-			xoooo     oo ooooo    ooo
+		self.sphereGroups = {}
+		self.generationAllowed = self.path.spawnRules.type == "continuous"
+		self.generationColor = self.path:newSphereColor()
 
-			groups:
-			1: offset=0, spheres=[0,1,3,2,2](len=5)
-			2: offset=160, spheres=[4,1](len=2)
-			3: offset=192, spheres=[3,3,1,3,4](len=5)
-			4: offset=278, spheres=[2,4,1](len=3)
-		--]]
 
-		self.sphereGroups = {
-			SphereGroup(self)
-		}
+		-- Generate the first group.
+		self.sphereGroups[1] = SphereGroup(self)
 
-		-- Pregenerate spheres
-		self.sphereGroups[1].spheres[1] = Sphere(self.sphereGroups[1], nil, 0)
-		local color = self.map.level:newSphereColor()
-		for i = 1, self.map.level.spawnAmount do
-			if math.random() >= self.map.level.colorStreak then color = self.map.level:newSphereColor() end
-			self.sphereGroups[1].spheres[i + 1] = Sphere(self.sphereGroups[1], nil, color)
-			self.sphereGroups[1].spheres[i].nextSphere = self.sphereGroups[1].spheres[i + 1]
-			self.sphereGroups[1].spheres[i + 1].prevSphere = self.sphereGroups[1].spheres[i]
+		-- Pre-generate spheres if the level spawning rules allow doing so.
+		if self.path.spawnRules.type == "waves" then
+			for i = 1, self.path.spawnRules.amount do
+				self:generateSphere()
+			end
+			self:concludeGeneration()
 		end
-		self.sphereGroups[1].offset = -32 * #self.sphereGroups[1].spheres -- 5000
 	end
 
 	self.maxOffset = 0
@@ -51,40 +45,162 @@ function SphereChain:new(path, deserializationTable)
 	self.delQueue = false
 end
 
+
+
 function SphereChain:update(dt)
 	--print(self:getDebugText())
-	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue then sphereGroup:update(dt) end
+
+	-- Deal with chains overlapping.
+	if not self.delQueue then
+		local prevChain = self:getPreviousChain()
+		if prevChain and not prevChain.delQueue then
+			-- Check whether this sphere chain collides with a front one.
+			local dist = prevChain:getLastSphereGroup():getBackPos() - self:getFirstSphereGroup():getFrontPos()
+			if dist < 0 then
+				-- If so, either destroy the scarab or move the frontmost chain.
+				if _Game.configManager.gameplay.sphereBehaviour.invincibleScarabs then
+					prevChain:getLastSphereGroup():move(-dist)
+				else
+					prevChain:join()
+				end
+			end
+		end
 	end
-	if #self.sphereGroups > 0 then self.maxOffset = self.sphereGroups[1]:getLastSphereOffset() end
-	if not self:isMatchPredicted() then self.combo = 0 end
+	
+	-- Update all sphere groups.
+	-- Ultra-Safe Loop (TM)
+	local i = 1
+	while self.sphereGroups[i] do
+		local sphereGroup = self.sphereGroups[i]
+		if not sphereGroup.delQueue then
+			sphereGroup:update(dt)
+		end
+		if self.sphereGroups[i] == sphereGroup then
+			i = i + 1
+		end
+	end
+
+	-- Update max offset.
+	if #self.sphereGroups > 0 then
+		if self.generationAllowed then
+			while self:getLastSphereGroup().offset >= 0 do
+				self:generateSphere()
+			end
+			if self.map.level.targetReached or self.map.level.lost then
+				self:concludeGeneration()
+			end
+		end
+
+		self.maxOffset = self.sphereGroups[1]:getLastSphereOffset()
+	end
+
+	-- Reset combo if necessary.
+	if not self:isMatchPredicted() then
+		self:endCombo()
+	end
+
+	-- Destroy itself if holds only non-generatable spheres.
+	--[[
+	if not self:hasGeneratableSpheres() then
+		for i, sphereGroup in ipairs(self.sphereGroups) do
+			local n = 1
+			-- Avoid the vise. It has its own destruction routine.
+			if i == #self.sphereGroups then
+				n = 2
+			end
+			sphereGroup:destroySpheres(n, #sphereGroup.spheres)
+		end
+	end
+	]]
 end
 
 function SphereChain:move(offset)
 	self.pos = self.pos + offset
-	self.sphereGroups[1]:move(-offset)
+	self:getFirstSphereGroup():move(-offset)
 end
 
 function SphereChain:delete(joins)
 	if self.delQueue then return end
 	self.delQueue = true
+
+	-- Remove itself from their path.
 	table.remove(self.path.sphereChains, self.path:getSphereChainID(self))
 	-- mark the position to where the bonus scarab should arrive
-	if not joins and not self.map.level.lost then self.path.clearOffset = self.maxOffset end
+	if not joins and not self.map.level.lost then
+		self.path.clearOffset = self.maxOffset
+	end
+end
 
-	if joins then _Game:playSound("sound_events/sphere_destroy_vise.json") end
+-- Unloads this chain.
+function SphereChain:destroy()
+	for i, sphereGroup in ipairs(self.sphereGroups) do
+		sphereGroup:destroy()
+	end
+end
+
+function SphereChain:getPreviousChain()
+	return self.path.sphereChains[self.path:getSphereChainID(self) - 1]
+end
+
+function SphereChain:getNextChain()
+	return self.path.sphereChains[self.path:getSphereChainID(self) + 1]
 end
 
 function SphereChain:isMatchPredicted()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres()) then return true end
+		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres() or sphereGroup:hasKeepComboSpheres() or (_Game.configManager.gameplay.sphereBehaviour.luxorized and sphereGroup.speed < 0)) then
+			return true
+		end
 	end
+end
+
+-- FUNCTION UNUSED; DON'T USE
+function SphereChain:hasGeneratableSpheres()
+	-- todo: do something in the menu spheres
+	if not _Game.session or not _Game.session.level then
+		return true
+	end
+	for i, sphereGroup in ipairs(self.sphereGroups) do
+		local remTable = _Game.session.level:getCurrentColorGenerator().colors
+		for j, sphere in ipairs(sphereGroup.spheres) do
+			if _MathIsValueInTable(remTable, sphere.color) then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function SphereChain:isPushingFrontTrain()
+	if self.delQueue then
+		return false
+	end
+	-- The previous chain (in front of this one) must exist.
+	local prevChain = self:getPreviousChain()
+	if prevChain and not prevChain.delQueue then
+		-- Check whether this sphere chain collides with a front one. If so, return true.
+		local dist = prevChain:getLastSphereGroup():getSphereOffset(1) - self.sphereGroups[1]:getLastSphereOffset()
+		return dist <= 32
+	end
+end
+
+function SphereChain:endCombo()
+	if self.combo == 0 and self.comboScore == 0 then
+		return
+	end
+	--_Debug.console:print(self.comboScore)
+	_Game.uiManager:executeCallback({
+		name = "comboEnded",
+		parameters = {self.combo, self.comboScore}
+	})
+	self.combo = 0
+	self.comboScore = 0
 end
 
 function SphereChain:join()
 	-- Joins with the previous group and deletes a vise from this group.
 	local prevChain = self.path.sphereChains[self.path:getSphereChainID(self) + 1]
-	self:getLastSphereGroup():destroySphere(1)
+	self:getLastSphereGroup():destroySphere(1, true)
 	-- update group links
 	self:getLastSphereGroup().prevGroup = prevChain.sphereGroups[1]
 	prevChain.sphereGroups[1].nextGroup = self:getLastSphereGroup()
@@ -98,6 +214,27 @@ function SphereChain:join()
 	-- combine combos
 	prevChain.combo = prevChain.combo + self.combo
 	self:delete(true)
+end
+
+function SphereChain:generateSphere()
+	local group = self:getLastSphereGroup()
+
+	-- Add a new sphere.
+	self:getLastSphereGroup():pushSphereBack(self.generationColor)
+	-- Each sphere: check whether we should generate a fresh new color (chance is colorStreak).
+	if math.random() >= self.path.colorStreak then
+		self.generationColor = self.path:newSphereColor()
+	end
+end
+
+function SphereChain:concludeGeneration()
+	-- Spawns a vise. Now eliminating a chain via removing all spheres contained is allowed.
+	local group = self:getLastSphereGroup()
+
+	-- Spawn a vise.
+	group:pushSphereBack(0)
+
+	self.generationAllowed = false
 end
 
 
@@ -119,6 +256,10 @@ end
 function SphereChain:getSphereGroupID(sphereGroup)
 	for i, sphereGroupT in pairs(self.sphereGroups) do if sphereGroupT == sphereGroup then return i end end
 	return "ERROR"
+end
+
+function SphereChain:getFirstSphereGroup()
+	return self.sphereGroups[1]
 end
 
 function SphereChain:getLastSphereGroup()
@@ -175,23 +316,34 @@ end
 function SphereChain:serialize()
 	local t = {
 		combo = self.combo,
-		slowTime = self.slowTime,
-		stopTime = self.stopTime,
-		reverseTime = self.reverseTime,
-		sphereGroups = {}
+		comboScore = self.comboScore,
+		speedOverrideBase = self.speedOverrideBase,
+		speedOverrideMult = self.speedOverrideMult,
+		speedOverrideDecc = self.speedOverrideDecc,
+		speedOverrideTime = self.speedOverrideTime,
+		sphereGroups = {},
+		generationAllowed = self.generationAllowed,
+		generationColor = self.generationColor
 	}
+
 	for i, sphereGroup in ipairs(self.sphereGroups) do
 		table.insert(t.sphereGroups, sphereGroup:serialize())
 	end
+
 	return t
 end
 
 function SphereChain:deserialize(t)
 	self.combo = t.combo
-	self.slowTime = t.slowTime
-	self.stopTime = t.stopTime
-	self.reverseTime = t.reverseTime
+	self.comboScore = t.comboScore
+	self.speedOverrideBase = t.speedOverrideBase
+	self.speedOverrideMult = t.speedOverrideMult
+	self.speedOverrideDecc = t.speedOverrideDecc
+	self.speedOverrideTime = t.speedOverrideTime
 	self.sphereGroups = {}
+	self.generationAllowed = t.generationAllowed
+	self.generationColor = t.generationColor
+
 	for i, sphereGroup in ipairs(t.sphereGroups) do
 		local s = SphereGroup(self, sphereGroup)
 		-- links are mandatory!!!

@@ -3,17 +3,22 @@
 -- custom error handler
 require("crash")
 
+-- global utility methods
+require("src/strmethods")
+require("src/mathmethods")
+
 local json = require("com/json")
-local strmethods = require("src/strmethods")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
+local Log = require("src/Kernel/Log")
 local Debug = require("src/Kernel/Debug")
 
 local BootScreen = require("src/Kernel/BootScreen")
 local Game = require("src/Game")
 
+local ExpressionVariables = require("src/ExpressionVariables")
 local Settings = require("src/Kernel/Settings")
 
 local DiscordRichPresence = require("src/DiscordRichPresence")
@@ -21,9 +26,11 @@ local DiscordRichPresence = require("src/DiscordRichPresence")
 
 
 -- CONSTANT ZONE
-_VERSION = "v0.41.0"
-_VERSION_NAME = "Beta 4.1.0"
+_VERSION = "v0.46.1"
+_VERSION_NAME = "Beta 4.6.1"
 _DISCORD_APPLICATION_ID = "797956172539887657"
+_BUILD_NUMBER = "unknown"
+_START_TIME = love.timer.getTime()
 
 
 -- TODO: at some point, get rid of this and make it configurable
@@ -38,18 +45,30 @@ _DisplaySize = Vec2(800, 600)
 _DisplayFullscreen = false
 _MousePos = Vec2(0, 0)
 _KeyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
+-- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
+_FSPrefix = ""
 
+---@type Game|BootScreen
 _Game = nil
+
+---@type Log
+_Log = nil
+
+---@type Debug
 _Debug = nil
 
-_VariableSet = {}
+---@type ExpressionVariables
+_Vars = ExpressionVariables()
+
+
 
 _TotalTime = 0
 _TimeScale = 1
 
-
-
+---@type Settings
 _EngineSettings = nil
+
+---@type DiscordRichPresence
 _DiscordRPC = nil
 
 
@@ -64,9 +83,16 @@ function love.load()
 	--local s = loadFile("test.txt")
 	--print(s)
 	--print(jsonBeautify(s))
+
+	-- Initialize RNG for Boot Screen
+	local _ = math.randomseed(os.time())
+
+	-- Initialize some classes
+	_Log = Log()
 	_Debug = Debug()
 	_EngineSettings = Settings("engine/settings.json")
 	_DiscordRPC = DiscordRichPresence()
+	
 	-- Init boot screen
 	_LoadBootScreen()
 end
@@ -77,6 +103,7 @@ function love.update(dt)
 	_MousePos = _PosFromScreen(Vec2(love.mouse.getPosition()))
 	if _Game then _Game:update(dt * _TimeScale) end
 
+	_Log:update(dt)
 	_Debug:update(dt)
 	_DiscordRPC:update(dt)
 
@@ -141,9 +168,10 @@ function love.resize(w, h)
 end
 
 function love.quit()
-	print("[] User-caused Exit... []")
+	_Log:printt("main", "User-caused Exit...")
 	if _Game and _Game.quit then _Game:quit(true) end
 	_DiscordRPC:disconnect()
+	_Log:save(true)
 end
 
 
@@ -182,6 +210,13 @@ end
 
 
 
+---Returns precise time amount since this program has been launched.
+---The output is more precise than the `_TotalTime` field.
+---@return number
+function _GetPreciseTime()
+	return love.timer.getTime() - _START_TIME
+end
+
 function _GetRainbowColor(t)
 	t = t * 3
 	local r = math.min(math.max(2 * (1 - math.abs(t % 3)), 0), 1) + math.min(math.max(2 * (1 - math.abs((t % 3) - 3)), 0), 1)
@@ -197,7 +232,7 @@ end
 function _LoadFile(path)
 	local file = io.open(path, "r")
 	if not file then
-		print("WARNING: File \"" .. path .. "\" does not exist. Expect errors!")
+		_Log:printt("main", "WARNING: File \"" .. path .. "\" does not exist. Expect errors!")
 		return
 	end
 	io.input(file)
@@ -207,7 +242,12 @@ function _LoadFile(path)
 end
 
 function _LoadJson(path)
-	return json.decode(_LoadFile(path))
+	local contents = _LoadFile(path)
+	assert(contents, string.format("Could not JSON-decode: %s, file does not exist", path))
+	local success, data = pcall(function() return json.decode(contents) end)
+	assert(success, string.format("JSON error: %s: %s", path, data))
+	assert(data, string.format("Could not JSON-decode: %s, error in file contents", path))
+	return data
 end
 
 -- This function allows to load images from external sources.
@@ -227,14 +267,14 @@ end
 
 function _LoadImage(path)
 	local imageData = _LoadImageData(path)
-	if not imageData then error("LOAD IMAGE FAIL: " .. path) end
+	assert(imageData, string.format("LOAD IMAGE FAIL: %s", path))
 	local image = love.graphics.newImage(imageData)
 	return image
 end
 
 -- This function allows to load sounds from external sources.
 -- This is an altered code from the above function.
-function _LoadSound(path, type)
+function _LoadSoundData(path)
 	local f = io.open(path, "rb")
 	if f then
 		local data = f:read("*all")
@@ -246,11 +286,51 @@ function _LoadSound(path, type)
 			local extension = t[#t]
 			data = love.filesystem.newFileData(data, "tempname." .. extension)
 			data = love.sound.newSoundData(data)
-			local sound = love.audio.newSource(data, type)
-			return sound
+			return data
 		end
 	end
 end
+
+function _LoadSound(path, type)
+	local soundData = _LoadSoundData(path)
+	assert(soundData, string.format("LOAD SOUND FAIL: %s", path))
+	local sound = love.audio.newSource(soundData, type)
+	return sound
+end
+
+function _LoadSounds(path, type, instanceCount)
+	local soundData = _LoadSoundData(path)
+	assert(soundData, string.format("LOAD SOUND FAIL: %s", path))
+	local sounds = {}
+	for i = 1, instanceCount do
+		table.insert(sounds, love.audio.newSource(soundData, type))
+	end
+	return sounds
+end
+
+-- This function allows to load fonts from external sources.
+-- This is an altered code from the above function.
+function _LoadFontData(path, size)
+	local f = io.open(path, "rb")
+	if f then
+		local data = f:read("*all")
+		f:close()
+		if data then
+			data = love.filesystem.newFileData(data, "tempname")
+			data = love.font.newRasterizer(data, size)
+			return data
+		end
+	end
+end
+
+function _LoadFont(path, size)
+	local fontData = _LoadFontData(path, size)
+	assert(fontData, string.format("LOAD FONT FAIL: %s", path))
+	local font = love.graphics.newFont(fontData)
+	return font
+end
+
+
 
 function _SaveFile(path, data)
 	local file = io.open(path, "w")
@@ -260,7 +340,7 @@ function _SaveFile(path, data)
 end
 
 function _SaveJson(path, data)
-	print("Saving JSON data to " .. path .. "...")
+	_Log:printt("main", "Saving JSON data to " .. path .. "...")
 	_SaveFile(path, _JsonBeautify(json.encode(data)))
 end
 
@@ -273,7 +353,7 @@ function _GetDirListing(path, filter, extFilter, recursive, pathRec)
 	local result = {}
 	-- If it's compiled /fused/, this piece of code is needed to be able to read the external files
 	if love.filesystem.isFused() then
-		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), "")
+		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), _FSPrefix)
 		if not success then
 			local msg = string.format("Failed to read contents of folder: \"%s\". Report this error to a developer.", path)
 			error(msg)
@@ -296,7 +376,7 @@ function _GetDirListing(path, filter, extFilter, recursive, pathRec)
 				end
 			end
 		else
-			if filter == "all" or filter == "file" and (not extFilter or item:sub(item:len() - extFilter:len(), item:len()) == extFilter) then
+			if filter == "all" or filter == "file" and (not extFilter or item:sub(item:len() - extFilter:len() + 1) == extFilter) then
 				table.insert(result, pathRec .. item)
 			end
 		end
@@ -336,7 +416,7 @@ end
 
 function _ParsePath(data, variables)
 	if not data then return nil end
-	return "games/" .. _Game.name .. "/" .. _ParseString(data, variables)
+	return _FSPrefix .. "games/" .. _Game.name .. "/" .. _ParseString(data, variables)
 end
 
 function _ParseNumber(data, variables, properties)
@@ -412,7 +492,7 @@ end
 -- x is t, B is p1 and C is p2.
 function _BzLerp(t, p1, p2)
 	local b = p1 * (3 * t * math.pow(1 - t, 2))
-	local c = p2 * (math.pow(3 * t, 2) * (1 - t))
+	local c = p2 * (3 * math.pow(t, 2) * (1 - t))
 	local d = math.pow(t, 3)
 	return b + c + d
 end

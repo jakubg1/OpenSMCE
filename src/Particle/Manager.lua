@@ -1,9 +1,14 @@
 local class = require "com/class"
+
+---@class ParticleManager
+---@overload fun():ParticleManager
 local ParticleManager = class:derive("ParticleManager")
 
 local ParticlePacket = require("src/Particle/Packet")
 local ParticleSpawner = require("src/Particle/Spawner")
 local ParticlePiece = require("src/Particle/Piece")
+
+
 
 function ParticleManager:new()
 	self.particlePackets = {}
@@ -23,9 +28,9 @@ function ParticleManager:update(dt)
 	end
 end
 
-function ParticleManager:spawnParticlePacket(path, pos)
+function ParticleManager:spawnParticlePacket(path, pos, layer)
 	local data = _Game.resourceManager:getParticle(path)
-	local packet = ParticlePacket(self, data, pos)
+	local packet = ParticlePacket(self, data, pos, layer)
 	table.insert(self.particlePackets, packet)
 	return packet
 end
@@ -93,9 +98,9 @@ end
 
 
 
-function ParticleManager:draw()
+function ParticleManager:draw(layer)
 	for i, particlePiece in ipairs(self.particlePieces) do
-		particlePiece:draw()
+		particlePiece:draw(layer)
 	end
 	if _Debug.particleSpawnersVisible then
 		for i, particlePacket in ipairs(self.particlePackets) do

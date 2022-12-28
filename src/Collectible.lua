@@ -1,44 +1,50 @@
 local class = require "com/class"
+
+---@class Collectible
+---@overload fun(deserializationTable, pos, name):Collectible
 local Collectible = class:derive("Collectible")
 
 local Vec2 = require("src/Essentials/Vector2")
 
-function Collectible:new(deserializationTable, pos, data)
+
+
+---Constructs a new Collectible.
+---@param deserializationTable table? If specified, data from this table will be used to load the entity state.
+---@param pos Vector2 The starting position of this Collectible.
+---@param name string The collectible ID.
+function Collectible:new(deserializationTable, pos, name)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
-		self.data = data
+		self.name = name
 		self.pos = pos
 		local beh = _Game.configManager.gameplay.collectibleBehaviour
 		self.speed = _ParseVec2(beh.speed)
 		self.acceleration = _ParseVec2(beh.acceleration)
 	end
 
-	self.powerupConfig = nil
+	self.config = _Game.configManager.collectibles[self.name]
+	assert(self.config, string.format("Unknown powerup: \"%s\"", self.name))
 
-	local particleName = nil
-	self.soundEventName = nil
-	if self.data.type == "powerup" then
-		self.powerupConfig = _Game.configManager.powerups[self.data.name]
-		particleName = self.powerupConfig.particle
-		self.soundEventName = self.powerupConfig.pickupSound
-	elseif self.data.type == "gem" then
-		particleName = "particles/gem_" .. tostring(self.data.color) .. ".json"
-		self.soundEventName = "sound_events/collectible_catch_gem.json"
-	elseif self.data.type == "coin" then
-		particleName = "particles/powerup_coin.json"
-		self.soundEventName = "sound_events/collectible_catch_coin.json"
-	end
-	self.particle = _Game:spawnParticle(particleName, self.pos)
+	_Game:playSound(self.config.spawnSound, 1, self.pos)
+	self.particle = _Game:spawnParticle(self.config.particle, self.pos)
+
+	self.delQueue = false
 end
 
+
+
+---Updates this Collectible.
+---@param dt number The delta time in seconds.
 function Collectible:update(dt)
 	-- speed and position
 	self.speed = self.speed + self.acceleration * dt
 	self.pos = self.pos + self.speed * dt
 
 	-- catching/bouncing/destroying
-	if _Game.session.level.shooter:catchablePos(self.pos) then self:catch() end
+	if _Game.session.level.shooter:isPosCatchable(self.pos) or (_Game.session.level.netTime > 0 and self.pos.y >= 550) then
+		self:catch()
+	end
 	if self.pos.x < 10 then -- left
 		self.pos.x = 10
 		self.speed.x = -self.speed.x
@@ -50,71 +56,79 @@ function Collectible:update(dt)
 		self.speed.y = -self.speed.y
 	elseif self.pos.y > _NATIVE_RESOLUTION.y + 20 then -- down - uncatched, falls down
 		self:destroy()
+		if self.config.dropEffects then
+			for i, effect in ipairs(self.config.dropEffects) do
+				_Game.session.level:applyEffect(effect, self.pos)
+			end
+		end
 	end
 
 	-- sprite
 	self.particle.pos = self.pos
 end
 
+
+
+---Destroys this Collectible and activates its effects.
 function Collectible:catch()
 	self:destroy()
-	if self.data.type == "powerup" then
-		for i, effect in ipairs(self.powerupConfig.effects) do
-			_Game.session.level:applyEffect(effect)
-		end
-	end
-	_Game:playSound(self.soundEventName, 1, self.pos)
 
-	local score = 0
-	if self.data.type == "coin" then
-		score = 250
-		_Game.session.level:grantCoin()
-	elseif self.data.type == "gem" then
-		score = self.data.color * 1000
-		_Game.session.level:grantGem(self.data.color)
-	end
-	if score > 0 then
-		_Game.session.level:grantScore(score)
-		_Game.session.level:spawnFloatingText(_NumStr(score), self.pos, "fonts/score0.json")
-	end
-	if self.data.type == "powerup" then
-		local font = self.powerupConfig.pickupFont
-		if self.powerupConfig.colored then
-			font = _Game.configManager.spheres[self.data.color].matchFont
+	if self.config.effects then
+		for i, effect in ipairs(self.config.effects) do
+			_Game.session.level:applyEffect(effect, self.pos)
 		end
-		_Game.session.level:spawnFloatingText(self.powerupConfig.pickupName, self.pos, font)
 	end
-	_Game:spawnParticle("particles/powerup_catch.json", self.pos)
+
+	_Game:playSound(self.config.pickupSound, 1, self.pos)
+	_Game:spawnParticle(self.config.pickupParticle, self.pos)
+	if self.config.pickupName then
+		_Game.session.level:spawnFloatingText(self.config.pickupName, self.pos, self.config.pickupFont)
+	end
 end
 
+
+
+---Removes this Collectible from the level.
 function Collectible:destroy()
-	if self._delQueue then return end
-	self._list:destroy(self)
+	if self.delQueue then
+		return
+	end
+	self.delQueue = true
 	self.particle:destroy()
 end
 
 
 
+---Why did I keep this function?
+---Oh and by the way, Collectibles are drawn by ParticleManagers. Quirky, huh?
 function Collectible:draw()
-
+	-- *crickets*
 end
 
 
 
+---Serializes the Collectible's internal data for saving.
+---@return table
 function Collectible:serialize()
 	return {
-		data = self.data,
+		name = self.name,
 		pos = {x = self.pos.x, y = self.pos.y},
 		speed = {x = self.speed.x, y = self.speed.y},
 		acceleration = {x = self.acceleration.x, y = self.acceleration.y}
 	}
 end
 
+
+
+---Deserializes the Collectible's data, or in other words restores previously saved state.
+---@param t table The data to be deserialized.
 function Collectible:deserialize(t)
-	self.data = t.data
+	self.name = t.name
 	self.pos = Vec2(t.pos.x, t.pos.y)
 	self.speed = Vec2(t.speed.x, t.speed.y)
 	self.acceleration = Vec2(t.acceleration.x, t.acceleration.y)
 end
+
+
 
 return Collectible

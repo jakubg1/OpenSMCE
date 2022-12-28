@@ -1,12 +1,17 @@
 local class = require "com/class"
-local Debug = class:derive("Debug")
 
-local strmethods = require("src/strmethods")
+---@class Debug
+---@overload fun():Debug
+local Debug = class:derive("Debug")
 
 local Vec2 = require("src/Essentials/Vector2")
 
 local Profiler = require("src/Kernel/Profiler")
 local Console = require("src/Kernel/Console")
+
+local Expression = require("src/Expression")
+
+
 
 function Debug:new()
 	self.console = Console()
@@ -159,22 +164,33 @@ function Debug:getDebugParticle()
 	return s
 end
 
-function Debug:getDebugLevel()
+function Debug:getDebugProfile()
+	local profile = _Game:getCurrentProfile()
 	local s = ""
 
-	s = s .. "LevelNumber = " .. tostring(_Game:getCurrentProfile().session.level) .. "\n"
-	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
-	s = s .. "LevelProgress = " .. tostring(_Game.session.level.destroyedSpheres) .. "/" .. tostring(_Game.session.level.target) .. "\n"
-	local levelData = _Game:getCurrentProfile():getCurrentLevelData()
+	s = s .. "LevelNumber = " .. profile:getLevelStr() .. "\n"
+	s = s .. "LevelID = " .. profile:getLevelIDStr() .. "\n"
+	s = s .. "LatestCheckpoint = " .. tostring(profile:getLatestCheckpoint()) .. "\n"
+	s = s .. "CheckpointUpcoming = " .. tostring(profile:isCheckpointUpcoming()) .. "\n"
+	local levelData = profile:getCurrentLevelData()
 	if levelData then
 		s = s .. "LevelRecord = " .. tostring(levelData.score) .. "\n"
 		s = s .. "Won = " .. tostring(levelData.won) .. "\n"
 		s = s .. "Lost = " .. tostring(levelData.lost) .. "\n"
 	end
+
+	return s
+end
+
+function Debug:getDebugLevel()
+	local s = ""
+
+	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
+	s = s .. "LevelProgress = " .. tostring(_Game.session.level.destroyedSpheres) .. "/" .. tostring(_Game.session.level.target) .. "\n"
 	s = s .. "\n"
-	s = s .. "Collectible# = " .. tostring(_Game.session.level.collectibles:size()) .. "\n"
-	s = s .. "FloatingText# = " .. tostring(_Game.session.level.floatingTexts:size()) .. "\n"
-	s = s .. "ShotSphere# = " .. tostring(_Game.session.level.shotSpheres:size()) .. "\n"
+	s = s .. "Collectible# = " .. tostring(#_Game.session.level.collectibles) .. "\n"
+	s = s .. "FloatingText# = " .. tostring(#_Game.session.level.floatingTexts) .. "\n"
+	s = s .. "ShotSphere# = " .. tostring(#_Game.session.level.shotSpheres) .. "\n"
 
 	return s
 end
@@ -205,6 +221,10 @@ function Debug:getDebugInfo()
 	s = s .. "\n===== COLOR MANAGER =====\n"
 	if _Game:sessionExists() then
 		s = s .. _Game.session.colorManager:getDebugText()
+	end
+	s = s .. "\n===== PROFILE =====\n"
+	if _Game:getCurrentProfile() then
+		s = s .. self:getDebugProfile()
 	end
 	s = s .. "\n===== LEVEL =====\n"
 	if _Game:levelExists() then
@@ -240,15 +260,18 @@ end
 function Debug:drawVisibleText(text, pos, height, width, alpha)
 	alpha = alpha or 1
 
-	local t = love.graphics.newText(love.graphics.getFont(), text)
+	if text == "" then
+		return
+	end
+
 	love.graphics.setColor(0, 0, 0, 0.7 * alpha)
 	if width then
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
 	else
-		love.graphics.rectangle("fill", pos.x - 3, pos.y, t:getWidth() + 6, height)
+		love.graphics.rectangle("fill", pos.x - 3, pos.y, love.graphics.getFont():getWidth(_StrUnformat(text)) + 6, height)
 	end
 	love.graphics.setColor(1, 1, 1, alpha)
-	love.graphics.draw(t, pos.x, pos.y)
+	love.graphics.print(text, pos.x, pos.y)
 end
 
 function Debug:drawDebugInfo()
@@ -283,7 +306,7 @@ function Debug:drawSphereInfo()
 	local m = 0
 
 	if _Game:levelExists() then
-		for i, path in ipairs(_Game.session.level.map.paths.objects) do
+		for i, path in ipairs(_Game.session.level.map.paths) do
 			love.graphics.setColor(1, 1, 1)
 			love.graphics.print("Path " .. tostring(i), p.x + 10, p.y + 10 + n)
 			n = n + 25
@@ -309,6 +332,13 @@ function Debug:drawSphereInfo()
 
 					m = m + 100
 				end
+				if j > 1 then
+					local a = sphereChain:getPreviousChain():getLastSphereGroup():getBackPos()
+					local b = sphereChain:getFirstSphereGroup():getFrontPos()
+					love.graphics.setColor(1, 1, 1)
+					love.graphics.print(tostring(math.floor(a - b)) .. "px", p.x + 20, p.y + n)
+				end
+
 				n = n + 25
 			end
 		end
@@ -381,22 +411,38 @@ function Debug:runCommand(command)
 		_Game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
 		return true
 	elseif words[1] == "crash" then
-		local witties = {
-			"Aw, that hurt!",
-			"Please stop doing that to me!",
-			"GET REKT",
-			"Was this a joke?",
-			"Ah shit, here we go again.",
-			"This is not funny!",
-			"WELL DONE!",
-			"If you fire a crash report now, I'm gonna be mad at you.",
-			">:C",
-			"Y-YAMETE KUDASAI!!~",
-			"Don’t you have anything better to do?",
-			"Game Over on hR 13-13 moment"
-		}
-		local witty = math.random(1, #witties)
-		error("Crashed manually. " .. witties[witty])
+		local s, witty = pcall(self.getWitty)
+		if not s or not witty then
+			witty = "I give up, no idea for the joke! Eh, I'll... just head out then. Cya!"
+		end
+		error(string.format("Manual crash [%s]", witty))
+	elseif words[1] == "expr" then
+		local result = _Vars:evaluateExpression(words[2])
+		self.console:print(string.format("expr(%s): %s", words[2], result))
+		return true
+	elseif words[1] == "exprt" then
+		local ce = Expression(words[2])
+		for i, step in ipairs(ce.data) do
+			_Log:printt("Debug", string.format("%s   %s", step.type, step.value))
+		end
+		self.console:print(string.format("exprt(%s): %s", words[2], ce:getDebug()))
+		return true
+	elseif words[1] == "ex" then
+		local ce = Expression("2")
+		self.console:print(string.format("ex(%s):", words[2]))
+		local tokens = ce:tokenize(words[2])
+		for i, token in ipairs(tokens) do
+			self.console:print(string.format("%s   %s", token.value, token.type))
+		end
+		self.console:print("")
+		self.console:print("")
+		self.console:print("Compilation result:")
+		ce.data = ce:compile(tokens)
+		for i, step in ipairs(ce.data) do
+			self.console:print(string.format("%s   %s", step.type, step.value))
+		end
+		self.console:print(string.format("ex(%s): %s", words[2], ce:evaluate()))
+		return true
 	end
 
 	return false
@@ -440,6 +486,13 @@ end
 
 function Debug:profDrawLevelStop()
 	self.profDrawLevel:stop()
+end
+
+
+
+function Debug:getWitty()
+	local witties = _StrSplit(_LoadFile("assets/eggs_crash.txt"), "\n")
+	return witties[math.random(1, #witties)]
 end
 
 

@@ -1,7 +1,13 @@
 local class = require "com/class"
+
+---@class Console
+---@overload fun():Console
 local Console = class:derive("Console")
 
+local utf8 = require("utf8")
 local Vec2 = require("src/Essentials/Vector2")
+
+
 
 function Console:new()
 	self.history = {}
@@ -34,16 +40,11 @@ function Console:update(dt)
 end
 
 function Console:print(message)
-	table.insert(self.history, {text = message, time = _TotalTime})
-	local logText = "[CONSOLE] "
-	if type(message) == "table" then
-		for i = 1, #message / 2 do
-			logText = logText .. message[i * 2]
-		end
-	else
-		logText = logText .. message
+	if type(message) ~= "string" and type(message) ~= "table" then
+		message = tostring(message)
 	end
-	print(logText)
+	table.insert(self.history, {text = message, time = _TotalTime})
+	_Log:printt("CONSOLE", _StrUnformat(message))
 end
 
 function Console:setOpen(open)
@@ -121,7 +122,10 @@ end
 
 function Console:inputBackspace()
 	if not self.active then return end
-	self.command = self.command:sub(1, -2)
+	local offset = utf8.offset(self.command, -1)
+	if offset then
+		self.command = self.command:sub(1, offset - 1)
+	end
 end
 
 function Console:inputEnter()

@@ -8,6 +8,9 @@
 
 -- Class identification
 local class = require "com/class"
+
+---@class Session
+---@overload fun(path, deserializationTable):Session
 local Session = class:derive("Session")
 
 -- Include commons
@@ -19,8 +22,7 @@ local ColorManager = require("src/ColorManager")
 
 
 
---- Object constructor.
--- A callback executed when this object is created.
+---Constructs a new Session.
 function Session:new()
 	self.level = nil
 	self.colorManager = ColorManager()
@@ -28,25 +30,24 @@ end
 
 
 
---- An initialization callback.
+---An initialization callback.
 function Session:init()
 	_Game.uiManager:executeCallback("sessionInit")
 end
 
 
 
---- An update callback.
--- @tparam number dt Delta time in seconds.
+---Updates the Session.
+---@param dt number Delta time in seconds.
 function Session:update(dt)
 	if self.level then self.level:update(dt) end
 end
 
 
 
---- Initializes a new level.
--- The level number is derived from the current Profile.
+---Starts a new Level from the current Profile, or loads one in progress if it has one.
 function Session:startLevel()
-	self.level = Level(_Game:getCurrentProfile():getCurrentLevelConfig())
+	self.level = Level(_Game:getCurrentProfile():getLevelData())
 	local savedLevelData = _Game:getCurrentProfile():getSavedLevel()
 	if savedLevelData then
 		self.level:deserialize(savedLevelData)
@@ -56,28 +57,30 @@ function Session:startLevel()
 	end
 end
 
+
+
+---Destroys the level along with its save data.
 function Session:levelEnd()
 	self.level:unsave()
 	self.level:destroy()
 	self.level = nil
 end
 
+---Destroys the level and marks it as won.
 function Session:levelWin()
 	self.level:win()
 	self.level:destroy()
 	self.level = nil
 end
 
+---Destroys this level and saves it for the future.
 function Session:levelSave()
 	self.level:save()
 	self.level:destroy()
 	self.level = nil
 end
 
-
-
---- Triggers a Game Over.
--- Deinitializates the level and shows an appropriate widget.
+---Destroys this level and triggers a `gameOver` callback in the UI script.
 function Session:terminate()
 	self.level = nil
 	_Game.uiManager:executeCallback("gameOver")
@@ -85,17 +88,19 @@ end
 
 
 
---- A drawing callback.
+---Draws itself... It's actually just the level, from which all its components are drawn.
 function Session:draw()
-	if self.level then self.level:draw() end
+	if self.level then
+		self.level:draw()
+	end
 end
 
 
 
---- Returns whether both provided colors can attract or make valid scoring combinations with each other.
--- @tparam number color1 The first color to check.
--- @tparam number color2 The second color to check.
--- @treturn boolean Whether the check has passed.
+---Returns whether both provided colors can attract or make valid scoring combinations with each other.
+---@param color1 integer The first color to be checked against.
+---@param color2 integer The second color to be checked against.
+---@return boolean
 function Session:colorsMatch(color1, color2)
 	local matches = _Game.configManager.spheres[color1].matches
 	for i, v in ipairs(matches) do
@@ -106,14 +111,16 @@ end
 
 
 
---- Destroys all spheres on the board if a call of the function f(sphere, spherePos) returns true.
--- @tparam function t The function that has to return true in order for a given sphere to be deleted.
--- @tparam Vector2 scorePos A position where the score text should be located.
+---Destroys these spheres, for which the provided function returns `true`. Each sphere is checked separately.
+---The playes is also given 100 points for each destroyed sphere.
+---@param f function The function to be run for each sphere. Two parameters are allowed: `sphere` (Sphere) and `spherePos` (Vector2). If the function returns `true`, the sphere is destroyed.
+---@param scorePos Vector2 The location of the floating text indicator showing how much score the player has gained.
+---@param scoreFont string? The font to be used in the score text.
 function Session:destroyFunction(f, scorePos, scoreFont)
 	-- we pass a function in the f variable
 	-- if f(param1, param2, ...) returns true, the sphere is nuked
 	local score = 0
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j = #path.sphereChains, 1, -1 do
 			local sphereChain = path.sphereChains[j]
 			for k = #sphereChain.sphereGroups, 1, -1 do
@@ -135,13 +142,14 @@ end
 
 
 
---- Changes all sphere colors on the board if a call of the function f(sphere, spherePos) returns true.
--- @tparam function t The function that has to return true in order for a given sphere's color to be changed.
--- @tparam number color A color to which the given spheres will be painted.
+---Changes colors of these spheres, for which the provided function returns `true`, to a given color. Each sphere is checked separately.
+---@param f function The function to be run for each sphere. Two parameters are allowed: `sphere` (Sphere) and `spherePos` (Vector2). If the function returns `true`, the sphere is affected by this function.
+---@param color integer The new color of affected spheres.
+---@param particle table? The particle effect to be used for each affected sphere.
 function Session:setColorFunction(f, color, particle)
 	-- we pass a function in the f variable
 	-- if f(param1, param2, ...) returns true, the sphere color is changed
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j = #path.sphereChains, 1, -1 do
 			local sphereChain = path.sphereChains[j]
 			for k = #sphereChain.sphereGroups, 1, -1 do
@@ -160,7 +168,7 @@ end
 
 
 
---- Destroys all spheres on the board.
+---Destroys all spheres on the board.
 function Session:destroyAllSpheres()
 	self:destroyFunction(
 		function(sphere, spherePos) return true end,
@@ -170,6 +178,8 @@ end
 
 
 
+---Destroys a single sphere from the board.
+---@param s Sphere The sphere to be destroyed.
 function Session:destroySingleSphere(s)
 	self:destroyFunction(
 		function(sphere, spherePos) return sphere == s end,
@@ -179,8 +189,8 @@ end
 
 
 
---- Destroys all spheres on the board if they are a given color.
--- @tparam number color The sphere color to be deleted.
+---Destroys all spheres of a given color.
+---@param color integer The sphere color to be removed.
 function Session:destroyColor(color)
 	self:destroyFunction(
 		function(sphere, spherePos) return sphere.color == color end,
@@ -190,9 +200,9 @@ end
 
 
 
---- Destroys all spheres that are closer than radius pixels to the pos position.
--- @tparam Vector2 pos A position relative to which the spheres will be destroyed.
--- @tparam number radius The range in pixels.
+---Destroys all spheres that are closer than `radius` pixels to the `pos` position.
+---@param pos Vector2 A position relative to which the spheres will be destroyed.
+---@param radius number The range in pixels.
 function Session:destroyRadius(pos, radius)
 	self:destroyFunction(
 		function(sphere, spherePos) return (pos - spherePos):len() <= radius end,
@@ -202,9 +212,9 @@ end
 
 
 
---- Destroys all spheres that are closer than width pixels to the x position on X coordinate.
--- @tparam number x An X coordinate relative to which the spheres will be destroyed.
--- @tparam number width The range in pixels.
+---Destroys all spheres that are closer than `width` pixels to the `x` position on the X coordinate.
+---@param x number An X coordinate relative to which the spheres will be destroyed.
+---@param width number The range in pixels.
 function Session:destroyVertical(x, width)
 	self:destroyFunction(
 		function(sphere, spherePos) return math.abs(x - spherePos.x) <= width / 2 end,
@@ -214,10 +224,10 @@ end
 
 
 
---- Destroys all spheres that are closer than radius pixels to the pos position.
--- @tparam Vector2 pos A position relative to which the spheres will be destroyed.
--- @tparam number radius The range in pixels.
--- @tparam number color A color that any sphere must be matching with in order to destroy it.
+---Destroys all spheres that are closer than `radius` pixels to the `pos` position and match with a given color.
+---@param pos Vector2 A position relative to which the spheres will be destroyed.
+---@param radius number The range in pixels.
+---@param color integer A color that any sphere must be matching with in order to destroy it.
 function Session:destroyRadiusColor(pos, radius, color)
 	self:destroyFunction(
 		function(sphere, spherePos) return (pos - spherePos):len() <= radius and self:colorsMatch(color, sphere.color) end,
@@ -227,10 +237,10 @@ end
 
 
 
---- Destroys all spheres that are closer than width pixels to the x position on X coordinate.
--- @tparam number x An X coordinate relative to which the spheres will be destroyed.
--- @tparam number width The range in pixels.
--- @tparam number color A color that any sphere must be matching with in order to destroy it.
+---Destroys all spheres that are closer than `width` pixels to the `x` position on the X coordinate and match with a given color.
+---@param x number An X coordinate relative to which the spheres will be destroyed.
+---@param width number The range in pixels.
+---@param color integer A color that any sphere must be matching with in order to destroy it.
 function Session:destroyVerticalColor(x, width, color)
 	self:destroyFunction(
 		function(sphere, spherePos) return math.abs(x - spherePos.x) <= width / 2 and self:colorsMatch(color, sphere.color) end,
@@ -238,6 +248,12 @@ function Session:destroyVerticalColor(x, width, color)
 	)
 end
 
+
+
+---Replaces the color of all spheres of a given color with another color.
+---@param color1 integer The color to be changed from.
+---@param color2 integer The new color of the affected spheres.
+---@param particle table? A one-time particle packet to be used for each affected sphere.
 function Session:replaceColor(color1, color2, particle)
 	self:setColorFunction(
 		function(sphere, spherePos) return sphere.color == color1 end,
@@ -245,6 +261,13 @@ function Session:replaceColor(color1, color2, particle)
 	)
 end
 
+
+
+---Replaces the color of all spheres within a given radius with another color, provided they match with a given sphere.
+---@param pos Vector2 A position relative to which the spheres will be affected.
+---@param radius number The range in pixels.
+---@param color integer A color that any sphere must be matching with in order to destroy it.
+---@param color2 integer A target color.
 function Session:replaceColorRadiusColor(pos, radius, color, color2)
 	self:setColorFunction(
 		function(sphere, spherePos) return (pos - spherePos):len() <= radius and self:colorsMatch(color, sphere.color) end,
@@ -252,9 +275,14 @@ function Session:replaceColorRadiusColor(pos, radius, color, color2)
 	)
 end
 
+
+
+---Returns the lowest length out of all sphere groups of a single color on the screen.
+---This function ignores spheres that are offscreen.
+---@return integer
 function Session:getLowestMatchLength()
 	local lowest = nil
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -272,10 +300,16 @@ function Session:getLowestMatchLength()
 	return lowest
 end
 
+
+
+---Returns a list of spheres which can be destroyed by Lightning Storm the next time it decides to impale a sphere.
+---@param matchLength integer? The exact length of a single-color group which will be targeted.
+---@param encourageMatches boolean? If `true`, the function will prioritize groups which have the same color on either end.
+---@return table
 function Session:getSpheresWithMatchLength(matchLength, encourageMatches)
 	if not matchLength then return {} end
 	local spheres = {}
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -299,9 +333,24 @@ function Session:getSpheresWithMatchLength(matchLength, encourageMatches)
 	return spheres
 end
 
+
+
+---Returns the nearest sphere to the given position along with some extra data.
+---The returned table has the following fields:
+---
+--- - `path` (Path),
+--- - `sphereChain` (SphereChain),
+--- - `sphereGroup` (SphereGroup),
+--- - `sphere` (Sphere),
+--- - `sphereID` (integer) - the sphere ID in the group,
+--- - `pos` (Vector2) - the position of this sphere,
+--- - `dist` (number) - the distance to this sphere,
+--- - `half` (boolean) - if `true`, this is a half pointing to the end of the path, `false` if to the beginning of said path.
+---@param pos Vector2 The position to be checked against.
+---@return table
 function Session:getNearestSphere(pos)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, half = nil}
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -332,9 +381,26 @@ function Session:getNearestSphere(pos)
 	return nearestData
 end
 
-function Session:getNearestSphereY(pos)
+
+
+---Returns the first sphere to collide with a provided line of sight along with some extra data.
+---The returned table has the following fields:
+---
+--- - `path` (Path),
+--- - `sphereChain` (SphereChain),
+--- - `sphereGroup` (SphereGroup),
+--- - `sphere` (Sphere),
+--- - `sphereID` (integer) - the sphere ID in the group,
+--- - `pos` (Vector2) - the position of this sphere,
+--- - `dist` (number) - the distance to this sphere,
+--- - `targetPos` (Vector2) - the collision position (used for i.e. drawing the reticle),
+--- - `half` (boolean) - if `true`, this is a half pointing to the end of the path, `false` if to the beginning of said path.
+---@param pos Vector2 The starting position of the line of sight.
+---@param angle number The angle of the line. 0 is up.
+---@return table
+function Session:getNearestSphereOnLine(pos, angle)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, targetPos = nil, half = nil}
-	for i, path in ipairs(self.level.map.paths.objects) do
+	for i, path in ipairs(self.level.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
@@ -342,8 +408,11 @@ function Session:getNearestSphereY(pos)
 					local sphereAngle = sphereGroup:getSphereAngle(l)
 					local sphereHidden = sphereGroup:getSphereHidden(l)
 
-					local sphereTargetY = spherePos.y + math.sqrt(math.pow(16 --[[half of sphere size // note for placing constant here]], 2) - math.pow(pos.x - spherePos.x, 2))
-					local sphereDist = Vec2(pos.x - spherePos.x, pos.y - sphereTargetY)
+					-- 16 is half of the sphere size
+					local sphereTargetCPos = (spherePos - pos):rotate(-angle) + pos
+					local sphereTargetY = sphereTargetCPos.y + math.sqrt(math.pow(16, 2) - math.pow(pos.x - sphereTargetCPos.x, 2))
+					local sphereTargetPos = (Vec2(pos.x, sphereTargetY) - pos):rotate(angle) + pos
+					local sphereDist = Vec2(pos.x - sphereTargetCPos.x, pos.y - sphereTargetY)
 
 					local sphereDistAngle = (pos - spherePos):angle()
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
@@ -357,7 +426,7 @@ function Session:getNearestSphereY(pos)
 						nearestData.sphere = sphere
 						nearestData.pos = spherePos
 						nearestData.dist = sphereDist
-						nearestData.targetPos = Vec2(pos.x, sphereTargetY)
+						nearestData.targetPos = sphereTargetPos
 						nearestData.half = sphereHalf
 					end
 				end

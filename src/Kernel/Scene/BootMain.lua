@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class BootMain
+---@overload fun(bootScreen):BootMain
 local BootMain = class:derive("BootMain")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -7,7 +10,7 @@ local Button = require("src/Kernel/UI/Button")
 
 
 function BootMain:new(bootScreen)
-  self.bootScreen = bootScreen
+  	self.bootScreen = bootScreen
 
 	-- prepare fonts of various sizes
 	self.font = love.graphics.newFont()
@@ -21,24 +24,43 @@ function BootMain:new(bootScreen)
 
 	-- game list
 	self.gameButtons = {}
+	self.gameButtonsOffset = 0
 	self.selectedGame = nil
 
 	-- buttons
-  self.loadGameBtn = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end)
-  self.convertGameBtn = Button("Convert!", self.fontBig, Vec2(544, 448), Vec2(222, 24), function() self:convertSelectedGame() end)
-	self.settingsBtn = Button("Engine Settings", self.fontBig, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end)
-	self.quitBtn = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
+	self.buttons = {
+		pagePrev = Button("<", self.fontBig, Vec2(404, 266), Vec2(24, 28), function() self:prevPage() end),
+		pageNext = Button(">", self.fontBig, Vec2(492, 266), Vec2(24, 28), function() self:nextPage() end),
+		loadGame = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end),
+		convertGame = Button("Convert!", self.fontBig, Vec2(544, 448), Vec2(222, 24), function() self:convertSelectedGame() end),
+		settings = Button("Engine Settings", self.fontBig, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end),
+		quit = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
+	}
 end
 
 
 
 function BootMain:init()
 	-- set buttons up
-	for i, game in ipairs(self.bootScreen.games) do
-		table.insert(self.gameButtons, Button(game.name, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(i) end))
+	self:initGameButtons()
+	self.buttons.loadGame.visible = false
+	self.buttons.convertGame.visible = false
+end
+
+
+
+function BootMain:initGameButtons()
+	self.gameButtons = {}
+	for i = 1, 8 do
+		local id = i + self.gameButtonsOffset * 8
+		local game = self.bootScreen.games[id]
+		if not game then
+			break
+		end
+		local button = Button(game.name, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(id) end)
+		button.selected = self.selectedGame == id
+		table.insert(self.gameButtons, button)
 	end
-	self.loadGameBtn.visible = false
-	self.convertGameBtn.visible = false
 end
 
 
@@ -48,10 +70,9 @@ function BootMain:update(dt)
 	for i, gameButton in ipairs(self.gameButtons) do
 		gameButton:update(dt)
 	end
-	self.loadGameBtn:update(dt)
-	self.convertGameBtn:update(dt)
-	self.settingsBtn:update(dt)
-	self.quitBtn:update(dt)
+	for i, button in pairs(self.buttons) do
+		button:update(dt)
+	end
 
 	-- URL hover
 	self.urlHovered = _MousePos.x > self.urlHoverPos.x and
@@ -62,13 +83,33 @@ end
 
 
 
+function BootMain:nextPage()
+	if self.gameButtonsOffset == self:getPageCount() - 1 then
+		return
+	end
+	self.gameButtonsOffset = self.gameButtonsOffset + 1
+	self:initGameButtons()
+end
+
+function BootMain:prevPage()
+	if self.gameButtonsOffset == 0 then
+		return
+	end
+	self.gameButtonsOffset = self.gameButtonsOffset - 1
+	self:initGameButtons()
+end
+
+function BootMain:getPageCount()
+	return math.ceil(#self.bootScreen.games / 8)
+end
+
+
+
 function BootMain:selectGame(id)
 	self.selectedGame = id
-	self.loadGameBtn.visible = self:getSelectedGameVersionStatus() ~= 3
-	self.convertGameBtn.visible = self:getSelectedGameVersionStatus() == 0
-	for i, button in ipairs(self.gameButtons) do
-		button.selected = i == id
-	end
+	self.buttons.loadGame.visible = self:getSelectedGameVersionStatus() ~= 3
+	self.buttons.convertGame.visible = self:getSelectedGameVersionStatus() == 0
+	self:initGameButtons()
 end
 
 
@@ -78,7 +119,8 @@ function BootMain:getSelectedGameName()
 end
 
 function BootMain:getSelectedGameVersion()
-  return self.bootScreen.games[self.selectedGame].config.engineVersion
+	local c = self.bootScreen.games[self.selectedGame].config
+  return c.engine_version or c.engineVersion
 end
 
 function BootMain:getSelectedGameVersionStatus()
@@ -104,19 +146,24 @@ function BootMain:draw()
 	-- HEADER
 	-----------------------------
 	love.graphics.setFont(self.fontBig)
-	love.graphics.print("OpenSMCE Boot Menu", 30, 30)
-	love.graphics.print(string.format("Version: %s (%s)", _VERSION_NAME, _VERSION), 520, 30)
+	love.graphics.print("OpenSMCE Boot Menu", 30, 25)
+	local s = string.format("Version: %s (%s)", _VERSION_NAME, _VERSION)
+	love.graphics.print(s, 770 - self.fontBig:getWidth(s), 25)
+	s = string.format("Build %s", _BUILD_NUMBER)
+	love.graphics.setFont(self.font)
+	love.graphics.print(s, 770 - self.font:getWidth(s), 44)
 
 	-----------------------------
 	-- NOTES
 	-----------------------------
 	-- Warning text
 	love.graphics.setColor(1, 0.2, 0.2)
+	love.graphics.setFont(self.fontBig)
 	love.graphics.print("WARNING", 45, 75)
 	-- Warning contents
 	love.graphics.setColor(1, 1, 0.2)
 	love.graphics.setFont(self.font)
-	love.graphics.print("This engine is in BETA DEVELOPMENT.\nExpect that it will be full of bugs. This version is dedicated to people who want to test the engine and examine it.\nThis version should NOT be treated like a full version.\nRemember to post issues and feature suggestions at the following Github repository link.", 45, 100)
+	love.graphics.print("This engine is in BETA DEVELOPMENT.\nThis version is dedicated to people who want to test the engine and examine it.\nThis version should not be treated like a full version yet, as the inner workings still may change heavily!\nRemember to post issues and feature suggestions at the following Github repository link.\nThank you for your support!", 45, 100)
 	-- Github link
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.fontBig)
@@ -128,6 +175,7 @@ function BootMain:draw()
 	-- GAME LIST
 	-----------------------------
 	love.graphics.print("Game List", 30, 270)
+	love.graphics.print(string.format("%s / %s", self.gameButtonsOffset + 1, self:getPageCount()), 436, 270)
 	for i, gameButton in ipairs(self.gameButtons) do
 		gameButton:draw()
 	end
@@ -164,11 +212,9 @@ function BootMain:draw()
       love.graphics.print("This game is intended to work with\na newer version of the engine!", 544, 338)
     elseif versionStatus == 3 then
 			love.graphics.setColor(1, 0, 0)
-      love.graphics.print("You have a too new engine version!\nYou can't convert this game to the\nnew version!\n\nUse the previous version of the engine\nin order to play this game.", 544, 338)
+      love.graphics.print("You have a too new engine version!\nYou can't convert this game to\nthis version!\n\nUse an older version of this engine\nin order to play this game.", 544, 338)
 		end
 	end
-	self.loadGameBtn:draw()
-  self.convertGameBtn:draw()
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", 540, 300, 230, 200) -- frame
@@ -178,13 +224,14 @@ function BootMain:draw()
 	-----------------------------
 	love.graphics.setFont(self.font)
 	love.graphics.print("OpenSMCE is a short for Open-Source Sphere Matcher Community Engine.", 30, 525)
-	love.graphics.print("Copyright (c) 2020-2021 jakubg1\nThis software is licensed under MIT license.", 30, 555)
+	love.graphics.print("Copyright (C) 2020-2022 jakubg1\nThis software is licensed under MIT license.", 30, 555)
 
 	-----------------------------
-	-- FOOTER BUTTONS
+	-- BUTTONS
 	-----------------------------
-	self.settingsBtn:draw()
-	self.quitBtn:draw()
+	for i, button in pairs(self.buttons) do
+		button:draw()
+	end
 
 	-----------------------------
 	-- URL HOVERING
@@ -228,10 +275,9 @@ function BootMain:mousereleased(x, y, button)
 	for i, gameButton in ipairs(self.gameButtons) do
 		gameButton:mousereleased(x, y, button)
 	end
-	self.loadGameBtn:mousereleased(x, y, button)
-  self.convertGameBtn:mousereleased(x, y, button)
-	self.settingsBtn:mousereleased(x, y, button)
-	self.quitBtn:mousereleased(x, y, button)
+	for i, button in pairs(self.buttons) do
+		button:mousereleased(x, y, button)
+	end
 
 	-- URL
 	if self.urlHovered then

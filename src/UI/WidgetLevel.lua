@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class UIWidgetLevel
+---@overload fun(parent, path):UIWidgetLevel
 local UIWidgetLevel = class:derive("UIWidgetLevel")
 
 local DummyLevel = require("src/DummyLevel")
+
+
 
 function UIWidgetLevel:new(parent, path)
 	self.type = "level"

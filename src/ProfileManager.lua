@@ -1,8 +1,15 @@
 local class = require "com/class"
+
+---@class ProfileManager
+---@overload fun(data):ProfileManager
 local ProfileManager = class:derive("ProfileManager")
 
 local Profile = require("src/Profile")
 
+
+
+---Constructs a Profile Manager.
+---@param data table Deserialization data.
 function ProfileManager:new(data)
 	self.order = {}
 	self.profiles = {}
@@ -13,14 +20,27 @@ function ProfileManager:new(data)
 	end
 end
 
+
+
+---Returns the currently selected Profile.
+---@return Profile
 function ProfileManager:getCurrentProfile()
 	return self.profiles[self.selected]
 end
 
+
+
+---Selects a profile with a given name.
+---@param name string The profile name to be selected.
 function ProfileManager:setCurrentProfile(name)
 	self.selected = name
 end
 
+
+
+---Creates a new profile with a given name, selects it and returns `true`. If a profile with a given name already exists, this function returns `false` instead.
+---@param name string The profile name.
+---@return boolean
 function ProfileManager:createProfile(name)
 	-- duplication check
 	if self.profiles[name] then
@@ -32,6 +52,10 @@ function ProfileManager:createProfile(name)
 	return true
 end
 
+
+
+---Removes a profile with a given name. If this was the currently selected profile, the ProfileManager will select the first profile from a list.
+---@param name string The profile name.
 function ProfileManager:deleteProfile(name)
 	self.profiles[name] = nil
 	for i, n in ipairs(self.order) do
@@ -48,6 +72,8 @@ end
 
 
 
+---Serializes the ProfileManager's data to be saved.
+---@return table
 function ProfileManager:serialize()
 	local t = {
 		order = self.order,
@@ -60,6 +86,10 @@ function ProfileManager:serialize()
 	return t
 end
 
+
+
+---Restores the ProfileManager's state to the one saved by the serialization function.
+---@param t table The data to be deserialized.
 function ProfileManager:deserialize(t)
 	self.order = t.order
 	self.profiles = {}

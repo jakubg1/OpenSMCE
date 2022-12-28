@@ -1,8 +1,10 @@
 local class = require "com/class"
+
+---@class Level
+---@overload fun(data):Level
 local Level = class:derive("Level")
 
 local Vec2 = require("src/Essentials/Vector2")
-local List1 = require("src/Essentials/List1")
 
 local Map = require("src/Map")
 local Shooter = require("src/Shooter")
@@ -10,38 +12,39 @@ local ShotSphere = require("src/ShotSphere")
 local Collectible = require("src/Collectible")
 local FloatingText = require("src/FloatingText")
 
+
+
+---Constructs a new Level.
+---@param data table The level data, specified in a level config file.
 function Level:new(data)
-	-- data specified in main config file
-	self.name = data.name
+	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior)
+	self.shooter = Shooter(data.shooter)
+
+	self.matchEffect = data.matchEffect
+
+	self.target = data.target
+	if _Game.satMode then
+		self.target = _Game:getCurrentProfile():getUSMNumber() * 10
+	end
+
+	self.colorGeneratorNormal = data.colorGeneratorNormal
+	self.colorGeneratorDanger = data.colorGeneratorDanger
 
 	self.musicName = data.music
 	self.dangerMusicName = data.dangerMusic
+	self.ambientMusicName = data.ambientMusic
 
-	-- data specified in level config file
-	local data = _LoadJson(_ParsePath(data.path))
-
-	self.map = Map(self, "maps/" .. data.map)
-	self.shooter = Shooter()
-
-	self.colors = data.colors
-	self.colorStreak = data.colorStreak
-	self.powerupGenerator = data.powerupGenerator
-	self.gemColors = data.gems
-	if _Game.satMode then
-		self.spawnAmount = _Game:getCurrentProfile().session.level * 10
-		self.target = self.spawnAmount
-	else
-		self.target = data.target
-		self.spawnAmount = data.spawnAmount
-	end
-	self.spawnDistance = data.spawnDistance
-	self.dangerDistance = data.dangerDistance
-	self.speeds = data.speeds
+	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
+	self.dangerLoopSoundName = data.dangerLoopSound or "sound_events/warning_loop.json"
 
 	-- Additional variables come from this method!
 	self:reset()
 end
 
+
+
+---Updates the Level.
+---@param dt number Delta time in seconds.
 function Level:update(dt)
 	-- Game speed modifier is going to be calculated outside the main logic
 	-- function, as it messes with time itself.
@@ -60,6 +63,10 @@ function Level:update(dt)
 	self:updateMusic()
 end
 
+
+
+---Updates the Level's logic.
+---@param dt number Delta time in seconds.
 function Level:updateLogic(dt)
 	self.map:update(dt)
 	self.shooter:update(dt)
@@ -68,7 +75,7 @@ function Level:updateLogic(dt)
 	local d1 = self:getDanger() and not self.lost
 	local d2 = self.danger
 	if d1 and not d2 then
-		self.dangerSound = _Game:playSound("sound_events/warning_loop.json")
+		self.dangerSound = _Game:playSound(self.dangerLoopSoundName)
 	elseif not d1 and d2 then
 		self.dangerSound:stop()
 		self.dangerSound = nil
@@ -79,14 +86,26 @@ function Level:updateLogic(dt)
 
 
 	-- Shot spheres, collectibles, floating texts
-	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+	for i, shotSphere in ipairs(self.shotSpheres) do
 		shotSphere:update(dt)
 	end
-	for i, collectible in ipairs(self.collectibles.objects) do
+	for i = #self.shotSpheres, 1, -1 do
+		local shotSphere = self.shotSpheres[i]
+		if shotSphere.delQueue then table.remove(self.shotSpheres, i) end
+	end
+	for i, collectible in ipairs(self.collectibles) do
 		collectible:update(dt)
 	end
-	for i, floatingText in ipairs(self.floatingTexts.objects) do
+	for i = #self.collectibles, 1, -1 do
+		local collectible = self.collectibles[i]
+		if collectible.delQueue then table.remove(self.collectibles, i) end
+	end
+	for i, floatingText in ipairs(self.floatingTexts) do
 		floatingText:update(dt)
+	end
+	for i = #self.floatingTexts, 1, -1 do
+		local floatingText = self.floatingTexts[i]
+		if floatingText.delQueue then table.remove(self.floatingTexts, i) end
 	end
 
 
@@ -107,10 +126,20 @@ function Level:updateLogic(dt)
 
 
 
+	-- Net
+	if self.netTime > 0 then
+		self.netTime = self.netTime - dt
+		if self.netTime <= 0 then
+			self.netTime = 0
+		end
+	end
+
+
+
 	-- Warning lights
-	local maxDistance = self:getMaxDistance()
-	if maxDistance >= self.dangerDistance and not self.lost then
-		self.warningDelayMax = math.max((1 - ((maxDistance - self.dangerDistance) / (1 - self.dangerDistance))) * 3.5 + 0.5, 0.5)
+	local maxDistance = self:getMaxDangerProgress()
+	if maxDistance > 0 and not self.lost then
+		self.warningDelayMax = math.max((1 - maxDistance) * 3.5 + 0.5, 0.5)
 	else
 		self.warningDelayMax = nil
 	end
@@ -118,13 +147,13 @@ function Level:updateLogic(dt)
 	if self.warningDelayMax then
 		self.warningDelay = self.warningDelay + dt
 		if self.warningDelay >= self.warningDelayMax then
-			for i, path in ipairs(self.map.paths.objects) do
-				if path:getMaxOffset() / path.length >= self.dangerDistance then
-					_Game:spawnParticle("particles/warning.json", path:getPos(path.length))
+			for i, path in ipairs(self.map.paths) do
+				if path:isInDanger() then
+					_Game:spawnParticle(path.dangerParticle, path:getPos(path.length))
 				end
 			end
-			--game:playSound("sound_events/warning.json", 1 + (4 - self.warningDelayMax) / 6)
-			_Game:playSound("sound_events/warning.json")
+			--game:playSound(self.dangerSoundName, 1 + (4 - self.warningDelayMax) / 6)
+			_Game:playSound(self.dangerSoundName)
 			self.warningDelay = 0
 		end
 	else
@@ -147,7 +176,7 @@ function Level:updateLogic(dt)
 
 	-- Level finish
 	if self:getFinish() and not self.finish and not self.finishDelay then
-		self.finishDelay = 2
+		self.finishDelay = _Game.configManager.gameplay.level.finishDelay
 		self.shooter.active = false
 	end
 
@@ -161,16 +190,16 @@ function Level:updateLogic(dt)
 		end
 	end
 
-	if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths:get(self.bonusPathID - 1).bonusScarab) then
-		if self.map.paths:get(self.bonusPathID) then
+	if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths[self.bonusPathID - 1].bonusScarab) then
+		if self.map.paths[self.bonusPathID] then
 			self.bonusDelay = self.bonusDelay - dt
 			if self.bonusDelay <= 0 then
-				self.map.paths:get(self.bonusPathID):spawnBonusScarab()
-				self.bonusDelay = 1.5
+				self.map.paths[self.bonusPathID]:spawnBonusScarab()
+				self.bonusDelay = _Game.configManager.gameplay.level.bonusDelay
 				self.bonusPathID = self.bonusPathID + 1
 			end
-		else
-			self.wonDelay = 1.5
+		elseif self:getFinish() then
+			self.wonDelay = _Game.configManager.gameplay.level.wonDelay
 			self.bonusDelay = nil
 		end
 	end
@@ -181,11 +210,10 @@ function Level:updateLogic(dt)
 			self.wonDelay = nil
 			self.won = true
 			local newRecord = _Game:getCurrentProfile():getLevelHighscoreInfo(self.score)
-			if newRecord then
-				_Game.uiManager:executeCallback("levelCompleteRecord")
-			else
-				_Game.uiManager:executeCallback("levelComplete")
-			end
+			_Game.uiManager:executeCallback({
+				name = "levelComplete",
+				parameters = {newRecord}
+			})
 		end
 	end
 
@@ -198,6 +226,9 @@ function Level:updateLogic(dt)
 	end
 end
 
+
+
+---Adjusts which music is playing based on the level's internal state.
 function Level:updateMusic()
 	local music = _Game:getMusic(self.musicName)
 
@@ -227,43 +258,77 @@ function Level:updateMusic()
 			music:setVolume(1)
 		end
 	end
+
+	if self.ambientMusicName then
+		local ambientMusic = _Game:getMusic(self.ambientMusicName)
+
+		-- Ambient music plays all the time.
+		ambientMusic:setVolume(1)
+	end
 end
 
 
 
-function Level:newSphereColor()
-	return self.colors[math.random(1, #self.colors)]
+---Activates a collectible generator in a given position.
+---@param pos Vector2 The position where the collectibles will spawn.
+---@param entryName string The CollectibleEntry ID.
+function Level:spawnCollectiblesFromEntry(pos, entryName)
+	if not entryName then
+		return
+	end
+
+	local manager = _Game.configManager.collectibleGeneratorManager
+	local entry = manager:getEntry(entryName)
+	local collectibles = entry:generate()
+	for i, collectible in ipairs(collectibles) do
+		self:spawnCollectible(pos, collectible)
+	end
 end
 
-function Level:newPowerupData()
-	return _Game.configManager.collectibleGeneratorManager:getEntry(self.powerupGenerator):generate()
-end
 
-function Level:newGemData()
-	return {type = "gem", color = self.gemColors[math.random(1, #self.gemColors)]}
-end
 
+---Adds score to the current Profile, as well as to level's statistics.
+---@param score integer The score to be added.
 function Level:grantScore(score)
 	self.score = self.score + score
 	_Game:getCurrentProfile():grantScore(score)
 end
 
+
+
+---Adds one coin to the current Profile and to level's statistics.
 function Level:grantCoin()
 	self.coins = self.coins + 1
 	_Game:getCurrentProfile():grantCoin()
 end
 
+
+
+---Adds one gem to the level's statistics.
 function Level:grantGem()
 	self.gems = self.gems + 1
 end
 
+
+
+---Adds one sphere to the destroyed sphere counter.
 function Level:destroySphere()
-	if self.targetReached or self.lost then return end
+	if self.targetReached or self.lost then
+		return
+	end
+
 	self.destroyedSpheres = self.destroyedSpheres + 1
-	if self.destroyedSpheres == self.target then self.targetReached = true end
+	if self.destroyedSpheres == self.target then
+		self.targetReached = true
+	end
 end
 
-function Level:applyEffect(effect)
+
+
+---Applies an effect to the level.
+---@param effect table The effect data to be applied.
+---@param TMP_pos Vector2? The position of the effect.
+function Level:applyEffect(effect, TMP_pos)
 	if effect.type == "replaceSphere" then
 		self.shooter:getSphere(effect.color)
 	elseif effect.type == "multiSphere" then
@@ -271,28 +336,13 @@ function Level:applyEffect(effect)
 	elseif effect.type == "speedShot" then
 		self.shooter.speedShotTime = effect.time
 		self.shooter.speedShotSpeed = effect.speed
-	elseif effect.type == "slow" then
-		for i, path in ipairs(self.map.paths.objects) do
+	elseif effect.type == "speedOverride" then
+		for i, path in ipairs(self.map.paths) do
 			for j, sphereChain in ipairs(path.sphereChains) do
-				sphereChain.slowTime = effect.time
-				sphereChain.stopTime = 0
-				sphereChain.reverseTime = 0
-			end
-		end
-	elseif effect.type == "stop" then
-		for i, path in ipairs(self.map.paths.objects) do
-			for j, sphereChain in ipairs(path.sphereChains) do
-				sphereChain.slowTime = 0
-				sphereChain.stopTime = effect.time
-				sphereChain.reverseTime = 0
-			end
-		end
-	elseif effect.type == "reverse" then
-		for i, path in ipairs(self.map.paths.objects) do
-			for j, sphereChain in ipairs(path.sphereChains) do
-				sphereChain.slowTime = 0
-				sphereChain.stopTime = 0
-				sphereChain.reverseTime = effect.time
+				sphereChain.speedOverrideBase = effect.speedBase
+				sphereChain.speedOverrideMult = effect.speedMultiplier
+				sphereChain.speedOverrideDecc = effect.decceleration
+				sphereChain.speedOverrideTime = effect.time
 			end
 		end
 	elseif effect.type == "destroyAllSpheres" then
@@ -309,12 +359,26 @@ function Level:applyEffect(effect)
 		end
 	elseif effect.type == "lightningStorm" then
 		self.lightningStormCount = effect.count
+	elseif effect.type == "activateNet" then
+		self.netTime = effect.time
 	elseif effect.type == "changeGameSpeed" then
 		self.gameSpeed = effect.speed
 		self.gameSpeedTime = effect.duration
+	elseif effect.type == "setCombo" then
+		self.combo = effect.combo
+	elseif effect.type == "grantScore" then
+		self:grantScore(effect.score)
+		self:spawnFloatingText(_NumStr(effect.score), TMP_pos, "fonts/score0.json")
+	elseif effect.type == "grantCoin" then
+		self:grantCoin()
+	elseif effect.type == "incrementGemStat" then
+		self:grantGem()
 	end
 end
 
+
+
+---Strikes a single time during a lightning storm.
 function Level:spawnLightningStormPiece()
 	-- get a sphere candidate to be destroyed
 	local sphere = self:getLightningStormSphere()
@@ -335,6 +399,10 @@ function Level:spawnLightningStormPiece()
 	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
 end
 
+
+
+---Picks a sphere to be destroyed by a lightning storm strike, or `nil` if no spheres are found.
+---@return Sphere|nil
 function Level:getLightningStormSphere()
 	local ln = _Game.session:getLowestMatchLength()
 	-- first, check for spheres that would make matching easier when destroyed
@@ -355,37 +423,145 @@ end
 
 
 
+---Returns currently used color generator data.
+---@return table
+function Level:getCurrentColorGenerator()
+	if self.danger then
+		return _Game.configManager.colorGenerators[self.colorGeneratorDanger]
+	else
+		return _Game.configManager.colorGenerators[self.colorGeneratorNormal]
+	end
+end
+
+
+
+---Generates a new color for the Shooter.
+---@return integer
+function Level:getNewShooterColor()
+	return self:generateColor(self:getCurrentColorGenerator())
+end
+
+
+
+---Generates a color based on the data.
+---@param data table Shooter color generator data.
+---@return integer
+function Level:generateColor(data)
+	if data.type == "random" then
+		-- Make a pool with colors which are on the board.
+		local pool = {}
+		for i, color in ipairs(data.colors) do
+			if not data.has_to_exist or _Game.session.colorManager:isColorExistent(color) then
+				table.insert(pool, color)
+			end
+		end
+		-- Return a random item from the pool.
+		if #pool > 0 then
+			return pool[math.random(#pool)]
+		end
+
+	elseif data.type == "near_end" then
+		-- Select a random path.
+		local path = _Game.session.level:getRandomPath(true, data.paths_in_danger_only)
+		if not path:getEmpty() then
+			-- Get a SphereChain nearest to the pyramid
+			local sphereChain = path.sphereChains[1]
+			-- Iterate through all groups and then spheres in each group
+			local lastGoodColor = nil
+			-- reverse iteration!!!
+			for i, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for j = #sphereGroup.spheres, 1, -1 do
+					local sphere = sphereGroup.spheres[j]
+					local color = sphere.color
+					-- If this color is generatable, check if we're lucky this time.
+					if _MathIsValueInTable(data.colors, color) then
+						if math.random() < data.select_chance then
+							return color
+						end
+						-- Save this color in case if no more spheres are left.
+						lastGoodColor = color
+					end
+				end
+			end
+			-- no more spheres left, get the last good one if exists
+			if lastGoodColor then
+				return lastGoodColor
+			end
+		end
+	end
+
+	-- Else, return a fallback value.
+	if type(data.fallback) == "table" then
+		return self:generateColor(data.fallback)
+	end
+	return data.fallback
+end
+
+
+
+
+
+---Returns `true` if no Paths on this Level's Map contain any Spheres.
+---@return boolean
 function Level:getEmpty()
-	for i, path in ipairs(self.map.paths.objects) do
-		if not path:getEmpty() then return false end
+	for i, path in ipairs(self.map.paths) do
+		if not path:getEmpty() then
+			return false
+		end
 	end
 	return true
 end
 
+
+
+---Returns `true` if any Paths on this Level's Map are in danger.
+---@return boolean
 function Level:getDanger()
-	local ok = false
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
-			if sphereChain:getDanger() then ok = true end
+			if sphereChain:getDanger() then
+				return true
+			end
 		end
 	end
-	return ok
+	return false
 end
 
+
+
+---Returns the maximum percentage distance which is occupied by spheres on all paths.
+---@return number
 function Level:getMaxDistance()
 	local distance = 0
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		distance = math.max(distance, path:getMaxOffset() / path.length)
 	end
 	return distance
 end
 
-function Level:getMostDangerousPath()
+
+
+---Returns the maximum danger percentage distance from all paths.
+---Danger percentage is a number interpolated from 0 at the beginning of a danger zone to 1 at the end of the path.
+---@return number
+function Level:getMaxDangerProgress()
 	local distance = 0
+	for i, path in ipairs(self.map.paths) do
+		distance = math.max(distance, path:getDangerProgress())
+	end
+	return distance
+end
+
+
+
+---Returns the Path which has the maximum percentage distance which is occupied by spheres on all paths.
+---@return Path
+function Level:getMostDangerousPath()
+	local distance = nil
 	local mostDangerousPath = nil
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		local d = path:getMaxOffset() / path.length
-		if d > distance then
+		if not distance or d > distance then
 			distance = d
 			mostDangerousPath = path
 		end
@@ -393,10 +569,53 @@ function Level:getMostDangerousPath()
 	return mostDangerousPath
 end
 
-function Level:getFinish()
-	return self.targetReached and not self.lost and self:getEmpty() and self.collectibles:empty()
+
+
+---Returns a randomly selected path.
+---@param notEmpty boolean? If set to `true`, this call will prioritize paths which are not empty.
+---@param inDanger boolean? If set to `true`, this call will prioritize paths which are in danger.
+---@return Path
+function Level:getRandomPath(notEmpty, inDanger)
+	-- Set up a pool of paths.
+	local paths = self.map.paths
+	local pool = {}
+	for i, path in ipairs(paths) do
+		-- Insert a path into the pool if it meets the criteria.
+		if not (notEmpty and path:getEmpty()) and not (inDanger and not path:isInDanger()) then
+			table.insert(pool, path)
+		end
+	end
+	-- If any path meets the criteria, pick a random one.
+	if #pool > 0 then
+		return pool[math.random(#pool)]
+	end
+	-- Else, loosen the criteria.
+	if inDanger then
+		return self:getRandomPath(notEmpty, false)
+	else
+		return self:getRandomPath()
+	end
 end
 
+
+
+---Returns `true` when there are no more spheres on the board and no more spheres can spawn, too.
+---@return boolean
+function Level:hasNoMoreSpheres()
+	return self.targetReached and not self.lost and self:getEmpty()
+end
+
+
+
+---Returns `true` if the level has been finished, i.e. there are no more spheres and no more collectibles.
+---@return boolean
+function Level:getFinish()
+	return self:hasNoMoreSpheres() and #self.collectibles == 0
+end
+
+
+
+---Takes one life away from the current Profile, and either restarts this Level, or ends the game.
 function Level:tryAgain()
 	if _Game:getCurrentProfile():loseLevel() then
 		_Game.uiManager:executeCallback("levelStart")
@@ -406,45 +625,75 @@ function Level:tryAgain()
 	end
 end
 
+
+
+---Starts the Level.
 function Level:begin()
 	self.started = true
-	self.controlDelay = 2
+	self.controlDelay = _Game.configManager.gameplay.level.controlDelay
 	_Game:getMusic(self.musicName):reset()
 end
 
+
+
+---Resumes the Level after loading data.
 function Level:beginLoad()
 	self.started = true
 	_Game:getMusic(self.musicName):reset()
 	self.targetReached = self.destroyedSpheres == self.target
-	if not self.bonusDelay and not self.map.paths:get(self.bonusPathID) then self.wonDelay = 1.5 end
+	if not self.bonusDelay and not self.map.paths[self.bonusPathID] then
+		self.wonDelay = _Game.configManager.gameplay.level.wonDelay
+	end
 end
 
+
+
+---Saves the current progress on this Level.
 function Level:save()
 	_Game:getCurrentProfile():saveLevel(self:serialize())
 end
 
+
+
+---Erases saved data from this Level.
 function Level:unsave()
 	_Game:getCurrentProfile():unsaveLevel()
 end
 
+
+
+---Marks this level as completed and forgets its saved data.
 function Level:win()
 	_Game:getCurrentProfile():winLevel(self.score)
 	_Game:getCurrentProfile():unsaveLevel()
 end
 
+
+
+---Uninitialization function. Uninitializes Level's elements which need deinitializing.
 function Level:destroy()
 	self.shooter:destroy()
-	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+	for i, shotSphere in ipairs(self.shotSpheres) do
 		shotSphere:destroy()
 	end
-	for i, collectible in ipairs(self.collectibles.objects) do
+	for i, collectible in ipairs(self.collectibles) do
 		collectible:destroy()
 	end
-	for i, path in ipairs(self.map.paths.objects) do
+	for i, path in ipairs(self.map.paths) do
 		path:destroy()
+	end
+
+	if self.ambientMusicName then
+		local ambientMusic = _Game:getMusic(self.ambientMusicName)
+
+		-- Stop any ambient music.
+		ambientMusic:setVolume(0)
 	end
 end
 
+
+
+---Resets the Level data.
 function Level:reset()
 	self.score = 0
 	self.coins = 0
@@ -457,9 +706,9 @@ function Level:reset()
 	self.maxChain = 0
 	self.maxCombo = 0
 
-	self.shotSpheres = List1()
-	self.collectibles = List1()
-	self.floatingTexts = List1()
+	self.shotSpheres = {}
+	self.collectibles = {}
+	self.floatingTexts = {}
 
 	self.targetReached = false
 	self.danger = false
@@ -484,57 +733,90 @@ function Level:reset()
 	self.gameSpeedTime = 0
 	self.lightningStormTime = 0
 	self.lightningStormCount = 0
+	self.netTime = 0
 	self.shooter.speedShotTime = 0
 	_Game.session.colorManager:reset()
 end
 
+
+
+---Forfeits the level. The shooter is emptied, and spheres start rushing into the pyramid.
 function Level:lose()
 	if self.lost then return end
 	self.lost = true
 	-- empty the shooter
 	self.shooter:empty()
 	-- delete all shot balls
-	self.shotSpheres:clear()
+	for i, shotSphere in ipairs(self.shotSpheres) do
+		shotSphere:destroy()
+	end
+	self.shotSpheres = {}
 	_Game:playSound("sound_events/level_lose.json")
 end
 
+
+
+---Sets the pause flag for this Level.
+---@param pause boolean Whether the level should be paused.
 function Level:setPause(pause)
 	if self.pause == pause or (not self.canPause and not self.pause) then return end
 	self.pause = pause
 end
 
+
+
+---Inverts the pause flag for this Level.
 function Level:togglePause()
 	self:setPause(not self.pause)
 end
 
-function Level:spawnShotSphere(shooter, pos, color, speed)
-	self.shotSpheres:append(ShotSphere(nil, shooter, pos, color, speed))
+
+
+---Spawns a new Shot Sphere into the level.
+---@param shooter Shooter The shooter which has shot the sphere.
+---@param pos Vector2 Where the Shot Sphere should be spawned at.
+---@param angle number Which direction the Shot Sphere should be moving, in radians. 0 is up.
+---@param color integer The sphere ID to be shot.
+---@param speed number The sphere speed.
+function Level:spawnShotSphere(shooter, pos, angle, color, speed)
+	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, color, speed))
 end
 
-function Level:spawnCollectible(pos, data)
-	self.collectibles:append(Collectible(nil, pos, data))
-	_Game:playSound("sound_events/collectible_spawn_" .. data.type .. ".json", 1, pos)
+
+
+---Spawns a new Collectible into the Level.
+---@param pos Vector2 Where the Collectible should be spawned at.
+---@param name string The collectible ID.
+function Level:spawnCollectible(pos, name)
+	table.insert(self.collectibles, Collectible(nil, pos, name))
 end
 
+
+
+---Spawns a new FloatingText into the Level.
+---@param text string The text to be displayed.
+---@param pos Vector2 The starting position of this text.
+---@param font string Path to the Font which is going to be used.
 function Level:spawnFloatingText(text, pos, font)
-	self.floatingTexts:append(FloatingText(text, pos, font))
+	table.insert(self.floatingTexts, FloatingText(text, pos, font))
 end
 
 
 
+---Draws this Level and all its components.
 function Level:draw()
 	self.map:draw()
 	self.shooter:drawSpeedShotBeam()
 	self.map:drawSpheres()
 	self.shooter:draw()
 
-	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+	for i, shotSphere in ipairs(self.shotSpheres) do
 		shotSphere:draw()
 	end
-	for i, collectible in ipairs(self.collectibles.objects) do
+	for i, collectible in ipairs(self.collectibles) do
 		collectible:draw()
 	end
-	for i, floatingText in ipairs(self.floatingTexts.objects) do
+	for i, floatingText in ipairs(self.floatingTexts) do
 		floatingText:draw()
 	end
 
@@ -545,7 +827,8 @@ end
 
 
 
--- Store all necessary data to save the level in order to load it again with exact same things on board.
+---Stores all necessary data to save the level in order to load it again with exact same things on board.
+---@return table
 function Level:serialize()
 	local t = {
 		stats = {
@@ -572,16 +855,19 @@ function Level:serialize()
 		paths = self.map:serialize(),
 		lost = self.lost
 	}
-	for i, shotSphere in ipairs(self.shotSpheres.objects) do
+	for i, shotSphere in ipairs(self.shotSpheres) do
 		table.insert(t.shotSpheres, shotSphere:serialize())
 	end
-	for i, collectible in ipairs(self.collectibles.objects) do
+	for i, collectible in ipairs(self.collectibles) do
 		table.insert(t.collectibles, collectible:serialize())
 	end
 	return t
 end
 
--- Restores all data that was saved in the serialization method.
+
+
+---Restores all data that was saved in the serialization method.
+---@param t table The data to be deserialized.
 function Level:deserialize(t)
 	-- Prepare the counters
 	_Game.session.colorManager:reset()
@@ -608,13 +894,13 @@ function Level:deserialize(t)
 	-- Shooter
 	self.shooter:deserialize(t.shooter)
 	-- Shot spheres, collectibles
-	self.shotSpheres:clear()
+	self.shotSpheres = {}
 	for i, tShotSphere in ipairs(t.shotSpheres) do
-		self.shotSpheres:append(ShotSphere(tShotSphere))
+		table.insert(self.shotSpheres, ShotSphere(tShotSphere))
 	end
-	self.collectibles:clear()
+	self.collectibles = {}
 	for i, tCollectible in ipairs(t.collectibles) do
-		self.collectibles:append(Collectible(tCollectible))
+		table.insert(self.collectibles, Collectible(tCollectible))
 	end
 	-- Effects
 	self.lightningStormCount = t.lightningStormCount
@@ -623,5 +909,7 @@ function Level:deserialize(t)
 	-- Pause
 	self:setPause(true)
 end
+
+
 
 return Level

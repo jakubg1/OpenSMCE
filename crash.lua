@@ -9,7 +9,7 @@ local DT = 0.1
 
 
 local function error_printer(msg, layer)
-	print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
+	_Log:printt("crash", (debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
 end
  
 function love.errorhandler(msg)
@@ -82,7 +82,7 @@ function love.errorhandler(msg)
 	p = p:gsub("\t", "")
 	p = p:gsub("%[string \"(.-)\"%]", "%1")
 	
-	local crashScreen = CrashScreen(p)
+	crashScreen = CrashScreen(p)
 	
 	return function()
 		love.event.pump()
@@ -93,9 +93,9 @@ function love.errorhandler(msg)
 			elseif e == "keypressed" and a == "escape" then
 				return 1
 			elseif e == "mousepressed" then
-				crashScreen:mousepressed(a)
+				crashScreen:mousepressed(a, b, c)
 			elseif e == "mousereleased" then
-				crashScreen:mousereleased(a)
+				crashScreen:mousereleased(a, b, c)
 			end
 		end
 		

@@ -1,5 +1,7 @@
-
 games/
-assets/
+assets/crash.wav
 engine/
 doc2/
+.vscode/settings.json
+doc/code/.$smce_classes.drawio.bkp
+log.txt

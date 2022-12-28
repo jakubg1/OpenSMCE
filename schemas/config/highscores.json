@@ -1,0 +1,46 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "$schema": true,
+        "size": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "How many entries should be stored in a single highscore list."
+        },
+        "default_scores": {
+            "type": "array",
+            "description": "Contains default highscore entries. The length of this list should be the same as the value of size field.",
+            "markdownDescription": "Contains default highscore entries. The length of this list should be the same as the value of `size` field.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "A player name which should be displayed."
+                    },
+                    "score": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "How much points the player has scored."
+                    },
+                    "level": {
+                        "type": "string",
+                        "description": "The level on which the player has ended their game."
+                    }
+                },
+                "required": [
+                    "name",
+                    "score",
+                    "level"
+                ],
+                "additionalProperties": false
+            }
+        }
+    },
+    "required": [
+        "size",
+        "default_scores"
+    ],
+    "additionalProperties": false
+}

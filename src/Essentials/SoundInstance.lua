@@ -1,12 +1,24 @@
 local class = require "com/class"
+
+---@class SoundInstance
+---@overload fun(path, instance):SoundInstance
 local SoundInstance = class:derive("SoundInstance")
 
 local Vec2 = require("src/Essentials/Vector2")
 
-function SoundInstance:new(path)
-  self.sound = _LoadSound(path, "static")
-	if not self.sound then
-    error("Failed to load sound: " .. path)
+
+
+---Constructs a new Sound Instance.
+---@param path string? A path to the sound file.
+---@param instance love.sound? A sound instance, if preloaded.
+function SoundInstance:new(path, instance)
+  if path then
+    self.sound = _LoadSound(path, "static")
+    if not self.sound then
+      error("Failed to load sound: " .. path)
+    end
+  elseif instance then
+    self.sound = instance
   end
 
   self.volume = 1
@@ -42,7 +54,7 @@ function SoundInstance:setPos(pos)
   if _EngineSettings:get3DSound() and pos then
     self.pos = pos
     local p = pos - _NATIVE_RESOLUTION / 2
-    self.sound:setPosition(p.x, p.y, 0)
+    self.sound:setPosition(p.x, p.y, _NATIVE_RESOLUTION.x * 2.5)
     self.sound:setAttenuationDistances(0, _NATIVE_RESOLUTION.x)
   else
     self.pos = Vec2()

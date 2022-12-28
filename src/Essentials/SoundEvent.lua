@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class SoundEvent
+---@overload fun():SoundEvent
 local SoundEvent = class:derive("SoundEvent")
+
+
 
 function SoundEvent:new(path)
 	self.path = path

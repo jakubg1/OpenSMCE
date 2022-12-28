@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class BootScreen
+---@overload fun():BootScreen
 local BootScreen = class:derive("BootScreen")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -36,7 +39,7 @@ function BootScreen:init()
 	self:setScene("main")
 
 	-- discord rpc connection
-	_DiscordRPC:setStatus(string.format("Boot Screen - Version: %s", _VERSION_NAME), nil, true)
+	_DiscordRPC:setStatus(string.format("Boot Screen - Version: %s (Build %s)", _VERSION_NAME, _BUILD_NUMBER), nil, true)
 end
 
 
@@ -66,13 +69,13 @@ function BootScreen:getGames()
 	local games = {}
 
 	for i, name in ipairs(_GetDirListing("games", "dir")) do
-		print("Checking folder \"" .. name .. "\"...")
+		_Log:printt("BootScreen", "Checking folder \"" .. name .. "\"...")
 		local success, result = pcall(function() return _LoadJson("games/" .. name .. "/config.json") end)
 		if success then
 			table.insert(games, {name = name, config = result})
-			print("SUCCESS!")
+			_Log:printt("BootScreen", "SUCCESS!")
 		else
-			print("FAIL!")
+			_Log:printt("BootScreen", "FAIL!")
 		end
 	end
 
@@ -94,6 +97,10 @@ function BootScreen:keypressed(key)
 end
 
 function BootScreen:keyreleased(key)
+	-- STUB
+end
+
+function BootScreen:textinput(t)
 	-- STUB
 end
 

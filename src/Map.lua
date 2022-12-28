@@ -1,19 +1,28 @@
 local class = require "com/class"
+
+---@class Map
+---@overload fun(level, path, pathsBehavior, isDummy):Map
 local Map = class:derive("Map")
 
 local Vec2 = require("src/Essentials/Vector2")
-local List1 = require("src/Essentials/List1")
 local Sprite = require("src/Essentials/Sprite")
 
 local Path = require("src/Path")
 
-function Map:new(level, path, isDummy)
+
+
+---Constructs a new Map.
+---@param level Level The level which is tied to this Map.
+---@param path string Path to the Map's folder.
+---@param pathsBehavior table A table of Path Behaviors.
+---@param isDummy boolean Whether this Map corresponds to a Dummy Level.
+function Map:new(level, path, pathsBehavior, isDummy)
 	self.level = level
 	-- whether it's just a decorative map, if false then it's meant to be playable
 	self.isDummy = isDummy
 
-	self.paths = List1()
-	self.sprites = List1()
+	self.paths = {}
+	self.sprites = {}
 
 	local data = _LoadJson(_ParsePath(path .. "/config.json"))
 	self.name = data.name
@@ -22,26 +31,45 @@ function Map:new(level, path, isDummy)
 		if spriteData.internal then
 			spritePath = path .. "/" .. spritePath
 		end
-		self.sprites:append({pos = Vec2(spriteData.x, spriteData.y), sprite = Sprite(_ParsePath(spritePath)), background = spriteData.background})
+		table.insert(self.sprites, {pos = Vec2(spriteData.x, spriteData.y), sprite = Sprite(_ParsePath(spritePath)), background = spriteData.background})
 	end
 	for i, pathData in ipairs(data.paths) do
-		self.paths:append(Path(self, pathData))
+		-- Loop around the path behavior list if not sufficient enough.
+		-- Useful if all paths should share the same behavior; you don't have to clone it.
+		local pathBehavior = pathsBehavior[(i - 1) % #pathsBehavior + 1]
+		table.insert(self.paths, Path(self, pathData, pathBehavior))
 	end
 end
 
+
+
+---Updates this Map.
+---@param dt number Delta time in seconds.
 function Map:update(dt)
-	for i, path in ipairs(self.paths.objects) do path:update(dt) end
+	for i, path in ipairs(self.paths) do
+		path:update(dt)
+	end
 end
 
+
+
+---Returns the ID of a given Path, or `nil` if not found.
+---@param path Path The Path of which ID is to be obtained.
+---@return integer|nil
 function Map:getPathID(path)
-	for i, pathT in ipairs(self.paths.objects) do if pathT == path then return i end end
+	for i, pathT in ipairs(self.paths) do
+		if pathT == path then
+			return i
+		end
+	end
 end
 
 
 
+---Draws this Map.
 function Map:draw()
 	-- Background
-	for i, sprite in ipairs(self.sprites.objects) do
+	for i, sprite in ipairs(self.sprites) do
 		if sprite.background then
 			sprite.sprite:draw(sprite.pos)
 		end
@@ -49,7 +77,7 @@ function Map:draw()
 
 	-- Objects drawn before hidden spheres (background cheat mode)
 	if _Debug.e then
-		for i, sprite in ipairs(self.sprites.objects) do
+		for i, sprite in ipairs(self.sprites) do
 			if not sprite.background then
 				sprite.sprite:draw(sprite.pos)
 			end
@@ -57,16 +85,18 @@ function Map:draw()
 	end
 
 	-- Draw hidden spheres and other hidden path stuff
-	for i, path in ipairs(self.paths.objects) do
-		for sphereID, sphere in pairs(_Game.configManager.spheres) do
-			path:drawSpheres(sphereID, true)
+	for x = 1, 2 do
+		for i, path in ipairs(self.paths) do
+			for sphereID, sphere in pairs(_Game.configManager.spheres) do
+				path:drawSpheres(sphereID, true, x == 1)
+			end
+			path:draw(true)
 		end
-		path:draw(true)
 	end
 
 	-- Objects that will be drown when the BCM is off
 	if not _Debug.e then
-		for i, sprite in ipairs(self.sprites.objects) do
+		for i, sprite in ipairs(self.sprites) do
 			if not sprite.background then
 				sprite.sprite:draw(sprite.pos)
 			end
@@ -74,29 +104,42 @@ function Map:draw()
 	end
 end
 
+
+
+---Draws spheres on this map.
 function Map:drawSpheres()
-	for i, path in ipairs(self.paths.objects) do
-		for sphereID, sphere in pairs(_Game.configManager.spheres) do
-			path:drawSpheres(sphereID, false)
+	for x = 1, 2 do
+		for i, path in ipairs(self.paths) do
+			for sphereID, sphere in pairs(_Game.configManager.spheres) do
+				path:drawSpheres(sphereID, false, x == 1)
+			end
+			path:draw(false)
 		end
-		path:draw(false)
 	end
 end
 
 
 
+---Serializes the Map's data to be saved.
+---@return table
 function Map:serialize()
 	local t = {}
-	self.paths:iterate(function(i, o)
-		table.insert(t, o:serialize())
-	end)
+	for i, path in ipairs(self.paths) do
+		table.insert(t, path:serialize())
+	end
 	return t
 end
 
+
+
+---Deserializes the Map's data.
+---@param t table The data to be loaded.
 function Map:deserialize(t)
 	for i, path in ipairs(t) do
-		self.paths:get(i):deserialize(path)
+		self.paths[i]:deserialize(path)
 	end
 end
+
+
 
 return Map

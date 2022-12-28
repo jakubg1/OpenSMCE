@@ -1,10 +1,16 @@
 local class = require "com/class"
+
+---@class ParticlePacket
+---@overload fun(manager, data, pos):ParticlePacket
 local ParticlePacket = class:derive("ParticlePacket")
 
-function ParticlePacket:new(manager, data, pos)
+
+
+function ParticlePacket:new(manager, data, pos, layer)
 	self.manager = manager
 	
 	self.pos = pos
+	self.layer = layer
 	self.spawnerCount = 0
 	for i, spawnerData in ipairs(data) do
 		manager:spawnParticleSpawner(self, spawnerData)

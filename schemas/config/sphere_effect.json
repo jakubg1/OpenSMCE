@@ -1,0 +1,103 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "$schema": true,
+        "particle": {
+            "type": "string",
+            "description": "A persistent particle packet which will be applied to any affected sphere."
+        },
+        "time": {
+            "type": "number",
+            "minimum": 0,
+            "description": "After how many seconds the spheres will be destroyed."
+        },
+        "infection_size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many times the effect expansion should occur."
+        },
+        "infection_time": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Time between the expansions, in seconds."
+        },
+        "apply_sound": {
+            "type": "string",
+            "description": "A sound event to be played when a sphere gets this effect."
+        },
+        "destroy_sound": {
+            "type": "string",
+            "description": "A sound event to be played when spheres afflicted with this effect are destroyed.\nCan be set to \"hardcoded\", in that case the destroy sound from a game module is prioritized.",
+            "markdownDescription": "A sound event to be played when spheres afflicted with this effect are destroyed.\nCan be set to `\"hardcoded\"`, in that case the destroy sound from a game module is prioritized."
+        },
+        "destroy_font": {
+            "type": "string",
+            "description": "A font to be used for the score value displayed on the screen.\nCan be set to \"hardcoded\", in that case the font used is of the \"cause\" sphere's matchFont value.",
+            "markdownDescription": "A font to be used for the score value displayed on the screen.\nCan be set to `\"hardcoded\"`, in that case the font used is of the \"cause\" sphere's `matchFont` value."
+        },
+        "destroy_particle": {
+            "type": "string",
+            "description": "A one-time particle packet used when a sphere with this effect is destroyed."
+        },
+        "destroy_collectible": {
+            "type": "string",
+            "description": "The collectible generator to be used when spheres with this effect are destroyed."
+        },
+        "level_loss_protection": {
+            "type": "boolean",
+            "description": "If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.",
+            "markdownDescription": "If set to `true`, a group with spheres with this effect applied will not trigger a level loss when past the path's end node."
+        },
+        "immobile": {
+            "type": "boolean",
+            "description": "If true, the spheres affected with this effect will stop.",
+            "markdownDescription": "If `true`, the spheres affected with this effect will stop."
+        },
+        "fragile": {
+            "type": "boolean",
+            "description": "If true, the spheres affected with this effect can be destroyed by shooting through them.",
+            "markdownDescription": "If `true`, the spheres affected with this effect can be destroyed by shooting through them."
+        },
+        "can_boost_combo": {
+            "type": "boolean",
+            "description": "If true, the level combo value may rise after destroying a group with this effect.",
+            "markdownDescription": "If `true`, the level combo value may rise after destroying a group with this effect."
+        },
+        "can_boost_chain": {
+            "type": "boolean",
+            "description": "If true, the chain combo value may rise after destroying a group with this effect.",
+            "markdownDescription": "If `true`, the chain combo value may rise after destroying a group with this effect."
+        },
+        "apply_chain_multiplier": {
+            "type": "boolean",
+            "description": "If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.",
+            "markdownDescription": "If `true`, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value."
+        },
+        "can_keep_combo": {
+            "type": "boolean",
+            "description": "Whether shot spheres with this effect should not be counted towards combo reset."
+        },
+        "cause_check": {
+            "type": "boolean",
+            "description": "When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the \"cause\" sphere.",
+            "markdownDescription": "When set to `true`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the \"cause\" sphere."
+        }
+    },
+    "required": [
+        "time",
+        "infection_size",
+        "infection_time",
+        "destroy_sound",
+        "destroy_font",
+        "level_loss_protection",
+        "immobile",
+        "fragile",
+        "can_boost_combo",
+        "can_boost_chain",
+        "apply_chain_multiplier",
+        "can_keep_combo",
+        "cause_check"
+    ],
+    "additionalProperties": false
+}

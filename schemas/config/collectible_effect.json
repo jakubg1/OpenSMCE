@@ -1,0 +1,412 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "type": {
+            "enum": [
+                "replaceSphere",
+                "multiSphere",
+                "speedShot",
+                "speedOverride",
+                "destroyAllSpheres",
+                "destroyColor",
+                "spawnScorpion",
+                "lightningStorm",
+                "activateNet",
+                "changeGameSpeed",
+                "setCombo",
+                "grantScore",
+                "grantCoin",
+                "incrementGemStat"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "A powerup effect type."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "replaceSphere",
+                        "description": "Replaces the current sphere the shooter has with a defined sphere. This can be used to spawn otherwise unobtainable bonus balls, i.e. wild or lightning."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "color": {
+                        "type": "integer",
+                        "description": "A sphere ID of a sphere the shooter should get."
+                    }
+                },
+                "required": [
+                    "color"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "multiSphere",
+                        "description": "Spawns a certain amount of a defined sphere to the shooter. This can be used to i.e. spawn 10 daggers the player can shoot anywhere they want."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "color": {
+                        "type": "integer",
+                        "description": "A sphere ID of a sphere the shooter should get."
+                    },
+                    "count": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "How many spheres of that type should be given."
+                    }
+                },
+                "required": [
+                    "color",
+                    "count"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "speedShot",
+                        "description": "Replaces the default shooting speed and spawns a speed shot beam effect."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "time": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "The duration of the effect in seconds."
+                    },
+                    "speed": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "A new speed of the shot balls, in pixels per second."
+                    }
+                },
+                "required": [
+                    "time",
+                    "speed"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "speedOverride",
+                        "description": "Changes the speed of spheres on the board."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "speedBase": {
+                        "type": "number",
+                        "description": "A value to be added to the multiplied sphere speed."
+                    },
+                    "speedMultiplier": {
+                        "type": "number",
+                        "description": "A multiplier by which the nominal path speed will be multiplied.",
+                        "markdownDescription": "A multiplier by which the nominal path speed will be multiplied.\nThe formula for the final speed is: `speedBase + (pathSpeed * speedMultiplier)`."
+                    },
+                    "decceleration": {
+                        "type": "number",
+                        "description": "A sphere decceleration rate which will be applied alongside speed changes."
+                    },
+                    "time": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "The duration of the effect in seconds."
+                    }
+                },
+                "required": [
+                    "speedBase",
+                    "speedMultiplier",
+                    "decceleration",
+                    "time"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "destroyAllSpheres",
+                        "description": "Clears the board from all spheres."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true
+                },
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "destroyColor",
+                        "description": "Destroys the spheres of a specified color."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "color": {
+                        "type": "integer",
+                        "description": "The color of spheres to be destroyed."
+                    }
+                },
+                "required": [
+                    "color"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "spawnScorpion",
+                        "description": "Spawns a scorpion on the board."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true
+                },
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "lightningStorm",
+                        "description": "Starts a lightning storm, spawning a given amount of strikes which destroy single spheres."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "count": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "The amount of strikes."
+                    }
+                },
+                "required": [
+                    "count"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "activateNet",
+                        "description": "Activates a net which collects collectibles for a given amount of time."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "time": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "The duration of the effect in seconds."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "changeGameSpeed",
+                        "description": "Changes the game speed to a defined value for a specified period of time."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "speed": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "The game speed multiplier."
+                    },
+                    "duration": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "The duration of the effect in seconds. It is not affected by the game speed itself."
+                    }
+                },
+                "required": [
+                    "speed",
+                    "duration"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "setCombo",
+                        "description": "Sets the current level combo to a specified value."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "combo": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "The combo value to be set."
+                    }
+                },
+                "required": [
+                    "combo"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "grantScore",
+                        "description": "Grants a certain amount of score to the current player."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "score": {
+                        "type": "integer",
+                        "description": "The score to be given."
+                    }
+                },
+                "required": [
+                    "score"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "grantCoin",
+                        "description": "Grants a single coin to the current player."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true
+                },
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "incrementGemStat",
+                        "description": "Adds one to the gem pickup statistics for the current level."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true
+                },
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}

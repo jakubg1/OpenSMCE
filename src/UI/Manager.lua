@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class UIManager
+---@overload fun():UIManager
 local UIManager = class:derive("UIManager")
 
 local strmethods = require("src/strmethods")
@@ -56,13 +59,14 @@ function UIManager:new()
     profileGetScore = function() return _Game:getCurrentProfile():getScore() end,
     profileGetSession = function() return _Game:getCurrentProfile():getSession() end,
     profileGetLevelN = function() return _Game:getCurrentProfile():getLevel() end,
-    profileGetLevel = function() return _Game:getCurrentProfile():getCurrentLevelConfig() end,
-    profileGetNextLevel = function() return _Game:getCurrentProfile():getNextLevelConfig() end,
+    profileGetLevel = function() return _Game:getCurrentProfile():getLevelData() end,
+    profileGetLevelName = function() return _Game:getCurrentProfile():getLevelName() end,
     profileGetSavedLevel = function() return _Game:getCurrentProfile():getSavedLevel() end,
     profileGetMap = function() return _Game:getCurrentProfile():getMapData() end,
-    profileGetCheckpoint = function() return _Game:getCurrentProfile():getCurrentCheckpointConfig() end,
+    profileGetLatestCheckpoint = function() return _Game:getCurrentProfile():getLatestCheckpoint() end,
     profileGetUnlockedCheckpoints = function() return _Game:getCurrentProfile():getUnlockedCheckpoints() end,
     profileIsCheckpointUnlocked = function(n) return _Game:getCurrentProfile():isCheckpointUnlocked(n) end,
+    profileIsCheckpointUpcoming = function() return _Game:getCurrentProfile():isCheckpointUpcoming() end,
 
     profileSetVariable = function(name, value) _Game:getCurrentProfile():setVariable(name, value) end,
     profileGetVariable = function(name) return _Game:getCurrentProfile():getVariable(name) end,
@@ -70,10 +74,12 @@ function UIManager:new()
     highscoreReset = function() _Game.runtimeManager.highscores:reset() end,
     highscoreGetEntry = function(n) return _Game.runtimeManager.highscores:getEntry(n) end,
 
-    configGetLevelData = function(n) return _Game.configManager.config.levels[n] end,
-    configGetLevelData2 = function(n) return _Game.configManager.levels[n] end,
+    configGetLevelData = function(n) return _Game.configManager.levels[n] end,
     configGetMapData = function(name) return _Game.configManager.maps[name] end,
-    configGetCheckpointData = function(n) return _Game.configManager.config.checkpoints[n] end,
+    configGetLevelID = function(n) return _Game.configManager.levelSet.level_order[n].level end,
+    configGetLevelName = function(n) return _Game.configManager.levelSet.level_order[n].name end,
+    configGetCheckpointID = function(n) return _Game.configManager.levelSet.checkpoints[n] end,
+    configGetCheckpointLevel = function(n) return _Game.configManager:getCheckpointLevelN(n) end,
 
     optionsLoad = function() self:optionsLoad() end,
     optionsSave = function() self:optionsSave() end,
@@ -143,7 +149,7 @@ function UIManager:draw()
   ]]--
 
 
-  
+
   -- APPROACH 3
   -- This table will contain the order in which widgets will be drawn.
   local layers = {}
@@ -161,6 +167,9 @@ function UIManager:draw()
 		for j, names in ipairs(layers[layer]) do
 			self:getWidget(names):draw()
 		end
+    if _Game.particleManager then
+      _Game.particleManager:draw(layer)
+    end
 	end
 end
 

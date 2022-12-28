@@ -1,4 +1,7 @@
 local class = require "com/class"
+
+---@class Timer
+---@overload fun():Timer
 local Timer = class:derive("Timer")
 
 

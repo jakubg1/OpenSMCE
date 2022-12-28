@@ -4,17 +4,54 @@ body {
 }
 
 #banner {
-	background-color: #2020A0;
+	background-color: #092977;
 	height: 150px;
+	width: 50%;
 	color: white;
+	float: left;
 }
 
 #navigation {
 	background-color: #20A0A0;
-	width: 200px;
+	width: 300px;
 	float: left;
 }
 
 #main {
+	width: calc(100% - 320px);
 	float: left;
+	padding: 10px;
+}
+
+
+
+div.json {
+	background-color: #EEE;
+	border: 1px solid black;
+}
+
+div.jsonChoice {
+	background-color: #DDD;
+}
+
+.name, .nameOpt {
+	font-weight: bold;
+}
+
+.nameOpt {
+	font-style: italic;
+	color: #888;
+}
+
+
+
+img.type {
+	content: '';
+	display: inline-block;
+	margin-right: 6px;
+	margin-top: 6px;
+}
+
+ul.json li {
+	list-style: none;
 }

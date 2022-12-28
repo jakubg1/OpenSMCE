@@ -1,5 +1,10 @@
 local class = require "com/class"
+
+---@class Settings
+---@overload fun(path):Settings
 local Settings = class:derive("Settings")
+
+
 
 function Settings:new(path)
 	self.path = path
@@ -10,7 +15,7 @@ end
 
 function Settings:reset()
 	if not self.data then
-		print("Resetting Engine Settings...")
+		_Log:printt("Settings", "Resetting Engine Settings...")
 		self.data = {}
 	end
 

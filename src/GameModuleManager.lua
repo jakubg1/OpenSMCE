@@ -1,4 +1,9 @@
+-- This class will be soon deprecated, and thus will not be documented.
+
 local class = require "com/class"
+
+---@class GameModuleManager
+---@overload fun():GameModuleManager
 local GameModuleManager = class:derive("GameModuleManager")
 
 
@@ -11,18 +16,18 @@ end
 
 
 function GameModuleManager:loadModule(name)
-	print(string.format("[GameModuleManager] Loading Module: %s", name))
+	_Log:printt("GameModuleManager", string.format("Loading Module: %s", name))
 	local f = function() return require(string.format("games/%s/modules/%s", _Game.name, name)) end
 	local success, mod = pcall(f)
 	if success then
-		print("[GameModuleManager] Success!")
+		_Log:printt("GameModuleManager", "Success!")
 		return mod
 	end
 	-- if we're here, there's no module like that above
-	print("[GameModuleManager] No module found in game files, loading builtin module...")
+	_Log:printt("GameModuleManager", "No module found in game files, loading builtin module...")
 	local mod = require(string.format("src/DefaultModules/%s", name))
 	if mod then
-		print("[GameModuleManager] Success!")
+		_Log:printt("GameModuleManager", "Success!")
 		return mod
 	end
 end

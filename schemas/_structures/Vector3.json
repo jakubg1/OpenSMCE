@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "x": {
+            "type": "number",
+            "description": "The horizontal component of a 3D vector."
+        },
+        "y": {
+            "type": "number",
+            "description": "The vertical component of a 3D vector."
+        },
+        "z": {
+            "type": "number",
+            "description": "The depth component of a 3D vector."
+        }
+    },
+    "required": [
+        "x",
+        "y",
+        "z"
+    ]
+}

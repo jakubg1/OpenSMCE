@@ -1,9 +1,17 @@
 local class = require "com/class"
+
+---@class Scorpion
+---@overload fun(path, deserializationTable):Scorpion
 local Scorpion = class:derive("Scorpion")
 
 local Vec2 = require("src/Essentials/Vector2")
 local Color = require("src/Essentials/Color")
 
+
+
+---Constructs a new Scorpion.
+---@param path Path The path this Scorpion is on.
+---@param deserializationTable table? The data to be loaded from if loading a saved game.
 function Scorpion:new(path, deserializationTable)
 	self.path = path
 
@@ -24,13 +32,17 @@ function Scorpion:new(path, deserializationTable)
 	end
 
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
-	self.shadowSprite = _Game.resourceManager:getSprite("sprites/game/ball_shadow.json")
+	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite)
 
-	self.sound = _Game:playSound("sound_events/scorpion_loop.json", 1, self:getPos())
+	self.sound = _Game:playSound(self.config.loopSound, 1, self:getPos())
 
 	self.delQueue = false
 end
 
+
+
+---Updates the Scorpion's logic.
+---@param dt number Delta time in seconds.
 function Scorpion:update(dt)
 	-- Offset and distance
 	self.offset = self.offset - self.config.speed * dt
@@ -40,12 +52,14 @@ function Scorpion:update(dt)
 		-- Attempt to erase one sphere per iteration
 		-- The routine simply finds the closest sphere to the pyramid
 		-- If it's too far away, the loop ends
-		if self.path:getEmpty() then break end
+		if self.path:getEmpty() then
+			break
+		end
 		local sphereGroup = self.path.sphereChains[1].sphereGroups[1]
 		if sphereGroup:getFrontPos() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
 			sphereGroup:destroySphere(#sphereGroup.spheres)
 			_Game.session.level:destroySphere()
-			_Game:playSound("sound_events/scorpion_destroys.json")
+			_Game:playSound(self.config.sphereDestroySound, 1, self:getPos())
 			self.destroyedSpheres = self.destroyedSpheres + 1
 			-- if this sphere is the last sphere, the scorpion gets rekt
 			if not sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 1 and sphereGroup.spheres[1].color == 0 then
@@ -73,34 +87,52 @@ function Scorpion:update(dt)
 	end
 end
 
+
+
+---Returns whether the Scorpion should be now destroyed.
+---@return boolean
 function Scorpion:shouldExplode()
 	return self.offset <= 64
 	or (self.destroyedSpheres and self.destroyedSpheres == self.maxSpheres)
 	or (self.destroyedChains and self.destroyedChains == self.maxChains)
 end
 
+
+
+---Destroys the Scorpion, adds points to score, plays a sound etc.
 function Scorpion:explode()
-	if self.delQueue then return end
-	local score = self.destroyedSpheres * 100
-	_Game.session.level:grantScore(score)
-	_Game.session.level:spawnFloatingText(_NumStr(score), self:getPos(), self.config.scoreFont)
-	if self.destroyedSpheres == self.maxSpheres then
-		_Game.session.level:spawnCollectible(self:getPos(), {type = "coin"})
+	if self.delQueue then
+		return
 	end
-	_Game:spawnParticle(self.config.destroyParticle, self:getPos())
-	_Game:playSound("sound_events/scorpion_destroy.json", 1, self:getPos())
+
+	local pos = self:getPos()
+	local score = self.destroyedSpheres * 100
+
+	_Game.session.level:grantScore(score)
+	_Game.session.level:spawnFloatingText(_NumStr(score), pos, self.config.scoreFont)
+	_Game.session.level:spawnCollectiblesFromEntry(pos, self.config.destroyGenerator)
+	_Game:spawnParticle(self.config.destroyParticle, pos)
+	_Game:playSound(self.config.destroySound, 1, pos)
 
 	self:destroy()
 end
 
+
+
+---Destructor.
 function Scorpion:destroy()
-	if self.delQueue then return end
+	if self.delQueue then
+		return
+	end
 	self.delQueue = true
 	self.sound:stop()
 end
 
 
 
+---Draws this Scorpion on the screen.
+---@param hidden boolean Whether this drawing call comes from a hidden sphere pass.
+---@param shadow boolean Whether to draw the actual entity or its shadow.
 function Scorpion:draw(hidden, shadow)
 	if self:getHidden() == hidden then
 		if shadow then
@@ -113,24 +145,40 @@ end
 
 
 
+---Returns the onscreen position of this Scorpion.
+---@return Vector2
 function Scorpion:getPos()
 	return self.path:getPos(self.offset)
 end
 
+
+
+---Returns the current angle of this Scorpion.
+---@return number
 function Scorpion:getAngle()
 	return self.path:getAngle(self.offset)
 end
 
+
+
+---Returns the current brightness of this Scorpion.
+---@return number
 function Scorpion:getBrightness()
 	return self.path:getBrightness(self.offset)
 end
 
+
+
+---Returns whether this Scorpion is marked as hidden.
+---@return boolean
 function Scorpion:getHidden()
 	return self.path:getHidden(self.offset)
 end
 
 
 
+---Serializes this Scorpion to a set of values which can be reimported later.
+---@return table
 function Scorpion:serialize()
 	local t = {
 		offset = self.offset,
@@ -144,6 +192,10 @@ function Scorpion:serialize()
 	return t
 end
 
+
+
+---Loads previously saved data from a given table.
+---@param t table The data to be loaded.
 function Scorpion:deserialize(t)
 	self.offset = t.offset
 	self.distance = t.distance
@@ -153,5 +205,7 @@ function Scorpion:deserialize(t)
 	self.maxSpheres = t.maxSpheres
 	self.maxChains = t.maxChains
 end
+
+
 
 return Scorpion

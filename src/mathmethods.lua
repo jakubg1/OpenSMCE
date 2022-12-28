@@ -1,3 +1,14 @@
+function _MathIsValueInTable(t, v)
+	for i, n in pairs(t) do
+		if n == v then
+			return true
+		end
+	end
+	return false
+end
+
+
+
 function _MathWeightedRandom(weights)
 	local t = 0
 	for i, w in ipairs(weights) do

@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "r": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "The red component of a color."
+        },
+        "g": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "The green component of a color."
+        },
+        "b": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "The blue component of a color."
+        }
+    },
+    "required": [
+        "r",
+        "g",
+        "b"
+    ]
+}

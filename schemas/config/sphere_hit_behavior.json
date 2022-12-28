@@ -1,0 +1,155 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "type": {
+            "enum": [
+                "normal",
+                "destroySphere",
+                "fireball",
+                "colorCloud",
+                "replaceColor"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "A sphere hit behavior."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "normal",
+                        "description": "The sphere gets appended to the sphere train where it landed."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true
+                },
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "destroySphere",
+                        "description": "If the sphere hits a matching sphere, both spheres get destroyed. Else, nothing happens and the sphere flies on until another sphere is hit."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true
+                },
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "fireball",
+                        "description": "The sphere gets destroyed and destroys the matching spheres around."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "range": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "How close the spheres must be from the center in order to be destroyed, in pixels."
+                    }
+                },
+                "required": [
+                    "range"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "colorCloud",
+                        "description": "The sphere gets destroyed and changes the color of the matching spheres around."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "range": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "How close the spheres must be from the center in order to have their color changed, in pixels."
+                    },
+                    "color": {
+                        "type": "integer",
+                        "description": "Which color the spheres will be changed to."
+                    }
+                },
+                "required": [
+                    "range",
+                    "color"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "replaceColor",
+                        "description": "The sphere gets destroyed and changes all spheres of a hit sphere's color to the specified color."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "particle": {
+                        "type": "string",
+                        "description": "A one-time particle packet launched for all affected spheres."
+                    },
+                    "color": {
+                        "type": "integer",
+                        "description": "Which color the spheres will be changed to."
+                    }
+                },
+                "required": [
+                    "particle",
+                    "color"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}

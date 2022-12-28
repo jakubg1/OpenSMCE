@@ -18,7 +18,7 @@ local f = {}
 
 -- If this method returns true, a coin will be spawned.
 function f.coinSpawn(length, comboLv, chainLv, comboBoost)
-  return math.random() < (length - 3) * 0.2
+  return length > 4 and math.random() < (length - 3) * 0.25
 end
 
 -- If this method returns true, a powerup will be spawned.

@@ -1,7 +1,12 @@
 local class = require "com/class"
+
+---@class UIWidgetSpriteProgress
+---@overload fun(parent, sprite, value, smooth):UIWidgetSpriteProgress
 local UIWidgetSpriteProgress = class:derive("UIWidgetSpriteProgress")
 
 local Vec2 = require("src/Essentials/Vector2")
+
+
 
 function UIWidgetSpriteProgress:new(parent, sprite, value, smooth)
 	self.type = "spriteProgress"
