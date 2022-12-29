@@ -18,6 +18,20 @@ We recommend you to use the following plugins:
 Any other plugins are optional.
 
 ## Source code format
+### Bare basics
+- All variables, class names or other structures should be named in a camelCase, unless stated otherwise.
+- All global variables should be defined in `main.lua` and their names should start with an underscore and the first character should be a capital letter.
+  For example: `_MousePos`
+- If you're using Visual Studio Code, try to keep the number of warnings in the *Problems* tab as low as possible.
+  - Don't be too pathetic about it though, sometimes it's not easy to fix a warning due to bugs or unfinished/imperfect documentation. In such cases, it's best to just leave them as they are.
+- As you're writing the code, try to keep the number of hardcoded variables down and make some parameters configurable to enhance the flexibility of the engine!
+  - Adding a parameter to an existing file needs to perform the following steps:
+    - Add the parameter to the schema, if it exists. If it's not, you can try to create one, it'll be helpful for other people!
+    - Add the parameter to the file structure class. Remember to prepend a default value or logic to obtain one for backwards compatibility!
+    - Finally, hook it up to your code.
+  - Avoid making changes to the engine which modify existing behavior in a way that the old behavior cannot be reproduced. Unless the change is temporary.
+    - If you want to make such one, open a ticket on the issue list first and talk about it with other developers!
+
 ### Overall file format
 - This is the general structure of a class:
   ```lua
