@@ -486,7 +486,6 @@ end
 
 
 ---Returns the onscreen position at the given offset of this Path.
----Why `nil` can be returned here?
 ---@param pixels number The path offset to be considered, in pixels.
 ---@return Vector2
 function Path:getPos(pixels)
