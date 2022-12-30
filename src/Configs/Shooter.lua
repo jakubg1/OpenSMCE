@@ -34,13 +34,13 @@ function ShooterConfig:new(data, path)
 
     self.reticle = {
         ---@type Sprite?
-        sprite = data.reticle.sprite and _Game.resourceManager:getSprite(data.reticle.sprite),
+        sprite = data.reticle and data.reticle.sprite and _Game.resourceManager:getSprite(data.reticle.sprite),
         ---@type Sprite?
-        nextBallSprite = data.reticle.nextBallSprite and _Game.resourceManager:getSprite(data.reticle.nextBallSprite),
+        nextBallSprite = data.reticle and data.reticle.nextBallSprite and _Game.resourceManager:getSprite(data.reticle.nextBallSprite),
         ---@type Vector2?
-        nextBallOffset = _ParseVec2(data.reticle.nextBallOffset),
+        nextBallOffset = data.reticle and _ParseVec2(data.reticle.nextBallOffset),
         ---@type Sprite?
-        radiusSprite = data.reticle.radiusSprite and _Game.resourceManager:getSprite(data.reticle.radiusSprite)
+        radiusSprite = data.reticle and data.reticle.radiusSprite and _Game.resourceManager:getSprite(data.reticle.radiusSprite)
     }
 
     self.speedShotBeam = {
