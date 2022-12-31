@@ -22,9 +22,16 @@ function Level:new(data)
 
 	self.matchEffect = data.matchEffect
 
-	self.target = data.target
+	if data.target then
+		self.targets = {
+			{type = "destroyedSpheres", value = data.target}
+		}
+	end
+	self.targets = data.targets
 	if _Game.satMode then
-		self.target = _Game:getCurrentProfile():getUSMNumber() * 10
+		self.targets = {
+			{type = "destroyedSpheres", value = _Game:getCurrentProfile():getUSMNumber() * 10}
+		}
 	end
 
 	self.colorGeneratorNormal = data.colorGeneratorNormal
@@ -71,7 +78,7 @@ function Level:updateLogic(dt)
 	self.map:update(dt)
 	self.shooter:update(dt)
 
-	-- danger sound
+	-- Danger sound
 	local d1 = self:getDanger() and not self.lost
 	local d2 = self.danger
 	if d1 and not d2 then
@@ -158,6 +165,16 @@ function Level:updateLogic(dt)
 		end
 	else
 		self.warningDelay = 0
+	end
+
+
+
+	-- Time counting
+	if self.started and not self.controlDelay and not self:getFinish() and not self.finish and not self.lost then
+		self.time = self.time + dt
+		if math.floor(self.time) ~= math.floor(self.time + dt) then
+			_Debug.console:print(math.floor(self.time))
+		end
 	end
 
 
@@ -313,14 +330,50 @@ end
 
 ---Adds one sphere to the destroyed sphere counter.
 function Level:destroySphere()
-	if self.targetReached or self.lost then
+	if self.lost then
 		return
 	end
 
 	self.destroyedSpheres = self.destroyedSpheres + 1
-	if self.destroyedSpheres == self.target then
-		self.targetReached = true
+end
+
+
+
+---Returns whether the given target has been reached.
+---@param n integer The target index.
+---@return boolean
+function Level:isTargetReached(n)
+	return self:getTargetProgress(n) >= 1
+end
+
+
+
+---Returns the fraction of progress of the given target as a number in a range [0, 1].
+---@param n integer The target index.
+---@return number
+function Level:getTargetProgress(n)
+	local target = self.targets[n]
+	if target.type == "destroyedSpheres" then
+		return math.min(self.destroyedSpheres / target.value, 1)
+	elseif target.type == "timeSurvived" then
+		return math.min(self.time / target.value, 1)
+	elseif target.type == "score" then
+		return math.min(self.score / target.value, 1)
 	end
+	return 1
+end
+
+
+
+---Returns whether all targets defined in this level have been reached.
+---@return boolean
+function Level:areAllTargetsReached()
+	for i, target in ipairs(self.targets) do
+		if not self:isTargetReached(i) then
+			return false
+		end
+	end
+	return true
 end
 
 
@@ -602,7 +655,7 @@ end
 ---Returns `true` when there are no more spheres on the board and no more spheres can spawn, too.
 ---@return boolean
 function Level:hasNoMoreSpheres()
-	return self.targetReached and not self.lost and self:getEmpty()
+	return self:areAllTargetsReached() and not self.lost and self:getEmpty()
 end
 
 
@@ -640,7 +693,6 @@ end
 function Level:beginLoad()
 	self.started = true
 	_Game:getMusic(self.musicName):reset()
-	self.targetReached = self.destroyedSpheres == self.target
 	if not self.bonusDelay and not self.map.paths[self.bonusPathID] then
 		self.wonDelay = _Game.configManager.gameplay.level.wonDelay
 	end
@@ -700,6 +752,7 @@ function Level:reset()
 	self.gems = 0
 	self.combo = 0
 	self.destroyedSpheres = 0
+	self.time = 0
 
 	self.spheresShot = 0
 	self.sphereChainsSpawned = 0
@@ -710,7 +763,6 @@ function Level:reset()
 	self.collectibles = {}
 	self.floatingTexts = {}
 
-	self.targetReached = false
 	self.danger = false
 	self.dangerSound = nil
 	self.warningDelay = 0
@@ -840,6 +892,7 @@ function Level:serialize()
 			maxChain = self.maxChain,
 			maxCombo = self.maxCombo
 		},
+		time = self.time,
 		controlDelay = self.controlDelay,
 		finish = self.finish,
 		finishDelay = self.finishDelay,
@@ -882,6 +935,7 @@ function Level:deserialize(t)
 	self.maxCombo = t.stats.maxCombo
 	self.combo = t.combo
 	self.destroyedSpheres = t.destroyedSpheres
+	self.time = t.time
 	self.lost = t.lost
 	-- Utils
 	self.controlDelay = t.controlDelay

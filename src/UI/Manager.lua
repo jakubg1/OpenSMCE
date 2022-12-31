@@ -30,7 +30,7 @@ function UIManager:new()
     quit = function() _Game:quit() end,
 
     levelExists = function() return _Game:levelExists() end,
-    levelGetProgress = function() return _Game.session.level.destroyedSpheres / _Game.session.level.target end,
+    levelGetProgress = function(n) return _Game.session.level:getTargetProgress(n or 1) end,
     levelGetScore = function() return _Game.session.level.score end,
     levelGetShots = function() return _Game.session.level.spheresShot end,
     levelGetCoins = function() return _Game.session.level.coins end,
