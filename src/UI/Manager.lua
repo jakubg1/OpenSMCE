@@ -17,6 +17,7 @@ function UIManager:new()
   self.scriptFunctions = {
     loadMain = function() _Game:loadMain() end,
     initSession = function() _Game:initSession() end,
+    loadingGetProgress = function() return _Game.resourceManager.stepLoadProcessedObjs / _Game.resourceManager.stepLoadTotalObjs end,
 
     levelStart = function() _Game.session:startLevel() end,
     levelBegin = function() _Game.session.level:begin() end,
@@ -116,16 +117,6 @@ function UIManager:update(dt)
 		self.hasFocus = love.window.hasFocus()
 		if not self.hasFocus then
 			self:executeCallback("lostFocus")
-		end
-	end
-
-	-- TODO: HARDCODED - make it more flexible
-	if self.widgets.splash then
-		-- splash progress bar
-		self.widgets.splash.children.Frame.children.Progress.widget.valueData = _Game.resourceManager.stepLoadProcessedObjs / _Game.resourceManager.stepLoadTotalObjs
-		-- splash play button
-		if self.widgets.splash.children.Frame.children.Progress.widget.value == 1 then
-			self.widgets.splash.children.Frame.children.Button_Play:show()
 		end
 	end
 

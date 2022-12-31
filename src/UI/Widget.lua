@@ -126,7 +126,7 @@ function UIWidget:update(dt)
 			-- instead, you need to clean up the black background manually!
 		end
 	end
-	if self.time and (not self.parent or self.parent:isVisible()) then
+	if self.time then
 		self.time = self.time - dt
 		if self.time <= 0 then
 			self.time = nil
