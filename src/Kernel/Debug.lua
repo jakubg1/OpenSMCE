@@ -62,7 +62,7 @@ function Debug:draw()
 	self.console:draw()
 
 	-- UI tree
-	if self.uiDebugVisible and _Game.sessionExists and _Game:sessionExists() then
+	if self.uiDebugVisible and _Game.sessionExists then
 		love.graphics.setColor(0, 0, 0, 0.5)
 		love.graphics.rectangle("fill", 0, 0, 460, 600)
 		love.graphics.setColor(1, 1, 1)
@@ -113,7 +113,7 @@ end
 
 
 function Debug:getUITreeText(widget, rowTable, indent)
-	widget = widget or _Game.uiManager.widgets["root"]
+	widget = widget or _Game.uiManager.widgets["root"] or _Game.uiManager.widgets["splash"]
 	rowTable = rowTable or {}
 	indent = indent or 0
 	--if indent > 1 then return end
