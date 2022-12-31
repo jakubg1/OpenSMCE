@@ -152,7 +152,7 @@ function Game:updateRichPresence()
 		local l = self.session.level
 		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
 			p:getLevelName(),
-			l.won and "Complete!" or string.format("%s%%", math.floor((l:getTargetProgress(1)) * 100)),
+			l.won and "Complete!" or string.format("%s%%", math.floor((l:getObjectiveProgress(1)) * 100)),
 			p:getScore(),
 			p:getLives()
 		)

@@ -86,7 +86,7 @@ function SphereChain:update(dt)
 			while self:getLastSphereGroup().offset >= 0 do
 				self:generateSphere()
 			end
-			if _Game:levelExists() and (self.map.level:areAllTargetsReached() or self.map.level.lost) then
+			if _Game:levelExists() and (self.map.level:areAllObjectivesReached() or self.map.level.lost) then
 				self:concludeGeneration()
 			end
 		end

@@ -22,16 +22,16 @@ function Level:new(data)
 
 	self.matchEffect = data.matchEffect
 
+	local objectives = data.objectives
 	if data.target then
-		self.targets = {
-			{type = "destroyedSpheres", value = data.target}
-		}
+		objectives = {{type = "destroyedSpheres", target = data.target}}
 	end
-	self.targets = data.targets
 	if _Game.satMode then
-		self.targets = {
-			{type = "destroyedSpheres", value = _Game:getCurrentProfile():getUSMNumber() * 10}
-		}
+		objectives = {{type = "destroyedSpheres", target = _Game:getCurrentProfile():getUSMNumber() * 10}}
+	end
+	self.objectives = {}
+	for i, objective in ipairs(objectives) do
+		table.insert(self.objectives, {type = objective.type, target = objective.target, progress = 0, reached = false})
 	end
 
 	self.colorGeneratorNormal = data.colorGeneratorNormal
@@ -179,6 +179,11 @@ function Level:updateLogic(dt)
 
 
 
+	-- Objectives
+	self:updateObjectives()
+
+
+
 	-- Level start
 	-- TODO: HARDCODED - make it more flexible
 	if self.controlDelay then
@@ -286,6 +291,22 @@ end
 
 
 
+---Updates the progress of this Level's objectives.
+function Level:updateObjectives()
+	for i, objective in ipairs(self.objectives) do
+		if objective.type == "destroyedSpheres" then
+			objective.progress = self.destroyedSpheres
+		elseif objective.type == "timeSurvived" then
+			objective.progress = self.time
+		elseif objective.type == "score" then
+			objective.progress = self.score
+		end
+		objective.reached = objective.progress >= objective.target
+	end
+end
+
+
+
 ---Activates a collectible generator in a given position.
 ---@param pos Vector2 The position where the collectibles will spawn.
 ---@param entryName string The CollectibleEntry ID.
@@ -339,37 +360,21 @@ end
 
 
 
----Returns whether the given target has been reached.
----@param n integer The target index.
----@return boolean
-function Level:isTargetReached(n)
-	return self:getTargetProgress(n) >= 1
-end
-
-
-
----Returns the fraction of progress of the given target as a number in a range [0, 1].
----@param n integer The target index.
+---Returns the fraction of progress of the given objective as a number in a range [0, 1].
+---@param n integer The objective index.
 ---@return number
-function Level:getTargetProgress(n)
-	local target = self.targets[n]
-	if target.type == "destroyedSpheres" then
-		return math.min(self.destroyedSpheres / target.value, 1)
-	elseif target.type == "timeSurvived" then
-		return math.min(self.time / target.value, 1)
-	elseif target.type == "score" then
-		return math.min(self.score / target.value, 1)
-	end
-	return 1
+function Level:getObjectiveProgress(n)
+	local objective = self.objectives[n]
+	return math.min(objective.progress / objective.target, 1)
 end
 
 
 
----Returns whether all targets defined in this level have been reached.
+---Returns whether all objectives defined in this level have been reached.
 ---@return boolean
-function Level:areAllTargetsReached()
-	for i, target in ipairs(self.targets) do
-		if not self:isTargetReached(i) then
+function Level:areAllObjectivesReached()
+	for i, objective in ipairs(self.objectives) do
+		if not objective.reached then
 			return false
 		end
 	end
@@ -655,7 +660,7 @@ end
 ---Returns `true` when there are no more spheres on the board and no more spheres can spawn, too.
 ---@return boolean
 function Level:hasNoMoreSpheres()
-	return self:areAllTargetsReached() and not self.lost and self:getEmpty()
+	return self:areAllObjectivesReached() and not self.lost and self:getEmpty()
 end
 
 
@@ -962,6 +967,7 @@ function Level:deserialize(t)
 
 	-- Pause
 	self:setPause(true)
+	self:updateObjectives()
 end
 
 
