@@ -95,11 +95,9 @@ end
 
 function UIManager:initSplash()
   self.widgets.splash = UIWidget("Splash", _LoadJson(_ParsePath("ui/splash.json")))
-  self.widgets.splash:show()
-  self.widgets.splash:setActive()
-  _Game:getMusic("menu"):setVolume(1)
 
   self.script = require(_ParsePath("ui/script"))
+  self.script.init(self.scriptFunctions)
 end
 
 function UIManager:init()
