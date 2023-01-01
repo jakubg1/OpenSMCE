@@ -230,9 +230,9 @@ end
 
 
 function _LoadFile(path)
-	local file = io.open(path, "r")
+	local file, err = io.open(path, "r")
 	if not file then
-		_Log:printt("main", "WARNING: File \"" .. path .. "\" does not exist. Expect errors!")
+		_Log:printt("main", string.format("WARNING: Error during loading: \"%s\" (%s): expect errors!", path, err))
 		return
 	end
 	io.input(file)
