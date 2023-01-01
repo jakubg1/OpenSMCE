@@ -58,7 +58,9 @@ function SoundInstance:setPos(pos)
     self.sound:setAttenuationDistances(0, _NATIVE_RESOLUTION.x)
   else
     self.pos = Vec2()
-    self.sound:setPosition(0, 0, 0)
+    if self.sound:getChannelCount() == 1 then
+      self.sound:setPosition(0, 0, 0)
+    end
   end
 end
 
