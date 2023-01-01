@@ -27,7 +27,6 @@ function Shooter:new(data)
 
     self.color = 0
     self.nextColor = 0
-    self.active = false -- when the sphere is shot you can't shoot; same for start, win, lose
     self.speedShotSpeed = 0
     self.speedShotTime = 0
     self.speedShotAnim = 0
@@ -98,7 +97,7 @@ function Shooter:update(dt)
     self.mousePos = _MousePos
 
     -- filling
-    if self.active then
+    if self:isActive() then
         -- remove nonexistent colors, but only if the current color generator allows removing these colors
         local remTable = _Game.session.level:getCurrentColorGenerator().colors_remove_if_nonexistent
         if _MathIsValueInTable(remTable, self.color) and not _Game.session.colorManager:isColorExistent(self.color) then
@@ -163,9 +162,8 @@ end
 
 
 
----Empties and deactivates this shooter. This includes removing all effects, such as speed shot or multi-color spheres.
+---Empties this shooter. This includes removing all effects, such as speed shot or multi-color spheres.
 function Shooter:empty()
-    self.active = false
     self:setColor(0)
     self:setNextColor(0)
     self.multiColorColor = nil
@@ -204,6 +202,9 @@ end
 
 ---Fills any empty spaces in the shooter.
 function Shooter:fill()
+    if self.nextColor == 0 or self.color == 0 then
+        _Game:playSound(self.config.sounds.sphereFill, 1, self.pos)
+    end
     if self.nextColor == 0 then
         self:setNextColor(self:getNextColor())
     end
@@ -215,10 +216,11 @@ end
 
 
 
----Activates the shooter and plays a shooter fill sound.
-function Shooter:activate()
-    self.active = true
-    _Game:playSound(self.config.sounds.sphereFill, 1, self.pos)
+---Returns whether the Shooter is active.
+---When the shooter is deactivated, new balls won't be added and existing can't be shot or removed.
+function Shooter:isActive()
+    local level = _Game.session.level
+    return not (not level.started or level.controlDelay or level.lost or level:hasNoMoreSpheres() or level:hasShotSpheres())
 end
 
 
@@ -226,7 +228,7 @@ end
 ---Launches the current sphere, if possible.
 function Shooter:shoot()
     -- if nothing to shoot, it's pointless
-    if _Game.session.level.pause or not self.active or self.color == 0 then
+    if _Game.session.level.pause or not self:isActive() or self.color == 0 then
         return
     end
 
@@ -238,7 +240,6 @@ function Shooter:shoot()
     else
         _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self.color, self:getShootingSpeed())
         self.sphereEntity = nil
-        self.active = false
     end
     if sphereConfig.shootEffects then
         for i, effect in ipairs(sphereConfig.shootEffects) do
@@ -558,8 +559,7 @@ function Shooter:serialize()
         multiColorColor = self.multiColorColor,
         multiColorCount = self.multiColorCount,
         speedShotTime = self.speedShotTime,
-        speedShotSpeed = self.speedShotSpeed,
-        active = self.active
+        speedShotSpeed = self.speedShotSpeed
     }
 end
 
@@ -574,7 +574,6 @@ function Shooter:deserialize(t)
     self.multiColorCount = t.multiColorCount
     self.speedShotTime = t.speedShotTime
     self.speedShotSpeed = t.speedShotSpeed
-    self.active = t.active
 
 
 

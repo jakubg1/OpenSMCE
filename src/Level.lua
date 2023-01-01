@@ -190,7 +190,6 @@ function Level:updateLogic(dt)
 		self.controlDelay = self.controlDelay - dt
 		if self.controlDelay <= 0 then
 			self.controlDelay = nil
-			self.shooter:activate()
 		end
 	end
 
@@ -199,7 +198,6 @@ function Level:updateLogic(dt)
 	-- Level finish
 	if self:getFinish() and not self.finish and not self.finishDelay then
 		self.finishDelay = _Game.configManager.gameplay.level.finishDelay
-		self.shooter.active = false
 	end
 
 	if self.finishDelay then
@@ -661,6 +659,14 @@ end
 ---@return boolean
 function Level:hasNoMoreSpheres()
 	return self:areAllObjectivesReached() and not self.lost and self:getEmpty()
+end
+
+
+
+---Returns `true` if there are any shot spheres in this level, `false` otherwise.
+---@return boolean
+function Level:hasShotSpheres()
+	return #self.shotSpheres > 0
 end
 
 
