@@ -27,6 +27,7 @@ function Shooter:new(data)
 
     self.color = 0
     self.nextColor = 0
+    self.shotCooldown = nil
     self.speedShotSpeed = 0
     self.speedShotTime = 0
     self.speedShotAnim = 0
@@ -95,6 +96,14 @@ function Shooter:update(dt)
         self.angle = (self.angle + math.pi) % (math.pi * 2) - math.pi
     end
     self.mousePos = _MousePos
+
+    -- shot cooldown
+    if self.shotCooldown and (not _Game.session.level:hasShotSpheres() or self.config.multishot) then
+        self.shotCooldown = self.shotCooldown - dt
+        if self.shotCooldown <= 0 then
+            self.shotCooldown = nil
+        end
+    end
 
     -- filling
     if self:isActive() then
@@ -220,7 +229,20 @@ end
 ---When the shooter is deactivated, new balls won't be added and existing can't be shot or removed.
 function Shooter:isActive()
     local level = _Game.session.level
-    return not (not level.started or level.controlDelay or level.lost or level:hasNoMoreSpheres() or level:hasShotSpheres())
+    -- Eliminate all cases where we're not in the main level gameplay loop.
+    if not level.started or level.controlDelay or level.lost or level:hasNoMoreSpheres() then
+        return false
+    end
+    -- When there's already a shot sphere and the config does not permit more, disallow.
+    if level:hasShotSpheres() and not self.config.multishot then
+        return false
+    end
+    -- Same for shooting delay.
+    if self.shotCooldown then
+        return false
+    end
+    -- Otherwise, allow.
+    return true
 end
 
 
@@ -248,6 +270,7 @@ function Shooter:shoot()
     end
     _Game:playSound(sphereConfig.shootSound, 1, self.pos)
     self.color = 0
+    self.shotCooldown = self.config.shotCooldown
     _Game.session.level.spheresShot = _Game.session.level.spheresShot + 1
 end
 

@@ -126,6 +126,16 @@
             "type": "string",
             "description": "Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes."
         },
+        "shotCooldown": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The minimum time between the shots, in seconds. If multishot is set to false, this time will be counted since the previous shot sphere has been appended/disappeared.",
+            "markdownDescription": "The minimum time between the shots, in seconds. If `multishot` is set to `false`, this time will be counted since the previous shot sphere has been appended/disappeared."
+        },
+        "multishot": {
+            "type": "boolean",
+            "description": "If set, the player will be able to shoot another sphere before the previous one has hit the sphere train."
+        },
         "shootSpeed": {
             "type": "number",
             "exclusiveMinimum": 0,
@@ -150,6 +160,8 @@
         "sounds",
         "speedShotBeam",
         "speedShotParticle",
+        "shotCooldown",
+        "multishot",
         "shootSpeed",
         "hitboxSize"
     ],
