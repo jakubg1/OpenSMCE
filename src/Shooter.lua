@@ -332,9 +332,8 @@ function Shooter:draw()
         self.sphereEntity:draw()
     end
     -- next color
-    local sprite = _Game.resourceManager:getSprite(self:getNextSphereConfig().nextSprite)
-    local frame = self:getNextSphereFrame()
-    sprite:draw(self.pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, frame, self.angle)
+    local sprite = self.config.nextBallSprites[self.nextColor].sprite
+    sprite:draw(self.pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, self:getNextSphereFrame(), self.angle)
 
     --local p4 = posOnScreen(self.pos)
     --love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
@@ -564,7 +563,7 @@ end
 ---Returns the next sphere's animation frame.
 ---@return Vector2
 function Shooter:getNextSphereFrame()
-    local animationSpeed = self:getNextSphereConfig().nextSpriteAnimationSpeed
+    local animationSpeed = self.config.nextBallSprites[self.nextColor].spriteAnimationSpeed
     if animationSpeed then
         return Vec2(math.floor(animationSpeed * _TotalTime), 1)
     end
