@@ -146,7 +146,7 @@ end
 ---Returns `true` if this Path will spawn a new Sphere Chain right now.
 ---@return boolean
 function Path:shouldSpawn()
-	if _Game:levelExists() and (not self.map.level.started or self.map.level.targetReached or self.map.level.lost) then return false end
+	if _Game:levelExists() and (not self.map.level.started or self.map.level:areAllObjectivesReached() or self.map.level.lost) then return false end
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * self.spawnDistance then return false end
 	end

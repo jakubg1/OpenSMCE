@@ -334,6 +334,7 @@ end
 
 function _SaveFile(path, data)
 	local file = io.open(path, "w")
+	assert(file, string.format("SAVE FILE FAIL: %s", path))
 	io.output(file)
 	io.write(data)
 	io.close(file)
