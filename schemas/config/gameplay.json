@@ -101,6 +101,11 @@
                 "newGroupSound": {
                     "type": "string",
                     "description": "A sound event to be played when a new sphere chain appears on the board."
+                },
+                "noScarabs": {
+                    "type": "boolean",
+                    "description": "If true, the scarabs will not appear in the game.",
+                    "markdownDescription": "If `true`, the scarabs will not appear in the game."
                 }
             },
             "required": [
@@ -114,7 +119,8 @@
                 "overspeedCheck",
                 "invincibleScarabs",
                 "joinSound",
-                "newGroupSound"
+                "newGroupSound",
+                "noScarabs"
             ],
             "additionalProperties": false
         },

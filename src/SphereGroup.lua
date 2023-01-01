@@ -215,7 +215,7 @@ end
 
 function SphereGroup:getAddSpherePos(position)
 	-- we can't add spheres behind the vise
-	if not self.prevGroup and position == 1 then
+	if not self.prevGroup and position == 1 and not self.config.noScarabs then
 		return 2
 	end
 	return position
@@ -328,9 +328,17 @@ function SphereGroup:checkDeletion()
 	end
 
 	-- if there's only a vise in this chain, the whole chain gets yeeted!
-	if not self.prevGroup and not self.nextGroup and #self.spheres == 1 and self.spheres[1].color == 0 then
-		self.spheres[1]:delete()
-		self.sphereChain:delete(false)
+	if not self.prevGroup and not self.nextGroup then
+		if self.config.noScarabs then
+			if #self.spheres == 0 then
+				self.sphereChain:delete(false)
+			end
+		else
+			if #self.spheres == 1 and self.spheres[1].color == 0 then
+				self.spheres[1]:delete()
+				self.sphereChain:delete(false)
+			end
+		end
 	end
 end
 

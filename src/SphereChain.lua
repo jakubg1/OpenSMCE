@@ -200,7 +200,9 @@ end
 function SphereChain:join()
 	-- Joins with the previous group and deletes a vise from this group.
 	local prevChain = self.path.sphereChains[self.path:getSphereChainID(self) + 1]
-	self:getLastSphereGroup():destroySphere(1, true)
+	if not _Game.configManager.gameplay.sphereBehaviour.noScarabs then
+		self:getLastSphereGroup():destroySphere(1, true)
+	end
 	-- update group links
 	self:getLastSphereGroup().prevGroup = prevChain.sphereGroups[1]
 	prevChain.sphereGroups[1].nextGroup = self:getLastSphereGroup()
@@ -232,7 +234,9 @@ function SphereChain:concludeGeneration()
 	local group = self:getLastSphereGroup()
 
 	-- Spawn a vise.
-	group:pushSphereBack(0)
+	if not _Game.configManager.gameplay.sphereBehaviour.noScarabs then
+		group:pushSphereBack(0)
+	end
 
 	self.generationAllowed = false
 end
