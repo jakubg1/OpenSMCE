@@ -448,7 +448,7 @@ end
 
 
 ---Increments the level lose count and takes one life. Returns `false` if the player has had already zero lives, per `Profile:takeLife()`.
----@see Profile:loseLevel()
+---@see Profile.takeLife()
 ---@return boolean
 function Profile:loseLevel()
 	local levelData = self:getCurrentLevelData() or {score = 0, won = 0, lost = 0}
