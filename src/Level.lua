@@ -787,6 +787,7 @@ function Level:reset()
 	self.canPause = true
 	self.started = false
 	self.controlDelay = nil
+	self.lost = false
 	self.ended = false
 	self.wonDelay = nil
 	self.finish = false
