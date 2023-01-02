@@ -17,6 +17,11 @@
             "minimum": 0,
             "description": "When defined, the sphere sprite will animate with that speed in frames per second. This disables rolling animation and rotation. When left out, the sphere will have their usual rolling animation and will keep rotating."
         },
+        "spriteRollingSpeed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 1."
+        },
         "idleParticle": {
             "type": "string",
             "description": "A persistent particle packet used when the sphere is on the board."

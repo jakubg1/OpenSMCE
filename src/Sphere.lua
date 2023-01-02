@@ -48,8 +48,10 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.shootOrigin = shootOrigin
 		self.shootTime = shootTime
 		self.size = 0
-		self.frameOffset = 0
 	end
+
+	self.animationPrevOffset = self:getOffset()
+	self.animationFrame = math.random() * self.frameCount
 
 	if not self.map.isDummy then
 		_Game.session.colorManager:increment(self.color)
@@ -135,6 +137,11 @@ function Sphere:update(dt)
 			end
 		end
 	end
+
+	-- animation
+	local dist = self:getOffset() - self.animationPrevOffset
+	self.animationPrevOffset = self:getOffset()
+	self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or 1)) % self.frameCount
 end
 
 
@@ -389,14 +396,6 @@ end
 
 
 
----Returns the current animation frame of this Sphere. Warning: this function can return fractions!
----@return number
-function Sphere:getFrame()
-	return ((self.frameOffset + self.offset + self.sphereGroup.offset) * self.frameCount / 32) % self.frameCount
-end
-
-
-
 ---Returns the current global offset of this sphere on its path.
 ---@return number
 function Sphere:getOffset()
@@ -466,7 +465,7 @@ function Sphere:draw(color, hidden, shadow)
 	if self.config.spriteAnimationSpeed then
 		frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
 	elseif self.size == 1 then
-		frame = Vec2(math.ceil(self.frameCount - self:getFrame()), 1)
+		frame = Vec2(math.ceil(self.frameCount - self.animationFrame), 1)
 	end
 
 	local colorM = self:getColor()
@@ -503,11 +502,6 @@ function Sphere:loadConfig()
 	-- TODO/DEPRECATED: Remove default value
 	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
 	self.frameCount = self.sprite.states[1].frameCount.x
-	self.frameOffset = math.random() * self.frameCount -- move to the "else" part if you're a purist and want this to be saved
-
-	if self.color == 0 then -- vises follow another way
-		self.frameOffset = 0
-	end
 end
 
 
@@ -541,7 +535,7 @@ end
 function Sphere:serialize()
 	local t = {
 		color = self.color,
-		--frameOffset = self.frameOffset, -- who cares about that, you can uncomment this if you do
+		--animationFrame = self.animationFrame, -- who cares about that, you can uncomment this if you do
 		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil,
 		shootTime = self.shootTime
 	}
@@ -580,7 +574,7 @@ end
 ---@param t table Previously serialized Sphere's data.
 function Sphere:deserialize(t)
 	self.color = t.color
-	--self.frameOffset = t.frameOffset
+	--self.animationFrame = t.animationFrame
 	self.size = t.size or 1
 	self.boostCombo = t.boostCombo or false
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
