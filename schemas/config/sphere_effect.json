@@ -82,6 +82,11 @@
             "type": "boolean",
             "description": "When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the \"cause\" sphere.",
             "markdownDescription": "When set to `true`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the \"cause\" sphere."
+        },
+        "ghostTime": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation."
         }
     },
     "required": [

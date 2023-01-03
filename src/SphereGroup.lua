@@ -25,6 +25,7 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	else
 		self.offset = 0
 		self.speed = 0
+		self.speedTime = nil -- this is used ONLY in zuma knockback; aka the speed of this group will be locked for this time
 		self.spheres = {}
 		self.matchCheck = true -- this is used ONLY in vise destruction to not trigger a chain reaction
 	end
@@ -83,42 +84,56 @@ function SphereGroup:update(dt)
 		end
 	end
 
-	if self.speed > self.maxSpeed then
-		-- Decceleration rate used in this frame.
-		local deccel = self.config.decceleration
-
-		-- Can be different if defined accordingly, such as reverse powerup, magnetizing or under a slow powerup.
-		if self.sphereChain.speedOverrideTime > 0 and speedDesired < 0 and not self:isMagnetizing() then
-			deccel = self.sphereChain.speedOverrideDecc or deccel
-		elseif self:isMagnetizing() then
-			deccel = self.config.attractionAcceleration or deccel
-		elseif self.prevGroup then
-			deccel = self.config.decceleration or deccel
-		elseif self.sphereChain.speedOverrideTime > 0 then
-			deccel = self.sphereChain.speedOverrideDecc or deccel
+	if self.speedTime then
+		-- Omit speed calculation if this group's speed is locked.
+		self.speedTime = self.speedTime - dt
+		if self.speedTime <= 0 then
+			self.speedTime = nil
+			if self.config.knockbackStopAfterTime then
+				self.speed = 0
+			end
 		end
-		
-		self.speed = math.max(self.speed - deccel * dt, self.maxSpeed)
-	end
+	else
+		if self.speed > self.maxSpeed then
+			-- Decceleration rate used in this frame.
+			local deccel = self.config.decceleration
 
-	if self.speed < self.maxSpeed then
-		-- Acceleration rate used in this frame.
-		local accel = self.config.acceleration
-
-		-- Can be different if defined accordingly, such as when the level is lost.
-		if self.map.level.lost then
-			accel = self.config.foulAcceleration or accel
+			-- Can be different if defined accordingly, such as reverse powerup, magnetizing or under a slow powerup.
+			if self.sphereChain.speedOverrideTime > 0 and speedDesired < 0 and not self:isMagnetizing() then
+				deccel = self.sphereChain.speedOverrideDecc or deccel
+			elseif self:isMagnetizing() then
+				deccel = self.config.attractionAcceleration or deccel
+			elseif self.prevGroup then
+				deccel = self.config.decceleration or deccel
+			elseif self.sphereChain.speedOverrideTime > 0 then
+				deccel = self.sphereChain.speedOverrideDecc or deccel
+			end
+			
+			self.speed = math.max(self.speed - deccel * dt, self.maxSpeed)
 		end
 
-		self.speed = math.min(self.speed + accel * dt, self.maxSpeed)
-	end
-	-- anti-slow-catapulting
-	if self.config.overspeedCheck and not self.map.level.lost and self.speed > speedBound then
-		self.speed = speedBound
+		if self.speed < self.maxSpeed then
+			-- Acceleration rate used in this frame.
+			local accel = self.config.acceleration
+
+			-- Can be different if defined accordingly, such as when the level is lost.
+			if self.map.level.lost then
+				accel = self.config.foulAcceleration or accel
+			end
+
+			self.speed = math.min(self.speed + accel * dt, self.maxSpeed)
+		end
+		-- anti-slow-catapulting
+		if self.config.overspeedCheck and not self.map.level.lost and self.speed > speedBound then
+			self.speed = speedBound
+		end
 	end
 
 	-- stop spheres when away from board and rolling back
-	if self.speed < 0 and self:getFrontPos() < 0 then self.speed = 0 end
+	if self.speed < 0 and self:getFrontPos() < 0 then
+		self.speed = 0
+		self.speedTime = nil
+	end
 
 	self:move(self.speed * dt)
 
@@ -257,6 +272,12 @@ end
 
 
 
+function SphereGroup:destroySphereVisually(position, ghostTime, crushed)
+	self.spheres[position]:deleteVisually(ghostTime, crushed)
+end
+
+
+
 function SphereGroup:destroySpheres(position1, position2)
 	-- to avoid more calculation than is needed
 	-- example:
@@ -348,7 +369,13 @@ function SphereGroup:move(offset)
 	self.offset = self.offset + offset
 	self:updateSphereOffsets()
 	-- if reached the end of the level, it's over
-	if self:getLastSphereOffset() >= self.sphereChain.path.length and not self:isMagnetizing() and not self:hasShotSpheres() and not self:hasLossProtectedSpheres() and not self.map.isDummy then
+	if self:getLastSphereOffset() >= self.sphereChain.path.length and
+		not self:isMagnetizing() and
+		not self:hasShotSpheres() and
+		not self:hasLossProtectedSpheres() and
+		not self:hasGhostSpheres() and
+		not self.map.isDummy
+	then
 		self.map.level:lose()
 	end
 	if offset <= 0 then
@@ -383,6 +410,7 @@ function SphereGroup:join()
 	end
 	if self.speed < 0 then
 		self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self.sphereChain.combo, 1)
+		self.prevGroup.speedTime = self.config.knockbackTime
 	end
 	-- link the spheres from both groups
 	self.prevGroup.spheres[joinPosition].nextSphere = self.spheres[1]
@@ -414,7 +442,7 @@ function SphereGroup:divide(position)
 	-- first, create a new group and give its properties there
 	local newGroup = SphereGroup(self.sphereChain)
 	newGroup.offset = self:getSphereOffset(position + 1)
-	newGroup.speed = (_Game.configManager.gameplay.sphereBehaviour.luxorized and self.sphereChain.combo > 1) and 0 or self.speed
+	newGroup.speed = ((self.config.luxorized and self.sphereChain.combo > 1) or self.config.knockbackStopAfterTime) and 0 or self.speed
 	for i = position + 1, #self.spheres do
 		local sphere = self.spheres[i]
 		sphere.sphereGroup = newGroup
@@ -607,7 +635,12 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
 	local color = self.sphereChain.path:getSphereEffectGroup(effectGroupID).cause.color
 	for i = #spheres, 1, -1 do
-		self:destroySphere(self:getSphereID(spheres[i]))
+		local n = self:getSphereID(spheres[i])
+		if effectConfig.ghostTime then
+			self:destroySphereVisually(n, effectConfig.ghostTime)
+		else
+			self:destroySphere(n)
+		end
 	end
 
 	-- Destroy adjacent spheres if they are stone spheres.
@@ -678,6 +711,18 @@ end
 
 
 
+-- Only removes the already destroyed spheres which have been ghosts.
+function SphereGroup:deleteGhost(position)
+	-- Prepare a list of spheres to be destroyed.
+	local spheres = {}
+	local position1, position2 = self:getGhostBounds(position)
+	for i = position1, position2 do
+		self:destroySphere(i)
+	end
+end
+
+
+
 function SphereGroup:isMagnetizing()
 	--print("----- " .. (self.prevGroup and self.prevGroup:getDebugText() or "xxx") .. " -> " .. self:getDebugText() .. " -> " .. (self.nextGroup and self.nextGroup:getDebugText() or "xxx"))
 	--print("----- " .. tostring(self.sphereChain:getSphereGroupID(self.prevGroup)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self.nextGroup)))
@@ -693,6 +738,11 @@ function SphereGroup:isMagnetizing()
 
 	-- If there are no candidate spheres, abort.
 	if not sphere1 or not sphere2 then
+		return false
+	end
+
+	-- Abort if there are ghost spheres on any end.
+	if sphere1:isGhost() or sphere2:isGhost() then
 		return false
 	end
 
@@ -806,6 +856,30 @@ function SphereGroup:getEffectBounds(position, effect, effectGroupID)
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
 		if not self.spheres[position2] or not self.spheres[position2]:hasEffect(effect, effectGroupID) then
+			break
+		end
+	end
+	return position1 + 1, position2 - 1
+end
+
+
+
+function SphereGroup:getGhostBounds(position)
+	local position1 = position
+	local position2 = position
+	-- seek backwards
+	while true do
+		position1 = position1 - 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self.spheres[position1] or not self.spheres[position1]:isGhostForDeletion() then
+			break
+		end
+	end
+	-- seek forwards
+	while true do
+		position2 = position2 + 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self.spheres[position2] or not self.spheres[position2]:isGhostForDeletion() then
 			break
 		end
 	end
@@ -1060,6 +1134,17 @@ end
 
 
 
+function SphereGroup:hasGhostSpheres()
+	for i, sphere in ipairs(self.spheres) do
+		if sphere:isGhost() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
 function SphereGroup:isUnfinished()
 	return self.sphereChain.generationAllowed and not self.prevGroup
 end
@@ -1126,6 +1211,7 @@ function SphereGroup:serialize()
 	local t = {
 		offset = self.offset,
 		speed = self.speed,
+		speedTime = self.speedTime,
 		spheres = {},
 		matchCheck = self.matchCheck
 	}
@@ -1140,6 +1226,7 @@ end
 function SphereGroup:deserialize(t)
 	self.offset = t.offset
 	self.speed = t.speed
+	self.speedTime = t.speedTime
 	self.spheres = {}
 	local offset = 0
 	for i, sphere in ipairs(t.spheres) do

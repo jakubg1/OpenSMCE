@@ -40,7 +40,10 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.shootTime = nil
 		self.effects = {}
 		self.gaps = gaps or {}
-	end
+		self.ghostTime = nil
+    end
+
+	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
 
 	self:loadConfig()
 
@@ -116,6 +119,14 @@ function Sphere:update(dt)
 		end
 	end
 
+	-- Update the ghost time.
+	if self.ghostTime then
+		self.ghostTime = self.ghostTime - dt
+		if self:isGhostForDeletion() then
+			self:deleteGhost()
+		end
+	end
+
 	-- if the sphere was flagged as it was a part of a combo but got obstructed then it's unflagged
 	if self.boostCombo then
 		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) and not self:canKeepCombo() then
@@ -173,13 +184,31 @@ end
 ---Removes this sphere.
 ---Warning! The removal of the sphere itself is done in SphereGroup.lua!
 ---Please do not call this function if you want to remove this sphere from the board.
----@param crushed boolean Used when this sphere is a vise and is destroyed by joining two sphere chains together. Sets a variable.
+---@param crushed boolean? Used when this sphere is a vise and is destroyed by joining two sphere chains together. Sets a variable.
 function Sphere:delete(crushed)
 	if self.delQueue then
 		return
 	end
 
 	self.delQueue = true
+
+	-- Update links !!!
+	if self.prevSphere then self.prevSphere.nextSphere = self.nextSphere end
+	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
+
+	self:deleteVisually(nil, crushed)
+end
+
+
+
+---Removes this sphere, but only visually. The sphere will remain physically on the board until `:delete()` has been called or after a given time.
+---@param crushed boolean? Used when this sphere is a vise and is destroyed by joining two sphere chains together. Sets a variable.
+---@param ghostTime number? The time this Sphere will exist in its ghost form before it will get deleted completely.
+function Sphere:deleteVisually(ghostTime, crushed)
+	if not self.entity then
+		return
+	end
+
 	if not self.map.isDummy then
 		-- Increment sphere collapse count.
 		if self.color ~= 0 then
@@ -204,12 +233,9 @@ function Sphere:delete(crushed)
 		end
 	end
 
-	-- Update links !!!
-	if self.prevSphere then self.prevSphere.nextSphere = self.nextSphere end
-	if self.nextSphere then self.nextSphere.prevSphere = self.prevSphere end
-
 	-- Remove the entity.
 	self.entity:destroy(not ((self.map.level.lost or self.map.isDummy) and self:getOffset() >= self.path.length))
+	self.entity = nil
 
 	-- Remove all effects.
 	for i, effect in ipairs(self.effects) do
@@ -224,6 +250,10 @@ function Sphere:delete(crushed)
 		-- Decrement the sphere effect group counter.
 		self.path:decrementSphereEffectGroup(effect.effectGroupID)
 	end
+	self.effects = {}
+
+	-- Mark as ghosted if the SphereGroup actually does not remove this Sphere.
+	self.ghostTime = ghostTime
 end
 
 
@@ -396,6 +426,29 @@ end
 
 
 
+---Destroys this and any number of connected spheres if their ghost time has expired.
+function Sphere:deleteGhost()
+	self.sphereGroup:deleteGhost(self.sphereGroup:getSphereID(self))
+end
+
+
+
+---Returns `true` if this sphere is a ghost, i.e. has no visual representation and no hitbox, but exists.
+---@return boolean
+function Sphere:isGhost()
+	return self.ghostTime and self.ghostTime >= 0
+end
+
+
+
+---Returns `true` if this sphere is a ghost and can be now removed entirely from the board.
+---@return boolean
+function Sphere:isGhostForDeletion()
+	return self.ghostTime and self.ghostTime <= 0
+end
+
+
+
 ---Returns the current global offset of this sphere on its path.
 ---@return number
 function Sphere:getOffset()
@@ -450,7 +503,7 @@ end
 ---@param hidden boolean Filter the drawing routine only to hidden or not hidden spheres.
 ---@param shadow boolean If `true`, the shadow sprite will be rendered, else, the main entity.
 function Sphere:draw(color, hidden, shadow)
-	if self.color ~= color or self:getHidden() ~= hidden then
+	if not self.entity or self.color ~= color or self:getHidden() ~= hidden then
 		return
 	end
 
@@ -537,7 +590,8 @@ function Sphere:serialize()
 		color = self.color,
 		--animationFrame = self.animationFrame, -- who cares about that, you can uncomment this if you do
 		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil,
-		shootTime = self.shootTime
+		shootTime = self.shootTime,
+		ghostTime = self.ghostTime
 	}
 
 	if self.size ~= 1 then
@@ -579,6 +633,7 @@ function Sphere:deserialize(t)
 	self.boostCombo = t.boostCombo or false
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
 	self.shootTime = t.shootTime
+	self.ghostTime = t.ghostTime
 
 	self.effects = {}
 	if t.effects then
