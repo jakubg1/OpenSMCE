@@ -115,6 +115,11 @@
                     "type": "boolean",
                     "description": "If true, the scarabs will not appear in the game.",
                     "markdownDescription": "If `true`, the scarabs will not appear in the game."
+                },
+                "permitLongMatches": {
+                    "type": "boolean",
+                    "description": "If true, the spheres will try to make the biggest clump possible before matching together.",
+                    "markdownDescription": "If `true`, the spheres will try to make the biggest clump possible before matching together."
                 }
             },
             "required": [
@@ -129,7 +134,8 @@
                 "invincibleScarabs",
                 "joinSound",
                 "newGroupSound",
-                "noScarabs"
+                "noScarabs",
+                "permitLongMatches"
             ],
             "additionalProperties": false
         },

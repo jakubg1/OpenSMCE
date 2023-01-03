@@ -534,13 +534,15 @@ function SphereGroup:shouldMatch(position)
 	if position2 - position1 < 2 then
 		return false
 	end
-	-- if is magnetizing with previous group and we want to maximize the count of spheres
-	if self.prevGroup and not self.prevGroup.delQueue and _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) and position1 == 1 then
-		return false
-	end
-	-- same check with the next group
-	if self.nextGroup and not self.nextGroup.delQueue and _Game.session:colorsMatch(self:getLastSphere().color, self.nextGroup.spheres[1].color) and position2 == #self.spheres then
-		return false
+	if self.config.permitLongMatches then
+		-- if is magnetizing with previous group and we want to maximize the count of spheres
+		if self.prevGroup and not self.prevGroup.delQueue and _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) and position1 == 1 then
+			return false
+		end
+		-- same check with the next group
+		if self.nextGroup and not self.nextGroup.delQueue and _Game.session:colorsMatch(self:getLastSphere().color, self.nextGroup.spheres[1].color) and position2 == #self.spheres then
+			return false
+		end
 	end
 	-- all checks passed?
 	return true
@@ -597,7 +599,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	if effectConfig.cause_check then
 		-- Cause check: destroy all spheres in the same group if they have the same cause.
 		for i, sphere in ipairs(self.spheres) do
-			if sphere:hasEffect(effect, effectGroupID) then
+			if sphere:hasEffect(effect, effectGroupID) and not sphere:isGhost() then
 				table.insert(spheres, sphere)
 				if not position1 then
 					position1 = i
@@ -609,10 +611,18 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		-- No cause check: destroy all spheres in the same group if they lay near each other.
 		position1, position2 = self:getEffectBounds(position, effect)
 		for i = position1, position2 do
-			table.insert(spheres, self.spheres[i])
+			if not self.spheres[i]:isGhost() then
+				table.insert(spheres, self.spheres[i])
+			end
 		end
 	end
+
 	local length = #spheres
+	-- If there are precisely zero spheres to be destroyed, abort.
+	if length == 0 then
+		return
+	end
+
 	local prevSphere = self.spheres[position1 - 1]
 	local nextSphere = self.spheres[position2 + 1]
 
