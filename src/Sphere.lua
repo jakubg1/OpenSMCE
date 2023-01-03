@@ -260,7 +260,9 @@ end
 
 ---Unloads this sphere.
 function Sphere:destroy()
-	self.entity:destroy(false)
+	if self.entity then
+		self.entity:destroy(false)
+	end
 	for i, effect in ipairs(self.effects) do
 		-- Remove particles.
 		if effect.particle then
