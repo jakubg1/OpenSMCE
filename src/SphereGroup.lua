@@ -108,7 +108,7 @@ function SphereGroup:update(dt)
 			elseif self.sphereChain.speedOverrideTime > 0 then
 				deccel = self.sphereChain.speedOverrideDecc or deccel
 			end
-			
+
 			self.speed = math.max(self.speed - deccel * dt, self.maxSpeed)
 		end
 
@@ -245,19 +245,7 @@ function SphereGroup:destroySphere(position, crushed)
 		table.remove(self.spheres, position)
 		self.offset = self.offset + 32
 		self:updateSphereOffsets()
-
-		-- If this is an unfinished group, this means we're removing spheres at the spawn point.
-		-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
-		-- and flag that one as the new unfinished group.
-		if self:isUnfinished() then
-			local newGroup = SphereGroup(self.sphereChain, nil)
-			-- Update group links.
-			self.prevGroup = newGroup
-			newGroup.nextGroup = self
-
-			-- add to the master, on the back
-			table.insert(self.sphereChain.sphereGroups, newGroup)
-		end
+		self:checkUnfinishedDestructionAtSpawn()
 	elseif position == #self.spheres then
 		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
@@ -292,19 +280,7 @@ function SphereGroup:destroySpheres(position1, position2)
 		end
 		self.offset = self.offset + position2 * 32
 		self:updateSphereOffsets()
-
-		-- If this is an unfinished group, this means we're removing spheres at the spawn point.
-		-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
-		-- and flag that one as the new unfinished group.
-		if self:isUnfinished() then
-			local newGroup = SphereGroup(self.sphereChain, nil)
-			-- Update group links.
-			self.prevGroup = newGroup
-			newGroup.nextGroup = self
-
-			-- add to the master, on the back
-			table.insert(self.sphereChain.sphereGroups, newGroup)
-		end
+		self:checkUnfinishedDestructionAtSpawn()
 	elseif position2 == #self.spheres then -- or maybe on the end?
 		for i = position1, position2 do
 			self.spheres[#self.spheres]:delete()
@@ -320,6 +296,23 @@ function SphereGroup:destroySpheres(position1, position2)
 	end
 
 	self:checkDeletion()
+end
+
+
+
+function SphereGroup:checkUnfinishedDestructionAtSpawn()
+	-- If this is an unfinished group, this means we're removing spheres at the spawn point.
+	-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
+	-- and flag that one as the new unfinished group.
+	if self:isUnfinished() then
+		local newGroup = SphereGroup(self.sphereChain, nil)
+		-- Update group links.
+		self.prevGroup = newGroup
+		newGroup.nextGroup = self
+
+		-- add to the master, on the back
+		table.insert(self.sphereChain.sphereGroups, newGroup)
+	end
 end
 
 
@@ -726,9 +719,7 @@ function SphereGroup:deleteGhost(position)
 	-- Prepare a list of spheres to be destroyed.
 	local spheres = {}
 	local position1, position2 = self:getGhostBounds(position)
-	for i = position1, position2 do
-		self:destroySphere(i)
-	end
+	self:destroySpheres(position1, position2)
 end
 
 
