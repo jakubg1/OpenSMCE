@@ -172,9 +172,6 @@ function Level:updateLogic(dt)
 	-- Time counting
 	if self.started and not self.controlDelay and not self:getFinish() and not self.finish and not self.lost then
 		self.time = self.time + dt
-		if math.floor(self.time) ~= math.floor(self.time + dt) then
-			_Debug.console:print(math.floor(self.time))
-		end
 	end
 
 
