@@ -98,7 +98,7 @@ function UIManager:initSplash()
   self.widgets.splash = UIWidget("Splash", _LoadJson(_ParsePath("ui/splash.json")))
 
   self.script = require(_ParsePath("ui/script"))
-  self.script.init(self.scriptFunctions)
+  self:executeCallback("init")
 end
 
 function UIManager:init()
