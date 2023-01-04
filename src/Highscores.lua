@@ -24,7 +24,7 @@ function Highscores:reset()
 
 	self.data = {entries = {}}
 	for i = 1, self.config.size do
-		local def = self.config.default_scores[i]
+		local def = self.config.defaultScores[i]
 		self.data.entries[i] = {
 			name = def.name,
 			score = def.score,

@@ -6,19 +6,19 @@
             "type": "string",
             "description": "The game name to be displayed in Rich Presence and in the game window."
         },
-        "window_title": {
+        "windowTitle": {
             "type": "string",
             "description": "The window title which the engine window will have, if defined."
         },
-        "engine_version": {
+        "engineVersion": {
             "type": "string",
             "description": "Specifies the version a game is for. Not really used at the moment, but mandatory."
         },
-        "native_resolution": {
+        "nativeResolution": {
             "$ref": "_structures/Vector2.json",
             "description": "The native resolution of the game. Not really used at the moment, but mandatory."
         },
-        "rich_presence": {
+        "richPresence": {
             "type": "object",
             "description": "Defines the Discord Rich Presence behavior.",
             "properties": {
@@ -35,9 +35,9 @@
         }
     },
     "required": [
-        "engine_version",
-        "native_resolution",
-        "rich_presence"
+        "engineVersion",
+        "nativeResolution",
+        "richPresence"
     ],
     "additionalProperties": false
 }

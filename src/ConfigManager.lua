@@ -132,13 +132,13 @@ end
 ---Returns a title the window should have.
 ---@return string
 function ConfigManager:getWindowTitle()
-	return self.config.window_title or string.format("OpenSMCE [%s] - %s", _VERSION, self:getGameName())
+	return self.config.windowTitle or string.format("OpenSMCE [%s] - %s", _VERSION, self:getGameName())
 end
 
 ---Returns whether the Discord Rich Presence should be on in this game.
 ---@return boolean
 function ConfigManager:isRichPresenceEnabled()
-	return self.config.rich_presence.enabled
+	return self.config.richPresence.enabled
 end
 
 
@@ -163,7 +163,7 @@ function ConfigManager:getLevelCountFromEntries(entries)
 	-- If it's a single level, count 1.
 	-- If it's a randomizer, count that many levels as there are defined in the randomizer.
 	for i = 1, entries do
-		local entry = self.levelSet.level_order[i]
+		local entry = self.levelSet.levelOrder[i]
 		if entry.type == "level" then
 			n = n + 1
 		elseif entry.type == "randomizer" then

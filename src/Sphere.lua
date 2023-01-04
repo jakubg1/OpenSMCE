@@ -99,7 +99,7 @@ function Sphere:update(dt)
 			effect.infectionTime = effect.infectionTime - dt
 			-- If the timer elapses, infect neighbors.
 			if effect.infectionTime <= 0 then
-				effect.infectionTime = effect.infectionTime + effect.config.infection_time
+				effect.infectionTime = effect.infectionTime + effect.config.infectionTime
 				effect.infectionSize = effect.infectionSize - 1
 				if self.prevSphere and self.prevSphere.color ~= 0 then -- TODO: make a sphere tag in order to determine which spheres to infect.
 					self.prevSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime, effect.effectGroupID)
@@ -244,8 +244,8 @@ function Sphere:deleteVisually(ghostTime, crushed)
 			effect.particle:destroy()
 		end
 		-- Emit destroy particles.
-		if effect.config.destroy_particle then
-			_Game:spawnParticle(effect.config.destroy_particle, self:getPos())
+		if effect.config.destroyParticle then
+			_Game:spawnParticle(effect.config.destroyParticle, self:getPos())
 		end
 		-- Decrement the sphere effect group counter.
 		self.path:decrementSphereEffectGroup(effect.effectGroupID)
@@ -296,8 +296,8 @@ function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
 		name = name,
 		config = effectConfig,
 		time = effectConfig.time,
-		infectionSize = infectionSize or effectConfig.infection_size,
-		infectionTime = infectionTime or effectConfig.infection_time,
+		infectionSize = infectionSize or effectConfig.infectionSize,
+		infectionTime = infectionTime or effectConfig.infectionTime,
 		effectGroupID = effectGroupID
 	}
 	if effectConfig.particle then
@@ -306,8 +306,8 @@ function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
 	table.insert(self.effects, effect)
 
 	-- Sound effect.
-	if effectConfig.apply_sound then
-		_Game:playSound(effectConfig.apply_sound, 1, self:getPos())
+	if effectConfig.applySound then
+		_Game:playSound(effectConfig.applySound, 1, self:getPos())
 	end
 end
 
@@ -376,7 +376,7 @@ end
 ---@return boolean
 function Sphere:hasLossProtection()
 	for i, effect in ipairs(self.effects) do
-		if effect.config.level_loss_protection then
+		if effect.config.levelLossProtection then
 			return true
 		end
 	end
@@ -418,7 +418,7 @@ end
 ---@return boolean
 function Sphere:canKeepCombo()
 	for i, effect in ipairs(self.effects) do
-		if effect.config.can_keep_combo then
+		if effect.config.canKeepCombo then
 			return true
 		end
 	end
