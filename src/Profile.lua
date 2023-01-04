@@ -115,7 +115,7 @@ end
 ---Returns the player's current level entry.
 ---@return table
 function Profile:getLevelEntry()
-	return _Game.configManager.levelSet.level_order[self.session.level]
+	return _Game.configManager.levelSet.levelOrder[self.session.level]
 end
 
 
@@ -185,7 +185,7 @@ function Profile:generateLevelID()
 		-- Use local data to generate a level.
 		if entry.mode == "repeat" then
 			self.session.levelID = self.session.sublevel_pool[math.random(#self.session.sublevel_pool)]
-		elseif entry.mode == "no_repeat" then
+		elseif entry.mode == "noRepeat" then
 			local i = math.random(#self.session.sublevel_pool)
 			self.session.levelID = self.session.sublevel_pool[i]
 			table.remove(self.session.sublevel_pool, i)
@@ -424,7 +424,7 @@ end
 ---Advances the profile to the next level.
 function Profile:advanceLevel()
 	-- Check if beating this level unlocks some checkpoints.
-	local checkpoints = self:getLevelEntry().unlock_checkpoints_on_beat
+	local checkpoints = self:getLevelEntry().unlockCheckpointsOnBeat
 	if checkpoints then
 		for i, checkpoint in ipairs(checkpoints) do
 			self:unlockCheckpoint(checkpoint)

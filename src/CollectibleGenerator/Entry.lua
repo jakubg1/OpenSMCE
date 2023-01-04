@@ -29,7 +29,7 @@ function CollectibleGeneratorEntry:evaluate(entry)
   if entry.type == "collectible" then
     return {entry.name}
   
-  elseif entry.type == "collectible_generator" then
+  elseif entry.type == "collectibleGenerator" then
     return self.manager:getEntry(entry.name):generate()
   
   elseif entry.type == "combine" then
@@ -54,7 +54,7 @@ function CollectibleGeneratorEntry:evaluate(entry)
     end
     return t
   
-  elseif entry.type == "random_pick" then
+  elseif entry.type == "randomPick" then
     -- Create a pool copy.
     local p = {}
     local weights = {}
@@ -84,10 +84,10 @@ function CollectibleGeneratorEntry:checkCondition(condition)
   if condition.type == "expression" then
     -- Returns true if the expression evaluates to true.
 		return _Vars:evaluateExpression(condition.expression)
-  elseif condition.type == "color_present" then
+  elseif condition.type == "colorPresent" then
     -- Returns true if `color` is present on the board.
     return _Game.session.colorManager:isColorExistent(condition.color)
-  elseif condition.type == "cmp_latest_checkpoint" then
+  elseif condition.type == "cmpLatestCheckpoint" then
     -- Returns true if the player's latest checkpoint is between `min` and `max` values (both inclusive) or is equal to `value`.
     local n = _Game:getCurrentProfile():getLatestCheckpoint()
     if condition.min and n < condition.min then
