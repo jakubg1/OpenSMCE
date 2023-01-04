@@ -26,8 +26,8 @@ local DiscordRichPresence = require("src/DiscordRichPresence")
 
 
 -- CONSTANT ZONE
-_VERSION = "v0.46.1"
-_VERSION_NAME = "Beta 4.6.1"
+_VERSION = "v0.47.0"
+_VERSION_NAME = "Beta 4.7.0"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 _BUILD_NUMBER = "unknown"
 _START_TIME = love.timer.getTime()
