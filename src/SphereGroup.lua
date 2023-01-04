@@ -304,7 +304,11 @@ function SphereGroup:checkUnfinishedDestructionAtSpawn()
 	-- If this is an unfinished group, this means we're removing spheres at the spawn point.
 	-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
 	-- and flag that one as the new unfinished group.
-	if self:isUnfinished() then
+
+	-- Spawn that sphere group only when there are no spheres behind the spawn point. Either in this, or the next sphere group.
+	local noSpheresHere = #self.spheres == 0 or self:getBackPos() > 0
+	local noSpheresNext = not self.nextGroup or self.nextGroup:getBackPos() > 0
+	if self:isUnfinished() and noSpheresHere and noSpheresNext then
 		local newGroup = SphereGroup(self.sphereChain, nil)
 		-- Update group links.
 		self.prevGroup = newGroup
@@ -312,6 +316,9 @@ function SphereGroup:checkUnfinishedDestructionAtSpawn()
 
 		-- add to the master, on the back
 		table.insert(self.sphereChain.sphereGroups, newGroup)
+	elseif #self.spheres == 0 then
+		-- If there's no fresh group which would be unfinished, we're passing that title to the next group. Let this one die...
+		self:delete()
 	end
 end
 
