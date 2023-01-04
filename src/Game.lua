@@ -56,7 +56,7 @@ function Game:init()
 	self.configManager = ConfigManager()
 
 	-- Step 2. Initialize the window
-	local res = self.configManager.config.native_resolution
+	local res = self.configManager.config.nativeResolution
 	love.window.setMode(res.x, res.y, {resizable = true})
 	love.window.setTitle(self.configManager:getWindowTitle())
 
@@ -135,7 +135,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 		self.particleManager:update(dt)
 	end
 
-	if self.configManager.config.rich_presence.enabled then
+	if self.configManager.config.richPresence.enabled then
 		self:updateRichPresence()
 	end
 end

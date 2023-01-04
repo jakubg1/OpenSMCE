@@ -596,7 +596,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	local spheres = {}
 	local position1 = nil
 	local position2 = 0
-	if effectConfig.cause_check then
+	if effectConfig.causeCheck then
 		-- Cause check: destroy all spheres in the same group if they have the same cause.
 		for i, sphere in ipairs(self.spheres) do
 			if sphere:hasEffect(effect, effectGroupID) and not sphere:isGhost() then
@@ -634,7 +634,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		end
 		boostCombo = boostCombo or sphere.boostCombo
 	end
-	boostCombo = boostCombo and effectConfig.can_boost_combo
+	boostCombo = boostCombo and effectConfig.canBoostCombo
 
 	-- Retrieve and simplify a list of gaps. Only the cause sphere is checked.
 	local gaps = self.spheres[position].gaps
@@ -662,14 +662,14 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	end
 
 	-- Play a sound.
-	if effectConfig.destroy_sound == "hardcoded" then
+	if effectConfig.destroySound == "hardcoded" then
 		local soundParams = MOD_GAME.matchSound(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
 		_Game:playSound(soundParams.name, soundParams.pitch, pos)
 	else
-		_Game:playSound(effectConfig.destroy_sound, 1, pos)
+		_Game:playSound(effectConfig.destroySound, 1, pos)
 	end
 	-- Boost chain and combo values.
-	if effectConfig.can_boost_chain then
+	if effectConfig.canBoostChain then
 		self.sphereChain.combo = self.sphereChain.combo + 1
 	end
 	if boostCombo then
@@ -681,7 +681,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	if boostCombo then
 		score = score + math.max(self.map.level.combo - 3, 0) * 100
 	end
-	if effectConfig.apply_chain_multiplier then
+	if effectConfig.applyChainMultiplier then
 		score = score * self.sphereChain.combo
 	end
 	self.map.level:grantScore(score)
@@ -692,14 +692,14 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	if boostCombo and self.map.level.combo > 2 then
 		scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo)
 	end
-	if effectConfig.apply_chain_multiplier and self.sphereChain.combo ~= 1 then
+	if effectConfig.applyChainMultiplier and self.sphereChain.combo ~= 1 then
 		scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo)
 	end
 	local scoreGapTexts = {"GAP BONUS!", "DOUBLE GAP BONUS!", "TRIPLE GAP BONUS!", "QUADRUPLE GAP BONUS!", "QUINTUPLE GAP BONUS!"}
 	if #gaps > 0 then
 		scoreText = scoreText .. "\n" .. scoreGapTexts[#gaps]
 	end
-	local scoreFont = effectConfig.destroy_font
+	local scoreFont = effectConfig.destroyFont
 	if scoreFont == "hardcoded" then
 		scoreFont = _Game.configManager.spheres[color].matchFont
 	end
@@ -710,8 +710,8 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	_Vars:set("comboLv", self.map.level.combo)
 	_Vars:set("chainLv", self.sphereChain.combo)
 	_Vars:set("comboBoost", boostCombo)
-	if effectConfig.destroy_collectible then
-		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroy_collectible)
+	if effectConfig.destroyCollectible then
+		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroyCollectible)
 	end
 
 	-- Update max combo and max chain stats.

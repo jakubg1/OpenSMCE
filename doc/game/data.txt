@@ -67,7 +67,7 @@ N	config/highscores.json
 P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
 D	- (object) |The root entry.
 D		- size (number) |How many entries should be stored in a single highscore list.
-D		- default_scores (list) |Contains default highscore entries. The length of this list should be the same as the value of size field.
+D		- defaultScores (list) |Contains default highscore entries. The length of this list should be the same as the value of size field.
 D			- (object) |A highscore entry.
 D				- name (number) |A player name which should be displayed.
 D				- score (number) |How much points the player has scored.
@@ -111,7 +111,7 @@ D			- knockbackSpeedBase (number) |Speed induced when a group of spheres crashes
 D			- knockbackSpeedMult (number) |The second value used in the formula. Look above for description.
 D			- foulSpeed (number) |Maximum speed of spheres when the player fails to complete a level.
 D			- overspeedCheck (boolean) |If true, spheres will never move faster than the maximum speed defined at a given point of the path.
-D			- invincible_scarabs (boolean) |If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
+D			- invincibleScarabs (boolean) |If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
 D		- collectibleBehaviour (object) |Defines how Collectibles behave.
 D			- speed (vec2) |A starting speed of the Collectibles.
 D			- acceleration (vec2) |An acceleration rate of the Collectibles.
@@ -268,10 +268,10 @@ D		- type (string) |<b><i>collectible</i></b>
 D		- name (string) |A collectible ID to be evaluated to.
 D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
 
-H3	<i>collectible_generator</i>
+H3	<i>collectibleGenerator</i>
 P	Evaluates to another collectible generator result.
 D	- (object) |A single entry.
-D		- type (string) |<b><i>collectible_generator</i></b>
+D		- type (string) |<b><i>collectibleGenerator</i></b>
 D		- name (string) |A collectible generator ID to be evaluated.
 D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
 
@@ -290,10 +290,10 @@ D		- entry (object) |A collectible entry to be evaluated.
 D		- count (Expression|number) |How many times the entry should be evaluated.
 D		- conditions* (list) |A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list. More info below.
 
-H3	<i>random_pick</i>
+H3	<i>randomPick</i>
 P	Evaluates all the choices, discards empty ones, and selects one of the remaining results at random.
 D	- (object) |A single entry.
-D		- type (string) |<b><i>random_pick</i></b>
+D		- type (string) |<b><i>randomPick</i></b>
 D		- pool (list) |A list of choices to be picked from.
 D			- (object) |A single choice.
 D				- entry (object) |A collectible entry to be evaluated.
@@ -309,16 +309,16 @@ D	- (object) |A single condition.
 D		- type (string) |<b><i>expression</i></b>
 D		- expression (Expression|boolean) |An expression to be evaluated.
 
-H3	<i>color_present</i>
+H3	<i>colorPresent</i>
 P	Returns true if a given color is present on the board.
 D	- (object) |A single condition.
-D		- type (string) |<b><i>color_present</i></b>
+D		- type (string) |<b><i>colorPresent</i></b>
 D		- color (number) |A color to be checked.
 
-H3	<i>cmp_latest_checkpoint</i>
+H3	<i>cmpLatestCheckpoint</i>
 P	Returns true if the profile latest checkpoint value is within defined bounds.
 D	- (object) |A single condition.
-D		- type (string) |<b><i>cmp_latest_checkpoint</i></b>
+D		- type (string) |<b><i>cmpLatestCheckpoint</i></b>
 D		- min* (number) |If the checked value is lower than this value, this check will fail.
 D		- max* (number) |If the checked value is greater than this value, this check will fail.
 D		- value* (number) |If the checked value is not equal to this value, this check will fail.
@@ -339,23 +339,23 @@ P	When the sphere effect timer gets to 0, all spheres which have that same effec
 D	- (object) |The root entry.
 D		- particle* (Particle*) |A persistent particle packet which will be applied to any affected sphere.
 D		- time (number) |After how many seconds the spheres will be destroyed.
-D		- infection_size (number) |How many times the effect expansion should occur.
-D		- infection_time (number) |Time between the expansions, in seconds.
-D		- apply_sound* (SoundEvent*) |A sound event to be played when a sphere gets this effect.
-D		- destroy_sound (SoundEvent*) |A sound event to be played when spheres afflicted with this effect are destroyed.
+D		- infectionSize (number) |How many times the effect expansion should occur.
+D		- infectionTime (number) |Time between the expansions, in seconds.
+D		- applySound* (SoundEvent*) |A sound event to be played when a sphere gets this effect.
+D		- destroySound (SoundEvent*) |A sound event to be played when spheres afflicted with this effect are destroyed.
 D			R Can be set to <b>hardcoded</b>, in that case the destroy sound from a game module is prioritized.
-D		- destroy_font (Font*) |A font to be used for the score value displayed on the screen.
+D		- destroyFont (Font*) |A font to be used for the score value displayed on the screen.
 D			R Can be set to <b>hardcoded</b>, in that case the font used is of the "cause" sphere's <i>matchFont</i> value.
-D		- destroy_particle* (Particle*) |A one-time particle packet used when a sphere with this effect is destroyed.
-D		- destroy_collectible* (CollectibleGenerator*) |The collectible generator to be used when spheres with this effect are destroyed.
-D		- level_loss_protection (boolean) |If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
+D		- destroyParticle* (Particle*) |A one-time particle packet used when a sphere with this effect is destroyed.
+D		- destroyCollectible* (CollectibleGenerator*) |The collectible generator to be used when spheres with this effect are destroyed.
+D		- levelLossProtection (boolean) |If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
 D		- immobile (boolean) |If true, the spheres affected with this effect will stop.
 D		- fragile (boolean) |If true, the spheres affected with this effect can be destroyed by shooting through them.
-D		- can_boost_combo (boolean) |If true, the level combo value may rise after destroying a group with this effect.
-D		- can_boost_chain (boolean) |As above, but regarding the chain combo value.
-D		- apply_chain_multiplier (boolean) |If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
-D		- can_keep_combo (boolean) |Whether shot spheres with this effect should not be counted towards combo reset.
-D		- cause_check (boolean) |When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
+D		- canBoostCombo (boolean) |If true, the level combo value may rise after destroying a group with this effect.
+D		- canBoostChain (boolean) |As above, but regarding the chain combo value.
+D		- applyChainMultiplier (boolean) |If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
+D		- canKeepCombo (boolean) |Whether shot spheres with this effect should not be counted towards combo reset.
+D		- causeCheck (boolean) |When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
 
 E
 
@@ -383,7 +383,7 @@ D		- nextSprite (Sprite*) |A sprite used to draw the shooter's next color indica
 D		- nextSpriteAnimationSpeed* (number) |When defined, the next sphere sprite will animate with that speed in frames per second.
 D		- idleParticle* (Particle*) |A persistent particle packet used when the sphere is on the board.
 D		- destroyParticle (Particle*) |A one-time particle packet used when the sphere is destroyed.
-D		- destroy_collectible* (CollectibleGenerator*) |A collectible generator used when the sphere is destroyed.
+D		- destroyCollectible* (CollectibleGenerator*) |A collectible generator used when the sphere is destroyed.
 D		- color (Color|ColorPalette*) |The color or color palette used by shooting retical.
 D		- colorSpeed* (number) |Must be present only if <b>color</b> is a color palette pointer. Defines how fast (in pixels per second) will the palette be animated.
 D		- interchangeable (boolean) |Whether this sphere can be changed when in the first slot of the shooter.
@@ -456,8 +456,8 @@ N	config/level_set.json
 P	Contains information about level order and checkpoints.
 P	A checkpoint is a place, where the player can start a new game.
 D	- (object) |The root entry.
-D		- level_order (list) |A list which contains level entries. Levels will be played in this order. More info below.
-D		- checkpoints (list) |A list of integers, containing index numbers corresponding to level IDs in the <i>level_order</i> field.
+D		- levelOrder (list) |A list which contains level entries. Levels will be played in this order. More info below.
+D		- checkpoints (list) |A list of integers, containing index numbers corresponding to level IDs in the <i>levelOrder</i> field.
 D		- startCheckpoints (list) |A list of checkpoint IDs, which are unlocked upon profile creation.
 
 H2	Possible level order entry types
@@ -469,7 +469,7 @@ D	- (object) |A single level entry.
 D		- type (string) |<b><i>level</i></b>
 D		- level (number) |A level ID to be loaded and played.
 D		- name (string) |A level name.
-D		- unlock_checkpoints_on_beat* (list) |If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
+D		- unlockCheckpointsOnBeat* (list) |If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
 
 H3	<i>randomizer</i>
 P	A group of levels to be played in random order.
@@ -481,11 +481,11 @@ D		- count (number) |How many levels are to be picked from the pool.
 D		- mode (string) |How the levels will be randomized. There are three possible values:
 D		R <ol>
 D		R <li><b>repeat</b> - Every next level is simply drawn at random from the list.</li>
-D		R <li><b>no_repeat</b> - Same as above, but an entry is removed from the pool once it's been picked.</li>
+D		R <li><b>noRepeat</b> - Same as above, but an entry is removed from the pool once it's been picked.</li>
 D		R <li><b>order</b> - Chooses <i>count</i> entries from the pool, without changing their order.</li>
-D		R <li>Both <b>no_repeat</b> and <b>order</b> modes need the pool size to be greater or equal to the <i>count</i>.</li>
+D		R <li>Both <b>noRepeat</b> and <b>order</b> modes need the pool size to be greater or equal to the <i>count</i>.</li>
 D		R </ol>
-D		- unlock_checkpoints_on_beat* (list) |If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
+D		- unlockCheckpointsOnBeat* (list) |If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
 
 E
 
