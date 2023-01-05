@@ -572,6 +572,8 @@ end
 ---@param p2 Vector2 The end point of the line.
 ---@return table
 function Path:getIntersectionPoints(p1, p2)
+	local pmin = p1:min(p2)
+	local pmax = p1:max(p2)
 	local distance = 0
 	local intersections = {}
 
@@ -580,17 +582,22 @@ function Path:getIntersectionPoints(p1, p2)
 		if not node2 then -- this is the last node; no line there
 			break
 		end
-		-- We're going to use the algorithm from https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-		-- For convenience, we will arrange and name the variables so that they match the ones described in the website above.
-		local p = p1
-		local q = node.pos
-		local r = p2 - p1
-		local s = node2.pos - q
-		local t = (q - p):cross(s / r:cross(s))
-		local u = (q - p):cross(r / r:cross(s))
-		-- t/u < 1 instead of t/u <= 1 is intentional - this way if the line crosses a node perfectly it won't count as two intersections.
-		if r:cross(s) ~= 0 and t >= 0 and t < 1 and u >= 0 and u < 1 then
-			table.insert(intersections, distance + node.length * u)
+		-- Eliminate all impossible cases for optimization.
+		local p3 = node.pos
+		local p4 = node2.pos
+		if not (math.max(p3.x, p4.x) < pmin.x or math.min(p3.x, p4.x) > pmax.x or math.max(p3.y, p4.y) < pmin.y or math.min(p3.y, p4.y) > pmax.y) then
+			-- We're going to use the algorithm from https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+			-- For convenience, we will arrange and name the variables so that they match the ones described in the website above.
+			local p = p1
+			local q = p3
+			local r = p2 - p1
+			local s = p4 - p3
+			local t = (q - p):cross(s / r:cross(s))
+			local u = (q - p):cross(r / r:cross(s))
+			-- t/u < 1 instead of t/u <= 1 is intentional - this way if the line crosses a node perfectly it won't count as two intersections.
+			if r:cross(s) ~= 0 and t >= 0 and t < 1 and u >= 0 and u < 1 then
+				table.insert(intersections, distance + node.length * u)
+			end
 		end
 		distance = distance + node.length
 	end
