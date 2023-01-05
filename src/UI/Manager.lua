@@ -17,6 +17,7 @@ function UIManager:new()
   self.scriptFunctions = {
     loadMain = function() _Game:loadMain() end,
     initSession = function() _Game:initSession() end,
+    loadingGetProgress = function() return _Game.resourceManager.stepLoadProcessedObjs / _Game.resourceManager.stepLoadTotalObjs end,
 
     levelStart = function() _Game.session:startLevel() end,
     levelBegin = function() _Game.session.level:begin() end,
@@ -39,6 +40,8 @@ function UIManager:new()
     levelGetChains = function() return _Game.session.level.sphereChainsSpawned end,
     levelGetMaxCombo = function() return _Game.session.level.maxCombo end,
     levelGetMaxChain = function() return _Game.session.level.maxChain end,
+    levelGetNewRecord = function() return _Game.session.level:hasNewScoreRecord() end,
+    levelGetCombo = function() return _Game.session.level.combo end,
 
     musicVolume = function(music, volume) _Game:getMusic(music):setVolume(volume) end,
 
@@ -77,8 +80,8 @@ function UIManager:new()
 
     configGetLevelData = function(n) return _Game.configManager.levels[n] end,
     configGetMapData = function(name) return _Game.configManager.maps[name] end,
-    configGetLevelID = function(n) return _Game.configManager.levelSet.level_order[n].level end,
-    configGetLevelName = function(n) return _Game.configManager.levelSet.level_order[n].name end,
+    configGetLevelID = function(n) return _Game.configManager.levelSet.levelOrder[n].level end,
+    configGetLevelName = function(n) return _Game.configManager.levelSet.levelOrder[n].name end,
     configGetCheckpointID = function(n) return _Game.configManager.levelSet.checkpoints[n] end,
     configGetCheckpointLevel = function(n) return _Game.configManager:getCheckpointLevelN(n) end,
 
@@ -93,11 +96,9 @@ end
 
 function UIManager:initSplash()
   self.widgets.splash = UIWidget("Splash", _LoadJson(_ParsePath("ui/splash.json")))
-  self.widgets.splash:show()
-  self.widgets.splash:setActive()
-  _Game:getMusic("menu"):setVolume(1)
 
   self.script = require(_ParsePath("ui/script"))
+  self:executeCallback("init")
 end
 
 function UIManager:init()
@@ -116,16 +117,6 @@ function UIManager:update(dt)
 		self.hasFocus = love.window.hasFocus()
 		if not self.hasFocus then
 			self:executeCallback("lostFocus")
-		end
-	end
-
-	-- TODO: HARDCODED - make it more flexible
-	if self.widgets.splash then
-		-- splash progress bar
-		self.widgets.splash.children.Frame.children.Progress.widget.valueData = _Game.resourceManager.stepLoadProcessedObjs / _Game.resourceManager.stepLoadTotalObjs
-		-- splash play button
-		if self.widgets.splash.children.Frame.children.Progress.widget.value == 1 then
-			self.widgets.splash.children.Frame.children.Button_Play:show()
 		end
 	end
 
@@ -189,6 +180,7 @@ function UIManager:mousereleased(x, y, button)
 		for widgetN, widget in pairs(self.widgets) do
 			widget:unclick()
 		end
+    self:executeCallback("click")
 	end
 end
 

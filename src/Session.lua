@@ -364,7 +364,7 @@ function Session:getNearestSphere(pos)
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
 					-- if closer than the closest for now, save it
-					if not sphereHidden and (not nearestData.dist or sphereDist < nearestData.dist) then
+					if not sphere:isGhost() and not sphereHidden and (not nearestData.dist or sphereDist < nearestData.dist) then
 						nearestData.path = path
 						nearestData.sphereChain = sphereChain
 						nearestData.sphereGroup = sphereGroup
@@ -418,7 +418,7 @@ function Session:getNearestSphereOnLine(pos, angle)
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
 					-- if closer than the closest for now, save it
-					if not sphereHidden and math.abs(sphereDist.x) <= 16 and sphereDist.y >= 0 and (not nearestData.dist or sphereDist.y < nearestData.dist.y) then
+					if not sphere:isGhost() and not sphereHidden and math.abs(sphereDist.x) <= 16 and sphereDist.y >= 0 and (not nearestData.dist or sphereDist.y < nearestData.dist.y) then
 						nearestData.path = path
 						nearestData.sphereChain = sphereChain
 						nearestData.sphereGroup = sphereGroup

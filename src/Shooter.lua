@@ -16,11 +16,8 @@ local ShotSphere = require("src/ShotSphere")
 ---Constructs a new Shooter.
 ---@param data? table Data for the shooter.
 function Shooter:new(data)
-    self.config = _Game.configManager:getShooter(data and data.name or "default")
-    self.movement = self.config.movement
-    if data and data.movement then
-        self.movement = data.movement
-    end
+    self.levelMovement = data and data.movement
+    self:changeTo(data and data.name or "default")
 
     self.pos = self:getInitialPos()
     self.angle = self:getInitialAngle()
@@ -43,6 +40,17 @@ function Shooter:new(data)
     self.moveKeySpeed = 500
     self.rotateKeySpeed = 4
 
+    self.sphereEntity = nil
+end
+
+
+
+---Changes this Shooter's configuration to the given one.
+---@param name string The new shooter config to be obeyed.
+function Shooter:changeTo(name)
+    self.config = _Game.configManager:getShooter(name)
+    self.movement = self.levelMovement or self.config.movement
+
     self.sprite = self.config.sprite
     self.shadowSprite = self.config.shadowSprite
     self.speedShotSprite = self.config.speedShotBeam.sprite
@@ -50,8 +58,6 @@ function Shooter:new(data)
     self.reticleSprite = self.config.reticle.sprite
     self.reticleNextSprite = self.config.reticle.nextBallSprite
     self.radiusReticleSprite = self.config.reticle.radiusSprite
-
-    self.sphereEntity = nil
 end
 
 
@@ -332,9 +338,8 @@ function Shooter:draw()
         self.sphereEntity:draw()
     end
     -- next color
-    local sprite = _Game.resourceManager:getSprite(self:getNextSphereConfig().nextSprite)
-    local frame = self:getNextSphereFrame()
-    sprite:draw(self.pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, frame, self.angle)
+    local sprite = self.config.nextBallSprites[self.nextColor].sprite
+    sprite:draw(self.pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, self:getNextSphereFrame(), self.angle)
 
     --local p4 = posOnScreen(self.pos)
     --love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
@@ -564,7 +569,7 @@ end
 ---Returns the next sphere's animation frame.
 ---@return Vector2
 function Shooter:getNextSphereFrame()
-    local animationSpeed = self:getNextSphereConfig().nextSpriteAnimationSpeed
+    local animationSpeed = self.config.nextBallSprites[self.nextColor].spriteAnimationSpeed
     if animationSpeed then
         return Vec2(math.floor(animationSpeed * _TotalTime), 1)
     end

@@ -27,6 +27,16 @@ function ShooterConfig:new(data, path)
     self.shadowSpriteOffset = _ParseVec2(data.shadowSpriteOffset) or Vec2(8, 8)
     ---@type Vector2
     self.shadowSpriteAnchor = _ParseVec2(data.shadowSpriteAnchor) or Vec2(0.5, 0)
+    self.nextBallSprites = {}
+    for n, nextBallData in pairs(data.nextBallSprites) do
+        local nextBall = {
+            ---@type Sprite
+            sprite = _Game.resourceManager:getSprite(nextBallData.sprite),
+            ---@type number
+            spriteAnimationSpeed = nextBallData.spriteAnimationSpeed
+        }
+        self.nextBallSprites[tonumber(n)] = nextBall
+    end
     ---@type Vector2
     self.nextBallOffset = _ParseVec2(data.nextBallOffset) or Vec2(0, 21)
     ---@type Vector2

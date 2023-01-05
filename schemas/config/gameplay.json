@@ -76,6 +76,15 @@
                     "description": "The multiplier, multiplied by the chain combo value, of a speed induced when a group of spheres crashes into another sphere group behind it.",
                     "markdownDescription": "The second value used in the formula. For description look at `knockbackSpeedBase`."
                 },
+                "knockbackTime": {
+                    "type": "number",
+                    "description": "If set, this will be the duration the knockback speed will persist for, in seconds."
+                },
+                "knockbackStopAfterTime": {
+                    "type": "boolean",
+                    "description": "Only if knockbackTime is set. If true, the speed of the group will be set to 0 once the knockback time is over. Else, the sphere group will deccelerate normally.",
+                    "markdownDescription": "Only if `knockbackTime` is set. If `true`, the speed of the group will be set to 0 once the knockback time is over. Else, the sphere group will deccelerate normally."
+                },
                 "foulSpeed": {
                     "type": "number",
                     "description": "Maximum speed of spheres when the player fails to complete a level."
@@ -101,6 +110,16 @@
                 "newGroupSound": {
                     "type": "string",
                     "description": "A sound event to be played when a new sphere chain appears on the board."
+                },
+                "noScarabs": {
+                    "type": "boolean",
+                    "description": "If true, the scarabs will not appear in the game.",
+                    "markdownDescription": "If `true`, the scarabs will not appear in the game."
+                },
+                "permitLongMatches": {
+                    "type": "boolean",
+                    "description": "If true, the spheres will try to make the biggest clump possible before matching together.",
+                    "markdownDescription": "If `true`, the spheres will try to make the biggest clump possible before matching together."
                 }
             },
             "required": [
@@ -114,7 +133,9 @@
                 "overspeedCheck",
                 "invincibleScarabs",
                 "joinSound",
-                "newGroupSound"
+                "newGroupSound",
+                "noScarabs",
+                "permitLongMatches"
             ],
             "additionalProperties": false
         },

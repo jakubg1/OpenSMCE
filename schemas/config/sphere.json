@@ -17,14 +17,10 @@
             "minimum": 0,
             "description": "When defined, the sphere sprite will animate with that speed in frames per second. This disables rolling animation and rotation. When left out, the sphere will have their usual rolling animation and will keep rotating."
         },
-        "nextSprite": {
-            "type": "string",
-            "description": "A sprite used to draw the shooter's next color indicator."
-        },
-        "nextSpriteAnimationSpeed": {
+        "spriteRollingSpeed": {
             "type": "number",
             "minimum": 0,
-            "description": "When defined, the next sphere sprite will animate with that speed in frames per second."
+            "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 1."
         },
         "idleParticle": {
             "type": "string",
@@ -117,7 +113,6 @@
     },
     "required": [
         "sprite",
-        "nextSprite",
         "destroyParticle",
         "color",
         "interchangeable",

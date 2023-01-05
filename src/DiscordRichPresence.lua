@@ -4,12 +4,12 @@ local class = require "com/class"
 ---@overload fun():DiscordRichPresence
 local DiscordRichPresence = class:derive("DiscordRichPresence")
 
-local discordRPCMain = require("com/discordRPC")
-
 
 
 ---Constructs this class.
 function DiscordRichPresence:new()
+	self.rpcMain = nil
+
 	self.enabled = false
 	self.connected = false
 	self.username = nil
@@ -26,19 +26,32 @@ function DiscordRichPresence:new()
 
 
 
-	function discordRPCMain.ready(userId, username, discriminator, avatar)
+	local success, err = pcall(function() self:init() end)
+	if not success then
+		self.rpcMain = nil
+		_Log:printt("DiscordRichPresence", string.format("Failed to load the Discord Rich Presence module!\nMore info:\n%s\nDiscord Rich Presence will be inactive in this session.", err))
+	end
+end
+
+
+
+---Includes and initializes the actual Rich Presence code.
+function DiscordRichPresence:init()
+	self.rpcMain = require("com/discordRPC")
+
+	function self.rpcMain.ready(userId, username, discriminator, avatar)
 		self.connected = true
 		self.username = string.format("%s#%s", username, discriminator)
 		_Debug.console:print({{0, 1, 1}, "[DiscordRPC] ", {0, 1, 0}, string.format("Connected! (username: %s)", self.username)})
 	end
 
-	function discordRPCMain.disconnected(errorCode, message)
+	function self.rpcMain.disconnected(errorCode, message)
 		self.connected = false
 		self.username = nil
 		_Log:printt("DiscordRPC", string.format("Disconnected (%d: %s)", errorCode, message))
 	end
 
-	function discordRPCMain.errored(errorCode, message)
+	function self.rpcMain.errored(errorCode, message)
 		_Log:printt("DiscordRPC", string.format("Error (%d: %s)", errorCode, message))
 	end
 end
@@ -75,21 +88,29 @@ end
 ---Internal function; use `:update()` instead.
 ---@param dt number Delta time in seconds.
 function DiscordRichPresence:updateRun(dt)
+	if not self.rpcMain then
+		return
+	end
+
 	self.updateTime = self.updateTime + dt
 	if self.updateTime >= self.UPDATE_INTERVAL then
 		self.updateTime = 0
-		discordRPCMain.updatePresence(self.status)
+		self.rpcMain.updatePresence(self.status)
 	end
-	discordRPCMain.runCallbacks()
+	self.rpcMain.runCallbacks()
 end
 
 
 
 ---Connects Discord Rich Presence.
 function DiscordRichPresence:connect()
+	if not self.rpcMain then
+		return
+	end
+	
 	if self.enabled then return end
 	_Log:printt("DiscordRPC", "Connecting...")
-	discordRPCMain.initialize(_DISCORD_APPLICATION_ID, true)
+	self.rpcMain.initialize(_DISCORD_APPLICATION_ID, true)
 	self.enabled = true
 end
 
@@ -97,9 +118,13 @@ end
 
 ---Disconnects Discord Rich Presence.
 function DiscordRichPresence:disconnect()
+	if not self.rpcMain then
+		return
+	end
+	
 	if not self.enabled then return end
 	_Log:printt("DiscordRPC", "Disconnecting...")
-    discordRPCMain.shutdown()
+    self.rpcMain.shutdown()
 	self.enabled = false
 	self.connected = false
 	self.username = nil

@@ -62,7 +62,7 @@ function Debug:draw()
 	self.console:draw()
 
 	-- UI tree
-	if self.uiDebugVisible and _Game.sessionExists and _Game:sessionExists() then
+	if self.uiDebugVisible and _Game.sessionExists then
 		love.graphics.setColor(0, 0, 0, 0.5)
 		love.graphics.rectangle("fill", 0, 0, 460, 600)
 		love.graphics.setColor(1, 1, 1)
@@ -113,7 +113,7 @@ end
 
 
 function Debug:getUITreeText(widget, rowTable, indent)
-	widget = widget or _Game.uiManager.widgets["root"]
+	widget = widget or _Game.uiManager.widgets["root"] or _Game.uiManager.widgets["splash"]
 	rowTable = rowTable or {}
 	indent = indent or 0
 	--if indent > 1 then return end
@@ -319,7 +319,12 @@ function Debug:drawSphereInfo()
 					local sphereGroup = sphereChain.sphereGroups[k]
 					for l, sphere in ipairs(sphereGroup.spheres) do
 						local color = _Game.configManager.spheres[sphere.color].color
-						if color and type(color) == "table" then love.graphics.setColor(color.r, color.g, color.b) else love.graphics.setColor(0.5, 0.5, 0.5) end
+						local alpha = sphere:isGhost() and 0.5 or 1
+						if color and type(color) == "table" then
+							love.graphics.setColor(color.r, color.g, color.b, alpha)
+						else
+							love.graphics.setColor(0.5, 0.5, 0.5, alpha)
+						end
 						love.graphics.circle("fill", p.x + 120 + m, p.y + 20 + n, 10)
 						m = m + 20
 					end

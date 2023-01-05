@@ -148,7 +148,13 @@ end
 
 function SphereChain:isMatchPredicted()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue and (sphereGroup:isMagnetizing() or sphereGroup:hasShotSpheres() or sphereGroup:hasKeepComboSpheres() or (_Game.configManager.gameplay.sphereBehaviour.luxorized and sphereGroup.speed < 0)) then
+		if not sphereGroup.delQueue and (
+			sphereGroup:isMagnetizing() or
+			sphereGroup:hasShotSpheres() or
+			sphereGroup:hasKeepComboSpheres() or
+			sphereGroup:hasGhostSpheres() or
+			(_Game.configManager.gameplay.sphereBehaviour.luxorized and sphereGroup.speed < 0)
+		) then
 			return true
 		end
 	end
@@ -200,7 +206,9 @@ end
 function SphereChain:join()
 	-- Joins with the previous group and deletes a vise from this group.
 	local prevChain = self.path.sphereChains[self.path:getSphereChainID(self) + 1]
-	self:getLastSphereGroup():destroySphere(1, true)
+	if not _Game.configManager.gameplay.sphereBehaviour.noScarabs then
+		self:getLastSphereGroup():destroySphere(1, true)
+	end
 	-- update group links
 	self:getLastSphereGroup().prevGroup = prevChain.sphereGroups[1]
 	prevChain.sphereGroups[1].nextGroup = self:getLastSphereGroup()
@@ -232,7 +240,9 @@ function SphereChain:concludeGeneration()
 	local group = self:getLastSphereGroup()
 
 	-- Spawn a vise.
-	group:pushSphereBack(0)
+	if not _Game.configManager.gameplay.sphereBehaviour.noScarabs then
+		group:pushSphereBack(0)
+	end
 
 	self.generationAllowed = false
 end

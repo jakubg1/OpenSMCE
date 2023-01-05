@@ -31,6 +31,33 @@
             "$ref": "../_structures/Vector2.json",
             "description": "The anchor point of the shooter shadow sprite."
         },
+        "nextBallSprites": {
+            "type": "object",
+            "description": "Contains next ball sprites for all possible sphere colors.",
+            "propertyNames": {
+                "pattern": "^[-]?[0-9]*$"
+            },
+            "patternProperties": {
+                "^.*$": {
+                    "type": "object",
+                    "description": "Contains next sphere sprite data for that particular sphere color.",
+                    "properties": {
+                        "sprite": {
+                            "type": "string",
+                            "description": "A sprite used to draw the shooter's next color indicator."
+                        },
+                        "spriteAnimationSpeed": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "When defined, the next sphere sprite will animate with that speed in frames per second."
+                        }
+                    },
+                    "required": [
+                        "sprite"
+                    ]
+                }
+            }
+        },
         "nextBallOffset": {
             "$ref": "../_structures/Vector2.json",
             "description": "The offset of the shooter's next ball sprite."
@@ -154,6 +181,7 @@
         "shadowSprite",
         "shadowSpriteOffset",
         "shadowSpriteAnchor",
+        "nextBallSprites",
         "nextBallOffset",
         "nextBallAnchor",
         "reticle",
