@@ -14,6 +14,8 @@ local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 function ShooterMovementConfig:new(data, path)
     self._path = path
 
+
+
     ---@type string
     self.type = data.type
 

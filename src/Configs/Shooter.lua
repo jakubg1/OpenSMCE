@@ -15,6 +15,8 @@ local ShooterMovementConfig = require("src/Configs/ShooterMovement")
 function ShooterConfig:new(data, path)
     self._path = path
 
+
+
     self.movement = ShooterMovementConfig(data.movement, path)
 
     self.sprite = _Game.resourceManager:getSprite(data.sprite)

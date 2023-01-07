@@ -8,6 +8,10 @@ local CollectibleGeneratorManager = require("src/CollectibleGenerator/Manager")
 
 local ShooterConfig = require("src/Configs/Shooter")
 
+local UI2AnimationConfig = require("src/Configs/UI2Animation")
+local UI2NodeConfig = require("src/Configs/UI2Node")
+local UI2SequenceConfig = require("src/Configs/UI2Sequence")
+
 
 
 ---Constructs a new ConfigManager and initializes all lists.
@@ -82,6 +86,10 @@ end
 ---Loads config files which are implemented the new way so that they require to be loaded after the resources.
 function ConfigManager:loadStuffAfterResources()
 	self.shooters = self:loadFolder("config/shooters", "shooter", false, ShooterConfig)
+
+	self.ui2layouts = self:loadFolder("ui2/layouts", "UI2layout", false, UI2NodeConfig)
+	self.ui2animations = self:loadFolder("ui2/animations", "UI2animation", false, UI2AnimationConfig)
+	self.ui2sequences = self:loadFolder("ui2/sequences", "UI2sequence", false, UI2SequenceConfig)
 end
 
 
@@ -104,7 +112,7 @@ function ConfigManager:loadFolder(folderPath, name, isNumbers, constructor)
 		_Log:printt("ConfigManager", string.format("Loading %s %s, %s", name, id, path))
 		local item = _LoadJson(_ParsePath(folderPath .. "/" .. path))
 		if constructor then
-			item = constructor(item)
+			item = constructor(item, folderPath .. "/" .. path)
 		end
 		t[id] = item
 	end
@@ -114,11 +122,38 @@ end
 
 
 
----Returns a shooter config for a given shooter name.
----@param name string The name of the shooter.
+---Returns a Shooter Config with a given name.
+---@param name string The name of the Config.
 ---@return ShooterConfig
 function ConfigManager:getShooter(name)
 	return self.shooters[name]
+end
+
+
+
+---Returns a UI2 Node Config with a given name.
+---@param name string The name of the Config.
+---@return UI2NodeConfig
+function ConfigManager:getUI2Layout(name)
+	return self.ui2layouts[name]
+end
+
+
+
+---Returns a UI2 Animation Config with a given name.
+---@param name string The name of the Config.
+---@return UI2AnimationConfig
+function ConfigManager:getUI2Animation(name)
+	return self.ui2animations[name]
+end
+
+
+
+---Returns a UI2 Sequence Config with a given name.
+---@param name string The name of the Config.
+---@return UI2SequenceConfig
+function ConfigManager:getUI2Sequence(name)
+	return self.ui2sequences[name]
 end
 
 
