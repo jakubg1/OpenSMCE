@@ -502,7 +502,7 @@ end
 ---Returns the center position of the primary sphere.
 ---@return Vector2
 function Shooter:getSpherePos()
-    return self.pos - Vec2(0, -5):rotate(self.angle)
+    return self.pos + self.config.ballPos:rotate(self.angle)
 end
 
 

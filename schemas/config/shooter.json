@@ -31,6 +31,10 @@
             "$ref": "../_structures/Vector2.json",
             "description": "The anchor point of the shooter shadow sprite."
         },
+        "ballPos": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The position of the ball which can be shot."
+        },
         "nextBallSprites": {
             "type": "object",
             "description": "Contains next ball sprites for all possible sphere colors.",
@@ -181,6 +185,7 @@
         "shadowSprite",
         "shadowSpriteOffset",
         "shadowSpriteAnchor",
+        "ballPos",
         "nextBallSprites",
         "nextBallOffset",
         "nextBallAnchor",
