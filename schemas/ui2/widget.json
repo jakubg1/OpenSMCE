@@ -1,0 +1,54 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "type": {
+            "enum": [
+                "rectangle"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "A Widget type."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "rectangle",
+                        "description": "A single-colored rectangle."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "size": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "The rectangle's size, in pixels."
+                    },
+                    "color": {
+                        "$ref": "../_structures/Color.json",
+                        "description": "The rectangle's color."
+                    }
+                },
+                "required": [
+                    "size",
+                    "color"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}

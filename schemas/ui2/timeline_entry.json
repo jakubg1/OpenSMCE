@@ -1,0 +1,87 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "type": {
+            "enum": [
+                "playAnimation",
+                "wait"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "A Timeline Entry type."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "playAnimation",
+                        "description": "Plays an Animation on a Widget."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "widget": {
+                        "type": "string",
+                        "description": "The Widget to be played the Animation on."
+                    },
+                    "animation": {
+                        "type": "string",
+                        "description": "The Animation to be played on a given Widget."
+                    },
+                    "waitUntilFinished": {
+                        "type": "boolean",
+                        "description": "If set to true, the Timeline will wait until this animation has been finished before proceeding to next entries.",
+                        "markdownDescription": "If set to `true`, the Timeline will wait until this animation has been finished before proceeding to next entries."
+                    }
+                },
+                "required": [
+                    "widget",
+                    "animation"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "wait",
+                        "description": "Stops the execution of this Timeline for a given amount of time."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "time": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "The time to wait, in seconds."
+                    }
+                },
+                "required": [
+                    "time"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}

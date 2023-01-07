@@ -1,0 +1,64 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "property": {
+            "enum": [
+                "alpha"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "property": {
+                    "description": "The property which should be animated."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "property": {
+                        "const": "alpha",
+                        "description": "The alpha value will be changed."
+                    }
+                },
+                "required": [
+                    "property"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "property": true,
+                    "from": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value."
+                    },
+                    "to": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "The end value of this Animation."
+                    },
+                    "duration": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "The duration of this Animation."
+                    }
+                },
+                "required": [
+                    "to",
+                    "duration"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "property"
+    ]
+}

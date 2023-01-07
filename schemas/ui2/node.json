@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "$schema": true,
+        "widget": {
+            "$ref": "widget.json",
+            "description": "Describes a Widget which will represent this Node on the screen."
+        },
+        "children": {
+            "patternProperties": {
+                "^.*$": {
+                    "$ref": "node_child.json",
+                    "description": "Defines a child layout or Node."
+                }
+            },
+            "description": "Defines any Nodes which will be parented to this Node, keyed by their names."
+        },
+        "pos": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "Defines the starting position of this Node. Defaults to (0, 0)."
+        },
+        "alpha": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Defines the starting alpha (transparency) value of this Node. Defaults to 1 (fully opaque)."
+        }
+    },
+    "required": [],
+    "additionalProperties": false
+}
