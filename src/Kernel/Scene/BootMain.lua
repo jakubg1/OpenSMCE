@@ -42,7 +42,7 @@ end
 
 function BootMain:init()
 	-- set buttons up
-	self:initGameButtons()
+    self:initGameButtons()
 	self.buttons.loadGame.visible = false
 	self.buttons.convertGame.visible = false
 end
