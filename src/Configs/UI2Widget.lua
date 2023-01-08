@@ -9,7 +9,7 @@ local Color = require("src/Essentials/Color")
 
 
 
----Constructs a new UI2 Animation Config.
+---Constructs a new UI2 Widget Config.
 ---@param data table Raw data parsed from `ui2/layout/*.json`.
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function UI2WidgetConfig:new(data, path)
@@ -19,6 +19,8 @@ function UI2WidgetConfig:new(data, path)
 
     ---@type string
     self.type = data.type
+    ---@type Vector2
+    self.align = _ParseVec2(data.align) or Vec2()
 
     if self.type == "rectangle" then
         ---@type Vector2

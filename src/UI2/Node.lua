@@ -5,7 +5,7 @@ local class = require "com/class"
 local UI2Node = class:derive("UI2Node")
 
 -- Place your imports here
-local UIWidgetRectangle = require("src/UI/WidgetRectangle")
+local UI2WidgetRectangle = require("src/UI2/WidgetRectangle")
 
 local Vec2 = require("src/Essentials/Vector2")
 
@@ -22,6 +22,7 @@ function UI2Node:new(config, name, parent)
 
     -- Data
     self.pos = config.pos
+    self.scale = config.scale
     self.alpha = config.alpha
 
     -- Children
@@ -39,7 +40,7 @@ function UI2Node:new(config, name, parent)
     local w = config.widget
     if w then
         if w.type == "rectangle" then
-            self.widget = UIWidgetRectangle(self, w.size, w.color)
+            self.widget = UI2WidgetRectangle(self, w.align, w.size, w.color)
         end
     end
 end
@@ -48,22 +49,33 @@ end
 
 ---Returns the current effective position of this Node.
 ---@return Vector2
-function UI2Node:getPos()
+function UI2Node:getGlobalPos()
     if not self.parent then
         return self.pos
     end
-    return self.parent:getPos() + self.pos
+    return self.parent:getGlobalPos() + self.pos
+end
+
+
+
+---Returns the current effective scale of this Node.
+---@return Vector2
+function UI2Node:getGlobalScale()
+    if not self.parent then
+        return self.scale
+    end
+    return self.parent:getGlobalScale() * self.scale
 end
 
 
 
 ---Returns the current effective alpha value of this Node.
 ---@return number
-function UI2Node:getAlpha()
+function UI2Node:getGlobalAlpha()
     if not self.parent then
         return self.alpha
     end
-    return self.parent:getAlpha() * self.alpha
+    return self.parent:getGlobalAlpha() * self.alpha
 end
 
 

@@ -36,6 +36,8 @@ function UI2NodeConfig:new(data, path)
     self.widget = data.widget and UI2WidgetConfig(data.widget, path)
     ---@type Vector2
     self.pos = _ParseVec2(data.pos) or Vec2()
+    ---@type Vector2
+    self.scale = _ParseVec2(data.scale) or Vec2(1)
     ---@type number
     self.alpha = data.alpha or 1
 end

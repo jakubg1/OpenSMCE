@@ -20,6 +20,10 @@
             "$ref": "../_structures/Vector2.json",
             "description": "Defines the starting position of this Node. Defaults to (0, 0)."
         },
+        "scale": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "Defines the scale of this Node. Defaults to (1, 1)."
+        },
         "alpha": {
             "type": "number",
             "minimum": 0,
