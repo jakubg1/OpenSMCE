@@ -293,39 +293,17 @@ end
 ---For any of these fields that exists, there's a list of paths which will be loaded.
 ---@param list table A table described as above.
 function ResourceManager:loadList(list)
-	if list.images then
-		for i, path in ipairs(list.images) do self:loadImage(path) end
-	end
-	if list.sprites then
-		for i, path in ipairs(list.sprites) do self:loadSprite(path) end
-	end
-	if list.sounds then
-		for i, path in ipairs(list.sounds) do self:loadSound(path) end
-	end
-	if list.sound_events then
-		for i, path in ipairs(list.sound_events) do self:loadSoundEvent(path) end
-	end
-	if list.music then
-		for i, path in ipairs(list.music) do self:loadMusic(path) end
-	end
-	if list.particles then
-		for i, path in ipairs(list.particles) do self:loadParticle(path) end
-	end
-	if list.fonts then
-		for i, path in ipairs(list.fonts) do self:loadFont(path) end
-	end
-	if list.colorPalettes then
-		for i, path in ipairs(list.colorPalettes) do self:loadColorPalette(path) end
-	end
-	if list.ui2AnimationConfigs then
-		for i, path in ipairs(list.ui2AnimationConfigs) do self:loadUIAnimationConfig(path) end
-	end
-	if list.ui2NodeConfigs then
-		for i, path in ipairs(list.ui2NodeConfigs) do self:loadUINodeConfig(path) end
-	end
-	if list.ui2SequenceConfigs then
-		for i, path in ipairs(list.ui2SequenceConfigs) do self:loadUISequenceConfig(path) end
-	end
+	for i, path in ipairs(list.images or {}) do self:loadImage(path) end
+	for i, path in ipairs(list.sprites or {}) do self:loadSprite(path) end
+	for i, path in ipairs(list.sounds or {}) do self:loadSound(path) end
+	for i, path in ipairs(list.sound_events or {}) do self:loadSoundEvent(path) end
+	for i, path in ipairs(list.music or {}) do self:loadMusic(path) end
+	for i, path in ipairs(list.particles or {}) do self:loadParticle(path) end
+	for i, path in ipairs(list.fonts or {}) do self:loadFont(path) end
+	for i, path in ipairs(list.colorPalettes or {}) do self:loadColorPalette(path) end
+	for i, path in ipairs(list.ui2AnimationConfigs or {}) do self:loadUIAnimationConfig(path) end
+	for i, path in ipairs(list.ui2NodeConfigs or {}) do self:loadUINodeConfig(path) end
+	for i, path in ipairs(list.ui2SequenceConfigs or {}) do self:loadUISequenceConfig(path) end
 end
 
 
@@ -350,7 +328,19 @@ end
 ---Loads a next resource in the queued resource loading process.
 function ResourceManager:stepLoadNext()
 	local objectType = nil
-	local order = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "colorPalettes", "ui2NodeConfigs", "ui2AnimationConfigs", "ui2SequenceConfigs"}
+	local order = {
+		"images",
+		"sprites",
+		"sounds",
+		"sound_events",
+		"music",
+		"particles",
+		"fonts",
+		"colorPalettes",
+		"ui2NodeConfigs",
+		"ui2AnimationConfigs",
+		"ui2SequenceConfigs"
+	}
 	-- loading a first object type from order
 	for i, v in ipairs(order) do
 		if self.stepLoadQueue[v] then
