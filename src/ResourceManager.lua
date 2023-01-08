@@ -12,6 +12,10 @@ local Music = require("src/Essentials/Music")
 local Font = require("src/Essentials/Font")
 local ColorPalette = require("src/Essentials/ColorPalette")
 
+local UI2AnimationConfig = require("src/Configs/UI2Animation")
+local UI2NodeConfig = require("src/Configs/UI2Node")
+local UI2SequenceConfig = require("src/Configs/UI2Sequence")
+
 
 
 ---Constructs a Resource Manager.
@@ -22,10 +26,14 @@ function ResourceManager:new()
 	self.soundEvents = {}
 	self.music = {}
 	-- This holds all raw data from files, excluding "config" and "runtime" files, which are critical and handled directly by the game.
-	-- Widgets are excluded from doing so as well, because widgets are loaded only once and don't need to have their source data stored.
+	-- Widgets are excluded from doing so as well, because widgets are loaded only once and don't need to have their source data stored. (this applies only to UI1!)
 	self.particles = {}
 	self.fonts = {}
 	self.colorPalettes = {}
+
+	self.ui2AnimationConfigs = {}
+	self.ui2NodeConfigs = {}
+	self.ui2SequenceConfigs = {}
 
 	self.resources = {
 		image = {t = self.images, c = Image, e = "image"},
@@ -36,6 +44,10 @@ function ResourceManager:new()
 		particle = {t = self.particles, c = _LoadJson, e = "particle"},
 		font = {t = self.fonts, c = Font, e = "font"},
 		colorPalette = {t = self.colorPalettes, c = ColorPalette, e = "color palette"},
+
+		ui2AnimationConfig = {t = self.ui2AnimationConfigs, c = UI2AnimationConfig, e = "UI2 Animation Config", p = true},
+		ui2NodeConfig = {t = self.ui2NodeConfigs, c = UI2NodeConfig, e = "UI2 Node Config", p = true},
+		ui2SequenceConfig = {t = self.ui2SequenceConfigs, c = UI2SequenceConfig, e = "UI2 Sequence Config", p = true},
 	}
 
 
@@ -194,6 +206,51 @@ end
 
 
 
+---Loads a UI Animation Config from a given path.
+---@param path string The resource path.
+function ResourceManager:loadUIAnimationConfig(path)
+	self:loadResource("ui2AnimationConfig", path)
+end
+
+---Retrieves a UI Animation Config by a given path.
+---@param path string The resource path.
+---@return ColorPalette
+function ResourceManager:getUIAnimationConfig(path)
+	return self:getResource("ui2AnimationConfig", path)
+end
+
+
+
+---Loads a UI Node Config from a given path.
+---@param path string The resource path.
+function ResourceManager:loadUINodeConfig(path)
+	self:loadResource("ui2NodeConfig", path)
+end
+
+---Retrieves a UI Node Config by a given path.
+---@param path string The resource path.
+---@return ColorPalette
+function ResourceManager:getUINodeConfig(path)
+	return self:getResource("ui2NodeConfig", path)
+end
+
+
+
+---Loads a UI Sequence Config from a given path.
+---@param path string The resource path.
+function ResourceManager:loadUISequenceConfig(path)
+	self:loadResource("ui2SequenceConfig", path)
+end
+
+---Retrieves a UI Sequence Config by a given path.
+---@param path string The resource path.
+---@return ColorPalette
+function ResourceManager:getUISequenceConfig(path)
+	return self:getResource("ui2SequenceConfig", path)
+end
+
+
+
 ---General function for resource loading. Don't use from outside this class.
 ---@param type string The resource type. Used to place it in the correct list.
 ---@param path string A path to the resource.
@@ -202,7 +259,12 @@ function ResourceManager:loadResource(type, path)
 
 	--print(string.format("[RB] Loading %s: %s...", data.e, path))
 	local success, err = pcall(function()
-		data.t[path] = data.c(_ParsePath(path))
+		if data.p then
+			-- TODO: Another set of parameters for config classes. To be sorted out not-so-soon!
+			data.t[path] = data.c(_LoadJson(_ParsePath(path)), _ParsePath(path))
+		else
+			data.t[path] = data.c(_ParsePath(path))
+		end
 	end)
 	if not success then
 		_Log:printt("ResourceManager", string.format("FAILED to load %s: %s", data.e, path))
@@ -227,7 +289,7 @@ end
 
 ---Immediately loads all resources from a given list.
 ---
----The list can contain the following fields: `images`, `sprites`, `sounds`, `sound_events`, `music`, `particles`, `fonts`, `colorPalettes`, all of which are optional.
+---The list can contain the following fields: `images`, `sprites`, `sounds`, `sound_events`, `music`, `particles`, `fonts`, `colorPalettes`, `ui2AnimationConfigs`, `ui2NodeConfigs`, `ui2SequenceConfigs` all of which are optional.
 ---For any of these fields that exists, there's a list of paths which will be loaded.
 ---@param list table A table described as above.
 function ResourceManager:loadList(list)
@@ -255,6 +317,15 @@ function ResourceManager:loadList(list)
 	if list.colorPalettes then
 		for i, path in ipairs(list.colorPalettes) do self:loadColorPalette(path) end
 	end
+	if list.ui2AnimationConfigs then
+		for i, path in ipairs(list.ui2AnimationConfigs) do self:loadUIAnimationConfig(path) end
+	end
+	if list.ui2NodeConfigs then
+		for i, path in ipairs(list.ui2NodeConfigs) do self:loadUINodeConfig(path) end
+	end
+	if list.ui2SequenceConfigs then
+		for i, path in ipairs(list.ui2SequenceConfigs) do self:loadUISequenceConfig(path) end
+	end
 end
 
 
@@ -279,7 +350,7 @@ end
 ---Loads a next resource in the queued resource loading process.
 function ResourceManager:stepLoadNext()
 	local objectType = nil
-	local order = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "colorPalettes"}
+	local order = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "colorPalettes", "ui2NodeConfigs", "ui2AnimationConfigs", "ui2SequenceConfigs"}
 	-- loading a first object type from order
 	for i, v in ipairs(order) do
 		if self.stepLoadQueue[v] then
@@ -307,6 +378,12 @@ function ResourceManager:stepLoadNext()
 		self:loadFont(data)
 	elseif objectType == "colorPalettes" then
 		self:loadColorPalette(data)
+	elseif objectType == "ui2AnimationConfigs" then
+		self:loadUIAnimationConfig(data)
+	elseif objectType == "ui2NodeConfigs" then
+		self:loadUINodeConfig(data)
+	elseif objectType == "ui2SequenceConfigs" then
+		self:loadUISequenceConfig(data)
 	end
 	-- remove from the list
 	table.remove(self.stepLoadQueue[objectType], 1)

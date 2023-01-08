@@ -8,10 +8,6 @@ local CollectibleGeneratorManager = require("src/CollectibleGenerator/Manager")
 
 local ShooterConfig = require("src/Configs/Shooter")
 
-local UI2AnimationConfig = require("src/Configs/UI2Animation")
-local UI2NodeConfig = require("src/Configs/UI2Node")
-local UI2SequenceConfig = require("src/Configs/UI2Sequence")
-
 
 
 ---Constructs a new ConfigManager and initializes all lists.
@@ -21,8 +17,8 @@ function ConfigManager:new()
 	-- Load all game resources.
 	-- The load list is loaded to ensure that no resource will be loaded twice.
 	self.loadList = _LoadJson(_ParsePath("config/loadlist.json"))
-	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
-	local resourcePaths = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts"}
+	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "ui2AnimationConfigs", "ui2NodeConfigs", "ui2SequenceConfigs"}
+	local resourcePaths = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "ui/animations", "ui/layouts", "ui/sequences"}
 	self.resourceList = {}
 	for i, type in ipairs(resourceTypes) do
 		-- For each type...
@@ -86,9 +82,7 @@ end
 ---Loads config files which are implemented the new way so that they require to be loaded before the resources.
 function ConfigManager:loadStuffBeforeResources()
 	-- Load some stuff the new way.
-	self.ui2layouts = self:loadFolder("ui2/layouts", "UI2layout", false, UI2NodeConfig)
-	self.ui2animations = self:loadFolder("ui2/animations", "UI2animation", false, UI2AnimationConfig)
-	self.ui2sequences = self:loadFolder("ui2/sequences", "UI2sequence", false, UI2SequenceConfig)
+	-- Or actually none?
 end
 
 
@@ -133,33 +127,6 @@ end
 ---@return ShooterConfig
 function ConfigManager:getShooter(name)
 	return self.shooters[name]
-end
-
-
-
----Returns a UI2 Node Config with a given name.
----@param name string The name of the Config.
----@return UI2NodeConfig
-function ConfigManager:getUI2Layout(name)
-	return self.ui2layouts[name]
-end
-
-
-
----Returns a UI2 Animation Config with a given name.
----@param name string The name of the Config.
----@return UI2AnimationConfig
-function ConfigManager:getUI2Animation(name)
-	return self.ui2animations[name]
-end
-
-
-
----Returns a UI2 Sequence Config with a given name.
----@param name string The name of the Config.
----@return UI2SequenceConfig
-function ConfigManager:getUI2Sequence(name)
-	return self.ui2sequences[name]
 end
 
 

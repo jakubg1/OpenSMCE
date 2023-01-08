@@ -12,7 +12,7 @@ local UI2Sequence = require("src/UI2/Sequence")
 
 ---Constructs the UI2Manager.
 function UI2Manager:new()
-    self.rootNode = UI2Node(self, _Game.configManager:getUI2Layout("root"), "root")
+    self.rootNode = UI2Node(self, _Game.resourceManager:getUINodeConfig("ui2/layouts/root.json"), "root")
     self.rootNode:printTree()
 
     self.activeSequences = {}
@@ -30,7 +30,7 @@ function UI2Manager:update(dt)
         print(self.timer)
         if self.timer < 0 then
             self.timer = nil
-            self:activateSequence("test_new")
+            self:activateSequence("ui2/sequences/test_new.json")
             --self.rootNode:playAnimation(_Game.configManager:getUI2Animation("fade_1_0_250ms"))
         end
     end
@@ -71,7 +71,7 @@ end
 ---Activates a Sequence with a given name.
 ---@param name string The Sequence to be activated.
 function UI2Manager:activateSequence(name)
-    table.insert(self.activeSequences, UI2Sequence(self, _Game.configManager:getUI2Sequence(name)))
+    table.insert(self.activeSequences, UI2Sequence(self, _Game.resourceManager:getUISequenceConfig(name)))
 end
 
 

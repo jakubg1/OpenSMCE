@@ -37,7 +37,7 @@ function UI2Node:new(manager, config, name, parent)
         local childConfig = child
         if type(childConfig) == "string" then
             -- Load from another file.
-            childConfig = _Game.configManager:getUI2Layout(childConfig)
+            childConfig = _Game.resourceManager:getUINodeConfig(childConfig)
         end
         self.children[childN] = UI2Node(manager, childConfig, childN, self)
     end
