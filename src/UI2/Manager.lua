@@ -5,20 +5,21 @@ local class = require "com/class"
 local UI2Manager = class:derive("UI2Manager")
 
 -- Place your imports here
-local UI2Widget = require("src/UI2/Widget")
+local UI2Node = require("src/UI2/Node")
 
 
 
 ---Constructs the UI2Manager.
 function UI2Manager:new()
-    self.rootWidget = UI2Widget("test")
+    self.rootNode = UI2Node(_Game.configManager:getUI2Layout("root"), "root")
+    self.rootNode:printTree()
 end
 
 
 
 ---Draws the UI on the screen.
 function UI2Manager:draw()
-    self.rootWidget:draw()
+    self.rootNode:draw()
 end
 
 

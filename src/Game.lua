@@ -54,6 +54,7 @@ function Game:init()
 
 	-- Step 1. Load the config
 	self.configManager = ConfigManager()
+	self.configManager:loadStuffBeforeResources()
 
 	-- Step 2. Initialize the window
 	local res = self.configManager.config.nativeResolution
@@ -83,7 +84,7 @@ function Game:init()
 	self.uiManager:initSplash()
 
 	-- Step 9. Set upt the experimental UI2 Manager
-	--self.ui2Manager = UI2Manager()
+	self.ui2Manager = UI2Manager()
 end
 
 
@@ -204,7 +205,7 @@ function Game:draw()
 		self.particleManager:draw()
 	end
 	self.uiManager:draw()
-	--self.ui2Manager:draw()
+	self.ui2Manager:draw()
 	_Debug:profDraw2Checkpoint()
 
 	-- Borders

@@ -83,13 +83,19 @@ end
 
 
 
----Loads config files which are implemented the new way so that they require to be loaded after the resources.
-function ConfigManager:loadStuffAfterResources()
-	self.shooters = self:loadFolder("config/shooters", "shooter", false, ShooterConfig)
-
+---Loads config files which are implemented the new way so that they require to be loaded before the resources.
+function ConfigManager:loadStuffBeforeResources()
+	-- Load some stuff the new way.
 	self.ui2layouts = self:loadFolder("ui2/layouts", "UI2layout", false, UI2NodeConfig)
 	self.ui2animations = self:loadFolder("ui2/animations", "UI2animation", false, UI2AnimationConfig)
 	self.ui2sequences = self:loadFolder("ui2/sequences", "UI2sequence", false, UI2SequenceConfig)
+end
+
+
+
+---Loads config files which are implemented the new way so that they require to be loaded after the resources.
+function ConfigManager:loadStuffAfterResources()
+	self.shooters = self:loadFolder("config/shooters", "shooter", false, ShooterConfig)
 end
 
 
