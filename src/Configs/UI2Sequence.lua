@@ -26,7 +26,7 @@ function UI2SequenceConfig:new(data, path)
 
         if entry.type == "playAnimation" then
             -- This is a literal path, and here we are only dealing with building blocks, so this will remain unresolved.
-            entryT.widget = entry.widget
+            entryT.node = entry.node
             entryT.animation = _Game.configManager:getUI2Animation(entry.animation)
             entryT.waitUntilFinished = entry.waitUntilFinished
         elseif entry.type == "wait" then

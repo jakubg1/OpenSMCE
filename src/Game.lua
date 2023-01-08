@@ -131,6 +131,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 	end
 
 	self.uiManager:update(dt)
+	self.ui2Manager:update(dt)
 
 	if self.particleManager then
 		self.particleManager:update(dt)

@@ -1,7 +1,7 @@
 local class = require "com/class"
 
 ---@class UI2Node
----@overload fun(config):UI2Node
+---@overload fun(manager, config, name, parent):UI2Node
 local UI2Node = class:derive("UI2Node")
 
 -- Place your imports here
@@ -12,10 +12,12 @@ local Vec2 = require("src/Essentials/Vector2")
 
 
 ---Constructs a new UI2Node.
+---@param manager UI2Manager The UI2 Manager this Node belongs to.
 ---@param config UI2NodeConfig The UI2 Node Config which describes this Node.
 ---@param name string Specifies the name of this Node. Should match with this Parent's child of this name, or "root" / "splash" if no parent specified.
 ---@param parent UI2Node? The UI2 Node which is a parent of this Node. If not specified, this will be a root node.
-function UI2Node:new(config, name, parent)
+function UI2Node:new(manager, config, name, parent)
+    self.manager = manager
     self.config = config
     self.name = name
     self.parent = parent
@@ -25,6 +27,10 @@ function UI2Node:new(config, name, parent)
     self.scale = config.scale
     self.alpha = config.alpha
 
+    -- Animations
+    -- Each element in this table has properties: "property", "from", "to", "duration", "time", and an optional property "sequence" (sequence to resume).
+    self.activeAnimations = {}
+
     -- Children
     self.children = {}
     for childN, child in pairs(config.children) do
@@ -33,7 +39,7 @@ function UI2Node:new(config, name, parent)
             -- Load from another file.
             childConfig = _Game.configManager:getUI2Layout(childConfig)
         end
-        self.children[childN] = UI2Node(childConfig, childN, self)
+        self.children[childN] = UI2Node(manager, childConfig, childN, self)
     end
 
     -- Widget
@@ -43,6 +49,62 @@ function UI2Node:new(config, name, parent)
             self.widget = UI2WidgetRectangle(self, w.align, w.size, w.color)
         end
     end
+end
+
+
+
+---Updates this Node and its children.
+---@param dt number Time delta in seconds.
+function UI2Node:update(dt)
+    -- Update the animations.
+    for i = #self.activeAnimations, 1, -1 do
+        local animation = self.activeAnimations[i]
+        animation.time = animation.time + dt
+        local progress = math.min(animation.time / animation.duration, 1)
+        local value = animation.from * (1 - progress) + animation.to * progress
+        if animation.property == "alpha" then
+            self.alpha = value
+        end
+        -- Kill the animation once it's finished.
+        if progress == 1 then
+            if animation.sequence then
+                animation.sequence:releaseLock()
+            end
+            table.remove(self.activeAnimations, i)
+        end
+    end
+
+    -- Update all children.
+    for childN, child in pairs(self.children) do
+        child:update(dt)
+    end
+end
+
+
+
+---Plays an Animation on this Node.
+---@param config UI2AnimationConfig The config of the animation to be applied.
+---@param sequence UI2Sequence? The UI Sequence which has called this Animation.
+---@param sequenceStep integer? The specific step of the UI Sequence which has called this Animation.
+function UI2Node:playAnimation(config, sequence, sequenceStep)
+    -- Prepend the current value if not specified.
+    local from = config.from
+    if not from then
+        if config.property == "alpha" then
+            from = self.alpha
+        end
+    end
+
+    -- Insert to the active animation list.
+    table.insert(self.activeAnimations, {
+        property = config.property,
+        from = from,
+        to = config.to,
+        duration = config.duration,
+        time = 0,
+        sequence = sequence,
+        sequenceStep = sequenceStep
+    })
 end
 
 
@@ -76,6 +138,14 @@ function UI2Node:getGlobalAlpha()
         return self.alpha
     end
     return self.parent:getGlobalAlpha() * self.alpha
+end
+
+
+
+---Returns a child of this Node with a given name if it exists.
+---@return UI2Node?
+function UI2Node:getChild(name)
+    return self.children[name]
 end
 
 

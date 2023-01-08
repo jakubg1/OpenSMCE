@@ -22,7 +22,7 @@
                 "properties": {
                     "type": {
                         "const": "playAnimation",
-                        "description": "Plays an Animation on a Widget."
+                        "description": "Plays an Animation on a Node."
                     }
                 },
                 "required": [
@@ -32,13 +32,13 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "widget": {
+                    "node": {
                         "type": "string",
-                        "description": "The Widget to be played the Animation on."
+                        "description": "Path to the Node which will be animated."
                     },
                     "animation": {
                         "type": "string",
-                        "description": "The Animation to be played on a given Widget."
+                        "description": "The Animation to be played."
                     },
                     "waitUntilFinished": {
                         "type": "boolean",
@@ -47,7 +47,7 @@
                     }
                 },
                 "required": [
-                    "widget",
+                    "node",
                     "animation"
                 ],
                 "additionalProperties": false
