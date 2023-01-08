@@ -6,8 +6,7 @@ local UI2Node = class:derive("UI2Node")
 
 -- Place your imports here
 local UI2WidgetRectangle = require("src/UI2/WidgetRectangle")
-
-local Vec2 = require("src/Essentials/Vector2")
+local UI2WidgetSprite = require("src/UI2/WidgetSprite")
 
 
 
@@ -47,6 +46,8 @@ function UI2Node:new(manager, config, name, parent)
     if w then
         if w.type == "rectangle" then
             self.widget = UI2WidgetRectangle(self, w.align, w.size, w.color)
+        elseif w.type == "sprite" then
+            self.widget = UI2WidgetSprite(self, w.align, w.sprite)
         end
     end
 end

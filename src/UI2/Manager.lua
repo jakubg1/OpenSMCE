@@ -12,8 +12,9 @@ local UI2Sequence = require("src/UI2/Sequence")
 
 ---Constructs the UI2Manager.
 function UI2Manager:new()
-    self.rootNode = UI2Node(self, _Game.resourceManager:getUINodeConfig("ui2/layouts/root.json"), "root")
-    self.rootNode:printTree()
+    self.rootNodes = {
+        root = UI2Node(self, _Game.resourceManager:getUINodeConfig("ui2/layouts/root.json"), "root")
+    }
 
     self.activeSequences = {}
 
@@ -27,11 +28,10 @@ end
 function UI2Manager:update(dt)
     if self.timer then
         self.timer = self.timer - dt
-        print(self.timer)
         if self.timer < 0 then
             self.timer = nil
-            self:activateSequence("ui2/sequences/test_new.json")
-            --self.rootNode:playAnimation(_Game.configManager:getUI2Animation("fade_1_0_250ms"))
+            self.rootNodes.root2 = UI2Node(self, _Game.resourceManager:getUINodeConfig("ui2/layouts/root2.json"), "root2")
+            self:activateSequence("ui2/sequences/test_new2.json")
         end
     end
 
@@ -43,7 +43,9 @@ function UI2Manager:update(dt)
         end
     end
 
-    self.rootNode:update(dt)
+    for nodeN, node in pairs(self.rootNodes) do
+        node:update(dt)
+    end
 end
 
 
@@ -53,14 +55,13 @@ end
 ---@return UI2Node?
 function UI2Manager:getNode(path)
     local names = _StrSplit(path, "/")
-    ---@type UI2Node?
-    local node = self.rootNode
+    local node = self.rootNodes[names[1]]
     for i, name in ipairs(names) do
-        if i > 1 then -- what's with the root node? to be tidied up later
-            if not node then
-                return nil
-            end
+        if i > 1 then
             node = node:getChild(name)
+        end
+        if not node then
+            return nil
         end
     end
     return node
@@ -78,7 +79,9 @@ end
 
 ---Draws the UI on the screen.
 function UI2Manager:draw()
-    self.rootNode:draw()
+    for nodeN, node in pairs(self.rootNodes) do
+        node:draw()
+    end
 end
 
 

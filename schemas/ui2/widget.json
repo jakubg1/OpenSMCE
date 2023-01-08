@@ -4,7 +4,8 @@
     "properties": {
         "type": {
             "enum": [
-                "rectangle"
+                "rectangle",
+                "sprite"
             ]
         },
         "align": {
@@ -48,6 +49,33 @@
                 "required": [
                     "size",
                     "color"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "sprite",
+                        "description": "A sprite."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "align": true,
+                    "sprite": {
+                        "type": "string",
+                        "description": "The path to a Sprite to be drawn."
+                    }
+                },
+                "required": [
+                    "sprite"
                 ],
                 "additionalProperties": false
             }

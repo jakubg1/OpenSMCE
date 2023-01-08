@@ -18,7 +18,7 @@ function ConfigManager:new()
 	-- The load list is loaded to ensure that no resource will be loaded twice.
 	self.loadList = _LoadJson(_ParsePath("config/loadlist.json"))
 	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "ui2AnimationConfigs", "ui2NodeConfigs", "ui2SequenceConfigs"}
-	local resourcePaths = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "ui/animations", "ui/layouts", "ui/sequences"}
+	local resourcePaths = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "ui2/animations", "ui2/layouts", "ui2/sequences"}
 	self.resourceList = {}
 	for i, type in ipairs(resourceTypes) do
 		-- For each type...

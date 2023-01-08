@@ -344,36 +344,41 @@ function ResourceManager:stepLoadNext()
 	-- loading a first object type from order
 	for i, v in ipairs(order) do
 		if self.stepLoadQueue[v] then
-			objectType = v
-			break
+			if #self.stepLoadQueue[v] > 0 then
+				objectType = v
+				break
+			else
+				-- Remove an already empty list.
+				self.stepLoadQueue[v] = nil
+			end
 		end
 	end
 	-- get data
-	local data = self.stepLoadQueue[objectType][1]
+	local path = self.stepLoadQueue[objectType][1]
 	--print("[RB] Processing item " .. tostring(self.stepLoadProcessedObjs + 1) .. " from " .. tostring(self.stepLoadTotalObjs) .. "...")
 	-- load
 	if objectType == "images" then
-		self:loadImage(data)
+		self:loadImage(path)
 	elseif objectType == "sprites" then
-		self:loadSprite(data)
+		self:loadSprite(path)
 	elseif objectType == "sounds" then
-		self:loadSound(data)
+		self:loadSound(path)
 	elseif objectType == "sound_events" then
-		self:loadSoundEvent(data)
+		self:loadSoundEvent(path)
 	elseif objectType == "music" then
-		self:loadMusic(data)
+		self:loadMusic(path)
 	elseif objectType == "particles" then
-		self:loadParticle(data)
+		self:loadParticle(path)
 	elseif objectType == "fonts" then
-		self:loadFont(data)
+		self:loadFont(path)
 	elseif objectType == "colorPalettes" then
-		self:loadColorPalette(data)
+		self:loadColorPalette(path)
 	elseif objectType == "ui2AnimationConfigs" then
-		self:loadUIAnimationConfig(data)
+		self:loadUIAnimationConfig(path)
 	elseif objectType == "ui2NodeConfigs" then
-		self:loadUINodeConfig(data)
+		self:loadUINodeConfig(path)
 	elseif objectType == "ui2SequenceConfigs" then
-		self:loadUISequenceConfig(data)
+		self:loadUISequenceConfig(path)
 	end
 	-- remove from the list
 	table.remove(self.stepLoadQueue[objectType], 1)
