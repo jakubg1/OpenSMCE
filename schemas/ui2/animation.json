@@ -4,8 +4,19 @@
     "properties": {
         "property": {
             "enum": [
-                "alpha"
+                "alpha",
+                "pos",
+                "posX",
+                "posY",
+                "scale",
+                "scaleX",
+                "scaleY"
             ]
+        },
+        "duration": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The duration of this Animation."
         }
     },
     "allOf": [
@@ -44,21 +55,209 @@
                         "maximum": 1,
                         "description": "The end value of this Animation."
                     },
-                    "duration": {
-                        "type": "number",
-                        "minimum": 0,
-                        "description": "The duration of this Animation."
+                    "duration": true
+                },
+                "required": [
+                    "to"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "property": {
+                        "const": "pos",
+                        "description": "The position will be changed."
                     }
                 },
                 "required": [
-                    "to",
-                    "duration"
+                    "property"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "property": true,
+                    "from": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value."
+                    },
+                    "to": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "The end value of this Animation."
+                    },
+                    "duration": true
+                },
+                "required": [
+                    "to"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "property": {
+                        "const": "posX",
+                        "description": "The X position value will be changed."
+                    }
+                },
+                "required": [
+                    "property"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "property": true,
+                    "from": {
+                        "type": "number",
+                        "description": "The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value."
+                    },
+                    "to": {
+                        "type": "number",
+                        "description": "The end value of this Animation."
+                    },
+                    "duration": true
+                },
+                "required": [
+                    "to"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "property": {
+                        "const": "posY",
+                        "description": "The Y position value will be changed."
+                    }
+                },
+                "required": [
+                    "property"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "property": true,
+                    "from": {
+                        "type": "number",
+                        "description": "The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value."
+                    },
+                    "to": {
+                        "type": "number",
+                        "description": "The end value of this Animation."
+                    },
+                    "duration": true
+                },
+                "required": [
+                    "to"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "property": {
+                        "const": "scale",
+                        "description": "The scale value will be changed."
+                    }
+                },
+                "required": [
+                    "property"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "property": true,
+                    "from": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value."
+                    },
+                    "to": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "The end value of this Animation."
+                    },
+                    "duration": true
+                },
+                "required": [
+                    "to"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "property": {
+                        "const": "scaleX",
+                        "description": "The X scale value will be changed."
+                    }
+                },
+                "required": [
+                    "property"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "property": true,
+                    "from": {
+                        "type": "number",
+                        "description": "The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value."
+                    },
+                    "to": {
+                        "type": "number",
+                        "description": "The end value of this Animation."
+                    },
+                    "duration": true
+                },
+                "required": [
+                    "to"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "property": {
+                        "const": "scaleY",
+                        "description": "The Y scale value will be changed."
+                    }
+                },
+                "required": [
+                    "property"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "property": true,
+                    "from": {
+                        "type": "number",
+                        "description": "The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value."
+                    },
+                    "to": {
+                        "type": "number",
+                        "description": "The end value of this Animation."
+                    },
+                    "duration": true
+                },
+                "required": [
+                    "to"
                 ],
                 "additionalProperties": false
             }
         }
     ],
     "required": [
-        "property"
+        "property",
+        "duration"
     ]
 }

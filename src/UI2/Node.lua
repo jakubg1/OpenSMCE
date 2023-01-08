@@ -64,6 +64,18 @@ function UI2Node:update(dt)
         local value = animation.from * (1 - progress) + animation.to * progress
         if animation.property == "alpha" then
             self.alpha = value
+        elseif animation.property == "pos" then
+            self.pos = value
+        elseif animation.property == "posX" then
+            self.pos.x = value
+        elseif animation.property == "posY" then
+            self.pos.y = value
+        elseif animation.property == "scale" then
+            self.scale = value
+        elseif animation.property == "scaleX" then
+            self.scale.x = value
+        elseif animation.property == "scaleY" then
+            self.scale.y = value
         end
         -- Kill the animation once it's finished.
         if progress == 1 then
@@ -92,6 +104,18 @@ function UI2Node:playAnimation(config, sequence, sequenceStep)
     if not from then
         if config.property == "alpha" then
             from = self.alpha
+        elseif config.property == "pos" then
+            from = self.pos
+        elseif config.property == "posX" then
+            from = self.pos.x
+        elseif config.property == "posY" then
+            from = self.pos.y
+        elseif config.property == "scale" then
+            from = self.scale
+        elseif config.property == "scaleX" then
+            from = self.scale.x
+        elseif config.property == "scaleY" then
+            from = self.scale.y
         end
     end
 

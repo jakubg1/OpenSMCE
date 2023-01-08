@@ -18,9 +18,9 @@ function UI2AnimationConfig:new(data, path)
 
     ---@type string
     self.property = data.property
-    ---@type number?
+    ---@type number|Vector2?
     self.from = data.from
-    ---@type number
+    ---@type number|Vector2
     self.to = data.to
     ---@type number
     self.duration = data.duration
