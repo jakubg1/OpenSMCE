@@ -7,6 +7,7 @@ local UI2Node = class:derive("UI2Node")
 -- Place your imports here
 local UI2WidgetRectangle = require("src/UI2/WidgetRectangle")
 local UI2WidgetSprite = require("src/UI2/WidgetSprite")
+local UI2WidgetSpriteButton = require("src/UI2/WidgetSpriteButton")
 
 
 
@@ -25,6 +26,7 @@ function UI2Node:new(manager, config, name, parent)
     self.pos = config.pos
     self.scale = config.scale
     self.alpha = config.alpha
+    self.visible = config.visible
 
     -- Animations
     -- Each element in this table has properties: "property", "from", "to", "duration", "time", and an optional property "sequence" (sequence to resume).
@@ -48,6 +50,8 @@ function UI2Node:new(manager, config, name, parent)
             self.widget = UI2WidgetRectangle(self, w.align, w.size, w.color)
         elseif w.type == "sprite" then
             self.widget = UI2WidgetSprite(self, w.align, w.sprite)
+        elseif w.type == "spriteButton" then
+            self.widget = UI2WidgetSpriteButton(self, w.align, w.sprite)
         end
     end
 end
@@ -163,6 +167,12 @@ function UI2Node:getGlobalAlpha()
         return self.alpha
     end
     return self.parent:getGlobalAlpha() * self.alpha
+end
+
+
+---Returns true if this Node is visible. This is not the same as having the alpha set to 0.
+function UI2Node:isVisible()
+	if self.parent then return self.parent:isVisible() and self.visible else return self.visible end
 end
 
 
