@@ -1,3 +1,14 @@
+-- Remove all potentially malicious OS functions, to prevent any external scripts
+-- to cause damage by, for example, loading a game with a os.execute("format c:")
+-- in its UI script.
+
+os = {
+	time = os.time,
+	date = os.date
+}
+
+
+
 -- INCLUDE ZONE
 
 -- custom error handler
@@ -79,6 +90,9 @@ _DiscordRPC = nil
 
 
 -- CALLBACK ZONE
+
+-- Warning! If this function fails, it can cause "failed to initialize filesystem: already initialized" error.
+-- I don't know why this happens yet.
 function love.load()
 	--local s = loadFile("test.txt")
 	--print(s)
