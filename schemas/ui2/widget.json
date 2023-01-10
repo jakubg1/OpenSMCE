@@ -5,7 +5,8 @@
         "type": {
             "enum": [
                 "rectangle",
-                "sprite"
+                "sprite",
+                "spriteButton"
             ]
         },
         "align": {
@@ -72,6 +73,33 @@
                     "sprite": {
                         "type": "string",
                         "description": "The path to a Sprite to be drawn."
+                    }
+                },
+                "required": [
+                    "sprite"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "spriteButton",
+                        "description": "A button based on a sprite. The Sprite used to draw this Button must have four states."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "align": true,
+                    "sprite": {
+                        "type": "string",
+                        "description": "The path to a Sprite to be drawn. The sprite must have four states."
                     }
                 },
                 "required": [

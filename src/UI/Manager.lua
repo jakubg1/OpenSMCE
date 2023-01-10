@@ -253,22 +253,6 @@ function UIManager:optionsSave()
   _Game.runtimeManager.options:setMute(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget.state)
 end
 
-function UIManager:checkCondition(condition)
-	if condition.type == "widget" then
-		if condition.property == "visible" then
-			return self:getWidget(condition.widget):isVisible() == condition.value
-		elseif condition.property == "buttonActive" then
-			return self:getWidget(condition.widget):isActive() == condition.value
-		end
-	elseif condition.type == "level" then
-		if condition.property == "paused" then
-			return _Game.session.level.pause == condition.value
-		elseif condition.property == "started" then
-			return _Game.session.level.started == condition.value
-		end
-	end
-end
-
 
 
 return UIManager

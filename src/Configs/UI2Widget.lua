@@ -30,7 +30,7 @@ function UI2WidgetConfig:new(data, path)
     elseif self.type == "sprite" or self.type == "spriteButton" then
         self.sprite = _Game.resourceManager:getSprite(data.sprite)
     else
-        error(string.format("Failed to load file %s, unknown Widget type: %s (expected \"rectangle\" or \"sprite\")", path, self.type))
+        error(string.format("Failed to load file %s, unknown Widget type: %s (expected \"rectangle\", \"sprite\" or \"spriteButton\")", path, self.type))
     end
 end
 

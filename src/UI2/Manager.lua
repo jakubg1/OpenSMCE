@@ -31,6 +31,7 @@ function UI2Manager:update(dt)
         if self.timer < 0 then
             self.timer = nil
             self.rootNodes.root2 = UI2Node(self, _Game.resourceManager:getUINodeConfig("ui2/layouts/root2.json"), "root2")
+            self:setActive("root2")
             self:activateSequence("ui2/sequences/test_new2.json")
         end
     end
@@ -69,6 +70,24 @@ end
 
 
 
+---Activates a given Node and all its children.
+---@param path string The path to the Node.
+---@param append boolean? Whether the already activated Nodes should remain active.
+function UI2Manager:setActive(path, append)
+    self:getNode(path):setActive(append)
+end
+
+
+
+---Deactivates all Nodes.
+function UI2Manager:resetActive()
+    for nodeN, node in pairs(self.rootNodes) do
+        node:resetActive()
+    end
+end
+
+
+
 ---Activates a Sequence with a given name.
 ---@param name string The Sequence to be activated.
 function UI2Manager:activateSequence(name)
@@ -81,6 +100,55 @@ end
 function UI2Manager:draw()
     for nodeN, node in pairs(self.rootNodes) do
         node:draw()
+    end
+end
+
+
+
+---Callback from Game.lua.
+---@see Game.mousepressed
+---@param x number
+---@param y number
+---@param button number
+function UI2Manager:mousepressed(x, y, button)
+    for nodeN, node in pairs(self.rootNodes) do
+        node:mousepressed(x, y, button)
+    end
+end
+
+
+
+---Callback from Game.lua.
+---@see Game.mousereleased
+---@param x number
+---@param y number
+---@param button number
+function UI2Manager:mousereleased(x, y, button)
+    for nodeN, node in pairs(self.rootNodes) do
+        node:mousereleased(x, y, button)
+    end
+    --self:executeCallback("click")
+end
+
+
+
+---Callback from Game.lua.
+---@see Game.keypressed
+---@param key string
+function UI2Manager:keypressed(key)
+    for nodeN, node in pairs(self.rootNodes) do
+		node:keypressed(key)
+	end
+end
+
+
+
+---Callback from Game.lua.
+---@see Game.textinput
+---@param t string
+function UI2Manager:textinput(t)
+    for nodeN, node in pairs(self.rootNodes) do
+        node:textinput(t)
     end
 end
 

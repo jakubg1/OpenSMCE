@@ -229,6 +229,7 @@ end
 ---@param button integer The mouse button which was pressed.
 function Game:mousepressed(x, y, button)
 	self.uiManager:mousepressed(x, y, button)
+	self.ui2Manager:mousepressed(x, y, button)
 
 	if self:levelExists() and _MousePos.y < 560 then
 		if button == 1 then
@@ -247,6 +248,7 @@ end
 ---@param button integer The mouse button which was released.
 function Game:mousereleased(x, y, button)
 	self.uiManager:mousereleased(x, y, button)
+	self.ui2Manager:mousereleased(x, y, button)
 end
 
 
@@ -255,6 +257,7 @@ end
 ---@param key string The pressed key code.
 function Game:keypressed(key)
 	self.uiManager:keypressed(key)
+	self.ui2Manager:keypressed(key)
 	-- shooter
 	if self:levelExists() then
 		local shooter = self.session.level.shooter
@@ -284,6 +287,7 @@ end
 ---@param t string Something which makes text going.
 function Game:textinput(t)
 	self.uiManager:textinput(t)
+	self.ui2Manager:textinput(t)
 end
 
 

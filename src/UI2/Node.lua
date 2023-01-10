@@ -20,13 +20,15 @@ function UI2Node:new(manager, config, name, parent)
     self.manager = manager
     self.config = config
     self.name = name
-    self.parent = parent
+    self.node = parent
 
     -- Data
     self.pos = config.pos
     self.scale = config.scale
     self.alpha = config.alpha
-    self.visible = config.visible
+
+    -- Activation
+    self.active = false
 
     -- Animations
     -- Each element in this table has properties: "property", "from", "to", "duration", "time", and an optional property "sequence" (sequence to resume).
@@ -91,6 +93,11 @@ function UI2Node:update(dt)
         end
     end
 
+    -- Update the Widget itself.
+    if self.widget and self.widget.update then
+        self.widget:update(dt)
+    end
+
     -- Update all children.
     for childN, child in pairs(self.children) do
         child:update(dt)
@@ -141,38 +148,28 @@ end
 ---Returns the current effective position of this Node.
 ---@return Vector2
 function UI2Node:getGlobalPos()
-    if not self.parent then
+    if not self.node then
         return self.pos
     end
-    return self.parent:getGlobalPos() + self.pos
+    return self.node:getGlobalPos() + self.pos * self.node.scale
 end
-
-
 
 ---Returns the current effective scale of this Node.
 ---@return Vector2
 function UI2Node:getGlobalScale()
-    if not self.parent then
+    if not self.node then
         return self.scale
     end
-    return self.parent:getGlobalScale() * self.scale
+    return self.node:getGlobalScale() * self.scale
 end
-
-
 
 ---Returns the current effective alpha value of this Node.
 ---@return number
 function UI2Node:getGlobalAlpha()
-    if not self.parent then
+    if not self.node then
         return self.alpha
     end
-    return self.parent:getGlobalAlpha() * self.alpha
-end
-
-
----Returns true if this Node is visible. This is not the same as having the alpha set to 0.
-function UI2Node:isVisible()
-	if self.parent then return self.parent:isVisible() and self.visible else return self.visible end
+    return self.node:getGlobalAlpha() * self.alpha
 end
 
 
@@ -181,6 +178,90 @@ end
 ---@return UI2Node?
 function UI2Node:getChild(name)
     return self.children[name]
+end
+
+
+
+---Marks this Node and all its children as active. Active Nodes along with the associated Widgets are the only ones which the player can interact with.
+---@param append boolean? If `true`, the previously active Nodes will remain active. Otherwise, all already active Nodes will be deactivated first.
+function UI2Node:setActive(append)
+    if not append then
+        self.manager:resetActive()
+    end
+    self.active = true
+    for childN, child in pairs(self.children) do
+        child:setActive(true)
+    end
+end
+
+
+
+---Deactivates this Node and all its children, which means the associated Widget can no longer be interacted with.
+function UI2Node:resetActive()
+    self.active = false
+    for childN, child in pairs(self.children) do
+        child:resetActive()
+    end
+end
+
+
+
+---Callback from Game.lua.
+---@see Game.mousepressed
+---@param x number
+---@param y number
+---@param button number
+function UI2Node:mousepressed(x, y, button)
+    if self.widget and self.widget.mousepressed then
+        self.widget:mousepressed(x, y, button)
+    end
+    for childN, child in pairs(self.children) do
+        child:mousepressed(x, y, button)
+    end
+end
+
+
+
+---Callback from Game.lua.
+---@see Game.mousereleased
+---@param x number
+---@param y number
+---@param button number
+function UI2Node:mousereleased(x, y, button)
+    if self.widget and self.widget.mousereleased then
+        self.widget:mousereleased(x, y, button)
+    end
+    for childN, child in pairs(self.children) do
+        child:mousereleased(x, y, button)
+    end
+end
+
+
+
+---Callback from Game.lua.
+---@see Game.keypressed
+---@param key string
+function UI2Node:keypressed(key)
+    if self.widget and self.widget.keypressed then
+        self.widget:keypressed(key)
+    end
+    for childN, child in pairs(self.children) do
+		child:keypressed(key)
+	end
+end
+
+
+
+---Callback from Game.lua.
+---@see Game.textinput
+---@param t string
+function UI2Node:textinput(t)
+    if self.widget and self.widget.textinput then
+        self.widget:textinput(t)
+    end
+    for childN, child in pairs(self.children) do
+        child:textinput(t)
+    end
 end
 
 
