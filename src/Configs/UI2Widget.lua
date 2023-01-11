@@ -27,8 +27,12 @@ function UI2WidgetConfig:new(data, path)
         self.size = _ParseVec2(data.size) or Vec2()
         ---@type Color
         self.color = _ParseColor(data.color) or Color()
-    elseif self.type == "sprite" or self.type == "spriteButton" then
+    elseif self.type == "sprite" then
         self.sprite = _Game.resourceManager:getSprite(data.sprite)
+    elseif self.type == "spriteButton" then
+        self.sprite = _Game.resourceManager:getSprite(data.sprite)
+        ---@type string
+        self.shape = data.shape or "rectangle"
     else
         error(string.format("Failed to load file %s, unknown Widget type: %s (expected \"rectangle\", \"sprite\" or \"spriteButton\")", path, self.type))
     end

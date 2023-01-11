@@ -100,6 +100,13 @@
                     "sprite": {
                         "type": "string",
                         "description": "The path to a Sprite to be drawn. The sprite must have four states."
+                    },
+                    "shape": {
+                        "enum": [
+                            "rectangle",
+                            "sprite"
+                        ],
+                        "description": "Defines the hitbox shape of this Button. Defaults to rectangle."
                     }
                 },
                 "required": [

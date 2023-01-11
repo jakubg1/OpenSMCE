@@ -10,20 +10,26 @@ local Vec2 = require("src/Essentials/Vector2")
 
 ---Constructs a new UI2 Sprite Button widget.
 ---@param node UI2Node The Node this Widget is bound to.
+---@param align Vector2 The Widget's alignment.
 ---@param sprite Sprite The Sprite to be drawn as this Widget.
-function UI2WidgetSpriteButton:new(node, align, sprite)
+---@param shape string Can be `"rectangle"` or `"ellipse"`. Defines the button hitbox.
+function UI2WidgetSpriteButton:new(node, align, sprite, shape)
 	self.type = "spriteButton"
 
     self.node = node
 
 	self.align = align
 	self.sprite = sprite
+	self.shape = shape
 
 	self.hovered = false
 	self.clicked = false
 	self.clickedV = false
-	self.enableForced = true
+	self.disabled = false
+	self.neverDisabled = false
 	self.hotkeys = {}
+	self.hoverSound = "sound_events/button_hover.json"
+	self.clickSound = "sound_events/button_click.json"
 end
 
 
@@ -31,12 +37,11 @@ end
 ---Updates this Widget.
 ---@param dt number Time delta in seconds.
 function UI2WidgetSpriteButton:update(dt)
-	local hovered = self:isEnabled() and self.node.active and self:isHovered()
+	local hovered = self.node.active and self:isEnabled() and self:isHovered()
 	if hovered ~= self.hovered then
 		self.hovered = hovered
-		--if not self.hovered and self.clicked then self:unclick() end
 		if hovered then
-			_Game:playSound("sound_events/button_hover.json")
+			_Game:playSound(self.hoverSound)
 		end
 	end
 end
@@ -77,46 +82,17 @@ end
 function UI2WidgetSpriteButton:isHovered()
 	local p1 = self:getPos()
 	local p2 = p1 + self:getSize()
+	if self.shape == "ellipse" then
+		return ((_MousePos - p1) / (p2 - p1) - Vec2(0.5)):len() <= 0.5
+	end
 	return _MousePos.x >= p1.x and _MousePos.x <= p2.x and _MousePos.y >= p1.y and _MousePos.y <= p2.y
 end
 
+
+
 ---Returns whether this Widget can be clicked.
 function UI2WidgetSpriteButton:isEnabled()
-	return self.enableForced and (self.node:getGlobalAlpha() == 1 or self.node.neverDisabled)
-end
-
-
-
----Clicks this Widget.
-function UI2WidgetSpriteButton:click()
-	if not self.hovered or self.clicked then
-		return
-	end
-	self.clicked = true
-	_Game:playSound("sound_events/button_click.json")
-	--print("Button clicked: " .. self.parent:getFullName())
-end
-
----Unclicks this Widget.
-function UI2WidgetSpriteButton:unclick()
-	if not self.clicked then
-		return
-	end
-	--self.parent:executeAction("buttonClick")
-	self.clicked = false
-end
-
-
-
----Keypress callback.
----@param key string The key which has been pressed.
-function UI2WidgetSpriteButton:keypressed(key)
-	if not self.enabled then
-		return
-	end
-	if key == self.node.hotkey then
-		--self.parent:executeAction("buttonClick")
-	end
+	return not self.disabled and (self.node:getGlobalAlpha() == 1 or self.neverDisabled)
 end
 
 
@@ -131,7 +107,7 @@ end
 ---Sets whether this Button should be enabled.
 ---@param enabled boolean
 function UI2WidgetSpriteButton:setEnabled(enabled)
-	self.enableForced = enabled
+	self.disabled = not enabled
 end
 
 
@@ -139,6 +115,50 @@ end
 ---Draws this Widget.
 function UI2WidgetSpriteButton:draw()
 	self.sprite:draw(self:getPos(), nil, self:getState(), nil, nil, nil, self.node:getGlobalAlpha(), self.node:getGlobalScale())
+end
+
+
+
+---Mouse press callback.
+---@see Game.mousepressed
+---@param x number
+---@param y number
+---@param button number
+function UI2WidgetSpriteButton:mousepressed(x, y, button)
+	if button ~= 1 or not self.hovered or self.clicked then
+		return
+	end
+	self.clicked = true
+	_Game:playSound(self.clickSound)
+	print("Button clicked: " .. self.node:getPath())
+end
+
+
+
+---Mouse release callback.
+---@see Game.mousereleased
+---@param x number
+---@param y number
+---@param button number
+function UI2WidgetSpriteButton:mousereleased(x, y, button)
+	if button ~= 1 or not self.clicked then
+		return
+	end
+	--self.node:executeAction("buttonClick")
+	self.clicked = false
+end
+
+
+
+---Keypress callback.
+---@param key string The key which has been pressed.
+function UI2WidgetSpriteButton:keypressed(key)
+	if not self:isEnabled() then
+		return
+	end
+	if _MathIsValueInTable(key, self.hotkeys) then
+		--self.node:executeAction("buttonClick")
+	end
 end
 
 

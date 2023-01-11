@@ -20,7 +20,7 @@ function UI2Node:new(manager, config, name, parent)
     self.manager = manager
     self.config = config
     self.name = name
-    self.node = parent
+    self.parent = parent
 
     -- Data
     self.pos = config.pos
@@ -53,7 +53,7 @@ function UI2Node:new(manager, config, name, parent)
         elseif w.type == "sprite" then
             self.widget = UI2WidgetSprite(self, w.align, w.sprite)
         elseif w.type == "spriteButton" then
-            self.widget = UI2WidgetSpriteButton(self, w.align, w.sprite)
+            self.widget = UI2WidgetSpriteButton(self, w.align, w.sprite, w.shape)
         end
     end
 end
@@ -148,28 +148,28 @@ end
 ---Returns the current effective position of this Node.
 ---@return Vector2
 function UI2Node:getGlobalPos()
-    if not self.node then
+    if not self.parent then
         return self.pos
     end
-    return self.node:getGlobalPos() + self.pos * self.node.scale
+    return self.parent:getGlobalPos() + self.pos * self.parent.scale
 end
 
 ---Returns the current effective scale of this Node.
 ---@return Vector2
 function UI2Node:getGlobalScale()
-    if not self.node then
+    if not self.parent then
         return self.scale
     end
-    return self.node:getGlobalScale() * self.scale
+    return self.parent:getGlobalScale() * self.scale
 end
 
 ---Returns the current effective alpha value of this Node.
 ---@return number
 function UI2Node:getGlobalAlpha()
-    if not self.node then
+    if not self.parent then
         return self.alpha
     end
-    return self.node:getGlobalAlpha() * self.alpha
+    return self.parent:getGlobalAlpha() * self.alpha
 end
 
 
@@ -201,6 +201,29 @@ function UI2Node:resetActive()
     self.active = false
     for childN, child in pairs(self.children) do
         child:resetActive()
+    end
+end
+
+
+
+---Returns the full path to this Node.
+---@return string
+function UI2Node:getPath()
+    if not self.parent then
+        return self.name
+    end
+    return self.parent:getPath() .. "/" .. self.name
+end
+
+
+
+---Draws this Node and its children.
+function UI2Node:draw()
+    if self.widget then
+        self.widget:draw()
+    end
+    for childN, child in pairs(self.children) do
+        child:draw()
     end
 end
 
@@ -261,18 +284,6 @@ function UI2Node:textinput(t)
     end
     for childN, child in pairs(self.children) do
         child:textinput(t)
-    end
-end
-
-
-
----Draws this Node and its children.
-function UI2Node:draw()
-    if self.widget then
-        self.widget:draw()
-    end
-    for childN, child in pairs(self.children) do
-        child:draw()
     end
 end
 
