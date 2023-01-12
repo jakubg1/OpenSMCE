@@ -1,22 +1,24 @@
 local class = require "com/class"
 
 ---@class UI2WidgetRectangle
----@overload fun(node, align, size, color):UI2WidgetRectangle
+---@overload fun(node, layer, align, size, color):UI2WidgetRectangle
 local UI2WidgetRectangle = class:derive("UI2WidgetRectangle")
 
 
 
 ---Constructs a new Rectangle Widget.
 ---@param node UI2Node The Node this Widget is bound to.
+---@param layer string The layer this Widget should be drawn on.
 ---@param align Vector2 The Widget's alignment.
 ---@param size Vector2 This Rectangle's size.
 ---@param color Color This Rectangle's color.
-function UI2WidgetRectangle:new(node, align, size, color)
+function UI2WidgetRectangle:new(node, layer, align, size, color)
 	self.type = "rectangle"
 
 	self.node = node
-
+	self.layer = layer
 	self.align = align
+	
 	self.size = size
 	self.color = color
 end

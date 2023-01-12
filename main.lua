@@ -114,6 +114,7 @@ function love.load()
     else
 		_LoadBootScreen()
 	end
+	--for k, v in pairs(love.graphics.getSystemLimits()) do print(k, v) end
 end
 
 function love.update(dt)

@@ -98,8 +98,25 @@ end
 
 ---Draws the UI on the screen.
 function UI2Manager:draw()
+    -- This table will contain the order in which the nodes will be drawn.
+    local layers = {}
+    for i, layer in ipairs(_Game.configManager.hudLayerOrder) do
+        layers[layer] = {}
+    end
+
+    -- Let every Node write into that table.
     for nodeN, node in pairs(self.rootNodes) do
-        node:draw()
+        node:generateDrawData(layers)
+    end
+
+    _Debug.uiWidgetCount = 0
+    for i, layer in ipairs(_Game.configManager.hudLayerOrder) do
+        for j, node in ipairs(layers[layer]) do
+            node:draw()
+        end
+        if _Game.particleManager then
+            _Game.particleManager:draw(layer)
+        end
     end
 end
 

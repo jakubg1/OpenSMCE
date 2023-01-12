@@ -49,11 +49,11 @@ function UI2Node:new(manager, config, name, parent)
     local w = config.widget
     if w then
         if w.type == "rectangle" then
-            self.widget = UI2WidgetRectangle(self, w.align, w.size, w.color)
+            self.widget = UI2WidgetRectangle(self, w.layer, w.align, w.size, w.color)
         elseif w.type == "sprite" then
-            self.widget = UI2WidgetSprite(self, w.align, w.sprite)
+            self.widget = UI2WidgetSprite(self, w.layer, w.align, w.sprite)
         elseif w.type == "spriteButton" then
-            self.widget = UI2WidgetSpriteButton(self, w.align, w.sprite, w.shape)
+            self.widget = UI2WidgetSpriteButton(self, w.layer, w.align, w.sprite, w.shape)
         end
     end
 end
@@ -217,13 +217,29 @@ end
 
 
 
----Draws this Node and its children.
+---Prepares this Node and all its children to draw their Widgets by writing them to the drawing list if applicable.
+---@param layers table A table with layer names as keys and another tables as values. References to UI Nodes will be stored there.
+function UI2Node:generateDrawData(layers)
+	for childN, child in pairs(self.children) do
+		child:generateDrawData(layers)
+	end
+	if self.widget then
+        -- There's no point to draw widgets with alpha = 0.
+		if self:getGlobalAlpha() > 0 then
+			table.insert(layers[self.widget.layer], self)
+		end
+		--if self.widget.type == "text" then
+		--	self.widget.textTmp = _ParseString(self.widget.text)
+		--end
+	end
+end
+
+
+
+---Draws ONLY this Node's Widget, if it exists.
 function UI2Node:draw()
     if self.widget then
         self.widget:draw()
-    end
-    for childN, child in pairs(self.children) do
-        child:draw()
     end
 end
 

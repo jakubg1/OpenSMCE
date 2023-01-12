@@ -19,6 +19,8 @@ function UI2WidgetConfig:new(data, path)
 
     ---@type string
     self.type = data.type
+    ---@type string
+    self.layer = data.layer or "MAIN"
     ---@type Vector2
     self.align = _ParseVec2(data.align) or Vec2()
 

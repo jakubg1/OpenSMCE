@@ -1,7 +1,7 @@
 local class = require "com/class"
 
 ---@class UI2WidgetSpriteButton
----@overload fun(node, align, sprite):UI2WidgetSpriteButton
+---@overload fun(node, layer, align, sprite):UI2WidgetSpriteButton
 local UI2WidgetSpriteButton = class:derive("UI2WidgetSpriteButton")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -10,15 +10,17 @@ local Vec2 = require("src/Essentials/Vector2")
 
 ---Constructs a new UI2 Sprite Button widget.
 ---@param node UI2Node The Node this Widget is bound to.
+---@param layer string The layer this Widget should be drawn on.
 ---@param align Vector2 The Widget's alignment.
 ---@param sprite Sprite The Sprite to be drawn as this Widget.
 ---@param shape string Can be `"rectangle"` or `"ellipse"`. Defines the button hitbox.
-function UI2WidgetSpriteButton:new(node, align, sprite, shape)
+function UI2WidgetSpriteButton:new(node, layer, align, sprite, shape)
 	self.type = "spriteButton"
 
     self.node = node
-
+	self.layer = layer
 	self.align = align
+
 	self.sprite = sprite
 	self.shape = shape
 
@@ -82,6 +84,7 @@ end
 function UI2WidgetSpriteButton:isHovered()
 	local p1 = self:getPos()
 	local p2 = p1 + self:getSize()
+	-- TODO: add a "sprite" type hitbox which will check pixel transparency (can't do now because no way to probe pixels on the Sprites)
 	if self.shape == "ellipse" then
 		return ((_MousePos - p1) / (p2 - p1) - Vec2(0.5)):len() <= 0.5
 	end
@@ -143,6 +146,9 @@ end
 function UI2WidgetSpriteButton:mousereleased(x, y, button)
 	if button ~= 1 or not self.clicked then
 		return
+	end
+	if self.node:getPath() == "root2/Button" then
+		self.node.manager:activateSequence("ui2/sequences/test_new.json")
 	end
 	--self.node:executeAction("buttonClick")
 	self.clicked = false
