@@ -1,7 +1,7 @@
 local class = require "com/class"
 
 ---@class UI2WidgetSpriteButton
----@overload fun(node, layer, align, sprite):UI2WidgetSpriteButton
+---@overload fun(node, layer, align, sprite, callbacks):UI2WidgetSpriteButton
 local UI2WidgetSpriteButton = class:derive("UI2WidgetSpriteButton")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -14,7 +14,8 @@ local Vec2 = require("src/Essentials/Vector2")
 ---@param align Vector2 The Widget's alignment.
 ---@param sprite Sprite The Sprite to be drawn as this Widget.
 ---@param shape string Can be `"rectangle"` or `"ellipse"`. Defines the button hitbox.
-function UI2WidgetSpriteButton:new(node, layer, align, sprite, shape)
+---@param callbacks table A table of callbacks which should be fired on certain events.
+function UI2WidgetSpriteButton:new(node, layer, align, sprite, shape, callbacks)
 	self.type = "spriteButton"
 
     self.node = node
@@ -23,6 +24,7 @@ function UI2WidgetSpriteButton:new(node, layer, align, sprite, shape)
 
 	self.sprite = sprite
 	self.shape = shape
+	self.callbacks = callbacks
 
 	self.hovered = false
 	self.clicked = false
@@ -147,10 +149,9 @@ function UI2WidgetSpriteButton:mousereleased(x, y, button)
 	if button ~= 1 or not self.clicked then
 		return
 	end
-	if self.node:getPath() == "root2/Button" then
-		self.node.manager:activateSequence("ui2/sequences/test_new.json")
+	if self.callbacks.onClick then
+		self.node.manager:executeCallback(self.callbacks.onClick)
 	end
-	--self.node:executeAction("buttonClick")
 	self.clicked = false
 end
 
@@ -163,7 +164,9 @@ function UI2WidgetSpriteButton:keypressed(key)
 		return
 	end
 	if _MathIsValueInTable(self.hotkeys, key) then
-		--self.node:executeAction("buttonClick")
+		if self.callbacks.onClick then
+			self.node.manager:executeCallback(self.callbacks.onClick)
+		end
 	end
 end
 

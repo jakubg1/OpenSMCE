@@ -5,6 +5,7 @@
         "type": {
             "enum": [
                 "playAnimation",
+                "executeCallback",
                 "wait"
             ]
         }
@@ -49,6 +50,32 @@
                 "required": [
                     "node",
                     "animation"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "executeCallback",
+                        "description": "Executes a function of that name defined in the UI script."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "name": {
+                        "type": "string",
+                        "name": "The name of the function, defined in the UI script."
+                    }
+                },
+                "required": [
+                    "name"
                 ],
                 "additionalProperties": false
             }

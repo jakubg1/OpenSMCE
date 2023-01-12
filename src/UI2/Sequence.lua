@@ -50,6 +50,8 @@ function UI2Sequence:executeEntry(n)
         if entry.waitUntilFinished then
             self.waitTime = -1
         end
+    elseif entry.type == "executeCallback" then
+        self.manager:executeCallback(entry.name)
     elseif entry.type == "wait" then
         self.waitTime = entry.time
     end

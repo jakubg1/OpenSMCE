@@ -54,7 +54,7 @@ function UI2Node:new(manager, config, name, parent)
         elseif w.type == "sprite" then
             self.widget = UI2WidgetSprite(self, w.layer, w.align, w.sprite)
         elseif w.type == "spriteButton" then
-            self.widget = UI2WidgetSpriteButton(self, w.layer, w.align, w.sprite, w.shape)
+            self.widget = UI2WidgetSpriteButton(self, w.layer, w.align, w.sprite, w.shape, w.callbacks)
         elseif w.type == "text" then
             self.widget = UI2WidgetText(self, w.layer, w.align, w.font, w.text, w.color)
         end

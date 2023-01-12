@@ -4,14 +4,12 @@ local class = require "com/class"
 ---@overload fun():UIManager
 local UIManager = class:derive("UIManager")
 
-local strmethods = require("src/strmethods")
-
 local UIWidget = require("src/UI/Widget")
 
 
 
 function UIManager:new()
-  self.widgets = {splash = nil, main = nil}
+  self.widgets = {splash = nil, root = nil}
 
   self.script = nil
   self.scriptFunctions = {
@@ -126,23 +124,6 @@ function UIManager:update(dt)
 end
 
 function UIManager:draw()
-  --[[
-  -- APPROACHES 1, 2
-  for widgetN, widget in pairs(self.widgets) do
-    widget:generateDrawData()
-  end
-
-  dbg.uiWidgetCount = 0
-  for i, layer in ipairs(game.configManager.hudLayerOrder) do
-    for widgetN, widget in pairs(self.widgets) do
-      widget:draw(layer)
-    end
-  end
-  ]]--
-
-
-
-  -- APPROACH 3
   -- This table will contain the order in which widgets will be drawn.
   local layers = {}
 	for i, layer in ipairs(_Game.configManager.hudLayerOrder) do

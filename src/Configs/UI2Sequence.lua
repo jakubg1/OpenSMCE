@@ -29,10 +29,12 @@ function UI2SequenceConfig:new(data, path)
             entryT.node = entry.node
             entryT.animation = _Game.resourceManager:getUIAnimationConfig(entry.animation)
             entryT.waitUntilFinished = entry.waitUntilFinished
+        elseif entry.type == "executeCallback" then
+            entryT.name = entry.name
         elseif entry.type == "wait" then
             entryT.time = entry.time
         else
-            error(string.format("Failed to load file %s, unknown Timeline Entry type: %s (expected \"playAnimation\" or \"wait\")", path, entry.type))
+            error(string.format("Failed to load file %s, unknown Timeline Entry type: %s (expected \"playAnimation\", \"executeCallback\" or \"wait\")", path, entry.type))
         end
 
         table.insert(self.timeline, entryT)
