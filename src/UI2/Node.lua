@@ -8,6 +8,7 @@ local UI2Node = class:derive("UI2Node")
 local UI2WidgetRectangle = require("src/UI2/WidgetRectangle")
 local UI2WidgetSprite = require("src/UI2/WidgetSprite")
 local UI2WidgetSpriteButton = require("src/UI2/WidgetSpriteButton")
+local UI2WidgetText = require("src/UI2/WidgetText")
 
 
 
@@ -54,6 +55,8 @@ function UI2Node:new(manager, config, name, parent)
             self.widget = UI2WidgetSprite(self, w.layer, w.align, w.sprite)
         elseif w.type == "spriteButton" then
             self.widget = UI2WidgetSpriteButton(self, w.layer, w.align, w.sprite, w.shape)
+        elseif w.type == "text" then
+            self.widget = UI2WidgetText(self, w.layer, w.align, w.font, w.text, w.color)
         end
     end
 end

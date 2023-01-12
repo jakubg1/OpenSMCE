@@ -6,7 +6,8 @@
             "enum": [
                 "rectangle",
                 "sprite",
-                "spriteButton"
+                "spriteButton",
+                "text"
             ]
         },
         "layer": {
@@ -118,6 +119,42 @@
                 },
                 "required": [
                     "sprite"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "text",
+                        "description": "A text written using a given Font."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "layer": true,
+                    "align": true,
+                    "font": {
+                        "type": "string",
+                        "description": "The font to be used to draw the text on the screen."
+                    },
+                    "text": {
+                        "type": "string",
+                        "description": "The contents of this Widget. Defaults to an empty string."
+                    },
+                    "color": {
+                        "$ref": "../_structures/Color.json",
+                        "description": "The text color. Defaults to white."
+                    }
+                },
+                "required": [
+                    "font"
                 ],
                 "additionalProperties": false
             }
