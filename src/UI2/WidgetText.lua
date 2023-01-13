@@ -1,23 +1,21 @@
 local class = require "com/class"
 
 ---@class UI2WidgetText
----@overload fun(node, layer, align, font, text, color):UI2WidgetText
+---@overload fun(node, align, font, text, color):UI2WidgetText
 local UI2WidgetText = class:derive("UI2WidgetText")
 
 
 
 ---Constructs a new UI2 Text widget.
 ---@param node UI2Node The Node this Widget is bound to.
----@param layer string The layer this Widget should be drawn on.
 ---@param align Vector2 The Widget's alignment.
 ---@param font Font The Font to be used for this Text.
 ---@param text string The text to be written in this Widget.
 ---@param color Color The Color to be used for the Font.
-function UI2WidgetText:new(node, layer, align, font, text, color)
+function UI2WidgetText:new(node, align, font, text, color)
 	self.type = "text"
 
 	self.node = node
-	self.layer = layer
 	self.align = align
 
 	self.font = font

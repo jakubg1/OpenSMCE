@@ -27,6 +27,8 @@ function UI2Node:new(manager, config, name, parent)
     self.pos = config.pos
     self.scale = config.scale
     self.alpha = config.alpha
+    -- Layers are here and not in Widgets, because the layers can be inherited. We need this for purposes of including the same Nodes in different places.
+    self.layer = config.layer
 
     -- Activation
     self.active = false
@@ -50,13 +52,13 @@ function UI2Node:new(manager, config, name, parent)
     local w = config.widget
     if w then
         if w.type == "rectangle" then
-            self.widget = UI2WidgetRectangle(self, w.layer, w.align, w.size, w.color)
+            self.widget = UI2WidgetRectangle(self, w.align, w.size, w.color)
         elseif w.type == "sprite" then
-            self.widget = UI2WidgetSprite(self, w.layer, w.align, w.sprite)
+            self.widget = UI2WidgetSprite(self, w.align, w.sprite)
         elseif w.type == "spriteButton" then
-            self.widget = UI2WidgetSpriteButton(self, w.layer, w.align, w.sprite, w.shape, w.callbacks)
+            self.widget = UI2WidgetSpriteButton(self, w.align, w.sprite, w.shape, w.callbacks)
         elseif w.type == "text" then
-            self.widget = UI2WidgetText(self, w.layer, w.align, w.font, w.text, w.color)
+            self.widget = UI2WidgetText(self, w.align, w.font, w.text, w.color)
         end
     end
 end
@@ -177,6 +179,20 @@ end
 
 
 
+---Returns the current layer this Node is on.
+---@return string
+function UI2Node:getLayer()
+    if self.layer then
+        return self.layer
+    end
+    if self.parent then
+        return self.parent:getLayer()
+    end
+    return "MAIN"
+end
+
+
+
 ---Returns a child of this Node with a given name if it exists.
 ---@return UI2Node?
 function UI2Node:getChild(name)
@@ -229,7 +245,7 @@ function UI2Node:generateDrawData(layers)
 	if self.widget then
         -- There's no point to draw widgets with alpha = 0.
 		if self:getGlobalAlpha() > 0 then
-			table.insert(layers[self.widget.layer], self)
+			table.insert(layers[self:getLayer()], self)
 		end
 		--if self.widget.type == "text" then
 		--	self.widget.textTmp = _ParseString(self.widget.text)

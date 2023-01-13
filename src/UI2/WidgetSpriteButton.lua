@@ -1,7 +1,7 @@
 local class = require "com/class"
 
 ---@class UI2WidgetSpriteButton
----@overload fun(node, layer, align, sprite, callbacks):UI2WidgetSpriteButton
+---@overload fun(node, align, sprite, callbacks):UI2WidgetSpriteButton
 local UI2WidgetSpriteButton = class:derive("UI2WidgetSpriteButton")
 
 local Vec2 = require("src/Essentials/Vector2")
@@ -10,16 +10,14 @@ local Vec2 = require("src/Essentials/Vector2")
 
 ---Constructs a new UI2 Sprite Button widget.
 ---@param node UI2Node The Node this Widget is bound to.
----@param layer string The layer this Widget should be drawn on.
 ---@param align Vector2 The Widget's alignment.
 ---@param sprite Sprite The Sprite to be drawn as this Widget.
 ---@param shape string Can be `"rectangle"` or `"ellipse"`. Defines the button hitbox.
 ---@param callbacks table A table of callbacks which should be fired on certain events.
-function UI2WidgetSpriteButton:new(node, layer, align, sprite, shape, callbacks)
+function UI2WidgetSpriteButton:new(node, align, sprite, shape, callbacks)
 	self.type = "spriteButton"
 
     self.node = node
-	self.layer = layer
 	self.align = align
 
 	self.sprite = sprite

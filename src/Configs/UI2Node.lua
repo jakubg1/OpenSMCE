@@ -40,6 +40,8 @@ function UI2NodeConfig:new(data, path)
     self.scale = _ParseVec2(data.scale) or Vec2(1)
     ---@type number
     self.alpha = data.alpha or 1
+    ---@type string?
+    self.layer = data.layer
 end
 
 

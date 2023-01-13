@@ -10,10 +10,6 @@
                 "text"
             ]
         },
-        "layer": {
-            "type": "string",
-            "description": "The layer this Widget should be drawn on. Defaults to MAIN."
-        },
         "align": {
             "$ref": "../_structures/Vector2.json",
             "description": "Defines the alignment of this Widget. For example, setting to (0.5, 0.5) will center this Widget on its Node's position, and (0, 1) will make its bottom left corner appear in that point. Defaults to (0, 0)."
@@ -42,7 +38,6 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "layer": true,
                     "align": true,
                     "size": {
                         "$ref": "../_structures/Vector2.json",
@@ -75,7 +70,6 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "layer": true,
                     "align": true,
                     "sprite": {
                         "type": "string",
@@ -103,7 +97,6 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "layer": true,
                     "align": true,
                     "sprite": {
                         "type": "string",
@@ -149,7 +142,6 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "layer": true,
                     "align": true,
                     "font": {
                         "type": "string",

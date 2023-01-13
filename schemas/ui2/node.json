@@ -29,6 +29,10 @@
             "minimum": 0,
             "maximum": 1,
             "description": "Defines the starting alpha (transparency) value of this Node. Defaults to 1 (fully opaque)."
+        },
+        "layer": {
+            "type": "string",
+            "description": "The layer this Widget should be drawn on. Inherited from parents if not specified. If no parents are found, defaults to MAIN."
         }
     },
     "required": [],
