@@ -201,6 +201,22 @@ end
 
 
 
+---Returns whether this Node is visible.
+---@return boolean
+function UI2Node:isVisible()
+    return self:getGlobalAlpha() > 0
+end
+
+
+
+---Returns whether this Node is active, i.e. it can be interacted with.
+---@return boolean
+function UI2Node:isActive()
+	return self.widget and self:isVisible() and self.active
+end
+
+
+
 ---Marks this Node and all its children as active. Active Nodes along with the associated Widgets are the only ones which the player can interact with.
 ---@param append boolean? If `true`, the previously active Nodes will remain active. Otherwise, all already active Nodes will be deactivated first.
 function UI2Node:setActive(append)
@@ -225,6 +241,16 @@ end
 
 
 
+---If the Widget attached to this Node is a button, set its enabled state.
+---@param enabled boolean Whether the button should be enabled.
+function UI2Node:buttonSetEnabled(enabled)
+    if self.widget and self.widget.type == "spriteButton" then
+        self.widget:setEnabled(enabled)
+    end
+end
+
+
+
 ---Returns the full path to this Node.
 ---@return string
 function UI2Node:getPath()
@@ -244,7 +270,7 @@ function UI2Node:generateDrawData(layers)
 	end
 	if self.widget then
         -- There's no point to draw widgets with alpha = 0.
-		if self:getGlobalAlpha() > 0 then
+		if self:isVisible() then
 			table.insert(layers[self:getLayer()], self)
 		end
 		--if self.widget.type == "text" then
@@ -259,6 +285,20 @@ end
 function UI2Node:draw()
     if self.widget then
         self.widget:draw()
+    end
+    self:drawDebug()
+end
+
+
+
+---Draws this Node's debug marks, such as the Widget's hitbox.
+function UI2Node:drawDebug()
+    if self.widget then
+        local p = self.widget:getPos()
+        local s = self.widget:getSize()
+        love.graphics.setColor(1, 1, 0, self:getGlobalAlpha())
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", p.x, p.y, s.x, s.y)
     end
 end
 

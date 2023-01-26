@@ -112,27 +112,27 @@ end
 
 
 
-function Debug:getUITreeText(widget, rowTable, indent)
-	widget = widget or _Game.uiManager.widgets["root"] or _Game.uiManager.widgets["splash"]
+function Debug:getUITreeText(node, rowTable, indent)
+	node = node or _Game.ui2Manager.rootNodes["root"] or _Game.ui2Manager.rootNodes["splash"]
 	rowTable = rowTable or {}
 	indent = indent or 0
 	--if indent > 1 then return end
 
-	local name = widget.name
+	local name = node.name
 	for i = 1, indent do name = "    " .. name end
-	local visible = widget.visible and "X" or ""
-	local visible2 = widget:isVisible() and "V" or ""
-	local active = widget:isActive() and "A" or ""
-	local alpha = tostring(math.floor(widget.alpha * 10) / 10)
-	local alpha2 = tostring(math.floor(widget:getAlpha() * 10) / 10)
-	local time = widget.time and tostring(math.floor(widget.time * 100) / 100) or "-"
-	local pos = tostring(widget.pos)
-	--if widget:getVisible() then
+	local visible = "" --node.visible and "X" or ""
+	local visible2 = "" --node:isVisible() and "V" or ""
+	local active = node:isActive() and "A" or ""
+	local alpha = tostring(math.floor(node.alpha * 10) / 10)
+	local alpha2 = tostring(math.floor(node:getGlobalAlpha() * 10) / 10)
+	local time = "" --node.time and tostring(math.floor(node.time * 100) / 100) or "-"
+	local pos = tostring(node.pos)
+	--if node:getVisible() then
 		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos})
 	--end
 
 	--if
-	for childN, child in pairs(widget.children) do
+	for childN, child in pairs(node.children) do
 		self:getUITreeText(child, rowTable, indent + 1)
 	end
 

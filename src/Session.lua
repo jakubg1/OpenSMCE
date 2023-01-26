@@ -32,7 +32,7 @@ end
 
 ---An initialization callback.
 function Session:init()
-	_Game.uiManager:executeCallback("sessionInit")
+	_Game.ui2Manager:executeCallback("sessionInit")
 end
 
 
@@ -51,9 +51,9 @@ function Session:startLevel()
 	local savedLevelData = _Game:getCurrentProfile():getSavedLevel()
 	if savedLevelData then
 		self.level:deserialize(savedLevelData)
-		_Game.uiManager:executeCallback("levelLoaded")
+		_Game.ui2Manager:executeCallback("levelLoaded")
 	else
-		_Game.uiManager:executeCallback("levelStart")
+		_Game.ui2Manager:executeCallback("levelStart")
 	end
 end
 
@@ -83,7 +83,7 @@ end
 ---Destroys this level and triggers a `gameOver` callback in the UI script.
 function Session:terminate()
 	self.level = nil
-	_Game.uiManager:executeCallback("gameOver")
+	_Game.ui2Manager:executeCallback("gameOver")
 end
 
 

@@ -29,6 +29,8 @@ function UI2SequenceConfig:new(data, path)
             entryT.node = entry.node
             entryT.animation = _Game.resourceManager:getUIAnimationConfig(entry.animation)
             entryT.waitUntilFinished = entry.waitUntilFinished
+        elseif entry.type == "setActive" then
+            entryT.node = entry.node
         elseif entry.type == "executeCallback" then
             entryT.name = entry.name
         elseif entry.type == "wait" then

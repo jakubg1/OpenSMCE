@@ -320,7 +320,7 @@ function Profile:grantCoin()
 		self:grantLife()
 		self.session.coins = 0
 	end
-	_Game.uiManager:executeCallback("newCoin")
+	_Game.ui2Manager:executeCallback("newCoin")
 end
 
 
@@ -336,7 +336,7 @@ end
 ---Grants an extra life to the player.
 function Profile:grantLife()
 	self.session.lives = self.session.lives + 1
-	_Game.uiManager:executeCallback("newLife")
+	_Game.ui2Manager:executeCallback("newLife")
 end
 
 ---Takes one life away from the player and returns `true`, if the player has any. If not, returns `false`.

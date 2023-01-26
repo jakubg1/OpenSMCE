@@ -41,7 +41,7 @@ end
 
 ---Draws this Widget on the screen.
 function UI2WidgetText:draw()
-	self.font:draw(self.text, self:getPos(), nil, self.color, self.node:getGlobalAlpha(), self.node:getGlobalScale())
+	self.font:draw(self.text, self.node:getGlobalPos(), self.align, self.color, self.node:getGlobalAlpha(), self.node:getGlobalScale())
 end
 
 

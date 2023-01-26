@@ -225,7 +225,7 @@ function Level:updateLogic(dt)
 		self.wonDelay = self.wonDelay - dt
 		if self.wonDelay <= 0 then
 			self.wonDelay = nil
-			_Game.uiManager:executeCallback("levelComplete")
+			_Game.ui2Manager:executeCallback("levelComplete")
 			self.ended = true
 		end
 	end
@@ -234,7 +234,7 @@ function Level:updateLogic(dt)
 
 	-- Level lose
 	if self.lost and self:getEmpty() and not self.ended then
-		_Game.uiManager:executeCallback("levelLost")
+		_Game.ui2Manager:executeCallback("levelLost")
 		self.ended = true
 	end
 end
@@ -683,7 +683,7 @@ end
 ---Takes one life away from the current Profile, and either restarts this Level, or ends the game.
 function Level:tryAgain()
 	if _Game:getCurrentProfile():loseLevel() then
-		_Game.uiManager:executeCallback("levelStart")
+		_Game.ui2Manager:executeCallback("levelStart")
 		self:reset()
 	else
 		_Game.session:terminate()
