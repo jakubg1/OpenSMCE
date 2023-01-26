@@ -65,20 +65,40 @@ end
 ---@param color Color? The sprite color.
 ---@param alpha number? Sprite transparency. `0` is fully transparent. `1` is fully opaque.
 ---@param scale Vector2? The scale of this sprite.
-function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
+---@param blendMode "none"|"alpha"|"screen"|"add"|"subtract"|"multiply"|"lighten"|"darken"? The blending mode to use.
+function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale, blendMode)
 	align = align or Vec2()
 	state = state or 1
 	frame = frame or Vec2(1)
 	rot = rot or 0
 	color = color or Color()
 	alpha = alpha or 1
-	scale = scale or Vec2(1)
+    scale = scale or Vec2(1)
+    blendMode = blendMode or "alpha"
+    -- this is for convenience reasons so json files can use "none"
+	-- instead of "alpha", but the option is there regardless
+	if blendMode == "none" then
+		blendMode = "alpha"
+    end
 	pos = _PosOnScreen(pos - (align * scale * self.frameSize):rotate(rot))
 	if color.r then -- temporary chunk
 		love.graphics.setColor(color.r, color.g, color.b, alpha)
 	else
 		love.graphics.setColor(unpack(color), alpha)
+    end
+
+	--[[
+	local blendAlphaMode = "alphamultiply"
+    local modesToPremultiply = { "add", "subtract", "multiply", "lighten", "darken" }
+	for _,mode in pairs(modesToPremultiply) do
+		if mode == blendMode then
+			blendAlphaMode = "premultiplied"
+		end
 	end
+	]]
+	---@diagnostic disable-next-line: param-type-mismatch
+    love.graphics.setBlendMode(blendMode)
+
 	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
 end
 

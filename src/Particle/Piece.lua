@@ -55,7 +55,8 @@ function ParticlePiece:new(manager, spawner, data)
 	self.lifetime = self.lifespan
 	self.time = 0
 
-	self.sprite = _Game.resourceManager:getSprite(data.sprite)
+    self.sprite = _Game.resourceManager:getSprite(data.sprite)
+	self.blendMode = data.blendMode
 	self.animationSpeed = data.animationSpeed
 	self.animationFrameCount = data.animationFrameCount
 	self.animationLoop = data.animationLoop
@@ -165,7 +166,7 @@ end
 
 function ParticlePiece:draw(layer)
 	if self.layer == layer then
-		self.sprite:draw(self:getPos(), Vec2(0.5), nil, Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha())
+		self.sprite:draw(self:getPos(), Vec2(0.5), nil, Vec2(math.min(math.floor(self.animationFrame), self.animationFrameCount), 1), nil, self:getColor(), self:getAlpha(), nil, self.blendMode)
 	end
 end
 
