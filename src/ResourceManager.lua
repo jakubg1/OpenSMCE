@@ -279,8 +279,8 @@ end
 function ResourceManager:getResource(type, path)
 	local data = self.resources[type]
 
-	if not data.t[path] then
-		error(string.format("[ResourceManager] Attempt to get an unknown %s: %s", data.e, path))
+    if not data.t[path] then
+		error(string.format("[ResourceManager] Attempt to get an unknown %s: %s\nIf this is a crash on startup, have you added it in config/loadlist.json > %ss?", data.e, path, type))
 	end
 	return data.t[path]
 end
