@@ -10,17 +10,19 @@ local UI2WidgetText = class:derive("UI2WidgetText")
 ---@param node UI2Node The Node this Widget is bound to.
 ---@param align Vector2 The Widget's alignment.
 ---@param font Font The Font to be used for this Text.
+---@param blendMode string The blend mode to be used for this Text.
 ---@param text string The text to be written in this Widget.
 ---@param color Color The Color to be used for the Font.
-function UI2WidgetText:new(node, align, font, text, color)
+function UI2WidgetText:new(node, align, font, blendMode, text, color)
 	self.type = "text"
 
 	self.node = node
 	self.align = align
 
 	self.font = font
+	self.blendMode = blendMode
 	self.text = text
-	self.color = color
+    self.color = color
 end
 
 
@@ -41,7 +43,7 @@ end
 
 ---Draws this Widget on the screen.
 function UI2WidgetText:draw()
-	self.font:draw(self.text, self.node:getGlobalPos(), self.align, self.color, self.node:getGlobalAlpha(), self.node:getGlobalScale())
+	self.font:draw(self.text, self.node:getGlobalPos(), self.align, self.color, self.node:getGlobalAlpha(), self.node:getGlobalScale(), self.blendMode)
 end
 
 

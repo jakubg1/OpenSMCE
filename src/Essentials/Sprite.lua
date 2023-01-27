@@ -87,17 +87,15 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale, blendMo
 		love.graphics.setColor(unpack(color), alpha)
     end
 
-	--[[
 	local blendAlphaMode = "alphamultiply"
-    local modesToPremultiply = { "add", "subtract", "multiply", "lighten", "darken" }
+    local modesToPremultiply = { "multiply", "lighten", "darken" }
 	for _,mode in pairs(modesToPremultiply) do
 		if mode == blendMode then
 			blendAlphaMode = "premultiplied"
 		end
 	end
-	]]
 	---@diagnostic disable-next-line: param-type-mismatch
-    love.graphics.setBlendMode(blendMode)
+    love.graphics.setBlendMode(blendMode, blendAlphaMode)
 
 	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
 end
