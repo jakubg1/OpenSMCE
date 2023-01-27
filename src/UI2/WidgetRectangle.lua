@@ -9,14 +9,16 @@ local UI2WidgetRectangle = class:derive("UI2WidgetRectangle")
 ---Constructs a new Rectangle Widget.
 ---@param node UI2Node The Node this Widget is bound to.
 ---@param align Vector2 The Widget's alignment.
+---@param blendMode string The blend mode to be used for this Text.
 ---@param size Vector2 This Rectangle's size.
 ---@param color Color This Rectangle's color.
-function UI2WidgetRectangle:new(node, align, size, color)
+function UI2WidgetRectangle:new(node, align, blendMode, size, color)
 	self.type = "rectangle"
 
 	self.node = node
 	self.align = align
 
+	self.blendMode = blendMode
 	self.size = size
 	self.color = color
 end
@@ -39,6 +41,7 @@ end
 
 ---Draws this Widget on the screen.
 function UI2WidgetRectangle:draw()
+	love.graphics.setBlendMode(self.blendMode)
 	love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.node:getGlobalAlpha())
 	local pos = _PosOnScreen(self:getPos())
 	local size = self:getSize() * _GetResolutionScale()

@@ -12,15 +12,17 @@ local Vec2 = require("src/Essentials/Vector2")
 ---@param node UI2Node The Node this Widget is bound to.
 ---@param align Vector2 The Widget's alignment.
 ---@param sprite Sprite The Sprite to be drawn as this Widget.
+---@param blendMode string The blend mode to be used for this Text.
 ---@param shape string Can be `"rectangle"` or `"ellipse"`. Defines the button hitbox.
 ---@param callbacks table A table of callbacks which should be fired on certain events.
-function UI2WidgetSpriteButton:new(node, align, sprite, shape, callbacks)
+function UI2WidgetSpriteButton:new(node, align, sprite, blendMode, shape, callbacks)
 	self.type = "spriteButton"
 
     self.node = node
 	self.align = align
 
 	self.sprite = sprite
+	self.blendMode = blendMode
 	self.shape = shape
 	self.callbacks = callbacks
 
@@ -117,7 +119,7 @@ end
 
 ---Draws this Widget.
 function UI2WidgetSpriteButton:draw()
-	self.sprite:draw(self:getPos(), nil, self:getState(), nil, nil, nil, self.node:getGlobalAlpha(), self.node:getGlobalScale())
+	self.sprite:draw(self:getPos(), nil, self:getState(), nil, nil, nil, self.node:getGlobalAlpha(), self.node:getGlobalScale(), self.blendMode)
 end
 
 

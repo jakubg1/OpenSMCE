@@ -10,13 +10,15 @@ local UI2WidgetSprite = class:derive("UI2WidgetSprite")
 ---@param node UI2Node The Node this Widget is bound to.
 ---@param align Vector2 The Widget's alignment.
 ---@param sprite Sprite The Sprite to be drawn as this Widget.
-function UI2WidgetSprite:new(node, align, sprite)
+---@param blendMode string The blend mode to be used for this Text.
+function UI2WidgetSprite:new(node, align, sprite, blendMode)
 	self.type = "sprite"
 
 	self.node = node
 	self.align = align
 
-	self.sprite = sprite
+    self.sprite = sprite
+	self.blendMode = blendMode
 end
 
 
@@ -37,7 +39,7 @@ end
 
 ---Draws this Widget on the screen.
 function UI2WidgetSprite:draw()
-	self.sprite:draw(self:getPos(), nil, nil, nil, nil, nil, self.node:getGlobalAlpha(), self.node:getGlobalScale())
+	self.sprite:draw(self:getPos(), nil, nil, nil, nil, nil, self.node:getGlobalAlpha(), self.node:getGlobalScale(), self.blendMode)
 end
 
 

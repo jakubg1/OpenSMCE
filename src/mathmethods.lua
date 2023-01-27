@@ -22,3 +22,15 @@ function _MathWeightedRandom(weights)
 	end
 	return i
 end
+
+
+
+function _MathAreKeysInTable(tbl, ...)
+    for _, v in pairs({ ... }) do
+        tbl = tbl[v]
+        if type(tbl) ~= "table" then
+            return tbl
+        end
+    end
+    return tbl
+end

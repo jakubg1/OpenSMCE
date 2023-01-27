@@ -51,14 +51,17 @@ function UI2Node:new(manager, config, name, parent)
     -- Widget
     local w = config.widget
     if w then
+        if not w.blendMode then
+            w.blendMode = "alpha"
+        end
         if w.type == "rectangle" then
-            self.widget = UI2WidgetRectangle(self, w.align, w.size, w.color)
+            self.widget = UI2WidgetRectangle(self, w.align, w.blendMode, w.size, w.color)
         elseif w.type == "sprite" then
-            self.widget = UI2WidgetSprite(self, w.align, w.sprite)
+            self.widget = UI2WidgetSprite(self, w.align, w.sprite, w.blendMode)
         elseif w.type == "spriteButton" then
-            self.widget = UI2WidgetSpriteButton(self, w.align, w.sprite, w.shape, w.callbacks)
+            self.widget = UI2WidgetSpriteButton(self, w.align, w.sprite,w.blendMode,  w.shape, w.callbacks)
         elseif w.type == "text" then
-            self.widget = UI2WidgetText(self, w.align, w.font, w.text, w.color)
+            self.widget = UI2WidgetText(self, w.align, w.font, w.blendMode,  w.text, w.color)
         end
     end
 end

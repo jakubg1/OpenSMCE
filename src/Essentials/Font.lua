@@ -80,10 +80,25 @@ function Font:getTextSize(text)
 	end
 end
 
-function Font:draw(text, pos, align, color, alpha)
+function Font:draw(text, pos, align, color, alpha, scale, blendMode)
 	align = align or Vec2(0.5)
 	color = color or Color()
-	alpha = alpha or 1
+    alpha = alpha or 1
+    blendMode = blendMode or "alpha"
+	-- see Sprite.lua on why this reassigment exists
+	if blendMode == "none" then
+		blendMode = "alpha"
+    end
+
+	local blendAlphaMode = "alphamultiply"
+    local modesToPremultiply = { "multiply", "lighten", "darken" }
+	for _,mode in pairs(modesToPremultiply) do
+		if mode == blendMode then
+			blendAlphaMode = "premultiplied"
+		end
+	end
+	---@diagnostic disable-next-line: param-type-mismatch
+    love.graphics.setBlendMode(blendMode, blendAlphaMode)
 
 	if self.type == "image" then
 		love.graphics.setColor(color.r, color.g, color.b, alpha)

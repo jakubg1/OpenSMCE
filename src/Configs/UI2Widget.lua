@@ -41,6 +41,7 @@ function UI2WidgetConfig:new(data, path)
     else
         --error(string.format("Failed to load file %s, unknown Widget type: %s (expected \"rectangle\", \"sprite\", \"spriteButton\" or \"text\")", path, self.type))
     end
+    self.blendMode = data.blendMode
 end
 
 

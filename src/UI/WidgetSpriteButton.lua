@@ -64,7 +64,7 @@ function UIWidgetSpriteButton:draw()
 		end
 	end
 
-	self.sprite:draw(pos, nil, self:getState(), nil, nil, nil, alpha)
+	self.sprite:draw(pos, nil, self:getState(), nil, nil, nil, alpha, nil, self.parent.blendMode)
 end
 
 function UIWidgetSpriteButton:getState()
