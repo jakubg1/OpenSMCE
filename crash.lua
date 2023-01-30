@@ -16,6 +16,10 @@ function love.errorhandler(msg)
 	msg = tostring(msg)
 	
 	error_printer(msg, 2)
+
+	if _Log then
+		_Log:save(true)
+	end
 	
 	if not love.window or not love.graphics or not love.event then
 		return
