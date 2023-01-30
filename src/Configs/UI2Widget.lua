@@ -34,6 +34,10 @@ function UI2WidgetConfig:new(data, path)
         ---@type string
         self.shape = data.shape or "rectangle"
         self.callbacks = data.callbacks or {}
+    elseif self.type == "spriteProgress" then
+        self.sprite = _Game.resourceManager:getSprite(data.sprite)
+        self.value = data.value
+        self.smooth = data.smooth
     elseif self.type == "text" then
         self.font = _Game.resourceManager:getFont(data.font)
         self.text = data.text or ""
