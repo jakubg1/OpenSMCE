@@ -64,7 +64,7 @@ function UI2Node:new(manager, config, name, parent)
         elseif w.type == "text" then
             self.widget = UI2WidgetText(self, w.align, w.font, w.text, w.color)
         elseif w.type == "level" then
-            self.widget = UI2WidgetLevel(self, w.align, w.path)
+            self.widget = UI2WidgetLevel(self, w.align, w.level)
         end
     end
 end

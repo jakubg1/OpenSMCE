@@ -6,12 +6,12 @@ local UI2WidgetSpriteProgress = class:derive("UI2WidgetSpriteProgress")
 
 
 
----Constructs a new UI2 Sprite widget.
+---Constructs a new UI2 Sprite Progress Bar widget.
 ---@param node UI2Node The Node this Widget is bound to.
 ---@param align Vector2 The Widget's alignment.
 ---@param sprite Sprite The Sprite to be drawn as this Widget.
----@param value number
----@param smooth boolean
+---@param value number The initial value of this progress bar.
+---@param smooth boolean Whether the change of this bar's value should be smooth.
 function UI2WidgetSpriteProgress:new(node, align, sprite, value, smooth)
 	self.type = "sprite"
 

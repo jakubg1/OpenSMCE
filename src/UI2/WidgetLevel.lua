@@ -1,7 +1,7 @@
 local class = require "com/class"
 
 ---@class UI2WidgetLevel
----@overload fun(parent, path):UI2WidgetLevel
+---@overload fun(parent, align, level):UI2WidgetLevel
 local UI2WidgetLevel = class:derive("UI2WidgetLevel")
 
 local DummyLevel = require("src/DummyLevel")
@@ -10,14 +10,14 @@ local DummyLevel = require("src/DummyLevel")
 
 ---Constructs a new Level Widget.
 ---@param node UI2Node The Node this Widget is bound to.
----@param path string The level JSON to use for the level.
-function UI2WidgetLevel:new(node, align, path)
+---@param level string The level JSON to use for the level.
+function UI2WidgetLevel:new(node, align, level)
 	self.type = "level"
 	
     self.node = node
     self.align = align
 	
-	self.level = DummyLevel(path)
+	self.level = DummyLevel(level)
 end
 
 
