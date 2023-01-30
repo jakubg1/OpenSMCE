@@ -9,6 +9,7 @@ local UI2WidgetRectangle = require("src/UI2/WidgetRectangle")
 local UI2WidgetSprite = require("src/UI2/WidgetSprite")
 local UI2WidgetSpriteButton = require("src/UI2/WidgetSpriteButton")
 local UI2WidgetText = require("src/UI2/WidgetText")
+local UI2WidgetLevel = require("src/UI2/WidgetLevel")
 
 
 
@@ -59,6 +60,8 @@ function UI2Node:new(manager, config, name, parent)
             self.widget = UI2WidgetSpriteButton(self, w.align, w.sprite, w.shape, w.callbacks)
         elseif w.type == "text" then
             self.widget = UI2WidgetText(self, w.align, w.font, w.text, w.color)
+        elseif w.type == "level" then
+            self.widget = UI2WidgetLevel(self, w.align, w.path)
         end
     end
 end
