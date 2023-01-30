@@ -34,10 +34,16 @@ function UI2WidgetConfig:new(data, path)
         ---@type string
         self.shape = data.shape or "rectangle"
         self.callbacks = data.callbacks or {}
+    elseif self.type == "spriteProgress" then
+        self.sprite = _Game.resourceManager:getSprite(data.sprite)
+        self.value = data.value
+        self.smooth = data.smooth
     elseif self.type == "text" then
         self.font = _Game.resourceManager:getFont(data.font)
         self.text = data.text or ""
         self.color = _ParseColor(data.color) or Color()
+    elseif self.type == "level" then
+        self.path = data.path
     else
         --error(string.format("Failed to load file %s, unknown Widget type: %s (expected \"rectangle\", \"sprite\", \"spriteButton\" or \"text\")", path, self.type))
     end
