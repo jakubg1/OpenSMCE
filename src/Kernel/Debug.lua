@@ -113,7 +113,7 @@ end
 
 
 function Debug:getUITreeText(node, rowTable, indent)
-	node = node or _Game.ui2Manager.rootNodes["root"] or _Game.ui2Manager.rootNodes["splash"]
+	node = node or _Game.uiManager.rootNodes["root"] or _Game.uiManager.rootNodes["splash"]
 	rowTable = rowTable or {}
 	indent = indent or 0
 	--if indent > 1 then return end
