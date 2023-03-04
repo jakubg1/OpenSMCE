@@ -171,6 +171,10 @@ end
 function Sphere:changeColor(color, particle)
 	_Game.session.colorManager:decrement(self.color)
 	_Game.session.colorManager:increment(color)
+	if self.danger then
+		_Game.session.colorManager:decrement(self.color, true)
+		_Game.session.colorManager:increment(color, true)
+	end
 	self.color = color
 	self.entity:setColor(color)
 	self:loadConfig()
