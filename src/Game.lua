@@ -1,4 +1,4 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class Game
 ---@overload fun(name):Game
@@ -6,19 +6,19 @@ local Game = class:derive("Game")
 
 
 
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
-local Timer = require("src/Timer")
+local Timer = require("src.Timer")
 
-local ConfigManager = require("src/ConfigManager")
-local ResourceManager = require("src/ResourceManager")
-local GameModuleManager = require("src/GameModuleManager")
-local RuntimeManager = require("src/RuntimeManager")
-local Session = require("src/Session")
+local ConfigManager = require("src.ConfigManager")
+local ResourceManager = require("src.ResourceManager")
+local GameModuleManager = require("src.GameModuleManager")
+local RuntimeManager = require("src.RuntimeManager")
+local Session = require("src.Session")
 
-local UIManager = require("src/UI/Manager")
-local UI2Manager = require("src/UI2/Manager")
-local ParticleManager = require("src/Particle/Manager")
+local UIManager = require("src.UI.Manager")
+local UI2Manager = require("src.UI2.Manager")
+local ParticleManager = require("src.Particle.Manager")
 
 
 

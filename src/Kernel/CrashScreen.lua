@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class CrashScreen
 ---@overload fun(err):CrashScreen
 local CrashScreen = class:derive("CrashScreen")
 
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
 
 

@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class SphereChain
 ---@overload fun(path, deserializationTable):SphereChain
 local SphereChain = class:derive("SphereChain")
 
-local SphereGroup = require("src/SphereGroup")
+local SphereGroup = require("src.SphereGroup")
 
 
 

@@ -1,12 +1,12 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class BootSettings
 ---@overload fun(bootScreen):BootSettings
 local BootSettings = class:derive("BootSettings")
 
-local Vec2 = require("src/Essentials/Vector2")
-local Button = require("src/Kernel/UI/Button")
-local Checkbox = require("src/Kernel/UI/Checkbox")
+local Vec2 = require("src.Essentials.Vector2")
+local Button = require("src.Kernel.UI.Button")
+local Checkbox = require("src.Kernel.UI.Checkbox")
 
 
 

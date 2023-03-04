@@ -1,4 +1,4 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UI2WidgetText
 ---@overload fun(node, align, font, text, color):UI2WidgetText

@@ -7,18 +7,18 @@
 
 
 -- Class identification
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class Session
 ---@overload fun(path, deserializationTable):Session
 local Session = class:derive("Session")
 
 -- Include commons
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
 -- Include class constructors
-local Level = require("src/Level")
-local ColorManager = require("src/ColorManager")
+local Level = require("src.Level")
+local ColorManager = require("src.ColorManager")
 
 
 

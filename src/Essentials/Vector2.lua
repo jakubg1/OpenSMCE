@@ -1,4 +1,4 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class Vector2
 ---@operator add(Vector2|number):Vector2

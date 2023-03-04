@@ -15,24 +15,24 @@ os = {
 require("crash")
 
 -- global utility methods
-require("src/strmethods")
-require("src/mathmethods")
+require("src.strmethods")
+require("src.mathmethods")
 
-local json = require("com/json")
+local json = require("com.json")
 
-local Vec2 = require("src/Essentials/Vector2")
-local Color = require("src/Essentials/Color")
+local Vec2 = require("src.Essentials.Vector2")
+local Color = require("src.Essentials.Color")
 
-local Log = require("src/Kernel/Log")
-local Debug = require("src/Kernel/Debug")
+local Log = require("src.Kernel.Log")
+local Debug = require("src.Kernel.Debug")
 
-local BootScreen = require("src/Kernel/BootScreen")
-local Game = require("src/Game")
+local BootScreen = require("src.Kernel.BootScreen")
+local Game = require("src.Game")
 
-local ExpressionVariables = require("src/ExpressionVariables")
-local Settings = require("src/Kernel/Settings")
+local ExpressionVariables = require("src.ExpressionVariables")
+local Settings = require("src.Kernel.Settings")
 
-local DiscordRichPresence = require("src/DiscordRichPresence")
+local DiscordRichPresence = require("src.DiscordRichPresence")
 
 
 

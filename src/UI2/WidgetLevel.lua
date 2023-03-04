@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UI2WidgetLevel
 ---@overload fun(parent, align, level):UI2WidgetLevel
 local UI2WidgetLevel = class:derive("UI2WidgetLevel")
 
-local DummyLevel = require("src/DummyLevel")
+local DummyLevel = require("src.DummyLevel")
 
 
 

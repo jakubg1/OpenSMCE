@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UIWidgetText
 ---@overload fun(parent, text, font, align):UIWidgetText
 local UIWidgetText = class:derive("UIWidgetText")
 
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
 
 

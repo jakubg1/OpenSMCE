@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class Sound
 ---@overload fun(path):Sound
 local Sound = class:derive("Sound")
 
-local SoundInstance = require("src/Essentials/SoundInstance")
+local SoundInstance = require("src.Essentials.SoundInstance")
 
 
 

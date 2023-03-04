@@ -1,20 +1,20 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class ResourceManager
 ---@overload fun():ResourceManager
 local ResourceManager = class:derive("ResourceManager")
 
-local Image = require("src/Essentials/Image")
-local Sprite = require("src/Essentials/Sprite")
-local Sound = require("src/Essentials/Sound")
-local SoundEvent = require("src/Essentials/SoundEvent")
-local Music = require("src/Essentials/Music")
-local Font = require("src/Essentials/Font")
-local ColorPalette = require("src/Essentials/ColorPalette")
+local Image = require("src.Essentials.Image")
+local Sprite = require("src.Essentials.Sprite")
+local Sound = require("src.Essentials.Sound")
+local SoundEvent = require("src.Essentials.SoundEvent")
+local Music = require("src.Essentials.Music")
+local Font = require("src.Essentials.Font")
+local ColorPalette = require("src.Essentials.ColorPalette")
 
-local UI2AnimationConfig = require("src/Configs/UI2Animation")
-local UI2NodeConfig = require("src/Configs/UI2Node")
-local UI2SequenceConfig = require("src/Configs/UI2Sequence")
+local UI2AnimationConfig = require("src.Configs.UI2Animation")
+local UI2NodeConfig = require("src.Configs.UI2Node")
+local UI2SequenceConfig = require("src.Configs.UI2Sequence")
 
 
 

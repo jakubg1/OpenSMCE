@@ -1,4 +1,4 @@
-local json = require("com/json")
+local json = require("com.json")
 
 
 

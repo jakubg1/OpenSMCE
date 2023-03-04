@@ -1,14 +1,14 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class SphereGroup
 ---@overload fun(sphereChain, deserializationTable):SphereGroup
 local SphereGroup = class:derive("SphereGroup")
 
-local Vec2 = require("src/Essentials/Vector2")
-local Sprite = require("src/Essentials/Sprite")
-local Color = require("src/Essentials/Color")
+local Vec2 = require("src.Essentials.Vector2")
+local Sprite = require("src.Essentials.Sprite")
+local Color = require("src.Essentials.Color")
 
-local Sphere = require("src/Sphere")
+local Sphere = require("src.Sphere")
 
 
 

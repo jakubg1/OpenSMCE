@@ -1,4 +1,4 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UI2Sequence
 ---@overload fun(manager, config):UI2Sequence

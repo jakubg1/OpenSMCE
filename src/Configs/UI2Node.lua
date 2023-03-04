@@ -1,11 +1,11 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UI2NodeConfig
 ---@overload fun(data):UI2NodeConfig
 local UI2NodeConfig = class:derive("UI2NodeConfig")
 
-local Vec2 = require("src/Essentials/Vector2")
-local UI2WidgetConfig = require("src/Configs/UI2Widget")
+local Vec2 = require("src.Essentials.Vector2")
+local UI2WidgetConfig = require("src.Configs.UI2Widget")
 
 
 

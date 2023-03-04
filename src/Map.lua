@@ -1,13 +1,13 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class Map
 ---@overload fun(level, path, pathsBehavior, isDummy):Map
 local Map = class:derive("Map")
 
-local Vec2 = require("src/Essentials/Vector2")
-local Sprite = require("src/Essentials/Sprite")
+local Vec2 = require("src.Essentials.Vector2")
+local Sprite = require("src.Essentials.Sprite")
 
-local Path = require("src/Path")
+local Path = require("src.Path")
 
 
 

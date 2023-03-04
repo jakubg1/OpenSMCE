@@ -1,4 +1,4 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class DiscordRichPresence
 ---@overload fun():DiscordRichPresence
@@ -37,7 +37,7 @@ end
 
 ---Includes and initializes the actual Rich Presence code.
 function DiscordRichPresence:init()
-	self.rpcMain = require("com/discordRPC")
+	self.rpcMain = require("com.discordRPC")
 
 	function self.rpcMain.ready(userId, username, discriminator, avatar)
 		self.connected = true

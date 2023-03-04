@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class CollectibleGeneratorManager
 ---@overload fun():CollectibleGeneratorManager
 local CollectibleGeneratorManager = class:derive("CollectibleGeneratorManager")
 
-local CollectibleGeneratorEntry = require("src/CollectibleGenerator/Entry")
+local CollectibleGeneratorEntry = require("src.CollectibleGenerator.Entry")
 
 
 

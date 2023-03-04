@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UIWidgetSpriteProgress
 ---@overload fun(parent, sprite, value, smooth):UIWidgetSpriteProgress
 local UIWidgetSpriteProgress = class:derive("UIWidgetSpriteProgress")
 
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
 
 

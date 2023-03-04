@@ -1,4 +1,4 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UI2WidgetRectangle
 ---@overload fun(node, align, size, color):UI2WidgetRectangle

@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class ParticleSpawner
 ---@overload fun(manager, packet, data):ParticleSpawner
 local ParticleSpawner = class:derive("ParticleSpawner")
 
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
 
 

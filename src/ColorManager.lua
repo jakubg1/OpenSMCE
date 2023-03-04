@@ -1,4 +1,4 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---Counts spheres on the board.
 ---@class ColorManager

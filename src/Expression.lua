@@ -3,7 +3,7 @@
 
 
 
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class Expression
 ---@overload fun(str):Expression

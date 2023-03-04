@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UI2WidgetSpriteButton
 ---@overload fun(node, align, sprite, callbacks):UI2WidgetSpriteButton
 local UI2WidgetSpriteButton = class:derive("UI2WidgetSpriteButton")
 
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
 
 

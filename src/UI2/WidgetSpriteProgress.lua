@@ -1,4 +1,4 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UI2WidgetSpriteProgress
 ---@overload fun(node, align, sprite, value, smooth):UI2WidgetSpriteProgress

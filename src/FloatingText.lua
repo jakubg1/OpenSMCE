@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class FloatingText
 ---@overload fun(text, pos, font):FloatingText
 local FloatingText = class:derive("FloatingText")
 
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
 
 

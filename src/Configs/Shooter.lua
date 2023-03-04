@@ -1,11 +1,11 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class ShooterConfig
 ---@overload fun(data):ShooterConfig
 local ShooterConfig = class:derive("ShooterConfig")
 
-local Vec2 = require("src/Essentials/Vector2")
-local ShooterMovementConfig = require("src/Configs/ShooterMovement")
+local Vec2 = require("src.Essentials.Vector2")
+local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 
 
 

@@ -1,16 +1,16 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UI2Node
 ---@overload fun(manager, config, name, parent):UI2Node
 local UI2Node = class:derive("UI2Node")
 
 -- Place your imports here
-local UI2WidgetRectangle = require("src/UI2/WidgetRectangle")
-local UI2WidgetSprite = require("src/UI2/WidgetSprite")
-local UI2WidgetSpriteButton = require("src/UI2/WidgetSpriteButton")
-local UI2WidgetSpriteProgress = require("src/UI2/WidgetSpriteProgress")
-local UI2WidgetText = require("src/UI2/WidgetText")
-local UI2WidgetLevel = require("src/UI2/WidgetLevel")
+local UI2WidgetRectangle = require("src.UI2.WidgetRectangle")
+local UI2WidgetSprite = require("src.UI2.WidgetSprite")
+local UI2WidgetSpriteButton = require("src.UI2.WidgetSpriteButton")
+local UI2WidgetSpriteProgress = require("src.UI2.WidgetSpriteProgress")
+local UI2WidgetText = require("src.UI2.WidgetText")
+local UI2WidgetLevel = require("src.UI2.WidgetLevel")
 
 
 

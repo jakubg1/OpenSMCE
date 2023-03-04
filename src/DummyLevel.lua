@@ -1,10 +1,10 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class DummyLevel
 ---@overload fun(path):DummyLevel
 local DummyLevel = class:derive("DummyLevel")
 
-local Map = require("src/Map")
+local Map = require("src.Map")
 
 
 

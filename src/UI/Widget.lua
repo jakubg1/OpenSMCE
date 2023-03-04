@@ -1,21 +1,21 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class UIWidget
 ---@overload fun(name, data, parent):UIWidget
 local UIWidget = class:derive("UIWidget")
 
-local UIWidgetRectangle = require("src/UI/WidgetRectangle")
-local UIWidgetSprite = require("src/UI/WidgetSprite")
-local UIWidgetSpriteButton = require("src/UI/WidgetSpriteButton")
-local UIWidgetSpriteButtonCheckbox = require("src/UI/WidgetSpriteButtonCheckbox")
-local UIWidgetSpriteButtonSlider = require("src/UI/WidgetSpriteButtonSlider")
-local UIWidgetSpriteProgress = require("src/UI/WidgetSpriteProgress")
-local UIWidgetText = require("src/UI/WidgetText")
-local UIWidgetTextInput = require("src/UI/WidgetTextInput")
-local UIWidgetParticle = require("src/UI/WidgetParticle")
-local UIWidgetLevel = require("src/UI/WidgetLevel")
+local UIWidgetRectangle = require("src.UI.WidgetRectangle")
+local UIWidgetSprite = require("src.UI.WidgetSprite")
+local UIWidgetSpriteButton = require("src.UI.WidgetSpriteButton")
+local UIWidgetSpriteButtonCheckbox = require("src.UI.WidgetSpriteButtonCheckbox")
+local UIWidgetSpriteButtonSlider = require("src.UI.WidgetSpriteButtonSlider")
+local UIWidgetSpriteProgress = require("src.UI.WidgetSpriteProgress")
+local UIWidgetText = require("src.UI.WidgetText")
+local UIWidgetTextInput = require("src.UI.WidgetTextInput")
+local UIWidgetParticle = require("src.UI.WidgetParticle")
+local UIWidgetLevel = require("src.UI.WidgetLevel")
 
-local Vec2 = require("src/Essentials/Vector2")
+local Vec2 = require("src.Essentials.Vector2")
 
 
 

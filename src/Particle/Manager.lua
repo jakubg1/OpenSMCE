@@ -1,12 +1,12 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class ParticleManager
 ---@overload fun():ParticleManager
 local ParticleManager = class:derive("ParticleManager")
 
-local ParticlePacket = require("src/Particle/Packet")
-local ParticleSpawner = require("src/Particle/Spawner")
-local ParticlePiece = require("src/Particle/Piece")
+local ParticlePacket = require("src.Particle.Packet")
+local ParticleSpawner = require("src.Particle.Spawner")
+local ParticlePiece = require("src.Particle.Piece")
 
 
 

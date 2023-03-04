@@ -1,15 +1,15 @@
-local class = require "com/class"
+local class = require "com.class"
 
 ---@class Shooter
 ---@overload fun():Shooter
 local Shooter = class:derive("Shooter")
 
-local Vec2 = require("src/Essentials/Vector2")
-local Sprite = require("src/Essentials/Sprite")
-local Color = require("src/Essentials/Color")
+local Vec2 = require("src.Essentials.Vector2")
+local Sprite = require("src.Essentials.Sprite")
+local Color = require("src.Essentials.Color")
 
-local SphereEntity = require("src/SphereEntity")
-local ShotSphere = require("src/ShotSphere")
+local SphereEntity = require("src.SphereEntity")
+local ShotSphere = require("src.ShotSphere")
 
 
 
