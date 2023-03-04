@@ -71,7 +71,9 @@ function ColorManager:getDebugText()
 	local s = ""
 
 	for i, v in pairs(self.sphereColorCounts) do
-		s = s .. string.format("%s:   N %s   D %s\n", i, v.normal, v.danger)
+		if v.normal ~= 0 or v.danger ~= 0 then
+			s = s .. string.format("%s:   N %s   D %s\n", i, v.normal, v.danger)
+		end
 	end
 
 	return s

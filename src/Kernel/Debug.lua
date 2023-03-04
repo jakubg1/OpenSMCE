@@ -186,7 +186,10 @@ function Debug:getDebugLevel()
 	local s = ""
 
 	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
-	s = s .. "LevelProgress = " .. tostring(_Game.session.level.destroyedSpheres) .. "/" .. tostring(_Game.session.level.target) .. "\n"
+	s = s .. "Objectives:\n"
+	for i, objective in ipairs(_Game.session.level.objectives) do
+		s = s .. string.format("  %s: %s %s/%s\n", i, objective.type, objective.progress, objective.target)
+	end
 	s = s .. "\n"
 	s = s .. "Collectible# = " .. tostring(#_Game.session.level.collectibles) .. "\n"
 	s = s .. "FloatingText# = " .. tostring(#_Game.session.level.floatingTexts) .. "\n"
