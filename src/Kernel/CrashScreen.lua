@@ -13,10 +13,10 @@ function CrashScreen:new(err)
 	self.err = err
 	
 	-- prepare fonts of various sizes
-	self.font = love.graphics.newFont()
-	self.fontMed = love.graphics.newFont(14)
-	self.fontBig = love.graphics.newFont(18)
-	self.fontGiant = love.graphics.newFont(30)
+	self.font = love.graphics.newFont("assets/dejavusans.ttf")
+	self.fontMed = love.graphics.newFont("assets/dejavusans.ttf", 14)
+	self.fontBig = love.graphics.newFont("assets/dejavusans.ttf", 18)
+	self.fontGiant = love.graphics.newFont("assets/dejavusans.ttf", 30)
 	
 	-- button data
 	self.buttons = {
