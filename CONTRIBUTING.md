@@ -36,7 +36,7 @@ Any other plugins are optional.
 - This is the general structure of a class:
   ```lua
   -- we are going to use the com/class.lua file to access class-related methods and be able to create classes
-  local class = require "com/class"
+  local class = require "com.class"
   
   -- derive the class and add some documentation parameters
   ---@class <name>
@@ -44,9 +44,9 @@ Any other plugins are optional.
   local <name> = class:derive("<name>")
   
   -- include any needed classes
-  local <class1> = require("src/<class1>")
-  local <class2> = require("src/<class2>")
-  local <class3> = require("src/<class3>")
+  local <class1> = require("src.<class1>")
+  local <class2> = require("src.<class2>")
+  local <class3> = require("src.<class3>")
   ...
   
   -- three line gap
