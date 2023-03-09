@@ -19,6 +19,8 @@ require("src.strmethods")
 require("src.mathmethods")
 
 local json = require("com.json")
+-- TODO: Remove pcall wrapper once 12.0 is fully supported.
+local httpsw, https = pcall(function() return require("https") end)
 
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
@@ -97,6 +99,7 @@ function love.load()
 	--local s = loadFile("test.txt")
 	--print(s)
 	--print(jsonBeautify(s))
+	print(string.format("Your Version Is: %s", _GetNewestVersion()))
 
 	-- Initialize RNG for Boot Screen
 	local _ = math.randomseed(os.time())
@@ -243,6 +246,23 @@ function _GetRainbowColor(t)
 	local g = math.min(math.max(2 * (1 - math.abs((t % 3) - 1)), 0), 1)
 	local b = math.min(math.max(2 * (1 - math.abs((t % 3) - 2)), 0), 1)
 	return Color(r, g, b)
+end
+
+
+
+---Checks online and returns the newest engine version tag available (i.e. `v0.47.0`). Returns `nil` on failure (for example, when you go offline).
+---@return string?
+function _GetNewestVersion()
+	-- TODO: Failsafe for 11.x; remove after 12.0 is fully supported.
+	if not httpsw or not https then
+		return nil
+	end
+	local code, body = https.request("https://api.github.com/repos/jakubg1/OpenSMCE/tags", {headers = {["User-Agent"] = "OpenSMCE"}})
+	if code == 200 and body then
+		body = json.decode(body)
+		return body[1].name
+	end
+	return nil
 end
 
 
