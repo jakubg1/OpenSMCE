@@ -460,6 +460,11 @@ function _ParsePath(data, variables)
 	return _FSPrefix .. "games/" .. _Game.name .. "/" .. _ParseString(data, variables)
 end
 
+function _ParsePathDots(data, variables)
+	if not data then return nil end
+	return _FSPrefix .. "games." .. _Game.name .. "." .. _ParseString(data, variables)
+end
+
 function _ParseNumber(data, variables, properties)
 	if not data then return nil end
 	if type(data) == "number" then return data end

@@ -257,6 +257,23 @@ end
 
 
 
+---Returns whether a meaningful Node (which is either this or its child) like a button has been hovered.
+---@return boolean
+function UI2Node:isButtonHovered()
+    if self.widget and self.widget.type == "spriteButton" and self.widget.hovered then
+        return true
+    end
+
+    for childN, child in pairs(self.children) do
+        if child:isButtonHovered() then
+            return true
+        end
+    end
+    return false
+end
+
+
+
 ---Returns the full path to this Node.
 ---@return string
 function UI2Node:getPath()

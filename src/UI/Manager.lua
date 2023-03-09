@@ -95,7 +95,7 @@ end
 function UIManager:initSplash()
   self.widgets.splash = UIWidget("Splash", _LoadJson(_ParsePath("ui/splash.json")))
 
-  self.script = require(_ParsePath("ui/script"))
+  self.script = require(_ParsePathDots("ui.script"))
   self:executeCallback("init")
 end
 
@@ -198,6 +198,17 @@ function UIManager:resetActive()
 	for widgetN, widget in pairs(self.widgets) do
 		widget:resetActive()
 	end
+end
+
+---Returns whether any meaningful UI widget like a button has been hovered.
+---@return boolean
+function UIManager:isButtonHovered()
+  for widgetN, widget in pairs(self.widgets) do
+    if widget:isButtonHovered() then
+      return true
+    end
+  end
+  return false
 end
 
 

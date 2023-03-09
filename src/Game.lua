@@ -220,13 +220,15 @@ end
 ---@param y integer The Y coordinate of mouse position.
 ---@param button integer The mouse button which was pressed.
 function Game:mousepressed(x, y, button)
-	self.uiManager:mousepressed(x, y, button)
-
-	if self:levelExists() and _MousePos.y < 560 then
-		if button == 1 then
-			self.session.level.shooter:shoot()
-		elseif button == 2 then
-			self.session.level.shooter:swapColors()
+	if self.uiManager:isButtonHovered() then
+		self.uiManager:mousepressed(x, y, button)
+	else
+		if self:levelExists() then
+			if button == 1 then
+				self.session.level.shooter:shoot()
+			elseif button == 2 then
+				self.session.level.shooter:swapColors()
+			end
 		end
 	end
 end

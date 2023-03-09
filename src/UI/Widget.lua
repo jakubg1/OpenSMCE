@@ -258,6 +258,19 @@ function UIWidget:buttonSetEnabled(enabled)
 	end
 end
 
+function UIWidget:isButtonHovered()
+	if self.widget and self.widget.type == "spriteButton" and self.widget.hovered then
+		return true
+	end
+
+	for childN, child in pairs(self.children) do
+		if child:isButtonHovered() then
+			return true
+		end
+	end
+	return false
+end
+
 
 
 -- APPROACH 1: ORIGINAL
