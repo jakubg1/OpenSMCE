@@ -17,7 +17,7 @@ end
 
 function GameModuleManager:loadModule(name)
 	_Log:printt("GameModuleManager", string.format("Loading Module: %s", name))
-	local f = function() return require(string.format("games/%s/modules/%s", _Game.name, name)) end
+	local f = function() return require(string.format("games.%s.modules.%s", _Game.name, name)) end
 	local success, mod = pcall(f)
 	if success then
 		_Log:printt("GameModuleManager", "Success!")
@@ -25,7 +25,7 @@ function GameModuleManager:loadModule(name)
 	end
 	-- if we're here, there's no module like that above
 	_Log:printt("GameModuleManager", "No module found in game files, loading builtin module...")
-	local mod = require(string.format("src/DefaultModules/%s", name))
+	local mod = require(string.format("src.DefaultModules.%s", name))
 	if mod then
 		_Log:printt("GameModuleManager", "Success!")
 		return mod
