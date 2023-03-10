@@ -259,7 +259,7 @@ function UIWidget:buttonSetEnabled(enabled)
 end
 
 function UIWidget:isButtonHovered()
-	if self.widget and self.widget.type == "spriteButton" and self.widget.hovered then
+	if self.active and self.widget and self.widget.type == "spriteButton" and self.widget.hovered then
 		return true
 	end
 
