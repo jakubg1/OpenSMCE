@@ -10,7 +10,7 @@ local UIWidgetSpriteButton = require("src.UI.WidgetSpriteButton")
 
 
 function UIWidgetSpriteButtonSlider:new(parent, sprite, bounds)
-	self.type = "spriteButton"
+	self.type = "spriteButtonSlider"
 
 	self.parent = parent
 	self.button = UIWidgetSpriteButton(parent, sprite)
