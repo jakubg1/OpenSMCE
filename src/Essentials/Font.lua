@@ -80,10 +80,17 @@ function Font:getTextSize(text)
 	end
 end
 
-function Font:draw(text, pos, align, color, alpha)
+function Font:draw(text, pos, align, color, alpha, blendMode)
 	align = align or Vec2(0.5)
 	color = color or Color()
-	alpha = alpha or 1
+    alpha = alpha or 1
+    blendMode = blendMode or "alpha"
+	-- see Sprite.lua on why this reassigment exists
+	if blendMode == "none" then
+		blendMode = "alpha"
+    end
+	---@diagnostic disable-next-line: param-type-mismatch
+    love.graphics.setBlendMode(blendMode)
 
 	if self.type == "image" then
 		love.graphics.setColor(color.r, color.g, color.b, alpha)
