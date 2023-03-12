@@ -335,7 +335,7 @@ function UIWidget:generateDrawData(layers, startN)
 			table.insert(layers[self:getLayer()], names)
 		end
 		if self.widget.type == "text" then
-			self.widget.textTmp = _ParseString(self.widget.text)
+			self.widget.textTmp = self.widget.text
 		end
 	end
 end

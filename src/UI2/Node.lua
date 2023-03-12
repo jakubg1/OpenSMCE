@@ -297,7 +297,7 @@ function UI2Node:generateDrawData(layers)
 			table.insert(layers[self:getLayer()], self)
 		end
 		--if self.widget.type == "text" then
-		--	self.widget.textTmp = _ParseString(self.widget.text)
+		--	self.widget.textTmp = self.widget.text
 		--end
 	end
 end
