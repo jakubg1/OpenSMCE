@@ -12,13 +12,12 @@ The ongoing plan is to keep releasing Beta 4.x versions, which will contain new 
 
 Some of the features planned include:
 - Sphere tags
-- Sphere selectors
-- Difficulty system
-- Shooter types/presets
-- Massively enhanced sound effects
-  - Split sound effects into actual effect files and sound definitions (number of samples, stream/load etc.)
-- Complete rewrite of UI system
+- Sphere selectors (https://github.com/jakubg1/OpenSMCE/issues/39)
+- Difficulty system (https://github.com/jakubg1/OpenSMCE/issues/1)
+- Enhanced sound effects (https://github.com/jakubg1/OpenSMCE/issues/95)
+- Complete rewrite of UI system (UI2 - under development; paused)
 - Progress autosave
+- Shooter types/presets (Done!)
 
 Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished. This includes both a reference manual and JSON schemas. For more information you can look at the following folders:
 - Reference manual (generated automatically from a Python script, uses data contained in `data.txt`): `doc/game`
