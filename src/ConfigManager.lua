@@ -149,6 +149,12 @@ function ConfigManager:isRichPresenceEnabled()
 	return self.config.richPresence.enabled
 end
 
+---Returns the Rich Presence Application ID for this game, if it exists.
+---@return string?
+function ConfigManager:getRichPresenceApplicationID()
+	return self.config.richPresence.applicationID
+end
+
 
 
 ---Gets the level number which the checkpoint points to.

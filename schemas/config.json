@@ -26,6 +26,10 @@
                     "type": "boolean",
                     "description": "Should be always true, unless you want the game to be a secret. In that case, loading a game with this flag set to false causes Rich Presence to disconnect.",
                     "markdownDescription": "Should be always `true`, unless you want the game to be a secret. In that case, loading a game with this flag set to `false` causes Rich Presence to disconnect."
+                },
+                "applicationID": {
+                    "type": "string",
+                    "description": "Optional. If defined, this will be used as an Application ID when running this game, instead of the default OpenSMCE one."
                 }
             },
             "required": [

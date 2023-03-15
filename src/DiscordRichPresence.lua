@@ -13,6 +13,7 @@ function DiscordRichPresence:new()
 	self.enabled = false
 	self.connected = false
 	self.username = nil
+	self.applicationID = nil
 
 	self.UPDATE_INTERVAL = 2
 	self.updateTime = 0
@@ -70,15 +71,22 @@ end
 ---Checks whether the Discord Rich Presence setting has changed and turns Rich Presence on or off accordingly.
 function DiscordRichPresence:updateEnabled()
 	local setting = _EngineSettings:getDiscordRPC()
+	local applicationID = _DISCORD_APPLICATION_ID
 	if _Game.configManager then
 		setting = setting and _Game.configManager:isRichPresenceEnabled()
+		applicationID = _Game.configManager:getRichPresenceApplicationID() or applicationID
 	end
 	
 	if not self.enabled and setting then
-		self:connect()
+		self:connect(applicationID)
 	end
 	if self.enabled and not setting then
 		self:disconnect()
+	end
+	if self.enabled and applicationID ~= self.applicationID then
+		-- Restart Rich Presence with the new ID.
+		self:disconnect()
+		self:connect(applicationID)
 	end
 end
 
@@ -103,15 +111,19 @@ end
 
 
 ---Connects Discord Rich Presence.
-function DiscordRichPresence:connect()
+---@param applicationID string? Application ID to be used. Otherwise, a default value of `_DISCORD_APPLICATION_ID` will be used instead.
+function DiscordRichPresence:connect(applicationID)
+	applicationID = applicationID or _DISCORD_APPLICATION_ID
+
 	if not self.rpcMain then
 		return
 	end
 	
 	if self.enabled then return end
 	_Log:printt("DiscordRPC", "Connecting...")
-	self.rpcMain.initialize(_DISCORD_APPLICATION_ID, true)
+	self.rpcMain.initialize(applicationID, true)
 	self.enabled = true
+	self.applicationID = applicationID
 end
 
 
@@ -128,6 +140,7 @@ function DiscordRichPresence:disconnect()
 	self.enabled = false
 	self.connected = false
 	self.username = nil
+	self.applicationID = nil
 end
 
 
