@@ -99,12 +99,6 @@ LICENSE
 .gitignore
 ```
 
-## Showcase
-Here are some videos showcasing the recent progress on the engine:
-
-[![Video 1](https://img.youtube.com/vi/vPKg8oilgqI/0.jpg)](https://www.youtube.com/watch?v=vPKg8oilgqI)
-[![Video 2](https://img.youtube.com/vi/_bZRL3-Cn8c/0.jpg)](https://www.youtube.com/watch?v=_bZRL3-Cn8c)
-
 ## Documentation
 Both code and game documentation are currently work in progress.
 
