@@ -35,24 +35,22 @@ function Checkbox:draw()
 
 	love.graphics.setFont(self.font)
 	love.graphics.setLineWidth(1)
-	if self.selected then
-		love.graphics.setColor(0.0, 0.8, 0.0)
+	if self.hovered then
+		if self.selected then
+			love.graphics.setColor(0.4, 1, 0.4)
+		else
+			love.graphics.setColor(1, 0.4, 0.4)
+		end
 	else
-		love.graphics.setColor(0.8, 0.0, 0.0)
+		if self.selected then
+			love.graphics.setColor(0, 0.9, 0)
+		else
+			love.graphics.setColor(0.9, 0, 0)
+		end
 	end
 	love.graphics.rectangle("fill", self.pos.x, self.pos.y, 40, self.size.y)
 	love.graphics.setColor(0.2, 0.2, 0.2)
 	love.graphics.rectangle("line", self.pos.x, self.pos.y, 40, self.size.y)
-	-- handle
-	local offset = self.selected and 25 or 0
-	if self.hovered then
-		love.graphics.setColor(0.6, 0.6, 0.6)
-	else
-		love.graphics.setColor(0.4, 0.4, 0.4)
-	end
-	love.graphics.rectangle("fill", self.pos.x + offset, self.pos.y, 15, self.size.y)
-	love.graphics.setColor(0.2, 0.2, 0.2)
-	love.graphics.rectangle("line", self.pos.x + offset, self.pos.y, 15, self.size.y)
 	-- text
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.print(self.name, self.pos.x + 50, self.pos.y + 2)

@@ -1,3 +1,5 @@
+-- This system needs to be axed soon. @jakubg1
+
 local class = require "com.class"
 
 ---@class VersionManager
@@ -9,16 +11,39 @@ local VersionManager = class:derive("VersionManager")
 function VersionManager:new(path)
   -- versions sorted from most recent to oldest
 	self.versions = {
+    "v0.47.0",
 		"v0.40.0",
     "v0.30.0",
     "v0.22.1"
   }
 
 	self.versionData = {
-		["v0.40.0"] = {inconvertible = false},
+    ["v0.47.0"] = {inconvertible = false},
+		["v0.40.0"] = {inconvertible = false, supported = true},
     ["v0.30.0"] = {inconvertible = true},
     ["v0.22.1"] = {inconvertible = false}
   }
+
+	-- new version if any
+	self.newestVersion = nil
+	self.newestVersionAvailable = false
+
+	-- Check the current newest version.
+  _Log:printt("VersionManager", "Checking the newest version...")
+	self.newestVersion = _GetNewestVersion()
+  _Log:printt("VersionManager", string.format("Newest version: %s", self.newestVersion))
+	if self.newestVersion then
+		self.newestVersionAvailable = self:isVersionNewerThanCurrent(self.newestVersion)
+	end
+end
+
+
+
+---Returns whether the provided version tag is newer than the current engine version. Works correctly with `v0.47.0` upwards.
+---@param version string The engine version to be checked against.
+---@return boolean
+function VersionManager:isVersionNewerThanCurrent(version)
+  return not self.versionData[version]
 end
 
 
@@ -51,6 +76,8 @@ function VersionManager:getVersionStatus(version)
       else
 				if self.versionData[v].inconvertible then
 					return 3
+        elseif self.versionData[v].supported then
+          return 1
 				else
         	return 0
 				end
