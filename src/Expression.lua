@@ -1,13 +1,13 @@
 -- Represents a compiled Expression.
 -- If you give it a string, an expression will be compiled and stored in RPN notation.
 
-
-
 local class = require "com.class"
 
 ---@class Expression
 ---@overload fun(str):Expression
 local Expression = class:derive("Expression")
+
+local Vec2 = require("src.Essentials.Vector2")
 
 
 
@@ -114,7 +114,7 @@ function Expression:getToken(str)
 		str = string.sub(str, b + 1)
 	end
 
-	if value and type then
+	if value ~= nil and type then
 		return {value = value, type = type}, str
 	end
 	return nil, string.format("Unknown token type (%s, %s)", value, type)
@@ -132,7 +132,7 @@ function Expression:tokenize(str)
 	while str ~= "" do
 		local token, newStr = self:getToken(str)
 		-- Detect an error.
-		assert(token, string.format("Expression tokenization failed: %s at col %s in expression: %s", newStr, string.len(origStr) - string.len(str), origStr))
+		assert(token, string.format("Expression tokenization failed: %s at col %s in expression: %s", newStr, string.len(origStr) - string.len(str) + 1, origStr))
 		str = newStr
 		-- Detect unary minuses.
 		if token.type == "operator" and token.value == "-" and
@@ -175,7 +175,8 @@ function Expression:compile(tokens)
 		["&&"] = {precedence = 3, rightAssoc = false},
 		["||"] = {precedence = 2, rightAssoc = false},
 		["?"] = {precedence = 1, rightAssoc = true},
-		[":"] = {precedence = 1, rightAssoc = true}
+		[":"] = {precedence = 1, rightAssoc = true},
+		[","] = {precedence = 0, rightAssoc = false}
 	}
 
 	local steps = {}
@@ -362,6 +363,10 @@ function Expression:evaluate()
 				table.insert(stack, math.floor(a + 0.5))
 			elseif op == "random" then
 				table.insert(stack, math.random())
+			elseif op == "vec2" then
+				local b = table.remove(stack)
+				local a = table.remove(stack)
+				table.insert(stack, Vec2(a, b))
 
 			-- Miscellaneous.
 			elseif op == "get" then
