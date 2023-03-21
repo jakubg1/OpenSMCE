@@ -1,0 +1,1 @@
+"C:/Program Files/LOVE-dev/love.exe" ./ --console

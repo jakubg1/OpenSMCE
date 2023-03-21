@@ -19,8 +19,6 @@ require("src.strmethods")
 require("src.mathmethods")
 
 local json = require("com.json")
--- TODO: Remove pcall wrapper once 12.0 is fully supported.
-local httpsw, https = pcall(function() return require("https") end)
 
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
@@ -35,6 +33,7 @@ local ExpressionVariables = require("src.ExpressionVariables")
 local Settings = require("src.Kernel.Settings")
 
 local DiscordRichPresence = require("src.DiscordRichPresence")
+local Network = require("src.Kernel.Network")
 
 
 
@@ -73,8 +72,8 @@ _Log = nil
 ---@type Debug
 _Debug = nil
 
----@type ExpressionVariables
 _Vars = ExpressionVariables()
+_Network = Network()
 
 
 
@@ -255,14 +254,10 @@ end
 ---Checks online and returns the newest engine version tag available (i.e. `v0.47.0`). Returns `nil` on failure (for example, when you go offline).
 ---@return string?
 function _GetNewestVersion()
-	-- TODO: Failsafe for 11.x; remove after 12.0 is fully supported.
-	if not httpsw or not https then
-		return nil
-	end
-	local code, body = https.request("https://api.github.com/repos/jakubg1/OpenSMCE/tags", {headers = {["User-Agent"] = "OpenSMCE"}})
-	if code == 200 and body then
-		body = json.decode(body)
-		return body[1].name
+	local result = _Network:get("https://api.github.com/repos/jakubg1/OpenSMCE/tags")
+	if result.code == 200 and result.body then
+		result.body = json.decode(result.body)
+		return result.body[1].name
 	end
 	return nil
 end

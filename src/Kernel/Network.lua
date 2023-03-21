@@ -5,7 +5,8 @@ local class = require "com.class"
 local Network = class:derive("Network")
 
 local json = require("com.json")
-local https = require("https")
+-- TODO: Remove pcall wrapper once 12.0 is fully supported.
+local httpsw, https = pcall(function() return require("https") end)
 local ltn12 = require("ltn12")
 
 
@@ -43,10 +44,16 @@ end
 ---@param expectResJSON? boolean Expects a JSON response and serializes it.
 ---@return { code: number|0, body: string|nil }
 function Network:get(url, expectResJSON)
+	-- TODO: Failsafe for 11.x; remove after 12.0 is fully supported.
+	if not httpsw or not https then
+		return {code = 0}
+	end
+
     local code, body = https.request(url, {
         headers = {["User-Agent"] = self.USER_AGENT}
     })
     body = expectResJSON and json.encode(body) or body
+    
     return {
         code = code,
         body = body
@@ -66,12 +73,18 @@ end
 ---@param expectResJSON? boolean Expects a JSON response and serializes it.
 ---@return { code: number|0, body: string|nil, resHeaders: table|nil }
 function Network:postSerialized(url, tbl, expectResJSON)
+	-- TODO: Failsafe for 11.x; remove after 12.0 is fully supported.
+	if not httpsw or not https then
+		return {code = 0}
+	end
+    
     local code, body, headers = https.request(url, {
         method = "post",
         headers = {["User-Agent"] = self.USER_AGENT},
         data = json.encode(tbl),
     })
     body = expectResJSON and json.encode(body) or body
+
     return {
         code = code,
         body = body,
