@@ -507,6 +507,34 @@ end
 
 
 
+---Parses a number or an Expression which evaluates to a number, enclosed in a `"$expr{...}"` clause.
+---@param data number|string A number or an Expression which evaluates to a number.
+---@return number?
+function _ParseExprNumber(data)
+	if type(data) == "number" then
+		return data
+	end
+	if type(data) == "string" and string.sub(data, 1, 6) == "$expr{" and string.sub(data, string.len(data)) == "}" then
+		return _Vars:evaluateExpression(string.sub(data, 7, string.len(data) - 1))
+	end
+end
+
+
+
+---Parses a table of `{x=number, y=number}` format or an Expression which evaluates to a Vector2, enclosed in a `"$expr{...}"` clause.
+---@param data table|string A table or an Expression which evaluates to a number.
+---@return Vector2?
+function _ParseExprVec2(data)
+	if type(data) == "table" then
+		return _ParseVec2(data)
+	end
+	if type(data) == "string" and string.sub(data, 1, 6) == "$expr{" and string.sub(data, string.len(data)) == "}" then
+		return _Vars:evaluateExpression(string.sub(data, 7, string.len(data) - 1))
+	end
+end
+
+
+
 function _NumStr(n)
 	local text = ""
 	local s = tostring(n)

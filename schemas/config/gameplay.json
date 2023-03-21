@@ -139,16 +139,16 @@
             ],
             "additionalProperties": false
         },
-        "collectibleBehaviour": {
+        "collectibleBehavior": {
             "type": "object",
             "description": "Defines how Collectibles behave.",
             "properties": {
                 "speed": {
-                    "$ref": "../_structures/Vector2.json",
+                    "$ref": "../_structures/ExprVector2.json",
                     "description": "A starting speed of the Collectibles."
                 },
                 "acceleration": {
-                    "$ref": "../_structures/Vector2.json",
+                    "$ref": "../_structures/ExprVector2.json",
                     "description": "An acceleration rate of the Collectibles."
                 }
             },

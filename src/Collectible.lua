@@ -18,9 +18,9 @@ function Collectible:new(deserializationTable, pos, name)
 	else
 		self.name = name
 		self.pos = pos
-		local beh = _Game.configManager.gameplay.collectibleBehaviour
-		self.speed = _ParseVec2(beh.speed)
-		self.acceleration = _ParseVec2(beh.acceleration)
+		local beh = _Game.configManager.gameplay.collectibleBehavior
+		self.speed = _ParseExprVec2(beh.speed)
+		self.acceleration = _ParseExprVec2(beh.acceleration)
 	end
 
 	self.config = _Game.configManager.collectibles[self.name]

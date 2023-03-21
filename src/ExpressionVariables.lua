@@ -50,7 +50,7 @@ end
 
 ---Evaluates an Expression and caches it, or evaluates an already cached Expression. Returns the result.
 ---@param expression string The expression string.
----@return number
+---@return number|string|Vector2
 function ExpressionVariables:evaluateExpression(expression)
     -- Get an already cached and compiled expression if exists.
     local c = self.expressionCache[expression]

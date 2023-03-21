@@ -14,6 +14,149 @@ local Vec2 = require("src.Essentials.Vector2")
 ---Constructs and compiles a new Expression.
 ---@param str string|number The expression to be compiled.
 function Expression:new(str)
+	-- Operators.
+	self.OPERATOR_FUNCTIONS = {
+		-- Artithmetic: Takes two last numbers in the stack (one in case of unary minus), performs an operation and puts the result number back.
+		["+"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a + b)
+		end,
+		["-"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a - b)
+		end,
+		["-u"] = function(stack)
+			local a = table.remove(stack)
+			table.insert(stack, -a)
+		end,
+		["*"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a * b)
+		end,
+		["/"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a / b)
+		end,
+		["^"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a ^ b)
+		end,
+		["%"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a % b)
+		end,
+
+		-- String manipulation: Takes two last strings in the stack, performs an operation and puts the result number back.
+		[".."] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, tostring(a) .. tostring(b))
+		end,
+
+		-- Comparison: Compares two numbers or strings in the stack, consuming them and puts the result boolean back.
+		["=="] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a == b)
+		end,
+		["!="] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a ~= b)
+		end,
+		[">"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a > b)
+		end,
+		["<"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a < b)
+		end,
+		[">="] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a >= b)
+		end,
+		["<="] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a <= b)
+		end,
+
+		-- Logic: Performs a logic operation on one or two booleans, consuming them and puts back one boolean result.
+		["||"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a or b)
+		end,
+		["&&"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a and b)
+		end,
+		["!"] = function(stack)
+			local a = table.remove(stack)
+			table.insert(stack, not a)
+		end,
+
+		-- Ternary (the only available) "if" operation.
+		-- The colon is ignored; serves as a separator.
+		["?"] = function(stack)
+			local c = table.remove(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a and b or c)
+		end,
+
+		-- Functions.
+		["floor"] = function(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.floor(a))
+		end,
+		["ceil"] = function(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.ceil(a))
+		end,
+		["round"] = function(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.floor(a + 0.5))
+		end,
+		["random"] = function(stack)
+			table.insert(stack, math.random())
+		end,
+		["randomf"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, a + math.random() * (b - a))
+		end,
+		["vec2"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, Vec2(a, b))
+		end,
+
+		-- Miscellaneous.
+		["get"] = function(stack)
+			-- Get a value of a variable.
+			local a = table.remove(stack)
+			table.insert(stack, _Vars:get(a))
+		end,
+		["getd"] = function(stack)
+			-- Get a value of a variable, or return a specified value if nil.
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, _Vars:get(a, b))
+		end
+	}
+
 	self.data = self:prepare(str)
 end
 
@@ -268,116 +411,10 @@ function Expression:evaluate()
 			table.insert(stack, step.value)
 		elseif step.type == "operator" then
 			local op = step.value
-			-- Operators.
-			-- Artithmetic: Takes two last numbers in the stack (one in case of unary minus), performs an operation and puts the result number back.
-			if op == "+" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a + b)
-			elseif op == "-" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a - b)
-			elseif op == "-u" then
-				local a = table.remove(stack)
-				table.insert(stack, -a)
-			elseif op == "*" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a * b)
-			elseif op == "/" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a / b)
-			elseif op == "^" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a ^ b)
-			elseif op == "%" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a % b)
-
-			-- String manipulation: Takes two last strings in the stack, performs an operation and puts the result number back.
-			elseif op == ".." then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, tostring(a) .. tostring(b))
-
-			-- Comparison: Compares two numbers or strings in the stack, consuming them and puts the result boolean back.
-			elseif op == "==" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a == b)
-			elseif op == "!=" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a ~= b)
-			elseif op == ">" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a > b)
-			elseif op == "<" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a < b)
-			elseif op == ">=" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a >= b)
-			elseif op == "<=" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a <= b)
-
-			-- Logic: Performs a logic operation on one or two booleans, consuming them and puts back one boolean result.
-			elseif op == "||" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a or b)
-			elseif op == "&&" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a and b)
-			elseif op == "!" then
-				local a = table.remove(stack)
-				table.insert(stack, not a)
-
-			-- Ternary (the only available) "if" operation.
-			-- The colon is ignored; serves as a separator.
-			elseif op == "?" then
-				local c = table.remove(stack)
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, a and b or c)
-
-			-- Functions.
-			elseif op == "floor" then
-				local a = table.remove(stack)
-				table.insert(stack, math.floor(a))
-			elseif op == "ceil" then
-				local a = table.remove(stack)
-				table.insert(stack, math.ceil(a))
-			elseif op == "round" then
-				local a = table.remove(stack)
-				table.insert(stack, math.floor(a + 0.5))
-			elseif op == "random" then
-				table.insert(stack, math.random())
-			elseif op == "vec2" then
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, Vec2(a, b))
-
-			-- Miscellaneous.
-			elseif op == "get" then
-				-- Get a value of a variable.
-				local a = table.remove(stack)
-				table.insert(stack, _Vars:get(a))
-			elseif op == "getd" then
-				-- Get a value of a variable, or return a specified value if nil.
-				local b = table.remove(stack)
-				local a = table.remove(stack)
-				table.insert(stack, _Vars:get(a, b))
+			-- Execute the corresponding operator function.
+			local f = self.OPERATOR_FUNCTIONS[op]
+			if f then
+				f(stack)
 			end
 		end
 	end
