@@ -108,4 +108,21 @@ end
 
 
 
+---Sends a `POST` request with a serialized JSON as it's request body to a specified URL
+---on a separate thread.
+---
+---Return table fields (this table is the only argument in the `onFinish` function):
+---- `code`: The HTTPS code (or 0 if it fails).
+---- `body`: The response body (or `nil` if it fails).
+---- `resHeaders`: Response headers (or `nil` if it fails).
+---@param url string The URL to send the `POST` request to.
+---@param tbl table The table to serialize to JSON.
+---@param expectResJSON? boolean Expects a JSON response and serializes it.
+---@param onFinish function The function to be executed when the request finishes.
+function Network:postSerializedThreaded(url, tbl, expectResJSON, onFinish)
+    _ThreadManager:startJob("networkPostSerialized", {self = self, url = url, tbl = tbl, expectResJSON = expectResJSON}, onFinish)
+end
+
+
+
 return Network
