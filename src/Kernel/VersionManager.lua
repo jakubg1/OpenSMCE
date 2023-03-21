@@ -30,7 +30,15 @@ function VersionManager:new(path)
 
 	-- Check the current newest version.
   _Log:printt("VersionManager", "Checking the newest version...")
-	self.newestVersion = _GetNewestVersion()
+  _GetNewestVersionThreaded(function(version) self:updateNewestVersion(version) end)
+end
+
+
+
+---Updates the newest version values based on the provided version tag.
+---@param version string Version tag, such as `v0.47.0`.
+function VersionManager:updateNewestVersion(version)
+	self.newestVersion = version
   _Log:printt("VersionManager", string.format("Newest version: %s", self.newestVersion))
 	if self.newestVersion then
 		self.newestVersionAvailable = self:isVersionNewerThanCurrent(self.newestVersion)

@@ -34,6 +34,7 @@ local Settings = require("src.Kernel.Settings")
 
 local DiscordRichPresence = require("src.DiscordRichPresence")
 local Network = require("src.Kernel.Network")
+local ThreadManager = require("src.ThreadManager")
 
 
 
@@ -74,6 +75,7 @@ _Debug = nil
 
 _Vars = ExpressionVariables()
 _Network = Network()
+_ThreadManager = ThreadManager()
 
 
 
@@ -130,6 +132,7 @@ function love.update(dt)
 	_Log:update(dt)
 	_Debug:update(dt)
 	_DiscordRPC:update(dt)
+	_ThreadManager:update(dt)
 
 	-- rainbow effect for the shooter and console cursor blink; to be phased out soon
 	_TotalTime = _TotalTime + dt
@@ -260,6 +263,22 @@ function _GetNewestVersion()
 		return result.body[1].name
 	end
 	return nil
+end
+
+
+
+---Checks online and executes a function with the newest engine version tag available (i.e. `v0.47.0`) as an argument or `nil` on failure (for example, when you go offline).
+---Threaded version: non-blocking call.
+---@param onFinish function A function which will be called once the checking process is finished. A version argument is passed.
+function _GetNewestVersionThreaded(onFinish)
+	_Network:getThreaded("https://api.github.com/repos/jakubg1/OpenSMCE/tags", false, function(result)
+		if result.code == 200 and result.body then
+			result.body = json.decode(result.body)
+			onFinish(result.body[1].name)
+		else
+			onFinish(nil)
+		end
+	end)
 end
 
 

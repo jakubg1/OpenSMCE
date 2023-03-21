@@ -53,11 +53,25 @@ function Network:get(url, expectResJSON)
         headers = {["User-Agent"] = self.USER_AGENT}
     })
     body = expectResJSON and json.encode(body) or body
-    
+
     return {
         code = code,
         body = body
     }
+end
+
+
+
+---Sends a `GET` request to a specified URL on a separate thread.
+---
+---Return table fields (this table is the only argument in the `onFinish` function):
+---- `code`: The HTTPS code (or 0 if it fails).
+---- `body`: The response body (or `nil` if it fails).
+---@param url string The URL to send the `GET` request to.
+---@param expectResJSON? boolean Expects a JSON response and serializes it.
+---@param onFinish function The function to be executed when the request finishes.
+function Network:getThreaded(url, expectResJSON, onFinish)
+    _ThreadManager:startJob("networkGet", {self = self, url = url, expectResJSON = expectResJSON}, onFinish)
 end
 
 
