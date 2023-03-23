@@ -2,6 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
     "properties": {
+        "$schema": true,
         "name": {
             "type": "string",
             "description": "The game name to be displayed in Rich Presence and in the game window."
