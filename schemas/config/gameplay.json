@@ -312,6 +312,25 @@
                 "scoreFont"
             ],
             "additionalProperties": false
+        },
+        "net": {
+            "type": "object",
+            "description": "Defines the Net.",
+            "properties": {
+                "particle": {
+                    "type": "string",
+                    "description": "A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires."
+                },
+                "posY": {
+                    "type": "integer",
+                    "description": "The Y position of the Net."
+                }
+            },
+            "required": [
+                "particle",
+                "posY"
+            ],
+            "additionalProperties": false
         }
     },
     "required": [
