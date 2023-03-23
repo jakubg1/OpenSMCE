@@ -58,7 +58,12 @@ function ExpressionVariables:evaluateExpression(expression)
         return c:evaluate()
     end
     -- Else, compile and cache an expression first.
-    local e = Expression(expression)
+    -- Is it in the $expr{...} format?
+    local actualExpression = expression
+    if string.sub(expression, 1, 6) == "$expr{" and string.sub(expression, string.len(expression)) == "}" then
+        actualExpression = string.sub(expression, 7, string.len(expression) - 1)
+    end
+    local e = Expression(actualExpression)
     self.expressionCache[expression] = e
     return e:evaluate()
 end
