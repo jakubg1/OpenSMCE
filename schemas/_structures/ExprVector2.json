@@ -1,18 +1,15 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "type": "object",
-    "properties": {
-        "x": {
-            "type": "number",
-            "description": "The horizontal component of a 2D vector."
+    "oneOf": [
+        {
+            "$ref": "Vector2.json",
+            "description": "Legacy Vector definition."
         },
-        "y": {
-            "type": "number",
-            "description": "The vertical component of a 2D vector."
+        {
+            "type": "string",
+            "description": "An expression of format \"$expr{...}\". Must evaluate to Vec2!",
+            "markdownDescription": "An expression of format `\"$expr{...}\"`. Must evaluate to Vec2!",
+            "pattern": "^\\$expr\\{.*\\}$"
         }
-    },
-    "required": [
-        "x",
-        "y"
     ]
 }

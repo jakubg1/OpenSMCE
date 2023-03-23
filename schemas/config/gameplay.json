@@ -317,7 +317,7 @@
     "required": [
         "level",
         "sphereBehaviour",
-        "collectibleBehaviour",
+        "collectibleBehavior",
         "bonusScarab"
     ],
     "additionalProperties": false
