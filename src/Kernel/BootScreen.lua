@@ -15,6 +15,8 @@ local BootSettings = require("src.Kernel.Scene.BootSettings")
 
 
 function BootScreen:new()
+	self.nativeResolution = Vec2(800, 600)
+
 	self.versionManager = VersionManager()
 
 	self.games = nil
@@ -31,6 +33,7 @@ end
 function BootScreen:init()
 	-- window title and size
 	love.window.setTitle("OpenSMCE [" .. _VERSION .. "] - Boot Menu")
+	_DisplaySize = self.nativeResolution
 
 	-- game list
 	self.games = self:getGames()
@@ -80,6 +83,14 @@ function BootScreen:getGames()
 	end
 
 	return games
+end
+
+
+
+---Returns the native resolution of the Boot Screen, which is always 800 by 600.
+---@return Vector2
+function BootScreen:getNativeResolution()
+	return self.nativeResolution
 end
 
 

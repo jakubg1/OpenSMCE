@@ -161,7 +161,7 @@ end
 ---Returns whether this Shot Sphere is outside of the board.
 ---@return boolean
 function ShotSphere:isOutsideBoard()
-	return self.pos.x < -16 or self.pos.x > _NATIVE_RESOLUTION.x + 16 or self.pos.y < -16 or self.pos.y > _NATIVE_RESOLUTION.y + 16
+	return self.pos.x < -16 or self.pos.x > _Game:getNativeResolution().x + 16 or self.pos.y < -16 or self.pos.y > _Game:getNativeResolution().y + 16
 end
 
 

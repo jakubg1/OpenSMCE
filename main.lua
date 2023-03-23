@@ -49,10 +49,6 @@ _START_TIME = love.timer.getTime()
 _BUILD_NUMBER = "unknown"
 
 
--- TODO: at some point, get rid of this and make it configurable
-_NATIVE_RESOLUTION = Vec2(800, 600)
-
-
 
 
 
@@ -220,11 +216,11 @@ end
 
 
 function _GetDisplayOffsetX()
-	return (_DisplaySize.x - _NATIVE_RESOLUTION.x * _GetResolutionScale()) / 2
+	return (_DisplaySize.x - _Game:getNativeResolution().x * _GetResolutionScale()) / 2
 end
 
 function _GetResolutionScale()
-	return _DisplaySize.y / _NATIVE_RESOLUTION.y
+	return _DisplaySize.y / _Game:getNativeResolution().y
 end
 
 function _PosOnScreen(pos)
