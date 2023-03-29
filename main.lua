@@ -106,7 +106,7 @@ function love.load()
 	-- Initialize some classes
 	_Log = Log()
 	_Debug = Debug()
-	_EngineSettings = Settings("engine/settings.json")
+	_EngineSettings = Settings("settings.json")
 	_DiscordRPC = DiscordRichPresence()
 	
     -- If autoload.txt exists, load the game name from there
