@@ -6,7 +6,7 @@ local Class = {}
 Class.__index = Class
 
 --default implementation
-function Class:new() end
+function Class:new(...) end
 
 --create a new Class type from our base class
 function Class:derive(type)
