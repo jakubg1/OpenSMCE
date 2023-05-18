@@ -39,8 +39,8 @@ local ThreadManager = require("src.ThreadManager")
 
 
 -- CONSTANT ZONE
-_VERSION = "v0.47.0"
-_VERSION_NAME = "Beta 4.7.0"
+_VERSION = "v0.47.1"
+_VERSION_NAME = "Beta 4.7.1"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 _START_TIME = love.timer.getTime()
 
