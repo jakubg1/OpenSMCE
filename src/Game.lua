@@ -40,7 +40,7 @@ function Game:new(name)
 
 
 	-- revert to original font size
-	love.graphics.setFont(love.graphics.newFont("assets/dejavusans.ttf"))
+	love.graphics.setFont(_LoadFont("assets/dejavusans.ttf"))
 end
 
 
