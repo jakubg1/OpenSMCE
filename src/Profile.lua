@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a single Profile.
 ---@class Profile
 ---@overload fun(data, name):Profile
 local Profile = class:derive("Profile")

@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a Sphere which has been shot from the Shooter and is flying on the screen until it finds a Sphere Group on its way.
 ---@class ShotSphere
 ---@overload fun(deserializationTable, shooter, pos, angle, color, speed):ShotSphere
 local ShotSphere = class:derive("ShotSphere")

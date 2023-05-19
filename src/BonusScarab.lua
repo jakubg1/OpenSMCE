@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a single Bonus Scarab which comes out from the end of the path and goes towards the Path's clear offset at the end of a Level.
 ---@class BonusScarab
 ---@overload fun(path, deserializationTable):BonusScarab
 local BonusScarab = class:derive("BonusScarab")

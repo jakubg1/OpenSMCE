@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Main class for a Game. Handles everything the Game has to do.
 ---@class Game
 ---@overload fun(name):Game
 local Game = class:derive("Game")

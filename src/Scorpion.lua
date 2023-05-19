@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a Scorpion, which moves along the path starting from the end point and moving backwards. Destroys any Spheres it encounters.
 ---@class Scorpion
 ---@overload fun(path, deserializationTable):Scorpion
 local Scorpion = class:derive("Scorpion")

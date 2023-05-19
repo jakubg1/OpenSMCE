@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a Map, which houses Paths. In the future, this may extend to particle effects, other visuals and other things which affect spheres like reflectors.
 ---@class Map
 ---@overload fun(level, path, pathsBehavior, isDummy):Map
 local Map = class:derive("Map")

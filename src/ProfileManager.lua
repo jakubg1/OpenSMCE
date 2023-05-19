@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Manages all Profiles. Handles creating and removing them, and also saving and loading profile data.
 ---@class ProfileManager
 ---@overload fun(data):ProfileManager
 local ProfileManager = class:derive("ProfileManager")

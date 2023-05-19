@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a label which appears for a moment when the Player gets score.
 ---@class FloatingText
 ---@overload fun(text, pos, font):FloatingText
 local FloatingText = class:derive("FloatingText")

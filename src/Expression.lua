@@ -1,8 +1,8 @@
--- Represents a compiled Expression.
--- If you give it a string, an expression will be compiled and stored in RPN notation.
-
 local class = require "com.class"
 
+---Represents a compiled Expression.
+---If you give it a string, an expression will be compiled and stored in RPN notation.
+---Such an Expression can be evaluated at any time.
 ---@class Expression
 ---@overload fun(str):Expression
 local Expression = class:derive("Expression")

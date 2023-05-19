@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a single Path on which the Spheres move. Can have entites such as Bonus Scarabs or Scorpions.
 ---@class Path
 ---@overload fun(map, pathData, pathBehavior):Path
 local Path = class:derive("Path")

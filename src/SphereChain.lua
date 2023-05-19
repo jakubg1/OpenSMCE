@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a Sphere Chain, which is a single train of spheres, usually with a pusher (Scarab) at the end.
 ---@class SphereChain
 ---@overload fun(path, deserializationTable):SphereChain
 local SphereChain = class:derive("SphereChain")

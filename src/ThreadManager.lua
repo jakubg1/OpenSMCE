@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Manages separate Threads, which can be used for multi-processing. Janky syntax and pretty barebones, be careful!
 ---@class ThreadManager
 ---@overload fun():ThreadManager
 local ThreadManager = class:derive("ThreadManager")

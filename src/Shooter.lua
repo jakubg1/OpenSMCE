@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a Shooter which is controlled by the player. Has a current and a next sphere slot. Can have multi-spheres and speed shot.
 ---@class Shooter
 ---@overload fun():Shooter
 local Shooter = class:derive("Shooter")

@@ -1,9 +1,7 @@
--- A storage class which is holding variables for Expressions.
-
-
-
 local class = require "com.class"
 
+---A storage class which is holding variables for Expressions.
+---Additionally, it caches all Expressions so they only have to be compiled once.
 ---@class ExpressionVariables
 ---@overload fun():ExpressionVariables
 local ExpressionVariables = class:derive("ExpressionVariables")

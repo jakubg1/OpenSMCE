@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Handles the Game's leaderboard.
 ---@class Highscores
 ---@overload fun(data):Highscores
 local Highscores = class:derive("Highscores")

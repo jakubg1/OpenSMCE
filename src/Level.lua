@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a Level. Houses the Map, Shooters, Shot Spheres, Collectibles and Floating Texts. Handles elements such as level objectives and general level event order.
 ---@class Level
 ---@overload fun(data):Level
 local Level = class:derive("Level")

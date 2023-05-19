@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents the Game options. Not to be mistaken with Engine Settings!
 ---@class Options
 ---@overload fun(data):Options
 local Options = class:derive("Options")

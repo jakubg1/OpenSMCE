@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---A variant of Level which is stripped from nearly all functionality, because it just loads and displays a Map. Used in Luxor's Main Menu.
 ---@class DummyLevel
 ---@overload fun(path):DummyLevel
 local DummyLevel = class:derive("DummyLevel")
@@ -23,26 +24,6 @@ end
 ---@param dt number The delta time in seconds.
 function DummyLevel:update(dt)
 	self.map:update(dt)
-end
-
-
-
----Generates a new sphere color.
----@return integer
-function DummyLevel:newSphereColor()
-	return self.colors[math.random(1, #self.colors)]
-end
-
-
-
----Returns the maximum percentage distance which is occupied by spheres on all paths.
----@return number
-function DummyLevel:getMaxDistance()
-	local distance = 0
-	for i, path in ipairs(self.map.paths) do
-		distance = math.max(distance, path:getMaxOffset() / path.length)
-	end
-	return distance
 end
 
 

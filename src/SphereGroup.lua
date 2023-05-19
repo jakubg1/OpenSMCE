@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents a Sphere Group, which is a single group of spheres connected to each other. Sphere Groups can magnetize with each other.
 ---@class SphereGroup
 ---@overload fun(sphereChain, deserializationTable):SphereGroup
 local SphereGroup = class:derive("SphereGroup")

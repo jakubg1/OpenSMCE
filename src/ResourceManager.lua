@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Manages all the Game's resources, alongside the ConfigManager. I'm not sure if this split is necessary and how it works.
 ---@class ResourceManager
 ---@overload fun():ResourceManager
 local ResourceManager = class:derive("ResourceManager")

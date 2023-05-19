@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents an actual drawable form of Spheres.
 ---@class SphereEntity
 ---@overload fun(pos, color):SphereEntity
 local SphereEntity = class:derive("SphereEntity")

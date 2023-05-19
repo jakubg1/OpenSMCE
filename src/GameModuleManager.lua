@@ -1,7 +1,7 @@
--- This class will be soon deprecated, and thus will not be documented.
-
 local class = require "com.class"
 
+---This class will be soon deprecated, and thus will not be documented.
+---In order for this class to be deleted, improved Sound Events must be implemented.
 ---@class GameModuleManager
 ---@overload fun():GameModuleManager
 local GameModuleManager = class:derive("GameModuleManager")

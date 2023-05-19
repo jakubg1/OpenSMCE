@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Represents an item which can be collected by the Shooter, such as coins, powerups or gems.
 ---@class Collectible
 ---@overload fun(deserializationTable, pos, name):Collectible
 local Collectible = class:derive("Collectible")

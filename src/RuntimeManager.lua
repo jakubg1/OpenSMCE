@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---A wrapper class for Highscores, Options and Profile Manager. Packs it up neatly into one file called `runtime.json`.
 ---@class RuntimeManager
 ---@overload fun():RuntimeManager
 local RuntimeManager = class:derive("RuntimeManager")

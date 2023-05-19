@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Handles the Game's config files.
 ---@class ConfigManager
 ---@overload fun():ConfigManager
 local ConfigManager = class:derive("ConfigManager")

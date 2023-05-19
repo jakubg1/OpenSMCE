@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Manages the Game's timing. Ensures the frame length is always consistent and prevents skipping too many frames when lag occurs.
 ---@class Timer
 ---@overload fun():Timer
 local Timer = class:derive("Timer")

@@ -1,5 +1,6 @@
 local class = require "com.class"
 
+---Handles the Discord Rich Presence. This class communicates with the actual Rich Presence code.
 ---@class DiscordRichPresence
 ---@overload fun():DiscordRichPresence
 local DiscordRichPresence = class:derive("DiscordRichPresence")

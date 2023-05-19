@@ -1,6 +1,3 @@
---- A root for all variable things during the game, such as level and player's progress.
--- @module Session
-
 -- NOTE:
 -- May consider to ditch this class in the future and spread the contents to Game.lua, Level.lua and Profile.lua.
 -- ~jakubg1
@@ -9,6 +6,9 @@
 -- Class identification
 local class = require "com.class"
 
+---A root for all variable things during the game, such as level and player's progress.
+---This class will be going bye-bye soon.
+---To axe it, we need to have Sphere Selectors up and running.
 ---@class Session
 ---@overload fun(path, deserializationTable):Session
 local Session = class:derive("Session")

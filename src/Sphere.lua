@@ -2,6 +2,7 @@
 
 local class = require "com.class"
 
+---Represents a single Sphere which is inside of a Sphere Group on the board. Can have a lot of properties.
 ---@class Sphere
 ---@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity):Sphere
 local Sphere = class:derive("Sphere")
@@ -281,7 +282,7 @@ end
 ---@param name string The sphere effect ID.
 ---@param infectionSize integer? How many spheres can this effect traverse to in one direction. If not set, data from the sphere effect config is prepended.
 ---@param infectionTime number? The time that needs to elapse before this effect traverses to the neighboring spheres. If not set, data from the sphere effect config is prepended.
----@param effectGroupID integer The sphere effect group ID this sphere belongs to. Used to determine the cause sphere.
+---@param effectGroupID integer? The sphere effect group ID this sphere belongs to. Used to determine the cause sphere.
 function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
 	-- Don't allow a single sphere to have the same effect applied twice.
 	if self:hasEffect(name) then
