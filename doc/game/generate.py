@@ -109,13 +109,13 @@ def main():
 			
 			l = line[indent]
 			if l[0] == "-":
-				s = l.split(" |")
+				s = l[1:].split(" - ")
 				
 				description = s[1]
 				
 				s = s[0].split(" (")
 				
-				name = s[0][2:]
+				name = s[0][1:]
 				optional = len(name) > 0 and name[-1] == "*"
 				if optional:
 					name = name[:-1]
