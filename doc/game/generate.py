@@ -13,17 +13,38 @@ def convert_schema(schema, name = "", indent = 1):
 	if name != "":
 		name += " "
 	
-	type = schema["type"]
+	if "$ref" in schema:
+		type = schema["$ref"].split("/")[-1].split(".")[0] + "*"
+	else:
+		type = schema["type"]
 	if type in schema_type_assoc:
 		type = schema_type_assoc[type]
 	
-	output = "D" + "\t" * indent + "- " + name + "(" + type + ") - " + schema["description"] + "\n"
+	description = schema["description"].split("\n")
+	if "markdownDescription" in schema:
+		description = schema["markdownDescription"].split("\n")
+	
+	for i in range(len(description)):
+		line = ""
+		line_segments = description[i].split("`")
+		for j in range(len(line_segments)):
+			if j % 2 == 0:
+				line += line_segments[j]
+			else:
+				line += "<i>" + line_segments[j] + "</i>"
+		
+		if i == 0:
+			output = "D" + "\t" * indent + "- " + name + "(" + type + ") - " + line + "\n"
+		else:
+			output += "D" + "\t" * (indent + 1) + "R " + line + "\n"
 
 	if "properties" in schema:
 		for key in schema["properties"]:
 			if key == "$schema":
 				continue
 			key_data = schema["properties"][key]
+			if not key in schema["required"]:
+				key += "*"
 			output += convert_schema(key_data, key, indent + 1)
 	
 	if "items" in schema:
@@ -46,6 +67,7 @@ def main():
 		"Particle*": "str_particle",
 		"SoundEvent*": "str_sound",
 		"Sprite*": "str_sprite",
+		"CollectibleGenerator*": "str_collectible_generator",
 		"Expression": "expression"
 	}
 	

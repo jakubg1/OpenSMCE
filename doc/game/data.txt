@@ -66,13 +66,6 @@ N	config/highscores.json
 
 P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
 DI	../../schemas/config/highscores.json
-#D	- (object) - The root entry.
-#D		- size (number) - How many entries should be stored in a single highscore list.
-#D		- defaultScores (list) - Contains default highscore entries. The length of this list should be the same as the value of size field.
-#D			- (object) - A highscore entry.
-#D				- name (number) - A player name which should be displayed.
-#D				- score (number) - How much points the player has scored.
-#D				- level (string) - The level on which the player has ended their game.
 
 E
 
@@ -337,26 +330,7 @@ P	Defines all Sphere Effects in the game.
 P	A sphere effect can be applied to any sphere. After a certain time, spheres "infected" with a given effect will be destroyed.
 P	A sphere can also infect neighbors, if it has been configured to do so. Until the infection size gets to 0, the infection time is counted each time. When it gets to 0, the main destruction timer starts.
 P	When the sphere effect timer gets to 0, all spheres which have that same effect and were caused by the same sphere will be destroyed.
-D	- (object) - The root entry.
-D		- particle* (Particle*) - A persistent particle packet which will be applied to any affected sphere.
-D		- time (number) - After how many seconds the spheres will be destroyed.
-D		- infectionSize (number) - How many times the effect expansion should occur.
-D		- infectionTime (number) - Time between the expansions, in seconds.
-D		- applySound* (SoundEvent*) - A sound event to be played when a sphere gets this effect.
-D		- destroySound (SoundEvent*) - A sound event to be played when spheres afflicted with this effect are destroyed.
-D			R Can be set to <b>hardcoded</b>, in that case the destroy sound from a game module is prioritized.
-D		- destroyFont (Font*) - A font to be used for the score value displayed on the screen.
-D			R Can be set to <b>hardcoded</b>, in that case the font used is of the "cause" sphere's <i>matchFont</i> value.
-D		- destroyParticle* (Particle*) - A one-time particle packet used when a sphere with this effect is destroyed.
-D		- destroyCollectible* (CollectibleGenerator*) - The collectible generator to be used when spheres with this effect are destroyed.
-D		- levelLossProtection (boolean) - If set to true, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
-D		- immobile (boolean) - If true, the spheres affected with this effect will stop.
-D		- fragile (boolean) - If true, the spheres affected with this effect can be destroyed by shooting through them.
-D		- canBoostCombo (boolean) - If true, the level combo value may rise after destroying a group with this effect.
-D		- canBoostChain (boolean) - As above, but regarding the chain combo value.
-D		- applyChainMultiplier (boolean) - If true, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
-D		- canKeepCombo (boolean) - Whether shot spheres with this effect should not be counted towards combo reset.
-D		- causeCheck (boolean) - When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
+DI	../../schemas/config/sphere_effect.json
 
 E
 

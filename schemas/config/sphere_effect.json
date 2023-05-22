@@ -5,7 +5,7 @@
     "properties": {
         "$schema": true,
         "particle": {
-            "type": "string",
+            "$ref": "../_structures/Particle.json",
             "description": "A persistent particle packet which will be applied to any affected sphere."
         },
         "time": {
@@ -24,25 +24,25 @@
             "description": "Time between the expansions, in seconds."
         },
         "applySound": {
-            "type": "string",
+            "$ref": "../_structures/SoundEvent.json",
             "description": "A sound event to be played when a sphere gets this effect."
         },
         "destroySound": {
-            "type": "string",
+            "$ref": "../_structures/SoundEvent.json",
             "description": "A sound event to be played when spheres afflicted with this effect are destroyed.\nCan be set to \"hardcoded\", in that case the destroy sound from a game module is prioritized.",
             "markdownDescription": "A sound event to be played when spheres afflicted with this effect are destroyed.\nCan be set to `\"hardcoded\"`, in that case the destroy sound from a game module is prioritized."
         },
         "destroyFont": {
-            "type": "string",
+            "$ref": "../_structures/Font.json",
             "description": "A font to be used for the score value displayed on the screen.\nCan be set to \"hardcoded\", in that case the font used is of the \"cause\" sphere's matchFont value.",
             "markdownDescription": "A font to be used for the score value displayed on the screen.\nCan be set to `\"hardcoded\"`, in that case the font used is of the \"cause\" sphere's `matchFont` value."
         },
         "destroyParticle": {
-            "type": "string",
+            "$ref": "../_structures/Particle.json",
             "description": "A one-time particle packet used when a sphere with this effect is destroyed."
         },
         "destroyCollectible": {
-            "type": "string",
+            "$ref": "../_structures/CollectibleGenerator.json",
             "description": "The collectible generator to be used when spheres with this effect are destroyed."
         },
         "levelLossProtection": {
