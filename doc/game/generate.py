@@ -1,3 +1,38 @@
+import json
+
+
+
+def convert_schema(schema, name = "", indent = 1):
+	schema_type_assoc = {
+		"integer": "number",
+		"array": "list"
+	}
+
+
+
+	if name != "":
+		name += " "
+	
+	type = schema["type"]
+	if type in schema_type_assoc:
+		type = schema_type_assoc[type]
+	
+	output = "D" + "\t" * indent + "- " + name + "(" + type + ") - " + schema["description"] + "\n"
+
+	if "properties" in schema:
+		for key in schema["properties"]:
+			if key == "$schema":
+				continue
+			key_data = schema["properties"][key]
+			output += convert_schema(key_data, key, indent + 1)
+	
+	if "items" in schema:
+		output += convert_schema(schema["items"], "", indent + 1)
+	
+	return output
+
+
+
 def main():
 	file = open("data.txt", "r")
 	contents = file.read()
@@ -16,6 +51,7 @@ def main():
 	
 	
 	
+	# Pass 1: Gather page names
 	page_paths = []
 	page_names = []
 	
@@ -27,8 +63,29 @@ def main():
 		elif line[0] == "N":
 			page_names.append(line[1])
 	
+
+
+	# Pass 2: Generate data from schemas
+	new_data = []
+
+	for line in data:
+		orig_line = line
+		line = line.split("\t")
+
+		if line[0] == "DI":
+			file = open(line[1], "r")
+			schema = json.loads(file.read())
+			file.close()
+			print(schema)
+			new_data += convert_schema(schema).split("\n")
+		else:
+			new_data.append(orig_line)
+	
+	data = new_data
 	
 	
+	
+	# Pass 3: Actual processing
 	page_name = ""
 	page_content = ""
 	

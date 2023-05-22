@@ -65,13 +65,14 @@ F	config.highscores
 N	config/highscores.json
 
 P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
-D	- (object) - The root entry.
-D		- size (number) - How many entries should be stored in a single highscore list.
-D		- defaultScores (list) - Contains default highscore entries. The length of this list should be the same as the value of size field.
-D			- (object) - A highscore entry.
-D				- name (number) - A player name which should be displayed.
-D				- score (number) - How much points the player has scored.
-D				- level (string) - The level on which the player has ended their game.
+DI	../../schemas/config/highscores.json
+#D	- (object) - The root entry.
+#D		- size (number) - How many entries should be stored in a single highscore list.
+#D		- defaultScores (list) - Contains default highscore entries. The length of this list should be the same as the value of size field.
+#D			- (object) - A highscore entry.
+#D				- name (number) - A player name which should be displayed.
+#D				- score (number) - How much points the player has scored.
+#D				- level (string) - The level on which the player has ended their game.
 
 E
 

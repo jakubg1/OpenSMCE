@@ -1,6 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "The root entry.",
     "properties": {
         "$schema": true,
         "size": {
@@ -14,6 +15,7 @@
             "markdownDescription": "Contains default highscore entries. The length of this list should be the same as the value of `size` field.",
             "items": {
                 "type": "object",
+                "description": "A highscore entry.",
                 "properties": {
                     "name": {
                         "type": "string",
