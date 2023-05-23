@@ -7,6 +7,7 @@ def convert_schema_type(schema):
 		"integer": "number",
 		"array": "list",
 		"Color*": "Color",
+		"Vector2*": "Vector2",
 		"ExprVector2*": "Expression|Vector2"
 	}
 	
@@ -96,12 +97,18 @@ def convert_schema(schema, page, references, name = "", indent = 1):
 			output += "D" + "\t" * list_indent + "R <li><b>\"" + value["const"] + "\"</b> - " + value["description"] + "</li>\n"
 		output += "D" + "\t" * list_indent + "R </ol>\n"
 
+	properties_root = None
 	if "properties" in schema:
-		for key in schema["properties"]:
+		properties_root = schema
+	elif "patternProperties" in schema:
+		properties_root = schema["patternProperties"][list(schema["patternProperties"].keys())[0]]
+	
+	if properties_root != None:
+		for key in properties_root["properties"]:
 			if key == "$schema":
 				continue
-			key_data = schema["properties"][key]
-			if not key in schema["required"]:
+			key_data = properties_root["properties"][key]
+			if not key in properties_root["required"]:
 				key += "*"
 			output += convert_schema(key_data, page, references, key, indent + 1)
 	

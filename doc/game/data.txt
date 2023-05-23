@@ -340,3 +340,19 @@ E
 
 
 =========================================================================================================================================================================
+
+
+F	config.shooter
+N	config/shooters/*.json
+
+P	Defines a Shooter.
+DI	../../schemas/config/shooter.json
+
+H2	Possible shooter movement types | shooter_movement
+P	<i>Debug information: this can be checked in Shooter:update(), Shooter:getInitialPos() and Shooter:getInitialAngle().</i>
+DIE	../../schemas/config/shooter_movement.json
+
+E
+
+
+=========================================================================================================================================================================
