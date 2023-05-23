@@ -275,66 +275,15 @@ N	config/levels/level_*.json
 
 P	Level files contain information about sphere speeds, colors, etc.
 P	Useful vocabulary: We say the player is in <i>danger</i> when the spheres are close to the end point of the path and the pyramid starts blinking.
-D	- (object) - The root entry.
-D		- map (string) - The map name. Specifically, the name of the folder in the "maps" folder of the game.
-D		- music (Music*) - Which soundtrack should be played throughout the level.
-D		- dangerMusic* (Music*) - Which soundtrack should be played during the danger phase.
-D		- ambientMusic* (Music*) - Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks.
-D		- powerupGenerator (CollectibleGenerator*) - I'm not sure if this is used anymore.
-D		- gemGenerator (CollectibleGenerator*) - The collectible generator used to generate loot from successfully broken scarabs.
-D		- colorGeneratorNormal (ColorGenerator*) - The Color Generator used to generate colors for the shooter throughout this level.
-D		- colorGeneratorDanger (ColorGenerator*) - The Color Generator used to generate colors for the shooter when in danger.
-D		- shooter* (object) - Defines the Shooter. If not present, the shooter named <i>default</i> will be used along with its default movement.
-D			- name (Shooter*) - Which Shooter will be used for this level.
-D			- movement* (object) - If defined, overrides the default movement of this Shooter. See below.
-D		- matchEffect (MatchEffect*) - The Match Effect to be used for this level, during normal matches.
-D		- target (number) - How many Spheres need to be destroyed to fill the Level's objective. Deprecated.
-D		- pathsBehavior (list) - Defines the behavior of paths. The n-th entry of this list corresponds to the n-th path. If this list is shorter than the number of paths, this list will wrap around during the behavior assignment process. If this list is longer than the number of paths, all subsequent entries are discarded.
-D			- (object) - A single path behavior.
-D				- colors (list) - A list of integers. These are the colors that will be assigned to the newly created Spheres on the path.
-D				- colorStreak (number) - The probability of the next color being the same as the previous one in sequence.
-D				- spawnRules (object) - How the sphere chains should be spawned. Check the possible types below.
-D				- spawnDistance (number) - How far the path must be clear for a new Sphere Chain to spawn.
-D				- dangerDistance (number) - How far into the path the spheres have to be in order for the player to be in danger.
-D				- speeds (list) - A list of speeds which will translate to the actual speed on any point of the path.
-D					- (object) - A single speed graph node.
-D						- distance (number) - How far into the path the given speed should be applied.
-D						- speed (number) - The desired speed of the sphere trains, in pixels per second.
-D						- transition* (object) - Defines the transition between this and the <i>next</i> node on the speed graph. By default, linear transition is applied.
-D							- type (string) - I don't know if this works.
+DI	../../schemas/config/level.json
 
-H2	Possible shooter movement types (move this to Shooter later on)
-P	<i>Debug information: this can be checked in Shooter:update(), Shooter:getInitialPos() and Shooter:getInitialAngle().</i>
-
-H3	<i>linear</i>
-P	The Shooter will be moving along a horizontal line.
-D	- (object) - The shooter movement.
-D		- type (string) - <b><i>linear</i></b>
-D		- xMin (number) - The minimum X position this Shooter can be at.
-D		- xMax (number) - The maximum X position this Shooter can be at.
-D		- y (number) - The Y position this Shooter will be at.
-D		- angle (number) - The shooting (and the entire shooter) angle in degrees. 0 is up.
-
-H3	<i>circular</i>
-P	The Shooter will be locked in place, but being able to rotate around.
-D	- (object) - The shooter movement.
-D		- type (string) - <b><i>circular</i></b>
-D		- x (number) - The X position of the Shooter.
-D		- y (number) - The Y position of the Shooter.
-
-H2	Possible spawn rule types
+H2	Possible spawn rule types | level_spawn_rules
 P	<i>Debug information: this can be checked in SphereChain:new().</i>
+DIE	../../schemas/config/level_spawn_rules.json
 
-H3	<i>waves</i>
-P	The Sphere Chains will be prebuilt with the given number of spheres. The scarab is not counted.
-D	- (object) - The spawn rules.
-D		- type (string) - <b><i>waves</i></b>
-D		- amount (number) - How many spheres should be generated in each wave.
-
-H3	<i>continuous</i>
-P	The Sphere Chains will not end, and new spheres will be generated dynamically. The generation will end when either the level target is fulfilled, or the level is lost.
-D	- (object) - The spawn rules.
-D		- type (string) - <b><i>continuous</i></b>
+H2	Possible speed interpolation types | level_speed_transition
+P	<i>Debug information: this can be checked in Path:getSpeed().</i>
+DIE	../../schemas/config/level_speed_transition.json
 
 E
 

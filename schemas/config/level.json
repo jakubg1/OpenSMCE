@@ -1,0 +1,180 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "map": {
+            "type": "string",
+            "description": "The map name. Specifically, the name of the folder in the \"maps\" folder of the game."
+        },
+        "music": {
+            "$ref": "../_structures/Music.json",
+            "description": "Which soundtrack should be played throughout the level."
+        },
+        "dangerMusic": {
+            "$ref": "../_structures/Music.json",
+            "description": "Which soundtrack should be played during the danger phase."
+        },
+        "ambientMusic": {
+            "$ref": "../_structures/Music.json",
+            "description": "Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks."
+        },
+        "colorGeneratorNormal": {
+            "$ref": "../_structures/ColorGenerator.json",
+            "description": "The Color Generator used to generate colors for the shooter throughout this level."
+        },
+        "colorGeneratorDanger": {
+            "$ref": "../_structures/ColorGenerator.json",
+            "description": "The Color Generator used to generate colors for the shooter when in danger."
+        },
+        "shooter": {
+            "type": "object",
+            "description": "Defines the Shooter. If not present, the shooter named default will be used along with its default movement.",
+            "markdownDescription": "Defines the Shooter. If not present, the shooter named `default` will be used along with its default movement.",
+            "properties": {
+                "name": {
+                    "$ref": "../_structures/Shooter.json",
+                    "description": "Which Shooter will be used for this level."
+                },
+                "movement": {
+                    "$ref": "shooter_movement.json",
+                    "description": "If defined, overrides the default movement of this Shooter."
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
+        "matchEffect": {
+            "$ref": "../_structures/SphereEffect.json",
+            "description": "The Sphere Effect to be used during normal matches for this level. Whenever a match is made, spheres are inflicted with this effect."
+        },
+        "objectives": {
+            "type": "array",
+            "description": "A list of objectives. All of them must be fulfilled in order to complete the level.",
+            "items": {
+                "type": "object",
+                "description": "A single objective.",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "The objective type.",
+                        "oneOf": [
+                            {
+                                "const": "destroyedSpheres",
+                                "description": "The target describes how many spheres have to be removed from the board."
+                            },
+                            {
+                                "const": "timeElapsed",
+                                "description": "The target describes how many seconds the level has to be survived for."
+                            },
+                            {
+                                "const": "score",
+                                "description": "The target describes how much score in that level needs to be gained."
+                            }
+                        ]
+                    },
+                    "target": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "How many spheres destroyed, time survived or score gained is needed in order to fulfill this objective."
+                    }
+                },
+                "required": [
+                    "type",
+                    "target"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "pathsBehavior": {
+            "type": "array",
+            "description": "Defines the behavior of paths. The n-th entry of this list corresponds to the n-th path. If this list is shorter than the number of paths, this list will wrap around during the behavior assignment process. If this list is longer than the number of paths, all subsequent entries are discarded.",
+            "items": {
+                "type": "object",
+                "description": "A single path behavior.",
+                "properties": {
+                    "colors": {
+                        "type": "array",
+                        "description": "A list of integers. These are the colors that will be assigned to the newly created Spheres on the path.",
+                        "items": {
+                            "type": "integer",
+                            "description": "A single sphere color."
+                        }
+                    },
+                    "colorStreak": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "The probability of the next color being the same as the previous one in sequence."
+                    },
+                    "spawnRules": {
+                        "$ref": "level_spawn_rules.json",
+                        "description": "How the spheres should be spawned."
+                    },
+                    "spawnDistance": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "How far the path must be clear for a new Sphere Chain to spawn."
+                    },
+                    "dangerDistance": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "How far into the path the spheres have to be in order for the player to be in danger."
+                    },
+                    "speeds": {
+                        "type": "array",
+                        "description": "A list of speeds which will translate to the actual speed on any point of the path.",
+                        "items": {
+                            "type": "object",
+                            "description": "A single speed graph node.",
+                            "properties": {
+                                "distance": {
+                                    "type": "number",
+                                    "description": "How far into the path the given speed should be applied."
+                                },
+                                "speed": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "description": "The desired speed of the sphere trains, in pixels per second."
+                                },
+                                "transition": {
+                                    "$ref": "level_speed_transition.json",
+                                    "description": "Defines the transition between this and the next node on the speed graph. By default, linear transition is applied."
+                                }
+                            },
+                            "required": [
+                                "distance",
+                                "speed"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "colors",
+                    "colorStreak",
+                    "spawnRules",
+                    "spawnDistance",
+                    "dangerDistance",
+                    "speeds"
+                ],
+                "additionalProperties": false
+            }
+        }
+    },
+    "required": [
+        "map",
+        "music",
+        "colorGeneratorNormal",
+        "colorGeneratorDanger",
+        "matchEffect",
+        "objectives",
+        "pathsBehavior"
+    ],
+    "additionalProperties": false
+}

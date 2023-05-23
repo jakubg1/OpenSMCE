@@ -161,6 +161,7 @@ def main():
 		"ColorPalette*": "str_palette",
 		"Particle*": "str_particle",
 		"SoundEvent*": "str_sound",
+		"Music*": "str_music",
 		"Sprite*": "str_sprite",
 		"CollectibleGenerator*": "str_collectible_generator",
 		"Expression": "expression",
