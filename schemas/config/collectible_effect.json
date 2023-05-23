@@ -1,6 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "A collectible effect.",
     "properties": {
         "type": {
             "enum": [
@@ -25,7 +26,7 @@
         {
             "properties": {
                 "type": {
-                    "description": "A powerup effect type."
+                    "description": "A collectible effect type."
                 }
             }
         },

@@ -1,6 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "The root entry.",
     "properties": {
         "$schema": true,
         "level": {
@@ -104,11 +105,11 @@
                     "description": "Enables sphere physics gimmicks specific to the original Luxor game to mimic it better."
                 },
                 "joinSound": {
-                    "type": "string",
+                    "$ref": "../_structures/SoundEvent.json",
                     "description": "A sound event to be played when two groups of spheres hit each other."
                 },
                 "newGroupSound": {
-                    "type": "string",
+                    "$ref": "../_structures/SoundEvent.json",
                     "description": "A sound event to be played when a new sphere chain appears on the board."
                 },
                 "noScarabs": {
@@ -163,11 +164,11 @@
             "description": "Defines the Bonus Scarab.",
             "properties": {
                 "sprite": {
-                    "type": "string",
+                    "$ref": "../_structures/Sprite.json",
                     "description": "The sprite to be used by the Bonus Scarab."
                 },
                 "shadowSprite": {
-                    "type": "string",
+                    "$ref": "../_structures/Sprite.json",
                     "description": "The shadow sprite to be used by the Bonus Scarab."
                 },
                 "stepLength": {
@@ -187,7 +188,7 @@
                     "description": "The delay between generating collectibles. If omitted, the Bonus Scarab will not spawn any collectibles."
                 },
                 "coinGenerator": {
-                    "type": "string",
+                    "$ref": "../_structures/CollectibleGenerator.json",
                     "description": "A collectible generator used periodically."
                 },
                 "speed": {
@@ -196,7 +197,7 @@
                     "description": "How fast does the Bonus Scarab move, in pixels per second."
                 },
                 "trailParticle": {
-                    "type": "string",
+                    "$ref": "../_structures/Particle.json",
                     "description": "A one-time particle packet which the Bonus Scarab would emit. May be omitted if no particles are supposed to be generated."
                 },
                 "trailParticleDistance": {
@@ -206,23 +207,23 @@
                     "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified."
                 },
                 "loopSound": {
-                    "type": "string",
+                    "$ref": "../_structures/SoundEvent.json",
                     "description": "A looping sound event which is played during Bonus Scarab's existence."
                 },
                 "destroySound": {
-                    "type": "string",
+                    "$ref": "../_structures/SoundEvent.json",
                     "description": "A sound event which will be played when the Bonus Scarab is destroyed."
                 },
                 "destroyParticle": {
-                    "type": "string",
+                    "$ref": "../_structures/Particle.json",
                     "description": "A one-time particle packet which the Bonus Scarab will launch upon destruction."
                 },
                 "destroyGenerator": {
-                    "type": "string",
+                    "$ref": "../_structures/CollectibleGenerator.json",
                     "description": "A collectible generator used when the Bonus Scarab is destroyed."
                 },
                 "scoreFont": {
-                    "type": "string",
+                    "$ref": "../_structures/Font.json",
                     "description": "A font to be used to display the bonus value on the screen."
                 }
             },
@@ -244,11 +245,11 @@
             "description": "Defines the Scorpion.",
             "properties": {
                 "sprite": {
-                    "type": "string",
+                    "$ref": "../_structures/Sprite.json",
                     "description": "The sprite to be used by the Scorpion."
                 },
                 "shadowSprite": {
-                    "type": "string",
+                    "$ref": "../_structures/Sprite.json",
                     "description": "The shadow sprite to be used by the Scorpion."
                 },
                 "maxSpheres": {
@@ -267,7 +268,7 @@
                     "description": "How fast does the Scorpion move, in pixels per second."
                 },
                 "trailParticle": {
-                    "type": "string",
+                    "$ref": "../_structures/Particle.json",
                     "description": "A one-time particle packet which the Scorpion would emit. May be omitted if no particles are supposed to be generated."
                 },
                 "trailParticleDistance": {
@@ -277,27 +278,27 @@
                     "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified."
                 },
                 "loopSound": {
-                    "type": "string",
+                    "$ref": "../_structures/SoundEvent.json",
                     "description": "A looping sound event which is played during Scorpion's existence."
                 },
                 "sphereDestroySound": {
-                    "type": "string",
+                    "$ref": "../_structures/SoundEvent.json",
                     "description": "A sound event which will be played when the Scorpion destroys a sphere."
                 },
                 "destroySound": {
-                    "type": "string",
+                    "$ref": "../_structures/SoundEvent.json",
                     "description": "A sound event which will be played when the Scorpion is destroyed."
                 },
                 "destroyParticle": {
-                    "type": "string",
+                    "$ref": "../_structures/Particle.json",
                     "description": "A one-time particle packet which the Scorpion will launch upon destruction."
                 },
                 "destroyGenerator": {
-                    "type": "string",
+                    "$ref": "../_structures/CollectibleGenerator.json",
                     "description": "A collectible generator used when the Scorpion is destroyed."
                 },
                 "scoreFont": {
-                    "type": "string",
+                    "$ref": "../_structures/Font.json",
                     "description": "A font to be used to display the bonus value on the screen."
                 }
             },
@@ -318,7 +319,7 @@
             "description": "Defines the Net.",
             "properties": {
                 "particle": {
-                    "type": "string",
+                    "$ref": "../_structures/Particle.json",
                     "description": "A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires."
                 },
                 "posY": {

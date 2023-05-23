@@ -1,22 +1,23 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "The root object.",
     "properties": {
         "$schema": true,
         "particle": {
-            "type": "string",
+            "$ref": "../_structures/Particle.json",
             "description": "A persistent particle packet which will follow the collectible entity."
         },
         "pickupParticle": {
-            "type": "string",
+            "$ref": "../_structures/Particle.json",
             "description": "A one-time particle packet which will be launched when the collectible is catched."
         },
         "spawnSound": {
-            "type": "string",
+            "$ref": "../_structures/SoundEvent.json",
             "description": "A sound event which will play when the collectible is spawned."
         },
         "pickupSound": {
-            "type": "string",
+            "$ref": "../_structures/SoundEvent.json",
             "description": "A sound event which will play when the collectible is collected."
         },
         "pickupName": {
@@ -24,21 +25,23 @@
             "description": "A label which will appear above the shooter when the powerup is collected."
         },
         "pickupFont": {
-            "type": "string",
+            "$ref": "../_structures/Font.json",
             "description": "A font which will be used for the label."
         },
         "effects": {
             "type": "array",
             "description": "A list of effects to be applied when the powerup is collected.",
             "items": {
-                "$ref": "collectible_effect.json"
+                "$ref": "collectible_effect.json",
+                "description": "A single collectible effect."
             }
         },
         "dropEffects": {
             "type": "array",
             "description": "A list of effects to be applied when the powerup is not collected and falls out of the screen.",
             "items": {
-                "$ref": "collectible_effect.json"
+                "$ref": "collectible_effect.json",
+                "description": "A single collectible effect."
             }
         }
     },

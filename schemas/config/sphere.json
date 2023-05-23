@@ -1,14 +1,15 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "The root object.",
     "properties": {
         "$schema": true,
         "sprite": {
-            "type": "string",
+            "$ref": "../_structures/Sprite.json",
             "description": "A sprite to be drawn when the sphere is on the screen."
         },
         "shadowSprite": {
-            "type": "string",
+            "$ref": "../_structures/Sprite.json",
             "description": "A shadow sprite to be drawn along the sphere. Defaults to sprites/game/ball_shadow.json.",
             "markdownDescription": "A shadow sprite to be drawn along the sphere.\nDefaults to `sprites/game/ball_shadow.json`."
         },
@@ -23,28 +24,28 @@
             "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 1."
         },
         "idleParticle": {
-            "type": "string",
+            "$ref": "../_structures/Particle.json",
             "description": "A persistent particle packet used when the sphere is on the board."
         },
         "destroyParticle": {
-            "type": "string",
+            "$ref": "../_structures/Particle.json",
             "description": "A one-time particle packet used when the sphere is destroyed."
         },
         "destroyCollectible": {
-            "type": "string",
+            "$ref": "../_structures/CollectibleGenerator.json",
             "description": "A collectible generator used when the sphere is destroyed."
         },
         "destroySound": {
-            "type": "string",
+            "$ref": "../_structures/SoundEvent.json",
             "description": "A sound event to be played when a sphere of this type is destroyed. Note: This will be played for each single sphere removed from the board. You may want to check out match sound events instead. Warning! This works only for crushed scarabs for now."
         },
         "color": {
             "anyOf": [
                 {
-                    "type": "string"
+                    "$ref": "../_structures/Color.json"
                 },
                 {
-                    "$ref": "../_structures/Color.json"
+                    "$ref": "../_structures/ColorPalette.json"
                 }
             ],
             "description": "The color or color palette used by shooting retical."
@@ -60,15 +61,15 @@
             "description": "Whether this sphere can be changed when in the first slot of the shooter."
         },
         "shootBehavior": {
-            "$comment": "I'll leave this for later........... Fun !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >:(>:(>:(!",
             "$ref": "sphere_shoot_behavior.json",
-            "description": "A persistent particle packet used when the sphere is on the board."
+            "description": "Defines how this Sphere should behave when released from the Shooter."
         },
         "shootEffects": {
             "type": "array",
             "description": "A list of collectible effects to be applied when this sphere is shot.",
             "items": {
-                "$ref": "collectible_effect.json"
+                "$ref": "collectible_effect.json",
+                "description": "A single collectible effect."
             }
         },
         "shootSpeed": {
@@ -77,7 +78,7 @@
             "description": "If specified, overrides the speed of this sphere when shot."
         },
         "shootSound": {
-            "type": "string",
+            "$ref": "../_structures/SoundEvent.json",
             "description": "A sound event launched when this sphere is shot."
         },
         "hitBehavior": {
@@ -85,29 +86,37 @@
             "description": "Defines how this sphere should behave when it hits a sphere train."
         },
         "hitSound": {
-            "type": "string",
+            "$ref": "../_structures/SoundEvent.json",
             "description": "A sound event launched when this sphere hits a sphere train."
         },
         "hitSoundBad": {
-            "type": "string",
+            "$ref": "../_structures/SoundEvent.json",
             "description": "An optional sound event launched when this sphere hits a sphere train and doesn't match any neighboring spheres."
         },
         "type": {
-            "enum": [
-                "normal",
-                "stone"
-            ],
-            "description": "The sphere type. If stone, a sphere can be destroyed by a nearby match."
+            "type": "string",
+            "description": "The sphere type.",
+            "oneOf": [
+                {
+                    "const": "normal",
+                    "description": "The sphere behaves like usual."
+                },
+                {
+                    "const": "stone",
+                    "description": "The sphere can be destroyed by a nearby match."
+                }
+            ]
         },
         "matches": {
             "type": "array",
             "description": "A list of sphere type IDs (integers) this sphere type matches with.",
             "items": {
-                "type": "integer"
+                "type": "integer",
+                "description": "A single sphere ID."
             }
         },
         "matchFont": {
-            "type": "string",
+            "$ref": "../_structures/Font.json",
             "description": "A font used to display a floating text when this sphere gives points."
         }
     },
