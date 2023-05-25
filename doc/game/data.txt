@@ -61,6 +61,19 @@ E
 =========================================================================================================================================================================
 
 
+F	config
+N	config.json
+
+P	Contains base game settings. This file is placed in the root game folder.
+P	Valid JSON structure inside this file is required for the Boot Screen to properly recognize the game. If you make a syntax error, the game will not be listed in the Boot Screen. Look in this file if your game suddenly disappears from the list!
+DI	../../schemas/config.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
 F	config.highscores
 N	config/highscores.json
 

@@ -1,6 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "The root object.",
     "properties": {
         "$schema": true,
         "name": {
@@ -17,7 +18,7 @@
         },
         "nativeResolution": {
             "$ref": "_structures/Vector2.json",
-            "description": "The native resolution of the game. Not really used at the moment, but mandatory."
+            "description": "The native resolution of the game."
         },
         "richPresence": {
             "type": "object",
