@@ -56,9 +56,7 @@ function ResourceManager:new()
 	self.stepLoading = false
 	self.stepLoadQueue = {}
 	self.stepLoadTotalObjs = 0
-	self.stepLoadTotalObjsFrac = 0
 	self.stepLoadProcessedObjs = 0
-	self.STEP_LOAD_FACTOR = 3 -- objects processed per frame; lower values can slow down the loading process significantly, while higher values can lag the progress bar
 end
 
 
@@ -74,10 +72,16 @@ function ResourceManager:update(dt)
 	end
 
 	if self.stepLoading then
-		self.stepLoadTotalObjsFrac = self.stepLoadTotalObjsFrac + self.STEP_LOAD_FACTOR
-		while self.stepLoadTotalObjsFrac >= 1 do
+		
+	-- Load as many assets as we can within the span of a few frames
+	local stepLoadStart = love.timer.getTime()
+	local stepLoadEnd = 0
+
+		while stepLoadEnd < 0.05 do
+			
 			self:stepLoadNext()
-			self.stepLoadTotalObjsFrac = self.stepLoadTotalObjsFrac - 1
+
+			stepLoadEnd = stepLoadEnd + (love.timer.getTime() - stepLoadStart)
 
 			-- exit if no more assets to load
 			if not self.stepLoading then break end
