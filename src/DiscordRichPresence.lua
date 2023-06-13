@@ -43,7 +43,11 @@ function DiscordRichPresence:init()
 
 	function self.rpcMain.ready(userId, username, discriminator, avatar)
 		self.connected = true
-		self.username = string.format("%s#%s", username, discriminator)
+		if #discriminator == 4 then
+			self.username = string.format("%s#%s", username, discriminator)
+		else
+			self.username = string.format("@%s", username)
+		end
 		_Debug.console:print({{0, 1, 1}, "[DiscordRPC] ", {0, 1, 0}, string.format("Connected! (username: %s)", self.username)})
 	end
 
