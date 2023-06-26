@@ -21,8 +21,8 @@ function DiscordRichPresence:new()
 
 	self.status = {}
 
-	local s, egg = pcall(self.getEgg)
-	if s and egg then
+	local egg = self:getEgg()
+	if egg then
 		self.egg = egg
 	end
 
@@ -170,9 +170,13 @@ end
 
 
 ---Returns a random witty comment to be shown... uh, somewhere.
----@return string
+---@return string?
 function DiscordRichPresence:getEgg()
-	local eggs = _StrSplit(_LoadFile("assets/eggs_rpc.txt"), "\n")
+	local rawEggs = _LoadFile("assets/eggs_rpc.txt")
+	if not rawEggs then
+		return
+	end
+	local eggs = _StrSplit(rawEggs, "\n")
 	return eggs[math.random(1, #eggs)]
 end
 
