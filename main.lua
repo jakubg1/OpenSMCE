@@ -269,6 +269,15 @@ end
 function _GetNewestVersionThreaded(onFinish)
 	_Network:getThreaded("https://api.github.com/repos/jakubg1/OpenSMCE/tags", false, function(result)
 		if result.code == 200 and result.body then
+			-- Trim everything before the first square bracket.
+			while result.body:sub(1, 1) ~= "[" do
+				result.body = result.body:sub(2)
+			end
+			-- And everything after the last square bracket.
+			while result.body:sub(-1) ~= "]" do
+				result.body = result.body:sub(1, -2)
+			end
+			print(result.body)
 			result.body = json.decode(result.body)
 			onFinish(result.body[1].name)
 		else
