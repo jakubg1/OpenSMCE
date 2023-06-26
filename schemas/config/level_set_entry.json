@@ -1,0 +1,139 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "A single level entry.",
+    "properties": {
+        "type": {
+            "enum": [
+                "level",
+                "randomizer"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "The type of the level entry."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "level",
+                        "description": "A single level to be played."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "level": {
+                        "type": "integer",
+                        "description": "A level ID to be loaded and played."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "A level name."
+                    },
+                    "unlockCheckpointsOnBeat": {
+                        "type": "array",
+                        "description": "If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.",
+                        "items": {
+                            "type": "integer",
+                            "description": "A single checkpoint to be unlocked after this entry has been completed."
+                        }
+                    }
+                },
+                "required": [
+                    "level",
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "randomizer",
+                        "description": "A group of levels to be played in random order."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "pool": {
+                        "type": "array",
+                        "description": "A list of level IDs to be chosen from.",
+                        "items": {
+                            "type": "integer",
+                            "description": "A single level ID."
+                        }
+                    },
+                    "names": {
+                        "type": "array",
+                        "description": "A list of level names. It is not shuffled, and this list should have the same length as the count field.",
+                        "markdownDescription": "A list of level names. It is not shuffled, and this list should have the same length as the `count` field.",
+                        "items": {
+                            "type": "string",
+                            "description": "A single level name."
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "How many levels are to be picked from the pool.",
+                        "minimum": 1
+                    },
+                    "mode": {
+                        "type": "string",
+                        "description": "How the levels will be randomized.",
+                        "oneOf": [
+                            {
+                                "const": "repeat",
+                                "description": "Every next level is simply drawn at random from the list."
+                            },
+                            {
+                                "const": "noRepeat",
+                                "description": "Same as above, but an entry is removed from the pool once it's been picked. Requires the pool size to be greater or equal to the count field.",
+                                "markdownDescription": "Same as above, but an entry is removed from the pool once it's been picked. Requires the pool size to be greater or equal to the `count` field."
+                            },
+                            {
+                                "const": "order",
+                                "description": "Chooses entries from the pool at random without changing their order. Requires the pool size to be greater or equal to the count field.",
+                                "markdownDescription": "Chooses entries from the pool at random without changing their order. Requires the pool size to be greater or equal to the `count` field."
+                            }
+                        ]
+                    },
+                    "unlockCheckpointsOnBeat": {
+                        "type": "array",
+                        "description": "If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.",
+                        "items": {
+                            "type": "integer",
+                            "description": "A single checkpoint to be unlocked after this entry has been completed."
+                        }
+                    }
+                },
+                "required": [
+                    "pool",
+                    "names",
+                    "count",
+                    "mode"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}

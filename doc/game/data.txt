@@ -5,16 +5,15 @@ F	index
 N	Main Page
 
 P	Welcome! This is work in progress!
-P	TBD:
-P	Configuration Files
+H2	What needs to be done:
+H3	Configuration Files
 P	
-P	    config.json
 P	    runtime.json
 P	    config/hud_layer_order.json
 P	    config/loadlist.json
 P	    config/music.json
 P	
-P	Asset Files
+H3	Asset Files
 P	
 P	    Fonts
 P	    Levels
@@ -245,37 +244,11 @@ N	config/level_set.json
 
 P	Contains information about level order and checkpoints.
 P	A checkpoint is a place, where the player can start a new game.
-D	- (object) - The root entry.
-D		- levelOrder (list) - A list which contains level entries. Levels will be played in this order. More info below.
-D		- checkpoints (list) - A list of integers, containing index numbers corresponding to level IDs in the <i>levelOrder</i> field.
-D		- startCheckpoints (list) - A list of checkpoint IDs, which are unlocked upon profile creation.
+DI	../../schemas/config/level_set.json
 
-H2	Possible level order entry types
+H2	Possible level order entry types | level_set_entry
 P	<i>Debug information: this can be checked in Profile:getLevelName(), Profile:incrementLevel(), Profile:generateLevelID() and a number of other functions in Profile class.</i>
-
-H3	<i>level</i>
-P	A single level to be played.
-D	- (object) - A single level entry.
-D		- type (string) - <b><i>level</i></b>
-D		- level (number) - A level ID to be loaded and played.
-D		- name (string) - A level name.
-D		- unlockCheckpointsOnBeat* (list) - If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
-
-H3	<i>randomizer</i>
-P	A group of levels to be played in random order.
-D	- (object) - A single level entry.
-D		- type (string) - <b><i>randomizer</i></b>
-D		- pool (list) - A list of level IDs to be chosen from.
-D		- names (list) - A list of level names. It is not shuffled, and this list should have the same lenth as <i>count</i>.
-D		- count (number) - How many levels are to be picked from the pool.
-D		- mode (string) - How the levels will be randomized. There are three possible values:
-D		R <ol>
-D		R <li><b>repeat</b> - Every next level is simply drawn at random from the list.</li>
-D		R <li><b>noRepeat</b> - Same as above, but an entry is removed from the pool once it's been picked.</li>
-D		R <li><b>order</b> - Chooses <i>count</i> entries from the pool, without changing their order.</li>
-D		R <li>Both <b>noRepeat</b> and <b>order</b> modes need the pool size to be greater or equal to the <i>count</i>.</li>
-D		R </ol>
-D		- unlockCheckpointsOnBeat* (list) - If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
+DIE	../../schemas/config/level_set_entry.json
 
 E
 

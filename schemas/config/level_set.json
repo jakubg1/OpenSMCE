@@ -1,0 +1,40 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "levelOrder": {
+            "type": "array",
+            "description": "A list which contains level entries. Levels will be played in this order.",
+            "items": {
+                "$ref": "level_set_entry.json",
+                "description": "A single level entry."
+            }
+        },
+        "checkpoints": {
+            "type": "array",
+            "description": "A list of level order indices, where checkpoints should be placed.\nIf the player starts the game from a given checkpoint, they start from the entry the checkpoint is pointing to.",
+            "items": {
+                "type": "integer",
+                "description": "A single index corresponding to an entry in the levelOrder field.",
+                "markdownDescription": "A single index corresponding to an entry in the `levelOrder` field."
+            }
+        },
+        "startCheckpoints": {
+            "type": "array",
+            "description": "A list of checkpoint indices, which are unlocked upon profile creation.",
+            "items": {
+                "type": "integer",
+                "description": "A single index, which corresponds to an entry in the checkpoints field.",
+                "markdownDescription": "A single index, which corresponds to an entry in the `checkpoints` field."
+            }
+        }
+    },
+    "required": [
+        "levelOrder",
+        "checkpoints",
+        "startCheckpoints"
+    ],
+    "additionalProperties": false
+}
