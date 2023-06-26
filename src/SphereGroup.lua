@@ -784,6 +784,9 @@ end
 
 
 function SphereGroup:drawDebug()
+	if #self.spheres == 0 then
+		return
+	end
 	local pos = _PosOnScreen(self.sphereChain.path:getPos(self:getFrontPos()))
 	love.graphics.setColor(0.5, 1, 0)
 	love.graphics.circle("fill", pos.x, pos.y, 6)
