@@ -342,8 +342,9 @@ function Shooter:draw()
     local sprite = self.config.nextBallSprites[self.nextColor].sprite
     sprite:draw(self.pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, self:getNextSphereFrame(), self.angle)
 
-    --local p4 = posOnScreen(self.pos)
-    --love.graphics.rectangle("line", p4.x - 80, p4.y - 15, 160, 30)
+	if _Debug.sphereDebugVisible2 then
+		self:drawDebug()
+	end
 end
 
 
@@ -438,6 +439,15 @@ function Shooter:drawReticle()
             end
         end
     end
+end
+
+
+
+---Draws this Shooter's hitbox.
+function Shooter:drawDebug()
+    local p = _PosOnScreen(self.pos) - self.config.hitboxSize / 2
+    local s = self.config.hitboxSize
+    love.graphics.rectangle("line", p.x, p.y, s.x, s.y)
 end
 
 
