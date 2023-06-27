@@ -277,7 +277,6 @@ function _GetNewestVersionThreaded(onFinish)
 			while result.body:sub(-1) ~= "]" do
 				result.body = result.body:sub(1, -2)
 			end
-			print(result.body)
 			result.body = json.decode(result.body)
 			onFinish(result.body[1].name)
 		else
