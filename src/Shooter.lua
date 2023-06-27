@@ -445,8 +445,8 @@ end
 
 ---Draws this Shooter's hitbox.
 function Shooter:drawDebug()
-    local p = _PosOnScreen(self.pos) - self.config.hitboxSize / 2
-    local s = self.config.hitboxSize
+    local p = _PosOnScreen(self.pos + self.config.hitboxOffset - self.config.hitboxSize / 2)
+    local s = self.config.hitboxSize * _GetResolutionScale()
     love.graphics.rectangle("line", p.x, p.y, s.x, s.y)
 end
 
@@ -522,7 +522,7 @@ end
 ---@param pos Vector2 The position to be checked against.
 ---@return boolean
 function Shooter:isPosCatchable(pos)
-    return math.abs(self.pos.x - pos.x) < self.config.hitboxSize.x / 2 and math.abs(self.pos.y - pos.y) < self.config.hitboxSize.y / 2
+    return math.abs(self.pos.x - pos.x + self.config.hitboxOffset.x) < self.config.hitboxSize.x / 2 and math.abs(self.pos.y - pos.y + self.config.hitboxOffset.y) < self.config.hitboxSize.y / 2
 end
 
 

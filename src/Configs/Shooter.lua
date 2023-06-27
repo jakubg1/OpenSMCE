@@ -81,6 +81,8 @@ function ShooterConfig:new(data, path)
     ---@type number
     self.shootSpeed = data.shootSpeed
     ---@type Vector2
+    self.hitboxOffset = _ParseVec2(data.hitboxOffset) or Vec2()
+    ---@type Vector2
     self.hitboxSize = _ParseVec2(data.hitboxSize) or Vec2()
 end
 

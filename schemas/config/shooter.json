@@ -182,6 +182,10 @@
             "exclusiveMinimum": 0,
             "description": "The default speed of how fast the shot spheres will be, in pixels per second."
         },
+        "hitboxOffset": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The offset of the Shooter's hitbox in pixels."
+        },
         "hitboxSize": {
             "$ref": "../_structures/Vector2.json",
             "description": "The size of the Shooter's hitbox in pixels."
