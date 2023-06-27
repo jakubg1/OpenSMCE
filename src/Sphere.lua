@@ -153,7 +153,7 @@ function Sphere:update(dt)
 	-- animation
 	local dist = self:getOffset() - self.animationPrevOffset
 	self.animationPrevOffset = self:getOffset()
-	self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or 1)) % self.frameCount
+	self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or (2 / math.pi))) % self.frameCount
 end
 
 
