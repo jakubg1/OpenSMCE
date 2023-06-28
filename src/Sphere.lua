@@ -516,7 +516,7 @@ function Sphere:draw(color, hidden, shadow)
 
 	local pos = self:getPos()
 	if self.size < 1 then
-		pos = self.path:getPos(self:getOffset() + 16 - self.size * 16) * self.size + self.shootOrigin * (1 - self.size)
+		pos = self.path:getPos(self:getOffset() + 32 - self.size * 32) * self.size + self.shootOrigin * (1 - self.size)
 	end
 
 	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
@@ -545,6 +545,14 @@ function Sphere:draw(color, hidden, shadow)
 		end
 	end
 
+	if _Debug.sphereDebugVisible2 and self.size < 1 then
+		local p1 = _PosOnScreen(self.path:getPos(self:getOffset() + 32 - self.size * 32))
+		local p2 = _PosOnScreen(self.shootOrigin)
+		love.graphics.setColor(1, 0.5, 0)
+		love.graphics.setLineWidth(3)
+		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+	end
+
 	-- debug: you can peek some sphere-related values here
 
 	--if not shadow and self:hasEffect("match") then
@@ -566,7 +574,7 @@ end
 
 
 
----Returns a table of IDs, which at the very moment identify this very sphere. Used in saving.
+---Returns a table of IDs, which at the very moment identify this very sphere. Use if you want to reference this Sphere in the save file.
 ---@return table
 function Sphere:getIDs()
 	local s = self
