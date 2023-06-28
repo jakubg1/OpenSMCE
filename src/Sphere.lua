@@ -90,6 +90,7 @@ function Sphere:update(dt)
 				self.sphereGroup:matchAndDelete(index)
 			end
 		end
+		self:updateOffset()
 	end
 
 	-- Update the effects.
@@ -551,6 +552,9 @@ function Sphere:draw(color, hidden, shadow)
 		love.graphics.setColor(1, 0.5, 0)
 		love.graphics.setLineWidth(3)
 		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.setLineWidth(1)
+		love.graphics.circle("line", p1.x, p1.y, 15 * _GetResolutionScale())
 	end
 
 	-- debug: you can peek some sphere-related values here
@@ -558,6 +562,16 @@ function Sphere:draw(color, hidden, shadow)
 	--if not shadow and self:hasEffect("match") then
 	--	local p = _PosOnScreen(self:getPos())
 	--	love.graphics.print(self:getEffectGroupID("match"), p.x, p.y + 20)
+	--end
+
+	--if not shadow and _Debug.sphereDebugVisible2 and self.size < 1 then
+	--	local p = _PosOnScreen(self:getPos())
+	--	local s = ""
+	--	s = s .. "offset: " .. tostring(self.offset) .. "\n"
+	--	s = s .. "getOffset(): " .. tostring(self:getOffset()) .. "\n"
+	--	s = s .. "size: " .. tostring(self.size) .. "\n"
+	--	s = s .. "\nResult: " .. tostring(self:getOffset() + 32 - self.size * 32)
+	--	love.graphics.print(s, p.x, p.y + 20)
 	--end
 end
 
