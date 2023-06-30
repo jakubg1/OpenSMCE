@@ -104,6 +104,12 @@ function SphereGroup:update(dt)
 				deccel = self.sphereChain.speedOverrideDecc or deccel
 			elseif self:isMagnetizing() then
 				deccel = self.config.attractionAcceleration or deccel
+				if self.speed > 0 then
+					deccel = self.config.attractionForwardDecceleration or deccel
+					if self.prevGroup:getLastMatureSphere().color == 0 then
+						deccel = self.config.attractionForwardDeccelerationScarab or deccel
+					end
+				end
 			elseif self.prevGroup then
 				deccel = self.config.decceleration or deccel
 			elseif self.sphereChain.speedOverrideTime > 0 then
@@ -120,6 +126,8 @@ function SphereGroup:update(dt)
 			-- Can be different if defined accordingly, such as when the level is lost.
 			if self.map.level.lost then
 				accel = self.config.foulAcceleration or accel
+			elseif self.speed < 0 then
+				accel = self.config.backwardsDecceleration or accel
 			end
 
 			self.speed = math.min(self.speed + accel * dt, self.maxSpeed)

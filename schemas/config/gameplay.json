@@ -53,9 +53,21 @@
                     "type": "number",
                     "description": "The acceleration rate of spheres magnetizing to each other."
                 },
+                "attractionForwardDecceleration": {
+                    "type": "number",
+                    "description": "The decceleration rate of spheres when magnetizing to the group behind while still moving forward."
+                },
+                "attractionForwardDeccelerationScarab": {
+                    "type": "number",
+                    "description": "The decceleration rate of spheres when magnetizing to a scarab behind while still moving forward."
+                },
                 "decceleration": {
                     "type": "number",
                     "description": "The default decceleration rate of spheres."
+                },
+                "backwardsDecceleration": {
+                    "type": "number",
+                    "description": "The decceleration rate of spheres when they're moving backwards."
                 },
                 "attractionSpeedBase": {
                     "type": "number",
