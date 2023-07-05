@@ -503,7 +503,7 @@ function Level:generateColor(data)
 		-- Make a pool with colors which are on the board.
 		local pool = {}
 		for i, color in ipairs(data.colors) do
-			if not data.has_to_exist or _Game.session.colorManager:isColorExistent(color) then
+			if not data.hasToExist or _Game.session.colorManager:isColorExistent(color) then
 				table.insert(pool, color)
 			end
 		end
@@ -512,9 +512,9 @@ function Level:generateColor(data)
 			return pool[math.random(#pool)]
 		end
 
-	elseif data.type == "near_end" then
+	elseif data.type == "nearEnd" then
 		-- Select a random path.
-		local path = _Game.session.level:getRandomPath(true, data.paths_in_danger_only)
+		local path = _Game.session.level:getRandomPath(true, data.pathsInDangerOnly)
 		if not path:getEmpty() then
 			-- Get a SphereChain nearest to the pyramid
 			local sphereChain = path.sphereChains[1]
@@ -527,7 +527,7 @@ function Level:generateColor(data)
 					local color = sphere.color
 					-- If this color is generatable, check if we're lucky this time.
 					if _MathIsValueInTable(data.colors, color) then
-						if math.random() < data.select_chance then
+						if math.random() < data.selectChance then
 							return color
 						end
 						-- Save this color in case if no more spheres are left.
