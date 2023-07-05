@@ -36,7 +36,11 @@ div.json {
 }
 
 div.jsonChoice {
-	background-color: #DDD;
+	background-color: #333;
+	margin-top: 4px;
+	margin-bottom: 4px;
+	padding-top: 4px;
+	padding-bottom: 4px;
 }
 
 .name, .nameOpt {

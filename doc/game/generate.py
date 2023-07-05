@@ -36,6 +36,17 @@ def convert_schema_type(schema):
 
 
 def convert_schema(schema, page, references, name = "", indent = 1):
+	# Alternatives use special syntax.
+	if "oneOf" in schema and not "type" in schema:
+		output = "D" + "\t" * indent + "R <div class=\"jsonChoice\">\n"
+		output += "D" + "\t" * indent + "R One of the following:\n"
+		for data in schema["oneOf"]:
+			output += convert_schema(data, page, references, name, indent)
+		output += "D" + "\t" * indent + "R </div>\n"
+		return output
+	
+	
+	
 	if name != "":
 		name += " "
 
@@ -56,7 +67,7 @@ def convert_schema(schema, page, references, name = "", indent = 1):
 	if "$ref" in schema:
 		ref_path = schema["$ref"].split("/")
 		# If we're referencing to a full file, and not just a sturcture, add a link in the document.
-		if len(ref_path) <= 1 or ref_path[-2] != "_structures":
+		if (len(ref_path) <= 1 or ref_path[-2] != "_structures") and ref_path[0] != "#":
 			reference = ref_path[-1].split(".")[0]
 			if not reference in references:
 				message = "More info... uhh dead link :( Fix me!"

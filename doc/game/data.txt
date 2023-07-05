@@ -291,3 +291,15 @@ E
 
 
 =========================================================================================================================================================================
+
+
+F	config.color_generators
+N	config/color_generators/*.json
+
+P	Defines a Color Generator. Color generators are used to determine which color should spawn next in the Shooter.
+DI	../../schemas/config/color_generator.json
+
+E
+
+
+=========================================================================================================================================================================
