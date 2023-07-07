@@ -26,6 +26,7 @@ function Shooter:new(data)
     self.color = 0
     self.nextColor = 0
     self.shotCooldown = nil
+    self.shotCooldownFade = nil
     self.speedShotSpeed = 0
     self.speedShotTime = 0
     self.speedShotAnim = 0
@@ -109,6 +110,14 @@ function Shooter:update(dt)
         self.shotCooldown = self.shotCooldown - dt
         if self.shotCooldown <= 0 then
             self.shotCooldown = nil
+            self.shotCooldownFade = self.config.shotCooldownFade
+        end
+    end
+    -- shot cooldown fade
+    if self.shotCooldownFade then
+        self.shotCooldownFade = self.shotCooldownFade - dt
+        if self.shotCooldownFade <= 0 then
+            self.shotCooldownFade = nil
         end
     end
 
@@ -192,7 +201,7 @@ end
 ---Swaps this and next sphere colors with each other, if possible.
 function Shooter:swapColors()
     -- we must be careful not to swap the spheres when they're absent
-    if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or not self:getSphereConfig().interchangeable then
+    if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or self.shotCooldownFade or not self:getSphereConfig().interchangeable then
         return
     end
     local tmp = self.color
@@ -257,7 +266,7 @@ end
 ---Launches the current sphere, if possible.
 function Shooter:shoot()
     -- if nothing to shoot, it's pointless
-    if _Game.session.level.pause or not self:isActive() or self.color == 0 then
+    if _Game.session.level.pause or not self:isActive() or self.shotCooldownFade or self.color == 0 then
         return
     end
 
@@ -336,6 +345,7 @@ function Shooter:draw()
         self.sphereEntity:setPos(self:getSpherePos())
         self.sphereEntity:setAngle(self.angle)
         self.sphereEntity:setFrame(self:getSphereFrame())
+        self.sphereEntity:setAlpha(self:getSphereAlpha())
         self.sphereEntity:draw()
     end
     -- next color
@@ -573,6 +583,17 @@ function Shooter:getSphereFrame()
         return Vec2(math.floor(animationSpeed * _TotalTime), 1)
     end
     return Vec2(1)
+end
+
+
+
+---Returns the current sphere's transparency. Used in shot cooldown fade animation.
+---@return number
+function Shooter:getSphereAlpha()
+    if self.shotCooldownFade then
+        return 1 - (self.shotCooldownFade / self.config.shotCooldownFade)
+    end
+    return 1
 end
 
 

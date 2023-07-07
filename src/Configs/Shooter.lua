@@ -76,6 +76,8 @@ function ShooterConfig:new(data, path)
     self.speedShotParticle = data.speedShotParticle
     ---@type number
     self.shotCooldown = data.shotCooldown or 0
+    ---@type number
+    self.shotCooldownFade = data.shotCooldownFade or 0
     ---@type boolean
     self.multishot = data.multishot or false
     ---@type number

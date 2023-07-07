@@ -19,6 +19,7 @@ function SphereEntity:new(pos, color)
 	self.frame = Vec2(1)
 	self.colorM = Color()
 	self.color = color
+	self.alpha = 1
 
 	self.config = _Game.configManager.spheres[color]
 
@@ -83,6 +84,14 @@ end
 
 
 
+---Sets the alpha of this sphere entity. This does not affect any particles attached to it.
+---@param alpha number The transparency of this entity, from `0` (fully invisible) to `1` (fully visible).
+function SphereEntity:setAlpha(alpha)
+	self.alpha = alpha
+end
+
+
+
 ---Destroys this sphere entity.
 ---@param spawnParticle boolean? Whether to emit sphere destruction particles. Defaults to `true`.
 function SphereEntity:destroy(spawnParticle)
@@ -104,9 +113,9 @@ end
 ---@param shadow boolean? If set to `true`, the shadow of this entity will be drawn instead of the sphere itself.
 function SphereEntity:draw(shadow)
 	if shadow then
-		self.shadowSprite:draw(self.pos + Vec2(4), Vec2(0.5))
+		self.shadowSprite:draw(self.pos + Vec2(4), Vec2(0.5), nil, nil, self.angle, nil, self.alpha)
 	else
-		self.sprite:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM)
+		self.sprite:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM, self.alpha)
 	end
 end
 
