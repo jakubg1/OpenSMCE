@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root entry.",
+    "properties": {
+        "$schema": true,
+        "path": {
+            "$ref": "_structures/Sound.json",
+            "description": "The path to an audio file associated with this Sound Event. If not provided, this Sound Event will be silent."
+        },
+        "loop": {
+            "type": "boolean",
+            "description": "Whether the sample should loop."
+        },
+        "flat": {
+            "type": "boolean",
+            "description": "If set, the 3D positioning will be disabled for this Sound Event. This must be true for stereo sounds!",
+            "markdownDescription": "If set, the 3D positioning will be disabled for this Sound Event. This must be `true` for stereo sounds!"
+        },
+        "volume": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The base volume of the sound."
+        }
+    },
+    "required": [],
+    "additionalProperties": false
+}

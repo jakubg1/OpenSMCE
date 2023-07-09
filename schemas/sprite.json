@@ -1,0 +1,54 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root entry.",
+    "properties": {
+        "$schema": true,
+        "path": {
+            "$ref": "_structures/Image.json",
+            "description": "The path to an image associated with this Sprite."
+        },
+        "frame_size": {
+            "$ref": "_structures/Vector2.json",
+            "description": "The size of a single frame."
+        },
+        "states": {
+            "type": "array",
+            "description": "A list of possible states this Sprite could have.",
+            "items": {
+                "type": "object",
+                "description": "A single state.",
+                "properties": {
+                    "pos": {
+                        "$ref": "_structures/Vector2.json",
+                        "description": "The upper left position of this State's first frame."
+                    },
+                    "frames": {
+                        "$ref": "_structures/Vector2.json",
+                        "description": "The amount of frames this Sprite has. Each next frame is horizontally adjacent to the previous one, ascending towards right."
+                    }
+                },
+                "required": [
+                    "pos",
+                    "frames"
+                ]
+            }
+        },
+        "internal": {
+            "type": "boolean",
+            "description": "If set, the Sprite will directly load the image file from the given path. Otherwise, it will get an already loaded image. Set this when the referenced Image is outside of the images folder.",
+            "markdownDescription": "If set, the Sprite will directly load the image file from the given path. Otherwise, it will get an already loaded image. Set this when the referenced Image is outside of the `images` folder."
+        },
+        "batched": {
+            "type": "boolean",
+            "description": "Unused."
+        }
+    },
+    "required": [
+        "path",
+        "frame_size",
+        "states",
+        "internal"
+    ],
+    "additionalProperties": false
+}

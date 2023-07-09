@@ -5,15 +5,7 @@ F	index
 N	Main Page
 
 P	Welcome! This is work in progress!
-H2	What needs to be done:
-H3	Asset Files
-P	
-P	    Fonts
-P	    Particles
-P	    Sound Events
-P	    Sprites
-P	    UI Widgets
-P	    UI Widget Script
+H2	What needs to be done: Collectible Generators (properly), Fonts, Particles, UI stuff
 
 E
 
@@ -57,30 +49,6 @@ N	config.json
 P	Contains base game settings. This file is placed in the root game folder.
 P	Valid JSON structure inside this file is required for the Boot Screen to properly recognize the game. If you make a syntax error, the game will not be listed in the Boot Screen. Look in this file if your game suddenly disappears from the list!
 DI	../../schemas/config.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
-F	config.highscores
-N	config/highscores.json
-
-P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
-DI	../../schemas/config/highscores.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
-F	config.gameplay
-N	config/gameplay.json
-
-P	Defines behavior of various game elements.
-DI	../../schemas/config/gameplay.json
 
 E
 
@@ -187,59 +155,11 @@ E
 =========================================================================================================================================================================
 
 
-F	config.sphere_effects
-N	config/sphere_effects/*.json
+F	config.color_generators
+N	config/color_generators/*.json
 
-P	Defines all Sphere Effects in the game.
-P	A sphere effect can be applied to any sphere. After a certain time, spheres "infected" with a given effect will be destroyed.
-P	A sphere can also infect neighbors, if it has been configured to do so. Until the infection size gets to 0, the infection time is counted each time. When it gets to 0, the main destruction timer starts.
-P	When the sphere effect timer gets to 0, all spheres which have that same effect and were caused by the same sphere will be destroyed.
-DI	../../schemas/config/sphere_effect.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
-F	config.spheres
-N	config/spheres/sphere_*.json
-
-P	Defines all sphere types in the game.
-P	Each sphere is stored in a separate file, located in <i>config/spheres/sphere_*.json</i>, where the asterisk is your sphere ID.
-P	To add a new sphere, simply create a new file in the aforementioned folder, making sure that you name it correctly and the ID is unique.
-PS	A sphere ID must be an integer number. The numbers do not have to be continuous. Make sure you follow the following guidelines:
-R	<ol>
-R	<li>ID = 0 is reserved by the sphere pusher (e.g. a scarab).</li>
-R	<li>Negative IDs should be used for powerup balls (i.e. a fireball, dagger, color cloud, etc.).</li>
-R	<li>Positive IDs should be used for ordinary balls which spawn in the game.</li>
-PE	</ol>
-DI	../../schemas/config/sphere.json
-
-H2	Possible shoot behaviors | sphere_shoot_behavior
-P	<i>Debug information: this can be checked in Shooter:shoot().</i>
-DIE	../../schemas/config/sphere_shoot_behavior.json
-
-H2	Possible hit behaviors | sphere_hit_behavior
-P	<i>Debug information: this can be checked in ShotSphere:moveStep().</i>
-DIE	../../schemas/config/sphere_hit_behavior.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
-F	config.level_set
-N	config/level_set.json
-
-P	Contains information about level order and checkpoints.
-P	A checkpoint is a place, where the player can start a new game.
-DI	../../schemas/config/level_set.json
-
-H2	Possible level order entry types | level_set_entry
-P	<i>Debug information: this can be checked in Profile:getLevelName(), Profile:incrementLevel(), Profile:generateLevelID() and a number of other functions in Profile class.</i>
-DIE	../../schemas/config/level_set_entry.json
+P	Defines a Color Generator. Color generators are used to determine which color should spawn next in the Shooter.
+DI	../../schemas/config/color_generator.json
 
 E
 
@@ -284,11 +204,98 @@ E
 =========================================================================================================================================================================
 
 
-F	config.color_generators
-N	config/color_generators/*.json
+F	config.sphere_effects
+N	config/sphere_effects/*.json
 
-P	Defines a Color Generator. Color generators are used to determine which color should spawn next in the Shooter.
-DI	../../schemas/config/color_generator.json
+P	Defines all Sphere Effects in the game.
+P	A sphere effect can be applied to any sphere. After a certain time, spheres "infected" with a given effect will be destroyed.
+P	A sphere can also infect neighbors, if it has been configured to do so. Until the infection size gets to 0, the infection time is counted each time. When it gets to 0, the main destruction timer starts.
+P	When the sphere effect timer gets to 0, all spheres which have that same effect and were caused by the same sphere will be destroyed.
+DI	../../schemas/config/sphere_effect.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.spheres
+N	config/spheres/sphere_*.json
+
+P	Defines all sphere types in the game.
+P	Each sphere is stored in a separate file, located in <i>config/spheres/sphere_*.json</i>, where the asterisk is your sphere ID.
+P	To add a new sphere, simply create a new file in the aforementioned folder, making sure that you name it correctly and the ID is unique.
+PS	A sphere ID must be an integer number. The numbers do not have to be continuous. Make sure you follow the following guidelines:
+R	<ol>
+R	<li>ID = 0 is reserved by the sphere pusher (e.g. a scarab).</li>
+R	<li>Negative IDs should be used for powerup balls (i.e. a fireball, dagger, color cloud, etc.).</li>
+R	<li>Positive IDs should be used for ordinary balls which spawn in the game.</li>
+PE	</ol>
+DI	../../schemas/config/sphere.json
+
+H2	Possible shoot behaviors | sphere_shoot_behavior
+P	<i>Debug information: this can be checked in Shooter:shoot().</i>
+DIE	../../schemas/config/sphere_shoot_behavior.json
+
+H2	Possible hit behaviors | sphere_hit_behavior
+P	<i>Debug information: this can be checked in ShotSphere:moveStep().</i>
+DIE	../../schemas/config/sphere_hit_behavior.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.gameplay
+N	config/gameplay.json
+
+P	Defines behavior of various game elements.
+DI	../../schemas/config/gameplay.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.highscores
+N	config/highscores.json
+
+P	Contains default scoreboard settings. These are used when launching the game for the first time or when resetting the highscores manually.
+DI	../../schemas/config/highscores.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.hud_layer_order
+N	config/hud_layer_order.json
+
+P	This file lists all UI layers and the order in which they will be drawn, in order from the bottom to the top.
+P	All gameplay elements are rendered first and thus are displayed at the bottom, sometimes with a <i>MAIN</i> layer assigned.
+P	The first layer specified in this file should be <b>"MAIN"</b>!
+D	- (list) - A list of layers.
+D		- (string) - A single layer name.
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.level_set
+N	config/level_set.json
+
+P	Contains information about level order and checkpoints.
+P	A checkpoint is a place, where the player can start a new game.
+DI	../../schemas/config/level_set.json
+
+H2	Possible level order entry types | level_set_entry
+P	<i>Debug information: this can be checked in Profile:getLevelName(), Profile:incrementLevel(), Profile:generateLevelID() and a number of other functions in Profile class.</i>
+DIE	../../schemas/config/level_set_entry.json
 
 E
 
@@ -322,14 +329,11 @@ E
 =========================================================================================================================================================================
 
 
-F	config.hud_layer_order
-N	config/hud_layer_order.json
+F	map
+N	maps/*/config.json
 
-P	This file lists all UI layers and the order in which they will be drawn, in order from the bottom to the top.
-P	All gameplay elements are rendered first and thus are displayed at the bottom, sometimes with a <i>MAIN</i> layer assigned.
-P	The first layer specified in this file should be <b>"MAIN"</b>!
-D	- (list) - A list of layers.
-D		- (string) - A single layer name.
+P	This is the map configuration file. Defines the Map's name, paths and sprites.
+DI	../../schemas/map.json
 
 E
 
@@ -337,11 +341,23 @@ E
 =========================================================================================================================================================================
 
 
-F	map
-N	maps/*/config.json
+F	sound_event
+N	sound_events/*.json
 
-P	This is the map configuration file. Defines the Map's name, paths and sprites.
-DI	../../schemas/map.json
+P	Describes a Sound Event.
+DI	../../schemas/sound_event.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	sprite
+N	sprites/*.json
+
+P	Describes a Sprite.
+DI	../../schemas/sprite.json
 
 E
 
