@@ -1,0 +1,90 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root entry.",
+    "properties": {
+        "$schema": true,
+        "name": {
+            "type": "string",
+            "description": "The map name."
+        },
+        "paths": {
+            "type": "array",
+            "description": "A list of paths which are available on this map.",
+            "items": {
+                "type": "array",
+                "description": "A single path, which is a list of nodes.",
+                "items": {
+                    "type": "object",
+                    "description": "A single path node.",
+                    "properties": {
+                        "x": {
+                            "type": "number",
+                            "description": "The X position of this node."
+                        },
+                        "y": {
+                            "type": "number",
+                            "description": "The Y position of this node."
+                        },
+                        "hidden": {
+                            "type": "boolean",
+                            "description": "When set, the segment from this to next node will be hidden - the spheres will become darker, unshootable, and they will be rendered behind non-background sprites."
+                        },
+                        "warp": {
+                            "type": "boolean",
+                            "description": "When set, the spheres will instantly teleport to the next node once they reach this node."
+                        }
+                    },
+                    "required": [
+                        "x",
+                        "y"
+                    ]
+                }
+            }
+        },
+        "sprites": {
+            "type": "array",
+            "description": "A list of sprites to be drawn on this map.",
+            "items": {
+                "type": "object",
+                "description": "A single sprite.",
+                "properties": {
+                    "x": {
+                        "type": "number",
+                        "description": "The X position of this Sprite."
+                    },
+                    "y": {
+                        "type": "number",
+                        "description": "The Y position of this Sprite."
+                    },
+                    "path": {
+                        "$ref": "_structures/Sprite.json",
+                        "description": "The path to the Sprite to be displayed."
+                    },
+                    "internal": {
+                        "type": "boolean",
+                        "description": "When set, the path field will refer to this map's folder as the base directory. Otherwise, the base directory will be the root game folder.",
+                        "markdownDescription": "When set, the `path` field will refer to this map's folder as the base directory. Otherwise, the base directory will be the root game folder."
+                    },
+                    "background": {
+                        "type": "boolean",
+                        "description": "If set, this sprite will be rendered behind all spheres. Otherwise, it will be covering hidden spheres."
+                    }
+                },
+                "required": [
+                    "x",
+                    "y",
+                    "path",
+                    "internal",
+                    "background"
+                ]
+            }
+        }
+    },
+    "required": [
+        "name",
+        "paths",
+        "sprites"
+    ],
+    "additionalProperties": false
+}

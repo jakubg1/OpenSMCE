@@ -309,7 +309,7 @@ def main():
 			if l[0] == "-":
 				s = l[1:].split(" - ")
 				
-				description = s[1]
+				description = " - ".join(s[1:])
 				
 				s = s[0].split(" (")
 				

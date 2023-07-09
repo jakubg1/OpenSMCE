@@ -6,18 +6,9 @@ N	Main Page
 
 P	Welcome! This is work in progress!
 H2	What needs to be done:
-H3	Configuration Files
-P	
-P	    runtime.json
-P	    config/hud_layer_order.json
-P	    config/loadlist.json
-P	    config/music.json
-P	
 H3	Asset Files
 P	
 P	    Fonts
-P	    Levels
-P	    Maps
 P	    Particles
 P	    Sound Events
 P	    Sprites
@@ -298,6 +289,59 @@ N	config/color_generators/*.json
 
 P	Defines a Color Generator. Color generators are used to determine which color should spawn next in the Shooter.
 DI	../../schemas/config/color_generator.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.loadlist
+N	config/loadlist.json
+
+P	This file contains all assets necessary to be loaded in order to display the Splash Screen properly.
+P	All assets not mentioned here (except Color Palettes, which must be specified here!) will be loaded after the Splash Screen shows up and a <i>loadMain</i> UI script callback is executed.
+P	Try keeping the amount of assets listed in this file at a minimum!
+DI	../../schemas/config/loadlist.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.music
+N	config/music.json
+
+P	This file maps the soundtrack names to music files.
+D	- (object) - Key names are soundtrack names, and their corresponding values are paths to the music files.
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	config.hud_layer_order
+N	config/hud_layer_order.json
+
+P	This file lists all UI layers and the order in which they will be drawn, in order from the bottom to the top.
+P	All gameplay elements are rendered first and thus are displayed at the bottom, sometimes with a <i>MAIN</i> layer assigned.
+P	The first layer specified in this file should be <b>"MAIN"</b>!
+D	- (list) - A list of layers.
+D		- (string) - A single layer name.
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	map
+N	maps/*/config.json
+
+P	This is the map configuration file. Defines the Map's name, paths and sprites.
+DI	../../schemas/map.json
 
 E
 
