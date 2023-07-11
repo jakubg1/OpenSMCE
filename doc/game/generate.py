@@ -167,18 +167,6 @@ def main():
 	
 	data = contents.split("\n")
 	
-	type_assoc = {
-		"Font*": "str_font",
-		"ColorPalette*": "str_palette",
-		"Particle*": "str_particle",
-		"SoundEvent*": "str_sound",
-		"Music*": "str_music",
-		"Sprite*": "str_sprite",
-		"CollectibleGenerator*": "str_collectible_generator",
-		"Expression": "expression",
-		"Vector2": "vector2"
-	}
-	
 	
 	
 	# Pass 1: Gather page and reference names
@@ -323,9 +311,9 @@ def main():
 				page_content += "<li>"
 				
 				for type in types:
-					type_res = type
-					if type in type_assoc:
-						type_res = type_assoc[type]
+					type_res = type.lower()
+					if type_res[-1] == "*":
+						type_res = "str_" + type_res[:-1]
 					page_content += "<img class=\"type\" src=\"icons/" + type_res + ".png\" title=\"" + type + "\" width=\"16px\" height=\"16px\">"
 				
 				if len(name) == 0:

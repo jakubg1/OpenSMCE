@@ -1,0 +1,114 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "type": {
+            "enum": [
+                "image",
+                "truetype"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "The type of the spawn rules."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "image",
+                        "description": "An image will be used as a source for this Font."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "image": {
+                        "$ref": "_structures/Image.json",
+                        "description": "The image file containing all of the Font's characters."
+                    },
+                    "characters": {
+                        "type": "object",
+                        "description": "Defines all characters. Keys are single characters.",
+                        "patternProperties": {
+                            "^.*$": {
+                                "type": "object",
+                                "description": "A single character.",
+                                "properties": {
+                                    "offset": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "The horizontal offset where the character starts, in pixels."
+                                    },
+                                    "width": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "The width of this character, in pixels."
+                                    }
+                                },
+                                "required": [
+                                    "offset",
+                                    "width"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "image",
+                    "characters"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "truetype",
+                        "description": "A TTF file will be used as a source for this Font."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "path": {
+                        "$ref": "_structures/FontFile.json",
+                        "description": "A font file to be used for this Font."
+                    },
+                    "size": {
+                        "type": "integer",
+                        "description": "The size of this Font, in pixels."
+                    },
+                    "color": {
+                        "$ref": "_structures/Color.json",
+                        "description": "The color of this Font."
+                    }
+                },
+                "required": [
+                    "path",
+                    "size",
+                    "color"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}
