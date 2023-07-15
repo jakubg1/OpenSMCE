@@ -1,6 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "The root object.",
     "properties": {
         "$schema": true,
         "widget": {
@@ -8,6 +9,7 @@
             "description": "Describes a Widget which will represent this Node on the screen."
         },
         "children": {
+            "type": "object",
             "patternProperties": {
                 "^.*$": {
                     "$ref": "node_child.json",

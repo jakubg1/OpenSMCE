@@ -1,6 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "The UI widget.",
     "properties": {
         "type": {
             "enum": [
@@ -107,7 +108,7 @@
                             "rectangle",
                             "ellipse"
                         ],
-                        "description": "Defines the hitbox shape of this Button. Defaults to rectangle."
+                        "description": "Defines the hitbox shape of this Button. Defaults to `\"rectangle\"`."
                     },
                     "callbacks": {
                         "type": "object",
@@ -117,6 +118,7 @@
                                 "description": "A callback fired when this Button is pressed."
                             }
                         },
+                        "required": [],
                         "additionalProperties": false,
                         "description": "Defines the callbacks which should be fired on certain events."
                     }

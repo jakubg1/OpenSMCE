@@ -1,6 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
+    "description": "A timeline entry.",
     "properties": {
         "type": {
             "enum": [
@@ -71,7 +72,7 @@
                     "type": true,
                     "name": {
                         "type": "string",
-                        "name": "The name of the function, defined in the UI script."
+                        "description": "The name of the function, defined in the UI script."
                     }
                 },
                 "required": [
