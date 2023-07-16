@@ -142,6 +142,35 @@ function Expression:new(str)
 			local a = table.remove(stack)
 			table.insert(stack, Vec2(a, b))
 		end,
+		["sin"] = function(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.sin(a))
+		end,
+		["cos"] = function(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.cos(a))
+		end,
+		["tan"] = function(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.tan(a))
+		end,
+		["max"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.max(a,b))
+		end,
+		["min"] = function(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.min(a,b))
+		end,
+		-- clamp a, b, c where b is the lower bound and c is the upper bound
+		["clamp"] = function(stack)
+			local c = table.remove(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, math.min(math.max(a,b),c))
+		end,
 
 		-- Miscellaneous.
 		["get"] = function(stack)
