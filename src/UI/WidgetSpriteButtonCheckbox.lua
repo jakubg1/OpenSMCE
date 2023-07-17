@@ -27,7 +27,9 @@ end
 function UIWidgetSpriteButtonCheckbox:unclick()
 	if not self.button.clicked then return end
 	self.button:unclick()
-	self:setState(not self.state)
+	if self.button.hovered then
+		self:setState(not self.state)
+	end
 end
 
 function UIWidgetSpriteButtonCheckbox:keypressed(key)

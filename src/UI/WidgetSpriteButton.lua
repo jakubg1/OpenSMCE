@@ -32,7 +32,9 @@ end
 
 function UIWidgetSpriteButton:unclick()
 	if not self.clicked then return end
-	self.parent:executeAction("buttonClick")
+	if self.hovered then
+		self.parent:executeAction("buttonClick")
+	end
 	self.clicked = false
 end
 

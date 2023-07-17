@@ -147,7 +147,7 @@ function UI2WidgetSpriteButton:mousereleased(x, y, button)
 	if button ~= 1 or not self.clicked then
 		return
 	end
-	if self.callbacks.onClick then
+	if self.hovered and self.callbacks.onClick then
 		self.node.manager:executeCallback(self.callbacks.onClick)
 	end
 	self.clicked = false
