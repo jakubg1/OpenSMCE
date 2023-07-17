@@ -16,6 +16,7 @@ local Color = require("src.Essentials.Color")
 function SphereEntity:new(pos, color)
 	self.pos = pos
 	self.angle = 0
+	self.scale = Vec2(1)
 	self.frame = Vec2(1)
 	self.colorM = Color()
 	self.color = color
@@ -45,6 +46,14 @@ end
 ---@param angle number The angle in radians.
 function SphereEntity:setAngle(angle)
 	self.angle = angle
+end
+
+
+
+---Sets the size of the sphere entity. 1 is natural size.
+---@param scale number The new scale.
+function SphereEntity:setScale(scale)
+	self.scale = Vec2(scale)
 end
 
 
@@ -113,9 +122,9 @@ end
 ---@param shadow boolean? If set to `true`, the shadow of this entity will be drawn instead of the sphere itself.
 function SphereEntity:draw(shadow)
 	if shadow then
-		self.shadowSprite:draw(self.pos + Vec2(4), Vec2(0.5), nil, nil, self.angle, nil, self.alpha)
+		self.shadowSprite:draw(self.pos + Vec2(4), Vec2(0.5), nil, nil, self.angle, nil, self.alpha, self.scale)
 	else
-		self.sprite:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM, self.alpha)
+		self.sprite:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM, self.alpha, self.scale)
 	end
 end
 
