@@ -566,7 +566,7 @@ function SphereGroup:matchAndDelete(position)
 	local boostCombo = false
 	-- abort if any sphere from the given ones has not joined yet and see if we have to boost the combo
 	for i = position1, position2 do
-		if self.spheres[i].size < 1 then
+		if self.spheres[i].appendSize < 1 then
 			return
 		end
 		boostCombo = boostCombo or self.spheres[i].boostCombo
@@ -638,7 +638,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	local boostCombo = false
 	-- Abort if any sphere from the given ones has not joined yet and see if we have to boost the combo.
 	for i, sphere in ipairs(spheres) do
-		if sphere.size < 1 then
+		if sphere.appendSize < 1 then
 			return
 		end
 		boostCombo = boostCombo or sphere.boostCombo
@@ -816,7 +816,7 @@ function SphereGroup:getMatchPositions(position)
 		if not self.spheres[seekPosition] or not _Game.session:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition + 1].color) then
 			break
 		end
-		--if self.spheres[seekPosition].size < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
+		--if self.spheres[seekPosition].appendSize < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
 		table.insert(positions, seekPosition)
 	end
 	-- seek forwards
@@ -827,7 +827,7 @@ function SphereGroup:getMatchPositions(position)
 		if not self.spheres[seekPosition] or not _Game.session:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition - 1].color) then
 			break
 		end
-		--if self.spheres[seekPosition].size < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
+		--if self.spheres[seekPosition].appendSize < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
 		table.insert(positions, seekPosition)
 	end
 	return positions
@@ -974,7 +974,7 @@ end
 
 function SphereGroup:getFirstMatureSphere()
 	for i = 1, #self.spheres do
-		if self.spheres[i].size == 1 then
+		if self.spheres[i].appendSize == 1 then
 			return self.spheres[i]
 		end
 	end
@@ -984,7 +984,7 @@ end
 
 function SphereGroup:getLastMatureSphere()
 	for i = #self.spheres, 1, -1 do
-		if self.spheres[i].size == 1 then
+		if self.spheres[i].appendSize == 1 then
 			return self.spheres[i]
 		end
 	end
@@ -1072,7 +1072,7 @@ end
 
 
 function SphereGroup:getBackPos()
-	return self:getSphereOffset(1) - 32 * self.spheres[1].size + 16
+	return self:getSphereOffset(1) - 32 * self.spheres[1].appendSize + 16
 end
 
 
@@ -1101,7 +1101,7 @@ end
 
 function SphereGroup:hasShotSpheres()
 	for i, sphere in ipairs(self.spheres) do
-		if sphere.size < 1 then
+		if sphere.appendSize < 1 then
 			return true
 		end
 	end
@@ -1258,7 +1258,7 @@ function SphereGroup:deserialize(t)
 			self.spheres[i - 1].nextSphere = s
 		end
 		table.insert(self.spheres, s)
-		offset = offset + 32 * s.size
+		offset = offset + 32 * s.appendSize
 	end
 	self.matchCheck = t.matchCheck
 end

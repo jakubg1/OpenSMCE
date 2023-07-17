@@ -35,7 +35,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self:deserialize(deserializationTable)
 	else
 		self.color = color
-		self.size = 1
+		self.appendSize = 1
 		self.boostCombo = false
 		self.shootOrigin = nil
 		self.shootTime = nil
@@ -51,7 +51,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 	if shootOrigin then
 		self.shootOrigin = shootOrigin
 		self.shootTime = shootTime
-		self.size = 0
+		self.appendSize = 0
 	end
 
 	self.animationPrevOffset = self:getOffset()
@@ -74,10 +74,10 @@ end
 ---@param dt number Time delta in seconds.
 function Sphere:update(dt)
 	-- for spheres that are being added
-	if self.size < 1 then
-		self.size = self.size + dt / self.shootTime
-		if self.size >= 1 then
-			self.size = 1
+	if self.appendSize < 1 then
+		self.appendSize = self.appendSize + dt / self.shootTime
+		if self.appendSize >= 1 then
+			self.appendSize = 1
 			self.shootOrigin = nil
 			self.shootTime = nil
 			local index = self.sphereGroup:getSphereID(self)
@@ -162,7 +162,7 @@ end
 ---Recalculates the offset this Sphere has from the offset of the Sphere Group it belongs to.
 function Sphere:updateOffset()
 	-- calculate the offset
-	self.offset = self.prevSphere and self.prevSphere.offset + 32 * self.size or 0
+	self.offset = self.prevSphere and self.prevSphere.offset + 32 * self.appendSize or 0
 end
 
 
@@ -516,8 +516,8 @@ function Sphere:draw(color, hidden, shadow)
 	end
 
 	local pos = self:getPos()
-	if self.size < 1 then
-		pos = self.path:getPos(self:getOffset() + 32 - self.size * 32) * self.size + self.shootOrigin * (1 - self.size)
+	if self.appendSize < 1 then
+		pos = self.path:getPos(self:getOffset() + 32 - self.appendSize * 32) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
 	end
 
 	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
@@ -525,7 +525,7 @@ function Sphere:draw(color, hidden, shadow)
 	local frame = Vec2(1)
 	if self.config.spriteAnimationSpeed then
 		frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
-	elseif self.size == 1 then
+	elseif self.appendSize == 1 then
 		frame = Vec2(math.ceil(self.frameCount - self.animationFrame), 1)
 	end
 
@@ -546,8 +546,8 @@ function Sphere:draw(color, hidden, shadow)
 		end
 	end
 
-	if _Debug.sphereDebugVisible2 and self.size < 1 then
-		local p1 = _PosOnScreen(self.path:getPos(self:getOffset() + 32 - self.size * 32))
+	if _Debug.sphereDebugVisible2 and self.appendSize < 1 then
+		local p1 = _PosOnScreen(self.path:getPos(self:getOffset() + 32 - self.appendSize * 32))
 		local p2 = _PosOnScreen(self.shootOrigin)
 		love.graphics.setColor(1, 0.5, 0)
 		love.graphics.setLineWidth(3)
@@ -564,13 +564,13 @@ function Sphere:draw(color, hidden, shadow)
 	--	love.graphics.print(self:getEffectGroupID("match"), p.x, p.y + 20)
 	--end
 
-	--if not shadow and _Debug.sphereDebugVisible2 and self.size < 1 then
+	--if not shadow and _Debug.sphereDebugVisible2 and self.appendSize < 1 then
 	--	local p = _PosOnScreen(self:getPos())
 	--	local s = ""
 	--	s = s .. "offset: " .. tostring(self.offset) .. "\n"
 	--	s = s .. "getOffset(): " .. tostring(self:getOffset()) .. "\n"
-	--	s = s .. "size: " .. tostring(self.size) .. "\n"
-	--	s = s .. "\nResult: " .. tostring(self:getOffset() + 32 - self.size * 32)
+	--	s = s .. "appendSize: " .. tostring(self.appendSize) .. "\n"
+	--	s = s .. "\nResult: " .. tostring(self:getOffset() + 32 - self.appendSize * 32)
 	--	love.graphics.print(s, p.x, p.y + 20)
 	--end
 end
@@ -623,8 +623,8 @@ function Sphere:serialize()
 		ghostTime = self.ghostTime
 	}
 
-	if self.size ~= 1 then
-		t.size = self.size
+	if self.appendSize ~= 1 then
+		t.appendSize = self.appendSize
 	end
 	if self.boostCombo then
 		t.boostCombo = self.boostCombo
@@ -658,7 +658,7 @@ end
 function Sphere:deserialize(t)
 	self.color = t.color
 	--self.animationFrame = t.animationFrame
-	self.size = t.size or 1
+	self.appendSize = t.appendSize or 1
 	self.boostCombo = t.boostCombo or false
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
 	self.shootTime = t.shootTime
