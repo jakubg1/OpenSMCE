@@ -538,7 +538,7 @@ function Sphere:draw(color, hidden, shadow)
 
 	local pos = self:getPos()
 	if self.appendSize < 1 then
-		pos = self.path:getPos(self:getOffset() + 32 - self.appendSize * 32) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
+		pos = self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize)) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
 	end
 
 	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
@@ -569,7 +569,7 @@ function Sphere:draw(color, hidden, shadow)
 	end
 
 	if _Debug.sphereDebugVisible2 and self.appendSize < 1 then
-		local p1 = _PosOnScreen(self.path:getPos(self:getOffset() + 32 - self.appendSize * 32))
+		local p1 = _PosOnScreen(self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize)))
 		local p2 = _PosOnScreen(self.shootOrigin)
 		love.graphics.setColor(1, 0.5, 0)
 		love.graphics.setLineWidth(3)
