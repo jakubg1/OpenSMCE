@@ -276,7 +276,7 @@ function Shooter:shoot()
         _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos())
         _Game.session:destroyVerticalColor(self.pos.x, sphereConfig.shootBehavior.range, self.color)
     else
-        _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self.color, self:getShootingSpeed())
+        _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed())
         self.sphereEntity = nil
     end
     if sphereConfig.shootEffects then
@@ -344,6 +344,7 @@ function Shooter:draw()
     if self.sphereEntity then
         self.sphereEntity:setPos(self:getSpherePos())
         self.sphereEntity:setAngle(self.angle)
+        self.sphereEntity:setScale(self:getSphereSize() / 32)
         self.sphereEntity:setFrame(self:getSphereFrame())
         self.sphereEntity:setAlpha(self:getSphereAlpha())
         self.sphereEntity:draw()
@@ -524,6 +525,13 @@ end
 ---@return Vector2
 function Shooter:getSpherePos()
     return self.pos + self.config.ballPos:rotate(self.angle)
+end
+
+
+
+---Returns the diameter of the primary sphere.
+function Shooter:getSphereSize()
+    return self:getSphereConfig().size or 32
 end
 
 

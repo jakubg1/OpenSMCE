@@ -17,15 +17,17 @@ local SphereEntity = require("src.SphereEntity")
 ---@param shooter Shooter The shooter which this sphere has been shot from.
 ---@param pos Vector2 The inital position of this Shot Sphere.
 ---@param angle number The initial movement direction of this Shot Sphere, in radians. 0 is up.
+---@param size number The diameter of this Shot Sphere in pixels.
 ---@param color integer The color of this Shot Sphere.
 ---@param speed number The initial speed of this Shot Sphere.
-function ShotSphere:new(deserializationTable, shooter, pos, angle, color, speed)
+function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, speed)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
 		self.shooter = shooter
 		self.pos = pos
 		self.angle = angle
+		self.size = size
 		self.steps = 0
 		self.color = color
 		self.speed = speed
@@ -89,7 +91,7 @@ function ShotSphere:moveStep()
 
 	-- add if there's a sphere nearby
 	local nearestSphere = _Game.session:getNearestSphere(self.pos)
-	if nearestSphere.dist and nearestSphere.dist < 32 then
+	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.size) / 2 then
 		-- If hit sphere is fragile, destroy the fragile spheres instead of hitting.
 		if nearestSphere.sphere:isFragile() then
 			nearestSphere.sphere:matchEffectFragile()
@@ -132,7 +134,7 @@ function ShotSphere:moveStep()
 					p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
 				else
 					-- the inserted ball IS at the end of the group
-					local o = self.hitSphere.sphereGroup:getLastSphereOffset() + 32
+					local o = self.hitSphere.sphereGroup:getLastSphereOffset() + (self.size + self.hitSphere.sphere.size) / 2
 					p = self.hitSphere.path:getPos(o)
 				end
 				-- calculate length from the current position
@@ -162,7 +164,8 @@ end
 ---Returns whether this Shot Sphere is outside of the board.
 ---@return boolean
 function ShotSphere:isOutsideBoard()
-	return self.pos.x < -16 or self.pos.x > _Game:getNativeResolution().x + 16 or self.pos.y < -16 or self.pos.y > _Game:getNativeResolution().y + 16
+	local s = self.size / 2
+	return self.pos.x < -s or self.pos.x > _Game:getNativeResolution().x + s or self.pos.y < -s or self.pos.y > _Game:getNativeResolution().y + s
 end
 
 
@@ -240,7 +243,7 @@ function ShotSphere:drawDebug()
 		if nearestSphere.dist and nearestSphere.dist < 32 then
 			love.graphics.setLineWidth(3)
 			local p = _PosOnScreen(nearestSphere.pos)
-			love.graphics.circle("line", p.x, p.y, 16 * _GetResolutionScale())
+			love.graphics.circle("line", p.x, p.y, self.size / 2 * _GetResolutionScale())
 			break
 		end
 	end
@@ -262,6 +265,7 @@ function ShotSphere:serialize()
 	local t = {
 		pos = {x = self.pos.x, y = self.pos.y},
 		angle = self.angle,
+		size = self.size,
 		color = self.color,
 		speed = self.speed,
 		steps = self.steps,
@@ -289,6 +293,7 @@ end
 function ShotSphere:deserialize(t)
 	self.pos = Vec2(t.pos.x, t.pos.y)
 	self.angle = t.angle
+	self.size = t.size
 	self.color = t.color
 	self.speed = t.speed
 	self.steps = t.steps

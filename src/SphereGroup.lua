@@ -229,7 +229,10 @@ function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects
 	end
 	-- if it's a first sphere in the group, lower the offset
 	if position == 1 then
-		self.offset = self.offset - 32
+		self.offset = self.offset - sphere.size / 2
+		if nextSphere then
+			self.offset = self.offset - nextSphere.size / 2
+		end
 		self:updateSphereOffsets()
 	end
 	sphere:updateOffset()
@@ -250,9 +253,13 @@ end
 function SphereGroup:destroySphere(position, crushed)
 	-- no need to divide if it's the first or last sphere in this group
 	if position == 1 then
+		-- Shift the group offset to the next sphere. It might not exist.
+		self.offset = self.offset + self.spheres[position].size / 2
+		if self.spheres[position + 1] then
+			self.offset = self.offset + self.spheres[position + 1].size / 2
+		end
 		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
-		self.offset = self.offset + 32
 		self:updateSphereOffsets()
 		self:checkUnfinishedDestructionAtSpawn()
 	elseif position == #self.spheres then
@@ -283,11 +290,15 @@ function SphereGroup:destroySpheres(position1, position2)
 
 	-- check if it's on the beginning or on the end of the group
 	if position1 == 1 then
+		-- Shift the group offset to the next sphere. It might not exist.
+		self.offset = self.offset + self.spheres[position2].size / 2
+		if self.spheres[position2 + 1] then
+			self.offset = self.offset + self.spheres[position2 + 1].size / 2
+		end
 		for i = 1, position2 do
 			self.spheres[1]:delete()
 			table.remove(self.spheres, 1)
 		end
-		self.offset = self.offset + position2 * 32
 		self:updateSphereOffsets()
 		self:checkUnfinishedDestructionAtSpawn()
 	elseif position2 == #self.spheres then -- or maybe on the end?
@@ -801,6 +812,9 @@ function SphereGroup:drawDebug()
 	local pos = _PosOnScreen(self.sphereChain.path:getPos(self:getBackPos()))
 	love.graphics.setColor(1, 0.5, 0)
 	love.graphics.circle("fill", pos.x, pos.y, 6)
+	local pos = _PosOnScreen(self.sphereChain.path:getPos(self.offset))
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.circle("fill", pos.x, pos.y, 4)
 end
 
 
@@ -998,6 +1012,12 @@ end
 
 
 
+function SphereGroup:getSphereSize(sphereID)
+	return self.spheres[sphereID]:getSize()
+end
+
+
+
 function SphereGroup:getSphereID(sphere)
 	for i, sphereT in ipairs(self.spheres) do
 		if sphereT == sphere then
@@ -1010,6 +1030,12 @@ end
 
 function SphereGroup:getLastSphereOffset()
 	return self:getSphereOffset(#self.spheres)
+end
+
+
+
+function SphereGroup:getLastSphereSize()
+	return self:getSphereSize(#self.spheres)
 end
 
 
@@ -1066,13 +1092,13 @@ end
 
 
 function SphereGroup:getFrontPos()
-	return self:getLastSphereOffset() + 16
+	return self:getLastSphereOffset() + self:getLastSphereSize() / 2
 end
 
 
 
 function SphereGroup:getBackPos()
-	return self:getSphereOffset(1) - 32 * self.spheres[1].appendSize + 16
+	return self:getSphereOffset(1) - self:getSphereSize(1) + self.spheres[1].size / 2
 end
 
 
@@ -1258,9 +1284,9 @@ function SphereGroup:deserialize(t)
 			self.spheres[i - 1].nextSphere = s
 		end
 		table.insert(self.spheres, s)
-		offset = offset + 32 * s.appendSize
 	end
 	self.matchCheck = t.matchCheck
+	self:updateSphereOffsets()
 end
 
 

@@ -162,7 +162,7 @@ end
 ---Recalculates the offset this Sphere has from the offset of the Sphere Group it belongs to.
 function Sphere:updateOffset()
 	-- calculate the offset
-	self.offset = self.prevSphere and self.prevSphere.offset + 32 * self.appendSize or 0
+	self.offset = self.prevSphere and self.prevSphere.offset + self:getPrevSeparation() or 0
 end
 
 
@@ -481,6 +481,27 @@ end
 
 
 
+---Returns the diameter of this Sphere, in pixels. This includes the normal Sphere size, its appending and path scaling.
+function Sphere:getSize()
+	return self.size * self.appendSize
+end
+
+
+
+---Returns the separation this Sphere should have compared to its previous sphere. If there's no previous sphere, this returns 0.
+function Sphere:getPrevSeparation()
+	if not self.prevSphere then
+		return 0
+	end
+	if not self.prevSphere.prevSphere then
+		-- This is a correction for spheres being appended at the back. They are instantly correctly aligned, so no need to counter it here.
+		return (self:getSize() + self.prevSphere.size) / 2
+	end
+	return (self:getSize() + self.prevSphere:getSize()) / 2
+end
+
+
+
 ---Returns `true` if this Sphere is near a path node flagged as hidden. This will make it impossible to shoot at.
 ---@return boolean
 function Sphere:getHidden()
@@ -534,6 +555,7 @@ function Sphere:draw(color, hidden, shadow)
 	-- Update the entity position.
 	self.entity:setPos(pos)
 	self.entity:setAngle(angle)
+	self.entity:setScale(self.size / 32)
 	self.entity:setFrame(frame)
 	self.entity:setColorM(colorM)
 
@@ -582,8 +604,8 @@ function Sphere:loadConfig()
 	self.config = _Game.configManager.spheres[self.color]
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 	-- TODO/DEPRECATED: Remove default value
-	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
 	self.frameCount = self.sprite.states[1].frameCount.x
+	self.size = self.config.size or 32
 end
 
 

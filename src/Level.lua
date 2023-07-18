@@ -845,10 +845,11 @@ end
 ---@param shooter Shooter The shooter which has shot the sphere.
 ---@param pos Vector2 Where the Shot Sphere should be spawned at.
 ---@param angle number Which direction the Shot Sphere should be moving, in radians. 0 is up.
+---@param size number The diameter of the Shot Sphere, in pixels.
 ---@param color integer The sphere ID to be shot.
 ---@param speed number The sphere speed.
-function Level:spawnShotSphere(shooter, pos, angle, color, speed)
-	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, color, speed))
+function Level:spawnShotSphere(shooter, pos, angle, size, color, speed)
+	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, size, color, speed))
 end
 
 

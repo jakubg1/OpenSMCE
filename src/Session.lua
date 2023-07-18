@@ -405,12 +405,12 @@ function Session:getNearestSphereOnLine(pos, angle)
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
 					local spherePos = sphereGroup:getSpherePos(l)
+					local sphereSize = sphereGroup:getSphereSize(l)
 					local sphereAngle = sphereGroup:getSphereAngle(l)
 					local sphereHidden = sphereGroup:getSphereHidden(l)
 
-					-- 16 is half of the sphere size
 					local sphereTargetCPos = (spherePos - pos):rotate(-angle) + pos
-					local sphereTargetY = sphereTargetCPos.y + math.sqrt(math.pow(16, 2) - math.pow(pos.x - sphereTargetCPos.x, 2))
+					local sphereTargetY = sphereTargetCPos.y + math.sqrt(math.pow(sphereSize / 2, 2) - math.pow(pos.x - sphereTargetCPos.x, 2))
 					local sphereTargetPos = (Vec2(pos.x, sphereTargetY) - pos):rotate(angle) + pos
 					local sphereDist = Vec2(pos.x - sphereTargetCPos.x, pos.y - sphereTargetY)
 
@@ -418,7 +418,7 @@ function Session:getNearestSphereOnLine(pos, angle)
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
 					-- if closer than the closest for now, save it
-					if not sphere:isGhost() and not sphereHidden and math.abs(sphereDist.x) <= 16 and sphereDist.y >= 0 and (not nearestData.dist or sphereDist.y < nearestData.dist.y) then
+					if not sphere:isGhost() and not sphereHidden and math.abs(sphereDist.x) <= sphereSize / 2 and sphereDist.y >= 0 and (not nearestData.dist or sphereDist.y < nearestData.dist.y) then
 						nearestData.path = path
 						nearestData.sphereChain = sphereChain
 						nearestData.sphereGroup = sphereGroup

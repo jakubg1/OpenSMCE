@@ -23,6 +23,11 @@
             "minimum": 0,
             "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 1."
         },
+        "size": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "The diameter of this sphere, in pixels. The sprite will be resized if needed."
+        },
         "idleParticle": {
             "$ref": "../_structures/Particle.json",
             "description": "A persistent particle packet used when the sphere is on the board."
