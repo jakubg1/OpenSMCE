@@ -26,6 +26,11 @@
                             "type": "number",
                             "description": "The Y position of this node."
                         },
+                        "scale": {
+                            "type": "number",
+                            "exclusiveMinimum": 0,
+                            "description": "The scale of spheres on this node. Defaults to 1."
+                        },
                         "hidden": {
                             "type": "boolean",
                             "description": "When set, the segment from this to next node will be hidden - the spheres will become darker, unshootable, and they will be rendered behind non-background sprites."

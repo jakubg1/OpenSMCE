@@ -481,9 +481,17 @@ end
 
 
 
+---Returns the current scale of this Sphere, taking only path into the account.
+---@return number
+function Sphere:getScale()
+	return self.path:getScale(self:getOffset())
+end
+
+
+
 ---Returns the diameter of this Sphere, in pixels. This includes the normal Sphere size, its appending and path scaling.
 function Sphere:getSize()
-	return self.size * self.appendSize
+	return self.size * self.appendSize * self:getScale()
 end
 
 
@@ -543,6 +551,8 @@ function Sphere:draw(color, hidden, shadow)
 
 	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
 
+	local scale = self:getScale() * self.size / 32
+
 	local frame = Vec2(1)
 	if self.config.spriteAnimationSpeed then
 		frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
@@ -555,7 +565,7 @@ function Sphere:draw(color, hidden, shadow)
 	-- Update the entity position.
 	self.entity:setPos(pos)
 	self.entity:setAngle(angle)
-	self.entity:setScale(self.size / 32)
+	self.entity:setScale(scale)
 	self.entity:setFrame(frame)
 	self.entity:setColorM(colorM)
 

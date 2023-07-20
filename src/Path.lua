@@ -29,7 +29,7 @@ function Path:new(map, pathData, pathBehavior)
 
 	local nodes = {}
 	for i, node in ipairs(pathData) do
-		nodes[i] = {pos = Vec2(node.x, node.y), hidden = node.hidden, warp = node.warp}
+		nodes[i] = {pos = Vec2(node.x, node.y), scale = node.scale or 1, hidden = node.hidden, warp = node.warp}
 	end
 
 	self.colors = pathBehavior.colors
@@ -83,7 +83,7 @@ function Path:prepareNodes(nodes)
 			if angle2 then angle = angle2 else angle = 0 end
 		end
 		angle = (angle + math.pi / 2) % (math.pi * 2)
-		self.nodes[i] = {pos = node.pos, hidden = node.hidden, warp = node.warp, length = length, angle = angle}
+		self.nodes[i] = {pos = node.pos, scale = node.scale, hidden = node.hidden, warp = node.warp, length = length, angle = angle}
 
 		-- brightnesses stuff
 		if node.hidden then
@@ -533,6 +533,26 @@ function Path:getAngle(pixels)
 		end
 	end
 	return (p2 - p1):angle() + math.pi / 2
+end
+
+
+
+---Returns the scale of the spheres at the given offset of this Path.
+---@param pixels number The path offset to be considered, in pixels.
+---@return number
+function Path:getScale(pixels)
+	local nodeID, remainder = self:getNodeID(pixels)
+	if nodeID == 0 then
+		return self.nodes[1].scale
+	elseif nodeID > #self.nodes then
+		return self.nodes[#self.nodes].scale
+	end
+	local part = remainder / self.nodes[nodeID].length
+	---@type Vector2
+	local p1 = self.nodes[nodeID].scale
+	---@type Vector2
+	local p2 = self.nodes[nodeID + 1].scale
+	return p1 * (1 - part) + p2 * part
 end
 
 
