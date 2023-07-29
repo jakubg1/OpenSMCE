@@ -13,6 +13,11 @@
             "description": "A shadow sprite to be drawn along the sphere. Defaults to sprites/game/ball_shadow.json.",
             "markdownDescription": "A shadow sprite to be drawn along the sphere.\nDefaults to `sprites/game/ball_shadow.json`."
         },
+        "shadowOffset": {
+            "$ref": "../_structures/Vector2.json",
+            "description": "The offset of the shadow sprite, compared to the base sprite. Defaults to (4, 4).",
+            "markdownDescription": "The offset of the shadow sprite, compared to the base sprite. Defaults to `(4, 4)`."
+        },
         "spriteAnimationSpeed": {
             "type": "number",
             "minimum": 0,

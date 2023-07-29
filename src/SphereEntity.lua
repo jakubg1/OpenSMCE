@@ -23,6 +23,7 @@ function SphereEntity:new(pos, color)
 	self.alpha = 1
 
 	self.config = _Game.configManager.spheres[color]
+	self.config.shadowOffset = _ParseVec2(self.config.shadowOffset) or Vec2(4)
 
 	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
@@ -79,6 +80,7 @@ end
 function SphereEntity:setColor(color)
 	self.color = color
 	self.config = _Game.configManager.spheres[color]
+	self.config.shadowOffset = _ParseVec2(self.config.shadowOffset) or Vec2(4)
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 
 	-- Particle stuff
@@ -122,7 +124,7 @@ end
 ---@param shadow boolean? If set to `true`, the shadow of this entity will be drawn instead of the sphere itself.
 function SphereEntity:draw(shadow)
 	if shadow then
-		self.shadowSprite:draw(self.pos + Vec2(4), Vec2(0.5), nil, nil, self.angle, nil, self.alpha, self.scale)
+		self.shadowSprite:draw(self.pos + self.config.shadowOffset, Vec2(0.5), nil, nil, self.angle, nil, self.alpha, self.scale)
 	else
 		self.sprite:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM, self.alpha, self.scale)
 	end
