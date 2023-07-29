@@ -161,8 +161,15 @@ end
 
 ---Recalculates the offset this Sphere has from the offset of the Sphere Group it belongs to.
 function Sphere:updateOffset()
-	-- calculate the offset
-	self.offset = self.prevSphere and self.prevSphere.offset + self:getPrevSeparation() or 0
+	-- The offset calculation is performed using the scale on the current offset (before recalculation),
+	-- which can be far away from the new point (a new group starts with all spheres having offset = 0).
+	-- Since making a solver for all possible scenarios wouldn't be feasible,
+	-- we'll do with just reiterating a few times, to bring the inaccuracy down enough.
+
+	-- TODO: Pointless on certain paths. Might optimize this down at some point.
+	for i = 1, 4 do
+		self.offset = self.prevSphere and self.prevSphere.offset + self:getPrevSeparation() or 0
+	end
 end
 
 
