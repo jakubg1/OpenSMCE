@@ -14,7 +14,7 @@
         {
             "properties": {
                 "type": {
-                    "description": "The type of the spawn rules."
+                    "description": "The font type."
                 }
             }
         },
@@ -23,7 +23,7 @@
                 "properties": {
                     "type": {
                         "const": "image",
-                        "description": "An image will be used as a source for this Font."
+                        "description": "The font loads glyphs from an image file. All characters must be placed in a single row."
                     }
                 },
                 "required": [
@@ -34,12 +34,15 @@
                 "properties": {
                     "type": true,
                     "image": {
-                        "$ref": "_structures/Image.json",
-                        "description": "The image file containing all of the Font's characters."
+                        "$ref": "../_structures/Image.json",
+                        "description": "The path to an Image which contains the characters."
                     },
                     "characters": {
                         "type": "object",
-                        "description": "Defines all characters. Keys are single characters.",
+                        "description": "Contains all characters this Font consists of. Key names are single characters.",
+                        "propertyNames": {
+                            "pattern": "^.$"
+                        },
                         "patternProperties": {
                             "^.*$": {
                                 "type": "object",
@@ -48,12 +51,12 @@
                                     "offset": {
                                         "type": "integer",
                                         "minimum": 0,
-                                        "description": "The horizontal offset where the character starts, in pixels."
+                                        "description": "The X offset of the image where the character starts, in pixels."
                                     },
                                     "width": {
                                         "type": "integer",
                                         "minimum": 0,
-                                        "description": "The width of this character, in pixels."
+                                        "description": "The width of the character, in pixels."
                                     }
                                 },
                                 "required": [
@@ -76,7 +79,7 @@
                 "properties": {
                     "type": {
                         "const": "truetype",
-                        "description": "A TTF file will be used as a source for this Font."
+                        "description": "The font loads glyphs from a TTF file."
                     }
                 },
                 "required": [
@@ -87,15 +90,16 @@
                 "properties": {
                     "type": true,
                     "path": {
-                        "$ref": "_structures/FontFile.json",
-                        "description": "A font file to be used for this Font."
+                        "$ref": "../_structures/FontFile.json",
+                        "description": "The path to a TTF font file which contains the characters."
                     },
                     "size": {
                         "type": "integer",
-                        "description": "The size of this Font, in pixels."
+                        "exclusiveMaximum": 0,
+                        "description": "The size of the Font, in pixels."
                     },
                     "color": {
-                        "$ref": "_structures/Color.json",
+                        "$ref": "../_structures/Color.json",
                         "description": "The color of this Font."
                     }
                 },

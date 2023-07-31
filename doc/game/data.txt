@@ -381,6 +381,7 @@ F	font
 N	fonts/*.json
 
 P	Defines a single Font.
+P	There are two distinct ways to create Fonts. You can use a TTF file, or you can create an image file with all the characters. The former is easier to set up, but the latter gives you more control over the design of the characters and takes up less space on disk.
 DIE	../../schemas/font.json
 
 E
@@ -394,6 +395,25 @@ N	maps/*/config.json
 
 P	This is the map configuration file. Defines the Map's name, paths and sprites.
 DI	../../schemas/map.json
+
+E
+
+
+=========================================================================================================================================================================
+
+
+F	particle
+N	particles/*.json
+
+P	Defines a single Particle Packet.
+P	A single Particle Packet is a packet of Particle Spawners (also called Emitters), each of which spawning a certain number of Particles themselves.
+PS	There are two types of Particle Packets:
+R	<ul>
+R	<li><b>One-time particle packets</b> spawn particles which eventually despawn. An example of such packet is a ball destroy particle or an extra life particle.</li>
+R	<li><b>Persistent particle packets</b> feature at least one Particle Spawner which stays active indefinitely or produces particles which stay indefinitely on the screen. The governing object must explicitly destroy them in order to get rid of them. They can also be moved around, unlike one-time packets. Examples of such packets are powerups and the shooter particle on the stage map.</li>
+PE	</ul>
+
+DI	../../schemas/particle.json
 
 E
 

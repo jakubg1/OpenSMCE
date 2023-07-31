@@ -1,0 +1,166 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "array",
+    "description": "The root object.",
+    "items": {
+        "type": "object",
+        "description": "A single Particle Spawner.",
+        "properties": {
+            "$schema": true,
+            "pos": {
+                "$ref": "_structures/Vector2.json",
+                "description": "The initial position of the Emitter, relative to wherever the packet has been spawned."
+            },
+            "speed": {
+                "$ref": "_structures/Vector2.json",
+                "description": "The initial acceleration of the Emitter."
+            },
+            "acceleration": {
+                "$ref": "_structures/Vector2.json",
+                "description": "The acceleration of the Emitter."
+            },
+            "lifespan": {
+                "type": "number",
+                "minimum": 0,
+                "description": "How many seconds the Emitter should exist. If left out, this Emitter will never despawn and the entire Particle Packet will be a persistent packet."
+            },
+            "spawnCount": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "How many Particles will this Emitter spawn at start."
+            },
+            "spawnMax": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "How many Particles spawned by this Emitter can be on the screen at once."
+            },
+            "spawnDelay": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Time between the consecutive particle spawns, in seconds. If not specified, this Emitter will never spawn any particles after its initial burst."
+            },
+            "particleData": {
+                "type": "object",
+                "description": "Data applied to every single particle spawned by this Emitter.",
+                "properties": {
+                    "speedMode": {
+                        "type": "string",
+                        "description": "Defines how the speed calculations are performed on this Particle.",
+                        "oneOf": [
+                            {
+                                "const": "loose",
+                                "description": "The particles move freely, like normal particles, not bound to anything."
+                            },
+                            {
+                                "const": "radius",
+                                "description": "Almost same as above, except the initial speed is multiplied by the particle offset relative to the emitter, at least -spawnScale and at most spawnScale.",
+                                "markdownDescription": "Almost same as above, except the initial speed is multiplied by the particle offset relative to the emitter, at least `-spawnScale` and at most `spawnScale`."
+                            },
+                            {
+                                "const": "circle",
+                                "description": "The particles are moving along a circle. The speed and acceleration fields become numbers."
+                            }
+                        ]
+                    },
+                    "spawnScale": {
+                        "$ref": "_structures/Vector2.json",
+                        "description": "The particle will be spawned at a random angle on an ellipse of these perihellium and aphellium."
+                    },
+                    "speed": {
+                        "$ref": "_structures/Vector2.json",
+                        "description": "The initial speed of the particle, in pixels per second. If speedMode is set to \"circle\", this is a number and the unit is radians per second.",
+                        "markdownDescription": "The initial speed of the particle, in pixels per second. If `speedMode` is set to `\"circle\"`, this is a number and the unit is radians per second."
+                    },
+                    "acceleration": {
+                        "$ref": "_structures/Vector2.json",
+                        "description": "The acceleration rate of the particle, in pixels per second. If speedMode is set to \"circle\", this is a number and the unit is radians per second.",
+                        "markdownDescription": "The acceleration rate of the particle, in pixels per second. If `speedMode` is set to `\"circle\"`, this is a number and the unit is radians per second."
+                    },
+                    "lifespan": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "How many seconds the particle should exist. If left out, it will persist indefinitely."
+                    },
+                    "sprite": {
+                        "$ref": "_structures/Sprite.json",
+                        "description": "Path to the Sprite which should represent this Particle."
+                    },
+                    "animationFrameCount": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "How many frames are in the animation."
+                    },
+                    "animationSpeed": {
+                        "type": "number",
+                        "description": "Speed of the animation, in frames per second."
+                    },
+                    "animationLoop": {
+                        "type": "boolean",
+                        "description": "If set, the animation will loop. Otherwise, it will stop on the last frame."
+                    },
+                    "animationFrameRandom": {
+                        "type": "boolean",
+                        "description": "If set, the initial animation frame will be picked at random from all possible frames. Otherwise, it will always start from the first frame."
+                    },
+                    "fadeInPoint": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Percentage of the particle's lifespan, until which the particle's alpha will be linearly interpolated from 0 to 1. Set to 0 if you want it to be fully visible right from the beginning."
+                    },
+                    "fadeOutPoint": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Percentage of the particle's lifespan, from which the particle's alpha will be linearly decreasing from 1 to 0. Set to 1 if you want it to be fully visible until the very end."
+                    },
+                    "posRelative": {
+                        "type": "boolean",
+                        "description": "If set, the particle will move along with its spawner."
+                    },
+                    "colorPalette": {
+                        "$ref": "_structures/ColorPalette.json",
+                        "description": "Path to the Color Palette, if the particle will be tinted."
+                    },
+                    "colorPaletteSpeed": {
+                        "type": "number",
+                        "description": "The speed of the Color Palette animation, in pixels per second."
+                    },
+                    "directionDeviationTime": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "The delay before directional deviation kicks in."
+                    },
+                    "directionDeviationSpeed": {
+                        "$ref": "_structures/Vector2.json",
+                        "description": "The speed of directional deviation, in radians per second. This will rotate the particle's speed vector."
+                    }
+                },
+                "required": [
+                    "speedMode",
+                    "spawnScale",
+                    "speed",
+                    "acceleration",
+                    "sprite",
+                    "animationFrameCount",
+                    "animationSpeed",
+                    "animationLoop",
+                    "animationFrameRandom",
+                    "fadeInPoint",
+                    "fadeOutPoint",
+                    "posRelative"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "required": [
+            "pos",
+            "speed",
+            "acceleration",
+            "spawnCount",
+            "spawnMax",
+            "particleData"
+        ],
+        "additionalProperties": false
+    }
+}
