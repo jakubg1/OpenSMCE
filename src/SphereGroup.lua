@@ -229,9 +229,9 @@ function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects
 	end
 	-- if it's a first sphere in the group, lower the offset
 	if position == 1 then
-		self.offset = self.offset - sphere:getSize() / 2
+		self.offset = self.offset - sphere:getDesiredSize() / 2
 		if nextSphere then
-			self.offset = self.offset - nextSphere:getSize() / 2
+			self.offset = self.offset - nextSphere:getDesiredSize() / 2
 		end
 		self:updateSphereOffsets()
 	end

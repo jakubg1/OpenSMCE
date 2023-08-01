@@ -497,8 +497,15 @@ end
 
 
 ---Returns the diameter of this Sphere, in pixels. This includes the normal Sphere size, its appending and path scaling.
+---@return number
 function Sphere:getSize()
 	return self.size * self.appendSize * self:getScale()
+end
+
+---Same as `sphere:getSize()`, but will not include the appending size.
+---@return number
+function Sphere:getDesiredSize()
+	return self.size * self:getScale()
 end
 
 
