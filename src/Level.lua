@@ -76,6 +76,9 @@ end
 ---Updates the Level's logic.
 ---@param dt number Delta time in seconds.
 function Level:updateLogic(dt)
+	-- Objectives
+	self:updateObjectives()
+
 	self.map:update(dt)
 	self.shooter:update(dt)
 
@@ -175,11 +178,6 @@ function Level:updateLogic(dt)
 	if self.started and not self.controlDelay and not self:getFinish() and not self.finish and not self.lost then
 		self.time = self.time + dt
 	end
-
-
-
-	-- Objectives
-	self:updateObjectives()
 
 
 
