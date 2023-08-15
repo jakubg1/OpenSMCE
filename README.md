@@ -100,11 +100,13 @@ LICENSE
 ```
 
 ## Documentation
-Both code and game documentation are currently work in progress.
+Code documentation is done by LDoc annotations in source files which are parsed and displayed in Visual Studio Code. Not all classes have been documented yet. See contribution guidelines for more info.
 
-Code documentation is done by LDoc annotations in source files which are parsed and displayed in Visual Studio Code. See contribution guidelines for more info.
+Game documentation can be found in `doc/game`. Data for the documentation is stored in `doc/game/data.txt` in a pseudo-language called Doc Language, and all structures and descriptions are sourced from schemas, found in the `schemas` folder.
+The `doc/game/generate.py` script reads the `doc/game/data.txt` file, loads appropriate schemas and converts them to the Doc Language. The intermediate state of this data is printed to the console. Then, the generator takes pure Doc Language data and converts it into HTML code. This code is stored as HTML pages in the `doc/game` directory.
 
-Game documentation is done in the form of schemas - there are only a few structures documented, but this will be built upon in the future.
+You may notice there are already generated HTML files in this directory - they're outdated files. I don't know yet whether to move the game documentation to a separate repository or to just gitignore the files. Please do not use the outdated documentation, and generate a new set of files instead.
+You must have Python 3.x installed on your system in order to run the documentation generator.
 
 
 
