@@ -1,4 +1,4 @@
-import json
+import os, json
 
 
 
@@ -169,7 +169,7 @@ def convert_schema_enum(schema, page, references):
 
 
 
-def main():
+def process_data():
 	file = open("data.txt", "r")
 	contents = file.read()
 	file.close()
@@ -365,9 +365,293 @@ def main():
 		
 		elif line[0] == "PE":
 			page_content += line[1] + "</p>"
+
+
+
+# Finds all pairs of Markdown. Kinda dodgy because it's not extensively used. Available pairs are `code`, *italic*, **bold** and ***bold italic***.
+# Returns a list of text segments with a formatting field.
+def markdown_find(text):
+	styles = {
+		"`": "code",
+		"*": "italic",
+		"**": "bold",
+		"***": "bold_italic"
+	}
+
+	out = []
+	search_index = 0
+	while search_index < len(text):
+		# Find nearest spell.
+		nearest_index = None
+		nearest_index_end = None
+		nearest_style = None
+		nearest_spell_length = None
+		for mark in styles:
+			spell = mark # " " + mark
+			find_index = search_index
+			# There may not be a space just after the spell. But we gotta crack on until we're sure absolutely nothing matches the spell.
+			while (find_index != -1 and len(text) < find_index + len(spell) - 2 and text[find_index + len(spell)] == " ") or find_index == search_index:
+				find_index = text.find(spell, find_index + 1)
+			# If we haven't found anything, OR we've already found something closer, move on to the next style.
+			if find_index == -1 or (nearest_index != None and nearest_index < find_index):
+				continue
+			# But wait! There's more! We need to make sure there is a closing spell as well.
+			closing_spell = mark # mark + " "
+			closing_find_index = find_index
+			# This time we're looking for a lack of space BEFORE the closing spell.
+			while (closing_find_index != -1 and text[closing_find_index - 1] == " ") or closing_find_index == find_index:
+				closing_find_index = text.find(closing_spell, closing_find_index + 1)
+			# Found one? Great! Store the index.
+			if closing_find_index != -1:
+				nearest_index = find_index
+				nearest_index_end = closing_find_index
+				nearest_style = styles[mark]
+				nearest_spell_length = len(spell)
+		# If no spell has been found, that's the end. Make sure to store the rest!
+		if nearest_index == None:
+			out.append({"text": text[search_index:], "style": "default"})
+			break
+		# Otherwise, we move on!
+		# Store everything before the mark as raw text.
+		out.append({"text": text[search_index:nearest_index], "style": "default"})
+		# Now, store everything enclosed in the mark.
+		out.append({"text": text[nearest_index+nearest_spell_length:nearest_index_end], "style": nearest_style})
+		# Update the search index.
+		search_index = nearest_index_end + nearest_spell_length
 	
+	return out
+
+
+
+# Strips all Markdown that can be detected via markdown_find.
+def markdown_strip(text):
+	out = ""
+	compound = markdown_find(text)
+	for element in compound:
+		out += element["text"]
+	return out
+
+
+
+def docl_parse(data):
+	out = {}
+	current_children = []
+
+	lines = data.split("\n")
+	for line in lines:
+		line_out = {}
+
+		# 4 spaces = one indent.
+		line = line.replace("    ", "\t")
+		# Count indents and remove indentation.
+		indent = 0
+		line = line.split("\t")
+		while indent < len(line) - 1 and line[indent] == "":
+			indent += 1
+		line = line[indent]
+		# Extract the description.
+		line = line.split(" - ")
+		if len(line) > 1:
+			line_out["description"] = " - ".join(line[1:])
+		# Extract tokens.
+		line = line[0].split(" ")
+		# Skip all lines not starting with -.
+		if line[0] != "-":
+			continue
+
+		# Go through the tokens, recognize them and fill in the data.
+		curly = False
+		for i in range(1, len(line)):
+			token = line[i]
+			# If we're parsing the curly brace part.
+			if curly:
+				if token[-1] == "}":
+					line_out["keyconst_description"] += token[:-1]
+					curly = False
+				else:
+					line_out["keyconst_description"] += token + " "
+				continue
+
+			# Otherwise, just parse the token as normal.
+			if token[0] == "(" and token[-1] == ")": # (type)
+				line_out["type"] = token[1:-1]
+			elif token[0] == "[" and token[-1] == "]": # [constraints]
+				line_out["constraints"] = token[1:-1].split(",")
+			elif token[0] == "\"" and token[-1] == "\"": # "const"
+				line_out["const"] = token[1:-1]
+			elif token[:2] == "<<" and token[-2:] == ">>": # <<regex>>
+				line_out["regex"] = token[2:-2]
+			elif token[0] == "{" and token[-1] == ":": # {keyconst: keyconst_description}
+				# This is a special token. Because descriptions have spaces, we collect all tokens until the closing brace is found.
+				line_out["keyconst"] = token[1:-1]
+				line_out["keyconst_description"] = ""
+				curly = True
+			else: # name
+				line_out["name"] = token
+		
+		# Insert the processed line as a child.
+		if indent == 0:
+			out = line_out
+		else:
+			parent = current_children[indent - 1]
+			if "children" in parent:
+				parent["children"].append(line_out)
+			else:
+				parent["children"] = [line_out]
+		
+		# Update children.
+		if len(current_children) > indent:
+			current_children[indent] = line_out
+		elif len(current_children) == indent:
+			current_children.append(line_out)
+		else:
+			pass # Throw an error - double indent.
 	
+	return out
+
+
+
+def docl_convert_entry(entry, is_root = True):
+	constraints = {
+		">=": "minimum",
+		">": "exclusiveMinimum",
+		"<=": "maximum",
+		"<": "exclusiveMaximum"
+	}
+
+	out = {}
+
+	# The root object has a schema as well.
+	if is_root:
+		out["$schema"] = "http://json-schema.org/draft-07/schema"
+	# Carry the type over.
+	if "type" in entry:
+		out["type"] = entry["type"]
+	elif "const" in entry:
+		out["const"] = entry["const"]
+	else:
+		# Non-typed and non-const values means that any value will suffice. This is depicted as true.
+		return True
 	
+	# Carry the description as well.
+	if "description" in entry:
+		stripped_description = markdown_strip(entry["description"])
+		out["description"] = stripped_description
+		# If we lost some Markdown, make sure to preserve it via an additional field.
+		if stripped_description != entry["description"]:
+			out["markdownDescription"] = entry["description"]
+
+	# The rest depends on the type.
+	if "type" in entry:
+		if entry["type"] == "object":
+			if "regex" in entry:
+				# So-called "Regex Object".
+				out["propertyNames"] = {"pattern": entry["regex"]}
+				out["patternProperties"] = {}
+				# As with arrays, we care about only one child.
+				out["patternProperties"]["^.*$"] = docl_convert_entry(entry["children"][0], False)
+			elif "keyconst" in entry:
+				# So-called "Enum Object".
+				key = entry["keyconst"]
+				out["properties"] = {key: {"enum": []}}
+				out["allOf"] = [{"properties": {key: {"description": entry["keyconst_description"]}}}]
+				if "children" in entry:
+					for child in entry["children"]:
+						child_block = {}
+						# We can't really hook up a call to itself here, because children of this child would get involved and mess things up.
+						child_block["if"] = {"properties": {key: {"const": child["const"], "description": child["description"]}}, "required": [key]}
+						# Now similar stuff to regular objects. Shenanigans incoming!!!
+						# Adding an array as a child at the front with an asterisk ensures that it will come first, display as True and won't show up as required twice.
+						child_block["then"] = docl_convert_entry({"type": "object", "children": [{"name": key + "*"}] + child["children"]}, False)
+						del child_block["then"]["type"]
+						# Add prepared blocks.
+						out["allOf"].append(child_block)
+						out["properties"][key]["enum"].append(child["const"])
+				out["required"] = [key]
+			else:
+				out["properties"] = {}
+				out["required"] = []
+				out["additionalProperties"] = False
+				if is_root:
+					out["properties"]["$schema"] = True
+				if "children" in entry:
+					for child in entry["children"]:
+						name = child["name"]
+						# Names ending with an asterisk depict optional properties.
+						if name[-1] == "*":
+							name = name[:-1]
+						else:
+							out["required"].append(name)
+						out["properties"][name] = docl_convert_entry(child, False)
+		elif entry["type"] == "array":
+			# Nothing more, nothing less, exactly ONE nameless child must be here.
+			out["items"] = docl_convert_entry(entry["children"][0], False)
+		elif entry["type"] == "number" or entry["type"] == "integer":
+			# Check constraints.
+			if "constraints" in entry:
+				for constraint in entry["constraints"]:
+					for prefix in constraints:
+						if constraint.startswith(prefix):
+							number = float(constraint[len(prefix):])
+							if entry["type"] == "integer":
+								number = int(number)
+							out[constraints[prefix]] = number
+							break
+		# Prepare enums.
+		if entry["type"] == "string" or entry["type"] == "number" or entry["type"] == "integer":
+			if "children" in entry:
+				out["oneOf"] = []
+				for child in entry["children"]:
+					out["oneOf"].append(docl_convert_entry(child, False))
+	
+	return out
+
+
+
+def docl_to_schema(data):
+	data = docl_parse(data)
+	return docl_convert_entry(data)
+
+
+
+def docl_convert_file(path_in, path_out):
+	file = open(path_in, "r")
+	contents = file.read()
+	file.close()
+	new_contents = json.dumps(docl_to_schema(contents), indent = 4)
+	file = open(path_out, "w")
+	file.write(new_contents)
+	file.close()
+
+
+
+# Converts all .docl files in data folder to the corresponding schemas.
+def docl_all_to_schemas():
+	for r, d, f in os.walk("data"):
+		for directory in d:
+			for r, d, f in os.walk("data/" + directory):
+				for file in f:
+					if not file.endswith(".docl"):
+						continue
+					path_in = "data/" + directory + "/" + file
+					path_out = "../../schemas/" + directory + "/" + file[:-5] + ".json"
+					print(path_in + " -> " + path_out)
+					docl_convert_file(path_in, path_out)
+
+
+
+def docl_test():
+	file = open("data2.txt", "r")
+	contents = file.read()
+	file.close()
+	print(json.dumps(docl_to_schema(contents), indent = 4))
+
+
+
+def main():
+	#docl_test()
+	docl_all_to_schemas()
+	#process_data()
 	print("Done")
 	input()
 

@@ -6,8 +6,8 @@
         "$schema": true,
         "size": {
             "type": "integer",
-            "minimum": 1,
-            "description": "How many entries should be stored in a single highscore list."
+            "description": "How many entries should be stored in a single highscore list.",
+            "minimum": 1
         },
         "defaultScores": {
             "type": "array",
@@ -23,8 +23,8 @@
                     },
                     "score": {
                         "type": "integer",
-                        "minimum": 0,
-                        "description": "How much points the player has scored."
+                        "description": "How much points the player has scored.",
+                        "minimum": 0
                     },
                     "level": {
                         "type": "string",

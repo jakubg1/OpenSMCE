@@ -1,0 +1,7 @@
+- (object) - The root entry.
+    - size (integer) [>=1] - How many entries should be stored in a single highscore list.
+    - defaultScores (array) - Contains default highscore entries. The length of this list should be the same as the value of `size` field.
+        - (object) - A highscore entry.
+            - name (string) - A player name which should be displayed.
+            - score (integer) [>=0] - How much points the player has scored.
+            - level (string) - The level on which the player has ended their game.
