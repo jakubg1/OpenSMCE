@@ -30,7 +30,7 @@ function VersionManager:new(path)
 
 	-- Check the current newest version.
   _Log:printt("VersionManager", "Checking the newest version...")
-  _GetNewestVersionThreaded(function(version) self:updateNewestVersion(version) end)
+  _GetNewestVersionThreaded(self.updateNewestVersion, self)
 end
 
 

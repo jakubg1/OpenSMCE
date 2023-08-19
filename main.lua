@@ -266,8 +266,10 @@ end
 ---Checks online and executes a function with the newest engine version tag available (i.e. `v0.47.0`) as an argument or `nil` on failure (for example, when you go offline).
 ---Threaded version: non-blocking call.
 ---@param onFinish function A function which will be called once the checking process is finished. A version argument is passed.
-function _GetNewestVersionThreaded(onFinish)
+---@param caller any? An optional instance of any class on which the function will be executed. Useful if you don't want to create anonymous functions.
+function _GetNewestVersionThreaded(onFinish, caller)
 	_Network:getThreaded("https://api.github.com/repos/jakubg1/OpenSMCE/tags", false, function(result)
+		local version = nil
 		if result.code == 200 and result.body then
 			-- Trim everything before the first square bracket.
 			while result.body:sub(1, 1) ~= "[" do
@@ -278,9 +280,12 @@ function _GetNewestVersionThreaded(onFinish)
 				result.body = result.body:sub(1, -2)
 			end
 			result.body = json.decode(result.body)
-			onFinish(result.body[1].name)
+			version = result.body[1].name
+		end
+		if caller then
+			onFinish(caller, version)
 		else
-			onFinish(nil)
+			onFinish(version)
 		end
 	end)
 end
