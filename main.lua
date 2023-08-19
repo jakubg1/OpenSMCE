@@ -250,15 +250,35 @@ end
 
 
 
----Checks online and returns the newest engine version tag available (i.e. `v0.47.0`). Returns `nil` on failure (for example, when you go offline).
+---Used internally as a common part of `_GetNewestVersion` and `_GetNewestVersionThreaded`.
+---Don't call this function directly. Instead, use one of the aforementioned functions.
+---@see _GetNewestVersion
+---@see _GetNewestVersionThreaded
+---@param result table HTTPS request result.
 ---@return string?
-function _GetNewestVersion()
-	local result = _Network:get("https://api.github.com/repos/jakubg1/OpenSMCE/tags")
+function _ParseNewestVersion(result)
 	if result.code == 200 and result.body then
+		-- Trim everything before the first square bracket.
+		while result.body:sub(1, 1) ~= "[" do
+			result.body = result.body:sub(2)
+		end
+		-- And everything after the last square bracket.
+		while result.body:sub(-1) ~= "]" do
+			result.body = result.body:sub(1, -2)
+		end
 		result.body = json.decode(result.body)
 		return result.body[1].name
 	end
 	return nil
+end
+
+
+
+---Checks online and returns the newest engine version tag available (i.e. `v0.47.0`). Returns `nil` on failure (for example, when you go offline).
+---@return string?
+function _GetNewestVersion()
+	local result = _Network:get("https://api.github.com/repos/jakubg1/OpenSMCE/tags")
+	return _ParseNewestVersion(result)
 end
 
 
@@ -269,23 +289,10 @@ end
 ---@param caller any? An optional instance of any class on which the function will be executed. Useful if you don't want to create anonymous functions.
 function _GetNewestVersionThreaded(onFinish, caller)
 	_Network:getThreaded("https://api.github.com/repos/jakubg1/OpenSMCE/tags", false, function(result)
-		local version = nil
-		if result.code == 200 and result.body then
-			-- Trim everything before the first square bracket.
-			while result.body:sub(1, 1) ~= "[" do
-				result.body = result.body:sub(2)
-			end
-			-- And everything after the last square bracket.
-			while result.body:sub(-1) ~= "]" do
-				result.body = result.body:sub(1, -2)
-			end
-			result.body = json.decode(result.body)
-			version = result.body[1].name
-		end
 		if caller then
-			onFinish(caller, version)
+			onFinish(caller, _ParseNewestVersion(result))
 		else
-			onFinish(version)
+			onFinish(_ParseNewestVersion(result))
 		end
 	end)
 end
