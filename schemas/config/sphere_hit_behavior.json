@@ -76,8 +76,8 @@
                     "type": true,
                     "range": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "How close the spheres must be from the center in order to be destroyed, in pixels."
+                        "description": "How close the spheres must be from the center in order to be destroyed, in pixels.",
+                        "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [
@@ -103,8 +103,8 @@
                     "type": true,
                     "range": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "How close the spheres must be from the center in order to have their color changed, in pixels."
+                        "description": "How close the spheres must be from the center in order to have their color changed, in pixels.",
+                        "exclusiveMinimum": 0.0
                     },
                     "color": {
                         "type": "integer",

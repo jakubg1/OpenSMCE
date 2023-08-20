@@ -1,0 +1,18 @@
+- (object) {type: The type of the level entry.} - A single level entry.
+    - "level" - A single level to be played.
+        - level (integer) - A single level ID to be loaded and played.
+        - name (string) - A level name.
+        - unlockCheckpointsOnBeat* (array) - If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
+            - (integer) - A single checkpoint to be unlocked after this entry has been completed.
+    - "randomizer" - A group of levels to be played in random order.
+        - pool (array) - A list of level IDs to be chosen from.
+            - (integer) - A single level ID.
+        - names (array) - A list of level names. It is not shuffled, and this list should have the same length as the `count` field.
+            - (string) - A single level name.
+        - count (integer) [>=1] - How many levels are to be picked from the pool.
+        - mode (string) - How the levels will be randomized.
+            - "repeat" - Every next level is simply drawn at random from the list.
+            - "noRepeat" - Same as above, but an entry is removed from the pool once it's been picked. Requires the pool size to be greater or equal to the `count` field.
+            - "order" - Chooses entries from the pool at random without changing their order. Requires the pool size to be greater or equal to the `count` field.
+        - unlockCheckpointsOnBeat* (array) - If specified, after beating this entry, checkpoints with IDs corresponding to numbers in this list will be unlocked.
+            - (integer) - A single checkpoint to be unlocked after this entry has been completed.

@@ -34,7 +34,7 @@
                 "properties": {
                     "type": true,
                     "image": {
-                        "$ref": "../_structures/Image.json",
+                        "$ref": "_structures/Image.json",
                         "description": "The path to an Image which contains the characters."
                     },
                     "characters": {
@@ -50,19 +50,20 @@
                                 "properties": {
                                     "offset": {
                                         "type": "integer",
-                                        "minimum": 0,
-                                        "description": "The X offset of the image where the character starts, in pixels."
+                                        "description": "The X offset of the image where the character starts, in pixels.",
+                                        "minimum": 0
                                     },
                                     "width": {
                                         "type": "integer",
-                                        "minimum": 0,
-                                        "description": "The width of the character, in pixels."
+                                        "description": "The width of the character, in pixels.",
+                                        "minimum": 0
                                     }
                                 },
                                 "required": [
                                     "offset",
                                     "width"
-                                ]
+                                ],
+                                "additionalProperties": false
                             }
                         }
                     }
@@ -90,16 +91,16 @@
                 "properties": {
                     "type": true,
                     "path": {
-                        "$ref": "../_structures/FontFile.json",
+                        "$ref": "_structures/FontFile.json",
                         "description": "The path to a TTF font file which contains the characters."
                     },
                     "size": {
                         "type": "integer",
-                        "exclusiveMaximum": 0,
-                        "description": "The size of the Font, in pixels."
+                        "description": "The size of the Font, in pixels.",
+                        "exclusiveMinimum": 0
                     },
                     "color": {
-                        "$ref": "../_structures/Color.json",
+                        "$ref": "_structures/Color.json",
                         "description": "The color of this Font."
                     }
                 },

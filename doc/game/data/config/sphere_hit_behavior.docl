@@ -1,0 +1,11 @@
+- (object) {type: A sphere hit behavior type.} - A sphere hit behavior.
+    - "normal" - The sphere gets appended to the sphere train where it landed.
+    - "destroySphere" - If the sphere hits a matching sphere, both spheres get destroyed. Else, nothing happens and the sphere flies on until another sphere is hit.
+    - "fireball" - The sphere gets destroyed and destroys the matching spheres around.
+        - range (number) [>0] - How close the spheres must be from the center in order to be destroyed, in pixels.
+    - "colorCloud" - The sphere gets destroyed and changes the color of the matching spheres around.
+        - range (number) [>0] - How close the spheres must be from the center in order to have their color changed, in pixels.
+        - color (integer) - Which color the spheres will be changed to.
+    - "replaceColor" - The sphere gets destroyed and changes all spheres of a hit sphere's color to the specified color.
+        - particle (Particle) - A one-time particle packet launched for all affected spheres.
+        - color (integer) - Which color the spheres will be changed to.

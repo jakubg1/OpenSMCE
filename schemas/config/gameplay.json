@@ -10,23 +10,23 @@
             "properties": {
                 "controlDelay": {
                     "type": "number",
-                    "minimum": 0,
-                    "description": "Time between launching the first spheres in a level and the shooter activation in seconds."
+                    "description": "Time between launching the first spheres in a level and the shooter activation in seconds.",
+                    "minimum": 0.0
                 },
                 "finishDelay": {
                     "type": "number",
-                    "minimum": 0,
-                    "description": "Time between considering the level complete (win condition met and empty board) and releasing the first bonus scarab."
+                    "description": "Time between considering the level complete (win condition met and empty board) and releasing the first bonus scarab.",
+                    "minimum": 0.0
                 },
                 "bonusDelay": {
                     "type": "number",
-                    "minimum": 0,
-                    "description": "Time between each consecutive bonus scarab launch in multi-path levels in seconds."
+                    "description": "Time between each consecutive bonus scarab launch in multi-path levels in seconds.",
+                    "minimum": 0.0
                 },
                 "wonDelay": {
                     "type": "number",
-                    "minimum": 0,
-                    "description": "Time between the last bonus scarab destruction and considering the level fully won."
+                    "description": "Time between the last bonus scarab destruction and considering the level fully won.",
+                    "minimum": 0.0
                 }
             },
             "required": [
@@ -71,22 +71,22 @@
                 },
                 "attractionSpeedBase": {
                     "type": "number",
-                    "description": "Base maximum attraction speed of groups of like color being attracted together.",
+                    "description": "Maximum attraction speed of groups of like color being attracted together.\nThis and attractionSpeedMult form a final value together using this expression: attractionSpeedBase + max(1, chain) * attractionSpeedMult.",
                     "markdownDescription": "Maximum attraction speed of groups of like color being attracted together.\nThis and `attractionSpeedMult` form a final value together using this expression: `attractionSpeedBase + max(1, chain) * attractionSpeedMult`."
                 },
                 "attractionSpeedMult": {
                     "type": "number",
-                    "description": "The maximum attraction speed multiplier, multiplied by the chain combo value",
+                    "description": "The second value used in the formula. For description look at attractionSpeedBase.",
                     "markdownDescription": "The second value used in the formula. For description look at `attractionSpeedBase`."
                 },
                 "knockbackSpeedBase": {
                     "type": "number",
-                    "description": "Base speed induced when a group of spheres crashes into another sphere group behind it.",
+                    "description": "Speed induced when a group of spheres crashes into another sphere group behind it.\nThis and knockbackSpeedMult form a final value together using this expression: knockbackSpeedBase + max(1, chain) * knockbackSpeedMult.",
                     "markdownDescription": "Speed induced when a group of spheres crashes into another sphere group behind it.\nThis and `knockbackSpeedMult` form a final value together using this expression: `knockbackSpeedBase + max(1, chain) * knockbackSpeedMult`."
                 },
                 "knockbackSpeedMult": {
                     "type": "number",
-                    "description": "The multiplier, multiplied by the chain combo value, of a speed induced when a group of spheres crashes into another sphere group behind it.",
+                    "description": "The second value used in the formula. For description look at knockbackSpeedBase.",
                     "markdownDescription": "The second value used in the formula. For description look at `knockbackSpeedBase`."
                 },
                 "knockbackTime": {
@@ -185,19 +185,19 @@
                 },
                 "stepLength": {
                     "type": "number",
-                    "exclusiveMinimum": 0,
-                    "description": "The length of a single segment, which gives points.",
-                    "markdownDescription": "The length of a single segment, which gives points. The formula defining how many points are given is as follows: `max(floor(distance / stepLength), 1) * pointsPerStep`."
+                    "description": "The length of a single segment, which gives points. The formula defining how many points are given is as follows: max(floor(distance / stepLength), 1) * pointsPerStep.",
+                    "markdownDescription": "The length of a single segment, which gives points. The formula defining how many points are given is as follows: `max(floor(distance / stepLength), 1) * pointsPerStep`.",
+                    "exclusiveMinimum": 0.0
                 },
                 "pointsPerStep": {
-                    "type": "number",
-                    "minimum": 0,
-                    "description": "How many points are given for each step. The bonus score will be always a multiple of this value."
+                    "type": "integer",
+                    "description": "How many points are given for each step. The bonus score will be always a multiple of this value.",
+                    "minimum": 0
                 },
                 "coinDistance": {
                     "type": "number",
-                    "exclusiveMinimum": 0,
-                    "description": "The delay between generating collectibles. If omitted, the Bonus Scarab will not spawn any collectibles."
+                    "description": "The delay between generating collectibles. If omitted, the Bonus Scarab will not spawn any collectibles.",
+                    "exclusiveMinimum": 0.0
                 },
                 "coinGenerator": {
                     "$ref": "../_structures/CollectibleGenerator.json",
@@ -205,8 +205,8 @@
                 },
                 "speed": {
                     "type": "number",
-                    "exclusiveMinimum": 0,
-                    "description": "How fast does the Bonus Scarab move, in pixels per second."
+                    "description": "How fast does the Bonus Scarab move, in pixels per second.",
+                    "exclusiveMinimum": 0.0
                 },
                 "trailParticle": {
                     "$ref": "../_structures/Particle.json",
@@ -214,9 +214,9 @@
                 },
                 "trailParticleDistance": {
                     "type": "number",
-                    "exclusiveMinimum": 0,
                     "description": "Every how many pixels a specified particle will spawn. May not exist if trailParticle is not specified.",
-                    "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified."
+                    "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified.",
+                    "exclusiveMinimum": 0.0
                 },
                 "loopSound": {
                     "$ref": "../_structures/SoundEvent.json",
@@ -265,19 +265,19 @@
                     "description": "The shadow sprite to be used by the Scorpion."
                 },
                 "maxSpheres": {
-                    "type": "number",
-                    "exclusiveMinimum": 0,
-                    "description": "The maximum amount of spheres the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected."
+                    "type": "integer",
+                    "description": "The maximum amount of spheres the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.",
+                    "exclusiveMinimum": 0
                 },
                 "maxChains": {
-                    "type": "number",
-                    "exclusiveMinimum": 0,
-                    "description": "The maximum amount of chains the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected."
+                    "type": "integer",
+                    "description": "The maximum amount of chains the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.",
+                    "exclusiveMinimum": 0
                 },
                 "speed": {
                     "type": "number",
-                    "exclusiveMinimum": 0,
-                    "description": "How fast does the Scorpion move, in pixels per second."
+                    "description": "How fast does the Scorpion move, in pixels per second.",
+                    "exclusiveMinimum": 0.0
                 },
                 "trailParticle": {
                     "$ref": "../_structures/Particle.json",
@@ -285,9 +285,9 @@
                 },
                 "trailParticleDistance": {
                     "type": "number",
-                    "exclusiveMinimum": 0,
                     "description": "Every how many pixels a specified particle will spawn. May not exist if trailParticle is not specified.",
-                    "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified."
+                    "markdownDescription": "Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified.",
+                    "exclusiveMinimum": 0.0
                 },
                 "loopSound": {
                     "$ref": "../_structures/SoundEvent.json",

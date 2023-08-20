@@ -1,0 +1,8 @@
+- (object) - The root object.
+    - widget* ($widget) - Describes a Widget which will represent this Node on the screen.
+    - children* (object) - Defines any Nodes which will be parented to this Node, keyed by their names.
+        - ($node_child) - A single child layout or Node.
+    - pos* (Vector2) - Defines the starting position of this Node. Defaults to `(0, 0)`.
+    - scale* (Vector2) - Defines the scale of this Node. Defaults to `(1, 1)`.
+    - alpha* (number) [>=0,<=1] - Defines the starting alpha (transparency) value of this Node. Defaults to `1` (fully opaque).
+    - layer* (string) - The layer this Widget should be drawn on. Inherited from parents if not specified. If no parents are found, defaults to `"MAIN"`.

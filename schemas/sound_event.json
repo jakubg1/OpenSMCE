@@ -19,10 +19,9 @@
         },
         "volume": {
             "type": "number",
-            "minimum": 0,
-            "description": "The base volume of the sound."
+            "description": "The base volume of the sound.",
+            "minimum": 0.0
         }
     },
-    "required": [],
     "additionalProperties": false
 }

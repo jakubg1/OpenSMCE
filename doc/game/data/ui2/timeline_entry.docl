@@ -1,0 +1,9 @@
+- (object) {type: A Timeline Entry type.} - A timeline entry.
+    - "playAnimation" - Plays an Animation on a Node.
+        - node (string) - Path to the Node which will be animated.
+        - animation (string) - The Animation to be played.
+        - waitUntilFinished* (boolean) - If set to `true`, the Timeline will wait until this animation has been finished before proceeding to next entries.
+    - "executeCallback" - Executes a function of that name defined in the UI script.
+        - name (string) - The name of the function, defined in the UI script.
+    - "wait" - Stops the execution of this Timeline for a given amount of time.
+        - time (number) [>0] - The time to wait, in seconds.

@@ -1,0 +1,31 @@
+- (object) - The root object.
+    - map (string) - The map name. Specifically, the name of the folder in the `maps` folder of the game.
+    - music (Music) - Which soundtrack should be played throughout the level.
+    - dangerMusic* (Music) - Which soundtrack should be played during the danger phase.
+    - ambientMusic* (Music) - Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks.
+    - colorGeneratorNormal (ColorGenerator) - The Color Generator used to generate colors for the shooter throughout this level.
+    - colorGeneratorDanger (ColorGenerator) - The Color Generator used to generate colors for the shooter when in danger.
+    - shooter* (object) - Defines the Shooter. If not present, the shooter named `default` will be used along with its default movement.
+        - name (Shooter) - Which Shooter will be used for this level.
+        - movement* ($shooter_movement) - If defined, overrides the default movement of this Shooter.
+    - matchEffect (SphereEffect) - The Sphere Effect to be used during normal matches for this level. Whenever a match is made, spheres are inflicted with this effect.
+    - objectives (array) - A list of objectives. All of them must be fulfilled in order to complete the level.
+        - (object) - A single objective.
+            - type (string) - The objective type.
+                - "destroyedSpheres" - The target describes how many spheres have to be removed from the board.
+                - "timeElapsed" - The target describes how many seconds the level has to be survived for.
+                - "score" - The target describes how much score in that level needs to be gained.
+            - target (number) [>0] - How many spheres destroyed, time survived or score gained is needed in order to fulfill this objective.
+    - pathsBehavior (array) - Defines the behavior of paths. The n-th entry of this list corresponds to the n-th path. If this list is shorter than the number of paths, this list will wrap around during the behavior assignment process. If this list is longer than the number of paths, all subsequent entries are discarded.
+        - (object) - A single path behavior.
+            - colors (array) - A list of integers. These are the colors that will be assigned to the newly created Spheres on the path.
+                - (integer) - A single sphere color.
+            - colorStreak (number) [>=0,<=1] - The probability of the next color being the same as the previous one in sequence.
+            - spawnRules ($level_spawn_rules) - How the spheres should be spawned.
+            - spawnDistance (number) [>=0,<=1] - How far the path must be clear for a new Sphere Chain to spawn.
+            - dangerDistance (number) [>=0,<=1] - How far into the path the spheres have to be in order for the player to be in danger.
+            - speeds (array) - A list of speeds which will translate to the actual speed on any point of the path.
+                - (object) - A single speed graph node.
+                    - distance (number) - How far into the path the given speed should be applied.
+                    - speed (number) [>=0] - The desired speed of the sphere trains, in pixels per second.
+                    - transition* ($level_speed_transition) - Defines the transition between this and the next node on the speed graph. By default, linear transition is applied.

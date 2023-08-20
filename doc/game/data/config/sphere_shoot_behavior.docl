@@ -1,0 +1,4 @@
+- (object) {type: A sphere shoot behavior type.} - A sphere shoot behavior.
+    - "normal" - The sphere gets launched and flies upwards with a speed defined by the shooter and whether the speed shot is active.
+    - "lightning" - The sphere does not get launched and instead is destroyed immediately, destroying nearby matching spheres in a straight vertical line.
+        - range (number) [>0] - How close the spheres must be from the center in order to be destroyed, in pixels.

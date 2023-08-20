@@ -452,7 +452,7 @@ def docl_parse(data):
 		# Extract the description.
 		line = line.split(" - ")
 		if len(line) > 1:
-			line_out["description"] = " - ".join(line[1:])
+			line_out["description"] = " - ".join(line[1:]).replace("\\n", "\n")
 		# Extract tokens.
 		line = line[0].split(" ")
 		# Skip all lines not starting with -.
@@ -473,8 +473,24 @@ def docl_parse(data):
 				continue
 
 			# Otherwise, just parse the token as normal.
-			if token[0] == "(" and token[-1] == ")": # (type)
-				line_out["type"] = token[1:-1]
+			if token[0] == "(" and token[-1] == ")": # (type) or ($ref) or (#internal_ref) or (Structure)
+				# Different types can be separated with | and mixed around, e.g. (#internal_ref|#internal_ref|Structure).
+				line_out["types"] = []
+				subtokens = token[1:-1].split("|")
+				for subtoken in subtokens:
+					if subtoken[0] == "$": # $ref
+						line_out["types"].append({"ref": subtoken[1:]})
+					elif subtoken[0] == "#": # #internal_ref
+						line_out["types"].append({"internal_ref": subtoken})
+					elif subtoken[0].lower() != subtoken[0]: # Structure
+						line_out["types"].append({"structure": subtoken})
+					else: # type
+						line_out["types"].append({"type": subtoken})
+				# "types" don't exist if there's one type. Instead, have a direct field: "ref", "internal_ref", "structure" or "type".
+				if len(line_out["types"]) == 1:
+					line_out[list(line_out["types"][0].keys())[0]] = list(line_out["types"][0].values())[0]
+				if len(line_out["types"]) < 2:
+					del line_out["types"]
 			elif token[0] == "[" and token[-1] == "]": # [constraints]
 				line_out["constraints"] = token[1:-1].split(",")
 			elif token[0] == "\"" and token[-1] == "\"": # "const"
@@ -511,7 +527,7 @@ def docl_parse(data):
 
 
 
-def docl_convert_entry(entry, is_root = True):
+def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 	constraints = {
 		">=": "minimum",
 		">": "exclusiveMinimum",
@@ -527,10 +543,31 @@ def docl_convert_entry(entry, is_root = True):
 	# Carry the type over.
 	if "type" in entry:
 		out["type"] = entry["type"]
+	elif "internal_ref" in entry:
+		out["$ref"] = entry["internal_ref"]
+	elif "ref" in entry:
+		out["$ref"] = entry["ref"] + ".json"
+	elif "structure" in entry:
+		out["$ref"] = structures_path + entry["structure"] + ".json"
 	elif "const" in entry:
 		out["const"] = entry["const"]
-	else:
-		# Non-typed and non-const values means that any value will suffice. This is depicted as true.
+	elif "types" in entry:
+		# Deal with multitypes.
+		out["anyOf"] = []
+		for choice in entry["types"]:
+			if "type" in choice:
+				out["anyOf"].append({"type": choice["type"]})
+			elif "internal_ref" in choice:
+				out["anyOf"].append({"$ref": choice["internal_ref"]})
+			elif "ref" in choice:
+				out["anyOf"].append({"$ref": choice["ref"] + ".json"})
+			elif "structure" in choice:
+				out["anyOf"].append({"$ref": structures_path + choice["structure"] + ".json"})
+			elif "const" in choice:
+				out["anyOf"].append({"const": choice["const"]})
+				
+	elif not "children" in entry:
+		# Non-typed and non-const values with no children mean that any value will suffice. This is depicted as true.
 		return True
 	
 	# Carry the description as well.
@@ -549,7 +586,7 @@ def docl_convert_entry(entry, is_root = True):
 				out["propertyNames"] = {"pattern": entry["regex"]}
 				out["patternProperties"] = {}
 				# As with arrays, we care about only one child.
-				out["patternProperties"]["^.*$"] = docl_convert_entry(entry["children"][0], False)
+				out["patternProperties"]["^.*$"] = docl_convert_entry(entry["children"][0], False, structures_path)
 			elif "keyconst" in entry:
 				# So-called "Enum Object".
 				key = entry["keyconst"]
@@ -562,13 +599,19 @@ def docl_convert_entry(entry, is_root = True):
 						child_block["if"] = {"properties": {key: {"const": child["const"], "description": child["description"]}}, "required": [key]}
 						# Now similar stuff to regular objects. Shenanigans incoming!!!
 						# Adding an array as a child at the front with an asterisk ensures that it will come first, display as True and won't show up as required twice.
-						child_block["then"] = docl_convert_entry({"type": "object", "children": [{"name": key + "*"}] + child["children"]}, False)
+						child_children = [{"name": key + "*"}]
+						if "children" in child:
+							child_children += child["children"]
+						child_block["then"] = docl_convert_entry({"type": "object", "children": child_children}, False, structures_path)
 						del child_block["then"]["type"]
 						# Add prepared blocks.
 						out["allOf"].append(child_block)
 						out["properties"][key]["enum"].append(child["const"])
 				out["required"] = [key]
-			else:
+			elif not "name" in entry["children"][0]: # One nameless child in a regular object means that the object behaves like an array, with all keys possible.
+				out["patternProperties"] = {}
+				out["patternProperties"]["^.*$"] = docl_convert_entry(entry["children"][0], False, structures_path)
+			else: # Regular object.
 				out["properties"] = {}
 				out["required"] = []
 				out["additionalProperties"] = False
@@ -582,10 +625,12 @@ def docl_convert_entry(entry, is_root = True):
 							name = name[:-1]
 						else:
 							out["required"].append(name)
-						out["properties"][name] = docl_convert_entry(child, False)
+						out["properties"][name] = docl_convert_entry(child, False, structures_path)
+				if len(out["required"]) == 0:
+					del out["required"]
 		elif entry["type"] == "array":
 			# Nothing more, nothing less, exactly ONE nameless child must be here.
-			out["items"] = docl_convert_entry(entry["children"][0], False)
+			out["items"] = docl_convert_entry(entry["children"][0], False, structures_path)
 		elif entry["type"] == "number" or entry["type"] == "integer":
 			# Check constraints.
 			if "constraints" in entry:
@@ -597,20 +642,20 @@ def docl_convert_entry(entry, is_root = True):
 								number = int(number)
 							out[constraints[prefix]] = number
 							break
-		# Prepare enums.
-		if entry["type"] == "string" or entry["type"] == "number" or entry["type"] == "integer":
-			if "children" in entry:
-				out["oneOf"] = []
-				for child in entry["children"]:
-					out["oneOf"].append(docl_convert_entry(child, False))
+	# Prepare enums.
+	if not "type" in entry or entry["type"] == "string" or entry["type"] == "number" or entry["type"] == "integer":
+		if "children" in entry:
+			out["oneOf"] = []
+			for child in entry["children"]:
+				out["oneOf"].append(docl_convert_entry(child, False, structures_path))
 	
 	return out
 
 
 
-def docl_to_schema(data):
+def docl_to_schema(data, structures_path):
 	data = docl_parse(data)
-	return docl_convert_entry(data)
+	return docl_convert_entry(data, True, structures_path)
 
 
 
@@ -618,7 +663,8 @@ def docl_convert_file(path_in, path_out):
 	file = open(path_in, "r")
 	contents = file.read()
 	file.close()
-	new_contents = json.dumps(docl_to_schema(contents), indent = 4)
+	structures_path = "../" * (len(path_in.split("/")) - 2) + "_structures/"
+	new_contents = json.dumps(docl_to_schema(contents, structures_path), indent = 4)
 	file = open(path_out, "w")
 	file.write(new_contents)
 	file.close()
@@ -628,15 +674,14 @@ def docl_convert_file(path_in, path_out):
 # Converts all .docl files in data folder to the corresponding schemas.
 def docl_all_to_schemas():
 	for r, d, f in os.walk("data"):
-		for directory in d:
-			for r, d, f in os.walk("data/" + directory):
-				for file in f:
-					if not file.endswith(".docl"):
-						continue
-					path_in = "data/" + directory + "/" + file
-					path_out = "../../schemas/" + directory + "/" + file[:-5] + ".json"
-					print(path_in + " -> " + path_out)
-					docl_convert_file(path_in, path_out)
+		r = r[4:].replace("\\", "/") # i.e. "data" -> "", "data\config" -> "/config"
+		for file in f:
+			if not file.endswith(".docl"):
+				continue
+			path_in = "data" + r + "/" + file
+			path_out = "../../schemas" + r + "/" + file[:-5] + ".json"
+			print(path_in + " -> " + path_out)
+			docl_convert_file(path_in, path_out)
 
 
 

@@ -31,7 +31,8 @@
                 "required": [
                     "pos",
                     "frames"
-                ]
+                ],
+                "additionalProperties": false
             }
         },
         "internal": {

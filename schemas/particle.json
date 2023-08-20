@@ -6,7 +6,6 @@
         "type": "object",
         "description": "A single Particle Spawner.",
         "properties": {
-            "$schema": true,
             "pos": {
                 "$ref": "_structures/Vector2.json",
                 "description": "The initial position of the Emitter, relative to wherever the packet has been spawned."
@@ -21,23 +20,23 @@
             },
             "lifespan": {
                 "type": "number",
-                "minimum": 0,
-                "description": "How many seconds the Emitter should exist. If left out, this Emitter will never despawn and the entire Particle Packet will be a persistent packet."
+                "description": "How many seconds the Emitter should exist. If left out, this Emitter will never despawn and the entire Particle Packet will be a persistent packet.",
+                "minimum": 0.0
             },
             "spawnCount": {
                 "type": "integer",
-                "minimum": 1,
-                "description": "How many Particles will this Emitter spawn at start."
+                "description": "How many Particles will this Emitter spawn at start.",
+                "minimum": 1
             },
             "spawnMax": {
                 "type": "integer",
-                "minimum": 1,
-                "description": "How many Particles spawned by this Emitter can be on the screen at once."
+                "description": "How many Particles spawned by this Emitter can be on the screen at once.",
+                "minimum": 1
             },
             "spawnDelay": {
                 "type": "number",
-                "minimum": 0,
-                "description": "Time between the consecutive particle spawns, in seconds. If not specified, this Emitter will never spawn any particles after its initial burst."
+                "description": "Time between the consecutive particle spawns, in seconds. If not specified, this Emitter will never spawn any particles after its initial burst.",
+                "minimum": 0.0
             },
             "particleData": {
                 "type": "object",
@@ -58,7 +57,8 @@
                             },
                             {
                                 "const": "circle",
-                                "description": "The particles are moving along a circle. The speed and acceleration fields become numbers."
+                                "description": "The particles are moving along a circle. The speed and acceleration fields become numbers.",
+                                "markdownDescription": "The particles are moving along a circle. The `speed` and `acceleration` fields become numbers."
                             }
                         ]
                     },
@@ -67,19 +67,33 @@
                         "description": "The particle will be spawned at a random angle on an ellipse of these perihellium and aphellium."
                     },
                     "speed": {
-                        "$ref": "_structures/Vector2.json",
+                        "anyOf": [
+                            {
+                                "$ref": "_structures/Vector2.json"
+                            },
+                            {
+                                "type": "number"
+                            }
+                        ],
                         "description": "The initial speed of the particle, in pixels per second. If speedMode is set to \"circle\", this is a number and the unit is radians per second.",
                         "markdownDescription": "The initial speed of the particle, in pixels per second. If `speedMode` is set to `\"circle\"`, this is a number and the unit is radians per second."
                     },
                     "acceleration": {
-                        "$ref": "_structures/Vector2.json",
+                        "anyOf": [
+                            {
+                                "$ref": "_structures/Vector2.json"
+                            },
+                            {
+                                "type": "number"
+                            }
+                        ],
                         "description": "The acceleration rate of the particle, in pixels per second. If speedMode is set to \"circle\", this is a number and the unit is radians per second.",
                         "markdownDescription": "The acceleration rate of the particle, in pixels per second. If `speedMode` is set to `\"circle\"`, this is a number and the unit is radians per second."
                     },
                     "lifespan": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "How many seconds the particle should exist. If left out, it will persist indefinitely."
+                        "description": "How many seconds the particle should exist. If left out, it will persist indefinitely.",
+                        "exclusiveMinimum": 0.0
                     },
                     "sprite": {
                         "$ref": "_structures/Sprite.json",
@@ -87,8 +101,8 @@
                     },
                     "animationFrameCount": {
                         "type": "integer",
-                        "minimum": 1,
-                        "description": "How many frames are in the animation."
+                        "description": "How many frames are in the animation.",
+                        "minimum": 1
                     },
                     "animationSpeed": {
                         "type": "number",
@@ -104,15 +118,15 @@
                     },
                     "fadeInPoint": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1,
-                        "description": "Percentage of the particle's lifespan, until which the particle's alpha will be linearly interpolated from 0 to 1. Set to 0 if you want it to be fully visible right from the beginning."
+                        "description": "Percentage of the particle's lifespan, until which the particle's alpha will be linearly interpolated from 0 to 1. Set to 0 if you want it to be fully visible right from the beginning.",
+                        "minimum": 0.0,
+                        "maximum": 1.0
                     },
                     "fadeOutPoint": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1,
-                        "description": "Percentage of the particle's lifespan, from which the particle's alpha will be linearly decreasing from 1 to 0. Set to 1 if you want it to be fully visible until the very end."
+                        "description": "Percentage of the particle's lifespan, from which the particle's alpha will be linearly decreasing from 1 to 0. Set to 1 if you want it to be fully visible until the very end.",
+                        "minimum": 0.0,
+                        "maximum": 1.0
                     },
                     "posRelative": {
                         "type": "boolean",
@@ -128,8 +142,8 @@
                     },
                     "directionDeviationTime": {
                         "type": "number",
-                        "minimum": 0,
-                        "description": "The delay before directional deviation kicks in."
+                        "description": "The delay before directional deviation kicks in.",
+                        "minimum": 0.0
                     },
                     "directionDeviationSpeed": {
                         "$ref": "_structures/Vector2.json",

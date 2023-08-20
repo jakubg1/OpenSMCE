@@ -1,0 +1,21 @@
+- (object) {type: A Widget type.} - The UI widget.
+    - "rectangle" - A single-colored rectangle.
+        - size (Vector2) - The rectangle's size, in pixels.
+        - color (Color) - The rectangle's color.
+        - align* (Vector2) - Defines the alignment of this Widget. For example, setting to `(0.5, 0.5)` will center this Widget on its Node's position, and `(0, 1)` will make its bottom left corner appear in that point. Defaults to `(0, 0)`.
+    - "sprite" - A sprite.
+        - sprite (Sprite) - The path to a Sprite to be drawn.
+        - align* (Vector2) - Defines the alignment of this Widget. For example, setting to `(0.5, 0.5)` will center this Widget on its Node's position, and `(0, 1)` will make its bottom left corner appear in that point. Defaults to `(0, 0)`.
+    - "spriteButton" - A button based on a sprite. The Sprite used to draw this Button must have four states.
+        - sprite (Sprite) - The path to a Sprite to be drawn. The sprite must have four states.
+        - shape* (string) - Defines the hitbox shape of this Button.
+            - "rectangle" - Default value. Hitbox will be a rectangle.
+            - "ellipse" - Hitbox will be an ellipse, contained within the Button's boundaries.
+        - callbacks* (object) - Defines the callbacks which should be fired on certain events.
+            - onClick* (string) - A callback fired when this Button is pressed.
+        - align* (Vector2) - Defines the alignment of this Widget. For example, setting to `(0.5, 0.5)` will center this Widget on its Node's position, and `(0, 1)` will make its bottom left corner appear in that point. Defaults to `(0, 0)`.
+    - "text" - A text written using a given Font.
+        - font (Font) - The font to be used to draw the text on the screen.
+        - text* (string) - The contents of this Widget. Defaults to `""`.
+        - color* (Color) - The text color. Defaults to white.
+        - align* (Vector2) - Defines the alignment of this Widget. For example, setting to `(0.5, 0.5)` will center this Widget on its Node's position, and `(0, 1)` will make its bottom left corner appear in that point. Defaults to `(0, 0)`.

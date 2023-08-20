@@ -10,18 +10,18 @@
         },
         "time": {
             "type": "number",
-            "minimum": 0,
-            "description": "After how many seconds the spheres will be destroyed."
+            "description": "After how many seconds the spheres will be destroyed.",
+            "minimum": 0.0
         },
         "infectionSize": {
             "type": "integer",
-            "minimum": 0,
-            "description": "How many times the effect expansion should occur."
+            "description": "How many times the effect expansion should occur.",
+            "minimum": 0
         },
         "infectionTime": {
             "type": "number",
-            "minimum": 0,
-            "description": "Time between the expansions, in seconds."
+            "description": "Time between the expansions, in seconds.",
+            "minimum": 0.0
         },
         "applySound": {
             "$ref": "../_structures/SoundEvent.json",
@@ -86,8 +86,8 @@
         },
         "ghostTime": {
             "type": "number",
-            "exclusiveMinimum": 0,
-            "description": "Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation."
+            "description": "Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation.",
+            "exclusiveMinimum": 0.0
         }
     },
     "required": [

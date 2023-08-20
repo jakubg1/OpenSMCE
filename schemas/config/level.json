@@ -6,7 +6,8 @@
         "$schema": true,
         "map": {
             "type": "string",
-            "description": "The map name. Specifically, the name of the folder in the \"maps\" folder of the game."
+            "description": "The map name. Specifically, the name of the folder in the maps folder of the game.",
+            "markdownDescription": "The map name. Specifically, the name of the folder in the `maps` folder of the game."
         },
         "music": {
             "$ref": "../_structures/Music.json",
@@ -78,8 +79,8 @@
                     },
                     "target": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "How many spheres destroyed, time survived or score gained is needed in order to fulfill this objective."
+                        "description": "How many spheres destroyed, time survived or score gained is needed in order to fulfill this objective.",
+                        "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [
@@ -106,9 +107,9 @@
                     },
                     "colorStreak": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1,
-                        "description": "The probability of the next color being the same as the previous one in sequence."
+                        "description": "The probability of the next color being the same as the previous one in sequence.",
+                        "minimum": 0.0,
+                        "maximum": 1.0
                     },
                     "spawnRules": {
                         "$ref": "level_spawn_rules.json",
@@ -116,15 +117,15 @@
                     },
                     "spawnDistance": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1,
-                        "description": "How far the path must be clear for a new Sphere Chain to spawn."
+                        "description": "How far the path must be clear for a new Sphere Chain to spawn.",
+                        "minimum": 0.0,
+                        "maximum": 1.0
                     },
                     "dangerDistance": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1,
-                        "description": "How far into the path the spheres have to be in order for the player to be in danger."
+                        "description": "How far into the path the spheres have to be in order for the player to be in danger.",
+                        "minimum": 0.0,
+                        "maximum": 1.0
                     },
                     "speeds": {
                         "type": "array",
@@ -139,8 +140,8 @@
                                 },
                                 "speed": {
                                     "type": "number",
-                                    "minimum": 0,
-                                    "description": "The desired speed of the sphere trains, in pixels per second."
+                                    "description": "The desired speed of the sphere trains, in pixels per second.",
+                                    "minimum": 0.0
                                 },
                                 "transition": {
                                     "$ref": "level_speed_transition.json",

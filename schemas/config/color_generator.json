@@ -21,19 +21,19 @@
         "hasToExist": {
             "type": "boolean",
             "description": "Required if type is \"random\". Whether in order for a color to be generated it needs to already exist on the board.",
-            "markdownDescription": "Required if type is `random`. Whether in order for a color to be generated it needs to already exist on the board."
+            "markdownDescription": "Required if type is `\"random\"`. Whether in order for a color to be generated it needs to already exist on the board."
         },
         "selectChance": {
             "type": "number",
-            "exclusiveMinimum": 0,
-            "maximum": 1,
             "description": "Required if type is \"nearEnd\". The chance for a ball's color to be selected for the next generation, starting from the frontmost sphere on a randomly chosen path.",
-            "markdownDescription": "Required if type is `nearEnd`. The chance for a ball's color to be selected for the next generation, starting from the frontmost sphere on a randomly chosen path."
+            "markdownDescription": "Required if type is `\"nearEnd\"`. The chance for a ball's color to be selected for the next generation, starting from the frontmost sphere on a randomly chosen path.",
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.0
         },
         "pathsInDangerOnly": {
             "type": "boolean",
             "description": "Required if type is \"nearEnd\". Whether only paths in danger should be taken into account when generating colors. If no path is in danger, a random path is selected as if this was set to false.",
-            "markdownDescription": "Required if type is `nearEnd`. Whether only paths in danger should be taken into account when generating colors. If no path is in danger, a random path is selected as if this was set to `false`."
+            "markdownDescription": "Required if type is `\"nearEnd\"`. Whether only paths in danger should be taken into account when generating colors. If no path is in danger, a random path is selected as if this was set to `false`."
         },
         "colors": {
             "type": "array",

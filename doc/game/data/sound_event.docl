@@ -1,0 +1,5 @@
+- (object) - The root entry.
+    - path* (Sound) - The path to an audio file associated with this Sound Event. If not provided, this Sound Event will be silent.
+    - loop* (boolean) - Whether the sample should loop.
+    - flat* (boolean) - If set, the 3D positioning will be disabled for this Sound Event. This must be `true` for stereo sounds!
+    - volume* (number) [>=0] - The base volume of the sound.

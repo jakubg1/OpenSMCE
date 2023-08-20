@@ -1,0 +1,11 @@
+- (object) {type: The font type.} - The root object.
+    - "image" - The font loads glyphs from an image file. All characters must be placed in a single row.
+        - image (Image) - The path to an Image which contains the characters.
+        - characters (object) <<^.$>> - Contains all characters this Font consists of. Key names are single characters.
+            - (object) - A single character.
+                - offset (integer) [>=0] - The X offset of the image where the character starts, in pixels.
+                - width (integer) [>=0] - The width of the character, in pixels.
+    - "truetype" - The font loads glyphs from a TTF file.
+        - path (FontFile) - The path to a TTF font file which contains the characters.
+        - size (integer) [>0] - The size of the Font, in pixels.
+        - color (Color) - The color of this Font.

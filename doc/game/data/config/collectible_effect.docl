@@ -1,0 +1,31 @@
+- (object) {type: A collectible effect type.} - A collectible effect.
+    - "replaceSphere" - Replaces the current sphere the shooter has with a defined sphere. This can be used to spawn otherwise unobtainable bonus balls, i.e. wild or lightning.
+        - color (integer) - A sphere ID of a sphere the shooter should get.
+    - "multiSphere" - Spawns a certain amount of a defined sphere to the shooter. This can be used to i.e. spawn 10 daggers the player can shoot anywhere they want.
+        - color (integer) - A sphere ID of a sphere the shooter should get.
+        - count (integer) [>=1] - How many spheres of that type should be given.
+    - "speedShot" - Replaces the default shooting speed and spawns a speed shot beam effect.
+        - time (number) [>0] - The duration of the effect in seconds.
+        - speed (number) [>0] - A new speed of the shot balls, in pixels per second.
+    - "speedOverride" - Changes the speed of spheres on the board.
+        - speedBase (number) - A value to be added to the multiplied sphere speed.
+        - speedMultiplier (number) - A multiplier by which the nominal path speed will be multiplied.\nThe formula for the final speed is: `speedBase + (pathSpeed * speedMultiplier)`.
+        - decceleration (number) - A sphere decceleration rate which will be applied alongside speed changes.
+        - time (number) [>0] - The duration of the effect in seconds.
+    - "destroyAllSpheres" - Clears the board from all spheres.
+    - "destroyColor" - Destroys the spheres of a specified color.
+        - color (integer) - The color of spheres to be destroyed.
+    - "spawnScorpion" - Spawns a scorpion on the board.
+    - "lightningStorm" - Starts a lightning storm, spawning a given amount of strikes which destroy single spheres.
+        - count (integer) [>=1] - The amount of strikes.
+    - "activateNet" - Activates a net which collects collectibles for a given amount of time.
+        - time (number) [>0] - The duration of the effect in seconds.
+    - "changeGameSpeed" - Changes the game speed to a defined value for a specified period of time.
+        - speed (number) [>0] - The game speed multiplier.
+        - duration (number) [>0] - The duration of the effect in seconds. It is not affected by the game speed itself.
+    - "setCombo" - Sets the current level combo to a specified value.
+        - combo (integer) [>=0] - The combo value to be set.
+    - "grantScore" - Grants a certain amount of score to the current player.
+        - score (integer) - The score to be given.
+    - "grantCoin" - Grants a single coin to the current player.
+    - "incrementGemStat" - Adds one to the gem pickup statistics for the current level.

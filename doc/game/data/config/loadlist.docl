@@ -1,0 +1,19 @@
+- (object) - The root entry.
+    - images* (array) - A list of Images to be loaded.
+        - (Image) - A single image.
+    - sprites* (array) - A list of Sprites to be loaded.
+        - (Sprite) - A single sprite.
+    - sounds* (array) - A list of Sounds to be loaded.
+        - (Sound) - A single sound.
+    - sound_events* (array) - A list of Sound Events to be loaded.
+        - (SoundEvent) - A single sound event.
+    - music* (array) - A list of Music Tracks to be loaded.
+        - (Music) - A single music track.
+    - colorPalettes* (array) - A list of Color Palettes to be loaded. This field must contain all Color Palettes, as they cannot be loaded later - they all must be explicitly specified here.
+        - (ColorPalette) - A single Color Palette.
+    - ui2AnimationConfigs* (array) - A list of UI2 Animations to be loaded.
+        - (UI2Animation) - A single UI2 Animation.
+    - ui2NodeConfigs* (array) - A list of UI2 Nodes to be loaded.
+        - (UI2Node) - A single UI2 Node.
+    - ui2SequenceConfigs* (array) - A list of UI2 Sequences to be loaded.
+        - (UI2Sequence) - A single UI2 Sequence.

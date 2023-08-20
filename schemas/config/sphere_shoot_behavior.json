@@ -14,7 +14,7 @@
         {
             "properties": {
                 "type": {
-                    "description": "A sphere shoot behavior."
+                    "description": "A sphere shoot behavior type."
                 }
             }
         },
@@ -54,8 +54,8 @@
                     "type": true,
                     "range": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "How close the spheres must be from the center in order to be destroyed, in pixels."
+                        "description": "How close the spheres must be from the center in order to be destroyed, in pixels.",
+                        "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [

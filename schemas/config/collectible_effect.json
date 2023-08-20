@@ -77,8 +77,8 @@
                     },
                     "count": {
                         "type": "integer",
-                        "minimum": 1,
-                        "description": "How many spheres of that type should be given."
+                        "description": "How many spheres of that type should be given.",
+                        "minimum": 1
                     }
                 },
                 "required": [
@@ -105,13 +105,13 @@
                     "type": true,
                     "time": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "The duration of the effect in seconds."
+                        "description": "The duration of the effect in seconds.",
+                        "exclusiveMinimum": 0.0
                     },
                     "speed": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "A new speed of the shot balls, in pixels per second."
+                        "description": "A new speed of the shot balls, in pixels per second.",
+                        "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [
@@ -142,7 +142,7 @@
                     },
                     "speedMultiplier": {
                         "type": "number",
-                        "description": "A multiplier by which the nominal path speed will be multiplied.",
+                        "description": "A multiplier by which the nominal path speed will be multiplied.\nThe formula for the final speed is: speedBase + (pathSpeed * speedMultiplier).",
                         "markdownDescription": "A multiplier by which the nominal path speed will be multiplied.\nThe formula for the final speed is: `speedBase + (pathSpeed * speedMultiplier)`."
                     },
                     "decceleration": {
@@ -151,8 +151,8 @@
                     },
                     "time": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "The duration of the effect in seconds."
+                        "description": "The duration of the effect in seconds.",
+                        "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [
@@ -245,8 +245,8 @@
                     "type": true,
                     "count": {
                         "type": "integer",
-                        "minimum": 1,
-                        "description": "The amount of strikes."
+                        "description": "The amount of strikes.",
+                        "minimum": 1
                     }
                 },
                 "required": [
@@ -272,8 +272,8 @@
                     "type": true,
                     "time": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "The duration of the effect in seconds."
+                        "description": "The duration of the effect in seconds.",
+                        "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [
@@ -299,13 +299,13 @@
                     "type": true,
                     "speed": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "The game speed multiplier."
+                        "description": "The game speed multiplier.",
+                        "exclusiveMinimum": 0.0
                     },
                     "duration": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "The duration of the effect in seconds. It is not affected by the game speed itself."
+                        "description": "The duration of the effect in seconds. It is not affected by the game speed itself.",
+                        "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [
@@ -332,8 +332,8 @@
                     "type": true,
                     "combo": {
                         "type": "integer",
-                        "minimum": 0,
-                        "description": "The combo value to be set."
+                        "description": "The combo value to be set.",
+                        "minimum": 0
                     }
                 },
                 "required": [

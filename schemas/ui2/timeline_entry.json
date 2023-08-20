@@ -98,8 +98,8 @@
                     "type": true,
                     "time": {
                         "type": "number",
-                        "exclusiveMinimum": 0,
-                        "description": "The time to wait, in seconds."
+                        "description": "The time to wait, in seconds.",
+                        "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [

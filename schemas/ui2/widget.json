@@ -10,10 +10,6 @@
                 "spriteButton",
                 "text"
             ]
-        },
-        "align": {
-            "$ref": "../_structures/Vector2.json",
-            "description": "Defines the alignment of this Widget. For example, setting to (0.5, 0.5) will center this Widget on its Node's position, and (0, 1) will make its bottom left corner appear in that point. Defaults to (0, 0)."
         }
     },
     "allOf": [
@@ -39,7 +35,6 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "align": true,
                     "size": {
                         "$ref": "../_structures/Vector2.json",
                         "description": "The rectangle's size, in pixels."
@@ -47,6 +42,11 @@
                     "color": {
                         "$ref": "../_structures/Color.json",
                         "description": "The rectangle's color."
+                    },
+                    "align": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "Defines the alignment of this Widget. For example, setting to (0.5, 0.5) will center this Widget on its Node's position, and (0, 1) will make its bottom left corner appear in that point. Defaults to (0, 0).",
+                        "markdownDescription": "Defines the alignment of this Widget. For example, setting to `(0.5, 0.5)` will center this Widget on its Node's position, and `(0, 1)` will make its bottom left corner appear in that point. Defaults to `(0, 0)`."
                     }
                 },
                 "required": [
@@ -71,10 +71,14 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "align": true,
                     "sprite": {
-                        "type": "string",
+                        "$ref": "../_structures/Sprite.json",
                         "description": "The path to a Sprite to be drawn."
+                    },
+                    "align": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "Defines the alignment of this Widget. For example, setting to (0.5, 0.5) will center this Widget on its Node's position, and (0, 1) will make its bottom left corner appear in that point. Defaults to (0, 0).",
+                        "markdownDescription": "Defines the alignment of this Widget. For example, setting to `(0.5, 0.5)` will center this Widget on its Node's position, and `(0, 1)` will make its bottom left corner appear in that point. Defaults to `(0, 0)`."
                     }
                 },
                 "required": [
@@ -98,29 +102,39 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "align": true,
                     "sprite": {
-                        "type": "string",
+                        "$ref": "../_structures/Sprite.json",
                         "description": "The path to a Sprite to be drawn. The sprite must have four states."
                     },
                     "shape": {
-                        "enum": [
-                            "rectangle",
-                            "ellipse"
-                        ],
-                        "description": "Defines the hitbox shape of this Button. Defaults to `\"rectangle\"`."
+                        "type": "string",
+                        "description": "Defines the hitbox shape of this Button.",
+                        "oneOf": [
+                            {
+                                "const": "rectangle",
+                                "description": "Default value. Hitbox will be a rectangle."
+                            },
+                            {
+                                "const": "ellipse",
+                                "description": "Hitbox will be an ellipse, contained within the Button's boundaries."
+                            }
+                        ]
                     },
                     "callbacks": {
                         "type": "object",
+                        "description": "Defines the callbacks which should be fired on certain events.",
                         "properties": {
                             "onClick": {
                                 "type": "string",
                                 "description": "A callback fired when this Button is pressed."
                             }
                         },
-                        "required": [],
-                        "additionalProperties": false,
-                        "description": "Defines the callbacks which should be fired on certain events."
+                        "additionalProperties": false
+                    },
+                    "align": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "Defines the alignment of this Widget. For example, setting to (0.5, 0.5) will center this Widget on its Node's position, and (0, 1) will make its bottom left corner appear in that point. Defaults to (0, 0).",
+                        "markdownDescription": "Defines the alignment of this Widget. For example, setting to `(0.5, 0.5)` will center this Widget on its Node's position, and `(0, 1)` will make its bottom left corner appear in that point. Defaults to `(0, 0)`."
                     }
                 },
                 "required": [
@@ -144,18 +158,23 @@
             "then": {
                 "properties": {
                     "type": true,
-                    "align": true,
                     "font": {
-                        "type": "string",
+                        "$ref": "../_structures/Font.json",
                         "description": "The font to be used to draw the text on the screen."
                     },
                     "text": {
                         "type": "string",
-                        "description": "The contents of this Widget. Defaults to an empty string."
+                        "description": "The contents of this Widget. Defaults to \"\".",
+                        "markdownDescription": "The contents of this Widget. Defaults to `\"\"`."
                     },
                     "color": {
                         "$ref": "../_structures/Color.json",
                         "description": "The text color. Defaults to white."
+                    },
+                    "align": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "Defines the alignment of this Widget. For example, setting to (0.5, 0.5) will center this Widget on its Node's position, and (0, 1) will make its bottom left corner appear in that point. Defaults to (0, 0).",
+                        "markdownDescription": "Defines the alignment of this Widget. For example, setting to `(0.5, 0.5)` will center this Widget on its Node's position, and `(0, 1)` will make its bottom left corner appear in that point. Defaults to `(0, 0)`."
                     }
                 },
                 "required": [

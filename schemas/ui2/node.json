@@ -10,33 +10,36 @@
         },
         "children": {
             "type": "object",
+            "description": "Defines any Nodes which will be parented to this Node, keyed by their names.",
             "patternProperties": {
                 "^.*$": {
                     "$ref": "node_child.json",
-                    "description": "Defines a child layout or Node."
+                    "description": "A single child layout or Node."
                 }
-            },
-            "description": "Defines any Nodes which will be parented to this Node, keyed by their names."
+            }
         },
         "pos": {
             "$ref": "../_structures/Vector2.json",
-            "description": "Defines the starting position of this Node. Defaults to (0, 0)."
+            "description": "Defines the starting position of this Node. Defaults to (0, 0).",
+            "markdownDescription": "Defines the starting position of this Node. Defaults to `(0, 0)`."
         },
         "scale": {
             "$ref": "../_structures/Vector2.json",
-            "description": "Defines the scale of this Node. Defaults to (1, 1)."
+            "description": "Defines the scale of this Node. Defaults to (1, 1).",
+            "markdownDescription": "Defines the scale of this Node. Defaults to `(1, 1)`."
         },
         "alpha": {
             "type": "number",
-            "minimum": 0,
-            "maximum": 1,
-            "description": "Defines the starting alpha (transparency) value of this Node. Defaults to 1 (fully opaque)."
+            "description": "Defines the starting alpha (transparency) value of this Node. Defaults to 1 (fully opaque).",
+            "markdownDescription": "Defines the starting alpha (transparency) value of this Node. Defaults to `1` (fully opaque).",
+            "minimum": 0.0,
+            "maximum": 1.0
         },
         "layer": {
             "type": "string",
-            "description": "The layer this Widget should be drawn on. Inherited from parents if not specified. If no parents are found, defaults to MAIN."
+            "description": "The layer this Widget should be drawn on. Inherited from parents if not specified. If no parents are found, defaults to \"MAIN\".",
+            "markdownDescription": "The layer this Widget should be drawn on. Inherited from parents if not specified. If no parents are found, defaults to `\"MAIN\"`."
         }
     },
-    "required": [],
     "additionalProperties": false
 }

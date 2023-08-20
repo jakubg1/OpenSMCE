@@ -1,0 +1,4 @@
+- (object) {type: The type of the spawn rules.} - The spawn rules.
+    - "waves" - The Sphere Chains will be prebuilt with the given number of spheres. The scarab is not counted.
+        - amount (integer) - How many spheres should be generated in each wave.
+    - "continuous" - The Sphere Chains will not end, and new spheres will be generated dynamically. The generation will end when either the level target is fulfilled, or the level is lost.

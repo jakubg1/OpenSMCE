@@ -1,0 +1,5 @@
+- (object) {type: A Node's child type.} - The Node's child.
+    - "include" - Include a Layout from another file.
+        - layout (string) - Name of the Layout which should be included.
+    - "node" - Specify a child Node in this file.
+        - node ($node) - Defines the child Node.

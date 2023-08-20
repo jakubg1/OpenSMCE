@@ -1,0 +1,19 @@
+- (object) - The root entry.
+    - particle* (Particle) - A persistent particle packet which will be applied to any affected sphere.
+    - time (number) [>=0] - After how many seconds the spheres will be destroyed.
+    - infectionSize (integer) [>=0] - How many times the effect expansion should occur.
+    - infectionTime (number) [>=0] - Time between the expansions, in seconds.
+    - applySound* (SoundEvent) - A sound event to be played when a sphere gets this effect.
+    - destroySound (SoundEvent) - A sound event to be played when spheres afflicted with this effect are destroyed.\nCan be set to `"hardcoded"`, in that case the destroy sound from a game module is prioritized.
+    - destroyFont (Font) - A font to be used for the score value displayed on the screen.\nCan be set to `"hardcoded"`, in that case the font used is of the "cause" sphere's `matchFont` value.
+    - destroyParticle* (Particle) - A one-time particle packet used when a sphere with this effect is destroyed.
+    - destroyCollectible* (CollectibleGenerator) - The collectible generator to be used when spheres with this effect are destroyed.
+    - levelLossProtection (boolean) - If set to `true`, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
+    - immobile (boolean) - If `true`, the spheres affected with this effect will stop.
+    - fragile (boolean) - If `true`, the spheres affected with this effect can be destroyed by shooting through them.
+    - canBoostCombo (boolean) - If `true`, the level combo value may rise after destroying a group with this effect.
+    - canBoostChain (boolean) - If `true`, the chain combo value may rise after destroying a group with this effect.
+    - applyChainMultiplier (boolean) - If `true`, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
+    - canKeepCombo (boolean) - Whether shot spheres with this effect should not be counted towards combo reset.
+    - causeCheck (boolean) - When set to `true`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
+    - ghostTime* (number) [>0] - Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation.

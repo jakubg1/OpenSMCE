@@ -1,0 +1,227 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "A collectible generator entry.",
+    "properties": {
+        "type": {
+            "enum": [
+                "collectible",
+                "collectibleGenerator",
+                "combine",
+                "repeat",
+                "randomPick"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "Type of the Collectible Generator Entry."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "collectible",
+                        "description": "Evaluates to a single collectible."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "name": {
+                        "type": "string",
+                        "description": "A collectible ID to be evaluated to."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
+                        "items": {
+                            "$ref": "collectible_generator_condition.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "collectibleGenerator",
+                        "description": "Evaluates to another collectible generator result."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "name": {
+                        "type": "string",
+                        "description": "A collectible generator ID to be evaluated."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
+                        "items": {
+                            "$ref": "collectible_generator_condition.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "name"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "combine",
+                        "description": "Evaluates a list of given entries and returns a list of all collectibles generated."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "entries": {
+                        "type": "array",
+                        "description": "A list of collectible entries to be evaluated.",
+                        "items": {
+                            "$ref": "#",
+                            "description": "A single collectible generator entry."
+                        }
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
+                        "items": {
+                            "$ref": "collectible_generator_condition.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "entries"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "repeat",
+                        "description": "Evaluates a given entry a number of times and returns a list of all collectibles generated."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "entry": {
+                        "$ref": "#",
+                        "description": "A collectible entry to be evaluated."
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "How many times the entry should be evaluated.",
+                        "minimum": 2
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
+                        "items": {
+                            "$ref": "collectible_generator_condition.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "entry",
+                    "count"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "randomPick",
+                        "description": "Evaluates all the choices, discards empty ones, and selects one of the remaining results at random."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "type": true,
+                    "pool": {
+                        "type": "array",
+                        "description": "A list of choices to be picked from.",
+                        "items": {
+                            "type": "object",
+                            "description": "A single choice.",
+                            "properties": {
+                                "entry": {
+                                    "$ref": "#",
+                                    "description": "A collectible generator entry to be evaluated."
+                                },
+                                "weight": {
+                                    "type": "number",
+                                    "description": "The bigger this number is, the more likely this option is to be chosen. Defaults to 1.",
+                                    "exclusiveMinimum": 0.0
+                                }
+                            },
+                            "required": [
+                                "entry"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
+                        "items": {
+                            "$ref": "collectible_generator_condition.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "pool"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}

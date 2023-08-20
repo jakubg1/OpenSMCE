@@ -1,0 +1,7 @@
+- (object) - The root object.
+    - levelOrder (array) - A list which contains level entries. Levels will be played in this order.
+        - ($level_set_entry) - A single level entry.
+    - checkpoints (array) - A list of level order indices, where checkpoints should be placed.\nIf the player starts the game from a given checkpoint, they start from the entry the checkpoint is pointing to.
+        - (integer) - A single index corresponding to an entry in the `levelOrder` field.
+    - startCheckpoints (array) - A list of checkpoint indices, which are unlocked upon profile creation.
+        - (integer) - A single index, which corresponds to an entry in the `checkpoints` field.

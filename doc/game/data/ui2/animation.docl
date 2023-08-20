@@ -1,0 +1,29 @@
+- (object) {property: The property which should be animated.} - The root object.
+    - "alpha" - The alpha value will be changed.
+        - from* (number) [>=0,<=1] - The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value.
+        - to (number) [>=0,<=1] - The end value of this Animation.
+        - duration (number) [>=0] - The duration of this Animation.
+    - "pos" - The position will be changed.
+        - from* (Vector2) - The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value.
+        - to (Vector2) - The end value of this Animation.
+        - duration (number) [>=0] - The duration of this Animation.
+    - "posX" - The X position value will be changed.
+        - from* (number) - The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value.
+        - to (number) - The end value of this Animation.
+        - duration (number) [>=0] - The duration of this Animation.
+    - "posY" - The Y position value will be changed.
+        - from* (number) - The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value.
+        - to (number) - The end value of this Animation.
+        - duration (number) [>=0] - The duration of this Animation.
+    - "scale" - The scale value will be changed.
+        - from* (Vector2) - The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value.
+        - to (Vector2) - The end value of this Animation.
+        - duration (number) [>=0] - The duration of this Animation.
+    - "scaleX" - The X scale value will be changed.
+        - from* (number) - The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value.
+        - to (number) - The end value of this Animation.
+        - duration (number) [>=0] - The duration of this Animation.
+    - "scaleY" - The Y scale value will be changed.
+        - from* (number) - The starting value of this Animation. If omitted, the value will be interpolated from the current Node's value.
+        - to (number) - The end value of this Animation.
+        - duration (number) [>=0] - The duration of this Animation.

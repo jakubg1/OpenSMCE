@@ -1,0 +1,17 @@
+- (object) - The root entry.
+    - name (string) - The map name.
+    - paths (array) - A list of paths which are available on this map.
+        - (array) - A single path, which is a list of nodes.
+            - (object) - A single path node.
+                - x (number) - The X position of this node.
+                - y (number) - The Y position of this node.
+                - scale* (number) [>0] - The scale of spheres on this node. Defaults to 1.
+                - hidden* (boolean) - When set, the segment from this to next node will be hidden - the spheres will become darker, unshootable, and they will be rendered behind non-background sprites.
+                - warp* (boolean) - When set, the spheres will instantly teleport to the next node once they reach this node.
+    - sprites (array) - A list of sprites to be drawn on this map.
+        - (object) - A single sprite.
+            - x (number) - The X position of this Sprite.
+            - y (number) - The Y position of this Sprite.
+            - path (Sprite) - The path to the Sprite to be displayed.
+            - internal (boolean) - When set, the `path` field will refer to this map's folder as the base directory. Otherwise, the base directory will be the root game folder.
+            - background (boolean) - If set, this sprite will be rendered behind all spheres. Otherwise, it will be covering hidden spheres.

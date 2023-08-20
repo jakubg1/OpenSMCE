@@ -1,0 +1,63 @@
+- (object) - The root entry.
+    - level (object) - Defines some key level times.
+        - controlDelay (number) [>=0] - Time between launching the first spheres in a level and the shooter activation in seconds.
+        - finishDelay (number) [>=0] - Time between considering the level complete (win condition met and empty board) and releasing the first bonus scarab.
+        - bonusDelay (number) [>=0] - Time between each consecutive bonus scarab launch in multi-path levels in seconds.
+        - wonDelay (number) [>=0] - Time between the last bonus scarab destruction and considering the level fully won.
+    - sphereBehaviour (object) - Defines behavior of the spheres.
+        - acceleration (number) - The default acceleration rate of spheres being pushed.
+        - foulAcceleration* (number) - The acceleration rate of spheres used only when the player fails to complete a level.
+        - attractionAcceleration* (number) - The acceleration rate of spheres magnetizing to each other.
+        - attractionForwardDecceleration* (number) - The decceleration rate of spheres when magnetizing to the group behind while still moving forward.
+        - attractionForwardDeccelerationScarab* (number) - The decceleration rate of spheres when magnetizing to a scarab behind while still moving forward.
+        - decceleration (number) - The default decceleration rate of spheres.
+        - backwardsDecceleration* (number) - The decceleration rate of spheres when they're moving backwards.
+        - attractionSpeedBase (number) - Maximum attraction speed of groups of like color being attracted together.\nThis and `attractionSpeedMult` form a final value together using this expression: `attractionSpeedBase + max(1, chain) * attractionSpeedMult`.
+        - attractionSpeedMult (number) - The second value used in the formula. For description look at `attractionSpeedBase`.
+        - knockbackSpeedBase (number) - Speed induced when a group of spheres crashes into another sphere group behind it.\nThis and `knockbackSpeedMult` form a final value together using this expression: `knockbackSpeedBase + max(1, chain) * knockbackSpeedMult`.
+        - knockbackSpeedMult (number) - The second value used in the formula. For description look at `knockbackSpeedBase`.
+        - knockbackTime* (number) - If set, this will be the duration the knockback speed will persist for, in seconds.
+        - knockbackStopAfterTime* (boolean) - Only if `knockbackTime` is set. If `true`, the speed of the group will be set to 0 once the knockback time is over. Else, the sphere group will deccelerate normally.
+        - foulSpeed (number) - Maximum speed of spheres when the player fails to complete a level.
+        - overspeedCheck (boolean) - If `true`, spheres will never move faster than the maximum speed defined at a given point of the path.
+        - invincibleScarabs (boolean) - If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
+        - luxorized* (boolean) - Enables sphere physics gimmicks specific to the original Luxor game to mimic it better.
+        - joinSound (SoundEvent) - A sound event to be played when two groups of spheres hit each other.
+        - newGroupSound (SoundEvent) - A sound event to be played when a new sphere chain appears on the board.
+        - noScarabs (boolean) - If `true`, the scarabs will not appear in the game.
+        - permitLongMatches (boolean) - If `true`, the spheres will try to make the biggest clump possible before matching together.
+    - collectibleBehavior (object) - Defines how Collectibles behave.
+        - speed (ExprVector2) - A starting speed of the Collectibles.
+        - acceleration (ExprVector2) - An acceleration rate of the Collectibles.
+    - bonusScarab (object) - Defines the Bonus Scarab.
+        - sprite (Sprite) - The sprite to be used by the Bonus Scarab.
+        - shadowSprite (Sprite) - The shadow sprite to be used by the Bonus Scarab.
+        - stepLength (number) [>0] - The length of a single segment, which gives points. The formula defining how many points are given is as follows: `max(floor(distance / stepLength), 1) * pointsPerStep`.
+        - pointsPerStep (integer) [>=0] - How many points are given for each step. The bonus score will be always a multiple of this value.
+        - coinDistance* (number) [>0] - The delay between generating collectibles. If omitted, the Bonus Scarab will not spawn any collectibles.
+        - coinGenerator* (CollectibleGenerator) - A collectible generator used periodically.
+        - speed (number) [>0] - How fast does the Bonus Scarab move, in pixels per second.
+        - trailParticle* (Particle) - A one-time particle packet which the Bonus Scarab would emit. May be omitted if no particles are supposed to be generated.
+        - trailParticleDistance* (number) [>0] - Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified.
+        - loopSound (SoundEvent) - A looping sound event which is played during Bonus Scarab's existence.
+        - destroySound (SoundEvent) - A sound event which will be played when the Bonus Scarab is destroyed.
+        - destroyParticle (Particle) - A one-time particle packet which the Bonus Scarab will launch upon destruction.
+        - destroyGenerator* (CollectibleGenerator) - A collectible generator used when the Bonus Scarab is destroyed.
+        - scoreFont (Font) - A font to be used to display the bonus value on the screen.
+    - scorpion* (object) - Defines the Scorpion.
+        - sprite (Sprite) - The sprite to be used by the Scorpion.
+        - shadowSprite (Sprite) - The shadow sprite to be used by the Scorpion.
+        - maxSpheres* (integer) [>0] - The maximum amount of spheres the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.
+        - maxChains* (integer) [>0] - The maximum amount of chains the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.
+        - speed (number) [>0] - How fast does the Scorpion move, in pixels per second.
+        - trailParticle* (Particle) - A one-time particle packet which the Scorpion would emit. May be omitted if no particles are supposed to be generated.
+        - trailParticleDistance* (number) [>0] - Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified.
+        - loopSound (SoundEvent) - A looping sound event which is played during Scorpion's existence.
+        - sphereDestroySound (SoundEvent) - A sound event which will be played when the Scorpion destroys a sphere.
+        - destroySound (SoundEvent) - A sound event which will be played when the Scorpion is destroyed.
+        - destroyParticle (Particle) - A one-time particle packet which the Scorpion will launch upon destruction.
+        - destroyGenerator* (CollectibleGenerator) - A collectible generator used when the Scorpion is destroyed.
+        - scoreFont (Font) - A font to be used to display the bonus value on the screen.
+    - net* (object) - Defines the Net.
+        - particle (Particle) - A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires.
+        - posY (integer) - The Y position of the Net.
