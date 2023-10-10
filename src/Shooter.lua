@@ -189,6 +189,11 @@ end
 
 ---Empties this shooter. This includes removing all effects, such as speed shot or multi-color spheres.
 function Shooter:empty()
+    -- Show particles if the level was lost.
+    if self.sphereEntity and _Game.session.level.lost and self.config.destroySphereOnFail then
+        self.sphereEntity:destroy(true)
+        self.sphereEntity = nil
+    end
     self:setColor(0)
     self:setNextColor(0)
     self.multiColorColor = nil

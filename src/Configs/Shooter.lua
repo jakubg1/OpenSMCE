@@ -80,6 +80,8 @@ function ShooterConfig:new(data, path)
     self.shotCooldownFade = data.shotCooldownFade or 0
     ---@type boolean
     self.multishot = data.multishot or false
+    ---@type boolean
+    self.destroySphereOnFail = data.destroySphereOnFail or false
     ---@type number
     self.shootSpeed = data.shootSpeed
     ---@type Vector2

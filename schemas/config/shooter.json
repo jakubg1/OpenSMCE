@@ -183,6 +183,10 @@
             "type": "boolean",
             "description": "If set, the player will be able to shoot another sphere before the previous one has hit the sphere train."
         },
+        "destroySphereOnFail": {
+            "type": "boolean",
+            "description": "If set, when the level is lost, the sphere held by the shooter will show its destruction particles. Otherwise, the ball will just disappear."
+        },
         "shootSpeed": {
             "type": "number",
             "description": "The default speed of how fast the shot spheres will be, in pixels per second.",
