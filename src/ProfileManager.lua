@@ -35,6 +35,9 @@ end
 ---@param name string The profile name to be selected.
 function ProfileManager:setCurrentProfile(name)
 	self.selected = name
+
+	-- Load USM (TODO: declare USM in difficulty settings)
+	_Game.satMode = self:getCurrentProfile().ultimatelySatisfyingMode
 end
 
 
@@ -98,6 +101,10 @@ function ProfileManager:deserialize(t)
 		self.profiles[profileN] = Profile(profile, profileN)
 	end
 	self.selected = t.selected
+
+	-- Load USM (TODO: declare USM in difficulty settings)
+	local p = self:getCurrentProfile()
+	_Game.satMode = p and p.ultimatelySatisfyingMode
 end
 
 
