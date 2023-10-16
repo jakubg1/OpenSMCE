@@ -344,6 +344,37 @@
                 "posY"
             ],
             "additionalProperties": false
+        },
+        "pathIntroduction": {
+            "type": "object",
+            "description": "Defines the path introduction. This is a trail of particles which goes through the map before the level starts.",
+            "properties": {
+                "particle": {
+                    "$ref": "../_structures/Particle.json",
+                    "description": "A one-time particle packet which spawns throughout the path."
+                },
+                "speed": {
+                    "type": "number",
+                    "description": "How fast does the trail go, in pixels per second.",
+                    "exclusiveMinimum": 0.0
+                },
+                "separation": {
+                    "type": "number",
+                    "description": "The distance between each particle, in pixels.",
+                    "exclusiveMinimum": 0.0
+                },
+                "separatePaths": {
+                    "type": "boolean",
+                    "description": "If set, each path will be introduced immediately after the previous one finishes. Otherwise, all paths will be introduced simultaneously."
+                }
+            },
+            "required": [
+                "particle",
+                "speed",
+                "separation",
+                "separatePaths"
+            ],
+            "additionalProperties": false
         }
     },
     "required": [

@@ -182,6 +182,38 @@ function Level:updateLogic(dt)
 
 
 	-- Level start
+	-- Path introduction
+	if self.introductionPathID then
+		local pathIntroductionConfig = _Game.configManager.gameplay.pathIntroduction
+		if pathIntroductionConfig then
+			if pathIntroductionConfig.separatePaths then
+				-- Check if the current path has finished introducing and either introduce the next path or start the level.
+				if not self.map.paths[self.introductionPathID]:isBeingIntroduced() then
+					local nextPath = self.map.paths[self.introductionPathID + 1]
+					if nextPath then
+						nextPath:startIntroduction()
+						self.introductionPathID = self.introductionPathID + 1
+					else
+						self:beginActually()
+					end
+				end
+			else
+				-- Start the level once all paths have finished introducing.
+				local pathIntroductionOngoing = false
+				for i, path in ipairs(self.map.paths) do
+					if path:isBeingIntroduced() then
+						pathIntroductionOngoing = true
+						break
+					end
+				end
+				if not pathIntroductionOngoing then
+					self:beginActually()
+				end
+			end
+		end
+	end
+
+	-- Control delay
 	-- TODO: HARDCODED - make it more flexible
 	if self.controlDelay then
 		self.controlDelay = self.controlDelay - dt
@@ -695,8 +727,31 @@ end
 
 ---Starts the Level.
 function Level:begin()
+	local pathIntroductionConfig = _Game.configManager.gameplay.pathIntroduction
+	if not pathIntroductionConfig then
+		-- No path introduction. Start the level straight away.
+		self:beginActually()
+	elseif pathIntroductionConfig.separatePaths then
+		-- Paths introduced separately. Start the first path introduction.
+		self.map.paths[1]:startIntroduction()
+		self.introductionPathID = 1
+	else
+		-- Introduce all the paths at once.
+		for i, path in ipairs(self.map.paths) do
+			path:startIntroduction()
+		end
+		self.introductionPathID = 1
+	end
+end
+
+
+
+---Actually starts the level. Balls start rolling.
+---TODO: Rename it to something better...
+function Level:beginActually()
 	self.started = true
 	self.controlDelay = _Game.configManager.gameplay.level.controlDelay
+	self.introductionPathID = nil
 	_Game:getMusic(self.musicName):reset()
 end
 
@@ -793,6 +848,7 @@ function Level:reset()
 	self.finishDelay = nil
 	self.bonusPathID = 1
 	self.bonusDelay = nil
+	self.introductionPathID = nil
 
 	self.gameSpeed = 1
 	self.gameSpeedTime = 0

@@ -61,3 +61,8 @@
     - net* (object) - Defines the Net.
         - particle (Particle) - A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires.
         - posY (integer) - The Y position of the Net.
+    - pathIntroduction* (object) - Defines the path introduction. This is a trail of particles which goes through the map before the level starts.
+        - particle (Particle) - A one-time particle packet which spawns throughout the path.
+        - speed (number) [>0] - How fast does the trail go, in pixels per second.
+        - separation (number) [>0] - The distance between each particle, in pixels.
+        - separatePaths (boolean) - If set, each path will be introduced immediately after the previous one finishes. Otherwise, all paths will be introduced simultaneously.
