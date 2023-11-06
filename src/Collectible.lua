@@ -19,13 +19,16 @@ function Collectible:new(deserializationTable, pos, name)
 	else
 		self.name = name
 		self.pos = pos
-		local beh = _Game.configManager.gameplay.collectibleBehavior
-		self.speed = _ParseExprVec2(beh.speed)
-		self.acceleration = _ParseExprVec2(beh.acceleration)
 	end
 
 	self.config = _Game.configManager.collectibles[self.name]
 	assert(self.config, string.format("Unknown powerup: \"%s\"", self.name))
+
+	if not deserializationTable then
+		-- Read the speed and acceleration fields only when we're creating a brand new powerup.
+		self.speed = _ParseExprVec2(self.config.speed)
+		self.acceleration = _ParseExprVec2(self.config.acceleration)
+	end
 
 	_Game:playSound(self.config.spawnSound, 1, self.pos)
 	self.particle = _Game:spawnParticle(self.config.particle, self.pos)
@@ -101,7 +104,7 @@ end
 
 
 ---Why did I keep this function?
----Oh and by the way, Collectibles are drawn by ParticleManagers. Quirky, huh?
+---Oh and by the way, Collectibles are drawn by the ParticleManager. Quirky, huh?
 function Collectible:draw()
 	-- *crickets*
 end

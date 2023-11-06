@@ -26,9 +26,6 @@
         - newGroupSound (SoundEvent) - A sound event to be played when a new sphere chain appears on the board.
         - noScarabs (boolean) - If `true`, the scarabs will not appear in the game.
         - permitLongMatches (boolean) - If `true`, the spheres will try to make the biggest clump possible before matching together.
-    - collectibleBehavior (object) - Defines how Collectibles behave.
-        - speed (ExprVector2) - A starting speed of the Collectibles.
-        - acceleration (ExprVector2) - An acceleration rate of the Collectibles.
     - bonusScarab (object) - Defines the Bonus Scarab.
         - sprite (Sprite) - The sprite to be used by the Bonus Scarab.
         - shadowSprite (Sprite) - The shadow sprite to be used by the Bonus Scarab.

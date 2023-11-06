@@ -4,6 +4,14 @@
     "description": "The root object.",
     "properties": {
         "$schema": true,
+        "speed": {
+            "$ref": "../_structures/ExprVector2.json",
+            "description": "The starting speed of this collectible."
+        },
+        "acceleration": {
+            "$ref": "../_structures/ExprVector2.json",
+            "description": "The acceleration rate of this collectible."
+        },
         "particle": {
             "$ref": "../_structures/Particle.json",
             "description": "A persistent particle packet which will follow the collectible entity."
@@ -46,6 +54,8 @@
         }
     },
     "required": [
+        "speed",
+        "acceleration",
         "particle",
         "pickupParticle",
         "spawnSound",

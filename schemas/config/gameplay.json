@@ -152,25 +152,6 @@
             ],
             "additionalProperties": false
         },
-        "collectibleBehavior": {
-            "type": "object",
-            "description": "Defines how Collectibles behave.",
-            "properties": {
-                "speed": {
-                    "$ref": "../_structures/ExprVector2.json",
-                    "description": "A starting speed of the Collectibles."
-                },
-                "acceleration": {
-                    "$ref": "../_structures/ExprVector2.json",
-                    "description": "An acceleration rate of the Collectibles."
-                }
-            },
-            "required": [
-                "speed",
-                "acceleration"
-            ],
-            "additionalProperties": false
-        },
         "bonusScarab": {
             "type": "object",
             "description": "Defines the Bonus Scarab.",
@@ -380,7 +361,6 @@
     "required": [
         "level",
         "sphereBehaviour",
-        "collectibleBehavior",
         "bonusScarab"
     ],
     "additionalProperties": false
