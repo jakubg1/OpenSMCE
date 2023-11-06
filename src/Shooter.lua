@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Shooter which is controlled by the player. Has a current and a next sphere slot. Can have multi-spheres and speed shot.
 ---@class Shooter
----@overload fun():Shooter
+---@overload fun(data):Shooter
 local Shooter = class:derive("Shooter")
 
 local Vec2 = require("src.Essentials.Vector2")
