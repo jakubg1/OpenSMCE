@@ -51,6 +51,20 @@ function ResourceManager:new()
 		ui2SequenceConfig = {t = self.ui2SequenceConfigs, c = UI2SequenceConfig, e = "UI2 Sequence Config", p = true},
 	}
 
+	self.STEP_LOAD_ORDER = {
+		"images",
+		"sprites",
+		"sounds",
+		"sound_events",
+		"music",
+		"particles",
+		"fonts",
+		"colorPalettes",
+		"ui2NodeConfigs",
+		"ui2AnimationConfigs",
+		"ui2SequenceConfigs"
+	}
+
 
 	-- Step load variables
 	self.stepLoading = false
@@ -333,21 +347,8 @@ end
 ---Loads a next resource in the queued resource loading process.
 function ResourceManager:stepLoadNext()
 	local objectType = nil
-	local order = {
-		"images",
-		"sprites",
-		"sounds",
-		"sound_events",
-		"music",
-		"particles",
-		"fonts",
-		"colorPalettes",
-		"ui2NodeConfigs",
-		"ui2AnimationConfigs",
-		"ui2SequenceConfigs"
-	}
 	-- loading a first object type from order
-	for i, v in ipairs(order) do
+	for i, v in ipairs(self.STEP_LOAD_ORDER) do
 		if self.stepLoadQueue[v] then
 			if #self.stepLoadQueue[v] > 0 then
 				objectType = v
@@ -358,6 +359,7 @@ function ResourceManager:stepLoadNext()
 			end
 		end
 	end
+
 	-- get data
 	local path = self.stepLoadQueue[objectType][1]
 	--print("[RB] Processing item " .. tostring(self.stepLoadProcessedObjs + 1) .. " from " .. tostring(self.stepLoadTotalObjs) .. "...")
