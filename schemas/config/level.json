@@ -21,6 +21,22 @@
             "$ref": "../_structures/Music.json",
             "description": "Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks."
         },
+        "dangerSound": {
+            "$ref": "../_structures/SoundEvent.json",
+            "description": "A sound event which plays whenever the warning effect is spawned."
+        },
+        "dangerLoopSound": {
+            "$ref": "../_structures/SoundEvent.json",
+            "description": "A looping sound event which plays during the danger phase."
+        },
+        "warmupLoopSound": {
+            "$ref": "../_structures/SoundEvent.json",
+            "description": "A looping sound event which plays at the beginning of the level, while the spheres are rolling."
+        },
+        "failLoopSound": {
+            "$ref": "../_structures/SoundEvent.json",
+            "description": "A looping sound event which plays while the spheres are rolling into the exit node."
+        },
         "colorGeneratorNormal": {
             "$ref": "../_structures/ColorGenerator.json",
             "description": "The Color Generator used to generate colors for the shooter throughout this level."

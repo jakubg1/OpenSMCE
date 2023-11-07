@@ -3,6 +3,10 @@
     - music (Music) - Which soundtrack should be played throughout the level.
     - dangerMusic* (Music) - Which soundtrack should be played during the danger phase.
     - ambientMusic* (Music) - Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks.
+    - dangerSound* (SoundEvent) - A sound event which plays whenever the warning effect is spawned.
+    - dangerLoopSound* (SoundEvent) - A looping sound event which plays during the danger phase.
+    - warmupLoopSound* (SoundEvent) - A looping sound event which plays at the beginning of the level, while the spheres are rolling.
+    - failLoopSound* (SoundEvent) - A looping sound event which plays while the spheres are rolling into the exit node.
     - colorGeneratorNormal (ColorGenerator) - The Color Generator used to generate colors for the shooter throughout this level.
     - colorGeneratorDanger (ColorGenerator) - The Color Generator used to generate colors for the shooter when in danger.
     - shooter* (object) - Defines the Shooter. If not present, the shooter named `default` will be used along with its default movement.
