@@ -19,6 +19,8 @@
         - nextBallSprite* (Sprite) - The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if `sprite` is defined.
         - nextBallOffset* (Vector2) - The aiming reticle's offset, relative to the top-left of the aiming retical.
         - radiusSprite* (Sprite) - The aiming reticle's sprite for spheres with ranged effects, like Fireballs or Color Clouds.
+        - colorFadeTime* (number) [>0] - The time which the reticle should take to fade into the new color, in seconds.
+        - nextColorFadeTime* (number) [>0] - The time which the reticle's next color indicator should take to fade into the new color, in seconds.
     - sounds (object) - Defines the sounds the shooter makes.
         - sphereSwap (SoundEvent) - A sound event played when the shooter's spheres are swapped.
         - sphereFill (SoundEvent) - A sound event played when the shooter is filled with newly generated spheres.

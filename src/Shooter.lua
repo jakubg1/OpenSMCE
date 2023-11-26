@@ -32,6 +32,13 @@ function Shooter:new(data)
     self.speedShotAnim = 0
     self.speedShotParticle = nil
 
+    self.reticleColor = 0
+    self.reticleOldColor = nil
+    self.reticleColorFade = nil
+    self.reticleNextColor = 0
+    self.reticleOldNextColor = nil
+    self.reticleNextColorFade = nil
+
     self.multiColorColor = nil
     self.multiColorCount = 0
 
@@ -151,6 +158,22 @@ function Shooter:update(dt)
         end
     end
 
+    -- Update the reticle color fade animation.
+    if self.reticleColorFade then
+        self.reticleColorFade = self.reticleColorFade + dt
+        if self.reticleColorFade >= self.config.reticle.colorFadeTime then
+            self.reticleOldColor = nil
+            self.reticleColorFade = nil
+        end
+    end
+    if self.reticleNextColorFade then
+        self.reticleNextColorFade = self.reticleNextColorFade + dt
+        if self.reticleNextColorFade >= self.config.reticle.nextColorFadeTime then
+            self.reticleOldNextColor = nil
+            self.reticleNextColorFade = nil
+        end
+    end
+
     -- Update the sphere entity position.
     if self.sphereEntity then
         self.sphereEntity:setPos(self:getSpherePos())
@@ -174,6 +197,12 @@ function Shooter:setColor(color)
         else
             self.sphereEntity = SphereEntity(self:getSpherePos(), color)
         end
+
+        if self.config.reticle.colorFadeTime then
+            self.reticleOldColor = self.reticleColor
+            self.reticleColorFade = 0
+        end
+        self.reticleColor = color
     end
 end
 
@@ -183,6 +212,14 @@ end
 ---@param color integer The ID of a sphere color to be changed to. `0` will empty this slot.
 function Shooter:setNextColor(color)
     self.nextColor = color
+
+    if color ~= 0 then
+        if self.config.reticle.nextColorFadeTime then
+            self.reticleOldNextColor = self.reticleNextColor
+            self.reticleNextColorFade = 0
+        end
+        self.reticleNextColor = color
+    end
 end
 
 
@@ -399,7 +436,7 @@ function Shooter:drawSpeedShotBeam()
         love.graphics.setStencilTest("equal", 1)
     end
     -- apply color if wanted
-    local color = self.config.speedShotBeam.colored and self:getReticalColor() or Color()
+    local color = self.config.speedShotBeam.colored and self:getReticleColor() or Color()
     -- draw the beam
     self.speedShotSprite:draw(self:getSpherePos() + Vec2(0, 16):rotate(self.angle), Vec2(0.5, 1), nil, nil, self.angle, color, self.speedShotAnim, scale)
     -- reset the scissor
@@ -413,14 +450,14 @@ end
 ---Draws the reticle.
 function Shooter:drawReticle()
     local targetPos = self:getTargetPos()
-    local color = self:getReticalColor()
+    local color = self:getReticleColor()
     local sphereConfig = self:getSphereConfig()
-    if targetPos and self.color ~= 0 and sphereConfig.shootBehavior.type == "normal" then
+    if targetPos and sphereConfig.shootBehavior.type == "normal" then
         if self.reticleSprite then
             local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2()):rotate(self.angle)
             self.reticleSprite:draw(location, Vec2(0.5, 0), nil, nil, self.angle, color)
             if self.reticleNextSprite then
-                local nextColor = self:getNextReticalColor()
+                local nextColor = self:getNextReticleColor()
                 local nextLocation = location + (_ParseVec2(self.config.reticle.nextBallOffset) or Vec2()):rotate(self.angle)
                 self.reticleNextSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, self.angle, nextColor)
             end
@@ -478,25 +515,37 @@ end
 
 
 
----Returns the primary sphere color.
----@return table
-function Shooter:getReticalColor()
-    local color = self:getSphereConfig().color
-    if type(color) == "string" then
-        return _Game.resourceManager:getColorPalette(color):getColor(_TotalTime * self:getSphereConfig().colorSpeed)
-    else
-        return color
+---Returns the primary sphere color for the reticle.
+---@return Color
+function Shooter:getReticleColor()
+    if self.reticleColorFade then
+        local t = self.reticleColorFade / self.config.reticle.colorFadeTime
+        return self:getReticleColorForSphere(self.reticleColor) * t + self:getReticleColorForSphere(self.reticleOldColor) * (1 - t)
     end
+    return self:getReticleColorForSphere(self.reticleColor)
 end
 
----Returns the secondary sphere color.
----@return table
-function Shooter:getNextReticalColor()
-    local color = self:getNextSphereConfig().color
-    if type(color) == "string" then
-        return _Game.resourceManager:getColorPalette(color):getColor(_TotalTime * self:getNextSphereConfig().colorSpeed)
+---Returns the secondary sphere color for the reticle.
+---@return Color
+function Shooter:getNextReticleColor()
+    if self.reticleNextColorFade then
+        local t = self.reticleNextColorFade / self.config.reticle.nextColorFadeTime
+        return self:getReticleColorForSphere(self.reticleNextColor) * t + self:getReticleColorForSphere(self.reticleOldNextColor) * (1 - t)
+    end
+    return self:getReticleColorForSphere(self.reticleNextColor)
+end
+
+
+
+---Returns a would-be reticle color for a given sphere color, handling the color palettes.
+---@param color integer The sphere ID for which the color should be checked.
+---@return Color
+function Shooter:getReticleColorForSphere(color)
+    local config = _Game.configManager.spheres[color]
+    if type(config.color) == "string" then
+        return _Game.resourceManager:getColorPalette(config.color):getColor(_TotalTime * config.colorSpeed)
     else
-        return color
+        return Color(config.color.r, config.color.g, config.color.b)
     end
 end
 
@@ -648,7 +697,8 @@ function Shooter:deserialize(t)
     self.speedShotTime = t.speedShotTime
     self.speedShotSpeed = t.speedShotSpeed
 
-
+    self.reticleColor = t.color
+    self.reticleNextColor = t.nextColor
 
     self:spawnSphereEntity()
 end

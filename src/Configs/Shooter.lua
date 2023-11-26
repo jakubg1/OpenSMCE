@@ -54,7 +54,11 @@ function ShooterConfig:new(data, path)
         ---@type Vector2?
         nextBallOffset = data.reticle and _ParseVec2(data.reticle.nextBallOffset),
         ---@type Sprite?
-        radiusSprite = data.reticle and data.reticle.radiusSprite and _Game.resourceManager:getSprite(data.reticle.radiusSprite)
+        radiusSprite = data.reticle and data.reticle.radiusSprite and _Game.resourceManager:getSprite(data.reticle.radiusSprite),
+        ---@type number?
+        colorFadeTime = data.reticle and data.reticle.colorFadeTime,
+        ---@type number?
+        nextColorFadeTime = data.reticle and data.reticle.nextColorFadeTime
     }
 
     self.speedShotBeam = {

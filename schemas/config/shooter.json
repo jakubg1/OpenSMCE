@@ -96,6 +96,16 @@
                 "radiusSprite": {
                     "$ref": "../_structures/Sprite.json",
                     "description": "The aiming reticle's sprite for spheres with ranged effects, like Fireballs or Color Clouds."
+                },
+                "colorFadeTime": {
+                    "type": "number",
+                    "description": "The time which the reticle should take to fade into the new color, in seconds.",
+                    "exclusiveMinimum": 0.0
+                },
+                "nextColorFadeTime": {
+                    "type": "number",
+                    "description": "The time which the reticle's next color indicator should take to fade into the new color, in seconds.",
+                    "exclusiveMinimum": 0.0
                 }
             },
             "additionalProperties": false
