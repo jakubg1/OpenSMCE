@@ -185,11 +185,19 @@ function BootMain:draw()
 	-- GAME LIST
 	-----------------------------
 	love.graphics.print("Game List", 30, 270)
-	love.graphics.print(string.format("%s / %s", self.gameButtonsOffset + 1, self:getPageCount()), 436, 270)
 	for i, gameButton in ipairs(self.gameButtons) do
 		gameButton:draw()
 	end
 	love.graphics.setColor(1, 1, 1)
+	if #self.gameButtons == 0 then
+		love.graphics.print("Looks like you don't have any games installed...", 65, 350)
+		love.graphics.print("Install games to the \"games/\" directory", 100, 400)
+		love.graphics.print("or convert the original Luxor game (see README.txt)!", 40, 420)
+		self.buttons.pagePrev.visible = false
+		self.buttons.pageNext.visible = false
+	else
+		love.graphics.print(string.format("%s / %s", self.gameButtonsOffset + 1, self:getPageCount()), 436, 270)
+	end
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", 30, 300, 490, 200) -- frame
 
