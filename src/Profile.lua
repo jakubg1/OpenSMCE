@@ -58,7 +58,7 @@ end
 
 -- Variables
 
----Sets the player's variable. Used to store various states per profile, saved between opens.
+---Sets the player's variable. Used to store various states per profile. They persist after reopening the game.
 ---@param name string The name of the variable.
 ---@param value any The value to be stored. Only primitive types are allowed.
 function Profile:setVariable(name, value)
@@ -265,7 +265,10 @@ end
 
 
 ---Returns the player's current level data. This is NOT level data which is stored on any config file!
----The returned level data structure contains information about win and lose count, and level record.
+---The returned level data structure is a table with three entries:
+--- - `score` - The currently highest score for this level.
+--- - `won` - How many times this level has been beaten.
+--- - `lost` - How many times this level has been lost.
 ---@return table
 function Profile:getCurrentLevelData()
 	return self.levels[self:getLevelIDStr()]
