@@ -17,13 +17,16 @@ function Scorpion:new(path, deserializationTable)
 	self.path = path
 
 	self.config = _Game.configManager.gameplay.scorpion
+	self.config.offset = self.config.offset or 0
+	self.config.acceleration = self.config.acceleration or 0
 
 
 
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
-		self.offset = path.length
+		self.offset = path.length - self.config.offset
+		self.speed = self.config.speed
 		self.distance = 0
 		self.trailDistance = 0
 		self.destroyedSpheres = 0
@@ -46,7 +49,8 @@ end
 ---@param dt number Delta time in seconds.
 function Scorpion:update(dt)
 	-- Offset and distance
-	self.offset = self.offset - self.config.speed * dt
+	self.speed = self.speed + self.config.acceleration * dt
+	self.offset = self.offset - self.speed * dt
 	self.distance = self.path.length - self.offset
 	-- Destroying spheres
 	while not self:shouldExplode() do
@@ -182,6 +186,7 @@ end
 function Scorpion:serialize()
 	local t = {
 		offset = self.offset,
+		speed = self.speed,
 		distance = self.distance,
 		trailDistance = self.trailDistance,
 		destroyedSpheres = self.destroyedSpheres,
@@ -198,6 +203,7 @@ end
 ---@param t table The data to be loaded.
 function Scorpion:deserialize(t)
 	self.offset = t.offset
+	self.speed = t.speed
 	self.distance = t.distance
 	self.trailDistance = t.trailDistance
 	self.destroyedSpheres = t.destroyedSpheres

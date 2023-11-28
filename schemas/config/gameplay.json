@@ -255,10 +255,20 @@
                     "description": "The maximum amount of chains the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.",
                     "exclusiveMinimum": 0
                 },
+                "offset": {
+                    "type": "number",
+                    "description": "The starting offset of the Scorpion, counting from the end of the path, in pixels.",
+                    "minimum": 0.0
+                },
                 "speed": {
                     "type": "number",
-                    "description": "How fast does the Scorpion move, in pixels per second.",
-                    "exclusiveMinimum": 0.0
+                    "description": "The starting speed of the Scorpion, in pixels per second.",
+                    "minimum": 0.0
+                },
+                "acceleration": {
+                    "type": "number",
+                    "description": "How fast does the Scorpion accelerate per second.",
+                    "minimum": 0.0
                 },
                 "trailParticle": {
                     "$ref": "../_structures/Particle.json",

@@ -46,7 +46,9 @@
         - shadowSprite (Sprite) - The shadow sprite to be used by the Scorpion.
         - maxSpheres* (integer) [>0] - The maximum amount of spheres the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.
         - maxChains* (integer) [>0] - The maximum amount of chains the Scorpion can destroy. When exceeded, the Scorpion is destroyed. May not exist when no such limit is expected.
-        - speed (number) [>0] - How fast does the Scorpion move, in pixels per second.
+        - offset* (number) [>=0] - The starting offset of the Scorpion, counting from the end of the path, in pixels.
+        - speed (number) [>=0] - The starting speed of the Scorpion, in pixels per second.
+        - acceleration* (number) [>=0] - How fast does the Scorpion accelerate per second.
         - trailParticle* (Particle) - A one-time particle packet which the Scorpion would emit. May be omitted if no particles are supposed to be generated.
         - trailParticleDistance* (number) [>0] - Every how many pixels a specified particle will spawn. May not exist if `trailParticle` is not specified.
         - loopSound (SoundEvent) - A looping sound event which is played during Scorpion's existence.
