@@ -16,16 +16,6 @@ local f = {}
 -- chainLv (number) - A chain reaction level - how many matches were done in a row via magnetization.
 -- comboBoost (boolean) - Whether the match was done by a player (a sphere was shot into).
 
--- If this method returns true, a coin will be spawned.
-function f.coinSpawn(length, comboLv, chainLv, comboBoost)
-  return length > 4 and math.random() < (length - 3) * 0.25
-end
-
--- If this method returns true, a powerup will be spawned.
-function f.powerupSpawn(length, comboLv, chainLv, comboBoost)
-  return (chainLv == 1 and comboBoost and comboLv % 3 == 0) or chainLv % 3 == 0
-end
-
 -- This function returns parameters for Game:playSound() when matching. Used for sound robustness.
 function f.matchSound(length, comboLv, chainLv, comboBoost)
   local soundID = math.min(math.max(length - 2, 1), 5)
