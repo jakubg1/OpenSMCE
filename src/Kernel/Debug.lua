@@ -186,6 +186,7 @@ function Debug:getDebugLevel()
 	local s = ""
 
 	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
+	s = s .. string.format("Accuracy = %s / %s (%.0d%%)", _Game.session.level.successfulShots, _Game.session.level.spheresShot, _Game.session.level:getShotAccuracy() * 100) .. "\n"
 	s = s .. "Objectives:\n"
 	for i, objective in ipairs(_Game.session.level.objectives) do
 		s = s .. string.format("  %s: %s %s/%s\n", i, objective.type, objective.progress, objective.target)

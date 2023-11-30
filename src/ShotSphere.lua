@@ -142,12 +142,15 @@ function ShotSphere:moveStep()
 				-- calculate time
 				self.hitTimeMax = d / self.speed * 5
 				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects, self:getGapSizeList())
-				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1 and sphereConfig.hitSoundBad
+				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 			end
 			if shotCancelled then
 				self.hitSphere = nil -- avoid deleting this time
 			else
-				_Game:playSound(badShot and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
+				_Game:playSound((badShot and sphereConfig.hitSoundBad) and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
+				if not badShot then
+					_Game.session.level:markSuccessfulShot()
+				end
 			end
 		end
 	end

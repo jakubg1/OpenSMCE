@@ -40,6 +40,7 @@ function UIManager:new()
     levelGetMaxChain = function() return _Game.session.level.maxChain end,
     levelGetNewRecord = function() return _Game.session.level:hasNewScoreRecord() end,
     levelGetCombo = function() return _Game.session.level.combo end,
+    levelGetAccuracy = function() return _Game.session.level:getShotAccuracy() end,
 
     musicVolume = function(music, volume) _Game:getMusic(music):setVolume(volume) end,
 

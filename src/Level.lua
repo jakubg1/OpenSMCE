@@ -391,6 +391,24 @@ end
 
 
 
+---Adds one to the successful shot counter, which is used to calculate accuracy.
+function Level:markSuccessfulShot()
+	self.successfulShots = self.successfulShots + 1
+end
+
+
+
+---Returns the percentage of shot spheres which have successfully landed.
+---@return number
+function Level:getShotAccuracy()
+	if self.spheresShot == 0 then
+		return 1
+	end
+	return self.successfulShots / self.spheresShot
+end
+
+
+
 ---Returns the fraction of progress of the given objective as a number in a range [0, 1].
 ---@param n integer The objective index.
 ---@return number
@@ -842,6 +860,7 @@ function Level:reset()
 	self.time = 0
 
 	self.spheresShot = 0
+	self.successfulShots = 0
 	self.sphereChainsSpawned = 0
 	self.maxChain = 0
 	self.maxCombo = 0
@@ -1003,6 +1022,7 @@ function Level:serialize()
 			coins = self.coins,
 			gems = self.gems,
 			spheresShot = self.spheresShot,
+			successfulShots = self.successfulShots,
 			sphereChainsSpawned = self.sphereChainsSpawned,
 			maxChain = self.maxChain,
 			maxCombo = self.maxCombo
@@ -1046,6 +1066,7 @@ function Level:deserialize(t)
 	self.coins = t.stats.coins
 	self.gems = t.stats.gems
 	self.spheresShot = t.stats.spheresShot
+	self.successfulShots = t.stats.successfulShots
 	self.sphereChainsSpawned = t.stats.sphereChainsSpawned
 	self.maxChain = t.stats.maxChain
 	self.maxCombo = t.stats.maxCombo
