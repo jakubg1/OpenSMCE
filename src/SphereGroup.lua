@@ -462,7 +462,7 @@ function SphereGroup:divide(position)
 	-- first, create a new group and give its properties there
 	local newGroup = SphereGroup(self.sphereChain)
 	newGroup.offset = self:getSphereOffset(position + 1)
-	newGroup.speed = ((self.config.luxorized and self.sphereChain.combo > 1) or self.config.knockbackStopAfterTime) and 0 or self.speed
+	newGroup.speed = self.config.knockbackStopAfterTime and 0 or self.speed
 	for i = position + 1, #self.spheres do
 		local sphere = self.spheres[i]
 		sphere.sphereGroup = newGroup
@@ -679,6 +679,12 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	end
 	if prevSphere and prevSphere:isStone() then
 		self:destroySphere(self:getSphereID(prevSphere))
+	end
+
+	-- Now that we've finished destroying the spheres, we can adjust the group speed.
+	-- TODO: This is dirty. See issue #121 for a potential resolution.
+	if self.config.luxorized and self.nextGroup and self.nextGroup.speed < 0 and #self.spheres > 0 and (self:getLastSphere().color == 0 or not self.nextGroup:isMagnetizing()) then
+		self.nextGroup.speed = 0
 	end
 
 	-- Play a sound.
