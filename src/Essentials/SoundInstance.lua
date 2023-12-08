@@ -50,15 +50,15 @@ function SoundInstance:setPitch(pitch)
   self.sound:setPitch(pitch)
 end
 
----Sets the position of this Instance. Calling this on a stereo instance will crash the game!
+---Sets the position of this Instance.
 ---@param pos Vector2? The new position. Passing `nil` does nothing.
 function SoundInstance:setPos(pos)
   -- pos may be nilled by SoundEvent when flat flag is set
-  if not pos then
+  if not pos or self.sound:getChannelCount() > 1 then
     return
   end
 
-  if _EngineSettings:get3DSound() and pos then
+  if _EngineSettings:get3DSound() then
     self.pos = pos
     local p = pos - _Game:getNativeResolution() / 2
     self.sound:setPosition(p.x, p.y, _Game:getNativeResolution().x * 2.5)
