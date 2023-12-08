@@ -3,3 +3,4 @@
     - loop* (boolean) - Whether the sample should loop.
     - flat* (boolean) - If set, the 3D positioning will be disabled for this Sound Event. Note that if you use a stereo Sound, 3D positioning will be forcefully disabled and this flag will have no effect on the playback.
     - volume* (number) [>=0] - The base volume of the sound.
+    - instances* (integer) [>0] - The number of instances of this sound which can be played at once. Defaults to 8.

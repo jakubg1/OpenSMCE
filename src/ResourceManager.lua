@@ -78,8 +78,8 @@ end
 ---Updates the Resource Manager. This includes updating sound and music, and also loads a next group of files during the step load process.
 ---@param dt number Delta time in seconds.
 function ResourceManager:update(dt)
-	for i, sound in pairs(self.sounds) do
-		sound:update(dt)
+	for i, soundEvent in pairs(self.soundEvents) do
+		soundEvent:update(dt)
 	end
 	for i, music in pairs(self.music) do
 		music:update(dt)
@@ -403,8 +403,8 @@ function ResourceManager:unload()
 	for musicN, music in pairs(self.music) do
 		music:stop()
 	end
-	for soundN, sound in pairs(self.sounds) do
-		sound:stop()
+	for soundEventN, soundEvent in pairs(self.soundEvents) do
+		soundEvent:stop()
 	end
 end
 

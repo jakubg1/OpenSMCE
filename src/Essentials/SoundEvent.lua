@@ -5,6 +5,8 @@ local class = require "com.class"
 ---@overload fun(path):SoundEvent
 local SoundEvent = class:derive("SoundEvent")
 
+local SoundInstance = require("src.Essentials.SoundInstance")
+
 
 
 ---Constructs a Sound Event. This represents data from a file located in the `sound_events` folder.
@@ -13,46 +15,74 @@ function SoundEvent:new(path)
     self.path = path
     local data = _LoadJson(path)
 
-    self.sound = nil
-    if data.path then
-        self.sound = _Game.resourceManager:getSound(data.path)
-    end
     self.volume = data.volume or 1
     self.pitch = data.volume or 1
     self.loop = data.loop or false
     self.flat = data.flat or false
+    self.instanceCount = data.instances or 8
+
+    self.instances = {}
+    if data.path then
+        local sound = _Game.resourceManager:getSound(data.path)
+        for i = 1, self.instanceCount do
+            self.instances[i] = SoundInstance(love.audio.newSource(sound.data, "static"))
+        end
+    end
 end
 
 
 
----Plays a Sound Event and returns itself, a SoundInstance or `nil`.
----In principle, this should allow the caller to change the sound parameters (position) later on.
----In practice, this could lead to crashes.
----  - Returns itself if this Sound Event does not have any sound assigned to it.
+---Updates the Sound Event. This is required so that the sound volume can update according to the game volume.
+---@param dt number Time delta in seconds.
+function SoundEvent:update(dt)
+	for i, instance in ipairs(self.instances) do
+		instance:update(dt)
+	end
+end
+
+
+
+---Returns the first free instance of this SoundEvent's sound, or `1` if none are available right now (play the first instance).
+---Can return `nil` if this SoundEvent has no sound assigned to it.
+---@return SoundInstance?
+function SoundEvent:getFreeInstance()
+	for i, instance in ipairs(self.instances) do
+		if not instance:isPlaying() then
+			return instance
+		end
+	end
+    return self.instances[1]
+end
+
+
+
+---Plays a Sound Event and returns a SoundInstance or itself.
+---Returning a SoundInstance allows the caller to change the sound parameters (position) while the sound is playing.
 ---  - Returns a `SoundInstance` instance if the assigned sound has been correctly played.
----  - Returns `nil` if the assigned sound has not been played due to exhaustion of available instances.
+---  - Returns itself if this Sound Event does not have any sound assigned to it.
 ---@param pitch number? The pitch of the sound. Defaults to 1. This is multiplied by the event-defined pitch.
 ---@param pos Vector2? The position of the sound for sounds which support 3D positioning.
----@return SoundEvent|SoundInstance|nil
+---@return SoundEvent|SoundInstance
 function SoundEvent:play(pitch, pos)
-    if not self.sound then
+    local instance = self:getFreeInstance()
+    if not instance then
         return self
     end
-    pitch = pitch or 1
-    local eventVolume = _ParseNumber(self.volume)
-    local eventPitch = _ParseNumber(self.pitch)
-    local eventPos = not self.flat and pos
-    return self.sound:play(eventVolume, pitch * eventPitch, eventPos, self.loop)
+    instance:setVolume(_ParseNumber(self.volume))
+    instance:setPitch(_ParseNumber(self.pitch) * (pitch or 1))
+    instance:setPos(not self.flat and pos)
+    instance:setLoop(self.loop)
+    instance:play()
+    return instance
 end
 
 
 
----Stops the sound assigned to this Sound Event.
+---Stops all the sound instances assigned to this Sound Event.
 function SoundEvent:stop()
-    if not self.sound then
-        return
-    end
-    self.sound:stop()
+	for i, instance in ipairs(self.instances) do
+		instance:stop()
+	end
 end
 
 

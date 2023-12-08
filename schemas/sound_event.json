@@ -20,6 +20,11 @@
             "type": "number",
             "description": "The base volume of the sound.",
             "minimum": 0.0
+        },
+        "instances": {
+            "type": "integer",
+            "description": "The number of instances of this sound which can be played at once. Defaults to 8.",
+            "exclusiveMinimum": 0
         }
     },
     "additionalProperties": false
