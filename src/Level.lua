@@ -582,7 +582,7 @@ function Level:generateColor(data)
 					local sphere = sphereGroup.spheres[j]
 					local color = sphere.color
 					-- If this color is generatable, check if we're lucky this time.
-					if _MathIsValueInTable(data.colors, color) then
+					if _Utils.isValueInTable(data.colors, color) then
 						if math.random() < data.selectChance then
 							return color
 						end

@@ -272,7 +272,7 @@ function Debug:drawVisibleText(text, pos, height, width, alpha)
 	if width then
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
 	else
-		love.graphics.rectangle("fill", pos.x - 3, pos.y, love.graphics.getFont():getWidth(_StrUnformat(text)) + 6, height)
+		love.graphics.rectangle("fill", pos.x - 3, pos.y, love.graphics.getFont():getWidth(_Utils.strUnformat(text)) + 6, height)
 	end
 	love.graphics.setColor(1, 1, 1, alpha)
 	love.graphics.print(text, pos.x, pos.y)
@@ -283,7 +283,7 @@ function Debug:drawDebugInfo()
 	--local p = posOnScreen(Vec2())
 	local p = Vec2()
 
-	local spl = _StrSplit(self:getDebugInfo(), "\n")
+	local spl = _Utils.strSplit(self:getDebugInfo(), "\n")
 
 	for i, l in ipairs(spl) do
 		self:drawVisibleText(l, p + Vec2(0, 15 * (i - 1)), 15)
@@ -360,7 +360,7 @@ end
 
 
 function Debug:runCommand(command)
-	local words = _StrSplit(command, " ")
+	local words = _Utils.strSplit(command, " ")
 
 	if words[1] == "p" then
 		local t = {fire = "bomb", ligh = "lightning", wild = "wild", bomb = "colorbomb", slow = "slow", stop = "stop", rev = "reverse", shot = "shotspeed"}
@@ -500,7 +500,7 @@ end
 
 
 function Debug:getWitty()
-	local witties = _StrSplit(_LoadFile("assets/eggs_crash.txt"), "\n")
+	local witties = _Utils.strSplit(_Utils.loadFile("assets/eggs_crash.txt"), "\n")
 	return witties[math.random(1, #witties)]
 end
 

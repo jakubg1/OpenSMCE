@@ -27,8 +27,8 @@ end
 ---Loads runtime data from `runtime.json`. If the file doesn't exist or is corrupted, generates a new runtime and prints a message to the log.
 function RuntimeManager:load()
 	-- if runtime.json exists, then load it
-	if pcall(function() _LoadJson(_ParsePath("runtime.json")) end) then
-		local data = _LoadJson(_ParsePath("runtime.json"))
+	if pcall(function() _Utils.loadJson(_ParsePath("runtime.json")) end) then
+		local data = _Utils.loadJson(_ParsePath("runtime.json"))
 
 		self.profileManager = ProfileManager(data.profiles)
 		self.highscores = Highscores(data.highscores)
@@ -58,7 +58,7 @@ function RuntimeManager:save()
 	data.highscores = self.highscores.data
 	data.options = self.options.data
 
-	_SaveJson(_ParsePath("runtime.json"), data)
+	_Utils.saveJson(_ParsePath("runtime.json"), data)
 end
 
 

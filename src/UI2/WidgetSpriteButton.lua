@@ -161,7 +161,7 @@ function UI2WidgetSpriteButton:keypressed(key)
 	if not self:isEnabled() then
 		return
 	end
-	if _MathIsValueInTable(self.hotkeys, key) then
+	if _Utils.isValueInTable(self.hotkeys, key) then
 		if self.callbacks.onClick then
 			self.node.manager:executeCallback(self.callbacks.onClick)
 		end

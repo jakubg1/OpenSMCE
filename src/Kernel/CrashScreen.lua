@@ -13,10 +13,10 @@ function CrashScreen:new(err)
 	self.err = err
 	
 	-- prepare fonts of various sizes
-	self.font = _LoadFont("assets/dejavusans.ttf")
-	self.fontMed = _LoadFont("assets/dejavusans.ttf", 14)
-	self.fontBig = _LoadFont("assets/dejavusans.ttf", 18)
-	self.fontGiant = _LoadFont("assets/dejavusans.ttf", 30)
+	self.font = _Utils.loadFont("assets/dejavusans.ttf")
+	self.fontMed = _Utils.loadFont("assets/dejavusans.ttf", 14)
+	self.fontBig = _Utils.loadFont("assets/dejavusans.ttf", 18)
+	self.fontGiant = _Utils.loadFont("assets/dejavusans.ttf", 30)
 	
 	-- button data
 	self.buttons = {

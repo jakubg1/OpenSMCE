@@ -8,7 +8,7 @@ local CollectibleGeneratorEntry = class:derive("CollectibleGeneratorEntry")
 
 function CollectibleGeneratorEntry:new(manager, name)
   self.manager = manager
-  self.data = _LoadJson(_ParsePath(string.format("config/collectible_generators/%s", name)))
+  self.data = _Utils.loadJson(_ParsePath(string.format("config/collectible_generators/%s", name)))
 end
 
 
@@ -70,7 +70,7 @@ function CollectibleGeneratorEntry:evaluate(entry)
     end
     -- Choose a random item from the pool.
     if #p > 0 then
-      return p[_MathWeightedRandom(weights)]
+      return p[_Utils.weightedRandom(weights)]
     else
       -- If there's nothing to pick from, return an empty list.
       return {}

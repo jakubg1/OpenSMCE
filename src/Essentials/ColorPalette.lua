@@ -10,7 +10,7 @@ local Color = require("src.Essentials.Color")
 
 
 function ColorPalette:new(path)
-	self.data = _LoadImageData(path)
+	self.data = _Utils.loadImageData(path)
 	if not self.data then
 		error("Failed to load image data: " .. path)
 	end

@@ -13,8 +13,8 @@ function BootMain:new(bootScreen)
   	self.bootScreen = bootScreen
 
 	-- prepare fonts of various sizes
-	self.font = _LoadFont("assets/dejavusans.ttf")
-	self.fontBig = _LoadFont("assets/dejavusans.ttf", 18)
+	self.font = _Utils.loadFont("assets/dejavusans.ttf")
+	self.fontBig = _Utils.loadFont("assets/dejavusans.ttf", 18)
 
 	-- github url link
 	self.url = "https://github.com/jakubg1/OpenSMCE"

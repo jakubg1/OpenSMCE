@@ -14,8 +14,8 @@ function BootSettings:new(bootScreen)
   	self.bootScreen = bootScreen
 
 	-- prepare fonts of various sizes
-	self.font = _LoadFont("assets/dejavusans.ttf")
-	self.fontBig = _LoadFont("assets/dejavusans.ttf", 18)
+	self.font = _Utils.loadFont("assets/dejavusans.ttf")
+	self.fontBig = _Utils.loadFont("assets/dejavusans.ttf", 18)
 
 	-- buttons
 	self.saveBtn = Button("Save", self.fontBig, Vec2(540, 530), Vec2(230, 24), function() _EngineSettings:save(); self.bootScreen:setScene("main") end)

@@ -25,7 +25,7 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	self.paths = {}
 	self.sprites = {}
 
-	local data = _LoadJson(_ParsePath(path .. "/config.json"))
+	local data = _Utils.loadJson(_ParsePath(path .. "/config.json"))
 	self.name = data.name
 	for i, spriteData in ipairs(data.sprites) do
 		local spritePath = spriteData.path

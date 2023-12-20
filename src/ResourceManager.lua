@@ -42,7 +42,7 @@ function ResourceManager:new()
 		sound = {t = self.sounds, c = Sound, e = "sound"},
 		soundEvent = {t = self.soundEvents, c = SoundEvent, e = "sound event"},
 		music = {t = self.music, c = Music, e = "music"},
-		particle = {t = self.particles, c = _LoadJson, e = "particle"},
+		particle = {t = self.particles, c = _Utils.loadJson, e = "particle"},
 		font = {t = self.fonts, c = Font, e = "font"},
 		colorPalette = {t = self.colorPalettes, c = ColorPalette, e = "color palette"},
 
@@ -280,7 +280,7 @@ function ResourceManager:loadResource(type, path)
 	local success, err = pcall(function()
 		if data.p then
 			-- TODO: Another set of parameters for config classes. To be sorted out not-so-soon!
-			data.t[path] = data.c(_LoadJson(_ParsePath(path)), _ParsePath(path))
+			data.t[path] = data.c(_Utils.loadJson(_ParsePath(path)), _ParsePath(path))
 		else
 			data.t[path] = data.c(_ParsePath(path))
 		end

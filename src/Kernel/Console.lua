@@ -23,8 +23,8 @@ function Console:new()
 
 	self.MAX_MESSAGES = 20
 
-	self.font = _LoadFont("assets/dejavusans.ttf")
-	self.consoleFont = _LoadFont("assets/unifont.ttf", 16)
+	self.font = _Utils.loadFont("assets/dejavusans.ttf")
+	self.consoleFont = _Utils.loadFont("assets/unifont.ttf", 16)
 end
 
 function Console:update(dt)
@@ -44,7 +44,7 @@ function Console:print(message)
 		message = tostring(message)
 	end
 	table.insert(self.history, {text = message, time = _TotalTime})
-	_Log:printt("CONSOLE", _StrUnformat(message))
+	_Log:printt("CONSOLE", _Utils.strUnformat(message))
 end
 
 function Console:setOpen(open)

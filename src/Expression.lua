@@ -214,7 +214,7 @@ end
 ---@return table?
 ---@return string?
 function Expression:getToken(str)
-	str = _StrTrim(str)
+	str = _Utils.strTrim(str)
 
 	-- Let's compare the first character.
 	local c = string.sub(str, 1, 1)

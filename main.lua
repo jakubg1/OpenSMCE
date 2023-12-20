@@ -15,8 +15,7 @@ os = {
 require("crash")
 
 -- global utility methods
-require("src.strmethods")
-require("src.mathmethods")
+_Utils = require("com.utils")
 
 local json = require("com.json")
 
@@ -110,7 +109,7 @@ function love.load()
 	_DiscordRPC = DiscordRichPresence()
 	
     -- If autoload.txt exists, load the game name from there
-    local autoload = _LoadFile("autoload.txt") or nil
+    local autoload = _Utils.loadFile("autoload.txt") or nil
 	if autoload then
         _LoadGame(autoload)
     else
@@ -240,14 +239,6 @@ function _GetPreciseTime()
 	return love.timer.getTime() - _START_TIME
 end
 
-function _GetRainbowColor(t)
-	t = t * 3
-	local r = math.min(math.max(2 * (1 - math.abs(t % 3)), 0), 1) + math.min(math.max(2 * (1 - math.abs((t % 3) - 3)), 0), 1)
-	local g = math.min(math.max(2 * (1 - math.abs((t % 3) - 1)), 0), 1)
-	local b = math.min(math.max(2 * (1 - math.abs((t % 3) - 2)), 0), 1)
-	return Color(r, g, b)
-end
-
 
 
 ---Used internally as a common part of `_GetNewestVersion` and `_GetNewestVersionThreaded`.
@@ -295,170 +286,6 @@ function _GetNewestVersionThreaded(onFinish, caller)
 			onFinish(_ParseNewestVersion(result))
 		end
 	end)
-end
-
-
-
-
-
-function _LoadFile(path)
-	local file, err = io.open(path, "r")
-	if not file then
-		_Log:printt("main", string.format("WARNING: Error during loading: \"%s\" (%s): expect errors!", path, err))
-		return
-	end
-	io.input(file)
-	local contents = io.read("*a")
-	io.close(file)
-	return contents
-end
-
-function _LoadJson(path)
-	local contents = _LoadFile(path)
-	assert(contents, string.format("Could not JSON-decode: %s, file does not exist", path))
-	local success, data = pcall(function() return json.decode(contents) end)
-	assert(success, string.format("JSON error: %s: %s", path, data))
-	assert(data, string.format("Could not JSON-decode: %s, error in file contents", path))
-	return data
-end
-
--- This function allows to load images from external sources.
--- This is an altered code from https://love2d.org/forums/viewtopic.php?t=85350#p221460
-function _LoadImageData(path)
-	local f = io.open(path, "rb")
-	if f then
-		local data = f:read("*all")
-		f:close()
-		if data then
-			data = love.filesystem.newFileData(data, "tempname")
-			data = love.image.newImageData(data)
-			return data
-		end
-	end
-end
-
-function _LoadImage(path)
-	local imageData = _LoadImageData(path)
-	assert(imageData, string.format("LOAD IMAGE FAIL: %s", path))
-	local image = love.graphics.newImage(imageData)
-	return image
-end
-
--- This function allows to load sounds from external sources.
--- This is an altered code from the above function.
-function _LoadSoundData(path)
-	local f = io.open(path, "rb")
-	if f then
-		local data = f:read("*all")
-		f:close()
-		if data then
-			-- to make everything work properly, we need to get the extension from the path, because it is used
-			-- source: https://love2d.org/wiki/love.filesystem.newFileData
-			local t = _StrSplit(path, ".")
-			local extension = t[#t]
-			data = love.filesystem.newFileData(data, "tempname." .. extension)
-			data = love.sound.newSoundData(data)
-			return data
-		end
-	end
-end
-
-function _LoadSound(path, type)
-	local soundData = _LoadSoundData(path)
-	assert(soundData, string.format("LOAD SOUND FAIL: %s", path))
-	local sound = love.audio.newSource(soundData, type)
-	return sound
-end
-
-function _LoadSounds(path, type, instanceCount)
-	local soundData = _LoadSoundData(path)
-	assert(soundData, string.format("LOAD SOUND FAIL: %s", path))
-	local sounds = {}
-	for i = 1, instanceCount do
-		table.insert(sounds, love.audio.newSource(soundData, type))
-	end
-	return sounds
-end
-
--- This function allows to load fonts from external sources.
--- This is an altered code from the above function.
-function _LoadFontData(path, size)
-	local f = io.open(path, "rb")
-	if f then
-		local data = f:read("*all")
-		f:close()
-		if data then
-			data = love.filesystem.newFileData(data, "tempname")
-			data = love.font.newRasterizer(data, size)
-			return data
-		end
-	end
-end
-
-function _LoadFont(path, size)
-	local fontData = _LoadFontData(path, size)
-	assert(fontData, string.format("LOAD FONT FAIL: %s", path))
-	local font = love.graphics.newFont(fontData)
-	return font
-end
-
-
-
-function _SaveFile(path, data)
-	local file = io.open(path, "w")
-	assert(file, string.format("SAVE FILE FAIL: %s", path))
-	io.output(file)
-	io.write(data)
-	io.close(file)
-end
-
-function _SaveJson(path, data)
-	_Log:printt("main", "Saving JSON data to " .. path .. "...")
-	_SaveFile(path, _JsonBeautify(json.encode(data)))
-end
-
-function _GetDirListing(path, filter, extFilter, recursive, pathRec)
-	-- Returns a list of directories and/or files in a given path.
-	-- filter can be "all", "dir" for directories only or "file" for files only.
-	filter = filter or "all"
-	pathRec = pathRec or ""
-
-	local result = {}
-	-- If it's compiled /fused/, this piece of code is needed to be able to read the external files
-	if love.filesystem.isFused() then
-		local success = love.filesystem.mount(love.filesystem.getSourceBaseDirectory(), _FSPrefix)
-		if not success then
-			local msg = string.format("Failed to read contents of folder: \"%s\". Report this error to a developer.", path)
-			error(msg)
-		end
-	end
-	-- Now we can access the directory regardless of whether it's fused or not.
-	local items = love.filesystem.getDirectoryItems(path .. "/" .. pathRec)
-	-- Each folder will get a / character on the end BUT ONLY IN "ALL" FILTER so it's easier to tell whether this is a file or a directory.
-	for i, item in ipairs(items) do
-		local p = path .. "/" .. pathRec .. item
-		if love.filesystem.getInfo(p).type == "directory" then
-			if filter == "all" then
-				table.insert(result, pathRec .. item .. "/")
-			elseif filter == "dir" then
-				table.insert(result, pathRec .. item)
-			end
-			if recursive then
-				for j, file in ipairs(_GetDirListing(path, filter, extFilter, true, pathRec .. item .. "/")) do
-					table.insert(result, file)
-				end
-			end
-		else
-			if filter == "all" or filter == "file" and (not extFilter or item:sub(item:len() - extFilter:len() + 1) == extFilter) then
-				table.insert(result, pathRec .. item)
-			end
-		end
-	end
-	-- Unmount it so we don't get into safety problems.
-	if pathRec == "" then
-		love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
-	end
-	return result
 end
 
 

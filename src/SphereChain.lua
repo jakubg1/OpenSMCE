@@ -170,7 +170,7 @@ function SphereChain:hasGeneratableSpheres()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
 		local remTable = _Game.session.level:getCurrentColorGenerator().colors
 		for j, sphere in ipairs(sphereGroup.spheres) do
-			if _MathIsValueInTable(remTable, sphere.color) then
+			if _Utils.isValueInTable(remTable, sphere.color) then
 				return true
 			end
 		end

@@ -60,7 +60,7 @@ function Log:save(quit)
     if not quit then
         s = s .. "...This is not a final log; a few recent lines might have been omitted!\n"
     end
-    _SaveFile("log.txt", s)
+    _Utils.saveFile("log.txt", s)
 end
 
 

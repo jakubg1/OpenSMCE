@@ -7,7 +7,7 @@ local Music = class:derive("Music")
 
 
 function Music:new(path)
-	self.instance = _LoadSound(path, "stream")
+	self.instance = _Utils.loadSound(path, "stream")
 	if not self.instance then error("Failed to load sound: " .. path) end
 	self.instance:setLooping(true)
 

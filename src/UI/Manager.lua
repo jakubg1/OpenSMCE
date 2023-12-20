@@ -94,7 +94,7 @@ function UIManager:new()
 end
 
 function UIManager:initSplash()
-  self.widgets.splash = UIWidget("Splash", _LoadJson(_ParsePath("ui/splash.json")))
+  self.widgets.splash = UIWidget("Splash", _Utils.loadJson(_ParsePath("ui/splash.json")))
 
   self.script = require(_ParsePathDots("ui.script"))
   self:executeCallback("init")
@@ -105,7 +105,7 @@ function UIManager:init()
 	self.widgets.splash = nil
 
 	-- Setup the UI
-	self.widgets.root = UIWidget("Root", _LoadJson(_ParsePath("ui/root.json")))
+	self.widgets.root = UIWidget("Root", _Utils.loadJson(_ParsePath("ui/root.json")))
 end
 
 function UIManager:update(dt)
@@ -227,7 +227,7 @@ function UIManager:getWidget(names)
 end
 
 function UIManager:getWidgetN(names)
-  return self:getWidget(_StrSplit(names, "/"))
+  return self:getWidget(_Utils.strSplit(names, "/"))
 end
 
 function UIManager:optionsLoad()

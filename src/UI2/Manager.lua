@@ -164,7 +164,7 @@ end
 ---@param path string The path to the Node, starting with "root" or "splash" depending on the currently active root node, and next nodes separated by slashes.
 ---@return UI2Node?
 function UI2Manager:getNode(path)
-    local names = _StrSplit(path, "/")
+    local names = _Utils.strSplit(path, "/")
     local node = self.rootNodes[names[1]]
     for i, name in ipairs(names) do
         if i > 1 then

@@ -71,9 +71,9 @@ function BootScreen:getGames()
 
 	local games = {}
 
-	for i, name in ipairs(_GetDirListing("games", "dir")) do
+	for i, name in ipairs(_Utils.getDirListing("games", "dir")) do
 		_Log:printt("BootScreen", "Checking folder \"" .. name .. "\"...")
-		local success, result = pcall(function() return _LoadJson("games/" .. name .. "/config.json") end)
+		local success, result = pcall(function() return _Utils.loadJson("games/" .. name .. "/config.json") end)
 		if success then
 			table.insert(games, {name = name, config = result})
 			_Log:printt("BootScreen", "SUCCESS!")

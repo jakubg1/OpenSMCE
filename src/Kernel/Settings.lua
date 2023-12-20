@@ -71,11 +71,11 @@ end
 
 
 function Settings:save()
-	_SaveJson(self.path, self.data)
+	_Utils.saveJson(self.path, self.data)
 end
 
 function Settings:load()
-	local success, data = pcall(function() return _LoadJson(self.path) end)
+	local success, data = pcall(function() return _Utils.loadJson(self.path) end)
 
 	-- default options if not found
 	if success then self.data = data else self.data = nil end

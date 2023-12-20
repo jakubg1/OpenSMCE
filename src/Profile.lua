@@ -368,7 +368,7 @@ end
 ---@param n integer The checkpoint ID to be checked.
 ---@return boolean
 function Profile:isCheckpointUnlocked(n)
-	return _MathIsValueInTable(self.checkpoints, n)
+	return _Utils.isValueInTable(self.checkpoints, n)
 end
 
 ---Unlocks a given checkpoint for the player if it has not been unlocked yet.

@@ -13,7 +13,7 @@ local SoundInstance = require("src.Essentials.SoundInstance")
 ---@param path string The path to the `sound_events/*.json` file to load the event from.
 function SoundEvent:new(path)
     self.path = path
-    local data = _LoadJson(path)
+    local data = _Utils.loadJson(path)
 
     self.volume = data.volume or 1
     self.pitch = data.volume or 1

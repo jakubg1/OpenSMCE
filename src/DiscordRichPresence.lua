@@ -172,11 +172,11 @@ end
 ---Returns a random witty comment to be shown... uh, somewhere.
 ---@return string?
 function DiscordRichPresence:getEgg()
-	local rawEggs = _LoadFile("assets/eggs_rpc.txt")
+	local rawEggs = _Utils.loadFile("assets/eggs_rpc.txt")
 	if not rawEggs then
 		return
 	end
-	local eggs = _StrSplit(rawEggs, "\n")
+	local eggs = _Utils.strSplit(rawEggs, "\n")
 	return eggs[math.random(1, #eggs)]
 end
 

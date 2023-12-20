@@ -101,8 +101,8 @@ end
 -- Converts all the way up to the current version
 function VersionManager:convertGame(name, version)
   -- Backup copy is really important!
-  local contents = _LoadFile(string.format("games/%s/config.json", name))
-  _SaveFile(string.format("games/%s/config_orig_%s.json", name, version), contents)
+  local contents = _Utils.loadFile(string.format("games/%s/config.json", name))
+  _Utils.saveFile(string.format("games/%s/config_orig_%s.json", name, version), contents)
 
   local versionID = self:getVersionID(version)
   while versionID > 1 do
@@ -114,7 +114,7 @@ end
 -- Converts one version up
 function VersionManager:convertGameStep(name, version)
   local nextVersion = self.versions[self:getVersionID(version) - 1]
-  local nextVersionFile = _StrJoin(_StrSplit(nextVersion, "."), "_")
+  local nextVersionFile = _Utils.strJoin(_Utils.strSplit(nextVersion, "."), "_")
   _Log:printt("VersionManager", string.format("Conversion: %s from %s to %s", name, version, nextVersion))
   local mod = require(string.format("src/Kernel/Version/%s", nextVersionFile))
   mod.main(string.format("games/%s/", name))

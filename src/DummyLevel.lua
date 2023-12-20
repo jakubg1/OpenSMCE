@@ -13,7 +13,7 @@ local Map = require("src.Map")
 ---@param path string A path to the level file.
 function DummyLevel:new(path)
 	-- data specified in level config file
-	local data = _LoadJson(_ParsePath(path))
+	local data = _Utils.loadJson(_ParsePath(path))
 	
 	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior, true)
 end

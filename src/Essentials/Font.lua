@@ -12,7 +12,7 @@ local Color = require("src.Essentials.Color")
 function Font:new(path)
 	self.path = path
 
-	local data = _LoadJson(path)
+	local data = _Utils.loadJson(path)
 	self.type = data.type
 
 	if self.type == "image" then
@@ -28,7 +28,7 @@ function Font:new(path)
 
 		self.reportedCharacters = {}
 	elseif self.type == "truetype" then
-		self.font = _LoadFont(_ParsePath(data.path), data.size)
+		self.font = _Utils.loadFont(_ParsePath(data.path), data.size)
 		self.color = _ParseColor(data.color)
 	end
 end

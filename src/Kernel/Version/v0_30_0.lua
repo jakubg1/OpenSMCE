@@ -5,7 +5,7 @@ local f = {}
 -- path example: games/Luxor/
 function f.main(path)
   -- Load Config
-  local config = _LoadJson(path .. "config.json")
+  local config = _Utils.loadJson(path .. "config.json")
 
   -- Bump version
   config.engineVersion = "v0.30.0"
@@ -63,7 +63,7 @@ function f.main(path)
   -- This is a tough topic for now and that's why UI must be fully completed before 1.0.0 release.
 
   -- Save Config
-  _SaveJson(path .. "config.json", config)
+  _Utils.saveJson(path .. "config.json", config)
 end
 
 

@@ -14,7 +14,7 @@ local Image = require("src.Essentials.Image")
 ---@param path string A path to the sprite file.
 function Sprite:new(path)
 	self.path = path
-	local data = _LoadJson(path)
+	local data = _Utils.loadJson(path)
 
 	if data.internal then
 		self.img = Image(_ParsePath(data.path))
