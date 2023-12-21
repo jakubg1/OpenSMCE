@@ -22,6 +22,7 @@ Some of the features planned include:
 Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished. This includes both a reference manual and JSON schemas. For more information you can look at the following folders:
 - Reference manual (generated automatically from a Python script, uses data contained in `data.txt`): `doc/game`
 - JSON schemas: `schemas`
+- [An article on how the generation pipeline works and the syntax of .docl files.](https://github.com/jakubg1/OpenSMCE/wiki/The-Doc-Language)
 
 If you want to help me, don't hesitate to do so! If you have any questions or you need more information, make a ticket on the Issues page. Any support is greatly appreciated.
 
