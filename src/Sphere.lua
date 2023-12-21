@@ -4,7 +4,7 @@ local class = require "com.class"
 
 ---Represents a single Sphere which is inside of a Sphere Group on the board. Can have a lot of properties.
 ---@class Sphere
----@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity):Sphere
+---@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps):Sphere
 local Sphere = class:derive("Sphere")
 
 local Vec2 = require("src.Essentials.Vector2")

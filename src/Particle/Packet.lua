@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class ParticlePacket
----@overload fun(manager, data, pos):ParticlePacket
+---@overload fun(manager, data, pos, layer):ParticlePacket
 local ParticlePacket = class:derive("ParticlePacket")
 
 

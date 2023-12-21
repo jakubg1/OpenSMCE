@@ -134,7 +134,7 @@ end
 
 ---Opens a font file and returns its font data. Returns `nil` if the file has not been found.
 ---@param path string The path to the file.
----@param size integer The size of the font, in pixels.
+---@param size integer? The size of the font, in pixels. Defaults to LOVE-specified 12 pixels.
 ---@return love.Rasterizer?
 function utils.loadFontData(path, size)
 	local f = io.open(path, "rb")
@@ -153,7 +153,7 @@ end
 
 ---Opens a fond file and constructs `love.Font` from it. Errors out if the file has not been found.
 ---@param path string The path to the file.
----@param size integer The size of the font, in pixels.
+---@param size integer? The size of the font, in pixels. Defaults to LOVE-specified 12 pixels.
 ---@return love.Font
 function utils.loadFont(path, size)
 	local fontData = utils.loadFontData(path, size)

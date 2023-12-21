@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class UI2NodeConfig
----@overload fun(data):UI2NodeConfig
+---@overload fun(data, path):UI2NodeConfig
 local UI2NodeConfig = class:derive("UI2NodeConfig")
 
 local Vec2 = require("src.Essentials.Vector2")

@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class ShooterMovementConfig
----@overload fun(data):ShooterMovementConfig
+---@overload fun(data, path):ShooterMovementConfig
 local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 
 -- Place your imports here
