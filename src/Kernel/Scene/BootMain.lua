@@ -32,7 +32,6 @@ function BootMain:new(bootScreen)
 		pagePrev = Button("<", self.fontBig, Vec2(404, 266), Vec2(24, 28), function() self:prevPage() end),
 		pageNext = Button(">", self.fontBig, Vec2(492, 266), Vec2(24, 28), function() self:nextPage() end),
 		loadGame = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end),
-		convertGame = Button("Convert!", self.fontBig, Vec2(544, 448), Vec2(222, 24), function() self:convertSelectedGame() end),
 		settings = Button("Engine Settings", self.fontBig, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end),
 		quit = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
 	}
@@ -44,7 +43,6 @@ function BootMain:init()
 	-- set buttons up
     self:initGameButtons()
 	self.buttons.loadGame.visible = false
-	self.buttons.convertGame.visible = false
 end
 
 
@@ -108,7 +106,6 @@ end
 function BootMain:selectGame(id)
 	self.selectedGame = id
 	self.buttons.loadGame.visible = self:getSelectedGameVersionStatus() ~= 3
-	self.buttons.convertGame.visible = self:getSelectedGameVersionStatus() == 0
 	self:initGameButtons()
 end
 
@@ -129,11 +126,6 @@ end
 
 function BootMain:loadSelectedGame()
 	_LoadGame(self:getSelectedGameName())
-end
-
-function BootMain:convertSelectedGame()
-  self.bootScreen.versionManager:convertGame(self:getSelectedGameName(), self:getSelectedGameVersion())
-  self.bootScreen:init()
 end
 
 
@@ -230,7 +222,7 @@ function BootMain:draw()
       love.graphics.print("This game is intended to work with\na newer version of the engine!", 544, 338)
     elseif versionStatus == 3 then
 			love.graphics.setColor(1, 0, 0)
-      love.graphics.print("You have a too new engine version!\nYou can't convert this game to\nthis version!\n\nUse an older version of this engine\nin order to play this game.", 544, 338)
+      love.graphics.print("This game is incompatible!\n\n\nUse an older version of this engine\nin order to play this game.", 544, 338)
 		end
 	end
 	love.graphics.setColor(1, 1, 1)
