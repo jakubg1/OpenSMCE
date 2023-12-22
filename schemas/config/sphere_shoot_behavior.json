@@ -32,6 +32,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true
                 },
                 "additionalProperties": false
@@ -51,6 +52,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "range": {
                         "type": "number",

@@ -32,6 +32,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "image": {
                         "$ref": "_structures/Image.json",
@@ -89,6 +90,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "path": {
                         "$ref": "_structures/FontFile.json",

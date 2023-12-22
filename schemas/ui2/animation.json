@@ -37,6 +37,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "property": true,
                     "from": {
                         "type": "number",
@@ -77,6 +78,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "property": true,
                     "from": {
                         "$ref": "../_structures/Vector2.json",
@@ -113,6 +115,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "property": true,
                     "from": {
                         "type": "number",
@@ -149,6 +152,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "property": true,
                     "from": {
                         "type": "number",
@@ -185,6 +189,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "property": true,
                     "from": {
                         "$ref": "../_structures/Vector2.json",
@@ -221,6 +226,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "property": true,
                     "from": {
                         "type": "number",
@@ -257,6 +263,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "property": true,
                     "from": {
                         "type": "number",

@@ -44,6 +44,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "color": {
                         "type": "integer",
@@ -70,6 +71,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "color": {
                         "type": "integer",
@@ -102,6 +104,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "time": {
                         "type": "number",
@@ -135,6 +138,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "speedBase": {
                         "type": "number",
@@ -178,6 +182,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true
                 },
                 "additionalProperties": false
@@ -197,6 +202,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "color": {
                         "type": "integer",
@@ -223,6 +229,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true
                 },
                 "additionalProperties": false
@@ -242,6 +249,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "count": {
                         "type": "integer",
@@ -269,6 +277,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "time": {
                         "type": "number",
@@ -296,6 +305,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "speed": {
                         "type": "number",
@@ -329,6 +339,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "combo": {
                         "type": "integer",
@@ -356,6 +367,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "score": {
                         "type": "integer",
@@ -382,6 +394,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true
                 },
                 "additionalProperties": false
@@ -401,6 +414,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true
                 },
                 "additionalProperties": false

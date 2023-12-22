@@ -34,6 +34,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "size": {
                         "$ref": "../_structures/Vector2.json",
@@ -70,6 +71,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "sprite": {
                         "$ref": "../_structures/Sprite.json",
@@ -101,6 +103,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "sprite": {
                         "$ref": "../_structures/Sprite.json",
@@ -157,6 +160,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "font": {
                         "$ref": "../_structures/Font.json",

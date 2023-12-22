@@ -32,6 +32,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "xMin": {
                         "type": "number",
@@ -73,6 +74,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "x": {
                         "type": "number",

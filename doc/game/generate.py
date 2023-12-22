@@ -602,7 +602,8 @@ def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 						child_children = [{"name": key + "*"}]
 						if "children" in child:
 							child_children += child["children"]
-						child_block["then"] = docl_convert_entry({"type": "object", "children": child_children}, False, structures_path)
+						child_block["then"] = docl_convert_entry({"type": "object", "children": child_children}, is_root, structures_path)
+						del child_block["then"]["$schema"]
 						del child_block["then"]["type"]
 						# Add prepared blocks.
 						out["allOf"].append(child_block)

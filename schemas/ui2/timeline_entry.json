@@ -33,6 +33,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "node": {
                         "type": "string",
@@ -69,6 +70,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "name": {
                         "type": "string",
@@ -95,6 +97,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "time": {
                         "type": "number",

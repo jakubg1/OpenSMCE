@@ -33,6 +33,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "expression": {
                         "type": "boolean",
@@ -59,6 +60,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "color": {
                         "type": "integer",
@@ -85,6 +87,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "min": {
                         "type": "number",

@@ -35,6 +35,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "name": {
                         "type": "string",
@@ -69,6 +70,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "name": {
                         "type": "string",
@@ -103,6 +105,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "entries": {
                         "type": "array",
@@ -141,6 +144,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "entry": {
                         "$ref": "#",
@@ -181,6 +185,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "pool": {
                         "type": "array",

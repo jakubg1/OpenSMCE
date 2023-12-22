@@ -32,6 +32,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true,
                     "amount": {
                         "type": "integer",
@@ -58,6 +59,7 @@
             },
             "then": {
                 "properties": {
+                    "$schema": true,
                     "type": true
                 },
                 "additionalProperties": false
