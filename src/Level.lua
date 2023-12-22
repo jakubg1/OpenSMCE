@@ -43,10 +43,10 @@ function Level:new(data)
 	self.ambientMusicName = data.ambientMusic
 
 	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
-	self.dangerLoopSoundName = data.dangerLoopSound or "sound_events/warning_loop.json"
-	self.warmupLoopName = data.warmupLoopSound or "sound_events/sphere_roll.json"
+	self.dangerLoopSoundName = data.dangerLoopSound
+	self.warmupLoopName = data.warmupLoopSound or "sound_events/spheres_roll.json"
 	self.failSoundName = data.failSound or "sound_events/foul.json"
-	self.failLoopName = data.failLoopSound or "sound_events/sphere_roll.json"
+	self.failLoopName = data.failLoopSound or "sound_events/spheres_roll.json"
 
 	-- Additional variables come from this method!
 	self:reset()
@@ -86,13 +86,15 @@ function Level:updateLogic(dt)
 	self.shooter:update(dt)
 
 	-- Danger sound
-	local d1 = self:getDanger() and not self.lost
-	local d2 = self.danger
-	if d1 and not d2 then
-		self.dangerSound = _Game:playSound(self.dangerLoopSoundName)
-	elseif not d1 and d2 then
-		self.dangerSound:stop()
-		self.dangerSound = nil
+	if self.dangerLoopSoundName then
+		local d1 = self:getDanger() and not self.lost
+		local d2 = self.danger
+		if d1 and not d2 then
+			self.dangerSound = _Game:playSound(self.dangerLoopSoundName)
+		elseif not d1 and d2 then
+			self.dangerSound:stop()
+			self.dangerSound = nil
+		end
 	end
 
 	self.danger = self:getDanger() and not self.lost
