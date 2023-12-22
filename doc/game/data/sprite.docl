@@ -1,6 +1,6 @@
 - (object) - The root entry.
     - path (Image) - The path to an image associated with this Sprite.
-    - frame_size (Vector2) - The size of a single frame.
+    - frameSize (Vector2) - The size of a single frame.
     - states (array) - A list of possible states this Sprite could have.
         - (object) - A single state.
             - pos (Vector2) - The upper left position of this State's first frame.

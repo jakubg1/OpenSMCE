@@ -8,7 +8,7 @@
             "$ref": "_structures/Image.json",
             "description": "The path to an image associated with this Sprite."
         },
-        "frame_size": {
+        "frameSize": {
             "$ref": "_structures/Vector2.json",
             "description": "The size of a single frame."
         },
@@ -47,7 +47,7 @@
     },
     "required": [
         "path",
-        "frame_size",
+        "frameSize",
         "states",
         "internal"
     ],
