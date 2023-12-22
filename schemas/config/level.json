@@ -33,6 +33,10 @@
             "$ref": "../_structures/SoundEvent.json",
             "description": "A looping sound event which plays at the beginning of the level, while the spheres are rolling."
         },
+        "failSound": {
+            "$ref": "../_structures/SoundEvent.json",
+            "description": "A sound event which plays when the player loses the level."
+        },
         "failLoopSound": {
             "$ref": "../_structures/SoundEvent.json",
             "description": "A looping sound event which plays while the spheres are rolling into the exit node."

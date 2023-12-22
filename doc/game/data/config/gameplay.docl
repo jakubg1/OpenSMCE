@@ -7,6 +7,7 @@
     - ui (object) - Defines parameters which are constant throughout the entire UI.
         - buttonClickSound (SoundEvent) - The sound event that will be played whenever a button is clicked.
         - buttonHoverSound (SoundEvent) - The sound event that will be played whenever a mouse is hovering over a button.
+        - levelAdvanceSound (SoundEvent) - The sound event that will be played whenever the player advances a level (on the level map).
     - sphereBehaviour (object) - Defines behavior of the spheres.
         - acceleration (number) - The default acceleration rate of spheres being pushed.
         - foulAcceleration* (number) - The acceleration rate of spheres used only when the player fails to complete a level.

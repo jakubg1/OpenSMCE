@@ -72,8 +72,8 @@ function ShooterConfig:new(data, path)
     }
 
     self.sounds = {
-        sphereSwap = data.sounds and data.sounds.sphereSwap or "sound_events/shooter_swap.json",
-        sphereFill = data.sounds and data.sounds.sphereFill or "sound_events/shooter_fill.json"
+        sphereSwap = data.sounds and data.sounds.sphereSwap,
+        sphereFill = data.sounds and data.sounds.sphereFill
     }
 
     ---@type string

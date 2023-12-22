@@ -45,6 +45,7 @@ function Level:new(data)
 	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
 	self.dangerLoopSoundName = data.dangerLoopSound or "sound_events/warning_loop.json"
 	self.warmupLoopName = data.warmupLoopSound or "sound_events/sphere_roll.json"
+	self.failSoundName = data.failSound or "sound_events/foul.json"
 	self.failLoopName = data.failLoopSound or "sound_events/sphere_roll.json"
 
 	-- Additional variables come from this method!
@@ -911,7 +912,9 @@ function Level:lose()
 		shotSphere:destroy()
 	end
 	self.shotSpheres = {}
-	_Game:playSound("sound_events/level_lose.json")
+	if self.failSoundName then
+		_Game:playSound(self.failSoundName)
+	end
 	if self.failLoopName then
 		self.failLoop = _Game:playSound(self.failLoopName)
 	end

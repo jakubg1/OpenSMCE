@@ -20,7 +20,7 @@ local f = {}
 function f.matchSound(length, comboLv, chainLv, comboBoost)
   local soundID = math.min(math.max(length - 2, 1), 5)
   return {
-    name = "sound_events/sphere_destroy_" .. tostring(soundID) .. ".json",
+    name = "sound_events/collapse_" .. tostring(soundID) .. ".json",
     pitch = 1 + chainLv * 0.1
   }
 end
