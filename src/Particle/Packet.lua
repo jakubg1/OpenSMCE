@@ -12,7 +12,7 @@ function ParticlePacket:new(manager, data, pos, layer)
 	self.pos = pos
 	self.layer = layer
 	self.spawnerCount = 0
-	for i, spawnerData in ipairs(data) do
+	for i, spawnerData in ipairs(data.emitters) do
 		manager:spawnParticleSpawner(self, spawnerData)
 	end
 	
