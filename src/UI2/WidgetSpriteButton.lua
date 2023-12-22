@@ -30,8 +30,8 @@ function UI2WidgetSpriteButton:new(node, align, sprite, shape, callbacks)
 	self.disabled = false
 	self.neverDisabled = false
 	self.hotkeys = {}
-	self.hoverSound = "sound_events/button_hover.json"
-	self.clickSound = "sound_events/button_click.json"
+	self.hoverSound = _Game.configManager.gameplay.ui.buttonHoverSound
+	self.clickSound = _Game.configManager.gameplay.ui.buttonClickSound
 end
 
 

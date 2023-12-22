@@ -26,7 +26,7 @@ end
 function UIWidgetSpriteButton:click()
 	if not self.parent:isVisible() or not self.hovered or self.clicked then return end
 	self.clicked = true
-	_Game:playSound("sound_events/button_click.json")
+	_Game:playSound(_Game.configManager.gameplay.ui.buttonClickSound)
 	print("Button clicked: " .. self.parent:getFullName())
 end
 
@@ -62,7 +62,7 @@ function UIWidgetSpriteButton:draw()
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end
 		if hovered then
-			_Game:playSound("sound_events/button_hover.json")
+			_Game:playSound(_Game.configManager.gameplay.ui.buttonHoverSound)
 		end
 	end
 

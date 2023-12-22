@@ -37,6 +37,25 @@
             ],
             "additionalProperties": false
         },
+        "ui": {
+            "type": "object",
+            "description": "Defines parameters which are constant throughout the entire UI.",
+            "properties": {
+                "buttonClickSound": {
+                    "$ref": "../_structures/SoundEvent.json",
+                    "description": "The sound event that will be played whenever a button is clicked."
+                },
+                "buttonHoverSound": {
+                    "$ref": "../_structures/SoundEvent.json",
+                    "description": "The sound event that will be played whenever a mouse is hovering over a button."
+                }
+            },
+            "required": [
+                "buttonClickSound",
+                "buttonHoverSound"
+            ],
+            "additionalProperties": false
+        },
         "sphereBehaviour": {
             "type": "object",
             "description": "Defines behavior of the spheres.",
@@ -370,6 +389,7 @@
     },
     "required": [
         "level",
+        "ui",
         "sphereBehaviour",
         "bonusScarab"
     ],

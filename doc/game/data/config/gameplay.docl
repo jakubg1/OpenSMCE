@@ -4,6 +4,9 @@
         - finishDelay (number) [>=0] - Time between considering the level complete (win condition met and empty board) and releasing the first bonus scarab.
         - bonusDelay (number) [>=0] - Time between each consecutive bonus scarab launch in multi-path levels in seconds.
         - wonDelay (number) [>=0] - Time between the last bonus scarab destruction and considering the level fully won.
+    - ui (object) - Defines parameters which are constant throughout the entire UI.
+        - buttonClickSound (SoundEvent) - The sound event that will be played whenever a button is clicked.
+        - buttonHoverSound (SoundEvent) - The sound event that will be played whenever a mouse is hovering over a button.
     - sphereBehaviour (object) - Defines behavior of the spheres.
         - acceleration (number) - The default acceleration rate of spheres being pushed.
         - foulAcceleration* (number) - The acceleration rate of spheres used only when the player fails to complete a level.
