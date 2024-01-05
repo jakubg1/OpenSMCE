@@ -12,10 +12,6 @@ local Button = require("src.Kernel.UI.Button")
 function BootMain:new(bootScreen)
   	self.bootScreen = bootScreen
 
-	-- prepare fonts of various sizes
-	self.font = _Utils.loadFont("assets/dejavusans.ttf")
-	self.fontBig = _Utils.loadFont("assets/dejavusans.ttf", 18)
-
 	-- github url link
 	self.url = "https://github.com/jakubg1/OpenSMCE"
 	self.urlHovered = false
@@ -29,11 +25,11 @@ function BootMain:new(bootScreen)
 
 	-- buttons
 	self.buttons = {
-		pagePrev = Button("<", self.fontBig, Vec2(404, 266), Vec2(24, 28), function() self:prevPage() end),
-		pageNext = Button(">", self.fontBig, Vec2(492, 266), Vec2(24, 28), function() self:nextPage() end),
-		loadGame = Button("Start!", self.fontBig, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end),
-		settings = Button("Engine Settings", self.fontBig, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end),
-		quit = Button("Exit", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
+		pagePrev = Button("<", _FONT_BIG, Vec2(404, 266), Vec2(24, 28), function() self:prevPage() end),
+		pageNext = Button(">", _FONT_BIG, Vec2(492, 266), Vec2(24, 28), function() self:nextPage() end),
+		loadGame = Button("Start!", _FONT_BIG, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end),
+		settings = Button("Engine Settings", _FONT_BIG, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end),
+		quit = Button("Exit", _FONT_BIG, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
 	}
 end
 
@@ -55,7 +51,7 @@ function BootMain:initGameButtons()
 		if not game then
 			break
 		end
-		local button = Button(game.name, self.fontBig, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(id) end)
+		local button = Button(game.name, _FONT_BIG, Vec2(34, 280 + i * 24), Vec2(482, 24), function() self:selectGame(id) end)
 		button.selected = self.selectedGame == id
 		table.insert(self.gameButtons, button)
 	end
@@ -137,12 +133,12 @@ function BootMain:draw()
 	-----------------------------
 	-- HEADER
 	-----------------------------
-	love.graphics.setFont(self.fontBig)
+	love.graphics.setFont(_FONT_BIG)
 	love.graphics.print("OpenSMCE Boot Menu", 30, 22)
 	local s = string.format("Version: %s (%s)", _VERSION_NAME, _VERSION)
-	love.graphics.print(s, 770 - self.fontBig:getWidth(s), 22)
+	love.graphics.print(s, 770 - _FONT_BIG:getWidth(s), 22)
 
-	love.graphics.setFont(self.font)
+	love.graphics.setFont(_FONT)
 	local s = "Unable to check the newest version!"
 	love.graphics.setColor(0.5, 0.5, 0.5)
 	if self.bootScreen.versionManager.newestVersionAvailable then
@@ -152,22 +148,22 @@ function BootMain:draw()
 		s = "Up to date!"
 		love.graphics.setColor(0, 1, 0)
 	end
-	love.graphics.print(s, 770 - self.font:getWidth(s), 41)
+	love.graphics.print(s, 770 - _FONT:getWidth(s), 41)
 
 	-----------------------------
 	-- NOTES
 	-----------------------------
 	-- Warning text
 	love.graphics.setColor(1, 0.2, 0.2)
-	love.graphics.setFont(self.fontBig)
+	love.graphics.setFont(_FONT_BIG)
 	love.graphics.print("WARNING", 45, 75)
 	-- Warning contents
 	love.graphics.setColor(1, 1, 0.2)
-	love.graphics.setFont(self.font)
+	love.graphics.setFont(_FONT)
 	love.graphics.print("This engine is in BETA DEVELOPMENT.\nThis version is dedicated to people who want to test the engine and examine it.\nThis version should not be treated like a full version yet, as the inner workings still may change heavily!\nRemember to post issues and feature suggestions at the following Github repository link.\nThank you for your support!", 45, 100)
 	-- Github link
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.setFont(self.fontBig)
+	love.graphics.setFont(_FONT_BIG)
 	love.graphics.print(self.url, 45, 175)
 	-- Frame
 	love.graphics.setLineWidth(4)
@@ -202,7 +198,7 @@ function BootMain:draw()
 		-- Version support
 		local supportedVersion = self:getSelectedGameVersion()
     local versionStatus = self:getSelectedGameVersionStatus()
-		love.graphics.setFont(self.font)
+		love.graphics.setFont(_FONT)
 
 		if versionStatus == -1 then
 			love.graphics.setColor(1, 1, 0)
@@ -232,7 +228,7 @@ function BootMain:draw()
 	-----------------------------
 	-- FOOTER
 	-----------------------------
-	love.graphics.setFont(self.font)
+	love.graphics.setFont(_FONT)
 	love.graphics.print("OpenSMCE is a short for Open-Source Sphere Matcher Community Engine.", 30, 525)
 	love.graphics.print("Copyright (C) 2020-2024 jakubg1 & contributors\nThis software is licensed under MIT license.", 30, 555)
 
@@ -261,7 +257,7 @@ function BootMain:draw()
 	-- DISCORD RICH PRESENCE STATUS
 	-----------------------------
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.setFont(self.fontBig)
+	love.graphics.setFont(_FONT_BIG)
 	love.graphics.print("Discord Integration: ", 30, 220)
 	if _DiscordRPC.enabled and _DiscordRPC.connected then
 		love.graphics.setColor(0, 1, 0)

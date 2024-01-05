@@ -22,9 +22,6 @@ function Console:new()
 	self.backspaceTime = 0
 
 	self.MAX_MESSAGES = 20
-
-	self.font = _Utils.loadFont("assets/dejavusans.ttf")
-	self.consoleFont = _Utils.loadFont("assets/unifont.ttf", 16)
 end
 
 function Console:update(dt)
@@ -61,7 +58,7 @@ function Console:draw()
 	local size = Vec2(600, 200)
 
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.setFont(self.consoleFont)
+	love.graphics.setFont(_FONT_CONSOLE)
 	for i = 1, self.MAX_MESSAGES do
 		local pos = pos - Vec2(0, 30 + 20 * i)
 		local message = self.history[#self.history - i + 1]
@@ -82,7 +79,7 @@ function Console:draw()
 		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
 		_Debug:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x)
 	end
-	love.graphics.setFont(self.font)
+	love.graphics.setFont(_FONT)
 end
 
 

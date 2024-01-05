@@ -43,6 +43,13 @@ _VERSION_NAME = "Beta 4.7.2"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 _START_TIME = love.timer.getTime()
 
+-- Fonts
+_FONT = _Utils.loadFont("assets/dejavusans.ttf")
+_FONT_MED = _Utils.loadFont("assets/dejavusans.ttf", 14)
+_FONT_BIG = _Utils.loadFont("assets/dejavusans.ttf", 18)
+_FONT_GIANT = _Utils.loadFont("assets/dejavusans.ttf", 30)
+_FONT_CONSOLE = _Utils.loadFont("assets/unifont.ttf", 16)
+
 -- Set this to a string of your choice. This will be only printed in log files and is not used anywhere else.
 -- You can automate this in i.e. a script by simply adding a `_BUILD_NUMBER = "<your number>"` line at the end of this main.lua file.
 _BUILD_NUMBER = "unknown"

@@ -12,12 +12,6 @@ function CrashScreen:new(err)
 	-- error message
 	self.err = err
 	
-	-- prepare fonts of various sizes
-	self.font = _Utils.loadFont("assets/dejavusans.ttf")
-	self.fontMed = _Utils.loadFont("assets/dejavusans.ttf", 14)
-	self.fontBig = _Utils.loadFont("assets/dejavusans.ttf", 18)
-	self.fontGiant = _Utils.loadFont("assets/dejavusans.ttf", 30)
-	
 	-- button data
 	self.buttons = {
 		{name = "Copy to clipboard", hovered = false, pos = Vec2(30, 530), size = Vec2(170, 25)},
@@ -68,10 +62,10 @@ function CrashScreen:draw()
 	love.graphics.setColor(1, 1, 1)
 	
 	-- Header
-	love.graphics.setFont(self.fontGiant)
+	love.graphics.setFont(_FONT_GIANT)
 	love.graphics.print("Oh no!", 30, 30)
 	-- Text
-	love.graphics.setFont(self.fontMed)
+	love.graphics.setFont(_FONT_MED)
 	love.graphics.print("OpenSMCE has encountered a problem and crashed.\nThis is not meant to happen and you should report this error to the Github repository page\n(unless you caused the crash, of course).\nYou can try to emergency save the progress, in order not to lose it.\n\nHere's some error info:", 30, 70)
 
 	-- Error frame
@@ -83,14 +77,14 @@ function CrashScreen:draw()
 	love.graphics.setColor(1, 1, 0)
 	
 	-- Error text
-	love.graphics.setFont(self.font)
+	love.graphics.setFont(_FONT)
 	local result = pcall(function() love.graphics.print(self.err, 30, 180) end)
 	if not result then
 		love.graphics.print("Unable to print the crash message. Look at the console for more information!", 30, 180)
 	end
 	
 	-- Button hovering
-	love.graphics.setFont(self.fontBig)
+	love.graphics.setFont(_FONT_BIG)
 	love.graphics.setLineWidth(1)
 	for i, button in ipairs(self.buttons) do
 		if button.hovered then
@@ -109,7 +103,7 @@ function CrashScreen:draw()
 	love.graphics.setColor(1, 1, 1)
 	
 	-- Bottom text
-	love.graphics.setFont(self.font)
+	love.graphics.setFont(_FONT)
 	love.graphics.print(self.bottomText, 30, 560)
 
 	-- Yellow color

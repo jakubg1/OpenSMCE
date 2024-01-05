@@ -13,19 +13,15 @@ local Checkbox = require("src.Kernel.UI.Checkbox")
 function BootSettings:new(bootScreen)
   	self.bootScreen = bootScreen
 
-	-- prepare fonts of various sizes
-	self.font = _Utils.loadFont("assets/dejavusans.ttf")
-	self.fontBig = _Utils.loadFont("assets/dejavusans.ttf", 18)
-
 	-- buttons
-	self.saveBtn = Button("Save", self.fontBig, Vec2(540, 530), Vec2(230, 24), function() _EngineSettings:save(); self.bootScreen:setScene("main") end)
-	self.menuBtn = Button("Cancel", self.fontBig, Vec2(540, 554), Vec2(230, 24), function() self.bootScreen:setScene("main") end)
+	self.saveBtn = Button("Save", _FONT_BIG, Vec2(540, 530), Vec2(230, 24), function() _EngineSettings:save(); self.bootScreen:setScene("main") end)
+	self.menuBtn = Button("Cancel", _FONT_BIG, Vec2(540, 554), Vec2(230, 24), function() self.bootScreen:setScene("main") end)
 	self.settingCheckboxes = {
-		Checkbox("Enable Discord Rich Presence", self.fontBig, Vec2(34, 64), Vec2(732, 24), function(state) _EngineSettings:setDiscordRPC(state) end),
-		Checkbox("Go back to the boot menu when exiting a game", self.fontBig, Vec2(34, 88), Vec2(732, 24), function(state) _EngineSettings:setBackToBoot(state) end),
-		Checkbox("Aiming Retical", self.fontBig, Vec2(34, 112), Vec2(732, 24), function(state) _EngineSettings:setAimingRetical(state) end),
-		Checkbox("Debug console window", self.fontBig, Vec2(34, 136), Vec2(732, 24), function(state) _EngineSettings:setConsoleWindow(state) end),
-		Checkbox("Enable 3D Sound", self.fontBig, Vec2(34, 160), Vec2(732, 24), function(state) _EngineSettings:set3DSound(state) end)
+		Checkbox("Enable Discord Rich Presence", _FONT_BIG, Vec2(34, 64), Vec2(732, 24), function(state) _EngineSettings:setDiscordRPC(state) end),
+		Checkbox("Go back to the boot menu when exiting a game", _FONT_BIG, Vec2(34, 88), Vec2(732, 24), function(state) _EngineSettings:setBackToBoot(state) end),
+		Checkbox("Aiming Retical", _FONT_BIG, Vec2(34, 112), Vec2(732, 24), function(state) _EngineSettings:setAimingRetical(state) end),
+		Checkbox("Debug console window", _FONT_BIG, Vec2(34, 136), Vec2(732, 24), function(state) _EngineSettings:setConsoleWindow(state) end),
+		Checkbox("Enable 3D Sound", _FONT_BIG, Vec2(34, 160), Vec2(732, 24), function(state) _EngineSettings:set3DSound(state) end)
 	}
 
 	-- tooltip
@@ -73,7 +69,7 @@ function BootSettings:draw()
 	-----------------------------
 	-- HEADER
 	-----------------------------
-	love.graphics.setFont(self.fontBig)
+	love.graphics.setFont(_FONT_BIG)
 	love.graphics.print("Engine Settings", 30, 22)
 
 	-----------------------------
@@ -87,7 +83,7 @@ function BootSettings:draw()
 	-- Tooltip
 	if self.tooltip then
 		love.graphics.setColor(1, 1, 0)
-		love.graphics.setFont(self.font)
+		love.graphics.setFont(_FONT)
 		love.graphics.print(self.tooltip, 30, 525)
 	end
 	-- Frame
