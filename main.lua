@@ -297,10 +297,12 @@ end
 
 
 
+---Returns a path relative to the executable, based on currently loaded game's name.
+---Rough implementation, but it works for now.
+---@param data string The path to be resolved.
+---@return string
 function _ParsePath(data)
-	if not data then
-		return nil
-	end
+	assert(data, "Used _ParsePath with nil data - fix me!")
 	return _FSPrefix .. "games/" .. _Game.name .. "/" .. data
 end
 

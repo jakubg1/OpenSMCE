@@ -18,38 +18,6 @@ function ConfigManager:new()
 	-- TODO: make a game config class
 	self.nativeResolution = _ParseVec2(self.config.nativeResolution)
 
-	-- Load all game resources.
-	-- The load list is loaded to ensure that no resource will be loaded twice.
-	self.loadList = _Utils.loadJson(_ParsePath("config/loadlist.json"))
-	local resourceTypes = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "ui2AnimationConfigs", "ui2NodeConfigs", "ui2SequenceConfigs"}
-	local resourcePaths = {"images", "sprites", "sounds", "sound_events", "music", "particles", "fonts", "ui2/animations", "ui2/layouts", "ui2/sequences"}
-	self.resourceList = {}
-	for i, type in ipairs(resourceTypes) do
-		-- For each type...
-		_Log:printt("ConfigManager", string.format("Loading %s...", type))
-		self.resourceList[type] = {}
-		-- ...get a list of resources to be loaded.
-		for j, path in ipairs(_Utils.getDirListing(_ParsePath(resourcePaths[i]), "file", nil, true)) do
-			local name = resourcePaths[i] .. "/" .. path
-			local ok = true
-			if self.loadList[type] then
-				-- Forbid loading the same resource twice,
-				-- that is if this resource has been already loaded during the very startup.
-				for k, path2 in ipairs(self.loadList[type]) do
-					if name == path2 then
-						ok = false
-						break
-					end
-				end
-			end
-			-- If the resource hasn't been already loaded, add it to the "shopping list".
-			-- This will be later used by Resource Manager when loading assets.
-			if ok then
-				table.insert(self.resourceList[type], name)
-			end
-		end
-	end
-
 	-- Load configuration files.
 	self.gameplay = _Utils.loadJson(_ParsePath("config/gameplay.json"))
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))

@@ -67,9 +67,6 @@ function Game:init()
 	-- Step 4. Create a resource bank
 	self.resourceManager = ResourceManager()
 
-	-- Step 5. Load initial resources (enough to start up the splash screen)
-	self.resourceManager:loadList(self.configManager.loadList)
-
 	-- Step 6. Load game modules
 	self.gameModuleManager = GameModuleManager()
 
@@ -85,7 +82,9 @@ end
 
 ---Loads all game resources.
 function Game:loadMain()
-	self.resourceManager:stepLoadList(self.configManager.resourceList)
+	self.resourceManager:startLoadCounter("main")
+	self.resourceManager:scanResources()
+	self.resourceManager:stopLoadCounter("main")
 end
 
 
@@ -207,9 +206,7 @@ function Game:draw()
 	love.graphics.rectangle("fill", _DisplaySize.x - _GetDisplayOffsetX(), 0, _GetDisplayOffsetX(), _DisplaySize.y)
 
 	love.graphics.setColor(1, 1, 1)
-	if not self.resourceManager.stepLoading and self.resourceManager.stepLoadProcessedObjs > 0 then
-		--self.resourceManager:getSprite("sprites/game/ball_1.json").img:draw(0, 0)
-	end
+	--self.resourceManager:getSprite("sprites/game/ball_1.json").img:draw(0, 0)
 	_Debug:profDraw2Stop()
 end
 

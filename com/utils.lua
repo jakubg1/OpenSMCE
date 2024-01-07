@@ -202,7 +202,7 @@ function utils.getDirListing(path, filter, extFilter, recursive, pathRec)
 				end
 			end
 		else
-			if filter == "all" or filter == "file" and (not extFilter or item:sub(item:len() - extFilter:len() + 1) == extFilter) then
+			if filter == "all" or filter == "file" and (not extFilter or utils.strEndsWith(item, extFilter)) then
 				table.insert(result, pathRec .. item)
 			end
 		end
@@ -281,6 +281,26 @@ function utils.strSplit(s, k)
 			return t
 		end
 	end
+end
+
+
+
+---Returns `true` if the string `s` starts with the clause `c`.
+---@param s string The string to be searched.
+---@param c string The expected beginning of the string `s`.
+---@return boolean
+function utils.strStartsWith(s, c)
+	return s:sub(1, c:len()) == c
+end
+
+
+
+---Returns `true` if the string `s` ends with the clause `c`.
+---@param s string The string to be searched.
+---@param c string The expected ending of the string `s`.
+---@return boolean
+function utils.strEndsWith(s, c)
+	return s:sub(s:len() - c:len() + 1) == c
 end
 
 
