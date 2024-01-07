@@ -1,0 +1,2 @@
+- (object) - The root object.
+    - image (Image) - The image to be used as a color palette.

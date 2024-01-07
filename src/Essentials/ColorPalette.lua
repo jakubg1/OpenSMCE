@@ -10,15 +10,16 @@ local Color = require("src.Essentials.Color")
 
 
 function ColorPalette:new(path)
-	self.data = _Utils.loadImageData(path)
-	if not self.data then
-		error("Failed to load image data: " .. path)
+	self.data = _Utils.loadJson(path)
+	self.image = _Utils.loadImageData(_ParsePath(self.data.image))
+	if not self.image then
+		error("Failed to load image data: " .. self.data.image)
 	end
-	self.size = Vec2(self.data:getDimensions())
+	self.size = Vec2(self.image:getDimensions())
 end
 
 function ColorPalette:getColor(t)
-	return Color(self.data:getPixel(t % self.size.x, 1))
+	return Color(self.image:getPixel(t % self.size.x, 1))
 end
 
 return ColorPalette

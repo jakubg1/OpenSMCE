@@ -61,7 +61,7 @@ function ResourceManager:new()
 		-- TODO: music
 		["particle.json"] = "particle",
 		["font.json"] = "font",
-		-- TODO: color palettes
+		["color_palette.json"] = "colorPalette",
 		["config/sphere.json"] = "sphere",
 		["config/sphere_effect.json"] = "sphereEffect",
 		["config/collectible.json"] = "collectible",
