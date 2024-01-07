@@ -277,6 +277,9 @@ function ResourceManager:getAsset(path, namespace, batches)
 		end
 		self:loadAsset(key, batches)
 	end
+	if not self.resources[key] then
+		error(string.format("[ResourceManager] Resource not found: %s", path))
+	end
 	return self.resources[key].asset
 end
 
@@ -314,7 +317,7 @@ function ResourceManager:loadAsset(key, batches)
 
 	-- If no valid resource type has been found, discard the resource.
 	if not type then
-		--_Log:printt("ResourceManager2", "LOUD WARNING: File " .. key .. " ignored")
+		_Log:printt("ResourceManager2", "LOUD WARNING: File " .. key .. " ignored")
 		return
 	end
 
@@ -324,7 +327,7 @@ function ResourceManager:loadAsset(key, batches)
 	end
 	local constructor = self.RESOURCE_TYPES[type].constructor
 	if not constructor then
-		--_Log:printt("ResourceManager2", "File " .. key .. " not loaded: type " .. type .. " not implemented")
+		_Log:printt("ResourceManager2", "File " .. key .. " not loaded: type " .. type .. " not implemented")
 		return
 	end
 	-- TODO: Condensate the parameter set to the one used by Config Classes.
@@ -333,7 +336,7 @@ function ResourceManager:loadAsset(key, batches)
 	else
 		self.resources[key] = {asset = constructor(_ParsePath(key)), type = type, batches = batches}
 	end
-	--_Log:printt("ResourceManager2", key .. " OK!")
+	_Log:printt("ResourceManager2", key .. " OK!")
 end
 
 
