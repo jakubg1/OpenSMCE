@@ -115,77 +115,77 @@ end
 ---@param path string The resource path.
 ---@return Image
 function ResourceManager:getImage(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "image")
 end
 
 ---Retrieves a Sprite by a given path.
 ---@param path string The resource path.
 ---@return Sprite
 function ResourceManager:getSprite(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "sprite")
 end
 
 ---Retrieves a Sound by a given path.
 ---@param path string The resource path.
 ---@return Sound
 function ResourceManager:getSound(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "sound")
 end
 
 ---Retrieves a Sound Event by a given path.
 ---@param path string The resource path.
 ---@return SoundEvent
 function ResourceManager:getSoundEvent(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "sound event")
 end
 
 ---Retrieves a piece of Music by a given path.
 ---@param path string The resource path.
 ---@return Music
 function ResourceManager:getMusic(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "music track")
 end
 
 ---Retrieves a Particle by a given path.
 ---@param path string The resource path.
 ---@return table
 function ResourceManager:getParticle(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "particle")
 end
 
 ---Retrieves a Font by a given path.
 ---@param path string The resource path.
 ---@return Font
 function ResourceManager:getFont(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "font")
 end
 
 ---Retrieves a Color Palette by a given path.
 ---@param path string The resource path.
 ---@return ColorPalette
 function ResourceManager:getColorPalette(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "color palette")
 end
 
 ---Retrieves a UI Animation Config by a given path.
 ---@param path string The resource path.
 ---@return UI2AnimationConfig
 function ResourceManager:getUIAnimationConfig(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "UI2 animation")
 end
 
 ---Retrieves a UI Node Config by a given path.
 ---@param path string The resource path.
 ---@return UI2NodeConfig
 function ResourceManager:getUINodeConfig(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "UI2 node")
 end
 
 ---Retrieves a UI Sequence Config by a given path.
 ---@param path string The resource path.
 ---@return UI2SequenceConfig
 function ResourceManager:getUISequenceConfig(path)
-	return self:getAsset(path)
+	return self:getAsset(path, nil, nil, "UI2 sequence")
 end
 
 
@@ -261,8 +261,9 @@ end
 ---@param path string The path to the resource.
 ---@param namespace string? If specified, this will be used to resolve the default namespace. See `ResourceManager:resolveAssetPath()` for more information.
 ---@param batches table? If specified, the resource will be obtained as a part of a specific batch. Unless that batch is unloaded, this resource is guaranteed to stay loaded.
+---@param type string? If specified, this will be the resource type in an error message if this resource is not found.
 ---@return any
-function ResourceManager:getAsset(path, namespace, batches)
+function ResourceManager:getAsset(path, namespace, batches, type)
 	local key = self:resolveAssetPath(path, namespace)
 
 	if self.resources[key] then
@@ -278,7 +279,7 @@ function ResourceManager:getAsset(path, namespace, batches)
 		self:loadAsset(key, batches)
 	end
 	if not self.resources[key] then
-		error(string.format("[ResourceManager] Resource not found: %s", path))
+		error(string.format("[ResourceManager] Attempt to get a nonexistent %s: %s", type or "resource", path))
 	end
 	return self.resources[key].asset
 end
