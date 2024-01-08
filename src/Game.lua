@@ -302,7 +302,8 @@ end
 ---@param name string The music name.
 ---@return Music
 function Game:getMusic(name)
-	return self.resourceManager:getMusic(self.configManager.music[name])
+	-- The "music_tracks/X.json" wrap is temporary. TODO: remove it!
+	return self.resourceManager:getMusic("music_tracks/" .. name .. ".json")
 end
 
 

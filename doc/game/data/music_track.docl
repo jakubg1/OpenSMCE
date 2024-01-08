@@ -1,0 +1,2 @@
+- (object) - The root object.
+    - audio (Sound) - The audio file to be used for this music track.

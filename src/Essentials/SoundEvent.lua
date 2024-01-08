@@ -25,7 +25,7 @@ function SoundEvent:new(path)
     if data.path then
         local sound = _Game.resourceManager:getSound(data.path)
         for i = 1, self.instanceCount do
-            self.instances[i] = SoundInstance(love.audio.newSource(sound.data, "static"))
+            self.instances[i] = SoundInstance(sound:makeSource("static"))
         end
     end
 end

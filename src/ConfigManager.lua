@@ -23,7 +23,6 @@ function ConfigManager:new()
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
 	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
 	self.levelSet = _Utils.loadJson(_ParsePath("config/level_set.json"))
-	self.music = _Utils.loadJson(_ParsePath("config/music.json"))
 
 	self.collectibles = self:loadFolder("config/collectibles", "collectible")
 	self.spheres = self:loadFolder("config/spheres", "sphere", true)

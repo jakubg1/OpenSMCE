@@ -33,32 +33,32 @@ function ResourceManager:new()
 	self.queuedResources = {}
 
 	self.RESOURCE_TYPES = {
-		image = {directory = "images", extension = "png", constructor = Image},
-		sprite = {directory = "sprites", extension = "json", constructor = Sprite},
-		audio = {directory = "audio", extension = "ogg", constructor = Sound}, -- Figure out how to make a distinction between static and streamed files, and support more extensions
-		soundEvent = {directory = "sound_events", extension = "json", constructor = SoundEvent},
-		music = {directory = "music", extension = "json", constructor = Music}, -- Merge sounds and music into audio files (audio) and make music configurable
-		particle = {directory = "particles", extension = "json", constructor = _Utils.loadJson},
-		font = {directory = "fonts", extension = "json", constructor = Font},
-		fontFile = {directory = "font_files", extension = "ttf"},
-		colorPalette = {directory = "color_palettes", extension = "json", constructor = ColorPalette},
-		sphere = {directory = "config/spheres", extension = "json"},
-		sphereEffect = {directory = "config/sphere_effects", extension = "json"},
-		collectible = {directory = "config/collectibles", extension = "json"},
-		collectibleGenerator = {directory = "config/collectible_generators", extension = "json"},
-		colorGenerator = {directory = "config/color_generators", extension = "json"},
-		shooter = {directory = "config/shooters", extension = "json"},
-		map = {directory = "maps", extension = "/"},
-		level = {directory = "config/levels", extension = "json"},
-		ui2AnimationConfig = {directory = "ui2/animations", extension = "json", constructor = UI2AnimationConfig, paramSet = 2},
-		ui2NodeConfig = {directory = "ui2/layouts", extension = "json", constructor = UI2NodeConfig, paramSet = 2},
-		ui2SequenceConfig = {directory = "ui2/sequences", extension = "json", constructor = UI2SequenceConfig, paramSet = 2}
+		image = {extension = "png", constructor = Image},
+		sprite = {extension = "json", constructor = Sprite},
+		sound = {extension = "ogg", constructor = Sound},
+		soundEvent = {extension = "json", constructor = SoundEvent},
+		music = {extension = "json", constructor = Music},
+		particle = {extension = "json", constructor = _Utils.loadJson},
+		font = {extension = "json", constructor = Font},
+		fontFile = {extension = "ttf"},
+		colorPalette = {extension = "json", constructor = ColorPalette},
+		sphere = {extension = "json"},
+		sphereEffect = {extension = "json"},
+		collectible = {extension = "json"},
+		collectibleGenerator = {extension = "json"},
+		colorGenerator = {extension = "json"},
+		shooter = {extension = "json"},
+		map = {extension = "/"},
+		level = {extension = "json"},
+		ui2AnimationConfig = {extension = "json", constructor = UI2AnimationConfig, paramSet = 2},
+		ui2NodeConfig = {extension = "json", constructor = UI2NodeConfig, paramSet = 2},
+		ui2SequenceConfig = {extension = "json", constructor = UI2SequenceConfig, paramSet = 2}
 	}
 	-- TODO: Auto-generate these two below.
 	self.SCHEMA_TO_RESOURCE_MAP = {
 		["sprite.json"] = "sprite",
 		["sound_event.json"] = "soundEvent",
-		-- TODO: music
+		["music_track.json"] = "music",
 		["particle.json"] = "particle",
 		["font.json"] = "font",
 		["color_palette.json"] = "colorPalette",
@@ -75,7 +75,7 @@ function ResourceManager:new()
 	}
 	self.EXTENSION_TO_RESOURCE_MAP = {
 		png = "image",
-		ogg = "audio",
+		ogg = "sound",
 		ttf = "fontFile"
 	}
 
@@ -322,9 +322,6 @@ function ResourceManager:loadAsset(key, batches)
 	end
 
 	-- Get the constructor and construct the asset.
-	if _Utils.strStartsWith(key, "music/") then
-		type = "music"
-	end
 	local constructor = self.RESOURCE_TYPES[type].constructor
 	if not constructor then
 		_Log:printt("ResourceManager2", "File " .. key .. " not loaded: type " .. type .. " not implemented")

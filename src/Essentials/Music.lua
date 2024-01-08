@@ -7,7 +7,11 @@ local Music = class:derive("Music")
 
 
 function Music:new(path)
-	self.instance = _Utils.loadSound(path, "stream")
+    self.path = path
+    local data = _Utils.loadJson(path)
+
+	local sound = _Game.resourceManager:getSound(data.audio)
+	self.instance = sound:makeSource("stream")
 	if not self.instance then error("Failed to load sound: " .. path) end
 	self.instance:setLooping(true)
 

@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "audio": {
+            "$ref": "_structures/Sound.json",
+            "description": "The audio file to be used for this music track."
+        }
+    },
+    "required": [
+        "audio"
+    ],
+    "additionalProperties": false
+}
