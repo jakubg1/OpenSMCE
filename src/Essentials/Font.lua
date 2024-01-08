@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class Font
----@overload fun(path):Font
+---@overload fun(data, path, namespace, batches):Font
 local Font = class:derive("Font")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -9,14 +9,13 @@ local Color = require("src.Essentials.Color")
 
 
 
-function Font:new(path)
+function Font:new(data, path, namespace, batches)
 	self.path = path
 
-	local data = _Utils.loadJson(path)
 	self.type = data.type
 
 	if self.type == "image" then
-		self.image = _Game.resourceManager:getImage(data.image)
+		self.image = _Game.resourceManager:getImage(data.image, namespace, batches)
 		self.height = self.image.size.y
 		self.characters = {}
 		for characterN, character in pairs(data.characters) do

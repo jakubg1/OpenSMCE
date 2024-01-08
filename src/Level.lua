@@ -831,9 +831,7 @@ function Level:destroy()
 	for i, collectible in ipairs(self.collectibles) do
 		collectible:destroy()
 	end
-	for i, path in ipairs(self.map.paths) do
-		path:destroy()
-	end
+	self.map:destroy()
 	self:destroyNetParticle()
 
 	if self.ambientMusicName then

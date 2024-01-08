@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class ColorPalette
----@overload fun(path):ColorPalette
+---@overload fun(data, path, namespace, batches):ColorPalette
 local ColorPalette = class:derive("ColorPalette")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -9,11 +9,12 @@ local Color = require("src.Essentials.Color")
 
 
 
-function ColorPalette:new(path)
-	self.data = _Utils.loadJson(path)
-	self.image = _Utils.loadImageData(_ParsePath(self.data.image))
+function ColorPalette:new(data, path, namespace, batches)
+	self.path = path
+
+	self.image = _Utils.loadImageData(_ParsePath(data.image))
 	if not self.image then
-		error("Failed to load image data: " .. self.data.image)
+		error("Failed to load image data: " .. data.image .. " from " .. path)
 	end
 	self.size = Vec2(self.image:getDimensions())
 end

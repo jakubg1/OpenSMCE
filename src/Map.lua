@@ -28,11 +28,13 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	local data = _Utils.loadJson(_ParsePath(path .. "/config.json"))
 	self.name = data.name
 	for i, spriteData in ipairs(data.sprites) do
+		local mapFolderName = _Utils.strSplit(path, "/")
 		local spritePath = spriteData.path
 		if spriteData.internal then
-			spritePath = path .. "/" .. spritePath
+			spritePath = ":" .. spritePath
 		end
-		table.insert(self.sprites, {pos = Vec2(spriteData.x, spriteData.y), sprite = Sprite(_ParsePath(spritePath)), background = spriteData.background})
+		local sprite = _Game.resourceManager:getSprite(spritePath, mapFolderName[#mapFolderName], {"map"})
+		table.insert(self.sprites, {pos = Vec2(spriteData.x, spriteData.y), sprite = sprite, background = spriteData.background})
 	end
 	for i, pathData in ipairs(data.paths) do
 		-- Loop around the path behavior list if not sufficient enough.
@@ -117,6 +119,16 @@ function Map:drawSpheres()
 			path:draw(false)
 		end
 	end
+end
+
+
+
+---Unloads resources loaded by this map.
+function Map:destroy()
+	for i, path in ipairs(self.paths) do
+		path:destroy()
+	end
+	_Game.resourceManager:unloadAssetBatch("map")
 end
 
 

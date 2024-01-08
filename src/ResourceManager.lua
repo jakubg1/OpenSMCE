@@ -33,15 +33,15 @@ function ResourceManager:new()
 	self.queuedResources = {}
 
 	self.RESOURCE_TYPES = {
-		image = {extension = "png", constructor = Image},
-		sprite = {extension = "json", constructor = Sprite},
-		sound = {extension = "ogg", constructor = Sound},
-		soundEvent = {extension = "json", constructor = SoundEvent},
-		music = {extension = "json", constructor = Music},
+		image = {extension = "png", constructor = Image, paramSet = 2},
+		sprite = {extension = "json", constructor = Sprite, paramSet = 2},
+		sound = {extension = "ogg", constructor = Sound, paramSet = 2},
+		soundEvent = {extension = "json", constructor = SoundEvent, paramSet = 2},
+		music = {extension = "json", constructor = Music, paramSet = 2},
 		particle = {extension = "json", constructor = _Utils.loadJson},
-		font = {extension = "json", constructor = Font},
+		font = {extension = "json", constructor = Font, paramSet = 2},
 		fontFile = {extension = "ttf"},
-		colorPalette = {extension = "json", constructor = ColorPalette},
+		colorPalette = {extension = "json", constructor = ColorPalette, paramSet = 2},
 		sphere = {extension = "json"},
 		sphereEffect = {extension = "json"},
 		collectible = {extension = "json"},
@@ -102,7 +102,7 @@ function ResourceManager:update(dt)
 	while #self.queuedResources > 0 and stepLoadEnd < 0.05 do
 		-- Load the next resource from the queue.
 		local data = self.queuedResources[1]
-		self:loadAsset(data.key, data.batches)
+		self:loadAsset(data.key, nil, data.batches)
 		table.remove(self.queuedResources, 1)
 		-- Update the timer. This will allow the loop to exit.
 		stepLoadEnd = stepLoadEnd + (love.timer.getTime() - stepLoadStart)
@@ -113,79 +113,101 @@ end
 
 ---Retrieves an Image by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return Image
-function ResourceManager:getImage(path)
-	return self:getAsset(path, nil, nil, "image")
+function ResourceManager:getImage(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "image")
 end
 
 ---Retrieves a Sprite by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return Sprite
-function ResourceManager:getSprite(path)
-	return self:getAsset(path, nil, nil, "sprite")
+function ResourceManager:getSprite(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "sprite")
 end
 
 ---Retrieves a Sound by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return Sound
-function ResourceManager:getSound(path)
-	return self:getAsset(path, nil, nil, "sound")
+function ResourceManager:getSound(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "sound")
 end
 
 ---Retrieves a Sound Event by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return SoundEvent
-function ResourceManager:getSoundEvent(path)
-	return self:getAsset(path, nil, nil, "sound event")
+function ResourceManager:getSoundEvent(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "sound event")
 end
 
 ---Retrieves a piece of Music by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return Music
-function ResourceManager:getMusic(path)
-	return self:getAsset(path, nil, nil, "music track")
+function ResourceManager:getMusic(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "music track")
 end
 
 ---Retrieves a Particle by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return table
-function ResourceManager:getParticle(path)
-	return self:getAsset(path, nil, nil, "particle")
+function ResourceManager:getParticle(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "particle")
 end
 
 ---Retrieves a Font by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return Font
-function ResourceManager:getFont(path)
-	return self:getAsset(path, nil, nil, "font")
+function ResourceManager:getFont(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "font")
 end
 
 ---Retrieves a Color Palette by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return ColorPalette
-function ResourceManager:getColorPalette(path)
-	return self:getAsset(path, nil, nil, "color palette")
+function ResourceManager:getColorPalette(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "color palette")
 end
 
 ---Retrieves a UI Animation Config by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return UI2AnimationConfig
-function ResourceManager:getUIAnimationConfig(path)
-	return self:getAsset(path, nil, nil, "UI2 animation")
+function ResourceManager:getUIAnimationConfig(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "UI2 animation")
 end
 
 ---Retrieves a UI Node Config by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return UI2NodeConfig
-function ResourceManager:getUINodeConfig(path)
-	return self:getAsset(path, nil, nil, "UI2 node")
+function ResourceManager:getUINodeConfig(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "UI2 node")
 end
 
 ---Retrieves a UI Sequence Config by a given path.
 ---@param path string The resource path.
+---@param namespace string? The default namespace, for example if `path` = `:flame1.json` and `namespace` = `Map1`, the resource will be located at `maps/Map1/flame1.json`.
+---@param batches table? If provided, this resource can be unloaded by unloading all provided batch names.
 ---@return UI2SequenceConfig
-function ResourceManager:getUISequenceConfig(path)
-	return self:getAsset(path, nil, nil, "UI2 sequence")
+function ResourceManager:getUISequenceConfig(path, namespace, batches)
+	return self:getAsset(path, namespace, batches, "UI2 sequence")
 end
 
 
@@ -276,7 +298,7 @@ function ResourceManager:getAsset(path, namespace, batches, type)
 				break
 			end
 		end
-		self:loadAsset(key, batches)
+		self:loadAsset(key, namespace, batches)
 	end
 	if not self.resources[key] then
 		error(string.format("[ResourceManager] Attempt to get a nonexistent %s: %s", type or "resource", path))
@@ -289,8 +311,9 @@ end
 ---Loads the asset: opens the file, deduces its type, and if applicable, constructs a resource and registers it in the resource table.
 ---Internal use only; don't call from outside of the class!
 ---@param key string The key to the resource: a full path starting from the root game folder.
+---@param namespace string? While the `key` is already parsed (this won't alter it), resources loaded by this resource's constructor may need it to load more resources.
 ---@param batches table? If present, this will be the list of resource batches this resource is going to be a part of. Otherwise, this resource will stay loaded permanently.
-function ResourceManager:loadAsset(key, batches)
+function ResourceManager:loadAsset(key, namespace, batches)
 	-- Mark the resource as loaded by load counters. We are doing it here so everything counts.
 	for name, loadCounter in pairs(self.loadCounters) do
 		if loadCounter.queueKeys[key] then
@@ -328,13 +351,22 @@ function ResourceManager:loadAsset(key, batches)
 		_Log:printt("ResourceManager2", "File " .. key .. " not loaded: type " .. type .. " not implemented")
 		return
 	end
+
+	-- Copy the batch array so that no resource uses the same exact instance of a batch list.
+	local newBatches = nil
+	if batches then
+		newBatches = {}
+		for i, batch in ipairs(batches) do
+			table.insert(newBatches, batch)
+		end
+	end
 	-- TODO: Condensate the parameter set to the one used by Config Classes.
 	if self.RESOURCE_TYPES[type].paramSet == 2 then
-		self.resources[key] = {asset = constructor(contents, key), type = type, batches = batches}
+		self.resources[key] = {asset = constructor(contents, key, namespace, newBatches), type = type, batches = newBatches}
 	else
-		self.resources[key] = {asset = constructor(_ParsePath(key)), type = type, batches = batches}
+		self.resources[key] = {asset = constructor(_ParsePath(key)), type = type, batches = newBatches}
 	end
-	_Log:printt("ResourceManager2", key .. " OK!")
+	_Log:printt("ResourceManager2", key .. (newBatches and (" {" .. table.concat(newBatches, ", ") .. "}") or "") .. " OK!")
 end
 
 
@@ -356,6 +388,28 @@ function ResourceManager:updateAssetBatches(key, batches)
 		for i, batch in ipairs(batches) do
 			if not _Utils.isValueInTable(resource.batches, batch) then
 				table.insert(resource.batches, batch)
+			end
+		end
+	end
+end
+
+
+
+---Unloads an asset batch by removing it from all loaded resources, if applicable.
+---For any Resource, if it had only that batch assigned, the resource is removed from memory.
+---@param name string The asset batch name to be unloaded.
+function ResourceManager:unloadAssetBatch(name)
+	for key, resource in pairs(self.resources) do
+		if resource.batches then
+			for i, batch in ipairs(resource.batches) do
+				if batch == name then
+					table.remove(resource.batches, i)
+					if #resource.batches == 0 then
+						self.resources[key] = nil
+						_Log:printt("ResourceManager2", key .. " unloaded!")
+					end
+					break
+				end
 			end
 		end
 	end

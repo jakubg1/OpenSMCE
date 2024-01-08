@@ -1,18 +1,19 @@
 local class = require "com.class"
 
 ---@class Music
----@overload fun(path):Music
+---@overload fun(data, path, namespace, batches):Music
 local Music = class:derive("Music")
 
 
 
-function Music:new(path)
+function Music:new(data, path, namespace, batches)
     self.path = path
-    local data = _Utils.loadJson(path)
 
-	local sound = _Game.resourceManager:getSound(data.audio)
+	local sound = _Game.resourceManager:getSound(data.audio, namespace, batches)
 	self.instance = sound:makeSource("stream")
-	if not self.instance then error("Failed to load sound: " .. path) end
+	if not self.instance then
+		error("Failed to load sound data: " .. data.audio .. " from " .. path)
+	end
 	self.instance:setLooping(true)
 
 	self.volume = 0
