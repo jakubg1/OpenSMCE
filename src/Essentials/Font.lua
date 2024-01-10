@@ -126,7 +126,7 @@ end
 function Font:drawCharacter(character, pos)
 	pos = _PosOnScreen(pos)
 	--if self.characters[character] then
-	self.image:draw(self:getCharacter(character).quad, pos.x, pos.y, 0, _GetResolutionScale())
+	self.image:draw(self:getCharacter(character).quad, math.floor(pos.x), math.floor(pos.y), 0, _GetResolutionScale())
 	--else
 	--	print("ERROR: Unexpected character: " .. character)
 	--end

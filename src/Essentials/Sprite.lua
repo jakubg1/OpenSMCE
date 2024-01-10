@@ -77,7 +77,7 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
 	else
 		love.graphics.setColor(unpack(color), alpha)
 	end
-	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
+	self.img:draw(self:getFrame(state, frame), math.floor(pos.x), math.floor(pos.y), rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
 end
 
 
