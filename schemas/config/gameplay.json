@@ -294,6 +294,11 @@
                     "description": "How fast does the Scorpion accelerate per second.",
                     "minimum": 0.0
                 },
+                "maxSpeed": {
+                    "type": "number",
+                    "description": "The maximum speed of the Scorpion, in pixels per second.",
+                    "exclusiveMinimum": 0.0
+                },
                 "trailParticle": {
                     "$ref": "../_structures/Particle.json",
                     "description": "A one-time particle packet which the Scorpion would emit. May be omitted if no particles are supposed to be generated."

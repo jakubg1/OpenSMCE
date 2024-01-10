@@ -50,6 +50,9 @@ end
 function Scorpion:update(dt)
 	-- Offset and distance
 	self.speed = self.speed + self.config.acceleration * dt
+	if self.config.maxSpeed then
+		self.speed = math.min(self.speed, self.config.maxSpeed)
+	end
 	self.offset = self.offset - self.speed * dt
 	self.distance = self.path.length - self.offset
 	-- Destroying spheres
