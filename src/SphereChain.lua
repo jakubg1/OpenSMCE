@@ -231,7 +231,11 @@ function SphereChain:generateSphere()
 	self:getLastSphereGroup():pushSphereBack(self.generationColor)
 	-- Each sphere: check whether we should generate a fresh new color (chance is colorStreak).
 	if math.random() >= self.path.colorStreak then
-		self.generationColor = self.path:newSphereColor()
+		local oldColor = self.generationColor
+		repeat
+			-- Reroll if we've got the same color and the config doesn't allow that.
+			self.generationColor = self.path:newSphereColor()
+		until oldColor ~= self.generationColor or not self.path.forceDifferentColor
 	end
 end
 

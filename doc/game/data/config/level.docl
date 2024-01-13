@@ -26,6 +26,7 @@
             - colors (array) - A list of integers. These are the colors that will be assigned to the newly created Spheres on the path.
                 - (integer) - A single sphere color.
             - colorStreak (number) [>=0,<=1] - The probability of the next color being the same as the previous one in sequence.
+            - forceDifferentColor* (boolean) - If set, two like-colored clumps cannot have the same color if next to each other. This reduces likelihood of apparent big clumps of a single color.
             - spawnRules ($level_spawn_rules) - How the spheres should be spawned.
             - spawnDistance (number) [>=0,<=1] - How far the path must be clear for a new Sphere Chain to spawn.
             - dangerDistance (number) [>=0,<=1] - How far into the path the spheres have to be in order for the player to be in danger.

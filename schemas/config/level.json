@@ -131,6 +131,10 @@
                         "minimum": 0.0,
                         "maximum": 1.0
                     },
+                    "forceDifferentColor": {
+                        "type": "boolean",
+                        "description": "If set, two like-colored clumps cannot have the same color if next to each other. This reduces likelihood of apparent big clumps of a single color."
+                    },
                     "spawnRules": {
                         "$ref": "level_spawn_rules.json",
                         "description": "How the spheres should be spawned."
