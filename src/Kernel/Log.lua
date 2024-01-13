@@ -39,7 +39,9 @@ end
 ---@param text string The text to be written to log.
 function Log:print(text)
     self.contents = self.contents .. string.format("[%.6f] %s\n", _GetPreciseTime(), text)
-    print("[ LOG ]   " .. text)
+    if not _EngineSettings or _EngineSettings:getConsoleWindow() then
+        print("[ LOG ]   " .. text)
+    end
 end
 
 
