@@ -29,11 +29,7 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	self.name = data.name
 	for i, spriteData in ipairs(data.sprites) do
 		local mapFolderName = _Utils.strSplit(path, "/")
-		local spritePath = spriteData.path
-		if spriteData.internal then
-			spritePath = ":" .. spritePath
-		end
-		local sprite = _Game.resourceManager:getSprite(spritePath, mapFolderName[#mapFolderName], {"map"})
+		local sprite = _Game.resourceManager:getSprite(spriteData.path, mapFolderName[#mapFolderName], {"map"})
 		table.insert(self.sprites, {pos = Vec2(spriteData.x, spriteData.y), sprite = sprite, background = spriteData.background})
 	end
 	for i, pathData in ipairs(data.paths) do

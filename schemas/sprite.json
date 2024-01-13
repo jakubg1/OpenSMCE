@@ -35,11 +35,6 @@
                 "additionalProperties": false
             }
         },
-        "internal": {
-            "type": "boolean",
-            "description": "If set, the Sprite will directly load the image file from the given path. Otherwise, it will get an already loaded image. Set this when the referenced Image is outside of the images folder.",
-            "markdownDescription": "If set, the Sprite will directly load the image file from the given path. Otherwise, it will get an already loaded image. Set this when the referenced Image is outside of the `images` folder."
-        },
         "batched": {
             "type": "boolean",
             "description": "Unused."
@@ -48,8 +43,7 @@
     "required": [
         "path",
         "frameSize",
-        "states",
-        "internal"
+        "states"
     ],
     "additionalProperties": false
 }

@@ -67,11 +67,6 @@
                         "$ref": "_structures/Sprite.json",
                         "description": "The path to the Sprite to be displayed."
                     },
-                    "internal": {
-                        "type": "boolean",
-                        "description": "When set, the path field will refer to this map's folder as the base directory. Otherwise, the base directory will be the root game folder.",
-                        "markdownDescription": "When set, the `path` field will refer to this map's folder as the base directory. Otherwise, the base directory will be the root game folder."
-                    },
                     "background": {
                         "type": "boolean",
                         "description": "If set, this sprite will be rendered behind all spheres. Otherwise, it will be covering hidden spheres."
@@ -81,7 +76,6 @@
                     "x",
                     "y",
                     "path",
-                    "internal",
                     "background"
                 ],
                 "additionalProperties": false

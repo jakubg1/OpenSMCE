@@ -13,5 +13,4 @@
             - x (number) - The X position of this Sprite.
             - y (number) - The Y position of this Sprite.
             - path (Sprite) - The path to the Sprite to be displayed.
-            - internal (boolean) - When set, the `path` field will refer to this map's folder as the base directory. Otherwise, the base directory will be the root game folder.
             - background (boolean) - If set, this sprite will be rendered behind all spheres. Otherwise, it will be covering hidden spheres.

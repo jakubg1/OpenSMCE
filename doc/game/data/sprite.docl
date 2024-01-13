@@ -5,5 +5,4 @@
         - (object) - A single state.
             - pos (Vector2) - The upper left position of this State's first frame.
             - frames (Vector2) - The amount of frames this Sprite has. Each next frame is horizontally adjacent to the previous one, ascending towards right.
-    - internal (boolean) - If set, the Sprite will directly load the image file from the given path. Otherwise, it will get an already loaded image. Set this when the referenced Image is outside of the `images` folder.
     - batched* (boolean) - Unused.
