@@ -38,9 +38,9 @@ function Level:new(data)
 	self.colorGeneratorNormal = data.colorGeneratorNormal
 	self.colorGeneratorDanger = data.colorGeneratorDanger
 
-	self.musicName = data.music
-	self.dangerMusicName = data.dangerMusic
-	self.ambientMusicName = data.ambientMusic
+	self.music = data.music and _Game.resourceManager:getMusic(data.music)
+	self.dangerMusic = data.dangerMusic and _Game.resourceManager:getMusic(data.dangerMusic)
+	self.ambientMusic = data.ambientMusic and _Game.resourceManager:getMusic(data.ambientMusic)
 
 	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
 	self.dangerLoopSoundName = data.dangerLoopSound
@@ -286,40 +286,34 @@ end
 
 ---Adjusts which music is playing based on the level's internal state.
 function Level:updateMusic()
-	local music = _Game:getMusic(self.musicName)
-
-	if self.dangerMusicName then
-		local dangerMusic = _Game:getMusic(self.dangerMusicName)
-
+	if self.dangerMusic then
 		-- If the level hasn't started yet, is lost, won or the game is paused,
 		-- mute the music.
 		if not self.started or self.ended or self.pause then
-			music:setVolume(0)
-			dangerMusic:setVolume(0)
+			self.music:setVolume(0)
+			self.dangerMusic:setVolume(0)
 		else
 			-- Play the music accordingly to the danger flag.
 			if self.danger then
-				music:setVolume(0)
-				dangerMusic:setVolume(1)
+				self.music:setVolume(0)
+				self.dangerMusic:setVolume(1)
 			else
-				music:setVolume(1)
-				dangerMusic:setVolume(0)
+				self.music:setVolume(1)
+				self.dangerMusic:setVolume(0)
 			end
 		end
 	else
 		-- If there's no danger music, then mute it or unmute in a similar fashion.
 		if not self.started or self.ended or self.pause then
-			music:setVolume(0)
+			self.music:setVolume(0)
 		else
-			music:setVolume(1)
+			self.music:setVolume(1)
 		end
 	end
 
-	if self.ambientMusicName then
-		local ambientMusic = _Game:getMusic(self.ambientMusicName)
-
+	if self.ambientMusic then
 		-- Ambient music plays all the time.
-		ambientMusic:setVolume(1)
+		self.ambientMusic:setVolume(1)
 	end
 end
 
@@ -781,7 +775,7 @@ function Level:beginActually()
 	self.started = true
 	self.controlDelay = _Game.configManager.gameplay.level.controlDelay
 	self.introductionPathID = nil
-	_Game:getMusic(self.musicName):reset()
+	self.music:reset()
 	if self.warmupLoopName then
 		self.warmupLoop = _Game:playSound(self.warmupLoopName)
 	end
@@ -792,7 +786,7 @@ end
 ---Resumes the Level after loading data.
 function Level:beginLoad()
 	self.started = true
-	_Game:getMusic(self.musicName):reset()
+	self.music:reset()
 	if not self.bonusDelay and not self.map.paths[self.bonusPathID] then
 		self.wonDelay = _Game.configManager.gameplay.level.wonDelay
 	end
@@ -834,11 +828,9 @@ function Level:destroy()
 	self.map:destroy()
 	self:destroyNetParticle()
 
-	if self.ambientMusicName then
-		local ambientMusic = _Game:getMusic(self.ambientMusicName)
-
+	if self.ambientMusic then
 		-- Stop any ambient music.
-		ambientMusic:setVolume(0)
+		self.ambientMusic:setVolume(0)
 	end
 
 	if self.warmupLoop then

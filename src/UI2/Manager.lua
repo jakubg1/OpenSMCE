@@ -48,7 +48,7 @@ function UI2Manager:new()
         levelGetCombo = function() return _Game.session.level.combo end,
         levelGetAccuracy = function() return _Game.session.level:getShotAccuracy() end,
 
-        musicVolume = function(music, volume) _Game:getMusic(music):setVolume(volume) end,
+        musicVolume = function(music, volume) _Game.resourceManager:getMusic(music):setVolume(volume) end,
 
         profileMSet = function(name) _Game.runtimeManager.profileManager:setCurrentProfile(name) end,
         profileMCreate = function(name) return _Game.runtimeManager.profileManager:createProfile(name) end,

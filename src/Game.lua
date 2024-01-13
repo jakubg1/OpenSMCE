@@ -298,16 +298,6 @@ end
 
 
 
----Returns a Music instance given its name.
----@param name string The music name.
----@return Music
-function Game:getMusic(name)
-	-- The "music_tracks/X.json" wrap is temporary. TODO: remove it!
-	return self.resourceManager:getMusic("music_tracks/" .. name .. ".json")
-end
-
-
-
 ---Returns the currently selected Profile.
 ---@return Profile
 function Game:getCurrentProfile()
