@@ -1,15 +1,15 @@
 local class = require "com.class"
 
 ---@class Music
----@overload fun(data, path, namespace, batches):Music
+---@overload fun(data, path):Music
 local Music = class:derive("Music")
 
 
 
-function Music:new(data, path, namespace, batches)
+function Music:new(data, path)
     self.path = path
 
-	local sound = _Game.resourceManager:getSound(data.audio, namespace, batches)
+	local sound = _Game.resourceManager:getSound(data.audio)
 	self.instance = sound:makeSource("stream")
 	if not self.instance then
 		error("Failed to load sound data: " .. data.audio .. " from " .. path)

@@ -22,16 +22,26 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	-- whether it's just a decorative map, if false then it's meant to be playable
 	self.isDummy = isDummy
 
+	local data = _Utils.loadJson(_ParsePath(path .. "/config.json"))
+	self.name = data.name
+
 	self.paths = {}
 	self.sprites = {}
 
-	local data = _Utils.loadJson(_ParsePath(path .. "/config.json"))
-	self.name = data.name
+	local mapFolderName = _Utils.strSplit(path, "/")
+	_Game.resourceManager:setNamespace(mapFolderName[#mapFolderName])
+	_Game.resourceManager:setBatches({"map"})
 	for i, spriteData in ipairs(data.sprites) do
-		local mapFolderName = _Utils.strSplit(path, "/")
-		local sprite = _Game.resourceManager:getSprite(spriteData.path, mapFolderName[#mapFolderName], {"map"})
-		table.insert(self.sprites, {pos = Vec2(spriteData.x, spriteData.y), sprite = sprite, background = spriteData.background})
+		local sprite = {
+			pos = Vec2(spriteData.x, spriteData.y),
+			sprite = _Game.resourceManager:getSprite(spriteData.path),
+			background = spriteData.background
+		}
+		table.insert(self.sprites, sprite)
 	end
+	_Game.resourceManager:setNamespace()
+	_Game.resourceManager:setBatches()
+
 	for i, pathData in ipairs(data.paths) do
 		-- Loop around the path behavior list if not sufficient enough.
 		-- Useful if all paths should share the same behavior; you don't have to clone it.

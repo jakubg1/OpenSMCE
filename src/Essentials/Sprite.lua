@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class Sprite
----@overload fun(data, path, namespace, batches):Sprite
+---@overload fun(data, path):Sprite
 local Sprite = class:derive("Sprite")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -13,12 +13,10 @@ local Image = require("src.Essentials.Image")
 ---Constructs a new Sprite.
 ---@param data table The parsed JSON data of the sprite.
 ---@param path string A path to the sprite file.
----@param namespace string? The namespace this resource is loaded as. Pass forward to all resource getters inside.
----@param batches table? The batch names this resource is loaded as a part of. Pass forward to all resource getters inside.
-function Sprite:new(data, path, namespace, batches)
+function Sprite:new(data, path)
 	self.path = path
 
-	self.img = _Game.resourceManager:getImage(data.path, namespace, batches)
+	self.img = _Game.resourceManager:getImage(data.path)
 	self.size = self.img.size
 	self.frameSize = data.frameSize
 	self.states = {}

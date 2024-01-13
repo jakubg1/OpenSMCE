@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Sound Event, which can be played by miscellaneous events during the game and from the user interface.
 ---@class SoundEvent
----@overload fun(data, path, namespace, batches):SoundEvent
+---@overload fun(data, path):SoundEvent
 local SoundEvent = class:derive("SoundEvent")
 
 local SoundInstance = require("src.Essentials.SoundInstance")
@@ -12,9 +12,7 @@ local SoundInstance = require("src.Essentials.SoundInstance")
 ---Constructs a Sound Event. This represents data from a file located in the `sound_events` folder.
 ---@param data table The parsed JSON data from the sound event file.
 ---@param path string The path to the `sound_events/*.json` file to load the event from.
----@param namespace string? The namespace this resource is loaded as. Pass forward to all resource getters inside.
----@param batches table? The batch names this resource is loaded as a part of. Pass forward to all resource getters inside.
-function SoundEvent:new(data, path, namespace, batches)
+function SoundEvent:new(data, path)
     self.path = path
 
     self.volume = data.volume or 1
@@ -25,7 +23,7 @@ function SoundEvent:new(data, path, namespace, batches)
 
     self.instances = {}
     if data.path then
-        local sound = _Game.resourceManager:getSound(data.path, namespace, batches)
+        local sound = _Game.resourceManager:getSound(data.path)
         for i = 1, self.instanceCount do
             self.instances[i] = SoundInstance(sound:makeSource("static"))
         end
