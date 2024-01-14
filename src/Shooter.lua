@@ -288,7 +288,7 @@ end
 function Shooter:isActive()
     local level = _Game.session.level
     -- Eliminate all cases where we're not in the main level gameplay loop.
-    if not level.started or level.controlDelay or level.lost or level:hasNoMoreSpheres() then
+    if level:getCurrentSequenceStepType() ~= "gameplay" or level.levelSequenceVars.warmupTime or level:hasNoMoreSpheres() then
         return false
     end
     -- When there's already a shot sphere and the config does not permit more, disallow.

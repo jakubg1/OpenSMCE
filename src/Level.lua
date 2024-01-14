@@ -48,6 +48,19 @@ function Level:new(data)
 	self.failSoundName = data.failSound or "sound_events/foul.json"
 	self.failLoopName = data.failLoopSound or "sound_events/spheres_roll.json"
 
+	self.levelSequence = {
+		{type = "pathEntity", pathEntity = "path_entities/intro_trail.json", separatePaths = false, launchDelay = 0, waitUntilFinished = true, skippable = false},
+		{type = "gameplay", warmupTime = 1.5, previewFirstShooterColor = true, onFail = 9},
+		{type = "waitForCollectibles"},
+		{type = "wait", delay = 1},
+		{type = "pathEntity", pathEntity = "path_entities/bonus_scarab.json", separatePaths = true, launchDelay = 1.5, waitUntilFinished = true, skippable = false},
+		{type = "waitForCollectibles"},
+		{type = "wait", delay = 1.5},
+		{type = "end", status = "win"},
+		{type = "fail", waitUntilFinished = true, skippable = false},
+		{type = "end", status = "fail"}
+	}
+
 	-- Additional variables come from this method!
 	self:reset()
 end
@@ -179,105 +192,77 @@ function Level:updateLogic(dt)
 
 
 
-	-- Time counting
-	if self.started and not self.controlDelay and not self:getFinish() and not self.finish and not self.lost then
-		self.time = self.time + dt
+	-- Current sequence step config
+	local step = self.levelSequence[self.levelSequenceStep]
+
+	-- No step (when the level hasn't started yet)
+	if not step then
+		return
 	end
 
+	if step.type == "wait" then
+		self.levelSequenceVars.time = self.levelSequenceVars.time + dt
+		if self.levelSequenceVars.time >= step.delay then
+			self:advanceSequenceStep()
+		end
+	elseif step.type == "waitForCollectibles" then
+		if self:getFinish() then
+			self:advanceSequenceStep()
+		end
+	elseif step.type == "pathEntity" then
+		-- Temporary: we don't have Path Entities yet.
+		local isThereAnythingOnPreviousPaths = false
+		for i = 1, self.levelSequenceVars.pathID do
+			local path = self.map.paths[i]
+			if not path then
+				break
+			end
+			if path.bonusScarab or path:isBeingIntroduced() then
+				isThereAnythingOnPreviousPaths = true
+				break
+			end
+		end
 
-
-	-- Level start
-	-- Path introduction
-	if self.introductionPathID then
-		local pathIntroductionConfig = _Game.configManager.gameplay.pathIntroduction
-		if pathIntroductionConfig then
-			if pathIntroductionConfig.separatePaths then
-				-- Check if the current path has finished introducing and either introduce the next path or start the level.
-				if not self.map.paths[self.introductionPathID]:isBeingIntroduced() then
-					local nextPath = self.map.paths[self.introductionPathID + 1]
-					if nextPath then
-						nextPath:startIntroduction()
-						self.introductionPathID = self.introductionPathID + 1
-					else
-						self:beginActually()
-					end
-				end
+		while self.map.paths[self.levelSequenceVars.pathID] and (not step.separatePaths or not isThereAnythingOnPreviousPaths) do
+			if self.levelSequenceVars.delay > 0 then
+				self.levelSequenceVars.delay = self.levelSequenceVars.delay - dt
+				break
 			else
-				-- Start the level once all paths have finished introducing.
-				local pathIntroductionOngoing = false
-				for i, path in ipairs(self.map.paths) do
-					if path:isBeingIntroduced() then
-						pathIntroductionOngoing = true
-						break
-					end
+				local currentPath = self.map.paths[self.levelSequenceVars.pathID]
+				if step.pathEntity == "path_entities/intro_trail.json" then
+					currentPath:startIntroduction()
+				elseif step.pathEntity == "path_entities/bonus_scarab.json" then
+					currentPath:spawnBonusScarab()
 				end
-				if not pathIntroductionOngoing then
-					self:beginActually()
+				self.levelSequenceVars.pathID = self.levelSequenceVars.pathID + 1
+				self.levelSequenceVars.delay = step.launchDelay
+				isThereAnythingOnPreviousPaths = true
+			end
+		end
+
+		-- If all paths have been exhausted and either nothing is there or we don't have to wait until finished, move on to the next step.
+		if not self.map.paths[self.levelSequenceVars.pathID] then
+			if not step.waitUntilFinished or not isThereAnythingOnPreviousPaths then
+				self:advanceSequenceStep()
+			end
+		end
+	elseif step.type == "gameplay" then
+		self.time = self.time + dt
+		if self.levelSequenceVars.warmupTime then
+			self.levelSequenceVars.warmupTime = self.levelSequenceVars.warmupTime + dt
+			if self.levelSequenceVars.warmupTime >= step.warmupTime then
+				self.levelSequenceVars.warmupTime = nil
+				if self.warmupLoop then
+					self.warmupLoop:stop()
 				end
 			end
 		end
-	end
-
-	-- Control delay
-	-- TODO: HARDCODED - make it more flexible
-	if self.controlDelay then
-		self.controlDelay = self.controlDelay - dt
-		if self.controlDelay <= 0 then
-			self.controlDelay = nil
-			if self.warmupLoop then
-				self.warmupLoop:stop()
-			end
+		if self:hasNoMoreSpheres() then
+			self:advanceSequenceStep()
 		end
-	end
-
-
-
-	-- Level finish
-	if self:getFinish() and not self.finish and not self.finishDelay then
-		self.finishDelay = _Game.configManager.gameplay.level.finishDelay
-	end
-
-	if self.finishDelay then
-		self.finishDelay = self.finishDelay - dt
-		if self.finishDelay <= 0 then
-			self.finishDelay = nil
-			self.finish = true
-			self.bonusDelay = 0
-			self.shooter:empty()
-		end
-	end
-
-	if self.bonusDelay and (self.bonusPathID == 1 or not self.map.paths[self.bonusPathID - 1].bonusScarab) then
-		if self.map.paths[self.bonusPathID] then
-			self.bonusDelay = self.bonusDelay - dt
-			if self.bonusDelay <= 0 then
-				self.map.paths[self.bonusPathID]:spawnBonusScarab()
-				self.bonusDelay = _Game.configManager.gameplay.level.bonusDelay
-				self.bonusPathID = self.bonusPathID + 1
-			end
-		elseif self:getFinish() then
-			self.wonDelay = _Game.configManager.gameplay.level.wonDelay
-			self.bonusDelay = nil
-		end
-	end
-
-	if self.wonDelay then
-		self.wonDelay = self.wonDelay - dt
-		if self.wonDelay <= 0 then
-			self.wonDelay = nil
-			_Game.uiManager:executeCallback("levelComplete")
-			self.ended = true
-		end
-	end
-
-
-
-	-- Level lose
-	if self.lost and self:getEmpty() and not self.ended then
-		_Game.uiManager:executeCallback("levelLost")
-		self.ended = true
-		if self.failLoop then
-			self.failLoop:stop()
+	elseif step.type == "fail" then
+		if self:getEmpty() then
+			self:advanceSequenceStep()
 		end
 	end
 end
@@ -289,7 +274,7 @@ function Level:updateMusic()
 	if self.dangerMusic then
 		-- If the level hasn't started yet, is lost, won or the game is paused,
 		-- mute the music.
-		if not self.started or self.ended or self.pause then
+		if self.levelSequenceStep == 0 or self:getCurrentSequenceStepType() == "end" or self.lost or self.pause then
 			self.music:setVolume(0)
 			self.dangerMusic:setVolume(0)
 		else
@@ -304,7 +289,7 @@ function Level:updateMusic()
 		end
 	else
 		-- If there's no danger music, then mute it or unmute in a similar fashion.
-		if not self.started or self.ended or self.pause then
+		if self.levelSequenceStep == 0 or self:getCurrentSequenceStepType() == "end" or self.lost or self.pause then
 			self.music:setVolume(0)
 		else
 			self.music:setVolume(1)
@@ -750,46 +735,67 @@ end
 
 ---Starts the Level.
 function Level:begin()
-	local pathIntroductionConfig = _Game.configManager.gameplay.pathIntroduction
-	if not pathIntroductionConfig then
-		-- No path introduction. Start the level straight away.
-		self:beginActually()
-	elseif pathIntroductionConfig.separatePaths then
-		-- Paths introduced separately. Start the first path introduction.
-		self.map.paths[1]:startIntroduction()
-		self.introductionPathID = 1
-	else
-		-- Introduce all the paths at once.
-		for i, path in ipairs(self.map.paths) do
-			path:startIntroduction()
-		end
-		self.introductionPathID = 1
-	end
-end
-
-
-
----Actually starts the level. Balls start rolling.
----TODO: Rename it to something better...
-function Level:beginActually()
-	self.started = true
-	self.controlDelay = _Game.configManager.gameplay.level.controlDelay
-	self.introductionPathID = nil
 	self.music:reset()
-	if self.warmupLoopName then
-		self.warmupLoop = _Game:playSound(self.warmupLoopName)
-	end
+	self:advanceSequenceStep()
 end
 
 
 
 ---Resumes the Level after loading data.
 function Level:beginLoad()
-	self.started = true
 	self.music:reset()
-	if not self.bonusDelay and not self.map.paths[self.bonusPathID] then
-		self.wonDelay = _Game.configManager.gameplay.level.wonDelay
+end
+
+
+
+---Advances the level sequence program by one step.
+function Level:advanceSequenceStep()
+	self:jumpToSequenceStep(self.levelSequenceStep + 1)
+end
+
+
+
+---Sets the level sequence program to a given step.
+---@param stepN integer The step to jump to.
+function Level:jumpToSequenceStep(stepN)
+	print("Current Step: " .. tostring(stepN))
+	self.levelSequenceStep = stepN
+	local step = self.levelSequence[self.levelSequenceStep]
+	if step.type == "pathEntity" then
+		self.levelSequenceVars = {pathID = 1, delay = 0}
+		self.shooter:empty()
+	elseif step.type == "gameplay" then
+		self.levelSequenceVars = {warmupTime = 0}
+		if self.warmupLoopName then
+			self.warmupLoop = _Game:playSound(self.warmupLoopName)
+		end
+	elseif step.type == "waitForCollectibles" then
+		self.levelSequenceVars = {}
+	elseif step.type == "wait" then
+		self.levelSequenceVars = {time = 0}
+	elseif step.type == "end" then
+		if step.status == "win" then
+			_Game.uiManager:executeCallback("levelComplete")
+			self.ended = true
+		elseif step.status == "fail" then
+			_Game.uiManager:executeCallback("levelLost")
+			self.ended = true
+			if self.failLoop then
+				self.failLoop:stop()
+			end
+		end
 	end
+end
+
+
+
+---Returns the type of the current level sequence step.
+---@return string?
+function Level:getCurrentSequenceStepType()
+	if self.levelSequenceStep == 0 then
+		return
+	end
+	return self.levelSequence[self.levelSequenceStep].type
 end
 
 
@@ -869,16 +875,11 @@ function Level:reset()
 
 	self.pause = false
 	self.canPause = true
-	self.started = false
-	self.controlDelay = nil
 	self.lost = false
 	self.ended = false
-	self.wonDelay = nil
-	self.finish = false
-	self.finishDelay = nil
-	self.bonusPathID = 1
-	self.bonusDelay = nil
-	self.introductionPathID = nil
+
+	self.levelSequenceStep = 0
+	self.levelSequenceVars = nil
 
 	self.gameSpeed = 1
 	self.gameSpeedTime = 0
@@ -895,7 +896,9 @@ end
 
 ---Forfeits the level. The shooter is emptied, and spheres start rushing into the pyramid.
 function Level:lose()
-	if self.lost then return end
+	if self:getCurrentSequenceStepType() ~= "gameplay" then
+		return
+	end
 	self.lost = true
 	-- empty the shooter
 	self.shooter:empty()
@@ -909,6 +912,10 @@ function Level:lose()
 	end
 	if self.failLoopName then
 		self.failLoop = _Game:playSound(self.failLoopName)
+	end
+	local jumpTo = self.levelSequence[self.levelSequenceStep].onFail
+	if jumpTo then
+		self:jumpToSequenceStep(jumpTo)
 	end
 end
 
@@ -1023,11 +1030,6 @@ function Level:serialize()
 			maxCombo = self.maxCombo
 		},
 		time = self.time,
-		controlDelay = self.controlDelay,
-		finish = self.finish,
-		finishDelay = self.finishDelay,
-		bonusPathID = self.bonusPathID,
-		bonusDelay = self.bonusDelay,
 		shooter = self.shooter:serialize(),
 		shotSpheres = {},
 		collectibles = {},
@@ -1037,7 +1039,9 @@ function Level:serialize()
 		netTime = self.netTime,
 		destroyedSpheres = self.destroyedSpheres,
 		paths = self.map:serialize(),
-		lost = self.lost
+		lost = self.lost,
+		levelSequenceStep = self.levelSequenceStep,
+		levelSequenceVars = self.levelSequenceVars
 	}
 	for i, shotSphere in ipairs(self.shotSpheres) do
 		table.insert(t.shotSpheres, shotSphere:serialize())
@@ -1069,12 +1073,8 @@ function Level:deserialize(t)
 	self.destroyedSpheres = t.destroyedSpheres
 	self.time = t.time
 	self.lost = t.lost
-	-- Utils
-	self.controlDelay = t.controlDelay
-	self.finish = t.finish
-	self.finishDelay = t.finishDelay
-	self.bonusPathID = t.bonusPathID
-	self.bonusDelay = t.bonusDelay
+	self.levelSequenceStep = t.levelSequenceStep
+	self.levelSequenceVars = t.levelSequenceVars
 	-- Paths
 	self.map:deserialize(t.paths)
 	-- Shooter

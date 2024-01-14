@@ -170,7 +170,7 @@ end
 ---Returns `true` if this Path will spawn a new Sphere Chain right now.
 ---@return boolean
 function Path:shouldSpawn()
-	if _Game:levelExists() and (not self.map.level.started or self.map.level:areAllObjectivesReached() or self.map.level.lost) then return false end
+	if _Game:levelExists() and (self.map.level:getCurrentSequenceStepType() ~= "gameplay" or self.map.level:areAllObjectivesReached()) then return false end
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * self.spawnDistance then return false end
 	end
@@ -190,7 +190,10 @@ end
 ---Summons a new Sphere Chain on this Path.
 function Path:spawnChain()
 	local sphereChain = SphereChain(self)
-	if self.map.level.controlDelay then sphereChain.sphereGroups[1].speed = self.speeds[1].speed end
+	-- TODO: HARDCODED - make it configurable (launch speed - zero? path speed?)
+	if not self.map.isDummy and self.map.level.levelSequenceVars.warmupTime then
+		sphereChain.sphereGroups[1].speed = self.speeds[1].speed
+	end
 	table.insert(self.sphereChains, sphereChain)
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
