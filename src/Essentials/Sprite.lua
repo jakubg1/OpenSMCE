@@ -73,9 +73,9 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
 	if color.r then -- temporary chunk
 		love.graphics.setColor(color.r, color.g, color.b, alpha)
 	else
-		love.graphics.setColor(unpack(color), alpha)
+		love.graphics.setColor(table.unpack(color), alpha)
 	end
-	self.img:draw(self:getFrame(state, frame), math.floor(pos.x), math.floor(pos.y), rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
+	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
 end
 
 
