@@ -10,8 +10,11 @@ local Vec2 = require("src.Essentials.Vector2")
 
 
 function Console:new()
+	self.output = {}
 	self.history = {}
+	self.historyOffset = nil
 	self.command = ""
+	self.commandBuffer = nil -- Stores the newest non-submitted command if the history is being browsed.
 
 	self.open = false
 	self.active = false
@@ -40,7 +43,7 @@ function Console:print(message)
 	if type(message) ~= "string" and type(message) ~= "table" then
 		message = tostring(message)
 	end
-	table.insert(self.history, {text = message, time = _TotalTime})
+	table.insert(self.output, {text = message, time = _TotalTime})
 	_Log:printt("CONSOLE", _Utils.strUnformat(message))
 end
 
@@ -53,6 +56,28 @@ function Console:toggleOpen(open)
 	self:setOpen(not self.open)
 end
 
+---Scrolls the console input to the given history entry.
+---If no history entry was being viewed until now, stores the command being currently typed in a buffer so it's not lost.
+---That command is restored when you exit the history (call the function without the parameter).
+---@param n integer? The history entry to be scrolled to, or `nil` to exit history and go back to the previously typed line.
+function Console:scrollToHistoryEntry(n)
+	if self.historyOffset == n then
+		return
+	end
+	-- Save the command if we start browsing history.
+	if not self.historyOffset then
+		self.commandBuffer = self.command
+	end
+	if n then
+		self.command = self.history[n]
+	else
+		self.command = self.commandBuffer
+		self.commandBuffer = nil
+	end
+	self.historyOffset = n
+	print("Scrolled to " .. tostring(n))
+end
+
 function Console:draw()
 	local pos = Vec2(5, _DisplaySize.y)
 	local size = Vec2(600, 200)
@@ -61,7 +86,7 @@ function Console:draw()
 	love.graphics.setFont(_FONT_CONSOLE)
 	for i = 1, self.MAX_MESSAGES do
 		local pos = pos - Vec2(0, 30 + 20 * i)
-		local message = self.history[#self.history - i + 1]
+		local message = self.output[#self.output - i + 1]
 		if message then
 			local t = _TotalTime - message.time
 			if self.open or t < 10 then
@@ -93,8 +118,21 @@ function Console:keypressed(key)
 		if key == "backspace" then
 			self:inputBackspace()
 			self.backspace = true
-		end
-		if key == "return" then
+		elseif key == "up" then
+			if self.historyOffset then
+				self:scrollToHistoryEntry(math.max(1, self.historyOffset - 1))
+			else
+				self:scrollToHistoryEntry(#self.history)
+			end
+		elseif key == "down" then
+			if self.historyOffset then
+				if self.historyOffset < #self.history then
+					self:scrollToHistoryEntry(self.historyOffset + 1)
+				else
+					self:scrollToHistoryEntry()
+				end
+			end
+		elseif key == "return" then
 			self:inputEnter()
 		end
 	end
@@ -128,6 +166,7 @@ end
 function Console:inputEnter()
 	local success = _Debug:runCommand(self.command)
 	if not success then self:print("Invalid command!") end
+	table.insert(self.history, self.command)
 	self.command = ""
 end
 
