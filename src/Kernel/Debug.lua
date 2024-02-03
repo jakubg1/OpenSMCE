@@ -22,7 +22,7 @@ function Debug:new()
 		b = {description = "Doesn't work. Used to boost spheres.", parameters = {}},
 		s = {description = "Doesn't work. Used to immediately spawn new sphere chains on all paths.", parameters = {}},
 		fs = {description = "Doesn't work. Used to activate Full Screen.", parameters = {}},
-		t = {description = "Doesn't work. Used to set the number of spheres destroyed.", parameters = {{name = "scale", type = "number", optional = false}}},
+		t = {description = "Adjusts the speed scale of the game. 1 = default.", parameters = {{name = "scale", type = "number", optional = false}}},
 		e = {description = "Toggles the Background Cheat Mode. Spheres render over tunnels.", parameters = {}},
 		n = {description = "Destroys all spheres on the board.", parameters = {}},
 		ppp = {description = "Spawns a Scorpion.", parameters = {}},
