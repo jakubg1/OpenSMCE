@@ -16,7 +16,28 @@ local Expression = require("src.Expression")
 function Debug:new()
 	self.console = Console()
 
-
+	self.commands = {
+		p = {description = "Doesn't work. Used to activate a powerup.", parameters = {{name = "name", type = "string", optional = false}, {name = "color", type = "integer", optional = true}}},
+		sp = {description = "Doesn't work. Used to set the number of spheres destroyed.", parameters = {{name = "count", type = "integer", optional = false}}},
+		b = {description = "Doesn't work. Used to boost spheres.", parameters = {}},
+		s = {description = "Doesn't work. Used to immediately spawn new sphere chains on all paths.", parameters = {}},
+		fs = {description = "Doesn't work. Used to activate Full Screen.", parameters = {}},
+		t = {description = "Doesn't work. Used to set the number of spheres destroyed.", parameters = {{name = "scale", type = "number", optional = false}}},
+		e = {description = "Toggles the Background Cheat Mode. Spheres render over tunnels.", parameters = {}},
+		n = {description = "Destroys all spheres on the board.", parameters = {}},
+		ppp = {description = "Spawns a Scorpion.", parameters = {}},
+		test = {description = "Spawns a test particle.", parameters = {}},
+		crash = {description = "Crashes the game.", parameters = {}},
+		expr = {description = "Evaluates an Expression.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
+		exprt = {description = "Breaks down an Expression and shows the list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
+		ex = {description = "Debugs an Expression: shows detailed tokenization and list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
+		help = {description = "Displays this list.", parameters = {}}
+	}
+	self.commandNames = {}
+	for commandName, commandData in pairs(self.commands) do
+		table.insert(self.commandNames, commandName)
+	end
+	table.sort(self.commandNames)
 
 	self.profUpdate = Profiler("Update")
 	self.profDraw = Profiler("Draw")
@@ -362,26 +383,85 @@ end
 function Debug:runCommand(command)
 	local words = _Utils.strSplit(command, " ")
 
-	if words[1] == "p" then
+	-- Get basic command stuff.
+	local command = words[1]
+	local commandData = self.commands[command]
+	if not commandData then
+		self.console:print({{1, 0.2, 0.2}, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
+		return
+	end
+
+	-- Obtain all necessary parameters.
+	local parameters = {}
+	for i, parameter in ipairs(commandData.parameters) do
+		local raw = words[i + 1]
+		if not raw then
+			if not parameter.optional then
+				self.console:print({{1, 0.2, 0.2}, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
+				return
+			end
+		else
+			if parameter.type == "number" or parameter.type == "integer" then
+				raw = tonumber(raw)
+				if not raw then
+					self.console:print({{1, 0.2, 0.2}, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
+					return
+				end
+			end
+			-- Greedy parameters can only be strings and are always last (taking the rest of the command).
+			if parameter.type == "string" and parameter.greedy then
+				for j = i + 2, #words do
+					raw = raw .. " " .. words[j]
+				end
+			end
+		end
+		table.insert(parameters, raw)
+	end
+
+	-- Command handling
+	if command == "help" then
+		self.console:print({{1, 0.2, 1}, "This is a still pretty rough console of OpenSMCE!"})
+		self.console:print({{0.2, 1, 0.2}, "Available commands:"})
+		for i, name in ipairs(self.commandNames) do
+			local commandData = self.commands[name]
+			local msg = {{1, 1, 0.2}, name}
+			for i, parameter in ipairs(commandData.parameters) do
+				local name = parameter.name
+				if parameter.greedy then
+					name = name .. "..."
+				end
+				if parameter.optional then
+					table.insert(msg, {0.2, 1, 1})
+					table.insert(msg, string.format(" [%s]", name))
+				else
+					table.insert(msg, {0.2, 1, 1})
+					table.insert(msg, string.format(" <%s>", name))
+				end
+			end
+			table.insert(msg, {1, 1, 1})
+			table.insert(msg, " - " .. commandData.description)
+			self.console:print(msg)
+		end
+	elseif command == "p" then
 		local t = {fire = "bomb", ligh = "lightning", wild = "wild", bomb = "colorbomb", slow = "slow", stop = "stop", rev = "reverse", shot = "shotspeed"}
 		for word, name in pairs(t) do
-			if words[2] == word then
+			if parameters[1] == word then
 				if word == "bomb" then
-					if not words[3] or not tonumber(words[3]) or tonumber(words[3]) < 1 or tonumber(words[3]) > 7 then return false end
-					_Game.session:usePowerup({name = name, color = tonumber(words[3])})
+					if not parameters[2] or parameters[2] < 1 or parameters[2] > 7 then
+						self.console:print({{1, 0.2, 0.2}, "Missing parameter (expected an integer from 1 to 7)."})
+						return
+					end
+					_Game.session:usePowerup({name = name, color = parameters[2]})
 				else
 					_Game.session:usePowerup({name = name})
 				end
 				self.console:print("Powerup applied")
-				return true
 			end
 		end
-	elseif words[1] == "sp" then
-		if not words[2] or not tonumber(words[2]) then return false end
-		_Game.session.level.destroyedSpheres = tonumber(words[2])
-		self.console:print("Spheres destroyed set to " .. words[2])
-		return true
-	elseif words[1] == "b" then
+	elseif command == "sp" then
+		_Game.session.level.destroyedSpheres = parameters[1]
+		self.console:print("Spheres destroyed set to " .. tostring(parameters[1]))
+	elseif command == "b" then
 		for i, path in ipairs(_Game.session.level.map.paths) do
 			for j, sphereChain in ipairs(path.sphereChains) do
 				for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
@@ -390,56 +470,46 @@ function Debug:runCommand(command)
 			end
 		end
 		self.console:print("Boosted!")
-		return true
-	elseif words[1] == "s" then
+	elseif command == "s" then
 		for i, path in ipairs(_Game.session.level.map.paths) do
 			path:spawnChain()
 		end
 		self.console:print("Spawned new chains!")
-		return true
-	elseif words[1] == "fs" then
+	elseif command == "fs" then
 		--toggleFullscreen()
 		self.console:print("Fullscreen toggled")
-		return true
-	elseif words[1] == "t" then
-		if not words[2] or not tonumber(words[2]) then return false end
-		_TimeScale = tonumber(words[2])
-		self.console:print("Time scale set to " .. words[2])
-		return true
-	elseif words[1] == "e" then
+	elseif command == "t" then
+		_TimeScale = parameters[1]
+		self.console:print("Time scale set to " .. tostring(parameters[1]))
+	elseif command == "e" then
 		self.e = not self.e
 		self.console:print("Background cheat mode toggled")
-		return true
-	elseif words[1] == "n" then
+	elseif command == "n" then
 		_Game.session:destroyFunction(function(sphere, spherePos) return true end, Vec2())
 		self.console:print("Nuked!")
-		return true
-	elseif words[1] == "ppp" then
+	elseif command == "ppp" then
 		_Game.session.level:applyEffect({type = "spawnScorpion"})
-	elseif words[1] == "test" then
+	elseif command == "test" then
 		_Game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
-		return true
-	elseif words[1] == "crash" then
+	elseif command == "crash" then
 		local s, witty = pcall(self.getWitty)
 		if not s or not witty then
 			witty = "I give up, no idea for the joke! Eh, I'll... just head out then. Cya!"
 		end
 		error(string.format("Manual crash [%s]", witty))
-	elseif words[1] == "expr" then
-		local result = _Vars:evaluateExpression(words[2])
-		self.console:print(string.format("expr(%s): %s", words[2], result))
-		return true
-	elseif words[1] == "exprt" then
-		local ce = Expression(words[2])
+	elseif command == "expr" then
+		local result = _Vars:evaluateExpression(parameters[1])
+		self.console:print(string.format("expr(%s): %s", parameters[1], result))
+	elseif command == "exprt" then
+		local ce = Expression(parameters[1])
 		for i, step in ipairs(ce.data) do
 			_Log:printt("Debug", string.format("%s   %s", step.type, step.value))
 		end
-		self.console:print(string.format("exprt(%s): %s", words[2], ce:getDebug()))
-		return true
-	elseif words[1] == "ex" then
+		self.console:print(string.format("exprt(%s): %s", parameters[1], ce:getDebug()))
+	elseif command == "ex" then
 		local ce = Expression("2")
-		self.console:print(string.format("ex(%s):", words[2]))
-		local tokens = ce:tokenize(words[2])
+		self.console:print(string.format("ex(%s):", parameters[1]))
+		local tokens = ce:tokenize(parameters[1])
 		for i, token in ipairs(tokens) do
 			self.console:print(string.format("%s   %s", token.value, token.type))
 		end
@@ -450,11 +520,8 @@ function Debug:runCommand(command)
 		for i, step in ipairs(ce.data) do
 			self.console:print(string.format("%s   %s", step.type, step.value))
 		end
-		self.console:print(string.format("ex(%s): %s", words[2], ce:evaluate()))
-		return true
+		self.console:print(string.format("ex(%s): %s", parameters[1], ce:evaluate()))
 	end
-
-	return false
 end
 
 function Debug:profUpdateStart()

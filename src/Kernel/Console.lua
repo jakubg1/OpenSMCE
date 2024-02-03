@@ -164,8 +164,7 @@ function Console:inputBackspace()
 end
 
 function Console:inputEnter()
-	local success = _Debug:runCommand(self.command)
-	if not success then self:print("Invalid command!") end
+	_Debug:runCommand(self.command)
 	table.insert(self.history, self.command)
 	self.historyOffset = nil
 	self.command = ""
