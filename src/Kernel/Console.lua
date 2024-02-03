@@ -94,7 +94,7 @@ function Console:draw()
 				if not self.open then
 					a = math.min(10 - t, 1)
 				end
-				_Debug:drawVisibleText(message.text, pos, 20, nil, a)
+				_Debug:drawVisibleText(message.text, pos, 20, nil, a, true)
 			end
 		end
 	end
@@ -102,7 +102,7 @@ function Console:draw()
 	if self.open then
 		local text = "> " .. self.command
 		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
-		_Debug:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x)
+		_Debug:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x, a, true)
 	end
 	love.graphics.setFont(_FONT)
 end
@@ -164,7 +164,23 @@ function Console:inputBackspace()
 end
 
 function Console:inputEnter()
-	_Debug:runCommand(self.command)
+	local success, err = xpcall(function() return _Debug:runCommand(self.command) end, debug.traceback)
+	if not success and err then
+		self:print({{1, 0.2, 0.2}, "An error has occured when executing a command:"})
+		self:print({{1, 0.2, 0.2}, _Utils.strSplit(err, "\n")[1]})
+		_Log:printt("CONSOLE", "Full Error:")
+		_Log:printt("CONSOLE", err)
+	end
+
+	-- We need to bypass the crash function somehow.
+	if success and err == "crash" then
+		local s, witty = pcall(_Debug.getWitty)
+		if not s or not witty then
+			witty = "Boring manual crash"
+		end
+		error(witty)
+	end
+
 	table.insert(self.history, self.command)
 	self.historyOffset = nil
 	self.command = ""

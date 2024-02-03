@@ -282,7 +282,7 @@ end
 
 
 
-function Debug:drawVisibleText(text, pos, height, width, alpha)
+function Debug:drawVisibleText(text, pos, height, width, alpha, shadow)
 	alpha = alpha or 1
 
 	if text == "" then
@@ -294,6 +294,10 @@ function Debug:drawVisibleText(text, pos, height, width, alpha)
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
 	else
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, love.graphics.getFont():getWidth(_Utils.strUnformat(text)) + 6, height)
+	end
+	if shadow then
+		love.graphics.setColor(0, 0, 0, alpha)
+		love.graphics.print(text, pos.x + 2, pos.y + 2)
 	end
 	love.graphics.setColor(1, 1, 1, alpha)
 	love.graphics.print(text, pos.x, pos.y)
@@ -492,11 +496,7 @@ function Debug:runCommand(command)
 	elseif command == "test" then
 		_Game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
 	elseif command == "crash" then
-		local s, witty = pcall(self.getWitty)
-		if not s or not witty then
-			witty = "I give up, no idea for the joke! Eh, I'll... just head out then. Cya!"
-		end
-		error(string.format("Manual crash [%s]", witty))
+		return "crash"
 	elseif command == "expr" then
 		local result = _Vars:evaluateExpression(parameters[1])
 		self.console:print(string.format("expr(%s): %s", parameters[1], result))
