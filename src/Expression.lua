@@ -221,7 +221,7 @@ function Expression:getToken(str)
 	local type = nil
 	local PATTERNS = {
 		{pattern = "%d", type = "number"},
-		{pattern = "\"", type = "string"},
+		{pattern = "[\"']", type = "string"},
 		{pattern = "[%a_]", type = "literal"},
 		{pattern = "[%+%-%/%*%%%^%|%&%=%!%<%>%?%,%:%.]", type = "operator"},
 		{pattern = "[%(%)%[%]]", type = "bracket"}
@@ -245,10 +245,11 @@ function Expression:getToken(str)
 		str = string.sub(str, b + 1)
 
 	elseif type == "string" then
+		-- Whether it's a '-delimited string or a "-delimited string is stored in `c`.
 		-- We need to avoid escaped quotation marks.
 		local a, b = 2, nil
 		for i = 2, string.len(str) do
-			if string.sub(str, i, i) == "\"" and string.sub(str, i - 1, i - 1) ~= "\\" then
+			if string.sub(str, i, i) == c and string.sub(str, i - 1, i - 1) ~= "\\" then
 				b = i - 1
 				break
 			end
@@ -257,7 +258,7 @@ function Expression:getToken(str)
 		if not b then
 			return nil, "No matching quotation mark found"
 		end
-		value = string.gsub(string.sub(str, a, b), "\\\"", "\"")
+		value = string.gsub(string.sub(str, a, b), "\\" .. c, c)
 		str = string.sub(str, b + 2)
 
 	elseif type == "literal" then
