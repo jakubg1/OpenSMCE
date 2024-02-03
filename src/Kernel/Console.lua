@@ -75,7 +75,7 @@ function Console:scrollToHistoryEntry(n)
 		self.commandBuffer = nil
 	end
 	self.historyOffset = n
-	print("Scrolled to " .. tostring(n))
+	--print("Scrolled to " .. tostring(n))
 end
 
 function Console:draw()
@@ -167,7 +167,9 @@ function Console:inputEnter()
 	local success = _Debug:runCommand(self.command)
 	if not success then self:print("Invalid command!") end
 	table.insert(self.history, self.command)
+	self.historyOffset = nil
 	self.command = ""
+	self.commandBuffer = nil
 end
 
 return Console
