@@ -258,7 +258,7 @@ function Expression:getToken(str)
 		if not b then
 			return nil, "No matching quotation mark found"
 		end
-		value = string.gsub(string.sub(str, a, b), "\\" .. c, c)
+		value = string.gsub(string.gsub(string.sub(str, a, b), "\\" .. c, c), "\\n", "\n")
 		str = string.sub(str, b + 2)
 
 	elseif type == "literal" then
