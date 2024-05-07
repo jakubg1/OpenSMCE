@@ -4,8 +4,8 @@ local class = require "com.class"
 ---@overload fun(data, path):ShooterConfig
 local ShooterConfig = class:derive("ShooterConfig")
 
+local u = require("src.Configs.utils")
 local Vec2 = require("src.Essentials.Vector2")
-local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 
 
 
@@ -17,81 +17,57 @@ function ShooterConfig:new(data, path)
 
 
 
-    self.movement = ShooterMovementConfig(data.movement, path)
+    self.movement = u.parseShooterMovementConfig(data.movement, path, "movement")
+    self.sprite = u.parseSprite(data.sprite, path, "sprite")
+    self.spriteOffset = u.parseVec2Opt(data.spriteOffset, path, "spriteOffset") or Vec2()
+    self.spriteAnchor = u.parseVec2Opt(data.spriteAnchor, path, "spriteAnchor") or Vec2(0.5, 0)
+    self.shadowSprite = u.parseSprite(data.shadowSprite, path, "shadowSprite")
+    self.shadowSpriteOffset = u.parseVec2Opt(data.shadowSpriteOffset, path, "shadowSpriteOffset") or Vec2(8)
+    self.shadowSpriteAnchor = u.parseVec2Opt(data.shadowSpriteAnchor, path, "shadowSpriteAnchor") or Vec2(0.5, 0)
+    self.ballPos = u.parseVec2Opt(data.ballPos, path, "ballPos") or Vec2(0, 5)
 
-    self.sprite = _Game.resourceManager:getSprite(data.sprite)
-    ---@type Vector2
-    self.spriteOffset = _ParseVec2(data.spriteOffset) or Vec2()
-    ---@type Vector2
-    self.spriteAnchor = _ParseVec2(data.spriteAnchor) or Vec2(0.5, 0)
-    self.shadowSprite = _Game.resourceManager:getSprite(data.shadowSprite)
-    ---@type Vector2
-    self.shadowSpriteOffset = _ParseVec2(data.shadowSpriteOffset) or Vec2(8, 8)
-    ---@type Vector2
-    self.shadowSpriteAnchor = _ParseVec2(data.shadowSpriteAnchor) or Vec2(0.5, 0)
-    ---@type Vector2
-    self.ballPos = _ParseVec2(data.ballPos) or Vec2(0, 5)
     self.nextBallSprites = {}
     for n, nextBallData in pairs(data.nextBallSprites) do
         local nextBall = {
-            ---@type Sprite
-            sprite = _Game.resourceManager:getSprite(nextBallData.sprite),
-            ---@type number
-            spriteAnimationSpeed = nextBallData.spriteAnimationSpeed
+            sprite = u.parseSprite(nextBallData.sprite, path, "nextBallSprites." .. tostring(n) .. ".sprite"),
+            spriteAnimationSpeed = u.parseNumberOpt(nextBallData.spriteAnimationSpeed, path, "nextBallSprites." .. tostring(n) .. ".spriteAnimationSpeed")
         }
         self.nextBallSprites[tonumber(n)] = nextBall
     end
-    ---@type Vector2
-    self.nextBallOffset = _ParseVec2(data.nextBallOffset) or Vec2(0, 21)
-    ---@type Vector2
-    self.nextBallAnchor = _ParseVec2(data.nextBallAnchor) or Vec2(0.5, 0)
 
-    self.reticle = {
-        ---@type Sprite?
-        sprite = data.reticle and data.reticle.sprite and _Game.resourceManager:getSprite(data.reticle.sprite),
-        ---@type Sprite?
-        nextBallSprite = data.reticle and data.reticle.nextBallSprite and _Game.resourceManager:getSprite(data.reticle.nextBallSprite),
-        ---@type Vector2?
-        nextBallOffset = data.reticle and _ParseVec2(data.reticle.nextBallOffset),
-        ---@type Sprite?
-        radiusSprite = data.reticle and data.reticle.radiusSprite and _Game.resourceManager:getSprite(data.reticle.radiusSprite),
-        ---@type number?
-        colorFadeTime = data.reticle and data.reticle.colorFadeTime,
-        ---@type number?
-        nextColorFadeTime = data.reticle and data.reticle.nextColorFadeTime
-    }
+    self.nextBallOffset = u.parseVec2Opt(data.nextBallOffset, path, "nextBallOffset") or Vec2(0, 21)
+    self.nextBallAnchor = u.parseVec2Opt(data.nextBallAnchor, path, "nextBallAnchor") or Vec2(0.5, 0)
 
-    self.speedShotBeam = {
-        sprite = _Game.resourceManager:getSprite(data.speedShotBeam.sprite),
-        ---@type number
-        fadeTime = data.speedShotBeam.fadeTime,
-        ---@type string
-        renderingType = data.speedShotBeam.renderingType,
-        ---@type boolean
-        colored = data.speedShotBeam.colored
-    }
+    self.reticle = {}
+    if data.reticle then
+        self.reticle.sprite = u.parseSpriteOpt(data.reticle.sprite, path, "reticle.sprite")
+        self.reticle.nextBallSprite = u.parseSpriteOpt(data.reticle.nextBallSprite, path, "reticle.nextBallSprite")
+        self.reticle.nextBallOffset = u.parseVec2Opt(data.reticle.nextBallOffset, path, "reticle.nextBallOffset")
+        self.reticle.radiusSprite = u.parseSpriteOpt(data.reticle.radiusSprite, path, "reticle.radiusSprite")
+        self.reticle.colorFadeTime = u.parseNumberOpt(data.reticle.colorFadeTime, path, "reticle.colorFadeTime")
+        self.reticle.nextColorFadeTime = u.parseNumberOpt(data.reticle.nextColorFadeTime, path, "reticle.nextColorFadeTime")
+    end
 
-    self.sounds = {
-        sphereSwap = data.sounds and data.sounds.sphereSwap,
-        sphereFill = data.sounds and data.sounds.sphereFill
-    }
+    self.speedShotBeam = {}
+    self.speedShotBeam.sprite = u.parseSprite(data.speedShotBeam.sprite, path, "speedShotBeam.sprite")
+    self.speedShotBeam.fadeTime = u.parseNumber(data.speedShotBeam.fadeTime, path, "speedShotBeam.fadeTime")
+    self.speedShotBeam.renderingType = u.parseString(data.speedShotBeam.renderingType, path, "speedShotBeam.renderingType")
+    self.speedShotBeam.colored = u.parseBoolean(data.speedShotBeam.colored, path, "speedShotBeam.colored")
 
-    ---@type string
-    self.speedShotParticle = data.speedShotParticle
-    ---@type number
-    self.shotCooldown = data.shotCooldown or 0
-    ---@type number
-    self.shotCooldownFade = data.shotCooldownFade or 0
-    ---@type boolean
-    self.multishot = data.multishot or false
-    ---@type boolean
-    self.destroySphereOnFail = data.destroySphereOnFail or false
-    ---@type number
-    self.shootSpeed = data.shootSpeed
-    ---@type Vector2
-    self.hitboxOffset = _ParseVec2(data.hitboxOffset) or Vec2()
-    ---@type Vector2
-    self.hitboxSize = _ParseVec2(data.hitboxSize) or Vec2()
+    self.sounds = {}
+    if data.sounds then
+        self.sounds.sphereSwap = u.parseSoundEvent(data.sounds.sphereSwap, path, "sounds.sphereSwap")
+        self.sounds.sphereFill = u.parseSoundEvent(data.sounds.sphereFill, path, "sounds.sphereFill")
+    end
+
+    self.speedShotParticle = u.parseParticle(data.speedShotParticle, path, "speedShotParticle")
+    self.shotCooldown = u.parseNumberOpt(data.shotCooldown, path, "shotCooldown") or 0
+    self.shotCooldownFade = u.parseNumberOpt(data.shotCooldownFade, path, "shotCooldownFade") or 0
+    self.multishot = u.parseBooleanOpt(data.multishot, path, "multishot") or false
+    self.destroySphereOnFail = u.parseBooleanOpt(data.destroySphereOnFail, path, "destroySphereOnFail") or false
+    self.shootSpeed = u.parseNumber(data.shootSpeed, path, "shootSpeed")
+    self.hitboxOffset = u.parseVec2Opt(data.hitboxOffset, path, "hitboxOffset") or Vec2()
+    self.hitboxSize = u.parseVec2Opt(data.hitboxSize, path, "hitboxSize") or Vec2()
 end
 
 

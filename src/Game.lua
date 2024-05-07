@@ -288,12 +288,17 @@ end
 
 
 ---Plays a sound and returns its instance for modification.
----@param name string The name of the Sound Effect to be played.
+---@param name string|SoundEvent The name of the Sound Effect to be played.
 ---@param pitch number? The pitch of the sound.
 ---@param pos Vector2? The position of the sound.
 ---@return SoundInstance
 function Game:playSound(name, pitch, pos)
-	return self.resourceManager:getSoundEvent(name):play(pitch, pos)
+	-- TODO: Unmangle this code. Will the string representation be still necessary after we fully move to Config Classes?
+	if type(name) == "string" then
+		return self.resourceManager:getSoundEvent(name):play(pitch, pos)
+	else
+		return name:play(pitch, pos)
+	end
 end
 
 

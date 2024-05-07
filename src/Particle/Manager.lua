@@ -29,7 +29,13 @@ function ParticleManager:update(dt)
 end
 
 function ParticleManager:spawnParticlePacket(path, pos, layer)
-	local data = _Game.resourceManager:getParticle(path)
+	-- TODO: Unmangle this code. Will the string representation be still needed after we fully move to Config Classes?
+	local data
+	if type(path) == "string" then
+		data = _Game.resourceManager:getParticle(path)
+	else
+		data = path
+	end
 	local packet = ParticlePacket(self, data, pos, layer)
 	table.insert(self.particlePackets, packet)
 	return packet
