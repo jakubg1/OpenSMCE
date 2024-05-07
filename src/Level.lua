@@ -52,7 +52,7 @@ function Level:new(data)
 		{type = "pathEntity", pathEntity = "path_entities/intro_trail.json", separatePaths = false, launchDelay = 0, waitUntilFinished = true, skippable = false},
 		{type = "gameplay", warmupTime = 1.5, previewFirstShooterColor = true, onFail = 9},
 		{type = "waitForCollectibles"},
-		{type = "wait", delay = 1},
+		{type = "wait", delay = 2},
 		{type = "pathEntity", pathEntity = "path_entities/bonus_scarab.json", separatePaths = true, launchDelay = 1.5, waitUntilFinished = true, skippable = false},
 		{type = "waitForCollectibles"},
 		{type = "wait", delay = 1.5},
