@@ -1,0 +1,30 @@
+- (object) - The root object.
+    - sprite* (Sprite) - The sprite to be used by the path entity.
+    - shadowSprite* (Sprite) - The shadow sprite to be used by the path entity.
+    - spawnPlacement (string) - Where the path entity will be spawned at, or in relation to that place.
+        - "start" - The path entity will be spawned at the beginning of the path, and will move forwards along the path.
+        - "end" - The path entity will be spawned at the end of the path, and will move backwards along the path.
+        - "furthestSpheres" - The path entity will be spawned at the furthermost sphere on the path. The entity will move forwards along the path.
+    - spawnOffset* (number) - If set, the initial location of the path entity will be moved by this amount in pixels, in the movement direction dictated by the `spawnPlacement` field.
+    - speed (number) [>=0] - The starting speed of this path entity, in pixels per second.
+    - acceleration* (number) [>=0] - The acceleration of this path entity, in pixels per second squared.
+    - maxSpeed* (number) [>=0] - The maximum speed of this path entity, in pixels per second.
+    - maxOffset* (number) [>=0] - The maximum distance from the initial location of the path entity, in pixels.
+    - destroyOffset* (number) - The offset from either of the path ends this path entity is going towards, when this entity will be destroyed. Defaults to 0.
+    - destroyTime* (number) [>0] - If set, this path entity will be destroyed after this many seconds of existence.
+    - destroyWhenPathEmpty* (boolean) - If set, this path entity will be destroyed if there are no spheres on that path.
+    - destroyAtClearOffset* (boolean) - If set, this path entity will be destroyed once it reaches the path's clear offset (i.e. Bonus Scarabs).
+    - particle* (Particle) - The one-time particle that this path entity will be spawning every set amount of pixels.
+    - particleSeparation* (number) - The distance between each particle, in pixels.
+    - loopSound* (SoundEvent) - A looping sound event which will be played during the path entity's existence. (path_entity)
+    - collectibleGenerator* (CollectibleGenerator) - A collectible generator which will periodically generate collectibles from this path entity. (path_entity)
+    - collectibleGeneratorSeparation* (CollectibleGenerator) - The distance between each collectible generator activation, in pixels.
+    - destroyParticle* (Particle) - The one-time particle that this path entity will spawn upon destruction/despawning.
+    - destroySound* (SoundEvent) - A sound event which will be played when this path entity is destroyed. (path_entity)
+    - destroyScoreEvent* (ScoreEvent) - The score event which will be executed when this path entity is destroyed. (path_entity)
+    - destroyCollectibleGenerator* (CollectibleGenerator) - The collectible generator which will generate collectibles when this path entity is destroyed. (path_entity)
+    - canDestroySpheres* (boolean) - If set, this path entity will destroy all spheres which are further than this path entity's position.
+    - sphereDestroySound* (SoundEvent) - A sound event which will be played when this path entity destroys a sphere. (path_entity, sphere)
+    - sphereDestroyScoreEvent* (ScoreEvent) - A score event which will be executed when this path entity destroys a sphere. (path_entity, sphere)
+    - maxSpheresDestroyed* (integer) [>0] - If set, this path entity will be destroyed after destroying this amount of spheres.
+    - maxSphereChainsDestroyed* (integer) [>0] - If set, this path entity will be destroyed after destroying this amount of sphere chains (scarabs).

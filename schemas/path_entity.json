@@ -1,0 +1,139 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "sprite": {
+            "$ref": "_structures/Sprite.json",
+            "description": "The sprite to be used by the path entity."
+        },
+        "shadowSprite": {
+            "$ref": "_structures/Sprite.json",
+            "description": "The shadow sprite to be used by the path entity."
+        },
+        "spawnPlacement": {
+            "type": "string",
+            "description": "Where the path entity will be spawned at, or in relation to that place.",
+            "oneOf": [
+                {
+                    "const": "start",
+                    "description": "The path entity will be spawned at the beginning of the path, and will move forwards along the path."
+                },
+                {
+                    "const": "end",
+                    "description": "The path entity will be spawned at the end of the path, and will move backwards along the path."
+                },
+                {
+                    "const": "furthestSpheres",
+                    "description": "The path entity will be spawned at the furthermost sphere on the path. The entity will move forwards along the path."
+                }
+            ]
+        },
+        "spawnOffset": {
+            "type": "number",
+            "description": "If set, the initial location of the path entity will be moved by this amount in pixels, in the movement direction dictated by the spawnPlacement field.",
+            "markdownDescription": "If set, the initial location of the path entity will be moved by this amount in pixels, in the movement direction dictated by the `spawnPlacement` field."
+        },
+        "speed": {
+            "type": "number",
+            "description": "The starting speed of this path entity, in pixels per second.",
+            "minimum": 0.0
+        },
+        "acceleration": {
+            "type": "number",
+            "description": "The acceleration of this path entity, in pixels per second squared.",
+            "minimum": 0.0
+        },
+        "maxSpeed": {
+            "type": "number",
+            "description": "The maximum speed of this path entity, in pixels per second.",
+            "minimum": 0.0
+        },
+        "maxOffset": {
+            "type": "number",
+            "description": "The maximum distance from the initial location of the path entity, in pixels.",
+            "minimum": 0.0
+        },
+        "destroyOffset": {
+            "type": "number",
+            "description": "The offset from either of the path ends this path entity is going towards, when this entity will be destroyed. Defaults to 0."
+        },
+        "destroyTime": {
+            "type": "number",
+            "description": "If set, this path entity will be destroyed after this many seconds of existence.",
+            "exclusiveMinimum": 0.0
+        },
+        "destroyWhenPathEmpty": {
+            "type": "boolean",
+            "description": "If set, this path entity will be destroyed if there are no spheres on that path."
+        },
+        "destroyOnBonusPoint": {
+            "type": "boolean",
+            "description": "If set, this path entity will be destroyed once it reaches the bonus point (the position where the spheres are closest to the endpoint, or were if no spheres are present on the path)."
+        },
+        "particle": {
+            "$ref": "_structures/Particle.json",
+            "description": "The one-time particle that this path entity will be spawning every set amount of pixels."
+        },
+        "particleSeparation": {
+            "type": "number",
+            "description": "The distance between each particle, in pixels."
+        },
+        "loopSound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A looping sound event which will be played during the path entity's existence. (path_entity)"
+        },
+        "collectibleGenerator": {
+            "$ref": "_structures/CollectibleGenerator.json",
+            "description": "A collectible generator which will periodically generate collectibles from this path entity. (path_entity)"
+        },
+        "collectibleGeneratorSeparation": {
+            "$ref": "_structures/CollectibleGenerator.json",
+            "description": "The distance between each collectible generator activation, in pixels."
+        },
+        "destroyParticle": {
+            "$ref": "_structures/Particle.json",
+            "description": "The one-time particle that this path entity will spawn upon destruction/despawning."
+        },
+        "destroySound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A sound event which will be played when this path entity is destroyed. (path_entity)"
+        },
+        "destroyScoreEvent": {
+            "$ref": "_structures/ScoreEvent.json",
+            "description": "The score event which will be executed when this path entity is destroyed. (path_entity)"
+        },
+        "destroyCollectibleGenerator": {
+            "$ref": "_structures/CollectibleGenerator.json",
+            "description": "The collectible generator which will generate collectibles when this path entity is destroyed. (path_entity)"
+        },
+        "canDestroySpheres": {
+            "type": "boolean",
+            "description": "If set, this path entity will destroy all spheres which are further than this path entity's position."
+        },
+        "sphereDestroySound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A sound event which will be played when this path entity destroys a sphere. (path_entity, sphere)"
+        },
+        "sphereDestroyScoreEvent": {
+            "$ref": "_structures/ScoreEvent.json",
+            "description": "A score event which will be executed when this path entity destroys a sphere. (path_entity, sphere)"
+        },
+        "maxSpheresDestroyed": {
+            "type": "integer",
+            "description": "If set, this path entity will be destroyed after destroying this amount of spheres.",
+            "exclusiveMinimum": 0
+        },
+        "maxSphereChainsDestroyed": {
+            "type": "integer",
+            "description": "If set, this path entity will be destroyed after destroying this amount of sphere chains (scarabs).",
+            "exclusiveMinimum": 0
+        }
+    },
+    "required": [
+        "spawnPlacement",
+        "speed"
+    ],
+    "additionalProperties": false
+}
