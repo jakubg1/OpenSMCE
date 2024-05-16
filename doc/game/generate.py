@@ -84,10 +84,6 @@ def markdown_strip(text):
 
 
 
-#
-#    USEFUL PROCEDURES
-#
-
 # Returns the type of the root node of the provided JSON schema, converted from the JSON types to the format used by me :)
 # ex:   anyOf:["integer","string"] --> "number|string"
 def convert_schema_type(schema):
@@ -128,15 +124,19 @@ def convert_schema_type(schema):
 
 
 
+#
+#    CONVERSION PROCEDURES
+#
+
 # Converts a JSON schema to the internal intermediate DocLangHTML format (this is the format used by data.txt).
-# To be deprecated at some point, with DocLangHTML being generated from DocLangData instead.
-def convert_schema(schema, page, references, name = "", indent = 1):
+# To be deprecated at some point, with DocLangHTML (doclh) being generated from DocLangData (docld) instead.
+def schema_to_doclh(schema, page, references, name = "", indent = 1):
 	# Alternatives use special syntax.
 	if "oneOf" in schema and not "type" in schema:
 		output = "D" + "\t" * indent + "R <div class=\"jsonChoice\">\n"
 		output += "D" + "\t" * indent + "R One of the following:\n"
 		for data in schema["oneOf"]:
-			output += convert_schema(data, page, references, name, indent)
+			output += schema_to_doclh(data, page, references, name, indent)
 		output += "D" + "\t" * indent + "R </div>\n"
 		return output
 	
@@ -216,20 +216,20 @@ def convert_schema(schema, page, references, name = "", indent = 1):
 			key_data = schema["properties"][key]
 			if not key in schema["required"]:
 				key += "*"
-			output += convert_schema(key_data, page, references, key, indent + 1)
+			output += schema_to_doclh(key_data, page, references, key, indent + 1)
 	elif "patternProperties" in schema:
-		output += convert_schema(schema["patternProperties"][list(schema["patternProperties"].keys())[0]], page, references, "", indent + 1)
+		output += schema_to_doclh(schema["patternProperties"][list(schema["patternProperties"].keys())[0]], page, references, "", indent + 1)
 	
 	if "items" in schema:
-		output += convert_schema(schema["items"], page, references, "", indent + 1)
+		output += schema_to_doclh(schema["items"], page, references, "", indent + 1)
 	
 	return output
 
 
 
 # Converts a JSON schema which is an enum schema to an internal DocLangHTML format.
-# This is just a convert_schema wrapper with some extra sauce.
-def convert_schema_enum(schema, page, references):
+# This is just a schema_to_doclh wrapper with some extra sauce.
+def schema_to_doclh_enum(schema, page, references):
 	output = ""
 
 	for i in range(len(schema["allOf"])):
@@ -245,7 +245,7 @@ def convert_schema_enum(schema, page, references):
 			# Add a header and description for this option.
 			output += "H3\t<i>" + b_if["properties"][type_name]["const"] + "</i>\n"
 			output += "P\t" + b_if["properties"][type_name]["description"] + "\n"
-			# Prepare some data to be passed by convert_schema(...).
+			# Prepare some data to be passed by schema_to_doclh(...).
 			enum_data = {
 				"type": schema["type"],
 				"description": schema["description"],
@@ -269,13 +269,14 @@ def convert_schema_enum(schema, page, references):
 				enum_data["required"] += b_then["required"]
 			enum_data["required"] += schema["required"]
 			
-			output += convert_schema(enum_data, page, references)
+			output += schema_to_doclh(enum_data, page, references)
 		
 	return output
 
 
 
 # Opens data.txt and converts its data in DocLangHTML format into HTML files.
+# TODO: Split this into a few procedures.
 def process_data():
 	contents = load_file("data.txt")
 	data = contents.split("\n")
@@ -315,7 +316,7 @@ def process_data():
 		if line[0] == "DI" or line[0] == "DIE":
 			schema = json.loads(load_file(line[1]))
 			print(schema)
-			converted = convert_schema(schema, current_page, reference_names) if line[0] == "DI" else convert_schema_enum(schema, current_page, reference_names)
+			converted = schema_to_doclh(schema, current_page, reference_names) if line[0] == "DI" else schema_to_doclh_enum(schema, current_page, reference_names)
 			print(converted)
 			new_data += converted.split("\n")
 		else:
@@ -471,7 +472,7 @@ def process_data():
 
 
 # Converts DocLang to an internal intermediate DocLangData format.
-def docl_parse(data):
+def docl_to_docld(data):
 	out = {}
 	current_children = []
 
@@ -566,7 +567,7 @@ def docl_parse(data):
 
 
 # Converts DocLangData to a JSON schema.
-def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
+def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 	constraints = {
 		">=": "minimum",
 		">": "exclusiveMinimum",
@@ -625,7 +626,7 @@ def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 				out["propertyNames"] = {"pattern": entry["regex"]}
 				out["patternProperties"] = {}
 				# As with arrays, we care about only one child.
-				out["patternProperties"]["^.*$"] = docl_convert_entry(entry["children"][0], False, structures_path)
+				out["patternProperties"]["^.*$"] = docld_to_schema(entry["children"][0], False, structures_path)
 			elif "keyconst" in entry:
 				# So-called "Enum Object".
 				key = entry["keyconst"]
@@ -641,7 +642,7 @@ def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 						child_children = [{"name": key + "*"}]
 						if "children" in child:
 							child_children += child["children"]
-						child_block["then"] = docl_convert_entry({"type": "object", "children": child_children}, is_root, structures_path)
+						child_block["then"] = docld_to_schema({"type": "object", "children": child_children}, is_root, structures_path)
 						del child_block["then"]["$schema"]
 						del child_block["then"]["type"]
 						# Add prepared blocks.
@@ -650,7 +651,7 @@ def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 				out["required"] = [key]
 			elif not "name" in entry["children"][0]: # One nameless child in a regular object means that the object behaves like an array, with all keys possible.
 				out["patternProperties"] = {}
-				out["patternProperties"]["^.*$"] = docl_convert_entry(entry["children"][0], False, structures_path)
+				out["patternProperties"]["^.*$"] = docld_to_schema(entry["children"][0], False, structures_path)
 			else: # Regular object.
 				out["properties"] = {}
 				out["required"] = []
@@ -665,12 +666,12 @@ def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 							name = name[:-1]
 						else:
 							out["required"].append(name)
-						out["properties"][name] = docl_convert_entry(child, False, structures_path)
+						out["properties"][name] = docld_to_schema(child, False, structures_path)
 				if len(out["required"]) == 0:
 					del out["required"]
 		elif entry["type"] == "array":
 			# Nothing more, nothing less, exactly ONE nameless child must be here.
-			out["items"] = docl_convert_entry(entry["children"][0], False, structures_path)
+			out["items"] = docld_to_schema(entry["children"][0], False, structures_path)
 		elif entry["type"] == "number" or entry["type"] == "integer":
 			# Check constraints.
 			if "constraints" in entry:
@@ -687,7 +688,7 @@ def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 		if "children" in entry:
 			out["oneOf"] = []
 			for child in entry["children"]:
-				out["oneOf"].append(docl_convert_entry(child, False, structures_path))
+				out["oneOf"].append(docld_to_schema(child, False, structures_path))
 	
 	return out
 
@@ -695,8 +696,8 @@ def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 
 # Converts DocLang to a JSON schema.
 def docl_to_schema(data, structures_path):
-	data = docl_parse(data)
-	return docl_convert_entry(data, True, structures_path)
+	data = docl_to_docld(data)
+	return docld_to_schema(data, True, structures_path)
 
 
 
@@ -726,7 +727,7 @@ def docl_all_to_schemas():
 def docl_test():
 	contents = load_file("data2.txt")
 	#print(json.dumps(docl_to_schema(contents, "structures/"), indent = 4))
-	print(json.dumps(docl_parse(contents), indent = 4))
+	print(json.dumps(docl_to_docld(contents), indent = 4))
 
 
 
