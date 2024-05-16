@@ -1,7 +1,95 @@
 import os, json
 
 
+#
+#    UTILITIES
+#
 
+def load_file(path):
+	file = open(path, "r")
+	contents = file.read()
+	file.close()
+	return contents
+
+def save_file(path, contents):
+	file = open(path, "w")
+	file.write(contents)
+	file.close()
+
+
+
+# Finds all pairs of Markdown. Kinda dodgy because it's not extensively used. Available pairs are `code`, *italic*, **bold** and ***bold italic***.
+# Returns a list of text segments with a formatting field.
+# ex: "This is **bold** text!" -> [{"text":"This is ","style":"default"},{"text":"bold","style":"bold"},{"text":" text!","style":"default"}]
+def markdown_find(text):
+	styles = {
+		"`": "code",
+		"*": "italic",
+		"**": "bold",
+		"***": "bold_italic"
+	}
+
+	out = []
+	search_index = 0
+	while search_index < len(text):
+		# Find nearest spell.
+		nearest_index = None
+		nearest_index_end = None
+		nearest_style = None
+		nearest_spell_length = None
+		for mark in styles:
+			spell = mark # " " + mark
+			find_index = search_index
+			# There may not be a space just after the spell. But we gotta crack on until we're sure absolutely nothing matches the spell.
+			while (find_index != -1 and len(text) < find_index + len(spell) - 2 and text[find_index + len(spell)] == " ") or find_index == search_index:
+				find_index = text.find(spell, find_index + 1)
+			# If we haven't found anything, OR we've already found something closer, move on to the next style.
+			if find_index == -1 or (nearest_index != None and nearest_index < find_index):
+				continue
+			# But wait! There's more! We need to make sure there is a closing spell as well.
+			closing_spell = mark # mark + " "
+			closing_find_index = find_index
+			# This time we're looking for a lack of space BEFORE the closing spell.
+			while (closing_find_index != -1 and text[closing_find_index - 1] == " ") or closing_find_index == find_index:
+				closing_find_index = text.find(closing_spell, closing_find_index + 1)
+			# Found one? Great! Store the index.
+			if closing_find_index != -1:
+				nearest_index = find_index
+				nearest_index_end = closing_find_index
+				nearest_style = styles[mark]
+				nearest_spell_length = len(spell)
+		# If no spell has been found, that's the end. Make sure to store the rest!
+		if nearest_index == None:
+			out.append({"text": text[search_index:], "style": "default"})
+			break
+		# Otherwise, we move on!
+		# Store everything before the mark as raw text.
+		out.append({"text": text[search_index:nearest_index], "style": "default"})
+		# Now, store everything enclosed in the mark.
+		out.append({"text": text[nearest_index+nearest_spell_length:nearest_index_end], "style": nearest_style})
+		# Update the search index.
+		search_index = nearest_index_end + nearest_spell_length
+	
+	return out
+
+
+
+# Strips all Markdown that can be detected via markdown_find.
+def markdown_strip(text):
+	out = ""
+	compound = markdown_find(text)
+	for element in compound:
+		out += element["text"]
+	return out
+
+
+
+#
+#    USEFUL PROCEDURES
+#
+
+# Returns the type of the root node of the provided JSON schema, converted from the JSON types to the format used by me :)
+# ex:   anyOf:["integer","string"] --> "number|string"
 def convert_schema_type(schema):
 	schema_type_assoc = {
 		"integer": "number",
@@ -12,6 +100,7 @@ def convert_schema_type(schema):
 	}
 	
 	if "anyOf" in schema:
+		# Multitypes aggregate all elements and convert them one by one, separating them with |.
 		types = []
 		for child in schema["anyOf"]:
 			type = convert_schema_type(child)
@@ -19,15 +108,19 @@ def convert_schema_type(schema):
 				types.append(type)
 		type = "|".join(types)
 	elif "$ref" in schema:
+		# References check if it's a structure, then a star is prepended; otherwise, it's an object.
 		ref_path = schema["$ref"].split("/")
 		if len(ref_path) > 1 and ref_path[-2] == "_structures":
 			type = ref_path[-1].split(".")[0] + "*"
 		else:
 			type = "object"
 	elif "const" in schema or "enum" in schema:
+		# Consts and enums are strings.
 		type = "string"
 	else:
 		type = schema["type"]
+	
+	# If it's one of these in the table at the top, convert to the provided value.
 	if type in schema_type_assoc:
 		type = schema_type_assoc[type]
 
@@ -35,6 +128,8 @@ def convert_schema_type(schema):
 
 
 
+# Converts a JSON schema to the internal intermediate DocLangHTML format (this is the format used by data.txt).
+# To be deprecated at some point, with DocLangHTML being generated from DocLangData instead.
 def convert_schema(schema, page, references, name = "", indent = 1):
 	# Alternatives use special syntax.
 	if "oneOf" in schema and not "type" in schema:
@@ -132,35 +227,46 @@ def convert_schema(schema, page, references, name = "", indent = 1):
 
 
 
+# Converts a JSON schema which is an enum schema to an internal DocLangHTML format.
+# This is just a convert_schema wrapper with some extra sauce.
 def convert_schema_enum(schema, page, references):
 	output = ""
 
 	for i in range(len(schema["allOf"])):
 		if i == 0:
+			# The first item is the type variable itself - we don't use it.
 			continue
 		else:
-			type_name = list(schema["allOf"][i]["if"]["properties"].keys())[0]
-			output += "H3\t<i>" + schema["allOf"][i]["if"]["properties"][type_name]["const"] + "</i>\n"
-			output += "P\t" + schema["allOf"][i]["if"]["properties"][type_name]["description"] + "\n"
+			b_if = schema["allOf"][i]["if"]
+			b_then = schema["allOf"][i]["then"]
+
+			# Name of the type variable.
+			type_name = list(b_if["properties"].keys())[0]
+			# Add a header and description for this option.
+			output += "H3\t<i>" + b_if["properties"][type_name]["const"] + "</i>\n"
+			output += "P\t" + b_if["properties"][type_name]["description"] + "\n"
+			# Prepare some data to be passed by convert_schema(...).
 			enum_data = {
 				"type": schema["type"],
 				"description": schema["description"],
 				"properties": {},
-				"required": schema["allOf"][i]["if"]["required"]
+				"required": b_if["required"]
 			}
-			for property in schema["allOf"][i]["then"]["properties"]:
+			# Add properties to the data.
+			for property in b_then["properties"]:
 				if property == "$schema":
 					continue
 				# Copy all properties from the "then" section, if it has a True value then borrow from the "if" section, or from the global properties.
-				value = schema["allOf"][i]["then"]["properties"][property]
+				value = b_then["properties"][property]
 				if value == True:
-					if property in schema["allOf"][i]["if"]["properties"]:
-						value = schema["allOf"][i]["if"]["properties"][property]
+					if property in b_if["properties"]:
+						value = b_if["properties"][property]
 					else:
 						value = schema["properties"][property]
 				enum_data["properties"][property] = value
-			if "required" in schema["allOf"][i]["then"]:
-				enum_data["required"] += schema["allOf"][i]["then"]["required"]
+			# Add information about required fields as well.
+			if "required" in b_then:
+				enum_data["required"] += b_then["required"]
 			enum_data["required"] += schema["required"]
 			
 			output += convert_schema(enum_data, page, references)
@@ -169,11 +275,9 @@ def convert_schema_enum(schema, page, references):
 
 
 
+# Opens data.txt and converts its data in DocLangHTML format into HTML files.
 def process_data():
-	file = open("data.txt", "r")
-	contents = file.read()
-	file.close()
-	
+	contents = load_file("data.txt")
 	data = contents.split("\n")
 	
 	
@@ -209,9 +313,7 @@ def process_data():
 			current_page = line[1]
 		
 		if line[0] == "DI" or line[0] == "DIE":
-			file = open(line[1], "r")
-			schema = json.loads(file.read())
-			file.close()
+			schema = json.loads(load_file(line[1]))
 			print(schema)
 			converted = convert_schema(schema, current_page, reference_names) if line[0] == "DI" else convert_schema_enum(schema, current_page, reference_names)
 			print(converted)
@@ -368,71 +470,7 @@ def process_data():
 
 
 
-# Finds all pairs of Markdown. Kinda dodgy because it's not extensively used. Available pairs are `code`, *italic*, **bold** and ***bold italic***.
-# Returns a list of text segments with a formatting field.
-def markdown_find(text):
-	styles = {
-		"`": "code",
-		"*": "italic",
-		"**": "bold",
-		"***": "bold_italic"
-	}
-
-	out = []
-	search_index = 0
-	while search_index < len(text):
-		# Find nearest spell.
-		nearest_index = None
-		nearest_index_end = None
-		nearest_style = None
-		nearest_spell_length = None
-		for mark in styles:
-			spell = mark # " " + mark
-			find_index = search_index
-			# There may not be a space just after the spell. But we gotta crack on until we're sure absolutely nothing matches the spell.
-			while (find_index != -1 and len(text) < find_index + len(spell) - 2 and text[find_index + len(spell)] == " ") or find_index == search_index:
-				find_index = text.find(spell, find_index + 1)
-			# If we haven't found anything, OR we've already found something closer, move on to the next style.
-			if find_index == -1 or (nearest_index != None and nearest_index < find_index):
-				continue
-			# But wait! There's more! We need to make sure there is a closing spell as well.
-			closing_spell = mark # mark + " "
-			closing_find_index = find_index
-			# This time we're looking for a lack of space BEFORE the closing spell.
-			while (closing_find_index != -1 and text[closing_find_index - 1] == " ") or closing_find_index == find_index:
-				closing_find_index = text.find(closing_spell, closing_find_index + 1)
-			# Found one? Great! Store the index.
-			if closing_find_index != -1:
-				nearest_index = find_index
-				nearest_index_end = closing_find_index
-				nearest_style = styles[mark]
-				nearest_spell_length = len(spell)
-		# If no spell has been found, that's the end. Make sure to store the rest!
-		if nearest_index == None:
-			out.append({"text": text[search_index:], "style": "default"})
-			break
-		# Otherwise, we move on!
-		# Store everything before the mark as raw text.
-		out.append({"text": text[search_index:nearest_index], "style": "default"})
-		# Now, store everything enclosed in the mark.
-		out.append({"text": text[nearest_index+nearest_spell_length:nearest_index_end], "style": nearest_style})
-		# Update the search index.
-		search_index = nearest_index_end + nearest_spell_length
-	
-	return out
-
-
-
-# Strips all Markdown that can be detected via markdown_find.
-def markdown_strip(text):
-	out = ""
-	compound = markdown_find(text)
-	for element in compound:
-		out += element["text"]
-	return out
-
-
-
+# Converts DocLang to an internal intermediate DocLangData format.
 def docl_parse(data):
 	out = {}
 	current_children = []
@@ -527,6 +565,7 @@ def docl_parse(data):
 
 
 
+# Converts DocLangData to a JSON schema.
 def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 	constraints = {
 		">=": "minimum",
@@ -654,21 +693,19 @@ def docl_convert_entry(entry, is_root = True, structures_path = "_structures/"):
 
 
 
+# Converts DocLang to a JSON schema.
 def docl_to_schema(data, structures_path):
 	data = docl_parse(data)
 	return docl_convert_entry(data, True, structures_path)
 
 
 
+# Converts a DocLang (.docl) file to an appropriate JSON schema file. Some paths are computed in the process.
 def docl_convert_file(path_in, path_out):
-	file = open(path_in, "r")
-	contents = file.read()
-	file.close()
+	contents = load_file(path_in)
 	structures_path = "../" * (len(path_in.split("/")) - 2) + "_structures/"
 	new_contents = json.dumps(docl_to_schema(contents, structures_path), indent = 4)
-	file = open(path_out, "w")
-	file.write(new_contents)
-	file.close()
+	save_file(path_out, new_contents)
 
 
 
@@ -687,10 +724,9 @@ def docl_all_to_schemas():
 
 
 def docl_test():
-	file = open("data2.txt", "r")
-	contents = file.read()
-	file.close()
-	print(json.dumps(docl_to_schema(contents), indent = 4))
+	contents = load_file("data2.txt")
+	#print(json.dumps(docl_to_schema(contents, "structures/"), indent = 4))
+	print(json.dumps(docl_parse(contents), indent = 4))
 
 
 
