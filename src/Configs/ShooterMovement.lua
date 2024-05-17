@@ -4,7 +4,7 @@ local class = require "com.class"
 ---@overload fun(data, path):ShooterMovementConfig
 local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 
--- Place your imports here
+local u = require("src.Configs.utils")
 
 
 
@@ -12,29 +12,18 @@ local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 ---@param data table Raw shooter movement data, found in `config/levels/*.json` and `config/shooters/*.json`.
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function ShooterMovementConfig:new(data, path)
-    self._path = path
-
-
-
-    ---@type string
-    self.type = data.type
+    self.type = u.parseString(data.type, path, "type")
 
     if self.type == "linear" then
-        ---@type number
-        self.xMin = data.xMin
-        ---@type number
-        self.xMax = data.xMax
-        ---@type number
-        self.y = data.y
-        ---@type number
-        self.angle = data.angle
+        self.xMin = u.parseNumber(data.xMin, path, "xMin")
+        self.xMax = u.parseNumber(data.xMax, path, "xMax")
+        self.y = u.parseNumber(data.y, path, "y")
+        self.angle = u.parseNumber(data.angle, path, "angle")
     elseif self.type == "circular" then
-        ---@type number
-        self.x = data.x
-        ---@type number
-        self.y = data.y
+        self.x = u.parseNumber(data.x, path, "x")
+        self.y = u.parseNumber(data.y, path, "y")
     else
-        error(string.format("Failed to load file %s, unknown shooter type: %s (expected \"linear\" or \"circular\")", path, data.type))
+        error(string.format("Failed to load file %s, unknown shooter type: %s (expected \"linear\" or \"circular\")", path, self.type))
     end
 end
 

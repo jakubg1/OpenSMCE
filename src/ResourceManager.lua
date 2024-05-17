@@ -59,6 +59,8 @@ function ResourceManager:new()
 		ui2SequenceConfig = {extension = "json", constructor = UI2SequenceConfig, paramSet = 2}
 	}
 	-- TODO: Auto-generate these two below.
+	-- Maybe consider registering the resource types dynamically?
+	-- Alongside this, update the table in Resource Management section in the wiki!
 	self.SCHEMA_TO_RESOURCE_MAP = {
 		["sprite.json"] = "sprite",
 		["sound_event.json"] = "soundEvent",
