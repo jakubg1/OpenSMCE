@@ -16,7 +16,7 @@
                 "activateNet",
                 "changeGameSpeed",
                 "setCombo",
-                "grantScore",
+                "executeScoreEvent",
                 "grantCoin",
                 "incrementGemStat"
             ]
@@ -357,8 +357,8 @@
             "if": {
                 "properties": {
                     "type": {
-                        "const": "grantScore",
-                        "description": "Grants a certain amount of score to the current player."
+                        "const": "executeScoreEvent",
+                        "description": "Executes a Score Event on the current player."
                     }
                 },
                 "required": [
@@ -369,13 +369,13 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "score": {
-                        "type": "integer",
-                        "description": "The score to be given."
+                    "scoreEvent": {
+                        "$ref": "../_structures/ScoreEvent.json",
+                        "description": "The Score Event to be executed."
                     }
                 },
                 "required": [
-                    "score"
+                    "scoreEvent"
                 ],
                 "additionalProperties": false
             }

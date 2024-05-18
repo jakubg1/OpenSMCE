@@ -13,6 +13,7 @@ local Music = require("src.Essentials.Music")
 local Font = require("src.Essentials.Font")
 local ColorPalette = require("src.Essentials.ColorPalette")
 
+local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local UI2AnimationConfig = require("src.Configs.UI2Animation")
 local UI2NodeConfig = require("src.Configs.UI2Node")
 local UI2SequenceConfig = require("src.Configs.UI2Sequence")
@@ -52,6 +53,7 @@ function ResourceManager:new()
 		collectibleGenerator = {extension = "json"},
 		colorGenerator = {extension = "json"},
 		shooter = {extension = "json"},
+		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
 		map = {extension = "/"},
 		level = {extension = "json"},
 		ui2AnimationConfig = {extension = "json", constructor = UI2AnimationConfig, paramSet = 2},
@@ -74,6 +76,7 @@ function ResourceManager:new()
 		["config/collectible_generator.json"] = "collectibleGenerator",
 		["config/color_generator.json"] = "colorGenerator",
 		["config/shooter.json"] = "shooter",
+		["score_event.json"] = "scoreEvent",
 		["config/level.json"] = "level",
 		["ui2/animation.json"] = "ui2AnimationConfig",
 		["ui2/node.json"] = "ui2NodeConfig",
@@ -171,6 +174,13 @@ end
 ---@return ColorPalette
 function ResourceManager:getColorPalette(path)
 	return self:getAsset(path, "color palette")
+end
+
+---Retrieves a Score Event Config by a given path.
+---@param path string The resource path.
+---@return ScoreEventConfig
+function ResourceManager:getScoreEventConfig(path)
+	return self:getAsset(path, "score event")
 end
 
 ---Retrieves a UI Animation Config by a given path.

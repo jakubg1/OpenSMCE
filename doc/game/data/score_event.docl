@@ -1,0 +1,4 @@
+- (object) - The root object.
+    - score (integer) - The score to be granted when this Score Event is fired.
+    - text* (string) - The text to be displayed when this Score Event is fired. The text will be displayed at a position of where the Score Event has been fired. By default, this is the raw score value.
+    - font* (Font) - The font which will be used to display the score text. If not specified, the score text will not appear.

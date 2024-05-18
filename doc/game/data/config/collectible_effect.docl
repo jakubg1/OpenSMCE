@@ -25,7 +25,7 @@
         - duration (number) [>0] - The duration of the effect in seconds. It is not affected by the game speed itself.
     - "setCombo" - Sets the current level combo to a specified value.
         - combo (integer) [>=0] - The combo value to be set.
-    - "grantScore" - Grants a certain amount of score to the current player.
-        - score (integer) - The score to be given.
+    - "executeScoreEvent" - Executes a Score Event on the current player.
+        - scoreEvent (ScoreEvent) - The Score Event to be executed.
     - "grantCoin" - Grants a single coin to the current player.
     - "incrementGemStat" - Adds one to the gem pickup statistics for the current level.

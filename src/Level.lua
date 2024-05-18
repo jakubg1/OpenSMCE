@@ -362,6 +362,19 @@ end
 
 
 
+---Executes a Score Event at the given position.
+---@param scoreEvent ScoreEventConfig The Score Event config to be used for calculation.
+---@param pos Vector2 The position where the Score Event should be executed.
+function Level:executeScoreEvent(scoreEvent, pos)
+	self:grantScore(scoreEvent.score)
+	if scoreEvent.font then
+		local text = scoreEvent.text or _NumStr(scoreEvent.score)
+		self:spawnFloatingText(text, pos, scoreEvent.font)
+	end
+end
+
+
+
 ---Adds one sphere to the destroyed sphere counter.
 function Level:destroySphere()
 	if self.lost then
@@ -416,8 +429,8 @@ end
 
 ---Applies an effect to the level.
 ---@param effect table The effect data to be applied.
----@param TMP_pos Vector2? The position of the effect.
-function Level:applyEffect(effect, TMP_pos)
+---@param pos Vector2? The position of the effect.
+function Level:applyEffect(effect, pos)
 	if effect.type == "replaceSphere" then
 		self.shooter:getSphere(effect.color)
 	elseif effect.type == "multiSphere" then
@@ -456,9 +469,8 @@ function Level:applyEffect(effect, TMP_pos)
 		self.gameSpeedTime = effect.duration
 	elseif effect.type == "setCombo" then
 		self.combo = effect.combo
-	elseif effect.type == "grantScore" then
-		self:grantScore(effect.score)
-		self:spawnFloatingText(_NumStr(effect.score), TMP_pos, "fonts/score0.json")
+	elseif effect.type == "executeScoreEvent" then
+		self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(effect.scoreEvent), pos)
 	elseif effect.type == "grantCoin" then
 		self:grantCoin()
 	elseif effect.type == "incrementGemStat" then
@@ -962,7 +974,7 @@ end
 ---Spawns a new FloatingText into the Level.
 ---@param text string The text to be displayed.
 ---@param pos Vector2 The starting position of this text.
----@param font string Path to the Font which is going to be used.
+---@param font string|Font Path to the Font or the Font itself which is going to be used.
 function Level:spawnFloatingText(text, pos, font)
 	table.insert(self.floatingTexts, FloatingText(text, pos, font))
 end

@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "score": {
+            "type": "integer",
+            "description": "The score to be granted when this Score Event is fired."
+        },
+        "text": {
+            "type": "string",
+            "description": "The text to be displayed when this Score Event is fired. The text will be displayed at a position of where the Score Event has been fired. By default, this is the raw score value."
+        },
+        "font": {
+            "$ref": "_structures/Font.json",
+            "description": "The font which will be used to display the score text. If not specified, the score text will not appear."
+        }
+    },
+    "required": [
+        "score"
+    ],
+    "additionalProperties": false
+}
