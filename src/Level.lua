@@ -366,11 +366,14 @@ end
 ---@param scoreEvent ScoreEventConfig The Score Event config to be used for calculation.
 ---@param pos Vector2 The position where the Score Event should be executed.
 function Level:executeScoreEvent(scoreEvent, pos)
-	self:grantScore(scoreEvent.score)
+	local score = scoreEvent.score:evaluate()
+	_Vars:setC("event", "score", score)
+	self:grantScore(score)
 	if scoreEvent.font then
-		local text = scoreEvent.text or _NumStr(scoreEvent.score)
+		local text = scoreEvent.text and scoreEvent.text:evaluate() or _NumStr(score)
 		self:spawnFloatingText(text, pos, scoreEvent.font)
 	end
+	_Vars:unset("event")
 end
 
 

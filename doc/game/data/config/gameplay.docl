@@ -33,8 +33,7 @@
     - bonusScarab (object) - Defines the Bonus Scarab.
         - sprite (Sprite) - The sprite to be used by the Bonus Scarab.
         - shadowSprite (Sprite) - The shadow sprite to be used by the Bonus Scarab.
-        - stepLength (number) [>0] - The length of a single segment, which gives points. The formula defining how many points are given is as follows: `max(floor(distance / stepLength), 1) * pointsPerStep`.
-        - pointsPerStep (integer) [>=0] - How many points are given for each step. The bonus score will be always a multiple of this value.
+        - scoreEvent (ScoreEvent) - The score event to be executed by the Bonus Scarab when it's destroyed.
         - coinDistance* (number) [>0] - The delay between generating collectibles. If omitted, the Bonus Scarab will not spawn any collectibles.
         - coinGenerator* (CollectibleGenerator) - A collectible generator used periodically.
         - speed (number) [>0] - How fast does the Bonus Scarab move, in pixels per second.
@@ -44,7 +43,6 @@
         - destroySound (SoundEvent) - A sound event which will be played when the Bonus Scarab is destroyed.
         - destroyParticle (Particle) - A one-time particle packet which the Bonus Scarab will launch upon destruction.
         - destroyGenerator* (CollectibleGenerator) - A collectible generator used when the Bonus Scarab is destroyed.
-        - scoreFont (Font) - A font to be used to display the bonus value on the screen.
     - scorpion* (object) - Defines the Scorpion.
         - sprite (Sprite) - The sprite to be used by the Scorpion.
         - shadowSprite (Sprite) - The shadow sprite to be used by the Scorpion.

@@ -32,6 +32,7 @@ function BonusScarab:new(path, deserializationTable)
 
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite)
+	self.scoreEvent = _Game.resourceManager:getScoreEventConfig(self.config.scoreEvent)
 
 	self.sound = _Game:playSound(self.config.loopSound, 1, self:getPos())
 end
@@ -73,15 +74,16 @@ end
 
 ---Explodes the Bonus Scarab, by giving points, spawning particles and playing a sound.
 function BonusScarab:explode()
+	_Vars:setC("entity", "distance", self.path.length - self.minOffset)
 	local pos = self:getPos()
-	local score = math.max(math.floor((self.path.length - self.minOffset) / self.config.stepLength), 1) * self.config.pointsPerStep
 
-	self.path:dumpOffsetVars(self.offset)
-	_Game.session.level:grantScore(score)
-	_Game.session.level:spawnFloatingText(_NumStr(score) .. "\nBONUS", pos, self.config.scoreFont)
+	--self.path:dumpOffsetVars(self.offset)
+	_Game.session.level:executeScoreEvent(self.scoreEvent, pos)
 	_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyGenerator)
 	_Game:spawnParticle(self.config.destroyParticle, pos)
 	_Game:playSound(self.config.destroySound, 1, pos)
+
+	_Vars:unset("entity")
 
 	self:destroy()
 end

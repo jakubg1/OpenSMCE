@@ -2,6 +2,7 @@
 
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
+local Expression = require("src.Expression")
 
 local utils = {}
 
@@ -70,6 +71,30 @@ end
 ---@return Vector2?
 function utils.parseVec2Opt(data, path, field)
 	return data and Vec2(data.x, data.y)
+end
+
+
+
+---@return Expression
+function utils.parseExprInteger(data, path, field)
+	assert(data, string.format("%s: field %s is missing (integer expression expected)", path, field))
+	return Expression(data)
+end
+
+---@return Expression?
+function utils.parseExprIntegerOpt(data, path, field)
+	return data and Expression(data)
+end
+
+---@return Expression
+function utils.parseExprString(data, path, field)
+	assert(data, string.format("%s: field %s is missing (string expression expected)", path, field))
+	return Expression(data)
+end
+
+---@return Expression?
+function utils.parseExprStringOpt(data, path, field)
+	return data and Expression(data)
 end
 
 

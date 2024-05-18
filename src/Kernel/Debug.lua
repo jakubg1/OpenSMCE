@@ -501,13 +501,13 @@ function Debug:runCommand(command)
 		local result = _Vars:evaluateExpression(parameters[1])
 		self.console:print(string.format("expr(%s): %s", parameters[1], result))
 	elseif command == "exprt" then
-		local ce = Expression(parameters[1])
+		local ce = Expression(parameters[1], true)
 		for i, step in ipairs(ce.data) do
 			_Log:printt("Debug", string.format("%s   %s", step.type, step.value))
 		end
 		self.console:print(string.format("exprt(%s): %s", parameters[1], ce:getDebug()))
 	elseif command == "ex" then
-		local ce = Expression("2")
+		local ce = Expression("2", true)
 		self.console:print(string.format("ex(%s):", parameters[1]))
 		local tokens = ce:tokenize(parameters[1])
 		for i, token in ipairs(tokens) do

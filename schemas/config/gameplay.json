@@ -188,16 +188,9 @@
                     "$ref": "../_structures/Sprite.json",
                     "description": "The shadow sprite to be used by the Bonus Scarab."
                 },
-                "stepLength": {
-                    "type": "number",
-                    "description": "The length of a single segment, which gives points. The formula defining how many points are given is as follows: max(floor(distance / stepLength), 1) * pointsPerStep.",
-                    "markdownDescription": "The length of a single segment, which gives points. The formula defining how many points are given is as follows: `max(floor(distance / stepLength), 1) * pointsPerStep`.",
-                    "exclusiveMinimum": 0.0
-                },
-                "pointsPerStep": {
-                    "type": "integer",
-                    "description": "How many points are given for each step. The bonus score will be always a multiple of this value.",
-                    "minimum": 0
+                "scoreEvent": {
+                    "$ref": "../_structures/ScoreEvent.json",
+                    "description": "The score event to be executed by the Bonus Scarab when it's destroyed."
                 },
                 "coinDistance": {
                     "type": "number",
@@ -238,22 +231,16 @@
                 "destroyGenerator": {
                     "$ref": "../_structures/CollectibleGenerator.json",
                     "description": "A collectible generator used when the Bonus Scarab is destroyed."
-                },
-                "scoreFont": {
-                    "$ref": "../_structures/Font.json",
-                    "description": "A font to be used to display the bonus value on the screen."
                 }
             },
             "required": [
                 "sprite",
                 "shadowSprite",
-                "stepLength",
-                "pointsPerStep",
+                "scoreEvent",
                 "speed",
                 "loopSound",
                 "destroySound",
-                "destroyParticle",
-                "scoreFont"
+                "destroyParticle"
             ],
             "additionalProperties": false
         },

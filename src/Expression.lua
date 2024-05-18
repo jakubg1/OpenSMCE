@@ -1,10 +1,21 @@
 local class = require "com.class"
 
 ---Represents a compiled Expression.
----If you give it a string, an expression will be compiled and stored in RPN notation.
----Such an Expression can be evaluated at any time.
+---
+---By default, you construct an Expression with one parameter. This parameter can be any value,
+---and it will be the raw value that is returned when `:evaluate()` is called.
+---
+---The Expression will be compiled when it notices a string which starts with `${` and ends with `}`.
+---This mechanism allows an Expression to always evaluate to a constant (including a string), without nearly any runtime overhead.
+---For example, passing `"2+2"` means that the Expression will always evaluate to `"2+2"`,
+---and passing `"${2+2}"` as an argument will make the Expression always evaluate to `4`.
+---
+---When the `raw` flag is set, this check is bypassed. This should be used only internally when debugging,
+---where packing the string inside a `${...}` clause is not viable.
+---
+---If the `raw` flag is set and the provided value is not a valid expression, the constructor will throw an error.
 ---@class Expression
----@overload fun(str):Expression
+---@overload fun(str, raw: boolean?):Expression
 local Expression = class:derive("Expression")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -12,8 +23,9 @@ local Vec2 = require("src.Essentials.Vector2")
 
 
 ---Constructs and compiles a new Expression.
----@param str string|number The expression to be compiled.
-function Expression:new(str)
+---@param str any The expression to be compiled (or not).
+---@param raw boolean? Whether the provided `str` value is guaranteed to be a valid expression which is not packed inside the `${...}` clause.
+function Expression:new(str, raw)
 	-- Operators.
 	self.OPERATOR_FUNCTIONS = {
 		-- Artithmetic: Takes two last numbers in the stack (one in case of unary minus), performs an operation and puts the result number back.
@@ -183,27 +195,34 @@ function Expression:new(str)
 			local b = table.remove(stack)
 			local a = table.remove(stack)
 			table.insert(stack, _Vars:get(a, b))
+		end,
+		["getc"] = function(stack)
+			-- Get a value of a context variable.
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, _Vars:getC(a, b))
+		end,
+		["getcd"] = function(stack)
+			-- Get a value of a context variable, or return a specified value if nil.
+			local c = table.remove(stack)
+			local b = table.remove(stack)
+			local a = table.remove(stack)
+			table.insert(stack, _Vars:getC(a, b, c))
 		end
 	}
 
-	self.data = self:prepare(str)
-end
-
-
-
----Prepares and compiles a given expression if it's a string.
----@param str any The expression to be compiled.
----@return table
-function Expression:prepare(str)
+	-- Prepare the Expression.
 	-- If this is not a string, but instead a number, then there's nothing to talk about.
-	if type(str) ~= "string" then
-		-- Number value.
-		return {
-			{type = "value", value = str}
-		}
+	if type(str) == "string" and (raw or (_Utils.strStartsWith(str, "${") and _Utils.strEndsWith(str, "}"))) then
+		if not raw then
+			str = str:sub(3, str:len() - 1)
+		end
+		self.data = self:compile(self:tokenize(str))
+	elseif not raw then
+		self.rawData = str
+	else
+		error(string.format("Not a raw expression: %s", str))
 	end
-
-	return self:compile(self:tokenize(str))
 end
 
 
@@ -398,10 +417,26 @@ function Expression:compile(tokens)
 		elseif token.type == "operator" then
 			local op = token.value
 			local opData = OPERATORS[op]
+			local lastFunction = nil
+			local lastFunctionI = nil
+			for i = #opStack, 1, -1 do
+				if opStack[i].type == "function" then
+					lastFunction = opStack[i].value
+					lastFunctionI = i
+					break
+				end
+			end
 			if op == "|" then
-				-- This is a symbol which changes get to getd.
-				assert(#opStack > 1 and opStack[#opStack - 1].type == "function" and opStack[#opStack - 1].value == "get", string.format("| in incorrect place in Expression(%s)!", self.data))
-				opStack[#opStack - 1].value = "getd"
+				-- This is a symbol which changes get to getd, and getc to getcd.
+				assert(lastFunction == "get" or lastFunction == "getc", string.format("| in incorrect place in Expression(%s)!", self.data))
+				if lastFunction == "get" then
+					opStack[lastFunctionI].value = "getd"
+				else
+					opStack[lastFunctionI].value = "getcd"
+				end
+			elseif op == "." and lastFunction == "get" then
+				-- This is a symbol which changes get to getc.
+				opStack[lastFunctionI].value = "getc"
 			elseif OPERATORS[op] then
 				-- Pop any required operators.
 				local opLast = opStack[#opStack] and opStack[#opStack].value
@@ -432,8 +467,12 @@ end
 
 
 ---Evaluates this expression and returns the result.
----@return number
+---@return any
 function Expression:evaluate()
+	if self.rawData then
+		return self.rawData
+	end
+
 	local stack = {}
 
 	for i, step in ipairs(self.data) do
