@@ -38,7 +38,7 @@ function Scorpion:new(path, deserializationTable)
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite)
 
-	self.sound = _Game:playSound(self.config.loopSound, 1, self:getPos())
+	self.sound = _Game:playSound(self.config.loopSound, self:getPos())
 
 	self.delQueue = false
 end
@@ -66,7 +66,7 @@ function Scorpion:update(dt)
 		local sphereGroup = self.path.sphereChains[1].sphereGroups[1]
 		if sphereGroup:getFrontPos() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
 			sphereGroup:destroySphere(#sphereGroup.spheres)
-			_Game:playSound(self.config.sphereDestroySound, 1, self:getPos())
+			_Game:playSound(self.config.sphereDestroySound, self:getPos())
 			self.destroyedSpheres = self.destroyedSpheres + 1
 			-- if this sphere is the last sphere, the scorpion gets rekt
 			if not sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 1 and sphereGroup.spheres[1].color == 0 then
@@ -119,7 +119,7 @@ function Scorpion:explode()
 	_Game.session.level:spawnFloatingText(_NumStr(score), pos, self.config.scoreFont)
 	_Game.session.level:spawnCollectiblesFromEntry(pos, self.config.destroyGenerator)
 	_Game:spawnParticle(self.config.destroyParticle, pos)
-	_Game:playSound(self.config.destroySound, 1, pos)
+	_Game:playSound(self.config.destroySound, pos)
 
 	self:destroy()
 end

@@ -35,7 +35,7 @@ end
 ---@param name string The variable name.
 ---@param value any The value to be stored.
 function ExpressionVariables:setC(context, name, value)
-    if self.data[context] and type(self.data[context] ~= "table") then
+    if self.data[context] and type(self.data[context]) ~= "table" then
         error(string.format("[ExpressionVariables] Tried to create a context of the same name as an already existing variable: %s", context))
     end
     if not self.data[context] then

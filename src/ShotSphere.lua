@@ -147,7 +147,7 @@ function ShotSphere:moveStep()
 			if shotCancelled then
 				self.hitSphere = nil -- avoid deleting this time
 			else
-				_Game:playSound((badShot and sphereConfig.hitSoundBad) and sphereConfig.hitSoundBad or sphereConfig.hitSound, 1, self.pos)
+				_Game:playSound((badShot and sphereConfig.hitSoundBad) and sphereConfig.hitSoundBad or sphereConfig.hitSound, self.pos)
 				if not badShot then
 					_Game.session.level:markSuccessfulShot()
 				end

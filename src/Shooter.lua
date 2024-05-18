@@ -249,7 +249,7 @@ function Shooter:swapColors()
     local tmp = self.color
     self:setColor(self.nextColor)
     self:setNextColor(tmp)
-    _Game:playSound(self.config.sounds.sphereSwap, 1, self.pos)
+    _Game:playSound(self.config.sounds.sphereSwap, self.pos)
 end
 
 
@@ -270,7 +270,7 @@ end
 ---Fills any empty spaces in the shooter.
 function Shooter:fill()
     if self.nextColor == 0 or self.color == 0 then
-        _Game:playSound(self.config.sounds.sphereFill, 1, self.pos)
+        _Game:playSound(self.config.sounds.sphereFill, self.pos)
     end
     if self.nextColor == 0 then
         self:setNextColor(self:getNextColor())
@@ -326,7 +326,7 @@ function Shooter:shoot()
             _Game.session.level:applyEffect(effect)
         end
     end
-    _Game:playSound(sphereConfig.shootSound, 1, self.pos)
+    _Game:playSound(sphereConfig.shootSound, self.pos)
     self.color = 0
     self.shotCooldown = self.config.shotCooldown
     _Game.session.level.spheresShot = _Game.session.level.spheresShot + 1

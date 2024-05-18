@@ -30,7 +30,7 @@ function Collectible:new(deserializationTable, pos, name)
 		self.acceleration = _ParseExprVec2(self.config.acceleration)
 	end
 
-	_Game:playSound(self.config.spawnSound, 1, self.pos)
+	_Game:playSound(self.config.spawnSound, self.pos)
 	self.particle = _Game:spawnParticle(self.config.particle, self.pos)
 
 	self.delQueue = false
@@ -83,7 +83,7 @@ function Collectible:catch()
 		end
 	end
 
-	_Game:playSound(self.config.pickupSound, 1, self.pos)
+	_Game:playSound(self.config.pickupSound, self.pos)
 	_Game:spawnParticle(self.config.pickupParticle, self.pos)
 	if self.config.pickupName then
 		_Game.session.level:spawnFloatingText(self.config.pickupName, self.pos, self.config.pickupFont)

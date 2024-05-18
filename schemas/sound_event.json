@@ -4,9 +4,10 @@
     "description": "The root entry.",
     "properties": {
         "$schema": true,
-        "path": {
+        "sound": {
             "$ref": "_structures/Sound.json",
-            "description": "The path to an audio file associated with this Sound Event. If not provided, this Sound Event will be silent."
+            "description": "Cannot coexist with sounds. The path to an audio file associated with this Sound Event. If not provided, this Sound Event will be silent.",
+            "markdownDescription": "Cannot coexist with `sounds`. The path to an audio file associated with this Sound Event. If not provided, this Sound Event will be silent."
         },
         "loop": {
             "type": "boolean",
@@ -21,10 +22,65 @@
             "description": "The base volume of the sound.",
             "minimum": 0.0
         },
+        "pitch": {
+            "type": "number",
+            "description": "The base pitch of the sound.",
+            "exclusiveMinimum": 0.0
+        },
         "instances": {
             "type": "integer",
             "description": "The number of instances of this sound which can be played at once. Defaults to 8.",
             "exclusiveMinimum": 0
+        },
+        "sounds": {
+            "type": "array",
+            "description": "Cannot coexist with sound. A list of sounds to be played.",
+            "markdownDescription": "Cannot coexist with `sound`. A list of sounds to be played.",
+            "items": {
+                "type": "object",
+                "description": "A single sound entry.",
+                "properties": {
+                    "sound": {
+                        "$ref": "_structures/Sound.json",
+                        "description": "The path to a sound which is going to be played."
+                    },
+                    "loop": {
+                        "type": "boolean",
+                        "description": "Whether the sample should loop."
+                    },
+                    "flat": {
+                        "type": "boolean",
+                        "description": "If set, the 3D positioning will be disabled for this entry. Note that if you use a stereo Sound, 3D positioning will be forcefully disabled and this flag will have no effect on the playback."
+                    },
+                    "volume": {
+                        "type": "number",
+                        "description": "The volume of the sound.",
+                        "minimum": 0.0
+                    },
+                    "pitch": {
+                        "type": "number",
+                        "description": "The pitch of the sound.",
+                        "exclusiveMinimum": 0.0
+                    },
+                    "instances": {
+                        "type": "integer",
+                        "description": "The number of instances of this sound which can be played at once. Defaults to 8.",
+                        "exclusiveMinimum": 0
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "If specified, all conditions inside must be satisfied in order for this entry to be played.",
+                        "items": {
+                            "type": "boolean",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "sound"
+                ],
+                "additionalProperties": false
+            }
         }
     },
     "additionalProperties": false

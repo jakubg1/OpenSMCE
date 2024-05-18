@@ -282,16 +282,19 @@ end
 
 
 ---Sets three Expression Variables corresponding to this Path to be used in Expressions.
----These variables are named: `offset`, `offsetE` and `distance`.
+---
+---These variables are:
+--- - `offset`: ranging from 0 to path length, from start point.
+--- - `offsetE`: ranging from 0 to path length, from end point.
+--- - `distance`: ranging from 0 to 1, from start point. Universal formula for end point: `1 - [distance]`.
+---
+--- Warning: These variables are NOT clamped and can go outside of the path.
+---@param context string The Expression Context inside which these values will be located.
 ---@param offset number The path offset to be used in calculation, in pixels.
-function Path:dumpOffsetVars(offset)
-	-- Three different variables, to use whichever works best.
-	-- offset: ranging from 0 to path length, from start point.
-	_Vars:set("offset", offset)
-	-- offsetE: ranging from 0 to path length, from end point.
-	_Vars:set("offsetE", self.length - offset)
-	-- distance: ranging from 0 to 1, from start point. Universal formula for end point: 1 - [distance].
-	_Vars:set("distance", offset / self.length)
+function Path:setOffsetVars(context, offset)
+	_Vars:setC(context, "offset", offset)
+	_Vars:setC(context, "offsetE", self.length - offset)
+	_Vars:setC(context, "distance", offset / self.length)
 end
 
 

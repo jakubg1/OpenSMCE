@@ -229,15 +229,16 @@ function Sphere:deleteVisually(ghostTime, crushed)
 		end
 		if not self.map.level.lost then
 			-- Spawn collectibles, if any.
-			self.path:dumpOffsetVars(self:getOffset())
+			self.path:setOffsetVars("sphere", self:getOffset())
 			if self.config.destroyCollectible then
-				_Vars:set("crushed", crushed or false)
+				_Vars:setC("sphere", "crushed", crushed or false)
 				self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectible)
 			end
 			-- Play a sound.
-			if self.config.destroySound and crushed then
-				_Game:playSound(self.config.destroySound, 1, self:getPos())
+			if self.config.destroySound then
+				_Game:playSound(self.config.destroySound, self:getPos())
 			end
+			_Vars:unset("sphere")
 		end
 		-- Update color count.
 		_Game.session.colorManager:decrement(self.color)
@@ -320,7 +321,7 @@ function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
 
 	-- Sound effect.
 	if effectConfig.applySound then
-		_Game:playSound(effectConfig.applySound, 1, self:getPos())
+		_Game:playSound(effectConfig.applySound, self:getPos())
 	end
 end
 

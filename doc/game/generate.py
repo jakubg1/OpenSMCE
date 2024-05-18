@@ -517,7 +517,10 @@ def docl_to_docld(data):
 				line_out["types"] = []
 				subtokens = token[1:-1].split("|")
 				for subtoken in subtokens:
-					if subtoken[0] == "$": # $ref
+					if subtoken[0] == "%": # %expression
+						print("ADD ME! Expression types missing from documentation for now")
+						line_out["types"].append({"type": subtoken[1:]})
+					elif subtoken[0] == "$": # $ref
 						line_out["types"].append({"ref": subtoken[1:]})
 					elif subtoken[0] == "#": # #internal_ref
 						line_out["types"].append({"internal_ref": subtoken})

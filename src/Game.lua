@@ -13,7 +13,6 @@ local Timer = require("src.Timer")
 
 local ConfigManager = require("src.ConfigManager")
 local ResourceManager = require("src.ResourceManager")
-local GameModuleManager = require("src.GameModuleManager")
 local RuntimeManager = require("src.RuntimeManager")
 local Session = require("src.Session")
 
@@ -32,7 +31,6 @@ function Game:new(name)
 
 	self.configManager = nil
 	self.resourceManager = nil
-	self.gameModuleManager = nil
 	self.runtimeManager = nil
 	self.session = nil
 
@@ -67,13 +65,10 @@ function Game:init()
 	-- Step 4. Create a resource bank
 	self.resourceManager = ResourceManager()
 
-	-- Step 6. Load game modules
-	self.gameModuleManager = GameModuleManager()
-
-	-- Step 7. Create a runtime manager
+	-- Step 5. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
 
-	-- Step 8. Set up the UI Manager or the experimental UI2 Manager
+	-- Step 6. Set up the UI Manager or the experimental UI2 Manager
 	self.uiManager = self.configManager.config.useUI2 and UI2Manager() or UIManager()
 	self.uiManager:initSplash()
 end
@@ -289,15 +284,14 @@ end
 
 ---Plays a sound and returns its instance for modification.
 ---@param name string|SoundEvent The name of the Sound Effect to be played.
----@param pitch number? The pitch of the sound.
 ---@param pos Vector2? The position of the sound.
 ---@return SoundInstance
-function Game:playSound(name, pitch, pos)
+function Game:playSound(name, pos)
 	-- TODO: Unmangle this code. Will the string representation be still necessary after we fully move to Config Classes?
 	if type(name) == "string" then
-		return self.resourceManager:getSoundEvent(name):play(pitch, pos)
+		return self.resourceManager:getSoundEvent(name):play(pos)
 	else
-		return name:play(pitch, pos)
+		return name:play(pos)
 	end
 end
 

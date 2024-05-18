@@ -447,7 +447,7 @@ function SphereGroup:join()
 	self.prevGroup:destroyFragileSpheres()
 	self:destroyFragileSpheres()
 	-- play a sound
-	_Game:playSound(self.config.joinSound, 1, self.sphereChain.path:getPos(self.offset))
+	_Game:playSound(self.config.joinSound, self.sphereChain.path:getPos(self.offset))
 end
 
 
@@ -687,13 +687,6 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		self.nextGroup.speed = 0
 	end
 
-	-- Play a sound.
-	if effectConfig.destroySound == "hardcoded" then
-		local soundParams = MOD_GAME.matchSound(length, self.map.level.combo, self.sphereChain.combo, boostCombo)
-		_Game:playSound(soundParams.name, soundParams.pitch, pos)
-	else
-		_Game:playSound(effectConfig.destroySound, 1, pos)
-	end
 	-- Boost chain and combo values.
 	if effectConfig.canBoostChain then
 		self.sphereChain.combo = self.sphereChain.combo + 1
@@ -712,6 +705,13 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	end
 	self.map.level:grantScore(score)
 	self.sphereChain.comboScore = self.sphereChain.comboScore + score
+
+	-- Play a sound.
+	_Vars:setC("match", "length", length)
+	_Vars:setC("match", "streak", self.map.level.combo)
+	_Vars:setC("match", "streakBoost", boostCombo)
+	_Vars:setC("match", "cascade", self.sphereChain.combo)
+	_Game:playSound(effectConfig.destroySound, pos)
 
 	-- Determine and display the floating text.
 	local scoreText = _NumStr(score)
@@ -732,13 +732,10 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	self.map.level:spawnFloatingText(scoreText, pos, scoreFont)
 
 	-- Spawn a coin if applicable.
-	_Vars:set("length", length)
-	_Vars:set("comboLv", self.map.level.combo)
-	_Vars:set("chainLv", self.sphereChain.combo)
-	_Vars:set("comboBoost", boostCombo)
 	if effectConfig.destroyCollectible then
 		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroyCollectible)
 	end
+	_Vars:unset("match")
 
 	-- Update max combo and max chain stats.
 	self.map.level.maxCombo = math.max(self.map.level.combo, self.map.level.maxCombo)
