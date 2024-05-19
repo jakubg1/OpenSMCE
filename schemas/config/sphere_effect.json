@@ -29,13 +29,11 @@
         },
         "destroySound": {
             "$ref": "../_structures/SoundEvent.json",
-            "description": "A sound event to be played when spheres afflicted with this effect are destroyed.\nCan be set to \"hardcoded\", in that case the destroy sound from a game module is prioritized.",
-            "markdownDescription": "A sound event to be played when spheres afflicted with this effect are destroyed.\nCan be set to `\"hardcoded\"`, in that case the destroy sound from a game module is prioritized."
+            "description": "A sound event to be played when spheres afflicted with this effect are destroyed."
         },
-        "destroyFont": {
-            "$ref": "../_structures/Font.json",
-            "description": "A font to be used for the score value displayed on the screen.\nCan be set to \"hardcoded\", in that case the font used is of the \"cause\" sphere's matchFont value.",
-            "markdownDescription": "A font to be used for the score value displayed on the screen.\nCan be set to `\"hardcoded\"`, in that case the font used is of the \"cause\" sphere's `matchFont` value."
+        "destroyScoreEvent": {
+            "$ref": "../_structures/ScoreEvent.json",
+            "description": "A score event to be executed when spheres affected with this effect are destroyed."
         },
         "destroyParticle": {
             "$ref": "../_structures/Particle.json",
@@ -95,7 +93,7 @@
         "infectionSize",
         "infectionTime",
         "destroySound",
-        "destroyFont",
+        "destroyScoreEvent",
         "levelLossProtection",
         "immobile",
         "fragile",

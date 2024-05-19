@@ -695,41 +695,23 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		self.map.level.combo = self.map.level.combo + 1
 	end
 
-	-- Calculate and grant score.
-	local score = length * 100
-	if boostCombo then
-		score = score + math.max(self.map.level.combo - 3, 0) * 100
-	end
-	if effectConfig.applyChainMultiplier then
-		score = score * self.sphereChain.combo
-	end
-	self.map.level:grantScore(score)
-	self.sphereChain.comboScore = self.sphereChain.comboScore + score
-
 	-- Play a sound.
 	_Vars:setC("match", "length", length)
 	_Vars:setC("match", "streak", self.map.level.combo)
 	_Vars:setC("match", "streakBoost", boostCombo)
 	_Vars:setC("match", "cascade", self.sphereChain.combo)
+	_Vars:setC("match", "gapCount", #gaps)
+	_Vars:setC("match", "color", color)
 	_Game:playSound(effectConfig.destroySound, pos)
 
-	-- Determine and display the floating text.
-	local scoreText = _NumStr(score)
-	if boostCombo and self.map.level.combo > 2 then
-		scoreText = scoreText .. "\n COMBO X" .. tostring(self.map.level.combo)
-	end
-	if effectConfig.applyChainMultiplier and self.sphereChain.combo ~= 1 then
-		scoreText = scoreText .. "\n CHAIN X" .. tostring(self.sphereChain.combo)
-	end
+	--[[
 	local scoreGapTexts = {"GAP BONUS!", "DOUBLE GAP BONUS!", "TRIPLE GAP BONUS!", "QUADRUPLE GAP BONUS!", "QUINTUPLE GAP BONUS!"}
 	if #gaps > 0 then
 		scoreText = scoreText .. "\n" .. scoreGapTexts[#gaps]
 	end
-	local scoreFont = effectConfig.destroyFont
-	if scoreFont == "hardcoded" then
-		scoreFont = _Game.configManager.spheres[color].matchFont
-	end
-	self.map.level:spawnFloatingText(scoreText, pos, scoreFont)
+	]]
+	local score = self.map.level:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(effectConfig.destroyScoreEvent), pos)
+	self.sphereChain.comboScore = self.sphereChain.comboScore + score
 
 	-- Spawn a coin if applicable.
 	if effectConfig.destroyCollectible then

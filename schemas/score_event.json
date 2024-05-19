@@ -15,6 +15,35 @@
         "font": {
             "$ref": "_structures/Font.json",
             "description": "The font which will be used to display the score text. If not specified, the score text will not appear."
+        },
+        "fonts": {
+            "type": "object",
+            "description": "If the event can display the score in different fonts, use this object. Cannot coexist with font.",
+            "markdownDescription": "If the event can display the score in different fonts, use this object. Cannot coexist with `font`.",
+            "properties": {
+                "options": {
+                    "type": "array",
+                    "description": "A list of fonts, one of which will be picked.",
+                    "items": {
+                        "$ref": "_structures/Font.json",
+                        "description": "A single font."
+                    }
+                },
+                "default": {
+                    "$ref": "_structures/Font.json",
+                    "description": "The default font, if the choice matches none of the above choices."
+                },
+                "choice": {
+                    "type": "integer",
+                    "description": "An integer expression which evaluates to a number identifying one of the options."
+                }
+            },
+            "required": [
+                "options",
+                "default",
+                "choice"
+            ],
+            "additionalProperties": false
         }
     },
     "required": [
