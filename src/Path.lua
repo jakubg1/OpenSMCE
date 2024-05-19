@@ -7,8 +7,7 @@ local Path = class:derive("Path")
 
 local Vec2 = require("src.Essentials.Vector2")
 local SphereChain = require("src.SphereChain")
-local BonusScarab = require("src.BonusScarab")
-local Scorpion = require("src.Scorpion")
+local PathEntity = require("src.PathEntity")
 
 
 
@@ -49,13 +48,10 @@ function Path:new(map, pathData, pathBehavior)
 	self.dangerParticle = pathBehavior.dangerParticle or "particles/warning.json"
 	self.speeds = pathBehavior.speeds
 
-	--self:prepareNodes({Vec2(0, 200), Vec2(500, 200), Vec2(515, 200), Vec2(520, 205), Vec2(520, 220), Vec2(520, 400)})
 	self:prepareNodes(nodes)
 
 	self.sphereChains = {}
 	self.clearOffset = 0
-	self.pathIntroductionOffset = nil
-	self.pathIntroductionTrailDistance = 0
 	self.pathEntities = {}
 	self.sphereEffectGroups = {}
 end
@@ -200,16 +196,10 @@ end
 
 
 
----Spawns a Bonus Scarab on this Path.
-function Path:spawnBonusScarab()
-	table.insert(self.pathEntities, BonusScarab(self))
-end
-
-
-
----Spawns a Scorpion on this Path.
-function Path:spawnScorpion()
-	table.insert(self.pathEntities, Scorpion(self))
+---Spawns a Path Entity on this Path.
+---@param config PathEntityConfig The Path Entity Config to be used to create this Path Entity.
+function Path:spawnPathEntity(config)
+	table.insert(self.pathEntities, PathEntity(self, config))
 end
 
 
@@ -218,19 +208,6 @@ end
 ---@return boolean
 function Path:hasNoPathEntities()
 	return #self.pathEntities == 0
-end
-
-
-
----Starts the path introduction process for this Path.
-function Path:startIntroduction()
-	self.pathIntroductionOffset = 0
-end
-
----Returns `true` if this path has an ongoing introduction process, `false` otherwise.
----@return boolean
-function Path:isBeingIntroduced()
-	return self.pathIntroductionOffset ~= nil
 end
 
 
@@ -721,11 +698,7 @@ function Path:deserialize(t)
 	self.clearOffset = t.clearOffset
 	self.pathEntities = {}
 	for i, pathEntity in ipairs(t.pathEntities) do
-		if pathEntity.coinDistance then
-			table.insert(self.pathEntities, BonusScarab(self, pathEntity))
-		else
-			table.insert(self.pathEntities, Scorpion(self, pathEntity))
-		end
+		table.insert(self.pathEntities, PathEntity(self, pathEntity))
 	end
 	self.sphereEffectGroups = {}
 	for i, sphereEffectGroup in pairs(t.sphereEffectGroups) do

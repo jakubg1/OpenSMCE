@@ -81,6 +81,10 @@
             "description": "The distance between each particle, in pixels.",
             "exclusiveMinimum": 0.0
         },
+        "renderParticlesInTunnels": {
+            "type": "boolean",
+            "description": "If set, the particles will be spawned in tunnels as well."
+        },
         "loopSound": {
             "$ref": "_structures/SoundEvent.json",
             "description": "A looping sound event which will be played during the path entity's existence. (path_entity)"

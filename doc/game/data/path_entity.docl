@@ -16,6 +16,7 @@
     - destroyAtClearOffset* (boolean) - If set, this path entity will be destroyed once it reaches the path's clear offset (i.e. Bonus Scarabs).
     - particle* (Particle) - The one-time particle that this path entity will be spawning every set amount of pixels.
     - particleSeparation* (number) [>0] - The distance between each particle, in pixels.
+    - renderParticlesInTunnels* (boolean) - If set, the particles will be spawned in tunnels as well.
     - loopSound* (SoundEvent) - A looping sound event which will be played during the path entity's existence. (path_entity)
     - collectibleGenerator* (CollectibleGenerator) - A collectible generator which will periodically generate collectibles from this path entity. (path_entity)
     - collectibleGeneratorSeparation* (number) [>0] - The distance between each collectible generator activation, in pixels.

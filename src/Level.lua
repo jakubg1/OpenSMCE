@@ -50,10 +50,9 @@ function Level:new(data)
 
 	self.levelSequence = {
 		{type = "pathEntity", pathEntity = "path_entities/intro_trail.json", separatePaths = false, launchDelay = 0, waitUntilFinished = true, skippable = false},
-		{type = "gameplay", warmupTime = 1.5, previewFirstShooterColor = true, onFail = 10},
+		{type = "gameplay", warmupTime = 1.5, previewFirstShooterColor = true, onFail = 9},
 		{type = "waitForCollectibles"},
 		{type = "wait", delay = 2},
-		{type = "deactivateNet"},
 		{type = "pathEntity", pathEntity = "path_entities/bonus_scarab.json", separatePaths = true, launchDelay = 1.5, waitUntilFinished = true, skippable = false},
 		{type = "waitForCollectibles"},
 		{type = "wait", delay = 1.5},
@@ -217,10 +216,6 @@ function Level:updateLogic(dt)
 		if self:getFinish() then
 			self:advanceSequenceStep()
 		end
-	elseif step.type == "deactivateNet" then
-		self.netTime = 0
-		self:destroyNetParticle()
-		self:advanceSequenceStep()
 	elseif step.type == "pathEntity" then
 		-- Temporary: we don't have Path Entities yet.
 		local isThereAnythingOnPreviousPaths = false
@@ -229,7 +224,7 @@ function Level:updateLogic(dt)
 			if not path then
 				break
 			end
-			if not path:hasNoPathEntities() or path:isBeingIntroduced() then
+			if not path:hasNoPathEntities() then
 				isThereAnythingOnPreviousPaths = true
 				break
 			end
@@ -241,11 +236,7 @@ function Level:updateLogic(dt)
 				break
 			else
 				local currentPath = self.map.paths[self.levelSequenceVars.pathID]
-				if step.pathEntity == "path_entities/intro_trail.json" then
-					currentPath:startIntroduction()
-				elseif step.pathEntity == "path_entities/bonus_scarab.json" then
-					currentPath:spawnBonusScarab()
-				end
+				currentPath:spawnPathEntity(_Game.resourceManager:getPathEntityConfig(step.pathEntity))
 				self.levelSequenceVars.pathID = self.levelSequenceVars.pathID + 1
 				self.levelSequenceVars.delay = step.launchDelay
 				isThereAnythingOnPreviousPaths = true
@@ -469,10 +460,10 @@ function Level:applyEffect(effect, pos)
 	elseif effect.type == "destroyColor" then
 		-- Same as above.
 		_Game.session:destroyColor(effect.color)
-	elseif effect.type == "spawnScorpion" then
+	elseif effect.type == "spawnPathEntity" then
 		local path = self:getMostDangerousPath()
 		if path then
-			path:spawnScorpion()
+			path:spawnPathEntity(_Game.resourceManager:getPathEntityConfig(effect.pathEntity))
 		end
 	elseif effect.type == "lightningStorm" then
 		table.insert(self.lightningStorms, {count = effect.count, time = 0})
@@ -790,6 +781,8 @@ function Level:jumpToSequenceStep(stepN)
 	if step.type == "pathEntity" then
 		self.levelSequenceVars = {pathID = 1, delay = 0}
 		self.shooter:empty()
+		self.netTime = 0
+		self:destroyNetParticle()
 	elseif step.type == "gameplay" then
 		self.levelSequenceVars = {warmupTime = 0}
 		if self.warmupLoopName then

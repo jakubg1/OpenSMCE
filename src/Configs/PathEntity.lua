@@ -12,6 +12,8 @@ local u = require("src.Configs.utils")
 ---@param data table Raw path entity data.
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function PathEntityConfig:new(data, path)
+    self._path = path
+
     self.sprite = u.parseSpriteOpt(data.sprite, path, "sprite")
     self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
     self.spawnPlacement = u.parseString(data.spawnPlacement, path, "spawnPlacement")
@@ -20,16 +22,17 @@ function PathEntityConfig:new(data, path)
     self.acceleration = u.parseNumberOpt(data.acceleration, path, "acceleration") or 0
     self.maxSpeed = u.parseNumberOpt(data.maxSpeed, path, "maxSpeed")
     self.maxOffset = u.parseNumberOpt(data.maxOffset, path, "maxOffset")
-    self.destroyOffset = u.parseNumberOpt(data.destroyOffset, path, "destroyOffset")
+    self.destroyOffset = u.parseNumberOpt(data.destroyOffset, path, "destroyOffset") or 0
     self.destroyTime = u.parseNumberOpt(data.destroyTime, path, "destroyTime")
     self.destroyWhenPathEmpty = u.parseBooleanOpt(data.destroyWhenPathEmpty, path, "destroyWhenPathEmpty")
     self.destroyAtClearOffset = u.parseBooleanOpt(data.destroyAtClearOffset, path, "destroyAtClearOffset")
-    self.particle = u.parseParticleOpt(data.particle, path, "particle")
+    self.particle = u.parseStringOpt(data.particle, path, "particle")
     self.particleSeparation = u.parseNumberOpt(data.particleSeparation, path, "particleSeparation")
+    self.renderParticlesInTunnels = u.parseBooleanOpt(data.renderParticlesInTunnels, path, "renderParticlesInTunnels")
     self.loopSound = u.parseSoundEventOpt(data.loopSound, path, "loopSound")
     self.collectibleGenerator = u.parseStringOpt(data.collectibleGenerator, path, "collectibleGenerator")
     self.collectibleGeneratorSeparation = u.parseNumberOpt(data.collectibleGeneratorSeparation, path, "collectibleGeneratorSeparation")
-    self.destroyParticle = u.parseParticleOpt(data.destroyParticle, path, "destroyParticle")
+    self.destroyParticle = u.parseStringOpt(data.destroyParticle, path, "destroyParticle")
     self.destroySound = u.parseSoundEventOpt(data.destroySound, path, "destroySound")
     self.destroyScoreEvent = u.parseScoreEventConfigOpt(data.destroyScoreEvent, path, "destroyScoreEvent")
     self.destroyCollectibleGenerator = u.parseStringOpt(data.destroyCollectibleGenerator, path, "destroyCollectibleGenerator")

@@ -11,7 +11,7 @@
                 "speedOverride",
                 "destroyAllSpheres",
                 "destroyColor",
-                "spawnScorpion",
+                "spawnPathEntity",
                 "lightningStorm",
                 "activateNet",
                 "changeGameSpeed",
@@ -219,8 +219,8 @@
             "if": {
                 "properties": {
                     "type": {
-                        "const": "spawnScorpion",
-                        "description": "Spawns a scorpion on the board."
+                        "const": "spawnPathEntity",
+                        "description": "Spawns a Path Entity on the path that has its spheres closest to the endpoint (the \"most dangerous\" path)."
                     }
                 },
                 "required": [
@@ -230,8 +230,15 @@
             "then": {
                 "properties": {
                     "$schema": true,
-                    "type": true
+                    "type": true,
+                    "pathEntity": {
+                        "$ref": "../_structures/PathEntity.json",
+                        "description": "The Path Entity to be spawned."
+                    }
                 },
+                "required": [
+                    "pathEntity"
+                ],
                 "additionalProperties": false
             }
         },

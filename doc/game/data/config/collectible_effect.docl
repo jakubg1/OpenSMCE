@@ -15,7 +15,8 @@
     - "destroyAllSpheres" - Clears the board from all spheres.
     - "destroyColor" - Destroys the spheres of a specified color.
         - color (integer) - The color of spheres to be destroyed.
-    - "spawnScorpion" - Spawns a scorpion on the board.
+    - "spawnPathEntity" - Spawns a Path Entity on the path that has its spheres closest to the endpoint (the "most dangerous" path).
+        - pathEntity (PathEntity) - The Path Entity to be spawned.
     - "lightningStorm" - Starts a lightning storm, spawning a given amount of strikes which destroy single spheres.
         - count (integer) [>=1] - The amount of strikes.
     - "activateNet" - Activates a net which collects collectibles for a given amount of time.
