@@ -185,6 +185,11 @@ function Expression:new(str, raw)
 		end,
 
 		-- Miscellaneous.
+		["strnum"] = function(stack)
+			-- Adds thousands, millions, etc. separators to the provided number and converts it into a string.
+			local a = table.remove(stack)
+			table.insert(stack, _NumStr(a))
+		end,
 		["get"] = function(stack)
 			-- Get a value of a variable.
 			local a = table.remove(stack)
