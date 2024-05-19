@@ -451,7 +451,8 @@ end
 
 
 ---Returns `true` if this Path does not contain any spheres.
----Warning: this does NOT check for Scorpions or Bonus Scarabs.
+---
+---Warning: this does NOT check for Path Entities. Use `:hasNoPathEntities()` for that instead.
 ---@return boolean
 function Path:getEmpty()
 	return #self.sphereChains == 0

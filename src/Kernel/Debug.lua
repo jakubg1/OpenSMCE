@@ -494,7 +494,7 @@ function Debug:runCommand(command)
 		_Game.session:destroyFunction(function(sphere, spherePos) return true end, Vec2())
 		self.console:print("Nuked!")
 	elseif command == "ppp" then
-		_Game.session.level:applyEffect({type = "spawnScorpion"})
+		_Game.session.level:applyEffect({type = "spawnPathEntity", pathEntity = "path_entities/scorpion.json"})
 	elseif command == "ls" then
 		_Game.session.level:applyEffect({type = "lightningStorm", count = 10})
 	elseif command == "net" then

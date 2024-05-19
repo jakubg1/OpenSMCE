@@ -53,7 +53,7 @@ end
 
 
 
----Updates the Scorpion's logic.
+---Updates the Path Entity's logic.
 ---@param dt number Delta time in seconds.
 function PathEntity:update(dt)
 	-- Offset and distance
@@ -125,7 +125,7 @@ function PathEntity:update(dt)
 					_Game:playSound(self.config.sphereDestroySound, self:getPos())
 				end
 				self.destroyedSpheres = self.destroyedSpheres + 1
-				-- if this sphere is the last sphere, the scorpion gets rekt
+				-- if this sphere is the last sphere, the entity gets rekt
 				local thisGroupKill = not sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 1 and sphereGroup.spheres[1].color == 0
 				local prevGroupKill = sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 0 and #sphereGroup.prevGroup.spheres == 1 and sphereGroup.prevGroup.spheres[1].color == 0
 				if thisGroupKill or prevGroupKill then
@@ -150,7 +150,7 @@ end
 
 
 
----Returns whether the Scorpion should be now destroyed.
+---Returns whether this Path Entity should be destroyed now.
 ---@return boolean
 function PathEntity:shouldExplode()
 	if self.config.destroyOffset then
