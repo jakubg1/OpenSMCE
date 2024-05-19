@@ -198,6 +198,17 @@ function utils.parseColorPaletteOpt(data, path, field)
 	return data and _Game.resourceManager:getColorPalette(data)
 end
 
+---@return ScoreEventConfig
+function utils.parseScoreEventConfig(data, path, field)
+	assert(data, string.format("%s: field %s is missing (Score Event Config expected)", path, field))
+	return _Game.resourceManager:getScoreEventConfig(data)
+end
+
+---@return ScoreEventConfig?
+function utils.parseScoreEventConfigOpt(data, path, field)
+	return data and _Game.resourceManager:getScoreEventConfig(data)
+end
+
 ---@return UI2AnimationConfig
 function utils.parseUIAnimationConfig(data, path, field)
 	assert(data, string.format("%s: field %s is missing (UI2 Animation Config expected)", path, field))

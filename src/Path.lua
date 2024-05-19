@@ -56,8 +56,7 @@ function Path:new(map, pathData, pathBehavior)
 	self.clearOffset = 0
 	self.pathIntroductionOffset = nil
 	self.pathIntroductionTrailDistance = 0
-	self.bonusScarab = nil
-	self.scorpions = {}
+	self.pathEntities = {}
 	self.sphereEffectGroups = {}
 end
 
@@ -144,16 +143,14 @@ function Path:update(dt)
 		end
 	end
 
-	if self.bonusScarab then
-		self.bonusScarab:update(dt)
+	for i, pathEntity in ipairs(self.pathEntities) do
+		pathEntity:update(dt)
 	end
-
-	for i, scorpion in ipairs(self.scorpions) do
-		scorpion:update(dt)
-	end
-	for i = #self.scorpions, 1, -1 do
-		local scorpion = self.scorpions[i]
-		if scorpion.delQueue then table.remove(self.scorpions, i) end
+	for i = #self.pathEntities, 1, -1 do
+		local pathEntity = self.pathEntities[i]
+		if pathEntity.delQueue then
+			table.remove(self.pathEntities, i)
+		end
 	end
 end
 
@@ -205,14 +202,22 @@ end
 
 ---Spawns a Bonus Scarab on this Path.
 function Path:spawnBonusScarab()
-	self.bonusScarab = BonusScarab(self)
+	table.insert(self.pathEntities, BonusScarab(self))
 end
 
 
 
 ---Spawns a Scorpion on this Path.
 function Path:spawnScorpion()
-	table.insert(self.scorpions, Scorpion(self))
+	table.insert(self.pathEntities, Scorpion(self))
+end
+
+
+
+---Returns whether there are no Path Entities on this Path.
+---@return boolean
+function Path:hasNoPathEntities()
+	return #self.pathEntities == 0
 end
 
 
@@ -304,14 +309,9 @@ function Path:destroy()
 	for i, sphereChain in ipairs(self.sphereChains) do
 		sphereChain:destroy()
 	end
-	if self.bonusScarab then
-		self.bonusScarab:destroy()
+	for i, pathEntity in ipairs(self.pathEntities) do
+		pathEntity:destroy()
 	end
-	--self.bonusScarab = nil
-	for i, scorpion in ipairs(self.scorpions) do
-		scorpion:destroy()
-	end
-	--self.scorpions = {}
 end
 
 
@@ -334,14 +334,9 @@ end
 ---@param hidden boolean Whether to draw the entities in the hidden pass.
 function Path:draw(hidden)
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
-	if self.bonusScarab then
-		self.bonusScarab:draw(hidden, true)
-		self.bonusScarab:draw(hidden, false)
-	end
-
-	for i, scorpion in ipairs(self.scorpions) do
-		scorpion:draw(hidden, true)
-		scorpion:draw(hidden, false)
+	for i, pathEntity in ipairs(self.pathEntities) do
+		pathEntity:draw(hidden, true)
+		pathEntity:draw(hidden, false)
 	end
 
 	--if not hidden then self:drawDebugFill() end
@@ -696,15 +691,14 @@ function Path:serialize()
 	local t = {
 		sphereChains = {},
 		clearOffset = self.clearOffset,
-		bonusScarab = self.bonusScarab and self.bonusScarab:serialize() or nil,
-		scorpions = {},
+		pathEntities = {},
 		sphereEffectGroups = {}
 	}
 	for i, sphereChain in ipairs(self.sphereChains) do
 		table.insert(t.sphereChains, sphereChain:serialize())
 	end
-	for i, scorpion in ipairs(self.scorpions) do
-		table.insert(t.scorpions, scorpion:serialize())
+	for i, pathEntity in ipairs(self.pathEntities) do
+		table.insert(t.pathEntities, pathEntity:serialize())
 	end
 	for i, sphereEffectGroup in pairs(self.sphereEffectGroups) do
 		local tt = {}
@@ -725,10 +719,13 @@ function Path:deserialize(t)
 		table.insert(self.sphereChains, SphereChain(self, sphereChain))
 	end
 	self.clearOffset = t.clearOffset
-	self.bonusScarab = t.bonusScarab and BonusScarab(self, t.bonusScarab) or nil
-	self.scorpions = {}
-	for i, scorpion in ipairs(t.scorpions) do
-		table.insert(self.scorpions, Scorpion(self, scorpion))
+	self.pathEntities = {}
+	for i, pathEntity in ipairs(t.pathEntities) do
+		if pathEntity.coinDistance then
+			table.insert(self.pathEntities, BonusScarab(self, pathEntity))
+		else
+			table.insert(self.pathEntities, Scorpion(self, pathEntity))
+		end
 	end
 	self.sphereEffectGroups = {}
 	for i, sphereEffectGroup in pairs(t.sphereEffectGroups) do

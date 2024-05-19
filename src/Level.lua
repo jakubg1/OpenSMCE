@@ -50,9 +50,10 @@ function Level:new(data)
 
 	self.levelSequence = {
 		{type = "pathEntity", pathEntity = "path_entities/intro_trail.json", separatePaths = false, launchDelay = 0, waitUntilFinished = true, skippable = false},
-		{type = "gameplay", warmupTime = 1.5, previewFirstShooterColor = true, onFail = 9},
+		{type = "gameplay", warmupTime = 1.5, previewFirstShooterColor = true, onFail = 10},
 		{type = "waitForCollectibles"},
 		{type = "wait", delay = 2},
+		{type = "deactivateNet"},
 		{type = "pathEntity", pathEntity = "path_entities/bonus_scarab.json", separatePaths = true, launchDelay = 1.5, waitUntilFinished = true, skippable = false},
 		{type = "waitForCollectibles"},
 		{type = "wait", delay = 1.5},
@@ -140,16 +141,23 @@ function Level:updateLogic(dt)
 
 
 	-- Lightning storm
-	if self.lightningStormCount > 0 then
-		self.lightningStormTime = self.lightningStormTime - dt
-		if self.lightningStormTime <= 0 then
-			self:spawnLightningStormPiece()
-			self.lightningStormCount = self.lightningStormCount - 1
-			if self.lightningStormCount == 0 then
-				self.lightningStormTime = 0
-			else
-				self.lightningStormTime = self.lightningStormTime + 0.3
+	for i, storm in ipairs(self.lightningStorms) do
+		if storm.count > 0 then
+			storm.time = storm.time - dt
+			if storm.time <= 0 then
+				self:spawnLightningStormPiece()
+				storm.count = storm.count - 1
+				if storm.count > 0 then
+					storm.time = storm.time + math.random() * 0.1 + 0.25
+				end
 			end
+		end
+	end
+
+	-- Remove finished lightning storms.
+	for i = #self.lightningStorms, 1, -1 do
+		if self.lightningStorms[i].count == 0 then
+			table.remove(self.lightningStorms, i)
 		end
 	end
 
@@ -209,6 +217,10 @@ function Level:updateLogic(dt)
 		if self:getFinish() then
 			self:advanceSequenceStep()
 		end
+	elseif step.type == "deactivateNet" then
+		self.netTime = 0
+		self:destroyNetParticle()
+		self:advanceSequenceStep()
 	elseif step.type == "pathEntity" then
 		-- Temporary: we don't have Path Entities yet.
 		local isThereAnythingOnPreviousPaths = false
@@ -217,7 +229,7 @@ function Level:updateLogic(dt)
 			if not path then
 				break
 			end
-			if path.bonusScarab or path:isBeingIntroduced() then
+			if not path:hasNoPathEntities() or path:isBeingIntroduced() then
 				isThereAnythingOnPreviousPaths = true
 				break
 			end
@@ -463,7 +475,7 @@ function Level:applyEffect(effect, pos)
 			path:spawnScorpion()
 		end
 	elseif effect.type == "lightningStorm" then
-		self.lightningStormCount = effect.count
+		table.insert(self.lightningStorms, {count = effect.count, time = 0})
 	elseif effect.type == "activateNet" then
 		self.netTime = effect.time
 		self:spawnNetParticle()
@@ -487,10 +499,9 @@ end
 function Level:spawnLightningStormPiece()
 	-- get a sphere candidate to be destroyed
 	local sphere = self:getLightningStormSphere()
-	-- if no candidate, the lightning storm is over
+	-- if no candidate, the lightning storms are over
 	if not sphere then
-		self.lightningStormCount = 0
-		self.lightningStormTime = 0
+		self.lightningStorms = {}
 		return
 	end
 
@@ -898,8 +909,7 @@ function Level:reset()
 
 	self.gameSpeed = 1
 	self.gameSpeedTime = 0
-	self.lightningStormTime = 0
-	self.lightningStormCount = 0
+	self.lightningStorms = {}
 	self.netTime = 0
 	self:destroyNetParticle()
 
@@ -1049,8 +1059,7 @@ function Level:serialize()
 		shotSpheres = {},
 		collectibles = {},
 		combo = self.combo,
-		lightningStormCount = self.lightningStormCount,
-		lightningStormTime = self.lightningStormTime,
+		lightningStorms = self.lightningStorms,
 		netTime = self.netTime,
 		destroyedSpheres = self.destroyedSpheres,
 		paths = self.map:serialize(),
@@ -1104,8 +1113,7 @@ function Level:deserialize(t)
 		table.insert(self.collectibles, Collectible(tCollectible))
 	end
 	-- Effects
-	self.lightningStormCount = t.lightningStormCount
-	self.lightningStormTime = t.lightningStormTime
+	self.lightningStorms = t.lightningStorms
 	self.netTime = t.netTime
 	if self.netTime > 0 then
 		self:spawnNetParticle()

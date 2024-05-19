@@ -35,6 +35,8 @@ function BonusScarab:new(path, deserializationTable)
 	self.scoreEvent = _Game.resourceManager:getScoreEventConfig(self.config.scoreEvent)
 
 	self.sound = _Game:playSound(self.config.loopSound, self:getPos())
+
+	self.delQueue = false
 end
 
 
@@ -92,7 +94,10 @@ end
 
 ---Removes the Bonus Scarab from its path.
 function BonusScarab:destroy()
-	self.path.bonusScarab = nil
+	if self.delQueue then
+		return
+	end
+	self.delQueue = true
 	self.sound:stop()
 end
 

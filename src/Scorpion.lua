@@ -69,7 +69,9 @@ function Scorpion:update(dt)
 			_Game:playSound(self.config.sphereDestroySound, self:getPos())
 			self.destroyedSpheres = self.destroyedSpheres + 1
 			-- if this sphere is the last sphere, the scorpion gets rekt
-			if not sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 1 and sphereGroup.spheres[1].color == 0 then
+			local thisGroupKill = not sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 1 and sphereGroup.spheres[1].color == 0
+			local prevGroupKill = sphereGroup.prevGroup and not sphereGroup.nextGroup and #sphereGroup.spheres == 0 and #sphereGroup.prevGroup.spheres == 1 and sphereGroup.prevGroup.spheres[1].color == 0
+			if thisGroupKill or prevGroupKill then
 				self.destroyedChains = self.destroyedChains + 1
 			end
 		else
@@ -99,7 +101,7 @@ end
 ---Returns whether the Scorpion should be now destroyed.
 ---@return boolean
 function Scorpion:shouldExplode()
-	return self.offset <= 64
+	return self.offset <= 16
 	or (self.destroyedSpheres and self.destroyedSpheres == self.maxSpheres)
 	or (self.destroyedChains and self.destroyedChains == self.maxChains)
 end
