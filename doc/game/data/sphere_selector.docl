@@ -1,0 +1,5 @@
+- (object) - The root object.
+    - operations (array) - The list of operations that will be performed in order to end up with a list of spheres.
+        - (object) {type: The operation type.} - A single operation.
+            - "add" - Adds all spheres which match the condition to the list.
+                - condition (%boolean) - The condition expression, which is evaluated for each sphere separately. Must evaluate to `true` in order for a sphere to be added to the list.

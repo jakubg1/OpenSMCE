@@ -19,6 +19,7 @@ local Vec2 = require("src.Essentials.Vector2")
 -- Include class constructors
 local Level = require("src.Level")
 local ColorManager = require("src.ColorManager")
+local SphereSelectorResult = require("src.SphereSelectorResult")
 
 
 
@@ -102,11 +103,7 @@ end
 ---@param color2 integer The second color to be checked against.
 ---@return boolean
 function Session:colorsMatch(color1, color2)
-	local matches = _Game.configManager.spheres[color1].matches
-	for i, v in ipairs(matches) do
-		if v == color2 then return true end
-	end
-	return false
+	return _Utils.isValueInTable(_Game.configManager.spheres[color1].matches, color2)
 end
 
 
@@ -142,42 +139,6 @@ end
 
 
 
----Changes colors of these spheres, for which the provided function returns `true`, to a given color. Each sphere is checked separately.
----@param f function The function to be run for each sphere. Two parameters are allowed: `sphere` (Sphere) and `spherePos` (Vector2). If the function returns `true`, the sphere is affected by this function.
----@param color integer The new color of affected spheres.
----@param particle table? The particle effect to be used for each affected sphere.
-function Session:setColorFunction(f, color, particle)
-	-- we pass a function in the f variable
-	-- if f(param1, param2, ...) returns true, the sphere color is changed
-	for i, path in ipairs(self.level.map.paths) do
-		for j = #path.sphereChains, 1, -1 do
-			local sphereChain = path.sphereChains[j]
-			for k = #sphereChain.sphereGroups, 1, -1 do
-				local sphereGroup = sphereChain.sphereGroups[k]
-				for l = #sphereGroup.spheres, 1, -1 do
-					local sphere = sphereGroup.spheres[l]
-					local spherePos = sphereGroup:getSpherePos(l)
-					if f(sphere, spherePos) and sphere.color ~= 0 then
-						sphere:changeColor(color, particle)
-					end
-				end
-			end
-		end
-	end
-end
-
-
-
----Destroys all spheres on the board.
-function Session:destroyAllSpheres()
-	self:destroyFunction(
-		function(sphere, spherePos) return true end,
-		self.level.shooter.pos + Vec2(0, -32)
-	)
-end
-
-
-
 ---Destroys a single sphere from the board.
 ---@param s Sphere The sphere to be destroyed.
 function Session:destroySingleSphere(s)
@@ -189,90 +150,27 @@ end
 
 
 
----Destroys all spheres of a given color.
----@param color integer The sphere color to be removed.
-function Session:destroyColor(color)
-	self:destroyFunction(
-		function(sphere, spherePos) return sphere.color == color end,
-		self.level.shooter.pos + Vec2(0, -32)
-	)
+---Selects spheres based on a provided Sphere Selector Config and destroys them, executing any provided Score Events in the process.
+---TODO: Move this to Level.lua, and at some point change the parameters from strings to actual objects.
+---@param sphereSelector string The Sphere Selector that will be used to select the spheres to be destroyed.
+---@param pos Vector2? The position used to calculate distances to spheres, and used in Floating Text position, unless `forceEventPosCalculation` is set.
+---@param scoreEvent string? The Score Event that will be executed once on the whole batch.
+---@param scoreEventPerSphere string? The Score Event that will be executed separately for each sphere.
+---@param forceEventPosCalculation boolean? If set, the `pos` argument will be ignored and a new position for the Score Event will be calculated anyways.
+function Session:destroySelector(sphereSelector, pos, scoreEvent, scoreEventPerSphere, forceEventPosCalculation)
+	SphereSelectorResult(_Game.resourceManager:getSphereSelectorConfig(sphereSelector), pos):destroy(scoreEvent and _Game.resourceManager:getScoreEventConfig(scoreEvent), scoreEventPerSphere and _Game.resourceManager:getScoreEventConfig(scoreEventPerSphere), forceEventPosCalculation)
 end
 
 
 
----Destroys all spheres that are closer than `radius` pixels to the `pos` position.
----@param pos Vector2 A position relative to which the spheres will be destroyed.
----@param radius number The range in pixels.
-function Session:destroyRadius(pos, radius)
-	self:destroyFunction(
-		function(sphere, spherePos) return (pos - spherePos):len() <= radius end,
-		pos
-	)
-end
-
-
-
----Destroys all spheres that are closer than `width` pixels to the `x` position on the X coordinate.
----@param x number An X coordinate relative to which the spheres will be destroyed.
----@param width number The range in pixels.
-function Session:destroyVertical(x, width)
-	self:destroyFunction(
-		function(sphere, spherePos) return math.abs(x - spherePos.x) <= width / 2 end,
-		self.level.shooter.pos + Vec2(0, -32)
-	)
-end
-
-
-
----Destroys all spheres that are closer than `radius` pixels to the `pos` position and match with a given color.
----@param pos Vector2 A position relative to which the spheres will be destroyed.
----@param radius number The range in pixels.
----@param color integer A color that any sphere must be matching with in order to destroy it.
-function Session:destroyRadiusColor(pos, radius, color)
-	self:destroyFunction(
-		function(sphere, spherePos) return (pos - spherePos):len() <= radius and self:colorsMatch(color, sphere.color) end,
-		pos
-	)
-end
-
-
-
----Destroys all spheres that are closer than `width` pixels to the `x` position on the X coordinate and match with a given color.
----@param x number An X coordinate relative to which the spheres will be destroyed.
----@param width number The range in pixels.
----@param color integer A color that any sphere must be matching with in order to destroy it.
-function Session:destroyVerticalColor(x, width, color)
-	self:destroyFunction(
-		function(sphere, spherePos) return math.abs(x - spherePos.x) <= width / 2 and self:colorsMatch(color, sphere.color) end,
-		self.level.shooter.pos + Vec2(0, -32)
-	)
-end
-
-
-
----Replaces the color of all spheres of a given color with another color.
----@param color1 integer The color to be changed from.
----@param color2 integer The new color of the affected spheres.
----@param particle table? A one-time particle packet to be used for each affected sphere.
-function Session:replaceColor(color1, color2, particle)
-	self:setColorFunction(
-		function(sphere, spherePos) return sphere.color == color1 end,
-		color2, particle
-	)
-end
-
-
-
----Replaces the color of all spheres within a given radius with another color, provided they match with a given sphere.
----@param pos Vector2 A position relative to which the spheres will be affected.
----@param radius number The range in pixels.
----@param color integer A color that any sphere must be matching with in order to destroy it.
----@param color2 integer A target color.
-function Session:replaceColorRadiusColor(pos, radius, color, color2)
-	self:setColorFunction(
-		function(sphere, spherePos) return (pos - spherePos):len() <= radius and self:colorsMatch(color, sphere.color) end,
-		color2
-	)
+---Selects spheres based on a provided Sphere Selector Config and changes their colors.
+---TODO: Move this to Level.lua, and at some point change the parameters from strings to actual objects.
+---@param sphereSelector string The Sphere Selector that will be used to select the spheres to be destroyed.
+---@param pos Vector2? The position used to calculate distances to spheres.
+---@param color integer The color that all selected spheres will be changed to.
+---@param particle table? A one-time Particle Effect that will be created at every affected sphere.
+function Session:replaceColorSelector(sphereSelector, pos, color, particle)
+	SphereSelectorResult(_Game.resourceManager:getSphereSelectorConfig(sphereSelector), pos):changeColor(color, particle)
 end
 
 

@@ -6,10 +6,8 @@
         "type": {
             "enum": [
                 "normal",
-                "destroySphere",
-                "fireball",
-                "colorCloud",
-                "replaceColor"
+                "destroySpheres",
+                "recolorSpheres"
             ]
         }
     },
@@ -45,28 +43,8 @@
             "if": {
                 "properties": {
                     "type": {
-                        "const": "destroySphere",
-                        "description": "If the sphere hits a matching sphere, both spheres get destroyed. Else, nothing happens and the sphere flies on until another sphere is hit."
-                    }
-                },
-                "required": [
-                    "type"
-                ]
-            },
-            "then": {
-                "properties": {
-                    "$schema": true,
-                    "type": true
-                },
-                "additionalProperties": false
-            }
-        },
-        {
-            "if": {
-                "properties": {
-                    "type": {
-                        "const": "fireball",
-                        "description": "The sphere gets destroyed and destroys the matching spheres around."
+                        "const": "destroySpheres",
+                        "description": "The sphere gets destroyed and destroys the spheres selected by the provided sphere selector."
                     }
                 },
                 "required": [
@@ -77,14 +55,21 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "range": {
-                        "type": "number",
-                        "description": "How close the spheres must be from the center in order to be destroyed, in pixels.",
-                        "exclusiveMinimum": 0.0
+                    "selector": {
+                        "$ref": "../_structures/SphereSelector.json",
+                        "description": "The Sphere Selector which will select the spheres to be destroyed."
+                    },
+                    "scoreEvent": {
+                        "$ref": "../_structures/ScoreEvent.json",
+                        "description": "A Score Event which will be executed once for the whole batch of spheres."
+                    },
+                    "scoreEventPerSphere": {
+                        "$ref": "../_structures/ScoreEvent.json",
+                        "description": "A Score Event which will be executed separately for each Sphere that is destroyed."
                     }
                 },
                 "required": [
-                    "range"
+                    "selector"
                 ],
                 "additionalProperties": false
             }
@@ -93,8 +78,8 @@
             "if": {
                 "properties": {
                     "type": {
-                        "const": "colorCloud",
-                        "description": "The sphere gets destroyed and changes the color of the matching spheres around."
+                        "const": "recolorSpheres",
+                        "description": "The sphere gets destroyed and changes the color of the spheres selected by the provided sphere selector."
                     }
                 },
                 "required": [
@@ -105,50 +90,21 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "range": {
-                        "type": "number",
-                        "description": "How close the spheres must be from the center in order to have their color changed, in pixels.",
-                        "exclusiveMinimum": 0.0
+                    "selector": {
+                        "$ref": "../_structures/SphereSelector.json",
+                        "description": "The Sphere Selector which will select the spheres of which the color will be changed."
                     },
                     "color": {
                         "type": "integer",
                         "description": "Which color the spheres will be changed to."
-                    }
-                },
-                "required": [
-                    "range",
-                    "color"
-                ],
-                "additionalProperties": false
-            }
-        },
-        {
-            "if": {
-                "properties": {
-                    "type": {
-                        "const": "replaceColor",
-                        "description": "The sphere gets destroyed and changes all spheres of a hit sphere's color to the specified color."
-                    }
-                },
-                "required": [
-                    "type"
-                ]
-            },
-            "then": {
-                "properties": {
-                    "$schema": true,
-                    "type": true,
+                    },
                     "particle": {
                         "$ref": "../_structures/Particle.json",
                         "description": "A one-time particle packet launched for all affected spheres."
-                    },
-                    "color": {
-                        "type": "integer",
-                        "description": "Which color the spheres will be changed to."
                     }
                 },
                 "required": [
-                    "particle",
+                    "selector",
                     "color"
                 ],
                 "additionalProperties": false

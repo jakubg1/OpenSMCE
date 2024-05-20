@@ -461,13 +461,8 @@ function Level:applyEffect(effect, pos)
 				sphereChain.speedOverrideTime = effect.time
 			end
 		end
-	elseif effect.type == "destroyAllSpheres" then
-		-- DIRTY: replace this with an appropriate call within this function
-		-- when Session class gets removed.
-		_Game.session:destroyAllSpheres()
-	elseif effect.type == "destroyColor" then
-		-- Same as above.
-		_Game.session:destroyColor(effect.color)
+	elseif effect.type == "destroySpheres" then
+		_Game.session:destroySelector(effect.selector, pos, effect.scoreEvent, effect.scoreEventPerSphere, true)
 	elseif effect.type == "spawnPathEntity" then
 		local path = self:getMostDangerousPath()
 		if path then

@@ -12,9 +12,10 @@
         - speedMultiplier (number) - A multiplier by which the nominal path speed will be multiplied.\nThe formula for the final speed is: `speedBase + (pathSpeed * speedMultiplier)`.
         - decceleration (number) - A sphere decceleration rate which will be applied alongside speed changes.
         - time (number) [>0] - The duration of the effect in seconds.
-    - "destroyAllSpheres" - Clears the board from all spheres.
-    - "destroyColor" - Destroys the spheres of a specified color.
-        - color (integer) - The color of spheres to be destroyed.
+    - "destroySpheres" - Destroys some spheres on the board.
+        - selector (SphereSelector) - The selector which will select the spheres to be destroyed.
+        - scoreEvent* (ScoreEvent) - The score event which will be executed for the entire batch.
+        - scoreEventPerSphere* (ScoreEvent) - The score event that will be executed per every sphere that is destroyed.
     - "spawnPathEntity" - Spawns a Path Entity on the path that has its spheres closest to the endpoint (the "most dangerous" path).
         - pathEntity (PathEntity) - The Path Entity to be spawned.
     - "lightningStorm" - Starts a lightning storm, spawning a given amount of strikes which destroy single spheres.

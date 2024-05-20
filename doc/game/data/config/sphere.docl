@@ -20,7 +20,7 @@
     - hitBehavior ($sphere_hit_behavior) - Defines how this sphere should behave when it hits a sphere train.
     - hitSound (SoundEvent) - A sound event launched when this sphere hits a sphere train.
     - hitSoundBad* (SoundEvent) - An optional sound event launched when this sphere hits a sphere train and doesn't match any neighboring spheres.
-    - type (string) - The sphere type.
+    - type* (string) - The sphere type.
         - "normal" - The sphere behaves like usual.
         - "stone" - The sphere can be destroyed by a nearby match.
     - matches (array) - A list of sphere type IDs (integers) this sphere type matches with.

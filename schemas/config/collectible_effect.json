@@ -9,8 +9,7 @@
                 "multiSphere",
                 "speedShot",
                 "speedOverride",
-                "destroyAllSpheres",
-                "destroyColor",
+                "destroySpheres",
                 "spawnPathEntity",
                 "lightningStorm",
                 "activateNet",
@@ -172,28 +171,8 @@
             "if": {
                 "properties": {
                     "type": {
-                        "const": "destroyAllSpheres",
-                        "description": "Clears the board from all spheres."
-                    }
-                },
-                "required": [
-                    "type"
-                ]
-            },
-            "then": {
-                "properties": {
-                    "$schema": true,
-                    "type": true
-                },
-                "additionalProperties": false
-            }
-        },
-        {
-            "if": {
-                "properties": {
-                    "type": {
-                        "const": "destroyColor",
-                        "description": "Destroys the spheres of a specified color."
+                        "const": "destroySpheres",
+                        "description": "Destroys some spheres on the board."
                     }
                 },
                 "required": [
@@ -204,13 +183,21 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "color": {
-                        "type": "integer",
-                        "description": "The color of spheres to be destroyed."
+                    "selector": {
+                        "$ref": "../_structures/SphereSelector.json",
+                        "description": "The selector which will select the spheres to be destroyed."
+                    },
+                    "scoreEvent": {
+                        "$ref": "../_structures/ScoreEvent.json",
+                        "description": "The score event which will be executed for the entire batch."
+                    },
+                    "scoreEventPerSphere": {
+                        "$ref": "../_structures/ScoreEvent.json",
+                        "description": "The score event that will be executed per every sphere that is destroyed."
                     }
                 },
                 "required": [
-                    "color"
+                    "selector"
                 ],
                 "additionalProperties": false
             }

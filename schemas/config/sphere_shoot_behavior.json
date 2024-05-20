@@ -6,7 +6,7 @@
         "type": {
             "enum": [
                 "normal",
-                "lightning"
+                "destroySpheres"
             ]
         }
     },
@@ -42,8 +42,8 @@
             "if": {
                 "properties": {
                     "type": {
-                        "const": "lightning",
-                        "description": "The sphere does not get launched and instead is destroyed immediately, destroying nearby matching spheres in a straight vertical line."
+                        "const": "destroySpheres",
+                        "description": "The sphere does not get launched and instead is destroyed immediately, destroying the spheres selected by the provided sphere selector."
                     }
                 },
                 "required": [
@@ -54,14 +54,21 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "range": {
-                        "type": "number",
-                        "description": "How close the spheres must be from the center in order to be destroyed, in pixels.",
-                        "exclusiveMinimum": 0.0
+                    "selector": {
+                        "$ref": "../_structures/SphereSelector.json",
+                        "description": "The Sphere Selector which will select the spheres to be destroyed."
+                    },
+                    "scoreEvent": {
+                        "$ref": "../_structures/ScoreEvent.json",
+                        "description": "A Score Event which will be executed once for the whole batch of spheres."
+                    },
+                    "scoreEventPerSphere": {
+                        "$ref": "../_structures/ScoreEvent.json",
+                        "description": "A Score Event which will be executed separately for each Sphere that is destroyed."
                     }
                 },
                 "required": [
-                    "range"
+                    "selector"
                 ],
                 "additionalProperties": false
             }

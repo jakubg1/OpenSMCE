@@ -1,0 +1,66 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "operations": {
+            "type": "array",
+            "description": "The list of operations that will be performed in order to end up with a list of spheres.",
+            "items": {
+                "type": "object",
+                "description": "A single operation.",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "add"
+                        ]
+                    }
+                },
+                "allOf": [
+                    {
+                        "properties": {
+                            "type": {
+                                "description": "The operation type."
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "add",
+                                    "description": "Adds all spheres which match the condition to the list."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "condition": {
+                                    "type": "boolean",
+                                    "description": "The condition expression, which is evaluated for each sphere separately. Must evaluate to true in order for a sphere to be added to the list.",
+                                    "markdownDescription": "The condition expression, which is evaluated for each sphere separately. Must evaluate to `true` in order for a sphere to be added to the list."
+                                }
+                            },
+                            "required": [
+                                "condition"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                ],
+                "required": [
+                    "type"
+                ]
+            }
+        }
+    },
+    "required": [
+        "operations"
+    ],
+    "additionalProperties": false
+}

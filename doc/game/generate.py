@@ -646,7 +646,8 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 						if "children" in child:
 							child_children += child["children"]
 						child_block["then"] = docld_to_schema({"type": "object", "children": child_children}, is_root, structures_path)
-						del child_block["then"]["$schema"]
+						if "$schema" in child_block["then"]:
+							del child_block["then"]["$schema"]
 						del child_block["then"]["type"]
 						# Add prepared blocks.
 						out["allOf"].append(child_block)

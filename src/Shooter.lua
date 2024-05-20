@@ -313,10 +313,10 @@ function Shooter:shoot()
     end
 
     local sphereConfig = self:getSphereConfig()
-    if sphereConfig.shootBehavior.type == "lightning" then
+    if sphereConfig.shootBehavior.type == "destroySpheres" then
         -- lightning spheres are not shot, they're deployed instantly
         _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos())
-        _Game.session:destroyVerticalColor(self.pos.x, sphereConfig.shootBehavior.range, self.color)
+        _Game.session:destroySelector(sphereConfig.shootBehavior.selector, self.pos, sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
     else
         _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed())
         self.sphereEntity = nil

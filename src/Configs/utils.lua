@@ -87,6 +87,17 @@ function utils.parseExprIntegerOpt(data, path, field)
 end
 
 ---@return Expression
+function utils.parseExprBoolean(data, path, field)
+	assert(data, string.format("%s: field %s is missing (integer expression expected)", path, field))
+	return Expression(data)
+end
+
+---@return Expression?
+function utils.parseExprBooleanOpt(data, path, field)
+	return data and Expression(data)
+end
+
+---@return Expression
 function utils.parseExprString(data, path, field)
 	assert(data, string.format("%s: field %s is missing (string expression expected)", path, field))
 	return Expression(data)

@@ -139,7 +139,6 @@
         "shootSound",
         "hitBehavior",
         "hitSound",
-        "type",
         "matches",
         "matchFont"
     ],

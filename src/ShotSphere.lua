@@ -54,11 +54,15 @@ function ShotSphere:update(dt)
 		-- increment the timer
 		self.hitTime = self.hitTime + dt
 		-- if the timer expired, destroy the entity and add the ball to the chain
-		if self.hitTime >= self.hitTimeMax then self:destroy() end
+		if self.hitTime >= self.hitTimeMax then
+			self:destroy(true)
+		end
 	else
 		-- move
 		self.steps = self.steps + self.speed * dt / self.PIXELS_PER_STEP
-		while self.steps > 0 and not self.hitSphere and not self.delQueue do self:moveStep() end
+		while self.steps > 0 and not self.hitSphere and not self.delQueue do
+			self:moveStep()
+		end
 	end
 end
 
@@ -98,30 +102,21 @@ function ShotSphere:moveStep()
 		else
 			self.hitSphere = nearestSphere
 			local sphereConfig = _Game.configManager.spheres[self.color]
-			local hitColor = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID].color
+			local hitSphere = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID]
 			local badShot = false
 			local shotCancelled = false
-			if sphereConfig.hitBehavior.type == "destroySphere" then
-				if _Game.session:colorsMatch(self.color, hitColor) then
-					_Game.session:destroySingleSphere(self.hitSphere.sphere)
+			_Vars:setC("hitSphere", "object", hitSphere)
+			_Vars:setC("hitSphere", "color", hitSphere.color)
+			if sphereConfig.hitBehavior.type == "destroySpheres" then
+				if _Game.session:colorsMatch(self.color, hitSphere.color) then
+					_Game.session:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
 					self:destroy()
-					_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 				else
 					shotCancelled = true
 				end
-			elseif sphereConfig.hitBehavior.type == "fireball" then
-				_Game.session:destroyRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color)
+			elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
+				_Game.session:replaceColorSelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
 				self:destroy()
-				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
-			elseif sphereConfig.hitBehavior.type == "colorCloud" then
-				_Game.session:replaceColorRadiusColor(self.pos, sphereConfig.hitBehavior.range, self.color, sphereConfig.hitBehavior.color)
-				self:destroy()
-				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
-			elseif sphereConfig.hitBehavior.type == "replaceColor" then
-				self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
-				_Game.session:replaceColor(hitColor, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
-				self:destroy()
-				_Game:spawnParticle(sphereConfig.destroyParticle, self.pos)
 			else
 				if self.hitSphere.half then
 					self.hitSphere.sphereID = self.hitSphere.sphereID + 1
@@ -144,6 +139,7 @@ function ShotSphere:moveStep()
 				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects, self:getGapSizeList())
 				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 			end
+			_Vars:unset("hitSphere")
 			if shotCancelled then
 				self.hitSphere = nil -- avoid deleting this time
 			else
@@ -157,7 +153,7 @@ function ShotSphere:moveStep()
 
 	-- delete if outside of the board
 	if self:isOutsideBoard() then
-		self:destroy()
+		self:destroy(true)
 		_Game.session.level.combo = 0
 	end
 end
@@ -211,12 +207,14 @@ end
 
 
 ---Deinitializates itself, destroys the associated sphere entity and allows the shooter to shoot again.
-function ShotSphere:destroy()
+---@param silent boolean? If set, the sphere will not emit any particles.
+function ShotSphere:destroy(silent)
 	if self.delQueue then
 		return
 	end
 	if self.sphereEntity then
-		self.sphereEntity:destroy(false)
+		self.sphereEntity:setPos(self:getDrawPos())
+		self.sphereEntity:destroy(not silent)
 	end
 	self.delQueue = true
 end

@@ -90,6 +90,7 @@ end
 
 
 ---Evaluates an Expression and caches it, or evaluates an already cached Expression. Returns the result.
+---TODO: Remove this once we move to Config Classes.
 ---@param expression string The expression string.
 ---@return number|string|Vector2
 function ExpressionVariables:evaluateExpression(expression)
@@ -107,6 +108,23 @@ function ExpressionVariables:evaluateExpression(expression)
     local e = Expression(actualExpression, true)
     self.expressionCache[expression] = e
     return e:evaluate()
+end
+
+
+
+---A debug function which prints all the variables that are currently available for Expressions.
+function ExpressionVariables:printContents()
+    print("")
+    for key, value in pairs(self.data) do
+        if type(value) == "table" then
+            print(string.format("[%s]", key))
+            for subkey, subvalue in pairs(value) do
+                print(string.format(" |--- %s.%s = %s", key, subkey, subvalue))
+            end
+        else
+            print(string.format("%s = %s", key, value))
+        end
+    end
 end
 
 

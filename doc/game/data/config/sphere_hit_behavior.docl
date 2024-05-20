@@ -1,11 +1,10 @@
 - (object) {type: A sphere hit behavior type.} - A sphere hit behavior.
     - "normal" - The sphere gets appended to the sphere train where it landed.
-    - "destroySphere" - If the sphere hits a matching sphere, both spheres get destroyed. Else, nothing happens and the sphere flies on until another sphere is hit.
-    - "fireball" - The sphere gets destroyed and destroys the matching spheres around.
-        - range (number) [>0] - How close the spheres must be from the center in order to be destroyed, in pixels.
-    - "colorCloud" - The sphere gets destroyed and changes the color of the matching spheres around.
-        - range (number) [>0] - How close the spheres must be from the center in order to have their color changed, in pixels.
+    - "destroySpheres" - The sphere gets destroyed and destroys the spheres selected by the provided sphere selector.
+        - selector (SphereSelector) - The Sphere Selector which will select the spheres to be destroyed.
+        - scoreEvent* (ScoreEvent) - A Score Event which will be executed once for the whole batch of spheres.
+        - scoreEventPerSphere* (ScoreEvent) - A Score Event which will be executed separately for each Sphere that is destroyed.
+    - "recolorSpheres" - The sphere gets destroyed and changes the color of the spheres selected by the provided sphere selector.
+        - selector (SphereSelector) - The Sphere Selector which will select the spheres of which the color will be changed.
         - color (integer) - Which color the spheres will be changed to.
-    - "replaceColor" - The sphere gets destroyed and changes all spheres of a hit sphere's color to the specified color.
-        - particle (Particle) - A one-time particle packet launched for all affected spheres.
-        - color (integer) - Which color the spheres will be changed to.
+        - particle* (Particle) - A one-time particle packet launched for all affected spheres.
