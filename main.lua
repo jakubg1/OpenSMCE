@@ -114,9 +114,26 @@ function love.load()
 	_Debug = Debug()
 	_EngineSettings = Settings("settings.json")
 	_DiscordRPC = DiscordRichPresence()
+
+	-- Parse commandline arguments.
+	local parsedArgs = {}
+	local currentArg = nil
+	for i, arg in ipairs(args) do
+		if _Utils.strStartsWith(arg, "-") then
+			currentArg = arg:sub(2)
+			parsedArgs[currentArg] = true
+		elseif currentArg then
+			parsedArgs[currentArg] = arg
+			currentArg = nil
+		end
+	end
 	
     -- If autoload.txt exists, load the game name from there
     local autoload = _Utils.loadFile("autoload.txt") or nil
+	-- Overwrite autoload if a -g command is used.
+	if parsedArgs.g then
+		autoload = parsedArgs.g
+	end
 	if autoload then
         _LoadGame(autoload)
     else
@@ -129,7 +146,9 @@ function love.update(dt)
 	_Debug:profUpdateStart()
 
 	_MousePos = _PosFromScreen(Vec2(love.mouse.getPosition()))
-	if _Game then _Game:update(dt * _TimeScale) end
+	if _Game then
+		_Game:update(dt * _TimeScale)
+	end
 
 	_Log:update(dt)
 	_Debug:update(dt)
@@ -146,7 +165,9 @@ function love.draw()
 	--dbg:profDrawStart()
 
 	-- Main
-	if _Game then _Game:draw() end
+	if _Game then
+		_Game:draw()
+	end
 
 	-- Tests
 	_Debug:draw()
