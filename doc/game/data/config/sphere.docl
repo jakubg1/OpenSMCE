@@ -25,4 +25,6 @@
         - "stone" - The sphere can be destroyed by a nearby match.
     - matches (array) - A list of sphere type IDs (integers) this sphere type matches with.
         - (integer) - A single sphere ID.
+    - doesNotCollideWith* (array) - A list of sphere type IDs (integers) this sphere will phase through as a shot entity.
+        - (integer) - A single sphere ID.
     - matchFont (Font) - A font used to display a floating text when this sphere gives points.

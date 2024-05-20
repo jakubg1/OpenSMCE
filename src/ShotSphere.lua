@@ -107,37 +107,37 @@ function ShotSphere:moveStep()
 			local shotCancelled = false
 			_Vars:setC("hitSphere", "object", hitSphere)
 			_Vars:setC("hitSphere", "color", hitSphere.color)
-			if sphereConfig.hitBehavior.type == "destroySpheres" then
-				if _Game.session:colorsMatch(self.color, hitSphere.color) then
+			if not sphereConfig.doesNotCollideWith or not _Utils.isValueInTable(sphereConfig.doesNotCollideWith, hitSphere.color) then
+				if sphereConfig.hitBehavior.type == "destroySpheres" then
 					_Game.session:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
 					self:destroy()
+				elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
+					_Game.session:replaceColorSelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
+					self:destroy()
 				else
-					shotCancelled = true
+					if self.hitSphere.half then
+						self.hitSphere.sphereID = self.hitSphere.sphereID + 1
+					end
+					self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
+					-- get the desired sphere position
+					local p
+					if self.hitSphere.sphereID <= #self.hitSphere.sphereGroup.spheres then
+						-- the inserted ball is NOT at the end of the group
+						p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
+					else
+						-- the inserted ball IS at the end of the group
+						local o = self.hitSphere.sphereGroup:getLastSphereOffset() + (self.size + self.hitSphere.sphere.size) / 2
+						p = self.hitSphere.path:getPos(o)
+					end
+					-- calculate length from the current position
+					local d = (self.pos - p):len()
+					-- calculate time
+					self.hitTimeMax = d / self.speed * 5
+					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects, self:getGapSizeList())
+					badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 				end
-			elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
-				_Game.session:replaceColorSelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
-				self:destroy()
 			else
-				if self.hitSphere.half then
-					self.hitSphere.sphereID = self.hitSphere.sphereID + 1
-				end
-				self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
-				-- get the desired sphere position
-				local p
-				if self.hitSphere.sphereID <= #self.hitSphere.sphereGroup.spheres then
-					-- the inserted ball is NOT at the end of the group
-					p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
-				else
-					-- the inserted ball IS at the end of the group
-					local o = self.hitSphere.sphereGroup:getLastSphereOffset() + (self.size + self.hitSphere.sphere.size) / 2
-					p = self.hitSphere.path:getPos(o)
-				end
-				-- calculate length from the current position
-				local d = (self.pos - p):len()
-				-- calculate time
-				self.hitTimeMax = d / self.speed * 5
-				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects, self:getGapSizeList())
-				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
+				shotCancelled = true
 			end
 			_Vars:unset("hitSphere")
 			if shotCancelled then

@@ -125,6 +125,14 @@
                 "description": "A single sphere ID."
             }
         },
+        "doesNotCollideWith": {
+            "type": "array",
+            "description": "A list of sphere type IDs (integers) this sphere will phase through as a shot entity.",
+            "items": {
+                "type": "integer",
+                "description": "A single sphere ID."
+            }
+        },
         "matchFont": {
             "$ref": "../_structures/Font.json",
             "description": "A font used to display a floating text when this sphere gives points."
