@@ -7,6 +7,7 @@
             "enum": [
                 "replaceSphere",
                 "multiSphere",
+                "removeMultiSphere",
                 "speedShot",
                 "speedOverride",
                 "destroySpheres",
@@ -86,6 +87,26 @@
                     "color",
                     "count"
                 ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "removeMultiSphere",
+                        "description": "Despawns a previously given multi-sphere effect."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true
+                },
                 "additionalProperties": false
             }
         },

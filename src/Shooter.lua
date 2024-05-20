@@ -370,6 +370,20 @@ end
 
 
 
+---Deactivates the multi-sphere mode and removes all already existing spheres of that type from the shooter.
+function Shooter:removeMultiSphere()
+    if self.color == self.multiColorColor then
+        self:setColor(0)
+    end
+    if self.nextColor == self.multiColorColor then
+        self:setNextColor(0)
+    end
+    self.multiColorColor = nil
+    self.multiColorCount = 0
+end
+
+
+
 
 
 ---Drawing callback function.
