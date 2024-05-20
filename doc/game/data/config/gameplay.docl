@@ -33,3 +33,8 @@
     - net* (object) - Defines the Net.
         - particle (Particle) - A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires.
         - posY (integer) - The Y position of the Net.
+    - lightningStorm* (object) - Defines the Lightning Storm.
+        - delay ($number) [>0] - The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike.
+        - particle (Particle) - A one-time particle effect which will be spawned on the sphere that's been destroyed.
+        - sound (SoundEvent) - A sound event to be played when a sphere is destroyed.
+        - scoreEvent (ScoreEvent) - A Score Event executed on the sphere that's been destroyed.

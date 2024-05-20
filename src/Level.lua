@@ -13,6 +13,8 @@ local ShotSphere = require("src.ShotSphere")
 local Collectible = require("src.Collectible")
 local FloatingText = require("src.FloatingText")
 
+local Expression = require("src.Expression")
+
 
 
 ---Constructs a new Level.
@@ -47,6 +49,8 @@ function Level:new(data)
 	self.warmupLoopName = data.warmupLoopSound or "sound_events/spheres_roll.json"
 	self.failSoundName = data.failSound or "sound_events/foul.json"
 	self.failLoopName = data.failLoopSound or "sound_events/spheres_roll.json"
+
+	self.lightningStormDelay = _Game.configManager.gameplay.lightningStorm and Expression(_Game.configManager.gameplay.lightningStorm.delay)
 
 	self.levelSequence = {
 		{type = "pathEntity", pathEntity = "path_entities/intro_trail.json", separatePaths = false, launchDelay = 0, waitUntilFinished = true, skippable = false},
@@ -147,7 +151,7 @@ function Level:updateLogic(dt)
 				self:spawnLightningStormPiece()
 				storm.count = storm.count - 1
 				if storm.count > 0 then
-					storm.time = storm.time + math.random() * 0.1 + 0.25
+					storm.time = storm.time + self.lightningStormDelay:evaluate()
 				end
 			end
 		end
@@ -501,10 +505,11 @@ function Level:spawnLightningStormPiece()
 
 	-- spawn a particle, add points etc
 	local pos = sphere:getPos()
-	self:grantScore(100)
-	self:spawnFloatingText(_NumStr(100), pos, _Game.configManager.spheres[sphere.color].matchFont)
-	_Game:spawnParticle("particles/lightning_beam.json", pos)
-	_Game:playSound("sound_events/lightning_storm_destroy.json")
+	_Vars:setC("sphere", "color", sphere.color)
+	self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(_Game.configManager.gameplay.lightningStorm.scoreEvent), pos)
+	_Game:spawnParticle(_Game.configManager.gameplay.lightningStorm.particle, pos)
+	_Game:playSound(_Game.configManager.gameplay.lightningStorm.sound)
+	_Vars:unset("sphere")
 	-- destroy it
 	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
 end

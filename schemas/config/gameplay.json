@@ -194,6 +194,35 @@
                 "posY"
             ],
             "additionalProperties": false
+        },
+        "lightningStorm": {
+            "type": "object",
+            "description": "Defines the Lightning Storm.",
+            "properties": {
+                "delay": {
+                    "$ref": "number.json",
+                    "description": "The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike."
+                },
+                "particle": {
+                    "$ref": "../_structures/Particle.json",
+                    "description": "A one-time particle effect which will be spawned on the sphere that's been destroyed."
+                },
+                "sound": {
+                    "$ref": "../_structures/SoundEvent.json",
+                    "description": "A sound event to be played when a sphere is destroyed."
+                },
+                "scoreEvent": {
+                    "$ref": "../_structures/ScoreEvent.json",
+                    "description": "A Score Event executed on the sphere that's been destroyed."
+                }
+            },
+            "required": [
+                "delay",
+                "particle",
+                "sound",
+                "scoreEvent"
+            ],
+            "additionalProperties": false
         }
     },
     "required": [
