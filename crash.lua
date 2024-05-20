@@ -9,7 +9,13 @@ local DT = 0.1
 
 
 local function error_printer(msg, layer)
-	_Log:printt("crash", (debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
+	local crash_trace = (debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", ""))
+
+	if not _Log then
+		print(crash_trace)
+	else
+		_Log:printt("crash", crash_trace)
+	end
 end
  
 function love.errorhandler(msg)
