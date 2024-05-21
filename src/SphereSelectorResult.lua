@@ -12,7 +12,6 @@ local class = require "com.class"
 local SphereSelectorResult = class:derive("SphereSelectorResult")
 
 local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
 
 
 
@@ -51,8 +50,6 @@ function SphereSelectorResult:new(config, pos)
 			end
 		end
 	end
-
-	print("Matched " .. tostring(#self.spheres) .. " spheres")
 end
 
 
@@ -65,12 +62,15 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, forceEven
 	if scoreEvent then
 		local eventPos = self.pos
 		if not eventPos or forceEventPosCalculation then
-			eventPos = Vec2()
-			-- Average the positions of all spheres.
+			local minPos = Vec2()
+			local maxPos = Vec2()
+			-- The event position will be calculated by taking the center of the smallest box surrounding all spheres.
 			for i, sphere in ipairs(self.spheres) do
-				eventPos = eventPos + sphere.sphere:getPos()
+				local spherePos = sphere.sphere:getPos()
+				minPos = minPos:min(spherePos)
+				maxPos = maxPos:max(spherePos)
 			end
-			eventPos = eventPos / math.max(#self.spheres, 1)
+			eventPos = (minPos + maxPos) / 2
 		end
 		_Vars:setC("selector", "sphereCount", #self.spheres)
 		_Game.session.level:executeScoreEvent(scoreEvent, eventPos)
