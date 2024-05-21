@@ -376,7 +376,7 @@ end
 function Level:executeScoreEvent(scoreEvent, pos)
 	local score = scoreEvent.score:evaluate()
 	if _Game:getCurrentProfile().ultimatelySatisfyingMode then
-		score = math.floor(score * (1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.2))
+		score = math.floor(score * (1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.2) + 0.5)
 	end
 	_Vars:setC("event", "score", score)
 	self:grantScore(score)

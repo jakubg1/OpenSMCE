@@ -62,15 +62,14 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, forceEven
 	if scoreEvent then
 		local eventPos = self.pos
 		if not eventPos or forceEventPosCalculation then
-			local minPos = Vec2()
-			local maxPos = Vec2()
+			local minPos, maxPos
 			-- The event position will be calculated by taking the center of the smallest box surrounding all spheres.
 			for i, sphere in ipairs(self.spheres) do
 				local spherePos = sphere.sphere:getPos()
-				minPos = minPos:min(spherePos)
-				maxPos = maxPos:max(spherePos)
+				minPos = minPos and minPos:min(spherePos) or spherePos
+				maxPos = maxPos and maxPos:max(spherePos) or spherePos
 			end
-			eventPos = (minPos + maxPos) / 2
+			eventPos = minPos and ((minPos + maxPos) / 2) or Vec2()
 		end
 		_Vars:setC("selector", "sphereCount", #self.spheres)
 		_Game.session.level:executeScoreEvent(scoreEvent, eventPos)
