@@ -10,6 +10,7 @@ local Profiler = require("src.Kernel.Profiler")
 local Console = require("src.Kernel.Console")
 
 local Expression = require("src.Expression")
+local SphereSelectorResult = require("src.SphereSelectorResult")
 
 
 
@@ -491,7 +492,7 @@ function Debug:runCommand(command)
 		self.e = not self.e
 		self.console:print("Background cheat mode toggled")
 	elseif command == "n" then
-		_Game.session:destroyFunction(function(sphere, spherePos) return true end, Vec2())
+		SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
 		self.console:print("Nuked!")
 	elseif command == "ppp" then
 		_Game.session.level:applyEffect({type = "spawnPathEntity", pathEntity = "path_entities/scorpion.json"})
