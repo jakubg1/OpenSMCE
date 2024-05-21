@@ -58,6 +58,9 @@ end
 
 
 ---Destroys all of the spheres contained in this Result.
+---@param scoreEvent ScoreEventConfig? The score event to be executed for all spheres together.
+---@param scoreEventPerSphere ScoreEventConfig? The score event to be executed for each sphere separately.
+---@param forceEventPosCalculation boolean? If set, even if this Sphere Selector Result has a position, the Score Event position will be calculated by averaging all the spheres' positions.
 function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, forceEventPosCalculation)
 	if scoreEvent then
 		local eventPos = self.pos
