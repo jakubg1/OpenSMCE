@@ -171,7 +171,7 @@ function Level:updateLogic(dt)
 		self.netTime = self.netTime - dt
 		if self.netTime <= 0 then
 			self.netTime = 0
-			self:destroyNetParticle()
+			self:destroyNet()
 		end
 	end
 
@@ -481,7 +481,7 @@ function Level:applyEffect(effect, pos)
 		table.insert(self.lightningStorms, {count = effect.count, time = 0})
 	elseif effect.type == "activateNet" then
 		self.netTime = effect.time
-		self:spawnNetParticle()
+		self:spawnNet()
 	elseif effect.type == "changeGameSpeed" then
 		self.gameSpeed = effect.speed
 		self.gameSpeedTime = effect.duration
@@ -795,7 +795,7 @@ function Level:jumpToSequenceStep(stepN)
 		self.levelSequenceVars = {pathID = 1, delay = 0}
 		self.shooter:empty()
 		self.netTime = 0
-		self:destroyNetParticle()
+		self:destroyNet()
 	elseif step.type == "gameplay" then
 		self.levelSequenceVars = {warmupTime = 0}
 		if self.warmupLoopName then
@@ -864,7 +864,7 @@ function Level:destroy()
 		collectible:destroy()
 	end
 	self.map:destroy()
-	self:destroyNetParticle()
+	self:destroyNet()
 
 	if self.ambientMusic then
 		-- Stop any ambient music.
@@ -917,7 +917,7 @@ function Level:reset()
 	self.gameSpeedTime = 0
 	self.lightningStorms = {}
 	self.netTime = 0
-	self:destroyNetParticle()
+	self:destroyNet()
 
 	self.shooter.speedShotTime = 0
 	_Game.session.colorManager:reset()
@@ -1000,24 +1000,30 @@ end
 
 
 
----Spawns the Net particle, if it doesn't exist yet.
-function Level:spawnNetParticle()
-	if self.netParticle then
-		return
-	end
+---Spawns the Net particle and sound, if it doesn't exist yet.
+function Level:spawnNet()
 	local netConfig = _Game.configManager.gameplay.net
-	self.netParticle = _Game:spawnParticle(netConfig.particle, Vec2(_Game:getNativeResolution().x / 2, netConfig.posY))
+	local pos = Vec2(_Game:getNativeResolution().x / 2, netConfig.posY)
+	if not self.netParticle then
+		self.netParticle = _Game:spawnParticle(netConfig.particle, pos)
+	end
+	if not self.netSound then
+		self.netSound = _Game:playSound(netConfig.sound, pos)
+	end
 end
 
 
 
----Despawns the Net particle, if it exists.
-function Level:destroyNetParticle()
-	if not self.netParticle then
-		return
+---Despawns the Net particle and sound, if it exists.
+function Level:destroyNet()
+	if self.netParticle then
+		self.netParticle:destroy()
+		self.netParticle = nil
 	end
-	self.netParticle:destroy()
-	self.netParticle = nil
+	if self.netSound then
+		self.netSound:stop()
+		self.netSound = nil
+	end
 end
 
 
@@ -1122,7 +1128,7 @@ function Level:deserialize(t)
 	self.lightningStorms = t.lightningStorms
 	self.netTime = t.netTime
 	if self.netTime > 0 then
-		self:spawnNetParticle()
+		self:spawnNet()
 	end
 
 	-- Pause

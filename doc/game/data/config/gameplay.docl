@@ -32,6 +32,7 @@
         - permitLongMatches (boolean) - If `true`, the spheres will try to make the biggest clump possible before matching together.
     - net* (object) - Defines the Net.
         - particle (Particle) - A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires.
+        - sound (SoundEvent) - A looping sound event that will be played when the Net is currently active.
         - posY (integer) - The Y position of the Net.
     - lightningStorm* (object) - Defines the Lightning Storm.
         - delay ($number) [>0] - The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike.

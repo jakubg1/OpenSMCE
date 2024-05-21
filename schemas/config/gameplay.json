@@ -184,6 +184,10 @@
                     "$ref": "../_structures/Particle.json",
                     "description": "A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires."
                 },
+                "sound": {
+                    "$ref": "../_structures/SoundEvent.json",
+                    "description": "A looping sound event that will be played when the Net is currently active."
+                },
                 "posY": {
                     "type": "integer",
                     "description": "The Y position of the Net."
@@ -191,6 +195,7 @@
             },
             "required": [
                 "particle",
+                "sound",
                 "posY"
             ],
             "additionalProperties": false
