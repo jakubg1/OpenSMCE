@@ -300,11 +300,7 @@ end
 ---Adds a given amount of points to the player's current score.
 ---@param score integer The score to be added.
 function Profile:grantScore(score)
-	if self.ultimatelySatisfyingMode then
-		self.session.score = self.session.score + score * math.floor(1 + (self:getUSMNumber() - 1) * 0.2)
-	else
-		self.session.score = self.session.score + score
-	end
+	self.session.score = self.session.score + score
 end
 
 
