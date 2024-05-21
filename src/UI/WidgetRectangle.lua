@@ -13,6 +13,7 @@ function UIWidgetRectangle:new(parent, size, color)
 	
 	self.size = _ParseVec2(size)
 	self.color = _ParseColor(color)
+	self.debugColor = {1.0, 1.0, 0.0}
 end
 
 

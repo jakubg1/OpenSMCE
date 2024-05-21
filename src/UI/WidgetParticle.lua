@@ -13,6 +13,7 @@ function UIWidgetParticle:new(parent, path)
 	self.path = path
 
 	self.packet = nil
+	self.debugColor = {0.0, 1.0, 1.0}
 end
 
 function UIWidgetParticle:update(dt)

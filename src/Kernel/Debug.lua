@@ -65,6 +65,11 @@ function Debug:new()
 	self.fpsDebugVisible = false
 	self.sphereDebugVisible = false
 	self.sphereDebugVisible2 = false
+
+	-- debug text positions
+	self.uiWidgetDebugCount = 0
+	self.uiMouse = Vec2()
+	self.uiMousePressed = false
 end
 
 
@@ -87,11 +92,12 @@ function Debug:draw()
 
 	-- UI tree
 	if self.uiDebugVisible and _Game.sessionExists then
-		love.graphics.setColor(0, 0, 0, 0.5)
-		love.graphics.rectangle("fill", 0, 0, 460, 600)
+		love.graphics.setColor(0, 0, 0, 0.7)
+		love.graphics.rectangle("fill", 0, 0, 460, love.graphics.getHeight())
 		love.graphics.setColor(1, 1, 1)
+		self.uiWidgetDebugCount = 0
 		for i, line in ipairs(self:getUITreeText()) do
-			love.graphics.print(line[1], 10, 10 + i * 15 + self.uiDebugOffset)
+			love.graphics.print({line[9],line[1]}, 20, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[2], 260, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[3], 270, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[4], 280, 10 + i * 15 + self.uiDebugOffset)
@@ -99,6 +105,24 @@ function Debug:draw()
 			love.graphics.print(line[6], 320, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[7], 340, 10 + i * 15 + self.uiDebugOffset)
 			love.graphics.print(line[8], 360, 10 + i * 15 + self.uiDebugOffset)
+		end
+
+		-- draw the scroll rectangle
+		local maxWidgets = (love.graphics.getHeight() / 15)
+		if self.uiWidgetDebugCount > maxWidgets then
+			local yy = -self.uiDebugOffset / ((self.uiWidgetDebugCount - maxWidgets) * 15) * (love.graphics.getHeight() - 30)
+			love.graphics.setColor(0, 1, 0)
+			love.graphics.rectangle("fill", 0, yy, 15, 30)
+			love.graphics.setColor(1, 1, 1)
+			love.graphics.line(15, 0, 15, love.graphics.getHeight())
+		end
+
+		-- if the mouse is in clicked state then move the rectangle here
+		if self.uiMousePressed then
+			if self.uiMouse.x < 15 then
+				local x, y = love.mouse.getPosition()
+				self.uiDebugOffset = -y * (((self.uiWidgetDebugCount - maxWidgets) * 15) / (love.graphics.getHeight() - 30))
+			end
 		end
 	end
 
@@ -119,8 +143,8 @@ function Debug:keypressed(key)
 		if key == "f7" then self.sphereDebugVisible2 = not self.sphereDebugVisible2 end
 		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
 		if key == "kp+" and self.profPage < #self.profPages then self.profPage = self.profPage + 1 end
-		if key == "," then self.uiDebugOffset = self.uiDebugOffset - 75 end
-		if key == "." then self.uiDebugOffset = self.uiDebugOffset + 75 end
+		if key == "pagedown" then self.uiDebugOffset = self.uiDebugOffset - 75 end
+		if key == "pageup" then self.uiDebugOffset = self.uiDebugOffset + 75 end
 	end
 
 	self.console:keypressed(key)
@@ -132,6 +156,24 @@ end
 
 function Debug:textinput(t)
 	self.console:textinput(t)
+end
+
+function Debug:mousepressed(x, y, button)
+	self.uiMouse = Vec2(x, y)
+	self.uiMousePressed = true
+end
+
+function Debug:mousereleased(x, y, button)
+	self.uiMouse = Vec2(x, y)
+	self.uiMousePressed = false
+end
+
+function Debug:wheelmoved(x, y)
+    if y > 0 then
+        self.uiDebugOffset = self.uiDebugOffset + 15
+    elseif y < 0 then
+        self.uiDebugOffset = self.uiDebugOffset - 15
+    end
 end
 
 
@@ -147,34 +189,36 @@ function Debug:getUITreeText(node, rowTable, indent)
 	indent = indent or 0
 	--if indent > 1 then return end
 
-	local name = node.name
-	for i = 1, indent do name = "    " .. name end
-	local visible = ""
-	local visible2 = ""
-	if not ui2 then
-		visible = node.visible and "X" or ""
-		visible2 = node:isVisible() and "V" or ""
-	end
-	local active = node:isActive() and "A" or ""
-	local alpha = tostring(math.floor(node.alpha * 10) / 10)
-	local alpha2
-	if ui2 then
-		alpha2 = tostring(math.floor(node:getGlobalAlpha() * 10) / 10)
-	else
-		alpha2 = tostring(math.floor(node:getAlpha() * 10) / 10)
-	end
-	local time = ""
-	if not ui2 then
-		time = node.time and tostring(math.floor(node.time * 100) / 100) or "-"
-	end
-	local pos = tostring(node.pos)
-	--if node:getVisible() then
-		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos})
-	--end
+	if node then
+		local name = node.name
+		for i = 1, indent do name = "    " .. name end
+		local visible = ""
+		local visible2 = ""
+		if not ui2 then
+			visible = node.visible and "X" or ""
+				visible2 = node:isVisible() and "V" or ""
+		end
+		local active = node:isActive() and "A" or ""
+		local alpha = tostring(math.floor(node.alpha * 10) / 10)
+		local alpha2
+		if ui2 then
+			alpha2 = tostring(math.floor(node:getGlobalAlpha() * 10) / 10)
+		else
+			alpha2 = tostring(math.floor(node:getAlpha() * 10) / 10)
+		end
+		local time = ""
+		if not ui2 then
+			time = node.time and tostring(math.floor(node.time * 100) / 100) or "-"
+		end
+		local pos = tostring(node.pos)
+		local color = node.debugColor or {1, 1, 1}
 
-	--if
-	for childN, child in pairs(node.children) do
-		self:getUITreeText(child, rowTable, indent + 1)
+		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color})
+		self.uiWidgetDebugCount = self.uiWidgetDebugCount + 1
+
+		for childN, child in pairs(node.children) do
+			self:getUITreeText(child, rowTable, indent + 1)
+		end
 	end
 
 	return rowTable

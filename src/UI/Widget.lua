@@ -26,7 +26,7 @@ function UIWidget:new(name, data, parent)
 	-- local in variables
 	-- global in methods
 	if type(data) == "string" then data = _Utils.loadJson(_ParsePath(data)) end
-
+	self.type = data.type or "none"
 	self.pos = _ParseVec2(data.pos)
 	self.layer = data.layer
 	self.alpha = data.alpha
@@ -63,6 +63,12 @@ function UIWidget:new(name, data, parent)
 		self.widget = UIWidgetParticle(self, data.path)
 	elseif data.type == "level" then
 		self.widget = UIWidgetLevel(self, data.path)
+	else
+		self.debugColor = {0.7, 0.7, 0.7}
+	end
+
+	if self.widget then
+		self.debugColor = self.widget.debugColor
 	end
 
 	self.parent = parent

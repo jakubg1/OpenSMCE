@@ -101,7 +101,7 @@ _DiscordRPC = nil
 
 -- Warning! If this function fails, it can cause a "failed to initialize filesystem: already initialized" error.
 -- I don't know why this happens yet.
-function love.load()
+function love.load(args)
 	--local s = loadFile("test.txt")
 	--print(s)
 	--print(jsonBeautify(s))
@@ -177,10 +177,16 @@ end
 
 function love.mousepressed(x, y, button)
 	if _Game then _Game:mousepressed(x, y, button) end
+	_Debug:mousepressed(x, y, button)
 end
 
 function love.mousereleased(x, y, button)
 	if _Game then _Game:mousereleased(x, y, button) end
+	_Debug:mousereleased(x, y, button)
+end
+
+function love.wheelmoved(x, y)
+	_Debug:wheelmoved(x, y)
 end
 
 function love.keypressed(key)

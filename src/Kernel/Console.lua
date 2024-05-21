@@ -102,7 +102,7 @@ function Console:draw()
 	if self.open then
 		local text = "> " .. self.command
 		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
-		_Debug:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x, a, true)
+		_Debug:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x, 1, true)
 	end
 	love.graphics.setFont(_FONT)
 end
