@@ -16,6 +16,7 @@ local ColorPalette = require("src.Essentials.ColorPalette")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
+local DifficultyConfig = require("src.Configs.Difficulty")
 local UI2AnimationConfig = require("src.Configs.UI2Animation")
 local UI2NodeConfig = require("src.Configs.UI2Node")
 local UI2SequenceConfig = require("src.Configs.UI2Sequence")
@@ -58,6 +59,7 @@ function ResourceManager:new()
 		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
 		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
 		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
+		difficulty = {extension = "json", constructor = DifficultyConfig, paramSet = 2},
 		map = {extension = "/"},
 		level = {extension = "json"},
 		ui2AnimationConfig = {extension = "json", constructor = UI2AnimationConfig, paramSet = 2},
@@ -83,6 +85,7 @@ function ResourceManager:new()
 		["score_event.json"] = "scoreEvent",
 		["path_entity.json"] = "pathEntity",
 		["sphere_selector.json"] = "sphereSelector",
+		["difficulty.json"] = "difficulty",
 		["config/level.json"] = "level",
 		["ui2/animation.json"] = "ui2AnimationConfig",
 		["ui2/node.json"] = "ui2NodeConfig",
@@ -201,6 +204,13 @@ end
 ---@return SphereSelectorConfig
 function ResourceManager:getSphereSelectorConfig(path)
 	return self:getAsset(path, "sphere selector")
+end
+
+---Retrieves a Difficulty Config by a given path.
+---@param path string The resource path.
+---@return DifficultyConfig
+function ResourceManager:getDifficultyConfig(path)
+	return self:getAsset(path, "difficulty")
 end
 
 ---Retrieves a UI Animation Config by a given path.

@@ -56,7 +56,7 @@ function UI2Manager:new()
 
         profileMGetNameOrder = function() return _Game.runtimeManager.profileManager.order end,
 
-        profileNewGame = function(checkpoint) _Game:getCurrentProfile():newGame(checkpoint) end,
+        profileNewGame = function(checkpoint, difficulty) _Game:getCurrentProfile():newGame(checkpoint, difficulty) end,
         profileDeleteGame = function() _Game:getCurrentProfile():deleteGame() end,
         profileLevelAdvance = function() _Game:getCurrentProfile():advanceLevel() end,
         profileHighscoreWrite = function() return _Game:getCurrentProfile():writeHighscore() end,

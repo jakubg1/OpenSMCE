@@ -13,6 +13,7 @@ local u = require("src.Configs.utils")
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function ScoreEventConfig:new(data, path)
     self.score = u.parseExprInteger(data.score, path, "score")
+    self.ignoreDifficultyMultiplier = u.parseBooleanOpt(data.ignoreDifficultyMultiplier, path, "ignoreDifficultyMultiplier")
     self.text = u.parseExprStringOpt(data.text, path, "text")
     self.font = u.parseFontOpt(data.font, path, "font")
 

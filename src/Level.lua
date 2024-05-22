@@ -370,8 +370,12 @@ function Level:executeScoreEvent(scoreEvent, pos)
 	if _Game:getCurrentProfile().ultimatelySatisfyingMode then
 		score = math.floor(score * (1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.2) + 0.5)
 	end
+	if not scoreEvent.ignoreDifficultyMultiplier then
+		score = score * _Game:getCurrentProfile():getDifficultyConfig().scoreMultiplier
+	end
 	_Vars:setC("event", "score", score)
 	self:grantScore(score)
+
 	local font = scoreEvent.font
 	if scoreEvent.fonts then
 		-- We pick one of the font options.
@@ -383,6 +387,7 @@ function Level:executeScoreEvent(scoreEvent, pos)
 		self:spawnFloatingText(text, pos, font)
 	end
 	_Vars:unset("event")
+
 	return score
 end
 

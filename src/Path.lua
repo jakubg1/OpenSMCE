@@ -418,9 +418,12 @@ end
 ---@param pixels number The path offset to be checked, in pixels.
 ---@return number
 function Path:getSpeed(pixels)
-	local satModeMult = 1
-	if _Game.satMode and _Game:getCurrentProfile().session then
-		satModeMult = 1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.05
+	local speedMultiplier = 1
+	if not self.map.isDummy and _Game:getCurrentProfile().session then
+		if _Game.satMode then
+			speedMultiplier = 1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.05
+		end
+		speedMultiplier = speedMultiplier * _Game:getCurrentProfile():getDifficultyConfig().speedMultiplier
 	end
 
 	local part = pixels / self.length
@@ -436,16 +439,16 @@ function Path:getSpeed(pixels)
 					local p2 = prevSpeed.transition.point2
 					t = _BzLerp(t, p1, p2)
 				end
-				return (prevSpeed.speed * (1 - t) + speed.speed * t) * satModeMult
+				return (prevSpeed.speed * (1 - t) + speed.speed * t) * speedMultiplier
 			end
 
 			-- at the exact position of node or before first node
-			return speed.speed * satModeMult
+			return speed.speed * speedMultiplier
 		end
 	end
 
 	-- after last node
-	return self.speeds[#self.speeds].speed * satModeMult
+	return self.speeds[#self.speeds].speed * speedMultiplier
 end
 
 

@@ -56,6 +56,14 @@ end
 
 
 
+---Returns the player's current difficulty config.
+---@return DifficultyConfig
+function Profile:getDifficultyConfig()
+	return _Game.resourceManager:getDifficultyConfig(self.session.difficulty)
+end
+
+
+
 -- Variables
 
 ---Sets the player's variable. Used to store various states per profile. They persist after reopening the game.
@@ -382,12 +390,13 @@ end
 
 ---Starts a new game for this player, starting from a specified checkpoint.
 ---@param checkpoint integer The checkpoint ID of the game's starting point.
-function Profile:newGame(checkpoint)
+---@param difficulty string The path to the difficulty resource which is going to be used as a difficulty for this game.
+function Profile:newGame(checkpoint, difficulty)
 	self.session = {}
 	self.session.lives = 2
 	self.session.coins = 0
 	self.session.score = 0
-	self.session.difficulty = 1
+	self.session.difficulty = difficulty
 
 	self.session.level = _Game.configManager.levelSet.checkpoints[checkpoint]
 	self.session.sublevel = 1

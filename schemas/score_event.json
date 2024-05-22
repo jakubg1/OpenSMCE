@@ -8,6 +8,11 @@
             "type": "integer",
             "description": "The score to be granted when this Score Event is fired."
         },
+        "ignoreDifficultyMultiplier": {
+            "type": "boolean",
+            "description": "Whether the score should NOT be multiplied by the player's difficulty multiplier. Defaults to false.",
+            "markdownDescription": "Whether the score should NOT be multiplied by the player's difficulty multiplier. Defaults to `false`."
+        },
         "text": {
             "type": "string",
             "description": "The text to be displayed when this Score Event is fired. The text will be displayed at a position of where the Score Event has been fired. By default, this is the raw score value."
