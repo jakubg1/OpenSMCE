@@ -141,7 +141,7 @@
                     },
                     "previewFirstShooterColor": {
                         "type": "boolean",
-                        "description": "Doesn't work for now."
+                        "description": "If set, the first sphere that will be available for shooting will be displayed in the shooter's reserve slot during the warmup time."
                     },
                     "onFail": {
                         "type": "integer",
@@ -155,8 +155,7 @@
                     }
                 },
                 "required": [
-                    "warmupTime",
-                    "previewFirstShooterColor"
+                    "warmupTime"
                 ],
                 "additionalProperties": false
             }

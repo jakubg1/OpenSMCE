@@ -10,7 +10,7 @@
         - skippable (boolean) - Doesn't work for now.
     - "gameplay" - The actual gameplay of a level.
         - warmupTime (number) [>=0] - The amount of time to wait after spawning the sphere trains until the control is given to the player.
-        - previewFirstShooterColor (boolean) - Doesn't work for now.
+        - previewFirstShooterColor* (boolean) - If set, the first sphere that will be available for shooting will be displayed in the shooter's reserve slot during the warmup time.
         - onFail* (integer) [>=1] - The level sequence index to jump to if the level is lost. If not specified, the sequence will move to the next step.
         - onWin* (integer) [>=1] - The level sequence index to jump to if the level is won (the target is reached and all spheres are destroyed). If not specified, the sequence will move to the next step.
     - "fail" - The spheres will rush to the endpoint.

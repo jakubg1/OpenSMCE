@@ -281,6 +281,13 @@ function Shooter:fill()
     end
 end
 
+---Fills only the reserve space in the shooter.
+function Shooter:fillReserve()
+    if self.nextColor == 0 then
+        self:setNextColor(self:getNextColor())
+    end
+end
+
 
 
 ---Returns whether the Shooter is active.

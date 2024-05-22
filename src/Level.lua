@@ -241,6 +241,9 @@ function Level:updateLogic(dt)
 	elseif step.type == "gameplay" then
 		self.time = self.time + dt
 		if self.levelSequenceVars.warmupTime then
+			if step.previewFirstShooterColor then
+				self.shooter:fillReserve()
+			end
 			self.levelSequenceVars.warmupTime = self.levelSequenceVars.warmupTime + dt
 			if self.levelSequenceVars.warmupTime >= step.warmupTime then
 				self.levelSequenceVars.warmupTime = nil
