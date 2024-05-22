@@ -10,26 +10,31 @@ If otherwise, [feel free to submit a bug report](https://github.com/jakubg1/Open
 ### Plans
 The ongoing plan is to keep releasing Beta 4.x versions, which will contain new functionalities.
 
-Some of the features planned include:
-- Sphere tags
-- Sphere selectors (https://github.com/jakubg1/OpenSMCE/issues/39)
-- Difficulty system (https://github.com/jakubg1/OpenSMCE/issues/1)
-- Enhanced sound effects (https://github.com/jakubg1/OpenSMCE/issues/95)
-- Complete rewrite of UI system (UI2 - under development; paused)
-- Progress autosave
-- Shooter types/presets (Done!)
+Some of the features planned for Beta 4.8.0 include:
+- Sphere selectors
+- Difficulty system
+- Enhanced sound effects
+- Shooter types
+- *Luxor: Amun Rising* support (#81)
 
-Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished. This includes both a reference manual and JSON schemas. For more information you can look at the following folders:
+Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished (#70, #112). This includes both a reference manual and JSON schemas.
+
+For more information on how the documentation works, you can look at the following folders:
 - Reference manual (generated automatically from a Python script, uses data contained in `data.txt`): `doc/game`
 - JSON schemas: `schemas`
 - [An article on how the generation pipeline works and the syntax of .docl files.](https://github.com/jakubg1/OpenSMCE/wiki/The-Doc-Language)
 
+From Beta 5.0 onwards, all games are intended to be backwards compatible. Then, further Beta 5.x versions will be released, which would ideally include:
+- Complete rewrite of UI system (#63; paused)
+- Partial *Luxor 2* support (mainly focusing on bringing the converter to parity)
+- Some quality-of-life changes for modders (#66, #74, #84, #90, #98, #101, #114, #117, #123)
+
 If you want to help me, don't hesitate to do so! If you have any questions or you need more information, make a ticket on the Issues page. Any support is greatly appreciated.
 
-For more information, you can take a look at the [1.0 issue list](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Full+1.0+release%22).
+For more information, you can take a look at the [Beta 5.0 issue list](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Beta+5.0.0+release%22) and the [1.0 issue list](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Full+1.0+release%22).
 
 ### Further plans
-After 1.0.0 is released, I'll focus on making new features and working on *Luxor: Amun Rising* support.
+After 1.0.0 is released, I'll focus on making new features and working on *Luxor 2* support.
 
 ## Overview
 This engine was made in order to help the Sphere Matcher community.
