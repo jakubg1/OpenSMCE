@@ -15,9 +15,9 @@ Some of the features planned for Beta 4.8.0 include:
 - Difficulty system
 - Enhanced sound effects
 - Shooter types
-- *Luxor: Amun Rising* support (#81)
+- *Luxor: Amun Rising* support (https://github.com/jakubg1/OpenSMCE/issues/81)
 
-Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished (#70, #112). This includes both a reference manual and JSON schemas.
+Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished (https://github.com/jakubg1/OpenSMCE/issues/70, https://github.com/jakubg1/OpenSMCE/issues/112). This includes both a reference manual and JSON schemas.
 
 For more information on how the documentation works, you can look at the following folders:
 - Reference manual (generated automatically from a Python script, uses data contained in `data.txt`): `doc/game`
@@ -25,9 +25,9 @@ For more information on how the documentation works, you can look at the followi
 - [An article on how the generation pipeline works and the syntax of .docl files.](https://github.com/jakubg1/OpenSMCE/wiki/The-Doc-Language)
 
 From Beta 5.0 onwards, all games are intended to be backwards compatible. Then, further Beta 5.x versions will be released, which would ideally include:
-- Complete rewrite of UI system (#63; paused)
+- Complete rewrite of UI system (https://github.com/jakubg1/OpenSMCE/issues/63; paused)
 - Partial *Luxor 2* support (mainly focusing on bringing the converter to parity)
-- Some quality-of-life changes for modders (#66, #74, #84, #90, #98, #101, #114, #117, #123)
+- Some quality-of-life changes for modders (https://github.com/jakubg1/OpenSMCE/issues/66, https://github.com/jakubg1/OpenSMCE/issues/74, https://github.com/jakubg1/OpenSMCE/issues/84, https://github.com/jakubg1/OpenSMCE/issues/90, https://github.com/jakubg1/OpenSMCE/issues/98, https://github.com/jakubg1/OpenSMCE/issues/101, https://github.com/jakubg1/OpenSMCE/issues/114, https://github.com/jakubg1/OpenSMCE/issues/117, https://github.com/jakubg1/OpenSMCE/issues/123)
 
 If you want to help me, don't hesitate to do so! If you have any questions or you need more information, make a ticket on the Issues page. Any support is greatly appreciated.
 
