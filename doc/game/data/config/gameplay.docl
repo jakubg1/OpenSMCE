@@ -1,9 +1,6 @@
 - (object) - The root entry.
-    - level (object) - Defines some key level times.
-        - controlDelay (number) [>=0] - Time between launching the first spheres in a level and the shooter activation in seconds.
-        - finishDelay (number) [>=0] - Time between considering the level complete (win condition met and empty board) and releasing the first bonus scarab.
-        - bonusDelay (number) [>=0] - Time between each consecutive bonus scarab launch in multi-path levels in seconds.
-        - wonDelay (number) [>=0] - Time between the last bonus scarab destruction and considering the level fully won.
+    - levelSequence (array) - Defines a Level Sequence. This is a list of states every level can have and will be performed in order, unless specified otherwise.
+        - ($level_sequence_entry) - A single sequence step.
     - ui (object) - Defines parameters which are constant throughout the entire UI.
         - buttonClickSound (SoundEvent) - The sound event that will be played whenever a button is clicked.
         - buttonHoverSound (SoundEvent) - The sound event that will be played whenever a mouse is hovering over a button.
@@ -35,7 +32,7 @@
         - sound (SoundEvent) - A looping sound event that will be played when the Net is currently active.
         - posY (integer) - The Y position of the Net.
     - lightningStorm* (object) - Defines the Lightning Storm.
-        - delay ($number) [>0] - The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike.
+        - delay (%number) [>0] - The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike.
         - particle (Particle) - A one-time particle effect which will be spawned on the sphere that's been destroyed.
         - sound (SoundEvent) - A sound event to be played when a sphere is destroyed.
         - scoreEvent (ScoreEvent) - A Score Event executed on the sphere that's been destroyed.

@@ -52,18 +52,7 @@ function Level:new(data)
 
 	self.lightningStormDelay = _Game.configManager.gameplay.lightningStorm and Expression(_Game.configManager.gameplay.lightningStorm.delay)
 
-	self.levelSequence = {
-		{type = "pathEntity", pathEntity = "path_entities/intro_trail.json", separatePaths = false, launchDelay = 0, waitUntilFinished = true, skippable = false},
-		{type = "gameplay", warmupTime = 1.5, previewFirstShooterColor = true, onFail = 9},
-		{type = "waitForCollectibles"},
-		{type = "wait", delay = 2},
-		{type = "pathEntity", pathEntity = "path_entities/bonus_scarab.json", separatePaths = true, launchDelay = 1.5, waitUntilFinished = true, skippable = false},
-		{type = "waitForCollectibles"},
-		{type = "wait", delay = 1.5},
-		{type = "end", status = "win"},
-		{type = "fail", waitUntilFinished = true, skippable = false},
-		{type = "end", status = "fail"}
-	}
+	self.levelSequence = _Game.configManager.gameplay.levelSequence
 
 	-- Additional variables come from this method!
 	self:reset()
@@ -221,15 +210,11 @@ function Level:updateLogic(dt)
 			self:advanceSequenceStep()
 		end
 	elseif step.type == "pathEntity" then
-		-- Temporary: we don't have Path Entities yet.
 		local isThereAnythingOnPreviousPaths = false
 		for i = 1, self.levelSequenceVars.pathID do
 			local path = self.map.paths[i]
-			if not path then
-				break
-			end
-			if not path:hasNoPathEntities() then
-				isThereAnythingOnPreviousPaths = true
+			isThereAnythingOnPreviousPaths = path and path:hasPathEntities()
+			if not path or isThereAnythingOnPreviousPaths then
 				break
 			end
 		end
@@ -812,9 +797,9 @@ function Level:jumpToSequenceStep(stepN)
 		elseif step.status == "fail" then
 			_Game.uiManager:executeCallback("levelLost")
 			self.ended = true
-			if self.failLoop then
-				self.failLoop:stop()
-			end
+		end
+		if self.failLoop then
+			self.failLoop:stop()
 		end
 	end
 end

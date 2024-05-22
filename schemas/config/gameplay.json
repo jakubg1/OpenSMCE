@@ -4,38 +4,13 @@
     "description": "The root entry.",
     "properties": {
         "$schema": true,
-        "level": {
-            "type": "object",
-            "description": "Defines some key level times.",
-            "properties": {
-                "controlDelay": {
-                    "type": "number",
-                    "description": "Time between launching the first spheres in a level and the shooter activation in seconds.",
-                    "minimum": 0.0
-                },
-                "finishDelay": {
-                    "type": "number",
-                    "description": "Time between considering the level complete (win condition met and empty board) and releasing the first bonus scarab.",
-                    "minimum": 0.0
-                },
-                "bonusDelay": {
-                    "type": "number",
-                    "description": "Time between each consecutive bonus scarab launch in multi-path levels in seconds.",
-                    "minimum": 0.0
-                },
-                "wonDelay": {
-                    "type": "number",
-                    "description": "Time between the last bonus scarab destruction and considering the level fully won.",
-                    "minimum": 0.0
-                }
-            },
-            "required": [
-                "controlDelay",
-                "finishDelay",
-                "bonusDelay",
-                "wonDelay"
-            ],
-            "additionalProperties": false
+        "levelSequence": {
+            "type": "array",
+            "description": "Defines a Level Sequence. This is a list of states every level can have and will be performed in order, unless specified otherwise.",
+            "items": {
+                "$ref": "level_sequence_entry.json",
+                "description": "A single sequence step."
+            }
         },
         "ui": {
             "type": "object",
@@ -205,8 +180,9 @@
             "description": "Defines the Lightning Storm.",
             "properties": {
                 "delay": {
-                    "$ref": "number.json",
-                    "description": "The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike."
+                    "type": "number",
+                    "description": "The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike.",
+                    "exclusiveMinimum": 0.0
                 },
                 "particle": {
                     "$ref": "../_structures/Particle.json",
@@ -231,7 +207,7 @@
         }
     },
     "required": [
-        "level",
+        "levelSequence",
         "ui",
         "sphereBehaviour"
     ],

@@ -204,10 +204,10 @@ end
 
 
 
----Returns whether there are no Path Entities on this Path.
+---Returns whether there are any Path Entities on this Path.
 ---@return boolean
-function Path:hasNoPathEntities()
-	return #self.pathEntities == 0
+function Path:hasPathEntities()
+	return #self.pathEntities > 0
 end
 
 
@@ -452,7 +452,7 @@ end
 
 ---Returns `true` if this Path does not contain any spheres.
 ---
----Warning: this does NOT check for Path Entities. Use `:hasNoPathEntities()` for that instead.
+---Warning: this does NOT check for Path Entities. Use `:hasPathEntities()` for that instead.
 ---@return boolean
 function Path:getEmpty()
 	return #self.sphereChains == 0
