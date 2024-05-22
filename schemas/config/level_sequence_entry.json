@@ -145,14 +145,18 @@
                     },
                     "onFail": {
                         "type": "integer",
-                        "description": "The level sequence index to jump to if the level is lost. If the target is reached and all spheres are destroyed, the sequence moves on to the next step.",
+                        "description": "The level sequence index to jump to if the level is lost. If not specified, the sequence will move to the next step.",
+                        "minimum": 1
+                    },
+                    "onWin": {
+                        "type": "integer",
+                        "description": "The level sequence index to jump to if the level is won (the target is reached and all spheres are destroyed). If not specified, the sequence will move to the next step.",
                         "minimum": 1
                     }
                 },
                 "required": [
                     "warmupTime",
-                    "previewFirstShooterColor",
-                    "onFail"
+                    "previewFirstShooterColor"
                 ],
                 "additionalProperties": false
             }

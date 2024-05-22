@@ -250,7 +250,11 @@ function Level:updateLogic(dt)
 			end
 		end
 		if self:hasNoMoreSpheres() then
-			self:advanceSequenceStep()
+			if step.onWin then
+				self:jumpToSequenceStep(step.onWin)
+			else
+				self:advanceSequenceStep()
+			end
 		end
 	elseif step.type == "fail" then
 		if self:getEmpty() then
@@ -932,6 +936,8 @@ function Level:lose()
 	local jumpTo = self.levelSequence[self.levelSequenceStep].onFail
 	if jumpTo then
 		self:jumpToSequenceStep(jumpTo)
+	else
+		self:advanceSequenceStep()
 	end
 end
 
