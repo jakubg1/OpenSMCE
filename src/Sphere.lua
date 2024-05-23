@@ -660,7 +660,7 @@ end
 
 
 ---Serializes this Sphere's data for reusing it later.
----@return table
+---@return table|integer
 function Sphere:serialize()
 	local t = {
 		color = self.color,
@@ -695,14 +695,23 @@ function Sphere:serialize()
 		t.gaps = self.gaps
 	end
 
+	-- If the only data to be saved is the sphere's color, serialize to an integer value.
+	if not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostCombo and not t.effects and not t.gaps then
+		return t.color
+	end
+
 	return t
 end
 
 
 
 ---Deserializes the Sphere's data so the saved data can be reused.
----@param t table Previously serialized Sphere's data.
+---@param t table|integer Previously serialized Sphere's data.
 function Sphere:deserialize(t)
+	if type(t) == "number" then
+		t = {color = t}
+	end
+
 	self.color = t.color
 	--self.animationFrame = t.animationFrame
 	self.appendSize = t.appendSize or 1

@@ -59,7 +59,7 @@ function SphereChain:update(dt)
 			local dist = prevChain:getLastSphereGroup():getBackPos() - self:getFirstSphereGroup():getFrontPos()
 			if dist < 0 then
 				-- If so, either destroy the scarab or move the frontmost chain.
-				if _Game.configManager.gameplay.sphereBehaviour.invincibleScarabs then
+				if _Game.configManager.gameplay.sphereBehavior.invincibleScarabs then
 					prevChain:getLastSphereGroup():move(-dist)
 				else
 					prevChain:join()
@@ -154,7 +154,7 @@ function SphereChain:isMatchPredicted()
 			sphereGroup:hasShotSpheres() or
 			sphereGroup:hasKeepComboSpheres() or
 			sphereGroup:hasGhostSpheres() or
-			(_Game.configManager.gameplay.sphereBehaviour.luxorized and sphereGroup.speed < 0)
+			(_Game.configManager.gameplay.sphereBehavior.luxorized and sphereGroup.speed < 0)
 		) then
 			return true
 		end
@@ -206,7 +206,7 @@ end
 function SphereChain:join()
 	-- Joins with the previous group and deletes a vise from this group.
 	local prevChain = self.path.sphereChains[self.path:getSphereChainID(self) + 1]
-	if not _Game.configManager.gameplay.sphereBehaviour.noScarabs then
+	if not _Game.configManager.gameplay.sphereBehavior.noScarabs then
 		self:getLastSphereGroup():destroySphere(1, true)
 	end
 	-- update group links
@@ -244,7 +244,7 @@ function SphereChain:concludeGeneration()
 	local group = self:getLastSphereGroup()
 
 	-- Spawn a vise.
-	if not _Game.configManager.gameplay.sphereBehaviour.noScarabs then
+	if not _Game.configManager.gameplay.sphereBehavior.noScarabs then
 		group:pushSphereBack(0)
 	end
 

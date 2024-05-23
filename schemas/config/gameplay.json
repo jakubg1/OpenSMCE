@@ -36,7 +36,7 @@
             ],
             "additionalProperties": false
         },
-        "sphereBehaviour": {
+        "sphereBehavior": {
             "type": "object",
             "description": "Defines behavior of the spheres.",
             "properties": {
@@ -209,7 +209,7 @@
     "required": [
         "levelSequence",
         "ui",
-        "sphereBehaviour"
+        "sphereBehavior"
     ],
     "additionalProperties": false
 }
