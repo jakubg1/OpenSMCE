@@ -513,7 +513,7 @@ function Level:spawnLightningStormPiece()
 	_Vars:setC("sphere", "color", sphere.color)
 	self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(_Game.configManager.gameplay.lightningStorm.scoreEvent), pos)
 	_Game:spawnParticle(_Game.configManager.gameplay.lightningStorm.particle, pos)
-	_Game:playSound(_Game.configManager.gameplay.lightningStorm.sound)
+	_Game:playSound(_Game.configManager.gameplay.lightningStorm.sound, pos)
 	_Vars:unset("sphere")
 	-- destroy it
 	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))

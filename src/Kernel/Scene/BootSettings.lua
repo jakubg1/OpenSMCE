@@ -31,7 +31,7 @@ function BootSettings:new(bootScreen)
 		"If enabled, when quitting a game, the Boot Screen will show up again.\nThis setting does NOT affect quitting by pressing X on the window!",
 		"Enables Aiming Retical, which is either one defined by the game or\na simple placeholder, if not defined.",
 		"Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from the source code,\nbut the console output will be suppressed.\nYou will need to restart the engine for this setting change to take effect.",
-		"Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker.\nSome sounds do not support this functionality yet.",
+		"Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker.",
 		"Hides all incompatible games from the boot menu, including games which have\nan unknown supported version."
 	}
 	self.tooltip = nil
