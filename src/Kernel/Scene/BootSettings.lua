@@ -21,16 +21,18 @@ function BootSettings:new(bootScreen)
 		Checkbox("Go back to the boot menu when exiting a game", _FONT_BIG, Vec2(34, 88), Vec2(732, 24), function(state) _EngineSettings:setBackToBoot(state) end),
 		Checkbox("Aiming Retical", _FONT_BIG, Vec2(34, 112), Vec2(732, 24), function(state) _EngineSettings:setAimingRetical(state) end),
 		Checkbox("Debug console window", _FONT_BIG, Vec2(34, 136), Vec2(732, 24), function(state) _EngineSettings:setConsoleWindow(state) end),
-		Checkbox("Enable 3D Sound", _FONT_BIG, Vec2(34, 160), Vec2(732, 24), function(state) _EngineSettings:set3DSound(state) end)
+		Checkbox("Enable 3D Sound", _FONT_BIG, Vec2(34, 160), Vec2(732, 24), function(state) _EngineSettings:set3DSound(state) end),
+		Checkbox("Hide incompatible games", _FONT_BIG, Vec2(34, 184), Vec2(732, 24), function(state) _EngineSettings:setHideIncompatibleGames(state) end)
 	}
 
 	-- tooltip
 	self.TOOLTIPS = {
-		"Shows your game progress in your Discord profile, if you have Discord running on your\ncomputer.",
-		"If enabled, when quitting a game (unless via X button on the window directly) the\nBoot Screen will pop up again.",
-		"Enables Aiming Retical, which is either one defined by the game or a simple placeholder,\nif not defined.",
-		"Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from thesource code!\n\nYou will need to restart the engine for this setting change to take effect.",
-		"Enables 3D sound. That means sounds which originate on the left side of the screen will\nlean slightly more towards the left speaker, and these which originate on the right side\nwill be amplified on the right speaker. Some sounds do not support this functionality yet."
+		"Shows your game progress in your Discord profile, if you have Discord running\non your computer.",
+		"If enabled, when quitting a game, the Boot Screen will show up again.\nThis setting does NOT affect quitting by pressing X on the window!",
+		"Enables Aiming Retical, which is either one defined by the game or\na simple placeholder, if not defined.",
+		"Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from the source code,\nbut the console output will be suppressed.\nYou will need to restart the engine for this setting change to take effect.",
+		"Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker.\nSome sounds do not support this functionality yet.",
+		"Hides all incompatible games from the boot menu, including games which have\nan unknown supported version."
 	}
 	self.tooltip = nil
 end
@@ -43,6 +45,7 @@ function BootSettings:init()
 	self.settingCheckboxes[3].selected = _EngineSettings:getAimingRetical()
 	self.settingCheckboxes[4].selected = _EngineSettings:getConsoleWindow()
 	self.settingCheckboxes[5].selected = _EngineSettings:get3DSound()
+	self.settingCheckboxes[6].selected = _EngineSettings:getHideIncompatibleGames()
 end
 
 
@@ -89,7 +92,7 @@ function BootSettings:draw()
 	-- Frame
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setLineWidth(4)
-	love.graphics.rectangle("line", 30, 60, 740, 128) -- max h: 440
+	love.graphics.rectangle("line", 30, 60, 740, #self.settingCheckboxes * 24 + 8) -- max h: 440
 end
 
 

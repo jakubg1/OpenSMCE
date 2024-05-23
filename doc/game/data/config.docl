@@ -1,7 +1,7 @@
 - (object) - The root object.
     - name* (string) - The game name to be displayed in Rich Presence and in the game window.
     - windowTitle* (string) - The window title which the engine window will have, if defined.
-    - engineVersion (string) - Specifies the version a game is for. Not really used at the moment, but mandatory.
+    - engineVersion (string) - Specifies the version a game is for, e.g. `"v0.48.0"`.
     - nativeResolution (Vector2) - The native resolution of the game.
     - richPresence (object) - Defines the Discord Rich Presence behavior.
         - enabled (boolean) - Should be always `true`, unless you want the game to be a secret. In that case, loading a game with this flag set to `false` causes Rich Presence to disconnect.

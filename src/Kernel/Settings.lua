@@ -24,6 +24,7 @@ function Settings:reset()
 	if self:getAimingRetical() == nil then self:setAimingRetical(false) end
 	if self:getConsoleWindow() == nil then self:setConsoleWindow(true) end
 	if self:get3DSound() == nil then self:set3DSound(false) end
+	if self:getHideIncompatibleGames() == nil then self:setHideIncompatibleGames(false) end
 end
 
 
@@ -66,6 +67,14 @@ end
 
 function Settings:get3DSound()
 	return self.data.threedeeSound
+end
+
+function Settings:setHideIncompatibleGames(value)
+	self.data.hideIncompatibleGames = value
+end
+
+function Settings:getHideIncompatibleGames()
+	return self.data.hideIncompatibleGames
 end
 
 

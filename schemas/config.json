@@ -14,7 +14,8 @@
         },
         "engineVersion": {
             "type": "string",
-            "description": "Specifies the version a game is for. Not really used at the moment, but mandatory."
+            "description": "Specifies the version a game is for, e.g. \"v0.48.0\".",
+            "markdownDescription": "Specifies the version a game is for, e.g. `\"v0.48.0\"`."
         },
         "nativeResolution": {
             "$ref": "_structures/Vector2.json",
