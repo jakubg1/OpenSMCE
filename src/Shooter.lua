@@ -369,6 +369,9 @@ end
 ---@param color integer The sphere color ID to be changed to.
 ---@param count integer The amount of spheres of that color to be given.
 function Shooter:getMultiSphere(color, count)
+    if _Game.session.level.lost then
+        return
+    end
     self.multiColorColor = color
     self.multiColorCount = count
     self:setColor(0)
