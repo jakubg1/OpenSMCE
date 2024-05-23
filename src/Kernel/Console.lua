@@ -169,8 +169,8 @@ end
 function Console:inputEnter()
 	local success, err = xpcall(function() return _Debug:runCommand(self.command) end, debug.traceback)
 	if not success and err then
-		self:print({{1, 0.2, 0.2}, "An error has occured when executing a command:"})
-		self:print({{1, 0.2, 0.2}, _Utils.strSplit(err, "\n")[1]})
+		self:print({{1, 0.4, 0.4}, "An error has occured when executing a command: " .. self.command})
+		self:print({{1, 0.4, 0.4}, _Utils.strSplit(err, "\n")[1]})
 		_Log:printt("CONSOLE", "Full Error:")
 		_Log:printt("CONSOLE", err)
 	end
