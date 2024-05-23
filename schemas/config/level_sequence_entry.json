@@ -10,6 +10,8 @@
                 "pathEntity",
                 "gameplay",
                 "fail",
+                "clearBoard",
+                "collectibleEffect",
                 "end"
             ]
         }
@@ -152,6 +154,12 @@
                         "type": "integer",
                         "description": "The level sequence index to jump to if the level is won (the target is reached and all spheres are destroyed). If not specified, the sequence will move to the next step.",
                         "minimum": 1
+                    },
+                    "onObjectivesReached": {
+                        "type": "integer",
+                        "description": "The level sequence index to jump to if all of the level's objectives have been reached. Invalidates onWin.",
+                        "markdownDescription": "The level sequence index to jump to if all of the level's objectives have been reached. Invalidates `onWin`.",
+                        "minimum": 1
                     }
                 },
                 "required": [
@@ -188,6 +196,57 @@
                 "required": [
                     "waitUntilFinished",
                     "skippable"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "clearBoard",
+                        "description": "Empties the Shooter and disables the Net. Transient: immediately jumps to the next step."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true
+                },
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "collectibleEffect",
+                        "description": "Activates a list of Collectible Effects without a position set."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "effects": {
+                        "type": "array",
+                        "description": "A list of Collectible Effects.",
+                        "items": {
+                            "$ref": "collectible_effect.json",
+                            "description": "A single Collectible Effect."
+                        }
+                    }
+                },
+                "required": [
+                    "effects"
                 ],
                 "additionalProperties": false
             }

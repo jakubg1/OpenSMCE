@@ -252,6 +252,9 @@ function Level:updateLogic(dt)
 				end
 			end
 		end
+		if step.onObjectivesReached and self:areAllObjectivesReached() then
+			self:jumpToSequenceStep(step.onObjectivesReached)
+		end
 		if self:hasNoMoreSpheres() then
 			if step.onWin then
 				self:jumpToSequenceStep(step.onWin)
@@ -790,9 +793,6 @@ function Level:jumpToSequenceStep(stepN)
 	local step = self.levelSequence[self.levelSequenceStep]
 	if step.type == "pathEntity" then
 		self.levelSequenceVars = {pathID = 1, delay = 0}
-		self.shooter:empty()
-		self.netTime = 0
-		self:destroyNet()
 	elseif step.type == "gameplay" then
 		self.levelSequenceVars = {warmupTime = 0}
 		if self.warmupLoopName then
@@ -802,6 +802,16 @@ function Level:jumpToSequenceStep(stepN)
 		self.levelSequenceVars = {}
 	elseif step.type == "wait" then
 		self.levelSequenceVars = {time = 0}
+	elseif step.type == "clearBoard" then
+		self.shooter:empty()
+		self.netTime = 0
+		self:destroyNet()
+		self:advanceSequenceStep()
+	elseif step.type == "collectibleEffect" then
+		for i, effect in ipairs(step.effects) do
+			self:applyEffect(effect)
+		end
+		self:advanceSequenceStep()
 	elseif step.type == "end" then
 		if step.status == "win" then
 			_Game.uiManager:executeCallback("levelComplete")

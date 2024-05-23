@@ -13,9 +13,14 @@
         - previewFirstShooterColor* (boolean) - If set, the first sphere that will be available for shooting will be displayed in the shooter's reserve slot during the warmup time.
         - onFail* (integer) [>=1] - The level sequence index to jump to if the level is lost. If not specified, the sequence will move to the next step.
         - onWin* (integer) [>=1] - The level sequence index to jump to if the level is won (the target is reached and all spheres are destroyed). If not specified, the sequence will move to the next step.
+        - onObjectivesReached* (integer) [>=1] - The level sequence index to jump to if all of the level's objectives have been reached. Invalidates `onWin`.
     - "fail" - The spheres will rush to the endpoint.
         - waitUntilFinished (boolean) - If set, the sequence will wait until all spheres are gone, and then the sequence will move to the next step. Otherwise, the sequence will move on to the next step immediately.
         - skippable (boolean) - Doesn't work for now.
+    - "clearBoard" - Empties the Shooter and disables the Net. Transient: immediately jumps to the next step.
+    - "collectibleEffect" - Activates a list of Collectible Effects without a position set.
+        - effects (array) - A list of Collectible Effects.
+            - ($collectible_effect) - A single Collectible Effect.
     - "end" - The end of a level.
         - status (string) - Can be one of the following:
             - "win" - The level will be registered as won and a `levelComplete` UI callback will be executed.
