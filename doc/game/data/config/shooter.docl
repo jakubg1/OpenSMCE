@@ -1,12 +1,12 @@
 - (object) - The root object.
     - movement ($shooter_movement) - Describes the positioning and movement of the shooter.
     - sprite (Sprite) - The sprite for the shooter to be used.
-    - spriteOffset (Vector2) - The offset of the shooter sprite.
-    - spriteAnchor (Vector2) - The anchor point of the shooter sprite.
-    - shadowSprite (Sprite) - The shadow sprite for the shooter to be used.
-    - shadowSpriteOffset (Vector2) - The offset of the shooter shadow sprite.
-    - shadowSpriteAnchor (Vector2) - The anchor point of the shooter shadow sprite.
-    - ballPos (Vector2) - The position of the ball which can be shot.
+    - spriteOffset* (Vector2) - The offset of the shooter sprite. Defaults to `(0, 0)`.
+    - spriteAnchor* (Vector2) - The anchor point of the shooter sprite. Defaults to `(0.5, 0)`.
+    - shadowSprite* (Sprite) - The shadow sprite for the shooter to be used.
+    - shadowSpriteOffset* (Vector2) - The offset of the shooter shadow sprite. Defaults to `(8, 8)`.
+    - shadowSpriteAnchor* (Vector2) - The anchor point of the shooter shadow sprite. Defaults to `(0.5, 0)`.
+    - ballPos* (Vector2) - The position of the ball which can be shot. Defaults to `(0, 5)`.
     - nextBallSprites (object) <<^[-]?[0-9]*$>> - Contains next ball sprites for all possible sphere colors. Key names must be stringified integers.
         - (object) - Contains next sphere sprite data for that particular sphere color.
             - sprite (Sprite) - A sprite used to draw the shooter's next color indicator.

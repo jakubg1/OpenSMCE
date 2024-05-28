@@ -14,11 +14,13 @@
         },
         "spriteOffset": {
             "$ref": "../_structures/Vector2.json",
-            "description": "The offset of the shooter sprite."
+            "description": "The offset of the shooter sprite. Defaults to (0, 0).",
+            "markdownDescription": "The offset of the shooter sprite. Defaults to `(0, 0)`."
         },
         "spriteAnchor": {
             "$ref": "../_structures/Vector2.json",
-            "description": "The anchor point of the shooter sprite."
+            "description": "The anchor point of the shooter sprite. Defaults to (0.5, 0).",
+            "markdownDescription": "The anchor point of the shooter sprite. Defaults to `(0.5, 0)`."
         },
         "shadowSprite": {
             "$ref": "../_structures/Sprite.json",
@@ -26,15 +28,18 @@
         },
         "shadowSpriteOffset": {
             "$ref": "../_structures/Vector2.json",
-            "description": "The offset of the shooter shadow sprite."
+            "description": "The offset of the shooter shadow sprite. Defaults to (8, 8).",
+            "markdownDescription": "The offset of the shooter shadow sprite. Defaults to `(8, 8)`."
         },
         "shadowSpriteAnchor": {
             "$ref": "../_structures/Vector2.json",
-            "description": "The anchor point of the shooter shadow sprite."
+            "description": "The anchor point of the shooter shadow sprite. Defaults to (0.5, 0).",
+            "markdownDescription": "The anchor point of the shooter shadow sprite. Defaults to `(0.5, 0)`."
         },
         "ballPos": {
             "$ref": "../_structures/Vector2.json",
-            "description": "The position of the ball which can be shot."
+            "description": "The position of the ball which can be shot. Defaults to (0, 5).",
+            "markdownDescription": "The position of the ball which can be shot. Defaults to `(0, 5)`."
         },
         "nextBallSprites": {
             "type": "object",
@@ -214,12 +219,6 @@
     "required": [
         "movement",
         "sprite",
-        "spriteOffset",
-        "spriteAnchor",
-        "shadowSprite",
-        "shadowSpriteOffset",
-        "shadowSpriteAnchor",
-        "ballPos",
         "nextBallSprites",
         "nextBallOffset",
         "nextBallAnchor",
