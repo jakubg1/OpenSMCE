@@ -207,18 +207,20 @@ function Debug:getDebugProfile()
 end
 
 function Debug:getDebugLevel()
+	local level = _Game.session.level
 	local s = ""
 
-	s = s .. "LevelScore = " .. tostring(_Game.session.level.score) .. "\n"
-	s = s .. string.format("Accuracy = %s / %s (%.0d%%)", _Game.session.level.successfulShots, _Game.session.level.spheresShot, _Game.session.level:getShotAccuracy() * 100) .. "\n"
+	s = s .. "LevelScore = " .. tostring(level.score) .. "\n"
+	s = s .. string.format("Accuracy = %s / %s (%.0d%%)", level.successfulShots, level.spheresShot, level:getShotAccuracy() * 100) .. "\n"
+	s = s .. "LevelSequenceStep = " .. tostring(level.levelSequenceStep) .. "\n"
 	s = s .. "Objectives:\n"
-	for i, objective in ipairs(_Game.session.level.objectives) do
+	for i, objective in ipairs(level.objectives) do
 		s = s .. string.format("  %s: %s %s/%s\n", i, objective.type, objective.progress, objective.target)
 	end
 	s = s .. "\n"
-	s = s .. "Collectible# = " .. tostring(#_Game.session.level.collectibles) .. "\n"
-	s = s .. "FloatingText# = " .. tostring(#_Game.session.level.floatingTexts) .. "\n"
-	s = s .. "ShotSphere# = " .. tostring(#_Game.session.level.shotSpheres) .. "\n"
+	s = s .. "Collectible# = " .. tostring(#level.collectibles) .. "\n"
+	s = s .. "FloatingText# = " .. tostring(#level.floatingTexts) .. "\n"
+	s = s .. "ShotSphere# = " .. tostring(#level.shotSpheres) .. "\n"
 
 	return s
 end

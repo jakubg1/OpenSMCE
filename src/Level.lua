@@ -788,7 +788,6 @@ end
 ---Sets the level sequence program to a given step.
 ---@param stepN integer The step to jump to.
 function Level:jumpToSequenceStep(stepN)
-	print("Current Step: " .. tostring(stepN))
 	self.levelSequenceStep = stepN
 	local step = self.levelSequence[self.levelSequenceStep]
 	if step.type == "pathEntity" then
