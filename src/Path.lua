@@ -114,14 +114,16 @@ end
 ---Updates the Path.
 ---@param dt number Delta time in seconds.
 function Path:update(dt)
+	-- First check whether a new chain should spawn, and only then process the existing ones.
+	-- Otherwise, a new chain will always spawn even if the target is reached, because the level must update its objectives for this to count!
+	if self:shouldSpawn() then
+		self:spawnChain()
+	end
+
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue then
 			sphereChain:update(dt)
 		end
-	end
-
-	if self:shouldSpawn() then
-		self:spawnChain()
 	end
 
 	if self.pathIntroductionOffset then

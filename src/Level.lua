@@ -85,11 +85,11 @@ end
 ---Updates the Level's logic.
 ---@param dt number Delta time in seconds.
 function Level:updateLogic(dt)
-	-- Objectives
-	self:updateObjectives()
-
 	self.map:update(dt)
 	self.shooter:update(dt)
+
+	-- Objectives
+	self:updateObjectives()
 
 	-- Danger sound
 	if self.dangerLoopSoundName then
