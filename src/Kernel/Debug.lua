@@ -137,19 +137,36 @@ end
 
 
 function Debug:getUITreeText(node, rowTable, indent)
-	node = node or _Game.uiManager.rootNodes["root"] or _Game.uiManager.rootNodes["splash"]
+	local ui2 = _Game.configManager.config.useUI2
+	if ui2 then
+		node = node or _Game.uiManager.rootNodes["root"] or _Game.uiManager.rootNodes["splash"]
+	else
+		node = node or _Game.uiManager.widgets.root or _Game.uiManager.widgets.splash
+	end
 	rowTable = rowTable or {}
 	indent = indent or 0
 	--if indent > 1 then return end
 
 	local name = node.name
 	for i = 1, indent do name = "    " .. name end
-	local visible = "" --node.visible and "X" or ""
-	local visible2 = "" --node:isVisible() and "V" or ""
+	local visible = ""
+	local visible2 = ""
+	if not ui2 then
+		visible = node.visible and "X" or ""
+		visible2 = node:isVisible() and "V" or ""
+	end
 	local active = node:isActive() and "A" or ""
 	local alpha = tostring(math.floor(node.alpha * 10) / 10)
-	local alpha2 = tostring(math.floor(node:getGlobalAlpha() * 10) / 10)
-	local time = "" --node.time and tostring(math.floor(node.time * 100) / 100) or "-"
+	local alpha2
+	if ui2 then
+		alpha2 = tostring(math.floor(node:getGlobalAlpha() * 10) / 10)
+	else
+		alpha2 = tostring(math.floor(node:getAlpha() * 10) / 10)
+	end
+	local time = ""
+	if not ui2 then
+		time = node.time and tostring(math.floor(node.time * 100) / 100) or "-"
+	end
 	local pos = tostring(node.pos)
 	--if node:getVisible() then
 		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos})
