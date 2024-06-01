@@ -197,6 +197,7 @@ end
 
 function UIWidget:clean()
 	if not self.showPermanently then self.alpha = 0 end
+	if self.widget and self.widget.type == "particle" then self.widget:clean() end
 	for childN, child in pairs(self.children) do
 		child:clean()
 	end

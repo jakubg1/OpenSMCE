@@ -35,6 +35,12 @@ function UIWidgetParticle:despawn()
 	end
 end
 
+function UIWidgetParticle:clean()
+	if self.packet then
+		self.packet:clean()
+	end
+end
+
 
 
 function UIWidgetParticle:draw()

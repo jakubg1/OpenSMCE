@@ -61,6 +61,14 @@ function ParticleManager:destroyParticlePiece(particlePiece)
 	table.remove(self.particlePieces, self:getParticlePieceID(particlePiece))
 end
 
+function ParticleManager:cleanParticlePacket(particlePacket)
+	for i = #self.particlePieces, 1, -1 do
+		if self.particlePieces[i].packet == particlePacket then
+			self:destroyParticlePiece(self.particlePieces[i])
+		end
+	end
+end
+
 function ParticleManager:getParticlePacketID(particlePacket)
 	for i, particlePacketT in ipairs(self.particlePackets) do
 		if particlePacket == particlePacketT then return i end

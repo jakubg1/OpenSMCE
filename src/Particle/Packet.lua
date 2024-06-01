@@ -42,4 +42,8 @@ function ParticlePacket:destroy()
 	self.manager:destroyParticlePacket(self)
 end
 
+function ParticlePacket:clean()
+	self.manager:cleanParticlePacket(self)
+end
+
 return ParticlePacket
