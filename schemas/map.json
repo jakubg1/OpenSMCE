@@ -70,13 +70,16 @@
                     "background": {
                         "type": "boolean",
                         "description": "If set, this sprite will be rendered behind all spheres. Otherwise, it will be covering hidden spheres."
+                    },
+                    "foreground": {
+                        "type": "boolean",
+                        "description": "If set, this sprite will be rendered above all spheres, regardless of whether they are hidden or not."
                     }
                 },
                 "required": [
                     "x",
                     "y",
-                    "path",
-                    "background"
+                    "path"
                 ],
                 "additionalProperties": false
             }

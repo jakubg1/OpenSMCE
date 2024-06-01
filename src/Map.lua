@@ -35,7 +35,8 @@ function Map:new(level, path, pathsBehavior, isDummy)
 		local sprite = {
 			pos = Vec2(spriteData.x, spriteData.y),
 			sprite = _Game.resourceManager:getSprite(spriteData.path),
-			background = spriteData.background
+			background = spriteData.background,
+			foreground = spriteData.foreground
 		}
 		table.insert(self.sprites, sprite)
 	end
@@ -87,7 +88,7 @@ function Map:draw()
 	-- Objects drawn before hidden spheres (background cheat mode)
 	if _Debug.e then
 		for i, sprite in ipairs(self.sprites) do
-			if not sprite.background then
+			if not sprite.background and not sprite.foreground then
 				sprite.sprite:draw(sprite.pos)
 			end
 		end
@@ -106,7 +107,7 @@ function Map:draw()
 	-- Objects that will be drown when the BCM is off
 	if not _Debug.e then
 		for i, sprite in ipairs(self.sprites) do
-			if not sprite.background then
+			if not sprite.background and not sprite.foreground then
 				sprite.sprite:draw(sprite.pos)
 			end
 		end
@@ -115,7 +116,7 @@ end
 
 
 
----Draws spheres on this map.
+---Draws spheres on this map, and foreground sprites.
 function Map:drawSpheres()
 	for x = 1, 2 do
 		for i, path in ipairs(self.paths) do
@@ -123,6 +124,12 @@ function Map:drawSpheres()
 				path:drawSpheres(sphereID, false, x == 1)
 			end
 			path:draw(false)
+		end
+	end
+
+	for i, sprite in ipairs(self.sprites) do
+		if not sprite.background and sprite.foreground then
+			sprite.sprite:draw(sprite.pos)
 		end
 	end
 end
