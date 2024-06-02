@@ -115,6 +115,9 @@ function Console:keypressed(key)
 		self:toggleOpen()
 	end
 	if self.active then
+		if key == "v" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
+			self:inputCharacter(love.system.getClipboardText())
+		end
 		if key == "backspace" then
 			self:inputBackspace()
 			self.backspace = true
