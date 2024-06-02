@@ -70,6 +70,7 @@ function Debug:new()
 	self.uiWidgetDebugCount = 0
 	self.uiMouse = Vec2()
 	self.uiMousePressed = false
+	self.uiScrollPressOffset = nil
 end
 
 
@@ -92,37 +93,52 @@ function Debug:draw()
 
 	-- UI tree
 	if self.uiDebugVisible and _Game.sessionExists then
+		-- Scrolling logic.
+		local height = love.graphics.getHeight()
+		local scrollbarWidth = 15
+		local scrollbarHeight = 50
+		local logicalHeight = height - scrollbarHeight
+		local maxWidgets = logicalHeight / 15
+		local maxOffset = (self.uiWidgetDebugCount - maxWidgets) * 15
+
+		-- if the mouse is in clicked state then move the rectangle here
+		if love.mouse.isDown(1) then
+			if not self.uiScrollPressOffset then
+				self.uiScrollPressOffset = self.uiDebugOffset - _PosOnScreen(_MousePos).y * (maxOffset / logicalHeight)
+			end
+			if self.uiMouse.x < scrollbarWidth then
+				self.uiDebugOffset = _PosOnScreen(_MousePos).y * (maxOffset / logicalHeight) + self.uiScrollPressOffset
+			end
+		else
+			self.uiScrollPressOffset = nil
+		end
+
+		-- Enforce the limits.
+		self.uiDebugOffset = math.max(math.min(self.uiDebugOffset, maxOffset), 0)
+
+		-- Draw stuff.
 		love.graphics.setColor(0, 0, 0, 0.7)
-		love.graphics.rectangle("fill", 0, 0, 460, love.graphics.getHeight())
+		love.graphics.rectangle("fill", 0, 0, 500, height)
 		love.graphics.setColor(1, 1, 1)
-		self.uiWidgetDebugCount = 0
 		for i, line in ipairs(self:getUITreeText()) do
-			love.graphics.print({line[9],line[1]}, 20, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[2], 260, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[3], 270, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[4], 280, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[5], 300, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[6], 320, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[7], 340, 10 + i * 15 + self.uiDebugOffset)
-			love.graphics.print(line[8], 360, 10 + i * 15 + self.uiDebugOffset)
+			love.graphics.print({line[9],line[1]}, 20, i * 15 - self.uiDebugOffset)
+			love.graphics.print(line[2], 260, i * 15 - self.uiDebugOffset)
+			love.graphics.print(line[3], 270, i * 15 - self.uiDebugOffset)
+			love.graphics.print(line[4], 280, i * 15 - self.uiDebugOffset)
+			love.graphics.print(line[5], 310, i * 15 - self.uiDebugOffset)
+			love.graphics.print(line[6], 340, i * 15 - self.uiDebugOffset)
+			love.graphics.print(line[7], 370, i * 15 - self.uiDebugOffset)
+			love.graphics.print(line[8], 410, i * 15 - self.uiDebugOffset)
 		end
 
 		-- draw the scroll rectangle
-		local maxWidgets = (love.graphics.getHeight() / 15)
 		if self.uiWidgetDebugCount > maxWidgets then
-			local yy = -self.uiDebugOffset / ((self.uiWidgetDebugCount - maxWidgets) * 15) * (love.graphics.getHeight() - 30)
+			local yy = self.uiDebugOffset / maxOffset * logicalHeight
 			love.graphics.setColor(0, 1, 0)
-			love.graphics.rectangle("fill", 0, yy, 15, 30)
+			love.graphics.rectangle("fill", 0, yy, scrollbarWidth, scrollbarHeight)
 			love.graphics.setColor(1, 1, 1)
-			love.graphics.line(15, 0, 15, love.graphics.getHeight())
-		end
-
-		-- if the mouse is in clicked state then move the rectangle here
-		if self.uiMousePressed then
-			if self.uiMouse.x < 15 then
-				local x, y = love.mouse.getPosition()
-				self.uiDebugOffset = -y * (((self.uiWidgetDebugCount - maxWidgets) * 15) / (love.graphics.getHeight() - 30))
-			end
+			love.graphics.setLineWidth(2)
+			love.graphics.line(scrollbarWidth, 0, scrollbarWidth, height)
 		end
 	end
 
@@ -143,8 +159,8 @@ function Debug:keypressed(key)
 		if key == "f7" then self.sphereDebugVisible2 = not self.sphereDebugVisible2 end
 		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
 		if key == "kp+" and self.profPage < #self.profPages then self.profPage = self.profPage + 1 end
-		if key == "pagedown" then self.uiDebugOffset = self.uiDebugOffset - 75 end
-		if key == "pageup" then self.uiDebugOffset = self.uiDebugOffset + 75 end
+		if key == "pagedown" then self.uiDebugOffset = self.uiDebugOffset + 300 end
+		if key == "pageup" then self.uiDebugOffset = self.uiDebugOffset - 300 end
 	end
 
 	self.console:keypressed(key)
@@ -159,26 +175,28 @@ function Debug:textinput(t)
 end
 
 function Debug:mousepressed(x, y, button)
-	self.uiMouse = Vec2(x, y)
-	self.uiMousePressed = true
+	if button == 1 then
+		self.uiMouse = Vec2(x, y)
+	end
 end
 
 function Debug:mousereleased(x, y, button)
-	self.uiMouse = Vec2(x, y)
-	self.uiMousePressed = false
+	if button == 1 then
+		self.uiMouse = Vec2(x, y)
+	end
 end
 
 function Debug:wheelmoved(x, y)
-    if y > 0 then
-        self.uiDebugOffset = self.uiDebugOffset + 15
-    elseif y < 0 then
-        self.uiDebugOffset = self.uiDebugOffset - 15
-    end
+	self.uiDebugOffset = self.uiDebugOffset - y * 45
 end
 
 
 
 function Debug:getUITreeText(node, rowTable, indent)
+	if not node then
+		self.uiWidgetDebugCount = 0
+	end
+
 	local ui2 = _Game.configManager.config.useUI2
 	if ui2 then
 		node = node or _Game.uiManager.rootNodes["root"] or _Game.uiManager.rootNodes["splash"]
@@ -196,15 +214,15 @@ function Debug:getUITreeText(node, rowTable, indent)
 		local visible2 = ""
 		if not ui2 then
 			visible = node.visible and "X" or ""
-				visible2 = node:isVisible() and "V" or ""
+			visible2 = node:isVisible() and "V" or ""
 		end
 		local active = node:isActive() and "A" or ""
-		local alpha = tostring(math.floor(node.alpha * 10) / 10)
+		local alpha = string.format("%.1f", node.alpha)
 		local alpha2
 		if ui2 then
-			alpha2 = tostring(math.floor(node:getGlobalAlpha() * 10) / 10)
+			alpha2 = string.format("%.1f", node:getGlobalAlpha())
 		else
-			alpha2 = tostring(math.floor(node:getAlpha() * 10) / 10)
+			alpha2 = string.format("%.1f", node:getAlpha())
 		end
 		local time = ""
 		if not ui2 then
@@ -216,7 +234,12 @@ function Debug:getUITreeText(node, rowTable, indent)
 		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color})
 		self.uiWidgetDebugCount = self.uiWidgetDebugCount + 1
 
+		local children = {}
 		for childN, child in pairs(node.children) do
+			table.insert(children, child)
+		end
+		table.sort(children, function(a, b) return a.name < b.name end)
+		for i, child in ipairs(children) do
 			self:getUITreeText(child, rowTable, indent + 1)
 		end
 	end
