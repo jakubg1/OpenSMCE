@@ -69,7 +69,7 @@ function Console:scrollToHistoryEntry(n)
 		self.commandBuffer = self.command
 	end
 	if n then
-		self.command = self.history[n]
+		self.command = self.history[n] or ""
 	else
 		self.command = self.commandBuffer
 		self.commandBuffer = nil
