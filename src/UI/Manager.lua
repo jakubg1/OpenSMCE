@@ -15,6 +15,7 @@ function UIManager:new()
   self.scriptFunctions = {
     loadMain = function() _Game:loadMain() end,
     initSession = function() _Game:initSession() end,
+    sessionTerminate = function() _Game.session:terminate() end,
     loadingGetProgress = function() return _Game.resourceManager:getLoadProgress("main") end,
 
     levelStart = function() _Game.session:startLevel() end,

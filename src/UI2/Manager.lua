@@ -21,6 +21,7 @@ function UI2Manager:new()
     self.scriptFunctions = {
         loadMain = function() _Game:loadMain() end,
         initSession = function() _Game:initSession() end,
+        sessionTerminate = function() _Game.session:terminate() end,
         loadingGetProgress = function() return _Game.resourceManager.stepLoadProcessedObjs / _Game.resourceManager.stepLoadTotalObjs end,
 
         levelStart = function() _Game.session:startLevel() end,
