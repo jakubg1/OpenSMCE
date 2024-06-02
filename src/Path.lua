@@ -114,31 +114,14 @@ end
 ---Updates the Path.
 ---@param dt number Delta time in seconds.
 function Path:update(dt)
-	-- First check whether a new chain should spawn, and only then process the existing ones.
-	-- Otherwise, a new chain will always spawn even if the target is reached, because the level must update its objectives for this to count!
-	if self:shouldSpawn() then
-		self:spawnChain()
-	end
-
 	for i, sphereChain in ipairs(self.sphereChains) do
 		if not sphereChain.delQueue then
 			sphereChain:update(dt)
 		end
 	end
 
-	if self.pathIntroductionOffset then
-		local pathIntroductionConfig = _Game.configManager.gameplay.pathIntroduction
-		self.pathIntroductionOffset = self.pathIntroductionOffset + pathIntroductionConfig.speed * dt
-		-- Spawn particles.
-		while self.pathIntroductionTrailDistance < self.pathIntroductionOffset do
-			_Game:spawnParticle(pathIntroductionConfig.particle, self:getPos(self.pathIntroductionTrailDistance))
-			self.pathIntroductionTrailDistance = self.pathIntroductionTrailDistance + pathIntroductionConfig.separation
-		end
-		-- Finish introducing the path once it reaches the end.
-		if self.pathIntroductionOffset > self.length then
-			self.pathIntroductionOffset = nil
-			self.pathIntroductionTrailDistance = 0
-		end
+	if self:shouldSpawn() then
+		self:spawnChain()
 	end
 
 	for i, pathEntity in ipairs(self.pathEntities) do
@@ -165,9 +148,13 @@ end
 ---Returns `true` if this Path will spawn a new Sphere Chain right now.
 ---@return boolean
 function Path:shouldSpawn()
-	if _Game:levelExists() and (self.map.level:getCurrentSequenceStepType() ~= "gameplay" or self.map.level:areAllObjectivesReached()) then return false end
+	if _Game:levelExists() and (self.map.level:getCurrentSequenceStepType() ~= "gameplay" or self.map.level:areAllObjectivesReached()) then
+		return false
+	end
 	for i, sphereChain in ipairs(self.sphereChains) do
-		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * self.spawnDistance then return false end
+		if not sphereChain.delQueue and sphereChain.sphereGroups[#sphereChain.sphereGroups].offset < self.length * self.spawnDistance then
+			return false
+		end
 	end
 	return true
 end

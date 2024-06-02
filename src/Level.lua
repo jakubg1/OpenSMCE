@@ -88,9 +88,6 @@ function Level:updateLogic(dt)
 	self.map:update(dt)
 	self.shooter:update(dt)
 
-	-- Objectives
-	self:updateObjectives()
-
 	-- Danger sound
 	if self.dangerLoopSoundName then
 		local d1 = self:getDanger() and not self.lost
@@ -267,6 +264,9 @@ function Level:updateLogic(dt)
 			self:advanceSequenceStep()
 		end
 	end
+
+	-- Objectives
+	self:updateObjectives()
 end
 
 
@@ -438,6 +438,7 @@ end
 ---Returns whether all objectives defined in this level have been reached.
 ---@return boolean
 function Level:areAllObjectivesReached()
+	self:updateObjectives()
 	for i, objective in ipairs(self.objectives) do
 		if not objective.reached then
 			return false
