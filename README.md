@@ -33,29 +33,25 @@ For more information, you can take a look at the [Beta 5.0 issue list](https://g
 ### Further plans
 After 1.0.0 is released, I'll focus on making new features and working on *Luxor 2* support.
 
-## Overview
-This engine was made in order to help the Sphere Matcher community.
-Sphere Matching game genre is niche and only a few good titles are released.
-In order to make the gameplay less boring and more challenging, the community decided to start modding games, most notably the first version of *Luxor*, along with *Luxor: Amun Rising*.
-
-However, the original engine, while it allows for some flexibility, is filled with bugs and hardcoded parts which can't be changed without decompiling the original executable, a time-consuming and arguably illegal process.
-There were also no attempts to rewrite and improve the original engine, in order for modders to have more control of what they can do.
-This is why *OpenSMCE* was created - a project that is attempting to rewrite the Luxor game (not reverse engineer!) along with making it much more flexible and open-source.
-
 ## Launching
 If you have LÖVE2D installed, you can run the game by launching `start.bat`.
 Note that you may need to change the LÖVE executable path in that file first.
 
 ## Games
-The engine runs games and thus you need to have some installed.
+Currently, the only game that is supported by this engine is the original *Luxor* game.
+However, its raw data cannot be used directly in this engine - it needs to be converted to a format OpenSMCE uses.
+
+To do this, a [game converter](https://github.com/jakubg1/OpenSMCE_Converter) has been created.
+Refer to README.txt in the release package for more information.
+
+You can have multiple games at once - each game is its own directory in the `games` folder.
+
+<!--The engine runs games and thus you need to have some installed.
 You can install games by putting them in the `games` directory where the executable/batch script sits.
 
 There are no games publicly available right now, however three games are known to be converted.
 We will provide tools to convert and create games at some point.
-In the future, we are considering bundling all releases with a builtin game - to save you the hassle! More info soon.
-
-The game converter has its own separate repository: https://github.com/jakubg1/OpenSMCE_Converter.
-It currently supports only Luxor 1. If you want to help with other versions/games, feel free to open a ticket on its issue list, or contribute!
+In the future, we are considering bundling all releases with a builtin game - to save you the hassle! More info soon.-->
 
 ## What do I need?
 - For running the engine and playing the games:
