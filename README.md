@@ -102,16 +102,12 @@ LICENSE
 ## Documentation
 Code documentation is done by LDoc annotations in source files which are parsed and displayed in Visual Studio Code. Not all classes have been documented yet. See [contribution guidelines](https://github.com/jakubg1/OpenSMCE/blob/master/CONTRIBUTING.md) for more info.
 
-Game documentation can be found in `doc/game`. Data for the documentation is stored in `doc/game/data.txt` in a pseudo-language called Doc Language, and all structures and descriptions are sourced from schemas, found in the `schemas` folder.
-The `doc/game/generate.py` script reads the `doc/game/data.txt` file, loads appropriate schemas and converts them to the Doc Language. The intermediate state of this data is printed to the console. Then, the generator takes pure Doc Language data and converts it into HTML code. This code is stored as HTML pages in the `doc/game/out` directory.
-
-You may notice there are already generated HTML files in this directory - they're outdated files. I don't know yet whether to move the game documentation to a separate repository or to just gitignore the files. Please do not use the outdated documentation, and generate a new set of files instead.
-You must have Python 3.x installed on your system in order to run the documentation generator.
+Game documentation can be found in `doc/game`.
+Note that you must generate it yourself - run the `generate.py` script in that folder using Python 3.
 
 For more information on how the documentation generator works, you can look into [this article](https://github.com/jakubg1/OpenSMCE/wiki/The-Doc-Language).
 
-
-
+## Credits
 This repository contains code and other assets from the following sources:
   - Class implementation from https://github.com/bncastle/love2d-tutorial/blob/Episode4/class.lua (MIT license)
   - JSON decoder/encoder implementation from https://github.com/rxi/json.lua (MIT license)
