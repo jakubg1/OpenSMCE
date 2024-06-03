@@ -365,13 +365,13 @@ end
 function UIWidget:drawDebug()
 	-- Draw position
 	local p = _PosOnScreen(self:getPos())
-	love.graphics.setColor(1, 0, 0)
+	love.graphics.setColor(1, 0, 1)
 	love.graphics.line(p.x - 8, p.y, p.x + 8, p.y)
 	love.graphics.line(p.x, p.y - 8, p.x, p.y + 8)
 	-- Draw size
 	local s = self:getSize() * _GetResolutionScale()
 	local ps = (self.widget and self.widget.align) and _PosOnScreen(self:getPos() - self:getSize() * self.widget.align) or p
-	love.graphics.setColor(1, 1, 0, 0.3 * self:getAlpha())
+	love.graphics.setColor(1, 0, 1, 0.4 * self:getAlpha())
 	love.graphics.rectangle("fill", ps.x, ps.y, s.x, s.y)
 end
 
