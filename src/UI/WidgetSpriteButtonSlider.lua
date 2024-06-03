@@ -54,4 +54,8 @@ function UIWidgetSpriteButtonSlider:draw()
 	self.button:draw()
 end
 
+function UIWidgetSpriteButtonSlider:getSize()
+	return self.button.size
+end
+
 return UIWidgetSpriteButtonSlider

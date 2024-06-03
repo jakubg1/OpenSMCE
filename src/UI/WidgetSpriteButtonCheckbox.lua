@@ -51,4 +51,8 @@ function UIWidgetSpriteButtonCheckbox:draw()
 	self.button:draw()
 end
 
+function UIWidgetSpriteButtonCheckbox:getSize()
+	return self.button.size
+end
+
 return UIWidgetSpriteButtonCheckbox

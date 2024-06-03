@@ -21,4 +21,8 @@ function UIWidgetSprite:draw()
 	self.sprite:draw(self.parent:getPos(), nil, nil, nil, nil, nil, self.parent:getAlpha())
 end
 
+function UIWidgetSprite:getSize()
+	return self.sprite.frameSize
+end
+
 return UIWidgetSprite

@@ -109,9 +109,11 @@ function UIWidget:new(name, data, parent)
 end
 
 function UIWidget:update(dt)
+	-- Update the animations.
 	if self.animationTime then
 		self.animationTime = self.animationTime + dt
 
+		-- Pick one of two available animations and interpolate: either the position, or the alpha value.
 		local animation = self.visible and self.animations.in_ or self.animations.out
 		local t = math.min(self.animationTime / animation.time, 1)
 		if animation.type == "fade" then
@@ -120,55 +122,88 @@ function UIWidget:update(dt)
 			self.pos = _ParseVec2(animation.startPos) * (1 - t) + _ParseVec2(animation.endPos) * t
 		end
 
+		-- If the animation has finished:
 		if self.animationTime >= animation.time then
 			self.animationTime = nil
 			if self.visible then
+				-- If this Widget has finished appearing.
 				self:executeAction("showEnd")
-				if self.widget and self.widget.type == "particle" then self.widget:spawn() end
+				if self.widget and self.widget.type == "particle" then
+					self.widget:spawn()
+				end
 			else
+				-- If this Widget has finished disappearing.
 				self:executeAction("hideEnd")
 			end
-			--if not self.visible then self.alpha = 0 end
-			-- instead, you need to clean up the black background manually!
 		end
 	end
+
+	-- Update the scheduled show/delay time, but only if our parent is visible (or we are a root node).
 	if self.time and (not self.parent or self.parent:isVisible()) then
 		self.time = self.time - dt
 		if self.time <= 0 then
 			self.time = nil
-			if self.visible then self:hide() else self:show() end
+			-- If we're visible, hide us, otherwise - show us.
+			if self.visible then
+				self:hide()
+			else
+				self:show()
+			end
 		end
 	end
-	-- schedule if was deliberately cancelled from the timer - avoid softlock
+	-- Reschedule the show/delay once our parent has gone invisible, so we can fire ourselves once again.
 	if not self.time and self.parent and not self.parent:isVisible() then
-		if self.visible then self.time = self.hideDelay else self.time = self.showDelay end
+		if self.visible then
+			self.time = self.hideDelay
+		else
+			self.time = self.showDelay
+		end
 	end
-	if self.widget and self.widget.update then self.widget:update(dt) end
 
+	-- Update the widget, if applicable.
+	if self.widget and self.widget.update then
+		self.widget:update(dt)
+	end
+
+	-- Propagate updates to children.
 	for childN, child in pairs(self.children) do
 		child:update(dt)
 	end
 end
 
 function UIWidget:show()
-	if self.time then return end
+	-- Don't show us if we're scheduled to show later.
+	if self.time then
+		return
+	end
+
+	-- If we're not visible, do the main showing procedure.
 	if not self.visible then
-		--print("[" .. tostring(totalTime) .. "] " .. self:getFullName() .. " shown")
 		self.visible = true
 		if self.animations.in_ then
+			-- If we have an animation defined, start the animation.
 			self.animationTime = 0
 			if self.animations.in_.type == "fade" then -- prevent background flickering on the first frame
 				self.alpha = self.animations.in_.startValue
 			end
 		else
-			self.animationTime = nil -- sets to 0 if animation exists, nil otherwise
+			-- Otherwise, assume that we're just going to pop up with full opacity.
+			self.animationTime = nil
 			self.alpha = 1
-			if self.widget and self.widget.type == "particle" then self.widget:spawn() end
+			-- Don't forget to spawn the particle, if we're a particle widget!
+			if self.widget and self.widget.type == "particle" then
+				self.widget:spawn()
+			end
 		end
-		if self.sounds.in_ then self.sounds.in_:play() end
+		-- Play the sound if defined.
+		if self.sounds.in_ then
+			self.sounds.in_:play()
+		end
 	end
+	-- Start ticking the time to hide ourselves again.
 	self.time = self.hideDelay
 
+	-- Show all children too, if they allow propagation.
 	for childN, child in pairs(self.children) do
 		if child.inheritShow then
 			child:show()
@@ -177,23 +212,32 @@ function UIWidget:show()
 end
 
 function UIWidget:hide()
-	if not self.showPermanently then
-		if self.visible then
-			--print("[" .. tostring(totalTime) .. "] " .. self:getFullName() .. " hidden")
-			self.visible = false
-			if self.animations.out then
-				self.animationTime = 0
-			else
-				self.animationTime = nil -- sets to 0 if animation exists, nil otherwise
-				if self.widget and self.widget.type == "particle" then self.widget:despawn() end
-			end
-			if self.sounds.out then self.sounds.out:play() end
-			self.time = self.showDelay
+	-- If we're visible, do the main hiding procedure.
+	if self.visible then
+		self.visible = false
+		if self.animations.out then
+			-- If we have an animation defined, start the animation.
+			self.animationTime = 0
 		else
-			self.time = nil
+			-- Otherwise, why are we not hiding ourselves immediately?
+			self.animationTime = nil
+			-- Oh, and despawn the particles, too.
+			if self.widget and self.widget.type == "particle" then
+				self.widget:despawn()
+			end
 		end
+		-- Play the sound if defined.
+		if self.sounds.out then
+			self.sounds.out:play()
+		end
+		-- Start ticking the timer to show ourselves again.
+		self.time = self.showDelay
+	else
+		-- Wait, so if we hide ourselves twice, the timer gets cancelled and the widget stays hidden forever?
+		self.time = nil
 	end
 
+	-- Hide all children too, if they allow propagation.
 	for childN, child in pairs(self.children) do
 		if child.inheritHide then
 			child:hide()
@@ -202,15 +246,20 @@ function UIWidget:hide()
 end
 
 function UIWidget:clean()
-	if not self.showPermanently then self.alpha = 0 end
-	if self.widget and self.widget.type == "particle" then self.widget:clean() end
+	self.alpha = 0
+	if self.widget and self.widget.type == "particle" then
+		self.widget:clean()
+	end
+
 	for childN, child in pairs(self.children) do
 		child:clean()
 	end
 end
 
 function UIWidget:click()
-	if self.active and self.widget and self.widget.click then self.widget:click() end
+	if self.active and self.widget and self.widget.click then
+		self.widget:click()
+	end
 
 	for childN, child in pairs(self.children) do
 		child:click()
@@ -218,7 +267,9 @@ function UIWidget:click()
 end
 
 function UIWidget:unclick()
-	if self.widget and self.widget.unclick then self.widget:unclick() end
+	if self.widget and self.widget.unclick then
+		self.widget:unclick()
+	end
 
 	for childN, child in pairs(self.children) do
 		child:unclick()
@@ -226,7 +277,9 @@ function UIWidget:unclick()
 end
 
 function UIWidget:keypressed(key)
-	if self.active and self.widget and self.widget.keypressed then self.widget:keypressed(key) end
+	if self.active and self.widget and self.widget.keypressed then
+		self.widget:keypressed(key)
+	end
 
 	for childN, child in pairs(self.children) do
 		child:keypressed(key)
@@ -234,15 +287,19 @@ function UIWidget:keypressed(key)
 end
 
 function UIWidget:textinput(t)
-	if self.active and self.widget and self.widget.textinput then self.widget:textinput(t) end
+	if self.active and self.widget and self.widget.textinput then
+		self.widget:textinput(t)
+	end
 
 	for childN, child in pairs(self.children) do
 		child:textinput(t)
 	end
 end
 
-function UIWidget:setActive(r)
-	if not r then _Game.uiManager:resetActive() end
+function UIWidget:setActive(keepAlreadyActive)
+	if not keepAlreadyActive then
+		_Game.uiManager:resetActive()
+	end
 
 	self.active = true
 
@@ -284,53 +341,6 @@ end
 
 
 
--- APPROACH 1: ORIGINAL
---[[
-function UIWidget:generateDrawData()
-	for childN, child in pairs(self.children) do
-		child:generateDrawData()
-	end
-	if self.widget and self.widget.type == "text" then
-		self.widget.textTmp = parseString(self.widget.text)
-	end
-end
-
-function UIWidget:draw(layer)
-	for childN, child in pairs(self.children) do
-		child:draw(layer)
-	end
-	dbg.uiWidgetCount = dbg.uiWidgetCount + 1
-	if self:getAlpha() == 0 then return end -- why drawing excessively?
-	if self.widget and self:getLayer() == layer then self.widget:draw() end
-end
-]]--
-
-
-
--- APPROACH 2: OPTIMIZED
-
---[[
-function UIWidget:generateDrawData()
-	for childN, child in pairs(self.children) do
-		child:generateDrawData()
-	end
-	if self.widget and self.widget.type == "text" then
-		self.widget.textTmp = parseString(self.widget.text)
-	end
-end
-
-function UIWidget:draw(layer)
-	if self:getAlpha() == 0 then return end -- why drawing excessively?
-	for childN, child in pairs(self.children) do
-		child:draw(layer)
-	end
-	dbg.uiWidgetCount = dbg.uiWidgetCount + 1
-	if self.widget and self:getLayer() == layer then self.widget:draw() end
-end
-]]--
-
-
--- APPROACH 3: MASSIVELY OPTIMIZED
 function UIWidget:generateDrawData(layers, startN)
 	for childN, child in pairs(self.children) do
 		child:generateDrawData(layers, startN)
@@ -352,6 +362,19 @@ function UIWidget:draw()
 	self.widget:draw()
 end
 
+function UIWidget:drawDebug()
+	-- Draw position
+	local p = _PosOnScreen(self:getPos())
+	love.graphics.setColor(1, 0, 0)
+	love.graphics.line(p.x - 8, p.y, p.x + 8, p.y)
+	love.graphics.line(p.x, p.y - 8, p.x, p.y + 8)
+	-- Draw size
+	local s = self:getSize() * _GetResolutionScale()
+	local ps = (self.widget and self.widget.align) and _PosOnScreen(self:getPos() - self:getSize() * self.widget.align) or p
+	love.graphics.setColor(1, 1, 0, 0.3 * self:getAlpha())
+	love.graphics.rectangle("fill", ps.x, ps.y, s.x, s.y)
+end
+
 
 
 
@@ -370,16 +393,6 @@ function UIWidget:getNames(t)
 	return self.parent and self.parent:getNames(t) or t
 end
 
--- This function is phased out because it literally outputs itself but with less data.
--- function UIWidget:getTreeData()
-	-- -- You may want to run this on the highest widget.
-	-- local data = {name = self.name, visible = self.visible, time = self.time, children = {}}
-	-- for childN, child in pairs(self.children) do
-		-- table.insert(data.children, child:getTreeData())
-	-- end
-	-- return data
--- end
-
 function UIWidget:getPos()
 	if self.parent and self.inheritPos then
 		local parentPos = self.parent:getPos()
@@ -392,37 +405,49 @@ function UIWidget:getPos()
 	end
 end
 
+function UIWidget:getSize()
+	if self.widget and self.widget.getSize then
+		return self.widget:getSize()
+	end
+	return Vec2()
+end
+
 function UIWidget:getAlpha()
-	if self.parent then return self.parent:getAlpha() * self.alpha else return self.alpha end
+	return self.parent and self.parent:getAlpha() * self.alpha or self.alpha
 end
 
 function UIWidget:getLayer()
-	if self.layer then return self.layer else return self.parent:getLayer() end
+	return self.layer or self.parent:getLayer()
 end
 
--- function UIWidget:getVisible()
-	-- local b = false
-	-- for childN, child in pairs(self.children) do
-		-- b = b or child:getVisible()
-	-- end
-	-- return b or (self.visible and not self.showPermanently)
--- end
-
 function UIWidget:isVisible()
-	if self.parent then return self.parent:isVisible() and self.visible else return self.visible end
+	return self.visible and (not self.parent or self.parent:isVisible())
 end
 
 function UIWidget:isActive()
-	if not self.widget then return false end
-	return self:isVisible() and self.active and self.widget.enableForced
+	if self.widget then
+		return self:isVisible() and self.active and self.widget.enableForced
+	end
+	return false
 end
 
-function UIWidget:getAnimationFinished()
-	local b = true
-	for childN, child in pairs(self.children) do
-		b = b and child:getAnimationFinished()
+function UIWidget:isNotAnimating()
+	if self.animationTime then
+		return false
 	end
-	return b and not self.animationTime
+	for childN, child in pairs(self.children) do
+		if not child:isNotAnimating() then
+			return false
+		end
+	end
+	return true
+end
+
+function UIWidget:hasChildren()
+	for childN, child in pairs(self.children) do
+		return true
+	end
+	return false
 end
 
 
@@ -443,7 +468,9 @@ function UIWidget:executeAction(actionType)
 end
 
 function UIWidget:scheduleFunction(actionType, f)
-	if not self.actions[actionType] then self.actions[actionType] = {} end
+	if not self.actions[actionType] then
+		self.actions[actionType] = {}
+	end
 	table.insert(self.actions[actionType], f)
 end
 

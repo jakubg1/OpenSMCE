@@ -76,4 +76,8 @@ function UIWidgetSpriteButton:getState()
 	return 1
 end
 
+function UIWidgetSpriteButton:getSize()
+	return self.size
+end
+
 return UIWidgetSpriteButton

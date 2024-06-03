@@ -43,6 +43,16 @@ _VERSION_NAME = "Beta 4.8.0"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 _START_TIME = love.timer.getTime()
 
+-- Colors
+_COLORS = {
+	red = {1, 0.2, 0.2},
+	purple = {1, 0.2, 1},
+	green = {0.2, 1, 0.2},
+	aqua = {0.2, 1, 1},
+	white = {1, 1, 1},
+	yellow = {1, 1, 0.2}
+}
+
 -- Fonts
 _FONT = _Utils.loadFont("assets/dejavusans.ttf")
 _FONT_MED = _Utils.loadFont("assets/dejavusans.ttf", 14)

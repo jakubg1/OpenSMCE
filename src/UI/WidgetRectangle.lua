@@ -25,4 +25,8 @@ function UIWidgetRectangle:draw()
 	love.graphics.rectangle("fill", pos.x, pos.y, size.x, size.y)
 end
 
+function UIWidgetRectangle:getSize()
+	return self.size
+end
+
 return UIWidgetRectangle

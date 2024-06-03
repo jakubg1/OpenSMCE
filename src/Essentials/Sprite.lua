@@ -18,7 +18,7 @@ function Sprite:new(data, path)
 
 	self.img = _Game.resourceManager:getImage(data.path)
 	self.size = self.img.size
-	self.frameSize = data.frameSize
+	self.frameSize = _ParseVec2(data.frameSize)
 	self.states = {}
 	for i, state in ipairs(data.states) do
 		local s = {}

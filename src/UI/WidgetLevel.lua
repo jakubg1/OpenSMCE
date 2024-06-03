@@ -19,11 +19,13 @@ end
 
 
 function UIWidgetLevel:update(dt)
-	if not self.parent.visible then return end
+	if not self.parent.visible then
+		return
+	end
 	self.level:update(dt)
 end
 
-function UIWidgetLevel:draw(variables)
+function UIWidgetLevel:draw()
 	self.level:draw()
 end
 

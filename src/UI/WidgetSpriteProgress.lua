@@ -43,4 +43,8 @@ function UIWidgetSpriteProgress:draw(variables)
 	love.graphics.setScissor()
 end
 
+function UIWidgetSpriteProgress:getSize()
+	return self.size
+end
+
 return UIWidgetSpriteProgress

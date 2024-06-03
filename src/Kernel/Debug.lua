@@ -66,11 +66,14 @@ function Debug:new()
 	self.sphereDebugVisible = false
 	self.sphereDebugVisible2 = false
 
-	-- debug text positions
+	-- widget debug variables
 	self.uiWidgetDebugCount = 0
 	self.uiMouse = Vec2()
 	self.uiMousePressed = false
 	self.uiScrollPressOffset = nil
+	self.uiHoveredEntry = nil
+	self.uiCollapsedEntries = {}
+	self.uiAutoCollapseInvisible = false
 end
 
 
@@ -92,22 +95,23 @@ function Debug:draw()
 	self.console:draw()
 
 	-- UI tree
-	if self.uiDebugVisible and _Game.sessionExists then
+	if self.uiDebugVisible then
 		-- Scrolling logic.
 		local height = love.graphics.getHeight()
+		local mousePos = _PosOnScreen(_MousePos)
 		local scrollbarWidth = 15
 		local scrollbarHeight = 50
 		local logicalHeight = height - scrollbarHeight
-		local maxWidgets = logicalHeight / 15
-		local maxOffset = (self.uiWidgetDebugCount - maxWidgets) * 15
+		local maxWidgets = height / 15
+		local maxOffset = (self.uiWidgetDebugCount - maxWidgets) * 15 + 30
 
 		-- if the mouse is in clicked state then move the rectangle here
 		if love.mouse.isDown(1) then
 			if not self.uiScrollPressOffset then
-				self.uiScrollPressOffset = self.uiDebugOffset - _PosOnScreen(_MousePos).y * (maxOffset / logicalHeight)
+				self.uiScrollPressOffset = self.uiDebugOffset - mousePos.y * (maxOffset / logicalHeight)
 			end
 			if self.uiMouse.x < scrollbarWidth then
-				self.uiDebugOffset = _PosOnScreen(_MousePos).y * (maxOffset / logicalHeight) + self.uiScrollPressOffset
+				self.uiDebugOffset = mousePos.y * (maxOffset / logicalHeight) + self.uiScrollPressOffset
 			end
 		else
 			self.uiScrollPressOffset = nil
@@ -116,19 +120,36 @@ function Debug:draw()
 		-- Enforce the limits.
 		self.uiDebugOffset = math.max(math.min(self.uiDebugOffset, maxOffset), 0)
 
+		-- Which one we've hovered?
+		local hover = nil
+		if mousePos.x > 15 and mousePos.x < 500 then
+			hover = math.floor((self.uiDebugOffset + mousePos.y) / 15)
+		end
+
+		self.uiHoveredEntry = nil
+
 		-- Draw stuff.
 		love.graphics.setColor(0, 0, 0, 0.7)
 		love.graphics.rectangle("fill", 0, 0, 500, height)
-		love.graphics.setColor(1, 1, 1)
 		for i, line in ipairs(self:getUITreeText()) do
-			love.graphics.print({line[9],line[1]}, 20, i * 15 - self.uiDebugOffset)
-			love.graphics.print(line[2], 260, i * 15 - self.uiDebugOffset)
-			love.graphics.print(line[3], 270, i * 15 - self.uiDebugOffset)
-			love.graphics.print(line[4], 280, i * 15 - self.uiDebugOffset)
-			love.graphics.print(line[5], 310, i * 15 - self.uiDebugOffset)
-			love.graphics.print(line[6], 340, i * 15 - self.uiDebugOffset)
-			love.graphics.print(line[7], 370, i * 15 - self.uiDebugOffset)
-			love.graphics.print(line[8], 410, i * 15 - self.uiDebugOffset)
+			local y = i * 15 - self.uiDebugOffset
+			if i == hover then
+				love.graphics.setColor(1, 0, 1, 0.3)
+				love.graphics.rectangle("fill", 15, y, 485, 15)
+				self.uiHoveredEntry = line[10]
+			elseif self.uiAutoCollapseInvisible and line[11] then
+				love.graphics.setColor(0, 0, 1, 0.3)
+				love.graphics.rectangle("fill", 15, y, 485, 15)
+			end
+			love.graphics.setColor(1, 1, 1)
+			love.graphics.print({line[9],line[1]}, 20, y)
+			love.graphics.print(line[2], 260, y)
+			love.graphics.print(line[3], 270, y)
+			love.graphics.print(line[4], 280, y)
+			love.graphics.print(line[5], 310, y)
+			love.graphics.print(line[6], 340, y)
+			love.graphics.print(line[7], 370, y)
+			love.graphics.print(line[8], 410, y)
 		end
 
 		-- draw the scroll rectangle
@@ -142,6 +163,11 @@ function Debug:draw()
 		end
 	end
 
+	-- Draw some debug stuff with the hovered widget.
+	if self.uiHoveredEntry then
+		self.uiHoveredEntry:drawDebug()
+	end
+
 	-- Game and spheres
 	if self.gameDebugVisible then self:drawDebugInfo() end
 	if self.fpsDebugVisible then self:drawFpsInfo() end
@@ -151,7 +177,14 @@ end
 function Debug:keypressed(key)
 	if not self.console.active then
 		if key == "f1" then self.profVisible = not self.profVisible end
-		if key == "f2" then self.uiDebugVisible = not self.uiDebugVisible end
+		if key == "f2" then
+			if love.keyboard.isDown("lctrl", "rctrl") then
+				self.uiAutoCollapseInvisible = not self.uiAutoCollapseInvisible
+				self.console:print({_COLORS.aqua, string.format("[UI Debug] Auto-collapsing hidden UI elements: %s", self.uiAutoCollapseInvisible and "ON" or "OFF")})
+			else
+				self.uiDebugVisible = not self.uiDebugVisible
+			end
+		end
 		if key == "f3" then self.particleSpawnersVisible = not self.particleSpawnersVisible end
 		if key == "f4" then self.gameDebugVisible = not self.gameDebugVisible end
 		if key == "f5" then self.fpsDebugVisible = not self.fpsDebugVisible end
@@ -183,6 +216,13 @@ end
 function Debug:mousereleased(x, y, button)
 	if button == 1 then
 		self.uiMouse = Vec2(x, y)
+		if self.uiHoveredEntry then
+			if self.uiCollapsedEntries[self.uiHoveredEntry] then
+				self.uiCollapsedEntries[self.uiHoveredEntry] = nil
+			else
+				self.uiCollapsedEntries[self.uiHoveredEntry] = true
+			end
+		end
 	end
 end
 
@@ -205,11 +245,16 @@ function Debug:getUITreeText(node, rowTable, indent)
 	end
 	rowTable = rowTable or {}
 	indent = indent or 0
-	--if indent > 1 then return end
 
 	if node then
+		local forAutoCollapsing = not ui2 and (node:hasChildren() and not node:isVisible() and node:isNotAnimating())
+		local collapsed = node:hasChildren() and self.uiCollapsedEntries[node] or (self.uiAutoCollapseInvisible and forAutoCollapsing)
+
 		local name = node.name
 		for i = 1, indent do name = "    " .. name end
+		if collapsed then
+			name = name .. " ..."
+		end
 		local visible = ""
 		local visible2 = ""
 		if not ui2 then
@@ -231,16 +276,18 @@ function Debug:getUITreeText(node, rowTable, indent)
 		local pos = tostring(node.pos)
 		local color = node.debugColor or {1, 1, 1}
 
-		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color})
+		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color, node, forAutoCollapsing})
 		self.uiWidgetDebugCount = self.uiWidgetDebugCount + 1
 
-		local children = {}
-		for childN, child in pairs(node.children) do
-			table.insert(children, child)
-		end
-		table.sort(children, function(a, b) return a.name < b.name end)
-		for i, child in ipairs(children) do
-			self:getUITreeText(child, rowTable, indent + 1)
+		if not collapsed then
+			local children = {}
+			for childN, child in pairs(node.children) do
+				table.insert(children, child)
+			end
+			table.sort(children, function(a, b) return a.name < b.name end)
+			for i, child in ipairs(children) do
+				self:getUITreeText(child, rowTable, indent + 1)
+			end
 		end
 	end
 
@@ -480,7 +527,7 @@ function Debug:runCommand(command)
 	local command = words[1]
 	local commandData = self.commands[command]
 	if not commandData then
-		self.console:print({{1, 0.2, 0.2}, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
+		self.console:print({_COLORS.red, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
 		return
 	end
 
@@ -490,14 +537,14 @@ function Debug:runCommand(command)
 		local raw = words[i + 1]
 		if not raw then
 			if not parameter.optional then
-				self.console:print({{1, 0.2, 0.2}, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
+				self.console:print({_COLORS.red, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
 				return
 			end
 		else
 			if parameter.type == "number" or parameter.type == "integer" then
 				raw = tonumber(raw)
 				if not raw then
-					self.console:print({{1, 0.2, 0.2}, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
+					self.console:print({_COLORS.red, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
 					return
 				end
 			end
@@ -513,25 +560,25 @@ function Debug:runCommand(command)
 
 	-- Command handling
 	if command == "help" then
-		self.console:print({{1, 0.2, 1}, "This is a still pretty rough console of OpenSMCE!"})
-		self.console:print({{0.2, 1, 0.2}, "Available commands:"})
+		self.console:print({_COLORS.purple, "This is a still pretty rough console of OpenSMCE!"})
+		self.console:print({_COLORS.green, "Available commands:"})
 		for i, name in ipairs(self.commandNames) do
 			local commandData = self.commands[name]
-			local msg = {{1, 1, 0.2}, name}
+			local msg = {_COLORS.yellow, name}
 			for i, parameter in ipairs(commandData.parameters) do
 				local name = parameter.name
 				if parameter.greedy then
 					name = name .. "..."
 				end
 				if parameter.optional then
-					table.insert(msg, {0.2, 1, 1})
+					table.insert(msg, _COLORS.aqua)
 					table.insert(msg, string.format(" [%s]", name))
 				else
-					table.insert(msg, {0.2, 1, 1})
+					table.insert(msg, _COLORS.aqua)
 					table.insert(msg, string.format(" <%s>", name))
 				end
 			end
-			table.insert(msg, {1, 1, 1})
+			table.insert(msg, _COLORS.white)
 			table.insert(msg, " - " .. commandData.description)
 			self.console:print(msg)
 		end
@@ -541,7 +588,7 @@ function Debug:runCommand(command)
 			if parameters[1] == word then
 				if word == "bomb" then
 					if not parameters[2] or parameters[2] < 1 or parameters[2] > 7 then
-						self.console:print({{1, 0.2, 0.2}, "Missing parameter (expected an integer from 1 to 7)."})
+						self.console:print({_COLORS.red, "Missing parameter (expected an integer from 1 to 7)."})
 						return
 					end
 					_Game.session:usePowerup({name = name, color = parameters[2]})
