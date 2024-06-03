@@ -57,17 +57,18 @@ In the future, we are considering bundling all releases with a builtin game - to
 - For running the engine and playing the games:
   - just the executable, the files, the game and you're ready to go
 
-- For modifying the games:
-  - same as above, plus some editors like you're modding Luxor, JSON knowledge (just a bit)
+- For modifying the games, additionally:
+  - a text editor (preferably *Visual Studio Code* for schema/autofill support), some JSON knowledge
 
-- For modifying the engine:
-  - same as above, a text editor (preferably *Visual Studio Code*), Lua knowledge, JSON knowledge, LÖVE 11.3 installed. You can also take a look at contribution guidelines.
+- For modifying the engine, additionally:
+  - Lua knowledge, LÖVE2D 11.5 installed.
+  - You can also take a look at [contribution guidelines](https://github.com/jakubg1/OpenSMCE/blob/master/CONTRIBUTING.md).
 
 ### Building instructions
 I am using a batch script for creating the OpenSMCE.exe file. This will work under a few assumptions:
 - You're using a Windows operating system.
 - You have 7-Zip installed on your computer and added to your PATH.
-- You have LOVE2D installed and it sits under `C:\Program Files\LOVE\love.exe`.
+- You have LÖVE2D installed and it is installed in `C:\Program Files\LOVE\love.exe`.
 - The OpenSMCE source code folder is located in the folder named `OpenSMCE` relative to the folder the script is in.
 - An `exlist.txt` file is located in the same folder the main batch script you're running is in, with the contents shown below.
 
@@ -99,13 +100,15 @@ LICENSE
 ```
 
 ## Documentation
-Code documentation is done by LDoc annotations in source files which are parsed and displayed in Visual Studio Code. Not all classes have been documented yet. See contribution guidelines for more info.
+Code documentation is done by LDoc annotations in source files which are parsed and displayed in Visual Studio Code. Not all classes have been documented yet. See [contribution guidelines](https://github.com/jakubg1/OpenSMCE/blob/master/CONTRIBUTING.md) for more info.
 
 Game documentation can be found in `doc/game`. Data for the documentation is stored in `doc/game/data.txt` in a pseudo-language called Doc Language, and all structures and descriptions are sourced from schemas, found in the `schemas` folder.
-The `doc/game/generate.py` script reads the `doc/game/data.txt` file, loads appropriate schemas and converts them to the Doc Language. The intermediate state of this data is printed to the console. Then, the generator takes pure Doc Language data and converts it into HTML code. This code is stored as HTML pages in the `doc/game` directory.
+The `doc/game/generate.py` script reads the `doc/game/data.txt` file, loads appropriate schemas and converts them to the Doc Language. The intermediate state of this data is printed to the console. Then, the generator takes pure Doc Language data and converts it into HTML code. This code is stored as HTML pages in the `doc/game/out` directory.
 
 You may notice there are already generated HTML files in this directory - they're outdated files. I don't know yet whether to move the game documentation to a separate repository or to just gitignore the files. Please do not use the outdated documentation, and generate a new set of files instead.
 You must have Python 3.x installed on your system in order to run the documentation generator.
+
+For more information on how the documentation generator works, you can look into [this article](https://github.com/jakubg1/OpenSMCE/wiki/The-Doc-Language).
 
 
 
