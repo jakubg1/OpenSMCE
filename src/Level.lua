@@ -282,6 +282,9 @@ function Level:updateMusic()
 		else
 			-- Play the music accordingly to the danger flag.
 			if self.danger then
+				if self.dangerMusic.volume == 0 then
+					self.dangerMusic:reset()
+				end
 				self.music:setVolume(0)
 				self.dangerMusic:setVolume(1)
 			else
