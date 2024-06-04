@@ -183,6 +183,9 @@ end
 ---Returns whether any meaningful Node like a button has been hovered.
 ---@return boolean
 function UI2Manager:isButtonHovered()
+    if _Debug:isUITreeHovered() then
+        return false
+    end
     for nodeN, node in pairs(self.rootNodes) do
         if node:isButtonHovered() then
             return true

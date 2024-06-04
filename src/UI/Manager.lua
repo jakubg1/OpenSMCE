@@ -205,6 +205,9 @@ end
 ---Returns whether any meaningful UI widget like a button has been hovered.
 ---@return boolean
 function UIManager:isButtonHovered()
+  if _Debug:isUITreeHovered() then
+    return false
+  end
   for widgetN, widget in pairs(self.widgets) do
     if widget:isButtonHovered() then
       return true

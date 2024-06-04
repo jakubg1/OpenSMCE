@@ -190,7 +190,9 @@ function utils.getDirListing(path, filter, extFilter, recursive, pathRec)
 	-- Each folder will get a / character on the end BUT ONLY IN "ALL" FILTER so it's easier to tell whether this is a file or a directory.
 	for i, item in ipairs(items) do
 		local p = path .. "/" .. pathRec .. item
-		if love.filesystem.getInfo(p).type == "directory" then
+		if not love.filesystem.getInfo(p) then
+			print("File " .. p .. " doesn't exist DESPITE BEING LISTED - skipping!")
+		elseif love.filesystem.getInfo(p).type == "directory" then
 			if filter == "all" then
 				table.insert(result, pathRec .. item .. "/")
 			elseif filter == "dir" then
@@ -455,6 +457,17 @@ function utils.jsonBeautify(s)
 	return ret
 end
 
+
+
+---Returns `true` if the given position is inside of a box of given position and size.
+---If the point lies anywhere on the box's edge, the check will still pass.
+---@param p Vector2 The point which is checked against.
+---@param bp Vector2 The position of the upper left corner of the box.
+---@param bs Vector2 The size of the box.
+---@return boolean
+function utils.isPointInsideBox(p, bp, bs)
+	return p.x >= bp.x and p.y >= bp.y and p.x <= (bp.x + bs.x) and p.y <= (bp.y + bs.y)
+end
 
 
 

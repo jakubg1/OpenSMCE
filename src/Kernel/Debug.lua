@@ -95,6 +95,7 @@ function Debug:draw()
 	self.console:draw()
 
 	-- UI tree
+	self.uiHoveredEntry = nil
 	if self.uiDebugVisible then
 		-- Scrolling logic.
 		local height = love.graphics.getHeight()
@@ -125,8 +126,6 @@ function Debug:draw()
 		if mousePos.x > 15 and mousePos.x < 500 then
 			hover = math.floor((self.uiDebugOffset + mousePos.y) / 15)
 		end
-
-		self.uiHoveredEntry = nil
 
 		-- Draw stuff.
 		love.graphics.setColor(0, 0, 0, 0.7)
@@ -292,6 +291,12 @@ function Debug:getUITreeText(node, rowTable, indent)
 	end
 
 	return rowTable
+end
+
+
+
+function Debug:isUITreeHovered()
+	return self.uiDebugVisible and _PosOnScreen(_MousePos).x < 500
 end
 
 
