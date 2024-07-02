@@ -86,9 +86,20 @@ function Debug:draw()
 	-- Profilers
 	if self.profVisible then
 		love.graphics.setColor(1, 1, 1)
+		love.graphics.setFont(_FONT)
 		self.profPages[self.profPage]:draw(Vec2(0, _DisplaySize.y))
 		self.profDraw:draw(Vec2(400, _DisplaySize.y))
 		self.profDraw2:draw(Vec2(400, _DisplaySize.y))
+
+		self:drawVisibleText("Debug Keys:", Vec2(10, 10), 15)
+		self:drawVisibleText("[F1] Performance", Vec2(10, 25), 15)
+		self:drawVisibleText("[F2] UI Tree", Vec2(10, 40), 15)
+		self:drawVisibleText("    [Ctrl+F2] Collapse all invisible UI Nodes", Vec2(10, 55), 15)
+		self:drawVisibleText("[F3] Particle spawners", Vec2(10, 70), 15)
+		self:drawVisibleText("[F4] Miscellaneous (FPS, level data, etc.)", Vec2(10, 85), 15)
+		self:drawVisibleText("[F5] FPS Counter", Vec2(10, 100), 15)
+		self:drawVisibleText("[F6] Sphere trains path overlay", Vec2(10, 115), 15)
+		self:drawVisibleText("[F7] Display heads and tails of Sphere Groups", Vec2(10, 130), 15)
 	end
 
 	-- Console
@@ -459,7 +470,7 @@ end
 function Debug:drawFpsInfo()
 	local s = "FPS = " .. tostring(love.timer.getFPS())
 
-	self:drawVisibleText(s, Vec2(), 15, 50)
+	self:drawVisibleText(s, Vec2(), 15, 65)
 end
 
 
