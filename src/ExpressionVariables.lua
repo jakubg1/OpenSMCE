@@ -119,7 +119,7 @@ function ExpressionVariables:printContents()
         if type(value) == "table" then
             print(string.format("[%s]", key))
             for subkey, subvalue in pairs(value) do
-                print(string.format(" |--- %s.%s = %s", key, subkey, subvalue))
+                print(string.format("        %s.%s = %s", key, subkey, subvalue))
             end
         else
             print(string.format("%s = %s", key, value))
