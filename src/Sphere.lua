@@ -230,8 +230,8 @@ function Sphere:deleteVisually(ghostTime, crushed)
 		if not self.map.level.lost then
 			-- Spawn collectibles, if any.
 			self.path:setOffsetVars("sphere", self:getOffset())
+			_Vars:setC("sphere", "crushed", crushed or false)
 			if self.config.destroyCollectible then
-				_Vars:setC("sphere", "crushed", crushed or false)
 				self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectible)
 			end
 			-- Play a sound.
