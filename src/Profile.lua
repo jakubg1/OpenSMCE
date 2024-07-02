@@ -414,6 +414,24 @@ end
 
 
 
+---Sets the Expression Variables in the `session` context:
+--- - `session.lives` - The amount of lives that the player currently has.
+--- - `session.coins` - The amount of coins.
+--- - `session.score` - The player's current score.
+---
+---If the player does not have a game session active, the variables are removed.
+function Profile:dumpVariables()
+	if self.session then
+		_Vars:setC("session", "lives", self.session.lives)
+		_Vars:setC("session", "coins", self.session.coins)
+		_Vars:setC("session", "score", self.session.score)
+	else
+		_Vars:unset("session")
+	end
+end
+
+
+
 -- Level
 
 ---Increments the level win count, updates the level record if needed and removes the saved level data.

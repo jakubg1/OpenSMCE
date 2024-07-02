@@ -41,7 +41,9 @@ end
 ---Updates the Session.
 ---@param dt number Delta time in seconds.
 function Session:update(dt)
-	if self.level then self.level:update(dt) end
+	if self.level then
+		self.level:update(dt)
+	end
 end
 
 

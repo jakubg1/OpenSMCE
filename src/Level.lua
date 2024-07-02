@@ -369,7 +369,7 @@ end
 
 ---Executes a Score Event at the given position and returns a number of points calculated for further usage.
 ---@param scoreEvent ScoreEventConfig The Score Event config to be used for calculation.
----@param pos Vector2 The position where the Score Event should be executed.
+---@param pos Vector2? The position where the Score Event should be executed. If not provided, the score text will not be displayed.
 ---@return integer
 function Level:executeScoreEvent(scoreEvent, pos)
 	local score = scoreEvent.score:evaluate()
@@ -382,15 +382,18 @@ function Level:executeScoreEvent(scoreEvent, pos)
 	_Vars:setC("event", "score", score)
 	self:grantScore(score)
 
-	local font = scoreEvent.font
-	if scoreEvent.fonts then
-		-- We pick one of the font options.
-		local choice = scoreEvent.fonts.choice:evaluate()
-		font = scoreEvent.fonts.options[choice] or scoreEvent.fonts.default
-	end
-	if font then
-		local text = scoreEvent.text and scoreEvent.text:evaluate() or (score > 0 and _NumStr(score) or "")
-		self:spawnFloatingText(text, pos, font)
+	-- Display the score text (Floating Text) only if a position is provided.
+	if pos then
+		local font = scoreEvent.font
+		if scoreEvent.fonts then
+			-- We pick one of the font options.
+			local choice = scoreEvent.fonts.choice:evaluate()
+			font = scoreEvent.fonts.options[choice] or scoreEvent.fonts.default
+		end
+		if font then
+			local text = scoreEvent.text and scoreEvent.text:evaluate() or (score > 0 and _NumStr(score) or "")
+			self:spawnFloatingText(text, pos, font)
+		end
 	end
 	_Vars:unset("event")
 
