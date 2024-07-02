@@ -2,9 +2,12 @@
 -- from causing damage by, for example, loading a game with a os.execute("format c:") line
 -- in its UI script.
 
+-- TODO: Use proper sandboxing instead.
+
 os = {
 	time = os.time,
-	date = os.date
+	date = os.date,
+	clock = os.clock
 }
 
 
@@ -16,6 +19,10 @@ require("crash")
 
 -- global utility methods
 _Utils = require("com.utils")
+
+-- performance profiler
+PROF_CAPTURE = true
+_Profiler = require("com.jprof")
 
 local json = require("com.json")
 
@@ -110,10 +117,6 @@ _DiscordRPC = nil
 -- CALLBACK ZONE
 
 function love.load(args)
-	--local s = loadFile("test.txt")
-	--print(s)
-	--print(jsonBeautify(s))
-
 	-- Initialize RNG for Boot Screen
 	local _ = math.randomseed(os.time())
 
@@ -148,6 +151,7 @@ function love.load(args)
 		_LoadBootScreen()
 	end
 	--for k, v in pairs(love.graphics.getSystemLimits()) do print(k, v) end
+	_Profiler.connect()
 end
 
 function love.update(dt)
@@ -167,9 +171,11 @@ function love.update(dt)
 	_TotalTime = _TotalTime + dt
 
 	_Debug:profUpdateStop()
+	_Profiler.netFlush()
 end
 
 function love.draw()
+	_Profiler.push("frame")
 	--dbg:profDrawStart()
 
 	-- Main
@@ -181,6 +187,7 @@ function love.draw()
 	_Debug:draw()
 
 	--dbg:profDrawStop()
+	_Profiler.pop("frame")
 end
 
 function love.mousepressed(x, y, button)
@@ -236,6 +243,7 @@ function love.quit()
 	if _Game and _Game.quit then _Game:quit(true) end
 	_DiscordRPC:disconnect()
 	_Log:save(true)
+	_Profiler.write("performance.jprof")
 end
 
 
@@ -341,6 +349,10 @@ function _ParsePath(data)
 	return _FSPrefix .. "games/" .. _Game.name .. "/" .. data
 end
 
+---Returns a path relative to the executable, based on currently loaded game's name.
+---This is a variant which puts dots instead of slashes for the purposes of script loading.
+---@param data string The path to be resolved. Note that any slashes will NOT be converted.
+---@return string?
 function _ParsePathDots(data)
 	if not data then
 		return nil
@@ -348,6 +360,22 @@ function _ParsePathDots(data)
 	return _FSPrefix .. "games." .. _Game.name .. "." .. data
 end
 
+
+
+---Legacy number parsing function, used only by Particles.
+---A number of different types can be provided:
+--- - Passing `nil` will return `nil`.
+--- - Passing a number will return that number.
+--- - Passing a string will return its numeric value.
+--- - Passing a table will check its `type` field:
+---   - `"randomSign"` will return the `value` field with its sign flipped half of the time.
+---   - `"randomInt"` will return a random integer from `min` to `max`.
+---   - `"randomFloat"` will return a random number from `min` to `max`.
+---   - `"expr_graph"` will load a list from the `points` field (each entry is an object with `x` and `y` fields) and will find the Y value for the given X.
+---
+---Please use Expressions instead.
+---@param data number|string|table? Data to be processed.
+---@return number?
 function _ParseNumber(data)
 	if not data then
 		return nil
@@ -392,6 +420,12 @@ function _ParseNumber(data)
 	end
 end
 
+
+
+---Turns a `{x = X, y = Y}` table into a Vector2.
+---If `nil` is provided, `nil` will be returned.
+---@param data table? The table to be converted.
+---@return Vector2?
 function _ParseVec2(data)
 	if not data then
 		return nil
@@ -399,6 +433,12 @@ function _ParseVec2(data)
 	return Vec2(_ParseNumber(data.x), _ParseNumber(data.y))
 end
 
+
+
+---Turns a `{r = R, g = G, b = B}` table into a Color.
+---If `nil` is provided, `nil` will be returned.
+---@param data table? The table to be converted.
+---@return Color?
 function _ParseColor(data)
 	if not data then
 		return nil
@@ -436,6 +476,9 @@ end
 
 
 
+---Separates thousands, millions, billions, etc. of a number with commas.
+---@param n number The number to be formatted.
+---@return string
 function _NumStr(n)
 	local text = ""
 	local s = tostring(n)
@@ -446,6 +489,8 @@ function _NumStr(n)
 	end
 	return text
 end
+
+
 
 -- One-dimensional cubic Beazier curve.
 -- More info: http://www.demofox.org/bezcubic1d.html
