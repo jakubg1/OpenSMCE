@@ -109,8 +109,6 @@ _DiscordRPC = nil
 
 -- CALLBACK ZONE
 
--- Warning! If this function fails, it can cause a "failed to initialize filesystem: already initialized" error.
--- I don't know why this happens yet.
 function love.load(args)
 	--local s = loadFile("test.txt")
 	--print(s)
