@@ -556,7 +556,8 @@ function SphereGroup:shouldMatch(position)
 	end
 	if self.config.permitLongMatches then
 		-- if is magnetizing with previous group and we want to maximize the count of spheres
-		if self.prevGroup and not self.prevGroup.delQueue and _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) and position1 == 1 then
+		-- We are doing a check whether that previous group is empty. It CAN be empty, if the Zuma sphere generation is enabled.
+		if self.prevGroup and not #self.prevGroup.spheres == 0 and not self.prevGroup.delQueue and _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) and position1 == 1 then
 			return false
 		end
 		-- same check with the next group
