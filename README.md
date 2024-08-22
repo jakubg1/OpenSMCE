@@ -37,6 +37,7 @@ Note that you may need to change the LÖVE executable path in that file first.
 Currently, the only games that are supported by this engine are:
 - *Luxor*
 - *Luxor: Amun Rising*
+
 This does **NOT** include mods for these games and other Luxor installments. These are unsupported right now.
 
 In order to play Luxor or Luxor Amun Rising on this engine, you need to have an original copy of the game.
