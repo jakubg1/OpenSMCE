@@ -368,13 +368,11 @@ function SphereGroup:checkDeletion()
 		self:delete()
 	end
 
-	-- if there's only a vise in this chain, the whole chain gets yeeted!
+	-- if there's only a vise in this chain, or this chain is completely empty, the whole chain gets yeeted!
 	if not self.prevGroup and not self.nextGroup then
-		if self.config.noScarabs then
-			if #self.spheres == 0 then
-				self.sphereChain:delete(false)
-			end
-		else
+		if #self.spheres == 0 then
+			self.sphereChain:delete(false)
+		elseif not self.config.noScarabs then
 			if #self.spheres == 1 and self.spheres[1].color == 0 then
 				self.spheres[1]:delete()
 				self.sphereChain:delete(false)
@@ -1185,6 +1183,7 @@ end
 
 
 
+-- For example: [1234567]
 function SphereGroup:getDebugText()
 	local text = ""
 	text = text .. "["
@@ -1197,6 +1196,14 @@ end
 
 
 
+-- For example:
+-- xxx -> 1 -> 2
+-- 1 -> 2 -> 3
+-- 2 -> 3 -> 4
+-- 3 -> 4 -> 5
+-- 4 -> 5 -> 6
+-- 5 -> 6 -> 7
+-- 6 -> 7 -> xxx
 function SphereGroup:getDebugText2()
 	local text = ""
 	for i, sphere in ipairs(self.spheres) do
