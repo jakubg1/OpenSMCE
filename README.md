@@ -10,12 +10,9 @@ If otherwise, [feel free to submit a bug report](https://github.com/jakubg1/Open
 ### Plans
 The ongoing plan is to keep releasing Beta 4.x versions, which will contain new functionalities.
 
-Some of the features planned for Beta 4.8.0 include:
-- Sphere selectors
-- Difficulty system
-- Enhanced sound effects
-- Shooter types
-- *Luxor: Amun Rising* support (https://github.com/jakubg1/OpenSMCE/issues/81)
+Some of the features planned for Beta 4.9.0 include:
+- Life system config (https://github.com/jakubg1/OpenSMCE/issues/105)
+- ...?
 
 Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished (https://github.com/jakubg1/OpenSMCE/issues/70, https://github.com/jakubg1/OpenSMCE/issues/112). This includes both a reference manual and JSON schemas.
 
@@ -38,11 +35,17 @@ If you have LÖVE2D installed, you can run the game by launching `start.bat`.
 Note that you may need to change the LÖVE executable path in that file first.
 
 ## Games
-Currently, the only game that is supported by this engine is the original *Luxor* game.
-However, its raw data cannot be used directly in this engine - it needs to be converted to a format OpenSMCE uses.
+Currently, the only games that are supported by this engine are:
+- *Luxor*
+- *Luxor: Amun Rising*
 
-To do this, a [game converter](https://github.com/jakubg1/OpenSMCE_Converter) has been created.
-Refer to README.txt in the release package for more information.
+This does **NOT** include mods for these games and other Luxor installments. These are unsupported right now.
+
+In order to play Luxor or Luxor Amun Rising on this engine, you need to have an original copy of the game.
+Then, you need to convert this game using the [game converter](https://github.com/jakubg1/OpenSMCE_Converter).
+
+Sounds complicated? Don't worry!
+Just proceed with the steps inside of the **README.txt** file contained in the release package for more information.
 
 You can have multiple games at once - each game is its own directory in the `games` folder.
 
