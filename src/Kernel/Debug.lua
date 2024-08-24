@@ -400,7 +400,7 @@ function Debug:getDebugInfo()
 		s = s .. _Game.session.colorManager:getDebugText()
 	end
 	s = s .. "\n===== PROFILE =====\n"
-	if _Game:getCurrentProfile() then
+	if _Game:getCurrentProfile() and _Game:getCurrentProfile().session then
 		s = s .. self:getDebugProfile()
 	end
 	s = s .. "\n===== LEVEL =====\n"
