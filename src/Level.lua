@@ -932,6 +932,8 @@ function Level:reset()
 	self.netTime = 0
 	self:destroyNet()
 
+	self:updateObjectives()
+
 	self.shooter.speedShotTime = 0
 	_Game.session.colorManager:reset()
 end
