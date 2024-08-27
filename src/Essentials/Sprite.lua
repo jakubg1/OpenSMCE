@@ -70,11 +70,7 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
 	alpha = alpha or 1
 	scale = scale or Vec2(1)
 	pos = _PosOnScreen(pos - (align * scale * self.frameSize):rotate(rot))
-	if color.r then -- temporary chunk
-		love.graphics.setColor(color.r, color.g, color.b, alpha)
-	else
-		love.graphics.setColor(table.unpack(color), alpha)
-	end
+	love.graphics.setColor(color.r, color.g, color.b, alpha)
 	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
 end
 
