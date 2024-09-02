@@ -20,7 +20,7 @@ function UIWidgetSpriteButton:new(parent, sprite)
 	self.enableForced = true
 
 	self.sprite = _Game.resourceManager:getSprite(sprite)
-	self.size = self.sprite.frameSize
+	self.size = self.sprite.config.frameSize
 end
 
 function UIWidgetSpriteButton:click()

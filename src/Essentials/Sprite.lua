@@ -4,9 +4,9 @@ local class = require "com.class"
 ---@overload fun(data, path):Sprite
 local Sprite = class:derive("Sprite")
 
+local SpriteConfig = require("src.Configs.Sprite")
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
-local Image = require("src.Essentials.Image")
 
 
 
@@ -15,20 +15,19 @@ local Image = require("src.Essentials.Image")
 ---@param path string A path to the sprite file.
 function Sprite:new(data, path)
 	self.path = path
+	self.config = SpriteConfig(data, path)
 
-	self.img = _Game.resourceManager:getImage(data.path)
-	self.size = self.img.size
-	self.frameSize = _ParseVec2(data.frameSize)
+	self.size = self.config.image.size
 	self.states = {}
-	for i, state in ipairs(data.states) do
+	for i, state in ipairs(self.config.states) do
 		local s = {}
 		s.frameCount = state.frames
 		s.frames = {}
 		for j = 1, state.frames.x do
 			s.frames[j] = {}
 			for k = 1, state.frames.y do
-				local p = self.frameSize * (Vec2(j, k) - 1) + state.pos
-				s.frames[j][k] = love.graphics.newQuad(p.x, p.y, self.frameSize.x, self.frameSize.y, self.size.x, self.size.y)
+				local p = self.config.frameSize * (Vec2(j, k) - 1) + state.pos
+				s.frames[j][k] = love.graphics.newQuad(p.x, p.y, self.config.frameSize.x, self.config.frameSize.y, self.size.x, self.size.y)
 			end
 		end
 		self.states[i] = s
@@ -69,9 +68,9 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
 	color = color or Color()
 	alpha = alpha or 1
 	scale = scale or Vec2(1)
-	pos = _PosOnScreen(pos - (align * scale * self.frameSize):rotate(rot))
+	pos = _PosOnScreen(pos - (align * scale * self.config.frameSize):rotate(rot))
 	love.graphics.setColor(color.r, color.g, color.b, alpha)
-	self.img:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
+	self.config.image:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
 end
 
 
