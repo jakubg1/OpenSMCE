@@ -406,6 +406,22 @@ end
 
 
 
+---Separates thousands, millions, billions, etc. of a number with commas.
+---@param n number The number to be formatted.
+---@return string
+function utils.formatNumber(n)
+	local text = ""
+	local s = tostring(n)
+	local l = s:len()
+	for i = 1, l do
+		text = text .. s:sub(i, i)
+		if l - i > 0 and (l - i) % 3 == 0 then text = text .. "," end
+	end
+	return text
+end
+
+
+
 ---A simple function which makes JSON formatting nicer.
 ---@param s string Raw JSON input to be formatted.
 ---@return string
@@ -467,6 +483,20 @@ end
 ---@return boolean
 function utils.isPointInsideBox(p, bp, bs)
 	return p.x >= bp.x and p.y >= bp.y and p.x <= (bp.x + bs.x) and p.y <= (bp.y + bs.y)
+end
+
+
+
+-- One-dimensional cubic Beazier curve.
+-- More info: http://www.demofox.org/bezcubic1d.html
+-- The given expression can be simplified, because we are defining A = 0 and D = 1.
+-- The shortened expression: y = B * 3x(1-x)^2 + C * 3x^2(1-x) + x^3
+-- x is t, B is p1 and C is p2.
+function utils.bzLerp(t, p1, p2)
+	local b = p1 * (3 * t * ((1 - t) ^ 2))
+	local c = p2 * (3 * (t ^ 2) * (1 - t))
+	local d = t ^ 3
+	return b + c + d
 end
 
 

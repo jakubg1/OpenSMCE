@@ -473,33 +473,3 @@ function _ParseExprVec2(data)
 		return _Vars:evaluateExpression(data)
 	end
 end
-
-
-
----Separates thousands, millions, billions, etc. of a number with commas.
----@param n number The number to be formatted.
----@return string
-function _NumStr(n)
-	local text = ""
-	local s = tostring(n)
-	local l = s:len()
-	for i = 1, l do
-		text = text .. s:sub(i, i)
-		if l - i > 0 and (l - i) % 3 == 0 then text = text .. "," end
-	end
-	return text
-end
-
-
-
--- One-dimensional cubic Beazier curve.
--- More info: http://www.demofox.org/bezcubic1d.html
--- The given expression can be simplified, because we are defining A = 0 and D = 1.
--- The shortened expression: y = B * 3x(1-x)^2 + C * 3x^2(1-x) + x^3
--- x is t, B is p1 and C is p2.
-function _BzLerp(t, p1, p2)
-	local b = p1 * (3 * t * math.pow(1 - t, 2))
-	local c = p2 * (3 * math.pow(t, 2) * (1 - t))
-	local d = math.pow(t, 3)
-	return b + c + d
-end

@@ -426,7 +426,7 @@ function Path:getSpeed(pixels)
 				if prevSpeed.transition and prevSpeed.transition.type == "bezier" then
 					local p1 = prevSpeed.transition.point1
 					local p2 = prevSpeed.transition.point2
-					t = _BzLerp(t, p1, p2)
+					t = _Utils.bzLerp(t, p1, p2)
 				end
 				return (prevSpeed.speed * (1 - t) + speed.speed * t) * speedMultiplier
 			end

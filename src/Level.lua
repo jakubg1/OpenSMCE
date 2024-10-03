@@ -391,7 +391,7 @@ function Level:executeScoreEvent(scoreEvent, pos)
 			font = scoreEvent.fonts.options[choice] or scoreEvent.fonts.default
 		end
 		if font then
-			local text = scoreEvent.text and scoreEvent.text:evaluate() or (score > 0 and _NumStr(score) or "")
+			local text = scoreEvent.text and scoreEvent.text:evaluate() or (score > 0 and _Utils.formatNumber(score) or "")
 			self:spawnFloatingText(text, pos, font)
 		end
 	end
