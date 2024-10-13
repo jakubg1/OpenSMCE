@@ -94,6 +94,8 @@ function ResourceManager:new()
 	self.EXTENSION_TO_RESOURCE_MAP = {
 		png = "image",
 		ogg = "sound",
+		mp3 = "sound",
+		wav = "sound",
 		ttf = "fontFile"
 	}
 
