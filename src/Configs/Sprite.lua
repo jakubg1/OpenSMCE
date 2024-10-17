@@ -15,6 +15,15 @@ function SpriteConfig:new(data, path)
     self.image = u.parseImage(data.path, path, "path")
     self.frameSize = u.parseVec2(data.frameSize, path, "frameSize")
 
+    if data.frameCuts then
+        self.frameCuts = {
+            x1 = u.parseInteger(data.frameCuts.x1, path, "frameCuts.x1"),
+            x2 = u.parseInteger(data.frameCuts.x2, path, "frameCuts.x2"),
+            y1 = u.parseInteger(data.frameCuts.y1, path, "frameCuts.y1"),
+            y2 = u.parseInteger(data.frameCuts.y2, path, "frameCuts.y2")
+        }
+    end
+
     self.states = {}
     for i, stateData in ipairs(data.states) do
         local state = {
