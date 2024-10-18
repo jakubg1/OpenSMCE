@@ -263,6 +263,18 @@ function Level:updateLogic(dt)
 		if self:getEmpty() then
 			self:advanceSequenceStep()
 		end
+	elseif step.type == "end" then
+		if not self.ended then
+			if step.status == "win" then
+				_Game.uiManager:executeCallback("levelComplete")
+			elseif step.status == "fail" then
+				_Game.uiManager:executeCallback("levelLost")
+			end
+			if self.failLoop then
+				self.failLoop:stop()
+			end
+			self.ended = true
+		end
 	end
 
 	-- Objectives
@@ -818,17 +830,6 @@ function Level:jumpToSequenceStep(stepN)
 			self:applyEffect(effect)
 		end
 		self:advanceSequenceStep()
-	elseif step.type == "end" then
-		if step.status == "win" then
-			_Game.uiManager:executeCallback("levelComplete")
-			self.ended = true
-		elseif step.status == "fail" then
-			_Game.uiManager:executeCallback("levelLost")
-			self.ended = true
-		end
-		if self.failLoop then
-			self.failLoop:stop()
-		end
 	end
 end
 
