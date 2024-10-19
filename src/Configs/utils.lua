@@ -3,6 +3,8 @@
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 local Expression = require("src.Expression")
+local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
+local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 
 local utils = {}
 
@@ -209,15 +211,50 @@ function utils.parseColorPaletteOpt(data, path, field)
 	return data and _Game.resourceManager:getColorPalette(data)
 end
 
+
+
+---@return CollectibleGeneratorConfig
+function utils.parseCollectibleGeneratorConfig(data, path, field)
+	assert(data, string.format("%s: field %s is missing (Collectible Generator Config expected)", path, field))
+	return CollectibleGeneratorConfig(data, path)
+end
+
+---@return CollectibleGeneratorConfig?
+function utils.parseCollectibleGeneratorConfigOpt(data, path, field)
+	return data and CollectibleGeneratorConfig(data, path)
+end
+
+---@return CollectibleGeneratorConfig
+function utils.parseCollectibleGeneratorConfigRef(data, path, field)
+	assert(data, string.format("%s: field %s is missing (Collectible Generator Config reference expected)", path, field))
+	return _Game.resourceManager:getCollectibleGeneratorConfig(data)
+end
+
+---@return CollectibleGeneratorConfig?
+function utils.parseCollectibleGeneratorConfigRefOpt(data, path, field)
+	return data and _Game.resourceManager:getCollectibleGeneratorConfig(data)
+end
+
 ---@return ScoreEventConfig
-function utils.parseScoreEventConfig(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Score Event Config expected)", path, field))
+function utils.parseScoreEventConfigRef(data, path, field)
+	assert(data, string.format("%s: field %s is missing (Score Event Config reference expected)", path, field))
 	return _Game.resourceManager:getScoreEventConfig(data)
 end
 
 ---@return ScoreEventConfig?
-function utils.parseScoreEventConfigOpt(data, path, field)
+function utils.parseScoreEventConfigRefOpt(data, path, field)
 	return data and _Game.resourceManager:getScoreEventConfig(data)
+end
+
+---@return ShooterMovementConfig
+function utils.parseShooterMovementConfig(data, path, field)
+	assert(data, string.format("%s: field %s is missing (Shooter Movement Config expected)", path, field))
+	return ShooterMovementConfig(data, path)
+end
+
+---@return ShooterMovementConfig?
+function utils.parseShooterMovementConfigOpt(data, path, field)
+	return data and ShooterMovementConfig(data, path)
 end
 
 ---@return UI2AnimationConfig

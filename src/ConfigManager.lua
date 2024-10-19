@@ -5,8 +5,6 @@ local class = require "com.class"
 ---@overload fun():ConfigManager
 local ConfigManager = class:derive("ConfigManager")
 
-local CollectibleGeneratorManager = require("src.CollectibleGenerator.Manager")
-
 local ShooterConfig = require("src.Configs.Shooter")
 
 
@@ -28,8 +26,6 @@ function ConfigManager:new()
 	self.spheres = self:loadFolder("config/spheres", "sphere", true)
 	self.sphereEffects = self:loadFolder("config/sphere_effects", "sphere effect")
 	self.colorGenerators = self:loadFolder("config/color_generators", "color generator")
-
-	self.collectibleGeneratorManager = CollectibleGeneratorManager()
 
 	-- Load level and map data.
 	self.levels = {}

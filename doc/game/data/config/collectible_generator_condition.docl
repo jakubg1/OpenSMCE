@@ -1,9 +1,0 @@
-- (object) {type: Condition type.} - A single condition.
-    - "expression" - Returns `true` if the provided expression returns `true`.
-        - expression (boolean) - An expression to be evaluated.
-    - "colorPresent" - Returns `true` if a given color is present on the board.
-        - color (integer) - A color to be checked.
-    - "cmpLatestCheckpoint" - Returns `true` if the profile latest checkpoint value is within defined bounds.
-        - min* (number) - If the checked value is lower than this value, this check will fail.
-        - max* (number) - If the checked value is greater than this value, this check will fail.
-        - value* (number) - If the checked value is not equal to this value, this check will fail.

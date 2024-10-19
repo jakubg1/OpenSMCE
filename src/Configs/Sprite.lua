@@ -4,14 +4,14 @@ local class = require "com.class"
 ---@overload fun(data, path):SpriteConfig
 local SpriteConfig = class:derive("SpriteConfig")
 
-local u = require("src.Configs.utils")
-
 
 
 ---Constructs a new Sprite Config.
 ---@param data table Raw sprite data.
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function SpriteConfig:new(data, path)
+    local u = _ConfigUtils
+
     self.image = u.parseImage(data.path, path, "path")
     self.frameSize = u.parseVec2(data.frameSize, path, "frameSize")
 

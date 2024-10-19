@@ -4,14 +4,14 @@ local class = require "com.class"
 ---@overload fun(data, path):PathEntityConfig
 local PathEntityConfig = class:derive("PathEntityConfig")
 
-local u = require("src.Configs.utils")
-
 
 
 ---Constructs a new Path Entity Config.
 ---@param data table Raw path entity data.
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function PathEntityConfig:new(data, path)
+    local u = _ConfigUtils
+
     self._path = path
 
     self.sprite = u.parseSpriteOpt(data.sprite, path, "sprite")
@@ -34,11 +34,11 @@ function PathEntityConfig:new(data, path)
     self.collectibleGeneratorSeparation = u.parseNumberOpt(data.collectibleGeneratorSeparation, path, "collectibleGeneratorSeparation")
     self.destroyParticle = u.parseStringOpt(data.destroyParticle, path, "destroyParticle")
     self.destroySound = u.parseSoundEventOpt(data.destroySound, path, "destroySound")
-    self.destroyScoreEvent = u.parseScoreEventConfigOpt(data.destroyScoreEvent, path, "destroyScoreEvent")
+    self.destroyScoreEvent = u.parseScoreEventConfigRefOpt(data.destroyScoreEvent, path, "destroyScoreEvent")
     self.destroyCollectibleGenerator = u.parseStringOpt(data.destroyCollectibleGenerator, path, "destroyCollectibleGenerator")
     self.canDestroySpheres = u.parseBooleanOpt(data.canDestroySpheres, path, "canDestroySpheres")
     self.sphereDestroySound = u.parseSoundEventOpt(data.sphereDestroySound, path, "sphereDestroySound")
-    self.sphereDestroyScoreEvent = u.parseScoreEventConfigOpt(data.sphereDestroyScoreEvent, path, "sphereDestroyScoreEvent")
+    self.sphereDestroyScoreEvent = u.parseScoreEventConfigRefOpt(data.sphereDestroyScoreEvent, path, "sphereDestroyScoreEvent")
     self.maxSpheresDestroyed = u.parseIntegerOpt(data.maxSpheresDestroyed, path, "maxSpheresDestroyed")
     self.maxSphereChainsDestroyed = u.parseIntegerOpt(data.maxSphereChainsDestroyed, path, "maxSphereChainsDestroyed")
 end

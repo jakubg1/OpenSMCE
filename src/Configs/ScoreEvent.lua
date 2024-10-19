@@ -4,14 +4,14 @@ local class = require "com.class"
 ---@overload fun(data, path):ScoreEventConfig
 local ScoreEventConfig = class:derive("ScoreEventConfig")
 
-local u = require("src.Configs.utils")
-
 
 
 ---Constructs a new Score Event Config.
 ---@param data table Raw score event data.
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function ScoreEventConfig:new(data, path)
+    local u = _ConfigUtils
+
     self.score = u.parseExprInteger(data.score, path, "score")
     self.ignoreDifficultyMultiplier = u.parseBooleanOpt(data.ignoreDifficultyMultiplier, path, "ignoreDifficultyMultiplier")
     self.text = u.parseExprStringOpt(data.text, path, "text")

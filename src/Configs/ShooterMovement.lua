@@ -4,14 +4,14 @@ local class = require "com.class"
 ---@overload fun(data, path):ShooterMovementConfig
 local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 
-local u = require("src.Configs.utils")
-
 
 
 ---Constructs a new Shooter Movement Config.
 ---@param data table Raw shooter movement data, found in `config/levels/*.json` and `config/shooters/*.json`.
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function ShooterMovementConfig:new(data, path)
+    local u = _ConfigUtils
+
     self.type = u.parseString(data.type, path, "type")
 
     if self.type == "linear" then

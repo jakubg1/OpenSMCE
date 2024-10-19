@@ -4,8 +4,6 @@ local class = require "com.class"
 ---@overload fun(data, path):ShooterConfig
 local ShooterConfig = class:derive("ShooterConfig")
 
-local u = require("src.Configs.utils")
-local usmc = require("src.Configs.utils_smc")
 local Vec2 = require("src.Essentials.Vector2")
 
 
@@ -14,7 +12,9 @@ local Vec2 = require("src.Essentials.Vector2")
 ---@param data table Raw data parsed from `config/shooters/*.json`.
 ---@param path string Path to the file. The file is not loaded here, but is used in error messages.
 function ShooterConfig:new(data, path)
-    self.movement = usmc.parseShooterMovementConfig(data.movement, path, "movement")
+    local u = _ConfigUtils
+
+    self.movement = u.parseShooterMovementConfig(data.movement, path, "movement")
     self.sprite = u.parseSprite(data.sprite, path, "sprite")
     self.spriteOffset = u.parseVec2Opt(data.spriteOffset, path, "spriteOffset") or Vec2()
     self.spriteAnchor = u.parseVec2Opt(data.spriteAnchor, path, "spriteAnchor") or Vec2(0.5, 0)

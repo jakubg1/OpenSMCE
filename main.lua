@@ -19,6 +19,7 @@ require("crash")
 
 -- global utility methods
 _Utils = require("com.utils")
+_ConfigUtils = require("src.Configs.utils")
 
 -- performance profiler
 PROF_CAPTURE = true

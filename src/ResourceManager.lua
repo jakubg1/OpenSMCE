@@ -13,10 +13,11 @@ local Music = require("src.Essentials.Music")
 local Font = require("src.Essentials.Font")
 local ColorPalette = require("src.Essentials.ColorPalette")
 
-local ScoreEventConfig = require("src.Configs.ScoreEvent")
-local PathEntityConfig = require("src.Configs.PathEntity")
-local SphereSelectorConfig = require("src.Configs.SphereSelector")
+local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local DifficultyConfig = require("src.Configs.Difficulty")
+local PathEntityConfig = require("src.Configs.PathEntity")
+local ScoreEventConfig = require("src.Configs.ScoreEvent")
+local SphereSelectorConfig = require("src.Configs.SphereSelector")
 local UI2AnimationConfig = require("src.Configs.UI2Animation")
 local UI2NodeConfig = require("src.Configs.UI2Node")
 local UI2SequenceConfig = require("src.Configs.UI2Sequence")
@@ -53,13 +54,13 @@ function ResourceManager:new()
 		sphere = {extension = "json"},
 		sphereEffect = {extension = "json"},
 		collectible = {extension = "json"},
-		collectibleGenerator = {extension = "json"},
 		colorGenerator = {extension = "json"},
 		shooter = {extension = "json"},
-		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
-		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
-		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
+		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig, paramSet = 2},
 		difficulty = {extension = "json", constructor = DifficultyConfig, paramSet = 2},
+		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
+		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
+		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
 		map = {extension = "/"},
 		level = {extension = "json"},
 		ui2AnimationConfig = {extension = "json", constructor = UI2AnimationConfig, paramSet = 2},
@@ -79,14 +80,14 @@ function ResourceManager:new()
 		["config/sphere.json"] = "sphere",
 		["config/sphere_effect.json"] = "sphereEffect",
 		["config/collectible.json"] = "collectible",
-		["config/collectible_generator.json"] = "collectibleGenerator",
 		["config/color_generator.json"] = "colorGenerator",
 		["config/shooter.json"] = "shooter",
-		["score_event.json"] = "scoreEvent",
-		["path_entity.json"] = "pathEntity",
-		["sphere_selector.json"] = "sphereSelector",
-		["difficulty.json"] = "difficulty",
 		["config/level.json"] = "level",
+		["collectible_generator.json"] = "collectibleGenerator",
+		["difficulty.json"] = "difficulty",
+		["path_entity.json"] = "pathEntity",
+		["score_event.json"] = "scoreEvent",
+		["sphere_selector.json"] = "sphereSelector",
 		["ui2/animation.json"] = "ui2AnimationConfig",
 		["ui2/node.json"] = "ui2NodeConfig",
 		["ui2/sequence.json"] = "ui2SequenceConfig"
@@ -187,11 +188,18 @@ function ResourceManager:getColorPalette(path)
 	return self:getAsset(path, "color palette")
 end
 
----Retrieves a Score Event Config by a given path.
+---Retrieves a Collectible Generator Config by a given path.
 ---@param path string The resource path.
----@return ScoreEventConfig
-function ResourceManager:getScoreEventConfig(path)
-	return self:getAsset(path, "score event")
+---@return CollectibleGeneratorConfig
+function ResourceManager:getCollectibleGeneratorConfig(path)
+	return self:getAsset(path, "collectible generator")
+end
+
+---Retrieves a Difficulty Config by a given path.
+---@param path string The resource path.
+---@return DifficultyConfig
+function ResourceManager:getDifficultyConfig(path)
+	return self:getAsset(path, "difficulty")
 end
 
 ---Retrieves a Path Entity Config by a given path.
@@ -201,18 +209,18 @@ function ResourceManager:getPathEntityConfig(path)
 	return self:getAsset(path, "path entity")
 end
 
+---Retrieves a Score Event Config by a given path.
+---@param path string The resource path.
+---@return ScoreEventConfig
+function ResourceManager:getScoreEventConfig(path)
+	return self:getAsset(path, "score event")
+end
+
 ---Retrieves a Sphere Selector Config by a given path.
 ---@param path string The resource path.
 ---@return SphereSelectorConfig
 function ResourceManager:getSphereSelectorConfig(path)
 	return self:getAsset(path, "sphere selector")
-end
-
----Retrieves a Difficulty Config by a given path.
----@param path string The resource path.
----@return DifficultyConfig
-function ResourceManager:getDifficultyConfig(path)
-	return self:getAsset(path, "difficulty")
 end
 
 ---Retrieves a UI Animation Config by a given path.

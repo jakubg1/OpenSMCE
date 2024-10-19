@@ -45,7 +45,7 @@
                         "type": "array",
                         "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
                         "items": {
-                            "$ref": "collectible_generator_condition.json",
+                            "type": "boolean",
                             "description": "A single condition."
                         }
                     }
@@ -72,21 +72,21 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "name": {
-                        "type": "string",
-                        "description": "A collectible generator ID to be evaluated."
+                    "generator": {
+                        "$ref": "_structures/CollectibleGenerator.json",
+                        "description": "Path to another Collectible Generator which will be evaluated."
                     },
                     "conditions": {
                         "type": "array",
                         "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
                         "items": {
-                            "$ref": "collectible_generator_condition.json",
+                            "type": "boolean",
                             "description": "A single condition."
                         }
                     }
                 },
                 "required": [
-                    "name"
+                    "generator"
                 ],
                 "additionalProperties": false
             }
@@ -119,7 +119,7 @@
                         "type": "array",
                         "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
                         "items": {
-                            "$ref": "collectible_generator_condition.json",
+                            "type": "boolean",
                             "description": "A single condition."
                         }
                     }
@@ -159,7 +159,7 @@
                         "type": "array",
                         "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
                         "items": {
-                            "$ref": "collectible_generator_condition.json",
+                            "type": "boolean",
                             "description": "A single condition."
                         }
                     }
@@ -214,7 +214,7 @@
                         "type": "array",
                         "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
                         "items": {
-                            "$ref": "collectible_generator_condition.json",
+                            "type": "boolean",
                             "description": "A single condition."
                         }
                     }

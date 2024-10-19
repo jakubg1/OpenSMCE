@@ -118,6 +118,10 @@ function Game:tick(dt) -- always with 1/60 seconds
 		self.session:update(dt)
 	end
 
+	if self:levelExists() then
+		self.session.colorManager:dumpVariables()
+	end
+
 	if self:getCurrentProfile() then
 		self:getCurrentProfile():dumpVariables()
 	end

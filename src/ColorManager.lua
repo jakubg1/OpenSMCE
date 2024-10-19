@@ -65,6 +65,25 @@ end
 
 
 
+---Returns the total number of spheres of a given color on the board.
+---@param color integer The color ID to be checked against.
+---@return integer
+function ColorManager:getColorCount(color)
+	return self.sphereColorCounts[color].normal
+end
+
+
+
+---Sets the Expression Variables in the `color` context.
+--- - `color.#` - For each registered sphere color (`#`), the amount of spheres of that color currently on the board.
+function ColorManager:dumpVariables()
+	for i, v in pairs(self.sphereColorCounts) do
+		_Vars:setC("color", i, v.normal)
+	end
+end
+
+
+
 ---Returns a debug text used by the debug screen.
 ---@return string
 function ColorManager:getDebugText()
