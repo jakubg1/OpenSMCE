@@ -247,7 +247,7 @@ end
 
 
 ---Returns an index of the provided weight list, randomly picked from that list.
----For example, providing `{1, 2, 3}` will return `0` 1/6 of the time, `1` 2/6 of the time and `2` 3/6 of the time.
+---For example, providing `{1, 2, 3}` will return `1` 1/6 of the time, `2` 2/6 of the time and `3` 3/6 of the time.
 ---@param weights table A list of integers, which depict the weights.
 ---@return integer
 function utils.weightedRandom(weights)
