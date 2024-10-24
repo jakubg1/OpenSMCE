@@ -7,11 +7,11 @@ local Level = class:derive("Level")
 
 local Vec2 = require("src.Essentials.Vector2")
 
-local Map = require("src.Map")
-local Shooter = require("src.Shooter")
-local ShotSphere = require("src.ShotSphere")
-local Collectible = require("src.Collectible")
-local FloatingText = require("src.FloatingText")
+local Map = require("src.Game.Map")
+local Shooter = require("src.Game.Shooter")
+local ShotSphere = require("src.Game.ShotSphere")
+local Collectible = require("src.Game.Collectible")
+local FloatingText = require("src.Game.FloatingText")
 
 local Expression = require("src.Expression")
 

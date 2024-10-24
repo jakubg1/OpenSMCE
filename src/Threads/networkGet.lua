@@ -1,4 +1,4 @@
-local Network = require("src.Kernel.Network")
+local Network = require("src.Network")
 
 local outID, data = ...
 local out = love.thread.getChannel(outID)

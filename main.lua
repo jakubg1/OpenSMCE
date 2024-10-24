@@ -30,17 +30,17 @@ local json = require("com.json")
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 
-local Log = require("src.Kernel.Log")
-local Debug = require("src.Kernel.Debug")
+local Log = require("src.Log")
+local Debug = require("src.Debug")
 
-local BootScreen = require("src.Kernel.BootScreen")
+local BootScreen = require("src.BootScreen.BootScreen")
 local Game = require("src.Game")
 
 local ExpressionVariables = require("src.ExpressionVariables")
-local Settings = require("src.Kernel.Settings")
+local Settings = require("src.Settings")
 
 local DiscordRichPresence = require("src.DiscordRichPresence")
-local Network = require("src.Kernel.Network")
+local Network = require("src.Network")
 local ThreadManager = require("src.ThreadManager")
 
 

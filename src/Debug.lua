@@ -6,11 +6,11 @@ local Debug = class:derive("Debug")
 
 local Vec2 = require("src.Essentials.Vector2")
 
-local Profiler = require("src.Kernel.Profiler")
-local Console = require("src.Kernel.Console")
+local Profiler = require("src.Profiler")
+local Console = require("src.Console")
 
 local Expression = require("src.Expression")
-local SphereSelectorResult = require("src.SphereSelectorResult")
+local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 
 
 

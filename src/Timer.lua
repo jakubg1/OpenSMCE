@@ -10,9 +10,9 @@ local Timer = class:derive("Timer")
 ---Constructor function.
 function Timer:new()
 	-- How long is one frame in seconds.
-	self.FRAME_LENGTH = 1 / 60
+	self.FRAME_LENGTH = 1 / 120
 	-- The maximum number of frames to be returned by `getFrameCount()`.
-	self.MAX_FRAMES = 3
+	self.MAX_FRAMES = 6
 	-- The internal timer, being accumulated time to in seconds.
 	self.time = 0
 end

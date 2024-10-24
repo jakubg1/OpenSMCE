@@ -4,7 +4,7 @@ local class = require "com.class"
 ---@overload fun(parent, align, level):UI2WidgetLevel
 local UI2WidgetLevel = class:derive("UI2WidgetLevel")
 
-local DummyLevel = require("src.DummyLevel")
+local DummyLevel = require("src.Game.DummyLevel")
 
 
 

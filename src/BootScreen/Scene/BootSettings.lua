@@ -5,8 +5,8 @@ local class = require "com.class"
 local BootSettings = class:derive("BootSettings")
 
 local Vec2 = require("src.Essentials.Vector2")
-local Button = require("src.Kernel.UI.Button")
-local Checkbox = require("src.Kernel.UI.Checkbox")
+local Button = require("src.BootScreen.UI.Button")
+local Checkbox = require("src.BootScreen.UI.Checkbox")
 
 
 

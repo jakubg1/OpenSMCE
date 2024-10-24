@@ -5,7 +5,7 @@ local class = require "com.class"
 local BootMain = class:derive("BootMain")
 
 local Vec2 = require("src.Essentials.Vector2")
-local Button = require("src.Kernel.UI.Button")
+local Button = require("src.BootScreen.UI.Button")
 
 
 

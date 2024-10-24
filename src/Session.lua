@@ -17,9 +17,9 @@ local Session = class:derive("Session")
 local Vec2 = require("src.Essentials.Vector2")
 
 -- Include class constructors
-local Level = require("src.Level")
-local ColorManager = require("src.ColorManager")
-local SphereSelectorResult = require("src.SphereSelectorResult")
+local Level = require("src.Game.Level")
+local ColorManager = require("src.Game.ColorManager")
+local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 
 
 

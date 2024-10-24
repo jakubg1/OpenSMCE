@@ -5,12 +5,11 @@ local class = require "com.class"
 local BootScreen = class:derive("BootScreen")
 
 local Vec2 = require("src.Essentials.Vector2")
-local Button = require("src.Kernel.UI.Button")
 
-local VersionManager = require("src.Kernel.VersionManager")
+local VersionManager = require("src.VersionManager")
 
-local BootMain = require("src.Kernel.Scene.BootMain")
-local BootSettings = require("src.Kernel.Scene.BootSettings")
+local BootMain = require("src.BootScreen.Scene.BootMain")
+local BootSettings = require("src.BootScreen.Scene.BootSettings")
 
 
 
