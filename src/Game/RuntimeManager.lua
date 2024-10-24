@@ -5,9 +5,9 @@ local class = require "com.class"
 ---@overload fun():RuntimeManager
 local RuntimeManager = class:derive("RuntimeManager")
 
-local ProfileManager = require("src.ProfileManager")
-local Highscores = require("src.Highscores")
-local Options = require("src.Options")
+local ProfileManager = require("src.Game.ProfileManager")
+local Highscores = require("src.Game.Highscores")
+local Options = require("src.Game.Options")
 
 
 

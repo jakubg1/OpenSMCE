@@ -13,8 +13,8 @@ local Timer = require("src.Timer")
 
 local ConfigManager = require("src.ConfigManager")
 local ResourceManager = require("src.ResourceManager")
-local RuntimeManager = require("src.RuntimeManager")
-local Session = require("src.Session")
+local RuntimeManager = require("src.Game.RuntimeManager")
+local Session = require("src.Game.Session")
 
 local UIManager = require("src.UI.Manager")
 local UI2Manager = require("src.UI2.Manager")

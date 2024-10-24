@@ -5,7 +5,7 @@ local class = require "com.class"
 ---@overload fun(data):ProfileManager
 local ProfileManager = class:derive("ProfileManager")
 
-local Profile = require("src.Profile")
+local Profile = require("src.Game.Profile")
 
 
 
