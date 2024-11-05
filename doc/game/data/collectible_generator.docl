@@ -14,7 +14,7 @@
             - (%boolean) - A single condition.
     - "repeat" - Evaluates a given entry a number of times and returns a list of all collectibles generated.
         - entry (#) - A collectible entry to be evaluated.
-        - count (integer) [>=2] - How many times the entry should be evaluated.
+        - count (%integer) [>=2] - How many times the entry should be evaluated.
         - conditions* (array) - A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.
             - (%boolean) - A single condition.
     - "randomPick" - Evaluates all the choices, discards empty ones, and selects one of the remaining results at random.

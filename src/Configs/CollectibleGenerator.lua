@@ -26,7 +26,7 @@ function CollectibleGeneratorConfig:new(data, path)
         end
     elseif self.type == "repeat" then
         self.entry = u.parseCollectibleGeneratorConfig(data.entry, path, "entry")
-        self.count = u.parseInteger(data.count, path, "count")
+        self.count = u.parseExprInteger(data.count, path, "count")
     elseif self.type == "randomPick" then
         self.pool = {}
         for i = 1, #data.pool do

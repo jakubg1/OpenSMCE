@@ -32,7 +32,7 @@ function ResourceManager:new()
 	-- - `asset` holds the resource itself, if it's `nil` then the resource is just queued for loading and it's not loaded yet
 	-- - `batches` is a list of resource batches this resource was loaded as, once all of them are unloaded, this entry is deleted; can be `nil` to omit that feature for global resources
 	--
-	-- Keys are absolute paths starting from the root game directory. Use `ResourceManager:resolvePath()` to obtain a key to this table from stuff like `:flame.json`.
+	-- Keys are absolute paths starting from the root game directory. Use `ResourceManager:resolvePath()` to obtain a key to this table from stuff like `":flame.json"`.
 	self.resources = {}
 	-- Just names of the queued resources, used to preserve the loading order.
 	self.queuedResources = {}

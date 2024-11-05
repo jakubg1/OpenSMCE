@@ -368,7 +368,7 @@ function Level:evaluateCollectibleGeneratorEntry(generator)
 		return result
 	elseif generator.type == "repeat" then
 		local result = {}
-		for i = 1, generator.count do
+		for i = 1, generator.count:evaluate() do
 			-- Append the results of each roll separately.
 			local subresult = self:evaluateCollectibleGeneratorEntry(generator.entry)
 			for j, subentry in ipairs(subresult) do
