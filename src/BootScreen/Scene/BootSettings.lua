@@ -22,7 +22,7 @@ function BootSettings:new(bootScreen)
 		Checkbox("Aiming Retical", _FONT_BIG, Vec2(34, 112), Vec2(732, 24), function(state) _EngineSettings:setAimingRetical(state) end),
 		Checkbox("Debug console window", _FONT_BIG, Vec2(34, 136), Vec2(732, 24), function(state) _EngineSettings:setConsoleWindow(state) end),
 		Checkbox("Enable 3D Sound", _FONT_BIG, Vec2(34, 160), Vec2(732, 24), function(state) _EngineSettings:set3DSound(state) end),
-		Checkbox("Hide incompatible games", _FONT_BIG, Vec2(34, 184), Vec2(732, 24), function(state) _EngineSettings:setHideIncompatibleGames(state) end)
+		Checkbox("Hide incompatible games", _FONT_BIG, Vec2(34, 184), Vec2(732, 24), function(state) _EngineSettings:setHideIncompatibleGames(state); self.bootScreen:fetchGameList() end)
 	}
 
 	-- tooltip

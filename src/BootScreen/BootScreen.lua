@@ -35,7 +35,7 @@ function BootScreen:init()
 	_DisplaySize = self.nativeResolution
 
 	-- game list
-	self.games = self:getGames()
+	self:fetchGameList()
 
 	-- init the main screen
 	self:setScene("main")
@@ -74,7 +74,14 @@ function BootScreen:getGames()
 		_Log:printt("BootScreen", "Checking folder \"" .. name .. "\"...")
 		local success, result = pcall(function() return _Utils.loadJson("games/" .. name .. "/config.json") end)
 		if success then
-			table.insert(games, {name = name, config = result})
+			-- Check the version status of the game and if it is incompatible while the "Hide Incompatible Games" option is turned on,
+			-- do not add it to the list.
+			local versionStatus = self.versionManager:getVersionStatus(result.engine_version or result.engineVersion)
+			if versionStatus ~= 3 or not _EngineSettings:getHideIncompatibleGames() then
+				table.insert(games, {name = name, config = result})
+			else
+				_Log:printt("BootScreen", "(Game too old, skipping!)")
+			end
 			_Log:printt("BootScreen", "SUCCESS!")
 		else
 			_Log:printt("BootScreen", "FAIL!")
@@ -82,6 +89,12 @@ function BootScreen:getGames()
 	end
 
 	return games
+end
+
+
+
+function BootScreen:fetchGameList()
+	self.games = self:getGames()
 end
 
 

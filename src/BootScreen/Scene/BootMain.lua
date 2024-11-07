@@ -27,7 +27,8 @@ function BootMain:new(bootScreen)
     self.buttons = {
         pagePrev = Button("<", _FONT_BIG, Vec2(404, 266), Vec2(24, 28), function() self:prevPage() end),
         pageNext = Button(">", _FONT_BIG, Vec2(492, 266), Vec2(24, 28), function() self:nextPage() end),
-        loadGame = Button("Start!", _FONT_BIG, Vec2(544, 472), Vec2(222, 24), function() self:loadSelectedGame() end),
+        loadGame = Button("Start!", _FONT_BIG, Vec2(544, 448), Vec2(222, 24), function() self:loadSelectedGame() end),
+        editGame = Button("Edit Game", _FONT_BIG, Vec2(544, 472), Vec2(222, 24), function() self:editSelectedGame() end),
         settings = Button("Engine Settings", _FONT_BIG, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end),
         quit = Button("Exit", _FONT_BIG, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
     }
@@ -39,6 +40,7 @@ function BootMain:init()
     -- set buttons up
     self:initGameButtons()
     self.buttons.loadGame.visible = false
+    self.buttons.editGame.visible = false
 end
 
 
@@ -102,6 +104,7 @@ end
 function BootMain:selectGame(id)
     self.selectedGame = id
     self.buttons.loadGame.visible = self:getSelectedGameVersionStatus() ~= 3
+    self.buttons.editGame.visible = self:getSelectedGameVersionStatus() ~= 3
     self:initGameButtons()
 end
 
@@ -122,6 +125,10 @@ end
 
 function BootMain:loadSelectedGame()
     _LoadGame(self:getSelectedGameName())
+end
+
+function BootMain:editSelectedGame()
+    -- TODO
 end
 
 
@@ -181,6 +188,8 @@ function BootMain:draw()
         love.graphics.print("Looks like you don't have any games installed...", 65, 350)
         love.graphics.print("Install games to the \"games/\" directory", 100, 400)
         love.graphics.print("or convert the original Luxor game (see README.txt)!", 40, 420)
+    end
+    if self:getPageCount() <= 1 then
         self.buttons.pagePrev.visible = false
         self.buttons.pageNext.visible = false
     else
