@@ -480,6 +480,24 @@ end
 
 
 
+---Returns a list of paths to all loaded resources of a given type.
+---@param type string One of `RESOURCE_TYPES`, of which all loaded resource paths will be returned.
+---@return table
+function ResourceManager:getAssetList(type)
+	local pathList = {}
+
+	-- Iterate through all known resources. If it has an asset (is loaded) and the type matches, add it to the returned list.
+	for key, resource in pairs(self.resources) do
+		if resource.type == type and resource.asset then
+			table.insert(pathList, key)
+		end
+	end
+
+	return pathList
+end
+
+
+
 ---Starts a load counter with a particular name. Load counters can be used to implement progress bars.
 ---From now on, any queued resources will be counted towards the total and the progress will increase as they are loaded.
 ---After all resources of interest are queued, call `ResourceManager:stopLoadCounter()`.

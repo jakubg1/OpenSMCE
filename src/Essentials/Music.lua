@@ -35,12 +35,20 @@ function Music:update(dt)
 end
 
 function Music:updateVolume()
-	self.instance:setVolume(self.volume * _Game.runtimeManager.options:getEffectiveMusicVolume())
+	self.instance:setVolume(self.volume * _Game:getEffectiveMusicVolume())
 end
 
 function Music:updatePlaying()
-	if self.instance:isPlaying() and self.volume <= 0 then if self.volumeDes == -1 then self:stop() else self:pause() end end
-	if not self.instance:isPlaying() and self.volume > 0 then self:play() end
+	if self.instance:isPlaying() and self.volume <= 0 then
+		if self.volumeDes == -1 then
+			self:stop()
+		else
+			self:pause()
+		end
+	end
+	if not self.instance:isPlaying() and self.volume > 0 then
+		self:play()
+	end
 end
 
 function Music:reset()

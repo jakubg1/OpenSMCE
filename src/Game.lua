@@ -53,10 +53,7 @@ function Game:init()
 	self.configManager:loadStuffBeforeResources()
 
 	-- Step 2. Initialize the window
-	local res = self:getNativeResolution()
-	love.window.setMode(res.x, res.y, {resizable = true})
-	love.window.setTitle(self.configManager:getWindowTitle())
-	_DisplaySize = res
+	_SetResolution(self:getNativeResolution(), true, self.configManager:getWindowTitle())
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -246,6 +243,15 @@ end
 
 
 ---Callback from `main.lua`.
+---@param x integer The X delta of the scroll.
+---@param y integer The Y delta of the scroll.
+function Game:wheelmoved(x, y)
+	-- STUB
+end
+
+
+
+---Callback from `main.lua`.
 ---@param key string The pressed key code.
 function Game:keypressed(key)
 	self.uiManager:keypressed(key)
@@ -328,6 +334,22 @@ end
 ---@return Vector2
 function Game:getNativeResolution()
 	return self.configManager:getNativeResolution()
+end
+
+
+
+---Returns the effective sound volume, dictated by the game options.
+---@return number
+function Game:getEffectiveSoundVolume()
+	return self.runtimeManager.options:getEffectiveSoundVolume()
+end
+
+
+
+---Returns the effective music volume, dictated by the game options.
+---@return number
+function Game:getEffectiveMusicVolume()
+	return self.runtimeManager.options:getEffectiveMusicVolume()
 end
 
 

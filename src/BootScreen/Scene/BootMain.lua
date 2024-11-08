@@ -128,7 +128,7 @@ function BootMain:loadSelectedGame()
 end
 
 function BootMain:editSelectedGame()
-    -- TODO
+    _LoadGameEditor(self:getSelectedGameName())
 end
 
 

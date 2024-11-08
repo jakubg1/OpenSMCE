@@ -22,7 +22,7 @@ function UIWidgetSprite:draw()
 end
 
 function UIWidgetSprite:getSize()
-	return self.sprite.frameSize
+	return self.sprite.config.frameSize
 end
 
 return UIWidgetSprite

@@ -8,6 +8,7 @@ local Vec2 = require("src.Essentials.Vector2")
 
 local Profiler = require("src.Profiler")
 local Console = require("src.Console")
+local UIDebug = require("src.UITreeDebug")
 
 local Expression = require("src.Expression")
 local SphereSelectorResult = require("src.Game.SphereSelectorResult")
@@ -16,6 +17,7 @@ local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 
 function Debug:new()
 	self.console = Console()
+	self.uiDebug = UIDebug()
 
 	self.commands = {
 		p = {description = "Doesn't work. Used to activate a powerup.", parameters = {{name = "name", type = "string", optional = false}, {name = "color", type = "integer", optional = true}}},
@@ -53,8 +55,6 @@ function Debug:new()
 	self.profPage = 1
 	self.profPages = {self.profUpdate, self.profMusic, self.profDrawLevel, self.prof3}
 
-	self.uiDebugVisible = false
-	self.uiDebugOffset = 0
 	self.uiWidgetCount = 0
 	self.e = false
 
@@ -65,15 +65,6 @@ function Debug:new()
 	self.fpsDebugVisible = false
 	self.sphereDebugVisible = false
 	self.sphereDebugVisible2 = false
-
-	-- widget debug variables
-	self.uiWidgetDebugCount = 0
-	self.uiMouse = Vec2()
-	self.uiMousePressed = false
-	self.uiScrollPressOffset = nil
-	self.uiHoveredEntry = nil
-	self.uiCollapsedEntries = {}
-	self.uiAutoCollapseInvisible = false
 end
 
 
@@ -106,77 +97,7 @@ function Debug:draw()
 	self.console:draw()
 
 	-- UI tree
-	self.uiHoveredEntry = nil
-	if self.uiDebugVisible then
-		-- Scrolling logic.
-		local height = love.graphics.getHeight()
-		local mousePos = _PosOnScreen(_MousePos)
-		local scrollbarWidth = 15
-		local scrollbarHeight = 50
-		local logicalHeight = height - scrollbarHeight
-		local maxWidgets = height / 15
-		local maxOffset = (self.uiWidgetDebugCount - maxWidgets) * 15 + 30
-
-		-- if the mouse is in clicked state then move the rectangle here
-		if love.mouse.isDown(1) then
-			if not self.uiScrollPressOffset then
-				self.uiScrollPressOffset = self.uiDebugOffset - mousePos.y * (maxOffset / logicalHeight)
-			end
-			if self.uiMouse.x < scrollbarWidth then
-				self.uiDebugOffset = mousePos.y * (maxOffset / logicalHeight) + self.uiScrollPressOffset
-			end
-		else
-			self.uiScrollPressOffset = nil
-		end
-
-		-- Enforce the limits.
-		self.uiDebugOffset = math.max(math.min(self.uiDebugOffset, maxOffset), 0)
-
-		-- Which one we've hovered?
-		local hover = nil
-		if mousePos.x > 15 and mousePos.x < 500 then
-			hover = math.floor((self.uiDebugOffset + mousePos.y) / 15)
-		end
-
-		-- Draw stuff.
-		love.graphics.setColor(0, 0, 0, 0.7)
-		love.graphics.rectangle("fill", 0, 0, 500, height)
-		for i, line in ipairs(self:getUITreeText()) do
-			local y = i * 15 - self.uiDebugOffset
-			if i == hover then
-				love.graphics.setColor(1, 0, 1, 0.3)
-				love.graphics.rectangle("fill", 15, y, 485, 15)
-				self.uiHoveredEntry = line[10]
-			elseif self.uiAutoCollapseInvisible and line[11] then
-				love.graphics.setColor(0, 0, 1, 0.3)
-				love.graphics.rectangle("fill", 15, y, 485, 15)
-			end
-			love.graphics.setColor(1, 1, 1)
-			love.graphics.print({line[9],line[1]}, 20, y)
-			love.graphics.print(line[2], 260, y)
-			love.graphics.print(line[3], 270, y)
-			love.graphics.print(line[4], 280, y)
-			love.graphics.print(line[5], 310, y)
-			love.graphics.print(line[6], 340, y)
-			love.graphics.print(line[7], 370, y)
-			love.graphics.print(line[8], 410, y)
-		end
-
-		-- draw the scroll rectangle
-		if self.uiWidgetDebugCount > maxWidgets then
-			local yy = self.uiDebugOffset / maxOffset * logicalHeight
-			love.graphics.setColor(0, 1, 0)
-			love.graphics.rectangle("fill", 0, yy, scrollbarWidth, scrollbarHeight)
-			love.graphics.setColor(1, 1, 1)
-			love.graphics.setLineWidth(2)
-			love.graphics.line(scrollbarWidth, 0, scrollbarWidth, height)
-		end
-	end
-
-	-- Draw some debug stuff with the hovered widget.
-	if self.uiHoveredEntry then
-		self.uiHoveredEntry:drawDebug()
-	end
+	self.uiDebug:draw()
 
 	-- Game and spheres
 	if self.gameDebugVisible then self:drawDebugInfo() end
@@ -187,14 +108,6 @@ end
 function Debug:keypressed(key)
 	if not self.console.active then
 		if key == "f1" then self.profVisible = not self.profVisible end
-		if key == "f2" then
-			if love.keyboard.isDown("lctrl", "rctrl") then
-				self.uiAutoCollapseInvisible = not self.uiAutoCollapseInvisible
-				self.console:print({_COLORS.aqua, string.format("[UI Debug] Auto-collapsing hidden UI elements: %s", self.uiAutoCollapseInvisible and "ON" or "OFF")})
-			else
-				self.uiDebugVisible = not self.uiDebugVisible
-			end
-		end
 		if key == "f3" then self.particleSpawnersVisible = not self.particleSpawnersVisible end
 		if key == "f4" then self.gameDebugVisible = not self.gameDebugVisible end
 		if key == "f5" then self.fpsDebugVisible = not self.fpsDebugVisible end
@@ -202,8 +115,7 @@ function Debug:keypressed(key)
 		if key == "f7" then self.sphereDebugVisible2 = not self.sphereDebugVisible2 end
 		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
 		if key == "kp+" and self.profPage < #self.profPages then self.profPage = self.profPage + 1 end
-		if key == "pagedown" then self.uiDebugOffset = self.uiDebugOffset + 300 end
-		if key == "pageup" then self.uiDebugOffset = self.uiDebugOffset - 300 end
+		self.uiDebug:keypressed(key)
 	end
 
 	self.console:keypressed(key)
@@ -218,96 +130,15 @@ function Debug:textinput(t)
 end
 
 function Debug:mousepressed(x, y, button)
-	if button == 1 then
-		self.uiMouse = Vec2(x, y)
-	end
+	self.uiDebug:mousepressed(x, y, button)
 end
 
 function Debug:mousereleased(x, y, button)
-	if button == 1 then
-		self.uiMouse = Vec2(x, y)
-		if self.uiHoveredEntry then
-			if self.uiCollapsedEntries[self.uiHoveredEntry] then
-				self.uiCollapsedEntries[self.uiHoveredEntry] = nil
-			else
-				self.uiCollapsedEntries[self.uiHoveredEntry] = true
-			end
-		end
-	end
+	self.uiDebug:mousereleased(x, y, button)
 end
 
 function Debug:wheelmoved(x, y)
-	self.uiDebugOffset = self.uiDebugOffset - y * 45
-end
-
-
-
-function Debug:getUITreeText(node, rowTable, indent)
-	if not node then
-		self.uiWidgetDebugCount = 0
-	end
-
-	local ui2 = _Game.configManager.config.useUI2
-	if ui2 then
-		node = node or _Game.uiManager.rootNodes["root"] or _Game.uiManager.rootNodes["splash"]
-	else
-		node = node or _Game.uiManager.widgets.root or _Game.uiManager.widgets.splash
-	end
-	rowTable = rowTable or {}
-	indent = indent or 0
-
-	if node then
-		local forAutoCollapsing = not ui2 and (node:hasChildren() and not node:isVisible() and node:isNotAnimating())
-		local collapsed = node:hasChildren() and self.uiCollapsedEntries[node] or (self.uiAutoCollapseInvisible and forAutoCollapsing)
-
-		local name = node.name
-		for i = 1, indent do name = "    " .. name end
-		if collapsed then
-			name = name .. " ..."
-		end
-		local visible = ""
-		local visible2 = ""
-		if not ui2 then
-			visible = node.visible and "X" or ""
-			visible2 = node:isVisible() and "V" or ""
-		end
-		local active = node:isActive() and "A" or ""
-		local alpha = string.format("%.1f", node.alpha)
-		local alpha2
-		if ui2 then
-			alpha2 = string.format("%.1f", node:getGlobalAlpha())
-		else
-			alpha2 = string.format("%.1f", node:getAlpha())
-		end
-		local time = ""
-		if not ui2 then
-			time = node.time and tostring(math.floor(node.time * 100) / 100) or "-"
-		end
-		local pos = tostring(node.pos)
-		local color = node.debugColor or {1, 1, 1}
-
-		table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color, node, forAutoCollapsing})
-		self.uiWidgetDebugCount = self.uiWidgetDebugCount + 1
-
-		if not collapsed then
-			local children = {}
-			for childN, child in pairs(node.children) do
-				table.insert(children, child)
-			end
-			table.sort(children, function(a, b) return a.name < b.name end)
-			for i, child in ipairs(children) do
-				self:getUITreeText(child, rowTable, indent + 1)
-			end
-		end
-	end
-
-	return rowTable
-end
-
-
-
-function Debug:isUITreeHovered()
-	return self.uiDebugVisible and _PosOnScreen(_MousePos).x < 500
+	self.uiDebug:wheelmoved(x, y)
 end
 
 

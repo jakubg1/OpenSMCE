@@ -31,8 +31,7 @@ end
 
 function BootScreen:init()
 	-- window title and size
-	love.window.setTitle("OpenSMCE [" .. _VERSION .. "] - Boot Menu")
-	_DisplaySize = self.nativeResolution
+	_SetResolution(self:getNativeResolution(), false, "OpenSMCE [" .. _VERSION .. "] - Boot Menu")
 
 	-- game list
 	self:fetchGameList()
@@ -48,7 +47,9 @@ end
 
 function BootScreen:setScene(name)
 	self.scene = self.sceneConstructors[name](self)
-	if self.scene.init then self.scene:init() end
+	if self.scene.init then
+		self.scene:init()
+	end
 end
 
 
@@ -113,6 +114,10 @@ end
 
 function BootScreen:mousereleased(x, y, button)
 	self.scene:mousereleased(x, y, button)
+end
+
+function BootScreen:wheelmoved(x, y)
+	-- STUB
 end
 
 function BootScreen:keypressed(key)
