@@ -33,8 +33,9 @@ local Color = require("src.Essentials.Color")
 local Log = require("src.Log")
 local Debug = require("src.Debug")
 
-local BootScreen = require("src.BootScreen.BootScreen")
 local Game = require("src.Game")
+local EditorMain = require("src.BootScreen.EditorMain")
+local BootScreen = require("src.BootScreen.BootScreen")
 
 local ExpressionVariables = require("src.ExpressionVariables")
 local Settings = require("src.Settings")
@@ -84,7 +85,7 @@ _KeyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rc
 -- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
 _FSPrefix = ""
 
----@type Game|BootScreen
+---@type Game|BootScreen|EditorMain
 _Game = nil
 
 ---@type Log
@@ -202,6 +203,7 @@ function love.mousereleased(x, y, button)
 end
 
 function love.wheelmoved(x, y)
+	if _Game then _Game:wheelmoved(x, y) end
 	_Debug:wheelmoved(x, y)
 end
 
@@ -255,6 +257,11 @@ function _LoadGame(gameName)
 	_Game:init()
 end
 
+function _LoadGameEditor(gameName)
+	_Game = EditorMain(gameName)
+	_Game:init()
+end
+
 function _LoadBootScreen()
 	_Game = BootScreen()
 	_Game:init()
@@ -264,6 +271,16 @@ end
 
 
 
+
+---Sets the window settings: resolution, whether it can be changed, and its title.
+---@param resolution Vector2 The new window resolution.
+---@param resizable boolean Whether the window can be resized.
+---@param title string The window title.
+function _SetResolution(resolution, resizable, title)
+	love.window.setMode(resolution.x, resolution.y, {resizable = resizable})
+	love.window.setTitle(title)
+	_DisplaySize = resolution
+end
 
 function _GetDisplayOffsetX()
 	return (_DisplaySize.x - _Game:getNativeResolution().x * _GetResolutionScale()) / 2

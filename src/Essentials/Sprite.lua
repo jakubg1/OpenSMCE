@@ -18,6 +18,7 @@ function Sprite:new(data, path)
 	self.config = SpriteConfig(data, path)
 
 	self.size = self.config.image.size
+	---@type [{frameCount: integer, frames: [[love.Quad]]}]
 	self.states = {}
 	for i, state in ipairs(self.config.states) do
 		local s = {}

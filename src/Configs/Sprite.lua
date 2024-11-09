@@ -24,6 +24,7 @@ function SpriteConfig:new(data, path)
         }
     end
 
+	---@type [{pos: Vector2, frames: Vector2}]
     self.states = {}
     for i, stateData in ipairs(data.states) do
         local state = {
