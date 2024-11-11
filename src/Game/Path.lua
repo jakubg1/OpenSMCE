@@ -31,8 +31,7 @@ function Path:new(map, pathData, pathBehavior)
 		nodes[i] = {pos = Vec2(node.x, node.y), scale = node.scale or 1, hidden = node.hidden, warp = node.warp}
 	end
 
-	self.colors = pathBehavior.colors
-	self.colorStreak = pathBehavior.colorStreak
+	self.colorRules = pathBehavior.colorRules
 	self.spawnRules = pathBehavior.spawnRules
 	if _Game.satMode then
 		local n = _Game:getCurrentProfile():getUSMNumber() * 10
@@ -133,14 +132,6 @@ function Path:update(dt)
 			table.remove(self.pathEntities, i)
 		end
 	end
-end
-
-
-
----Returns a random entry from the list of sphere types this Path can spawn.
----@return integer
-function Path:newSphereColor()
-	return self.colors[math.random(1, #self.colors)]
 end
 
 

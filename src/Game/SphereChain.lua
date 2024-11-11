@@ -26,7 +26,12 @@ function SphereChain:new(path, deserializationTable)
 
 		self.sphereGroups = {}
 		self.generationAllowed = self.path.spawnRules.type == "continuous"
-		self.generationColor = self.path:newSphereColor()
+		-- Set the initial state for the color generation.
+		if self.path.colorRules.type == "random" then
+			self.generationColor = self.path.colorRules.colors[math.random(1, #self.path.colorRules.colors)]
+		elseif self.path.colorRules.type == "pattern" then
+			self.generationIndex = 1
+		end
 
 
 		-- Generate the first group.
@@ -224,19 +229,33 @@ function SphereChain:join()
 	self:delete(true)
 end
 
-function SphereChain:generateSphere()
-	local group = self:getLastSphereGroup()
-
-	-- Add a new sphere.
-	self:getLastSphereGroup():pushSphereBack(self.generationColor)
-	-- Each sphere: check whether we should generate a fresh new color (chance is colorStreak).
-	if math.random() >= self.path.colorStreak then
-		local oldColor = self.generationColor
-		repeat
-			-- Reroll if we've got the same color and the config doesn't allow that.
-			self.generationColor = self.path:newSphereColor()
-		until oldColor ~= self.generationColor or not self.path.forceDifferentColor
+---Returns the next color to spawn in this Sphere Chain. Alters the generator's state.
+---@return integer
+function SphereChain:newSphereColor()
+	local rules = self.path.colorRules
+	if rules.type == "random" then
+		local result = self.generationColor
+		-- `colorStreak` chance to change the currently generated color.
+		if math.random() >= rules.colorStreak then
+			local oldColor = self.generationColor
+			repeat
+				-- Reroll if we've got the same color and the config doesn't allow that.
+				self.generationColor = rules.colors[math.random(1, #rules.colors)]
+			until oldColor ~= self.generationColor or not rules.forceDifferentColor
+		end
+		return result
+	elseif rules.type == "pattern" then
+		local result = rules.pattern[self.generationIndex]
+		self.generationIndex = self.generationIndex % #rules.pattern + 1
+		return result
 	end
+	-- This shouldn't happen.
+	error(string.format("Invalid rule type: %s", rules.type))
+end
+
+function SphereChain:generateSphere()
+	-- Add a new sphere.
+	self:getLastSphereGroup():pushSphereBack(self:newSphereColor())
 end
 
 function SphereChain:concludeGeneration()
@@ -337,7 +356,8 @@ function SphereChain:serialize()
 		speedOverrideTime = self.speedOverrideTime,
 		sphereGroups = {},
 		generationAllowed = self.generationAllowed,
-		generationColor = self.generationColor
+		generationColor = self.generationColor,
+		generationIndex = self.generationIndex
 	}
 
 	for i, sphereGroup in ipairs(self.sphereGroups) do
@@ -357,6 +377,7 @@ function SphereChain:deserialize(t)
 	self.sphereGroups = {}
 	self.generationAllowed = t.generationAllowed
 	self.generationColor = t.generationColor
+	self.generationIndex = t.generationIndex
 
 	for i, sphereGroup in ipairs(t.sphereGroups) do
 		local s = SphereGroup(self, sphereGroup)
