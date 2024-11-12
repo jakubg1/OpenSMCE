@@ -22,7 +22,7 @@ function PathEntityConfig:new(data, path)
     self.acceleration = u.parseNumberOpt(data.acceleration, path, "acceleration") or 0
     self.maxSpeed = u.parseNumberOpt(data.maxSpeed, path, "maxSpeed")
     self.maxOffset = u.parseNumberOpt(data.maxOffset, path, "maxOffset")
-    self.destroyOffset = u.parseNumberOpt(data.destroyOffset, path, "destroyOffset") or 0
+    self.destroyOffset = u.parseNumberOpt(data.destroyOffset, path, "destroyOffset")
     self.destroyTime = u.parseNumberOpt(data.destroyTime, path, "destroyTime")
     self.destroyWhenPathEmpty = u.parseBooleanOpt(data.destroyWhenPathEmpty, path, "destroyWhenPathEmpty")
     self.destroyAtClearOffset = u.parseBooleanOpt(data.destroyAtClearOffset, path, "destroyAtClearOffset")
