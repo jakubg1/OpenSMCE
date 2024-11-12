@@ -52,8 +52,13 @@ function Game:init()
 	self.configManager = ConfigManager()
 	self.configManager:loadStuffBeforeResources()
 
-	-- Step 2. Initialize the window
-	_SetResolution(self:getNativeResolution(), true, self.configManager:getWindowTitle())
+	-- Step 2. Initialize the window and canvas if necessary
+	local res = self:getNativeResolution()
+	_SetResolution(res, true, self.configManager:getWindowTitle())
+	if self.configManager:isCanvasRenderingEnabled() then
+		self.renderCanvas = love.graphics.newCanvas(res.x, res.y)
+		self.renderCanvas:setFilter("nearest", "nearest")
+	end
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -187,6 +192,11 @@ function Game:draw()
 
 	_Debug:profDraw2Start()
 
+	-- Start drawing on canvas (if canvas mode set)
+	if self.renderCanvas then
+		love.graphics.setCanvas({self.renderCanvas, stencil = true})
+	end
+
 	-- Session and level
 	if self:sessionExists() then
 		self.session:draw()
@@ -200,10 +210,17 @@ function Game:draw()
 	self.uiManager:draw()
 	_Debug:profDraw2Checkpoint()
 
+	-- Finish drawing on canvas (if canvas mode set)
+	if self.renderCanvas then
+		love.graphics.setCanvas()
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.draw(self.renderCanvas, _GetDisplayOffsetX(true), 0, 0, _GetResolutionScale(true))
+	end
+
 	-- Borders
 	love.graphics.setColor(0, 0, 0)
-	love.graphics.rectangle("fill", 0, 0, _GetDisplayOffsetX(), _DisplaySize.y)
-	love.graphics.rectangle("fill", _DisplaySize.x - _GetDisplayOffsetX(), 0, _GetDisplayOffsetX(), _DisplaySize.y)
+	love.graphics.rectangle("fill", 0, 0, _GetDisplayOffsetX(true), _DisplaySize.y)
+	love.graphics.rectangle("fill", _DisplaySize.x - _GetDisplayOffsetX(true), 0, _GetDisplayOffsetX(true), _DisplaySize.y)
 
 	love.graphics.setColor(1, 1, 1)
 	--self.resourceManager:getSprite("sprites/game/ball_1.json").img:draw(0, 0)

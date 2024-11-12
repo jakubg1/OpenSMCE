@@ -282,20 +282,44 @@ function _SetResolution(resolution, resizable, title)
 	_DisplaySize = resolution
 end
 
-function _GetDisplayOffsetX()
-	return (_DisplaySize.x - _Game:getNativeResolution().x * _GetResolutionScale()) / 2
+---Returns the X offset of actual screen contents.
+---The game is scaled so the vertical axis is always fully covered. This means that on the X axis, the contents need to be positioned
+---in such a way that the contents are exactly in the center.
+---@param force boolean? Whether the returned value should be scaled with the window even if the canvas rendering is enabled.
+---@return number
+function _GetDisplayOffsetX(force)
+	return (_DisplaySize.x - _Game:getNativeResolution().x * _GetResolutionScale(force)) / 2
 end
 
-function _GetResolutionScale()
-	return _DisplaySize.y / _Game:getNativeResolution().y
+---Returns the scale of screen contents, depending on the current window size.
+---@param force boolean? Whether the returned value should be scaled with the window even if the canvas rendering is enabled.
+---@return number
+function _GetResolutionScale(force)
+	if _Game.renderCanvas and not force then
+		-- If all stuff is rendered on a canvas, the canvas itself will be scaled.
+		return 1
+	else
+		return _DisplaySize.y / _Game:getNativeResolution().y
+	end
 end
 
+---Returns the onscreen (or on-canvas if canvas rendering is enabled) position of the given logical point.
+---@param pos Vector2 The logical point of which the onscreen position will be returned.
+---@return Vector2
 function _PosOnScreen(pos)
-	return pos * _GetResolutionScale() + Vec2(_GetDisplayOffsetX(), 0)
+	if _Game.renderCanvas then
+		-- If all stuff is rendered on a canvas, the canvas itself will be scaled and positioned.
+		return pos
+	else
+		return pos * _GetResolutionScale() + Vec2(_GetDisplayOffsetX(), 0)
+	end
 end
 
+---Returns the logical position of the given onscreen point.
+---@param pos Vector2 The onscreen point of which the logical position will be returned.
+---@return Vector2
 function _PosFromScreen(pos)
-	return (pos - Vec2(_GetDisplayOffsetX(), 0)) / _GetResolutionScale()
+	return (pos - Vec2(_GetDisplayOffsetX(true), 0)) / _GetResolutionScale(true)
 end
 
 

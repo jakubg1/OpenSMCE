@@ -21,6 +21,10 @@
             "$ref": "_structures/Vector2.json",
             "description": "The native resolution of the game."
         },
+        "renderOnCanvas": {
+            "type": "boolean",
+            "description": "If set, the game frames will be rendered on a canvas and that canvas will be resized instead of game elements (sprites, fonts, etc.) themselves."
+        },
         "richPresence": {
             "type": "object",
             "description": "Defines the Discord Rich Presence behavior.",

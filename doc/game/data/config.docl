@@ -3,6 +3,7 @@
     - windowTitle* (string) - The window title which the engine window will have, if defined.
     - engineVersion (string) - Specifies the version a game is for, e.g. `"v0.48.0"`.
     - nativeResolution (Vector2) - The native resolution of the game.
+    - renderOnCanvas* (boolean) - If set, the game frames will be rendered on a canvas and that canvas will be resized instead of game elements (sprites, fonts, etc.) themselves.
     - richPresence (object) - Defines the Discord Rich Presence behavior.
         - enabled (boolean) - Should be always `true`, unless you want the game to be a secret. In that case, loading a game with this flag set to `false` causes Rich Presence to disconnect.
         - applicationID* (string) - Optional. If defined, this will be used as an Application ID when running this game, instead of the default OpenSMCE one.

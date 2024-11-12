@@ -69,9 +69,12 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
 	color = color or Color()
 	alpha = alpha or 1
 	scale = scale or Vec2(1)
+
 	pos = _PosOnScreen(pos - (align * scale * self.config.frameSize):rotate(rot))
+	scale = scale * _GetResolutionScale()
+	
 	love.graphics.setColor(color.r, color.g, color.b, alpha)
-	self.config.image:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x * _GetResolutionScale(), scale.y * _GetResolutionScale())
+	self.config.image:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x, scale.y)
 end
 
 

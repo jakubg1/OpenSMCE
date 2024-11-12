@@ -132,6 +132,13 @@ function ConfigManager:getRichPresenceApplicationID()
 	return self.config.richPresence.applicationID
 end
 
+---Returns whether the game should be rendered on a canvas.
+---@return boolean
+function ConfigManager:isCanvasRenderingEnabled()
+	--return true
+	return self.config.renderOnCanvas
+end
+
 
 
 ---Gets the level number which the checkpoint points to.
