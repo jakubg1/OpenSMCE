@@ -63,8 +63,6 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 
 	self.danger = false
 
-	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
-
 	self.delQueue = false
 end
 
