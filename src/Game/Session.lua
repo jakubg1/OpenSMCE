@@ -85,6 +85,7 @@ end
 
 ---Destroys this level and triggers a `gameOver` callback in the UI script.
 function Session:terminate()
+	self.level:destroy()
 	self.level = nil
 	_Game.uiManager:executeCallback("gameOver")
 end
