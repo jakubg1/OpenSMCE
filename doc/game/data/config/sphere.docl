@@ -18,8 +18,7 @@
     - shootSpeed* (number) [>0] - If specified, overrides the speed of this sphere when shot.
     - shootSound (SoundEvent) - A sound event launched when this sphere is shot.
     - hitBehavior ($sphere_hit_behavior) - Defines how this sphere should behave when it hits a sphere train.
-    - hitSound (SoundEvent) - A sound event launched when this sphere hits a sphere train.
-    - hitSoundBad* (SoundEvent) - An optional sound event launched when this sphere hits a sphere train and doesn't match any neighboring spheres.
+    - hitSound (SoundEvent) - A sound event launched when this sphere hits a sphere train. Contains a `shot` Expression Context with one field: `bad` - Whether the shot has been marked as bad (did not match any of the neighboring spheres' colors).
     - type* (string) - The sphere type.
         - "normal" - The sphere behaves like usual.
         - "stone" - The sphere can be destroyed by a nearby match.

@@ -97,11 +97,8 @@
         },
         "hitSound": {
             "$ref": "../_structures/SoundEvent.json",
-            "description": "A sound event launched when this sphere hits a sphere train."
-        },
-        "hitSoundBad": {
-            "$ref": "../_structures/SoundEvent.json",
-            "description": "An optional sound event launched when this sphere hits a sphere train and doesn't match any neighboring spheres."
+            "description": "A sound event launched when this sphere hits a sphere train. Contains a shot Expression Context with one field: bad - Whether the shot has been marked as bad (did not match any of the neighboring spheres' colors).",
+            "markdownDescription": "A sound event launched when this sphere hits a sphere train. Contains a `shot` Expression Context with one field: `bad` - Whether the shot has been marked as bad (did not match any of the neighboring spheres' colors)."
         },
         "type": {
             "type": "string",
