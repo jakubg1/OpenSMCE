@@ -10,9 +10,16 @@ local utils = {}
 
 
 
+-- HELPER FUNCTIONS
+local function isValidExpression(data)
+	return type(data) ~= "string" or (data:sub(1, 2) == "${" and data:sub(data:len(), data:len()) == "}")
+end
+
+
+
 ---@return integer
 function utils.parseInteger(data, path, field)
-	assert(data, string.format("%s: field %s is missing (integer expected)", path, field))
+	assert(data, string.format("field %s is missing (integer expected)", field))
 	return data
 end
 
@@ -23,7 +30,7 @@ end
 
 ---@return number
 function utils.parseNumber(data, path, field)
-	assert(data, string.format("%s: field %s is missing (number expected)", path, field))
+	assert(data, string.format("field %s is missing (number expected)", field))
 	return data
 end
 
@@ -34,7 +41,7 @@ end
 
 ---@return boolean
 function utils.parseBoolean(data, path, field)
-	assert(data ~= nil, string.format("%s: field %s is missing (boolean expected)", path, field))
+	assert(data ~= nil, string.format("field %s is missing (boolean expected)", field))
 	return data
 end
 
@@ -45,7 +52,7 @@ end
 
 ---@return string
 function utils.parseString(data, path, field)
-	assert(data, string.format("%s: field %s is missing (string expected)", path, field))
+	assert(data, string.format("field %s is missing (string expected)", field))
 	return data
 end
 
@@ -58,17 +65,15 @@ end
 
 ---Parses a required Vector2 field for a config file.
 ---@param data table The data to be parsed.
----@param path string The path to the file.
 ---@param field string The field name inside of the file.
 ---@return Vector2
 function utils.parseVec2(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Vector2 expected)", path, field))
+	assert(data, string.format("field %s is missing (Vector2 expected)", field))
 	return Vec2(data.x, data.y)
 end
 
 ---Parses an optional Vector2 field for a config file.
 ---@param data table The data to be parsed.
----@param path string The path to the file.
 ---@param field string The field name inside of the file.
 ---@return Vector2?
 function utils.parseVec2Opt(data, path, field)
@@ -79,29 +84,37 @@ end
 
 ---@return Expression
 function utils.parseExprInteger(data, path, field)
-	assert(data, string.format("%s: field %s is missing (integer expression expected)", path, field))
+	assert(data, string.format("field %s is missing (integer expression expected)", field))
+	assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
 	return Expression(data)
 end
 
 ---@return Expression?
 function utils.parseExprIntegerOpt(data, path, field)
+	if data then
+		assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+	end
 	return data and Expression(data)
 end
 
 ---@return Expression
 function utils.parseExprBoolean(data, path, field)
-	assert(data, string.format("%s: field %s is missing (integer expression expected)", path, field))
+	assert(data, string.format("field %s is missing (boolean expression expected)", field))
+	assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
 	return Expression(data)
 end
 
 ---@return Expression?
 function utils.parseExprBooleanOpt(data, path, field)
+	if data then
+		assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+	end
 	return data and Expression(data)
 end
 
 ---@return Expression
 function utils.parseExprString(data, path, field)
-	assert(data, string.format("%s: field %s is missing (string expression expected)", path, field))
+	assert(data, string.format("field %s is missing (string expression expected)", field))
 	return Expression(data)
 end
 
@@ -114,7 +127,7 @@ end
 
 ---@return Color
 function utils.parseColor(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Color expected)", path, field))
+	assert(data, string.format("field %s is missing (Color expected)", field))
 	return Color(data.r, data.g, data.b)
 end
 
@@ -125,7 +138,7 @@ end
 
 ---@return Image
 function utils.parseImage(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Image expected)", path, field))
+	assert(data, string.format("field %s is missing (Image expected)", field))
 	return _Game.resourceManager:getImage(data)
 end
 
@@ -136,7 +149,7 @@ end
 
 ---@return Sprite
 function utils.parseSprite(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Sprite expected)", path, field))
+	assert(data, string.format("field %s is missing (Sprite expected)", field))
 	return _Game.resourceManager:getSprite(data)
 end
 
@@ -147,7 +160,7 @@ end
 
 ---@return Sound
 function utils.parseSound(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Sound expected)", path, field))
+	assert(data, string.format("field %s is missing (Sound expected)", field))
 	return _Game.resourceManager:getSound(data)
 end
 
@@ -158,7 +171,7 @@ end
 
 ---@return SoundEvent
 function utils.parseSoundEvent(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Sound Event expected)", path, field))
+	assert(data, string.format("field %s is missing (Sound Event expected)", field))
 	return _Game.resourceManager:getSoundEvent(data)
 end
 
@@ -169,7 +182,7 @@ end
 
 ---@return Music
 function utils.parseMusic(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Music expected)", path, field))
+	assert(data, string.format("field %s is missing (Music expected)", field))
 	return _Game.resourceManager:getMusic(data)
 end
 
@@ -180,7 +193,7 @@ end
 
 ---@return table
 function utils.parseParticle(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Particle expected)", path, field))
+	assert(data, string.format("field %s is missing (Particle expected)", field))
 	return _Game.resourceManager:getParticle(data)
 end
 
@@ -191,7 +204,7 @@ end
 
 ---@return Font
 function utils.parseFont(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Font expected)", path, field))
+	assert(data, string.format("field %s is missing (Font expected)", field))
 	return _Game.resourceManager:getFont(data)
 end
 
@@ -202,7 +215,7 @@ end
 
 ---@return ColorPalette
 function utils.parseColorPalette(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Color Palette expected)", path, field))
+	assert(data, string.format("field %s is missing (Color Palette expected)", field))
 	return _Game.resourceManager:getColorPalette(data)
 end
 
@@ -215,7 +228,7 @@ end
 
 ---@return CollectibleGeneratorConfig
 function utils.parseCollectibleGeneratorConfig(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Collectible Generator Config expected)", path, field))
+	assert(data, string.format("field %s is missing (Collectible Generator Config expected)", field))
 	return CollectibleGeneratorConfig(data, path)
 end
 
@@ -226,7 +239,7 @@ end
 
 ---@return CollectibleGeneratorConfig
 function utils.parseCollectibleGeneratorConfigRef(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Collectible Generator Config reference expected)", path, field))
+	assert(data, string.format("field %s is missing (Collectible Generator Config reference expected)", field))
 	return _Game.resourceManager:getCollectibleGeneratorConfig(data)
 end
 
@@ -237,7 +250,7 @@ end
 
 ---@return ScoreEventConfig
 function utils.parseScoreEventConfigRef(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Score Event Config reference expected)", path, field))
+	assert(data, string.format("field %s is missing (Score Event Config reference expected)", field))
 	return _Game.resourceManager:getScoreEventConfig(data)
 end
 
@@ -248,7 +261,7 @@ end
 
 ---@return ShooterMovementConfig
 function utils.parseShooterMovementConfig(data, path, field)
-	assert(data, string.format("%s: field %s is missing (Shooter Movement Config expected)", path, field))
+	assert(data, string.format("field %s is missing (Shooter Movement Config expected)", field))
 	return ShooterMovementConfig(data, path)
 end
 
@@ -259,7 +272,7 @@ end
 
 ---@return UI2AnimationConfig
 function utils.parseUIAnimationConfig(data, path, field)
-	assert(data, string.format("%s: field %s is missing (UI2 Animation Config expected)", path, field))
+	assert(data, string.format("field %s is missing (UI2 Animation Config expected)", field))
 	return _Game.resourceManager:getUIAnimationConfig(data)
 end
 
@@ -270,7 +283,7 @@ end
 
 ---@return UI2NodeConfig
 function utils.parseUINodeConfig(data, path, field)
-	assert(data, string.format("%s: field %s is missing (UI2 Node Config expected)", path, field))
+	assert(data, string.format("field %s is missing (UI2 Node Config expected)", field))
 	return _Game.resourceManager:getUINodeConfig(data)
 end
 
@@ -281,7 +294,7 @@ end
 
 ---@return UI2SequenceConfig
 function utils.parseUISequenceConfig(data, path, field)
-	assert(data, string.format("%s: field %s is missing (UI2 Sequence Config expected)", path, field))
+	assert(data, string.format("field %s is missing (UI2 Sequence Config expected)", field))
 	return _Game.resourceManager:getUISequenceConfig(data)
 end
 

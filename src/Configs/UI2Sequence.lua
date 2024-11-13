@@ -11,7 +11,7 @@ local Color = require("src.Essentials.Color")
 
 ---Constructs a new UI2 Sequence Config.
 ---@param data table Raw data parsed from `ui2/sequences/*.json`.
----@param path string Path to the file. The file is not loaded here, but is used in error messages.
+---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
 function UI2SequenceConfig:new(data, path)
     self._path = path
 
@@ -36,7 +36,7 @@ function UI2SequenceConfig:new(data, path)
         elseif entry.type == "wait" then
             entryT.time = entry.time
         else
-            error(string.format("Failed to load file %s, unknown Timeline Entry type: %s (expected \"playAnimation\", \"executeCallback\" or \"wait\")", path, entry.type))
+            error(string.format("Unknown Timeline Entry type: %s (expected \"playAnimation\", \"executeCallback\" or \"wait\")", entry.type))
         end
 
         table.insert(self.timeline, entryT)

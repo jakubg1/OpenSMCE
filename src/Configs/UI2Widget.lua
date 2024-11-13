@@ -11,7 +11,7 @@ local Color = require("src.Essentials.Color")
 
 ---Constructs a new UI2 Widget Config.
 ---@param data table Raw data parsed from `ui2/layout/*.json`.
----@param path string Path to the file. The file is not loaded here, but is used in error messages.
+---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
 function UI2WidgetConfig:new(data, path)
     self._path = path
 
@@ -47,7 +47,7 @@ function UI2WidgetConfig:new(data, path)
         ---@type string
         self.level = data.level
     else
-        --error(string.format("Failed to load file %s, unknown Widget type: %s (expected \"rectangle\", \"sprite\", \"spriteButton\" or \"text\")", path, self.type))
+        error(string.format("Unknown Widget type: %s (expected \"rectangle\", \"sprite\", \"spriteButton\", \"spriteProgress\", \"text\" or \"level\")", self.type))
     end
 end
 

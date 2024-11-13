@@ -10,7 +10,7 @@ local Vec2 = require("src.Essentials.Vector2")
 
 ---Constructs a new Shooter Config.
 ---@param data table Raw data parsed from `config/shooters/*.json`.
----@param path string Path to the file. The file is not loaded here, but is used in error messages.
+---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
 function ShooterConfig:new(data, path)
     local u = _ConfigUtils
 

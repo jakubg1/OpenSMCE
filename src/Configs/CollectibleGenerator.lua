@@ -8,7 +8,7 @@ local CollectibleGeneratorConfig = class:derive("CollectibleGeneratorConfig")
 
 ---Constructs a new Collectible Generator Config.
 ---@param data table Raw collectible generator data, found in `collectible_generators/*.json`.
----@param path string Path to the file. The file is not loaded here, but is used in error messages.
+---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
 function CollectibleGeneratorConfig:new(data, path)
     local u = _ConfigUtils
 
@@ -36,7 +36,7 @@ function CollectibleGeneratorConfig:new(data, path)
             self.pool[i] = choice
         end
     else
-        error(string.format("Failed to load file %s, unknown collectible generator type: %s (expected \"collectible\", \"collectibleGenerator\", \"combine\", \"repeat\" or \"randomPick\")", path, self.type))
+        error(string.format("Unknown collectible generator type: %s (expected \"collectible\", \"collectibleGenerator\", \"combine\", \"repeat\" or \"randomPick\")", self.type))
     end
 
     self.conditions = {}

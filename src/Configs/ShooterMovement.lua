@@ -8,7 +8,7 @@ local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 
 ---Constructs a new Shooter Movement Config.
 ---@param data table Raw shooter movement data, found in `config/levels/*.json` and `config/shooters/*.json`.
----@param path string Path to the file. The file is not loaded here, but is used in error messages.
+---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
 function ShooterMovementConfig:new(data, path)
     local u = _ConfigUtils
 
@@ -23,7 +23,7 @@ function ShooterMovementConfig:new(data, path)
         self.x = u.parseNumber(data.x, path, "x")
         self.y = u.parseNumber(data.y, path, "y")
     else
-        error(string.format("Failed to load file %s, unknown shooter type: %s (expected \"linear\" or \"circular\")", path, self.type))
+        error(string.format("Unknown shooter type: %s (expected \"linear\" or \"circular\")", self.type))
     end
 end
 

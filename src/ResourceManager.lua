@@ -386,7 +386,10 @@ function ResourceManager:loadAsset(key, batches)
 	end
 	-- TODO: Condensate the parameter set to the one used by Config Classes.
 	if self.RESOURCE_TYPES[type].paramSet == 2 then
-		self.resources[key] = {asset = constructor(contents, key), type = type, batches = newBatches}
+		-- Construct the resource and check for errors.
+		local success, result = xpcall(function() return constructor(contents, key) end, debug.traceback)
+		assert(success, string.format("Failed to load file %s: %s", key, result))
+		self.resources[key] = {asset = result, type = type, batches = newBatches}
 	else
 		self.resources[key] = {asset = constructor(_ParsePath(key)), type = type, batches = newBatches}
 	end

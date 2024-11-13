@@ -11,7 +11,7 @@ local UI2WidgetConfig = require("src.Configs.UI2Widget")
 
 ---Constructs a new UI2 Node Config.
 ---@param data table Raw data parsed from `ui2/layout/*.json`.
----@param path string Path to the file. The file is not loaded here, but is used in error messages.
+---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
 function UI2NodeConfig:new(data, path)
     self._path = path
 
@@ -27,7 +27,7 @@ function UI2NodeConfig:new(data, path)
             elseif child.type == "node" then
                 self.children[childN] = UI2NodeConfig(child.node)
             else
-                error(string.format("Failed to load file %s, unknown Node[%s] type: %s (expected \"include\" or \"node\")", path, childN, child.type))
+                error(string.format("Unknown Node[%s] type: %s (expected \"include\" or \"node\")", childN, child.type))
             end
         end
     end

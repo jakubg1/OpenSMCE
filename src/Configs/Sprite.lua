@@ -8,7 +8,7 @@ local SpriteConfig = class:derive("SpriteConfig")
 
 ---Constructs a new Sprite Config.
 ---@param data table Raw sprite data.
----@param path string Path to the file. The file is not loaded here, but is used in error messages.
+---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
 function SpriteConfig:new(data, path)
     local u = _ConfigUtils
 

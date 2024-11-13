@@ -26,6 +26,8 @@ local Vec2 = require("src.Essentials.Vector2")
 ---@param str any The expression to be compiled (or not).
 ---@param raw boolean? Whether the provided `str` value is guaranteed to be a valid expression which is not packed inside the `${...}` clause.
 function Expression:new(str, raw)
+	self.str = str
+
 	-- Operators.
 	self.OPERATOR_FUNCTIONS = {
 		-- Artithmetic: Takes two last numbers in the stack (one in case of unary minus), performs an operation and puts the result number back.
@@ -393,7 +395,7 @@ function Expression:compile(tokens)
 					table.insert(steps, {type = "operator", value = opStack[#opStack].value})
 					table.remove(opStack)
 				end
-				assert(#opStack > 0, string.format("Missing ( in Expression(%s)!", self.data))
+				assert(#opStack > 0, string.format("Missing ( in Expression(%s)!", self.str))
 				-- Pop the parenthesis.
 				table.remove(opStack)
 				-- If there's a function name beforehand, add it.
@@ -410,7 +412,7 @@ function Expression:compile(tokens)
 					table.insert(steps, {type = "operator", value = opStack[#opStack].value})
 					table.remove(opStack)
 				end
-				assert(#opStack > 0, string.format("Missing [ in Expression(%s)!", self.data))
+				assert(#opStack > 0, string.format("Missing [ in Expression(%s)!", self.str))
 				-- Pop the parenthesis.
 				table.remove(opStack)
 				-- If there's a function name beforehand, add it.
@@ -433,7 +435,7 @@ function Expression:compile(tokens)
 			end
 			if op == "|" then
 				-- This is a symbol which changes get to getd, and getc to getcd.
-				assert(lastFunction == "get" or lastFunction == "getc", string.format("| in incorrect place in Expression(%s)!", self.data))
+				assert(lastFunction == "get" or lastFunction == "getc", string.format("| in incorrect place in Expression(%s)!", self.str))
 				if lastFunction == "get" then
 					opStack[lastFunctionI].value = "getd"
 				else
@@ -461,8 +463,8 @@ function Expression:compile(tokens)
 
 	-- Flush the operator stack.
 	for i = #opStack, 1, -1 do
-		assert(opStack[i].value ~= "(", string.format("Missing ) in Expression(%s)!", self.data))
-		assert(opStack[i].value ~= "[", string.format("Missing ] in Expression(%s)!", self.data))
+		assert(opStack[i].value ~= "(", string.format("Missing ) in Expression(%s)!", self.str))
+		assert(opStack[i].value ~= "[", string.format("Missing ] in Expression(%s)!", self.str))
 		table.insert(steps, {type = "operator", value = opStack[i].value})
 	end
 

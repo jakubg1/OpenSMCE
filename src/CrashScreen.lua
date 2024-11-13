@@ -84,7 +84,7 @@ function CrashScreen:draw()
 
     -- Error text
     love.graphics.setFont(_FONT)
-    local result = pcall(function() love.graphics.print(self.err, 30, 180) end)
+    local result = pcall(function() love.graphics.printf(self.err, 30, 180, 740) end)
     if not result then
         love.graphics.print("Unable to print the crash message. Look at the console for more information!", 30, 180)
     end

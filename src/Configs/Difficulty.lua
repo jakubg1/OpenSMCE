@@ -8,7 +8,7 @@ local DifficultyConfig = class:derive("DifficultyConfig")
 
 ---Constructs a new Difficulty Config.
 ---@param data table Raw difficulty data.
----@param path string Path to the file. The file is not loaded here, but is used in error messages.
+---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
 function DifficultyConfig:new(data, path)
     local u = _ConfigUtils
 
