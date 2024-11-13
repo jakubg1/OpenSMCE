@@ -323,6 +323,8 @@ function Shooter:shoot()
         _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos())
         _Game.session:destroySelector(sphereConfig.shootBehavior.selector, self.pos, sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
     else
+        -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
+        self.sphereEntity:setAlpha(self:getSphereAlpha())
         _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed())
         self.sphereEntity = nil
     end
