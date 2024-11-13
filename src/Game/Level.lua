@@ -1011,12 +1011,18 @@ function Level:lose()
 		shotSphere:destroy()
 	end
 	self.shotSpheres = {}
+	-- stop warmup sound
+	if self.warmupLoop then
+		self.warmupLoop:stop()
+	end
+	-- play loss sounds
 	if self.failSoundName then
 		_Game:playSound(self.failSoundName)
 	end
 	if self.failLoopName then
 		self.failLoop = _Game:playSound(self.failLoopName)
 	end
+	-- update sequence step
 	local jumpTo = self.levelSequence[self.levelSequenceStep].onFail
 	if jumpTo then
 		self:jumpToSequenceStep(jumpTo)
