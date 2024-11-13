@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Sphere which has been shot from the Shooter and is flying on the screen until it finds a Sphere Group on its way.
 ---@class ShotSphere
----@overload fun(deserializationTable, shooter, pos, angle, size, color, speed):ShotSphere
+---@overload fun(deserializationTable, shooter, pos, angle, size, color, speed, sphereEntity):ShotSphere
 local ShotSphere = class:derive("ShotSphere")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -19,7 +19,8 @@ local SphereEntity = require("src.Game.SphereEntity")
 ---@param size number The diameter of this Shot Sphere in pixels.
 ---@param color integer The color of this Shot Sphere.
 ---@param speed number The initial speed of this Shot Sphere.
-function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, speed)
+---@param sphereEntity SphereEntity The Sphere Entity that was attached to the Shooter from which this entity is created.
+function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, speed, sphereEntity)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
@@ -30,7 +31,7 @@ function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, 
 		self.steps = 0
 		self.color = color
 		self.speed = speed
-		self.sphereEntity = shooter.sphereEntity
+		self.sphereEntity = sphereEntity
 
 		self.gapsTraversed = {}
 

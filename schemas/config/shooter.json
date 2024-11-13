@@ -36,6 +36,28 @@
             "description": "The anchor point of the shooter shadow sprite. Defaults to (0.5, 0).",
             "markdownDescription": "The anchor point of the shooter shadow sprite. Defaults to `(0.5, 0)`."
         },
+        "spheres": {
+            "type": "array",
+            "description": "A list of primary spheres that can be shot.",
+            "items": {
+                "type": "object",
+                "description": "A single primary sphere.",
+                "properties": {
+                    "pos": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "The position of the sphere, relative to the shooter."
+                    },
+                    "shotPos": {
+                        "$ref": "../_structures/Vector2.json",
+                        "description": "If present, this is the position - relative to the shooter - that the sphere will warp to when shot and will start moving from that position. If absent, the sphere will start flying from its current position without any modifications."
+                    }
+                },
+                "required": [
+                    "pos"
+                ],
+                "additionalProperties": false
+            }
+        },
         "ballPos": {
             "$ref": "../_structures/Vector2.json",
             "description": "The position of the ball which can be shot. Defaults to (0, 5).",
@@ -219,6 +241,7 @@
     "required": [
         "movement",
         "sprite",
+        "spheres",
         "nextBallSprites",
         "nextBallOffset",
         "nextBallAnchor",

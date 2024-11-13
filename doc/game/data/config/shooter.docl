@@ -6,6 +6,10 @@
     - shadowSprite* (Sprite) - The shadow sprite for the shooter to be used.
     - shadowSpriteOffset* (Vector2) - The offset of the shooter shadow sprite. Defaults to `(8, 8)`.
     - shadowSpriteAnchor* (Vector2) - The anchor point of the shooter shadow sprite. Defaults to `(0.5, 0)`.
+    - spheres (array) - A list of primary spheres that can be shot.
+        - (object) - A single primary sphere.
+            - pos (Vector2) - The position of the sphere, relative to the shooter.
+            - shotPos* (Vector2) - If present, this is the position - relative to the shooter - that the sphere will warp to when shot and will start moving from that position. If absent, the sphere will start flying from its current position without any modifications.
     - ballPos* (Vector2) - The position of the ball which can be shot. Defaults to `(0, 5)`.
     - nextBallSprites (object) <<^[-]?[0-9]*$>> - Contains next ball sprites for all possible sphere colors. Key names must be stringified integers.
         - (object) - Contains next sphere sprite data for that particular sphere color.

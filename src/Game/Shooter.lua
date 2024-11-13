@@ -28,7 +28,7 @@ function Shooter:new(data)
     self.speedShotSpeed = 0
     self.speedShotTime = 0
     self.speedShotAnim = 0
-    self.speedShotParticle = nil
+    self.speedShotParticles = {}
 
     self.reticleColor = 0
     self.reticleOldColor = nil
@@ -47,7 +47,7 @@ function Shooter:new(data)
     self.moveKeySpeed = 500
     self.rotateKeySpeed = 4
 
-    self.sphereEntity = nil
+    self.sphereEntities = {}
 end
 
 
@@ -143,17 +143,16 @@ function Shooter:update(dt)
     if self.speedShotTime > 0 then
         self.speedShotTime = math.max(self.speedShotTime - dt, 0)
         self.speedShotAnim = math.min(self.speedShotAnim + dt / self.config.speedShotBeam.fadeTime, 1)
-        if self.speedShotParticle then
-            self.speedShotParticle.pos = self:getSpherePos()
-        else
-            self.speedShotParticle = _Game:spawnParticle(self.config.speedShotParticle, self:getSpherePos())
+        for i = 1, self:getSphereCount() do
+            if self.speedShotParticles[i] then
+                self.speedShotParticles[i].pos = self:getSpherePos(i)
+            else
+                self.speedShotParticles[i] = _Game:spawnParticle(self.config.speedShotParticle, self:getSpherePos(i))
+            end
         end
     else
         self.speedShotAnim = math.max(self.speedShotAnim - dt / self.config.speedShotBeam.fadeTime, 0)
-        if self.speedShotParticle then
-            self.speedShotParticle:destroy()
-            self.speedShotParticle = nil
-        end
+        self:destroySpeedShotParticles()
     end
 
     -- Update the reticle color fade animation.
@@ -173,8 +172,10 @@ function Shooter:update(dt)
     end
 
     -- Update the sphere entity position.
-    if self.sphereEntity then
-        self.sphereEntity:setPos(self:getSpherePos())
+    for i = 1, self:getSphereCount() do
+        if self.sphereEntities[i] then
+            self.sphereEntities[i]:setPos(self:getSpherePos(i))
+        end
     end
 end
 
@@ -185,16 +186,11 @@ end
 function Shooter:setColor(color)
     self.color = color
 
-    if color == 0 and self.sphereEntity then
-        self.sphereEntity:destroy(false)
-        self.sphereEntity = nil
+    if color == 0 then
+        self:destroySphereEntities()
     end
     if color ~= 0 then
-        if self.sphereEntity then
-            self.sphereEntity:setColor(color)
-        else
-            self.sphereEntity = SphereEntity(self:getSpherePos(), color)
-        end
+        self:spawnSphereEntities()
 
         if self.config.reticle.colorFadeTime then
             self.reticleOldColor = self.reticleColor
@@ -225,9 +221,8 @@ end
 ---Empties this shooter. This includes removing all effects, such as speed shot or multi-color spheres.
 function Shooter:empty()
     -- Show particles if the level was lost.
-    if self.sphereEntity and _Game.session.level.lost and self.config.destroySphereOnFail then
-        self.sphereEntity:destroy(true)
-        self.sphereEntity = nil
+    if _Game.session.level.lost and self.config.destroySphereOnFail then
+        self:destroySphereEntities()
     end
     self:setColor(0)
     self:setNextColor(0)
@@ -318,15 +313,19 @@ function Shooter:shoot()
     end
 
     local sphereConfig = self:getSphereConfig()
-    if sphereConfig.shootBehavior.type == "destroySpheres" then
-        -- lightning spheres are not shot, they're deployed instantly
-        _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos())
-        _Game.session:destroySelector(sphereConfig.shootBehavior.selector, self.pos, sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
-    else
-        -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
-        self.sphereEntity:setAlpha(self:getSphereAlpha())
-        _Game.session.level:spawnShotSphere(self, self:getSpherePos(), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed())
-        self.sphereEntity = nil
+    for i = 1, self:getSphereCount() do
+        if sphereConfig.shootBehavior.type == "destroySpheres" then
+            -- lightning spheres are not shot, they're deployed instantly
+            _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
+            _Game.session:destroySelector(sphereConfig.shootBehavior.selector, self:getSpherePos(i), sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
+            self:destroySphereEntities()
+        else
+            -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
+            self.sphereEntities[i]:setAlpha(self:getSphereAlpha())
+            _Game.session.level:spawnShotSphere(self, self:getSphereShotPos(i), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed(), self.sphereEntities[i])
+            self.sphereEntities[i] = nil
+        end
+        _Game.session.level.spheresShot = _Game.session.level.spheresShot + 1
     end
     if sphereConfig.shootEffects then
         for i, effect in ipairs(sphereConfig.shootEffects) do
@@ -336,19 +335,14 @@ function Shooter:shoot()
     _Game:playSound(sphereConfig.shootSound, self.pos)
     self.color = 0
     self.shotCooldown = self.config.shotCooldown
-    _Game.session.level.spheresShot = _Game.session.level.spheresShot + 1
 end
 
 
 
 ---Deinitialization function.
 function Shooter:destroy()
-    if self.sphereEntity then
-        self.sphereEntity:destroy(false)
-    end
-    if self.speedShotParticle then
-        self.speedShotParticle:destroy()
-    end
+    self:destroySphereEntities()
+    self:destroySpeedShotParticles()
 end
 
 
@@ -409,13 +403,16 @@ function Shooter:draw()
     end
 
     -- this color
-    if self.sphereEntity then
-        self.sphereEntity:setPos(self:getSpherePos())
-        self.sphereEntity:setAngle(self.angle)
-        self.sphereEntity:setScale(self:getSphereSize() / 32)
-        self.sphereEntity:setFrame(self:getSphereFrame())
-        self.sphereEntity:setAlpha(self:getSphereAlpha())
-        self.sphereEntity:draw()
+    for i = 1, self:getSphereCount() do
+        local entity = self.sphereEntities[i]
+        if entity then
+            entity:setPos(self:getSpherePos(i))
+            entity:setAngle(self.angle)
+            entity:setScale(self:getSphereSize() / 32)
+            entity:setFrame(self:getSphereFrame())
+            entity:setAlpha(self:getSphereAlpha())
+            entity:draw()
+        end
     end
     -- next color
     local sprite = self.config.nextBallSprites[self.nextColor].sprite
@@ -438,36 +435,39 @@ function Shooter:drawSpeedShotBeam()
         return
     end
 
-    local targetPos = self:getTargetPos()
-    local maxDistance = self.speedShotSprite.size.y
-    local distance = math.min(targetPos and (self.pos - targetPos):len() or maxDistance, maxDistance)
-    local distanceUnit = distance / maxDistance
-    local scale = Vec2(1)
-    if self.config.speedShotBeam.renderingType == "scale" then
-        -- if we need to scale the beam
-        scale.y = distanceUnit
-    elseif self.config.speedShotBeam.renderingType == "cut" then
-        -- if we need to cut the beam
-        -- make a polygon: determine all four corners first
-        local p1 = _PosOnScreen(self.pos + Vec2(-self.speedShotSprite.size.x / 2, -distance):rotate(self.angle))
-        local p2 = _PosOnScreen(self.pos + Vec2(self.speedShotSprite.size.x / 2, -distance):rotate(self.angle))
-        local p3 = _PosOnScreen(self.pos + Vec2(self.speedShotSprite.size.x / 2, 16):rotate(self.angle))
-        local p4 = _PosOnScreen(self.pos + Vec2(-self.speedShotSprite.size.x / 2, 16):rotate(self.angle))
-        -- mark all pixels within the polygon with value of 1
-        love.graphics.stencil(function()
-            love.graphics.setColor(1, 1, 1)
-            love.graphics.polygon("fill", p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y)
-        end, "replace", 1)
-        -- mark only these pixels as the pixels which can be affected
-        love.graphics.setStencilTest("equal", 1)
-    end
-    -- apply color if wanted
-    local color = self.config.speedShotBeam.colored and self:getReticleColor() or Color()
-    -- draw the beam
-    self.speedShotSprite:draw(self:getSpherePos() + Vec2(0, 16):rotate(self.angle), Vec2(0.5, 1), nil, nil, self.angle, color, self.speedShotAnim, scale)
-    -- reset the scissor
-    if self.config.speedShotBeam.renderingType == "cut" then
-        love.graphics.setStencilTest()
+    for i = 1, self:getSphereCount() do
+        local startPos = self:getSpherePos(i)
+        local targetPos = self:getTargetPosForSphere(i)
+        local maxDistance = self.speedShotSprite.size.y
+        local distance = math.min(targetPos and (startPos - targetPos):len() or maxDistance, maxDistance)
+        local distanceUnit = distance / maxDistance
+        local scale = Vec2(1)
+        if self.config.speedShotBeam.renderingType == "scale" then
+            -- if we need to scale the beam
+            scale.y = distanceUnit
+        elseif self.config.speedShotBeam.renderingType == "cut" then
+            -- if we need to cut the beam
+            -- make a polygon: determine all four corners first
+            local p1 = _PosOnScreen(startPos + Vec2(-self.speedShotSprite.size.x / 2, -distance):rotate(self.angle))
+            local p2 = _PosOnScreen(startPos + Vec2(self.speedShotSprite.size.x / 2, -distance):rotate(self.angle))
+            local p3 = _PosOnScreen(startPos + Vec2(self.speedShotSprite.size.x / 2, 16):rotate(self.angle))
+            local p4 = _PosOnScreen(startPos + Vec2(-self.speedShotSprite.size.x / 2, 16):rotate(self.angle))
+            -- mark all pixels within the polygon with value of 1
+            love.graphics.stencil(function()
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.polygon("fill", p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y)
+            end, "replace", 1)
+            -- mark only these pixels as the pixels which can be affected
+            love.graphics.setStencilTest("equal", 1)
+        end
+        -- apply color if wanted
+        local color = self.config.speedShotBeam.colored and self:getReticleColor() or Color()
+        -- draw the beam
+        self.speedShotSprite:draw(startPos + Vec2(0, 16):rotate(self.angle), Vec2(0.5, 1), nil, nil, self.angle, color, self.speedShotAnim, scale)
+        -- reset the scissor
+        if self.config.speedShotBeam.renderingType == "cut" then
+            love.graphics.setStencilTest()
+        end
     end
 end
 
@@ -531,12 +531,42 @@ end
 
 
 
----Spawns a sphere entity which is used to draw the primary sphere.
-function Shooter:spawnSphereEntity()
-    if self.color == 0 or self.sphereEntity then
+---Spawns sphere entities which are used to draw the primary spheres, or changes their color to the proper one.
+function Shooter:spawnSphereEntities()
+    if self.color == 0 then
         return
     end
-    self.sphereEntity = SphereEntity(self:getSpherePos(), self.color)
+    for i = 1, self:getSphereCount() do
+        if self.sphereEntities[i] then
+            self.sphereEntities[i]:setColor(self.color)
+        else
+            self.sphereEntities[i] = SphereEntity(self:getSpherePos(i), self.color)
+        end
+    end
+end
+
+
+
+---Destroys all Sphere Entities from this Shooter.
+function Shooter:destroySphereEntities()
+    for i = 1, self:getSphereCount() do
+        if self.sphereEntities[i] then
+            self.sphereEntities[i]:destroy(false)
+            self.sphereEntities[i] = nil
+        end
+    end
+end
+
+
+
+---Destroys all Speed Shot particles from this Shooter.
+function Shooter:destroySpeedShotParticles()
+    for i = 1, self:getSphereCount() do
+        if self.speedShotParticles[i] then
+            self.speedShotParticles[i]:destroy()
+            self.speedShotParticles[i] = nil
+        end
+    end
 end
 
 
@@ -601,10 +631,34 @@ end
 
 
 
----Returns the center position of the primary sphere.
+---Returns the number of primary spheres in this shooter.
+---@return integer
+function Shooter:getSphereCount()
+    return #self.config.spheres
+end
+
+
+
+---Returns the center position of the primary sphere on the given slot.
+---@param n integer The main slot number for the sphere to be checked for.
 ---@return Vector2
-function Shooter:getSpherePos()
-    return self.pos + self.config.ballPos:rotate(self.angle)
+function Shooter:getSpherePos(n)
+    return self.pos + self.config.spheres[n].pos:rotate(self.angle)
+end
+
+
+
+---Returns the shooting center position of the primary sphere on the given slot.
+---This is the position that the sphere will warp to the moment it's shot.
+---Does not apply to instantly deployed powerups.
+---@param n integer The main slot number for the sphere to be checked for.
+---@return Vector2
+function Shooter:getSphereShotPos(n)
+    local shotPos = self.config.spheres[n].shotPos
+    if shotPos then
+        return self.pos + shotPos:rotate(self.angle)
+    end
+    return self:getSpherePos(n)
 end
 
 
@@ -629,6 +683,15 @@ end
 ---@return Vector2
 function Shooter:getTargetPos()
     return _Game.session:getNearestSphereOnLine(self.pos, self.angle).targetPos
+end
+
+
+
+---Returns the reticle position, starting from the given sphere.
+---@param n integer The main slot number for the sphere to be checked for.
+---@return Vector2
+function Shooter:getTargetPosForSphere(n)
+    return _Game.session:getNearestSphereOnLine(self:getSpherePos(n), self.angle).targetPos
 end
 
 
@@ -726,7 +789,7 @@ function Shooter:deserialize(t)
     self.reticleColor = t.color
     self.reticleNextColor = t.nextColor
 
-    self:spawnSphereEntity()
+    self:spawnSphereEntities()
 end
 
 

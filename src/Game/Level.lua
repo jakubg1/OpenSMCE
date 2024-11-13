@@ -1056,8 +1056,9 @@ end
 ---@param size number The diameter of the Shot Sphere, in pixels.
 ---@param color integer The sphere ID to be shot.
 ---@param speed number The sphere speed.
-function Level:spawnShotSphere(shooter, pos, angle, size, color, speed)
-	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, size, color, speed))
+---@param sphereEntity SphereEntity The Sphere Entity that was attached to the Shooter from which this entity is created.
+function Level:spawnShotSphere(shooter, pos, angle, size, color, speed, sphereEntity)
+	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, size, color, speed, sphereEntity))
 end
 
 

@@ -21,7 +21,14 @@ function ShooterConfig:new(data, path)
     self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
     self.shadowSpriteOffset = u.parseVec2Opt(data.shadowSpriteOffset, path, "shadowSpriteOffset") or Vec2(8)
     self.shadowSpriteAnchor = u.parseVec2Opt(data.shadowSpriteAnchor, path, "shadowSpriteAnchor") or Vec2(0.5, 0)
-    self.ballPos = u.parseVec2Opt(data.ballPos, path, "ballPos") or Vec2(0, 5)
+    self.spheres = {}
+    for i = 1, #data.spheres do
+        local sphere = {
+            pos = u.parseVec2(data.spheres[i].pos, path, "spheres[" .. tostring(i) .. "].pos"),
+            shotPos = u.parseVec2Opt(data.spheres[i].shotPos, path, "spheres[" .. tostring(i) .. "].shotPos")
+        }
+        self.spheres[i] = sphere
+    end
 
     self.nextBallSprites = {}
     for n, nextBallData in pairs(data.nextBallSprites) do
