@@ -69,11 +69,16 @@ function Music:stop()
 	self.instance:stop()
 end
 
-function Music:setVolume(volume, instant)
+function Music:setVolume(volume, instant, duration)
 	self.volumeDes = volume
 	if instant then
 		self.volume = self.volumeDes
 		self:updateVolume()
+	end
+	if duration then
+		self.volumeFadeSpeed = math.abs(self.volumeDes - self.volume) / duration
+	else
+		self.volumeFadeSpeed = 1
 	end
 end
 
