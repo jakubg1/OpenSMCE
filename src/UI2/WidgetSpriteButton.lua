@@ -59,7 +59,7 @@ end
 ---Returns the current Widget's size.
 ---@return Vector2
 function UI2WidgetSpriteButton:getSize()
-	return self.sprite.frameSize * self.node:getGlobalScale()
+	return self.sprite.config.frameSize * self.node:getGlobalScale()
 end
 
 

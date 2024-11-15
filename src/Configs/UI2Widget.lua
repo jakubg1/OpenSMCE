@@ -47,7 +47,7 @@ function UI2WidgetConfig:new(data, path)
         ---@type string
         self.level = data.level
     else
-        error(string.format("Unknown Widget type: %s (expected \"rectangle\", \"sprite\", \"spriteButton\", \"spriteProgress\", \"text\" or \"level\")", self.type))
+        --error(string.format("Unknown Widget type: %s (expected \"rectangle\", \"sprite\", \"spriteButton\", \"spriteProgress\", \"text\" or \"level\")", self.type))
     end
 end
 

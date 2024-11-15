@@ -566,11 +566,11 @@ function Sphere:draw(color, hidden, shadow)
 
 	local scale = self:getScale() * self.size / 32
 
-	local frame = Vec2(1)
+	local frame = 1
 	if self.config.spriteAnimationSpeed then
-		frame = Vec2(math.floor(self.config.spriteAnimationSpeed * _TotalTime), 1)
+		frame = math.floor(self.config.spriteAnimationSpeed * _TotalTime)
 	elseif self.appendSize == 1 then
-		frame = Vec2(math.ceil(self.frameCount - self.animationFrame), 1)
+		frame = math.ceil(self.frameCount - self.animationFrame)
 	end
 
 	local colorM = self:getColor()
@@ -627,7 +627,7 @@ function Sphere:loadConfig()
 	self.config = _Game.configManager.spheres[self.color]
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
 	-- TODO/DEPRECATED: Remove default value
-	self.frameCount = self.sprite.states[1].frameCount.x
+	self.frameCount = self.sprite.states[1].frameCount
 	self.size = self.config.size or 32
 end
 

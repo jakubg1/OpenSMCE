@@ -727,13 +727,13 @@ end
 
 
 ---Returns the current sphere's animation frame.
----@return Vector2
+---@return integer
 function Shooter:getSphereFrame()
     local animationSpeed = self:getSphereConfig().spriteAnimationSpeed
     if animationSpeed then
-        return Vec2(math.floor(animationSpeed * _TotalTime), 1)
+        return math.floor(animationSpeed * _TotalTime)
     end
-    return Vec2(1)
+    return 1
 end
 
 
@@ -750,13 +750,13 @@ end
 
 
 ---Returns the next sphere's animation frame.
----@return Vector2
+---@return integer
 function Shooter:getNextSphereFrame()
     local animationSpeed = self.config.nextBallSprites[self.nextColor].spriteAnimationSpeed
     if animationSpeed then
-        return Vec2(math.floor(animationSpeed * _TotalTime), 1)
+        return math.floor(animationSpeed * _TotalTime)
     end
-    return Vec2(1)
+    return 1
 end
 
 

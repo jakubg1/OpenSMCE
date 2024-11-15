@@ -34,7 +34,7 @@ function EditorMain:new(name)
 	self.hoveredSpriteState = nil
 	self.selectedSpriteState = 1
 	self.hoveredSpriteFrame = nil
-	self.selectedSpriteFrame = Vec2(1, 1)
+	self.selectedSpriteFrame = 1
 end
 
 
@@ -79,22 +79,14 @@ function EditorMain:update(dt)
 		local sprite = self.resourceManager:getSprite(self.selectedResource)
 		for i, state in ipairs(sprite.config.states) do
 			local stateY = 630 + (i - 1) * 16
-			local n = 0
-			local frameWidth = state.frames.y == 1 and 20 or 30
+			local frameWidth = 20
 			local stateWidth = 100 + frameWidth * state.frames.x * state.frames.y
 			if _Utils.isPointInsideBox(_MousePos, Vec2(350, stateY), Vec2(stateWidth, 16)) then
 				self.hoveredSpriteState = i
-				for j = 1, state.frames.x do
-					local done = false
-					for k = 1, state.frames.y do
-						if _Utils.isPointInsideBox(_MousePos, Vec2(450 + n * frameWidth, stateY), Vec2(frameWidth, 16)) then
-							self.hoveredSpriteFrame = Vec2(j, k)
-							done = true
-							break
-						end
-						n = n + 1
-					end
-					if done then
+				for j = 1, state.frames.x * state.frames.y do
+					local frameX = 450 + (j - 1) * frameWidth
+					if _Utils.isPointInsideBox(_MousePos, Vec2(frameX, stateY), Vec2(frameWidth, 16)) then
+						self.hoveredSpriteFrame = j
 						break
 					end
 				end
@@ -184,20 +176,31 @@ function EditorMain:draw()
 		love.graphics.setLineWidth(self.spriteScale)
 		love.graphics.rectangle("line", x + selectedStatePos.x - (0.5 * self.spriteScale), y + selectedStatePos.y - (0.5 * self.spriteScale), selectedStateSize.x + self.spriteScale, selectedStateSize.y + self.spriteScale)
 		-- Hovered state outline
+		local hoveredStatePos
 		if self.hoveredSpriteState then
 			local hoveredState = sprite.config.states[self.hoveredSpriteState]
-			local hoveredStatePos = hoveredState.pos * self.spriteScale
+			hoveredStatePos = hoveredState.pos * self.spriteScale
 			local hoveredStateSize = sprite.config.frameSize * hoveredState.frames * self.spriteScale
-			love.graphics.setColor(0, 1, 1, 0.5)
-			love.graphics.setLineWidth(self.spriteScale)
-			love.graphics.rectangle("fill", x + hoveredStatePos.x, y + hoveredStatePos.y, hoveredStateSize.x, hoveredStateSize.y)
+			if not self.hoveredSpriteFrame then
+				love.graphics.setColor(0, 1, 1, 0.5)
+				love.graphics.setLineWidth(self.spriteScale)
+				love.graphics.rectangle("fill", x + hoveredStatePos.x, y + hoveredStatePos.y, hoveredStateSize.x, hoveredStateSize.y)
+			end
 		end
 		-- Selected frame outline
-		local selectedFramePos = selectedStatePos + (sprite.config.frameSize * (self.selectedSpriteFrame - 1)) * self.spriteScale
+		local selectedFramePos = sprite:getFramePos(self.selectedSpriteState, self.selectedSpriteFrame) * self.spriteScale
 		local selectedFrameSize = sprite.config.frameSize * self.spriteScale
 		love.graphics.setColor(1, 0, 0)
 		love.graphics.setLineWidth(self.spriteScale)
 		love.graphics.rectangle("line", x + selectedFramePos.x + (0.5 * self.spriteScale), y + selectedFramePos.y + (0.5 * self.spriteScale), selectedFrameSize.x - self.spriteScale, selectedFrameSize.y - self.spriteScale)
+		-- Hovered frame outline
+		if self.hoveredSpriteFrame then
+			local hoveredFramePos = sprite:getFramePos(self.hoveredSpriteState, self.hoveredSpriteFrame) * self.spriteScale
+			local hoveredFrameSize = sprite.config.frameSize * self.spriteScale
+			love.graphics.setColor(1, 0, 0, 0.5)
+			love.graphics.setLineWidth(self.spriteScale)
+			love.graphics.rectangle("fill", x + hoveredFramePos.x, y + hoveredFramePos.y, hoveredFrameSize.x, hoveredFrameSize.y)
+		end
 
 
 		-- BOTTOM DETAILS
@@ -221,23 +224,20 @@ function EditorMain:draw()
 			love.graphics.setColor(1, 1, 1)
 			love.graphics.setLineWidth(1)
 			love.graphics.rectangle("line", 349.5, stateY + 0.5, 100, 16)
-			local n = 0
-			local frameWidth = state.frames.y == 1 and 20 or 30
-			for j = 1, state.frames.x do
-				for k = 1, state.frames.y do
-					local frameText = state.frames.y == 1 and tostring(j) or string.format("%s,%s", j, k)
-					if self.selectedSpriteState == i and self.selectedSpriteFrame == Vec2(j, k) then
-						love.graphics.setColor(1, 0, 0)
-						love.graphics.rectangle("fill", 450 + n * frameWidth, stateY, frameWidth, 16)
-					elseif self.hoveredSpriteState == i and self.hoveredSpriteFrame == Vec2(j, k) then
-						love.graphics.setColor(1, 0, 0, 0.5)
-						love.graphics.rectangle("fill", 450 + n * frameWidth, stateY, frameWidth, 16)
-					end
-					love.graphics.setColor(1, 1, 1)
-					love.graphics.print(frameText, 450 + n * frameWidth, stateY)
-					love.graphics.rectangle("line", 449.5 + n * frameWidth, stateY + 0.5, frameWidth, 16)
-					n = n + 1
+			local frameWidth = 20
+			for j = 1, state.frames.x * state.frames.y do
+				local frameX = 450 + (j - 1) * frameWidth
+				local frameText = tostring(j)
+				if self.selectedSpriteState == i and self.selectedSpriteFrame == j then
+					love.graphics.setColor(1, 0, 0)
+					love.graphics.rectangle("fill", frameX, stateY, frameWidth, 16)
+				elseif self.hoveredSpriteState == i and self.hoveredSpriteFrame == j then
+					love.graphics.setColor(1, 0, 0, 0.5)
+					love.graphics.rectangle("fill", frameX, stateY, frameWidth, 16)
 				end
+				love.graphics.setColor(1, 1, 1)
+				love.graphics.print(frameText, frameX, stateY)
+				love.graphics.rectangle("line", frameX - 0.5, stateY + 0.5, frameWidth, 16)
 			end
 		end
 	end
@@ -284,11 +284,11 @@ function EditorMain:mousepressed(x, y, button)
 			self.selectedResource = self.hoveredResource
 			--self.selectedSpriteState = math.min(self.selectedSpriteState, #self.resourceManager:getSprite(self.selectedResource).config.states)
 			self.selectedSpriteState = 1
-			self.selectedSpriteFrame = Vec2(1)
+			self.selectedSpriteFrame = 1
 		end
 		if self.hoveredSpriteState then
 			self.selectedSpriteState = self.hoveredSpriteState
-			self.selectedSpriteFrame = self.hoveredSpriteFrame or Vec2(1)
+			self.selectedSpriteFrame = self.hoveredSpriteFrame or 1
 		end
 	end
 end

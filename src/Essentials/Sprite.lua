@@ -18,17 +18,16 @@ function Sprite:new(data, path)
 	self.config = SpriteConfig(data, path)
 
 	self.size = self.config.image.size
-	---@type [{frameCount: integer, frames: [[love.Quad]]}]
+	---@type [{frameCount: integer, frames: [love.Quad]}]
 	self.states = {}
 	for i, state in ipairs(self.config.states) do
 		local s = {}
-		s.frameCount = state.frames
+		s.frameCount = state.frames.x * state.frames.y
 		s.frames = {}
 		for j = 1, state.frames.x do
-			s.frames[j] = {}
 			for k = 1, state.frames.y do
 				local p = self.config.frameSize * (Vec2(j, k) - 1) + state.pos
-				s.frames[j][k] = love.graphics.newQuad(p.x, p.y, self.config.frameSize.x, self.config.frameSize.y, self.size.x, self.size.y)
+				s.frames[(k - 1) * state.frames.x + j] = love.graphics.newQuad(p.x, p.y, self.config.frameSize.x, self.config.frameSize.y, self.size.x, self.size.y)
 			end
 		end
 		self.states[i] = s
@@ -37,17 +36,24 @@ end
 
 
 
----Returns a quad object for use in drawing functions.
+---Returns a `love.Quad` object for use in drawing functions.
 ---@param state integer The state ID of this sprite.
----@param frame Vector2 The sprite to be obtained.
+---@param frame integer Which frame of that state should be returned.
 ---@return love.Quad
 function Sprite:getFrame(state, frame)
-	--print(self.frames[(frame.x - 1) % self.frameCount.x + 1][(frame.y - 1) % self.frameCount.y + 1])
-	--for k1, v1 in pairs(self.frames) do
-	--	for k2, v2 in pairs(v1) do print(k1, k2, v2) end
-	--end
 	local s = self.states[state]
-	return s.frames[(frame.x - 1) % s.frameCount.x + 1][(frame.y - 1) % s.frameCount.y + 1]
+	return s.frames[(frame - 1) % s.frameCount + 1]
+end
+
+
+
+---Returns the top left position of the given frame on this Sprite's image.
+---@param state integer The state ID of this sprite.
+---@param frame integer The frame of which the top left position will be returned.
+---@return Vector2
+function Sprite:getFramePos(state, frame)
+	local s = self.config.states[state]
+	return s.pos + Vec2((frame - 1) % s.frames.x, math.floor((frame - 1) / s.frames.x)) * self.config.frameSize
 end
 
 
@@ -56,7 +62,7 @@ end
 ---@param pos Vector2 The sprite position.
 ---@param align Vector2? The sprite alignment. `(0, 0)` is the top left corner. `(1, 1)` is the bottom right corner. `(0.5, 0.5)` is in the middle.
 ---@param state integer? The state ID to be drawn.
----@param frame Vector2? The sprite to be drawn.
+---@param frame integer? The state's frame to be drawn.
 ---@param rot number? The sprite rotation in radians.
 ---@param color Color? The sprite color.
 ---@param alpha number? Sprite transparency. `0` is fully transparent. `1` is fully opaque.
@@ -64,7 +70,7 @@ end
 function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
 	align = align or Vec2()
 	state = state or 1
-	frame = frame or Vec2(1)
+	frame = frame or 1
 	rot = rot or 0
 	color = color or Color()
 	alpha = alpha or 1
@@ -72,7 +78,7 @@ function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
 
 	pos = _PosOnScreen(pos - (align * scale * self.config.frameSize):rotate(rot))
 	scale = scale * _GetResolutionScale()
-	
+
 	love.graphics.setColor(color.r, color.g, color.b, alpha)
 	self.config.image:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x, scale.y)
 end

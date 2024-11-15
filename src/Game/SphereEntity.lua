@@ -17,7 +17,7 @@ function SphereEntity:new(pos, color)
 	self.pos = pos
 	self.angle = 0
 	self.scale = Vec2(1)
-	self.frame = Vec2(1)
+	self.frame = 1
 	self.colorM = Color()
 	self.color = color
 	self.alpha = 1
@@ -60,7 +60,7 @@ end
 
 
 ---Sets the frame of this sphere entity to be displayed.
----@param frame Vector2 The animation frame of this Sphere Entity's sprite.
+---@param frame integer The animation frame of this Sphere Entity's sprite.
 function SphereEntity:setFrame(frame)
 	self.frame = frame
 end

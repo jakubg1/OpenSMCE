@@ -49,7 +49,7 @@ function UIWidgetTextInput:draw(variables)
 	if self.cursorSprite then
 		local cpos = pos + Vec2(self:getSize().x * (1 - self.align.x), 0)
 		local frame = math.floor(self.cursorSpriteBlink * 2) + 1
-		self.cursorSprite:draw(cpos, nil, nil, Vec2(frame, 1), nil, nil, alpha)
+		self.cursorSprite:draw(cpos, nil, nil, frame, nil, nil, alpha)
 	end
 end
 
