@@ -57,7 +57,9 @@ function Game:init()
 	_SetResolution(res, true, self.configManager:getWindowTitle())
 	if self.configManager:isCanvasRenderingEnabled() then
 		self.renderCanvas = love.graphics.newCanvas(res.x, res.y)
-		self.renderCanvas:setFilter("nearest", "nearest")
+		if self.configManager:getCanvasRenderingMode() == "pixel" then
+			self.renderCanvas:setFilter("nearest", "nearest")
+		end
 	end
 
 	-- Step 3. Initialize RNG and timer
@@ -188,13 +190,12 @@ end
 
 ---Draws the game contents.
 function Game:draw()
-	--love.graphics.setDefaultFilter("nearest", "nearest")
-
 	_Debug:profDraw2Start()
 
 	-- Start drawing on canvas (if canvas mode set)
 	if self.renderCanvas then
 		love.graphics.setCanvas({self.renderCanvas, stencil = true})
+		love.graphics.clear()
 	end
 
 	-- Session and level

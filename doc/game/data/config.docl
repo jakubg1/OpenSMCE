@@ -4,6 +4,9 @@
     - engineVersion (string) - Specifies the version a game is for, e.g. `"v0.48.0"`.
     - nativeResolution (Vector2) - The native resolution of the game.
     - renderOnCanvas* (boolean) - If set, the game frames will be rendered on a canvas and that canvas will be resized instead of game elements (sprites, fonts, etc.) themselves.
+    - canvasRenderingMode* (string) - If the canvas rendering is enabled, this field determines the exact rendering properties.
+        - "filtered" - Default value. The canvas will be stretched to the maximum vertical extent with smooth scaling. The aspect ratio will be preserved.
+        - "pixel" - The canvas will be stretched to the maximum vertical extent without smooth scaling. The aspect ratio will be preserved. When scaled up, every separate pixel will be visible.
     - richPresence (object) - Defines the Discord Rich Presence behavior.
         - enabled (boolean) - Should be always `true`, unless you want the game to be a secret. In that case, loading a game with this flag set to `false` causes Rich Presence to disconnect.
         - applicationID* (string) - Optional. If defined, this will be used as an Application ID when running this game, instead of the default OpenSMCE one.

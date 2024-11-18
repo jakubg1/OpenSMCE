@@ -135,8 +135,13 @@ end
 ---Returns whether the game should be rendered on a canvas.
 ---@return boolean
 function ConfigManager:isCanvasRenderingEnabled()
-	--return true
-	return self.config.renderOnCanvas
+	return self.config.renderOnCanvas or false
+end
+
+---Returns the canvas rendering mode, `"filtered"` by default.
+---@return string
+function ConfigManager:getCanvasRenderingMode()
+	return self.config.canvasRenderingMode or "filtered"
 end
 
 
