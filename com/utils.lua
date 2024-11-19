@@ -2,7 +2,6 @@
 -- version for OpenSMCE (might consider expanding this so that they get their own repository)
 
 local json = require("com.json")
-local Color = require("src.Essentials.Color")
 
 local utils = {}
 
@@ -214,19 +213,6 @@ function utils.getDirListing(path, filter, extFilter, recursive, pathRec)
 		love.filesystem.unmount(love.filesystem.getSourceBaseDirectory())
 	end
 	return result
-end
-
-
-
----Returns a Color which lies on a selected point of the rainbow hue range.
----@param t number A point on the range, where 0 gives red, 0.333 gives green, 0.667 gives blue and 1 gives red again (wraps on both sides).
----@return Color
-function utils.getRainbowColor(t)
-	t = t * 3
-	local r = math.min(math.max(2 * (1 - math.abs(t % 3)), 0), 1) + math.min(math.max(2 * (1 - math.abs((t % 3) - 3)), 0), 1)
-	local g = math.min(math.max(2 * (1 - math.abs((t % 3) - 1)), 0), 1)
-	local b = math.min(math.max(2 * (1 - math.abs((t % 3) - 2)), 0), 1)
-	return Color(r, g, b)
 end
 
 
@@ -497,6 +483,38 @@ function utils.bzLerp(t, p1, p2)
 	local c = p2 * (3 * (t ^ 2) * (1 - t))
 	local d = t ^ 3
 	return b + c + d
+end
+
+
+
+----- OPENSMCE-SPECIFIC FUNCTIONS -----
+
+local Color = require("src.Essentials.Color")
+
+
+
+---Returns a Color which lies on a selected point of the rainbow hue range.
+---@param t number A point on the range, where 0 gives red, 0.333 gives green, 0.667 gives blue and 1 gives red again (wraps on both sides).
+---@return Color
+function utils.getRainbowColor(t)
+	t = t * 3
+	local r = math.min(math.max(2 * (1 - math.abs(t % 3)), 0), 1) + math.min(math.max(2 * (1 - math.abs((t % 3) - 3)), 0), 1)
+	local g = math.min(math.max(2 * (1 - math.abs((t % 3) - 1)), 0), 1)
+	local b = math.min(math.max(2 * (1 - math.abs((t % 3) - 2)), 0), 1)
+	return Color(r, g, b)
+end
+
+
+
+---Removes all dead objects from the table `t`. By dead objects we mean objects that have their `delQueue` field set to `true`.
+---The table must be a list-like. Other keysets are not supported.
+---@param t table The table to be cleaned up.
+function utils.removeDeadObjects(t)
+	for i = #t, 1, -1 do
+		if t[i].delQueue then
+			table.remove(t, i)
+		end
+	end
 end
 
 

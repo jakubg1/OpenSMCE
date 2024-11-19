@@ -82,7 +82,6 @@ function ParticleSpawner:destroy()
 	if self.delQueue then return end
 	self.delQueue = true
 
-	self.manager:destroyParticleSpawner(self)
 	self.packet.spawnerCount = self.packet.spawnerCount - 1
 end
 

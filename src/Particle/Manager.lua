@@ -26,6 +26,11 @@ function ParticleManager:update(dt)
 	for i, particlePiece in ipairs(self.particlePieces) do
 		particlePiece:update(dt)
 	end
+
+	-- Clean dead particles.
+	_Utils.removeDeadObjects(self.particlePackets)
+	_Utils.removeDeadObjects(self.particleSpawners)
+	_Utils.removeDeadObjects(self.particlePieces)
 end
 
 function ParticleManager:spawnParticlePacket(path, pos, layer)
@@ -49,22 +54,11 @@ function ParticleManager:spawnParticlePiece(spawner, data)
 	table.insert(self.particlePieces, ParticlePiece(self, spawner, data))
 end
 
-function ParticleManager:destroyParticlePacket(particlePacket)
-	table.remove(self.particlePackets, self:getParticlePacketID(particlePacket))
-end
-
-function ParticleManager:destroyParticleSpawner(particleSpawner)
-	table.remove(self.particleSpawners, self:getParticleSpawnerID(particleSpawner))
-end
-
-function ParticleManager:destroyParticlePiece(particlePiece)
-	table.remove(self.particlePieces, self:getParticlePieceID(particlePiece))
-end
-
 function ParticleManager:cleanParticlePacket(particlePacket)
 	for i = #self.particlePieces, 1, -1 do
 		if self.particlePieces[i].packet == particlePacket then
-			self:destroyParticlePiece(self.particlePieces[i])
+			self.particlePieces[i]:destroy()
+			table.remove(self.particlePieces, i)
 		end
 	end
 end

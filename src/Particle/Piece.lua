@@ -86,7 +86,9 @@ function ParticlePiece:update(dt)
 	end
 
 	-- position stuff
-	if self.directionDeviation then self.speed = self.speed:rotate(_ParseNumber(self.directionDeviationSpeed) * dt) end
+	if self.directionDeviation then
+		self.speed = self.speed:rotate(_ParseNumber(self.directionDeviationSpeed) * dt)
+	end
 	self.speed = self.speed + self.acceleration * dt
 	if self.speedMode == "circle" then
 		self.posAngle = self.posAngle + self.speed * dt
@@ -102,7 +104,9 @@ function ParticlePiece:update(dt)
 	-- animation
 	self.animationFrame = self.animationFrame + self.animationSpeed * dt
 	if self.animationFrame >= self.animationFrameCount + 1 then
-		if self.animationLoop then self.animationFrame = self.animationFrame - self.animationFrameCount end
+		if self.animationLoop then
+			self.animationFrame = self.animationFrame - self.animationFrameCount
+		end
 		--self:destroy()
 	end
 
@@ -126,7 +130,6 @@ function ParticlePiece:destroy()
 	if self.delQueue then return end
 	self.delQueue = true
 
-	self.manager:destroyParticlePiece(self)
 	if self.spawner then
 		self.spawner.pieceCount = self.spawner.pieceCount - 1
 	end

@@ -38,8 +38,6 @@ end
 function ParticlePacket:destroy()
 	if self.delQueue then return end
 	self.delQueue = true
-	
-	self.manager:destroyParticlePacket(self)
 end
 
 function ParticlePacket:clean()
