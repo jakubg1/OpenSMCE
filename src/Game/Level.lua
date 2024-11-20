@@ -414,9 +414,10 @@ end
 
 ---Adds score to the current Profile, as well as to level's statistics.
 ---@param score integer The score to be added.
-function Level:grantScore(score)
+---@param unmultipliedScore integer The unmultiplied score, for extra life calculation.
+function Level:grantScore(score, unmultipliedScore)
 	self.score = self.score + score
-	_Game:getCurrentProfile():grantScore(score)
+	_Game:getCurrentProfile():grantScore(score, unmultipliedScore)
 end
 
 
@@ -445,11 +446,12 @@ function Level:executeScoreEvent(scoreEvent, pos)
 	if _Game:getCurrentProfile().ultimatelySatisfyingMode then
 		score = math.floor(score * (1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.2) + 0.5)
 	end
+	local unmultipliedScore = score
 	if not scoreEvent.ignoreDifficultyMultiplier then
 		score = score * _Game:getCurrentProfile():getDifficultyConfig().scoreMultiplier
 	end
 	_Vars:setC("event", "score", score)
-	self:grantScore(score)
+	self:grantScore(score, unmultipliedScore)
 
 	-- Display the score text (Floating Text) only if a position is provided.
 	if pos then

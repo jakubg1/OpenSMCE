@@ -62,6 +62,12 @@ function Profile:getDifficultyConfig()
 	return _Game.resourceManager:getDifficultyConfig(self.session.difficulty)
 end
 
+---Returns the player's current life config.
+---@return table
+function Profile:getLifeConfig()
+	return self:getDifficultyConfig().lifeConfig
+end
+
 
 
 -- Variables
@@ -193,16 +199,16 @@ function Profile:generateLevelID()
 	elseif entry.type == "randomizer" then
 		-- Use local data to generate a level.
 		if entry.mode == "repeat" then
-			self.session.levelID = self.session.sublevel_pool[math.random(#self.session.sublevel_pool)]
+			self.session.levelID = self.session.sublevelPool[math.random(#self.session.sublevelPool)]
 		elseif entry.mode == "noRepeat" then
-			local i = math.random(#self.session.sublevel_pool)
-			self.session.levelID = self.session.sublevel_pool[i]
-			table.remove(self.session.sublevel_pool, i)
+			local i = math.random(#self.session.sublevelPool)
+			self.session.levelID = self.session.sublevelPool[i]
+			table.remove(self.session.sublevelPool, i)
 		elseif entry.mode == "order" then
 			while true do
-				local chance = (entry.count - self.session.sublevel + 1) / #self.session.sublevel_pool
-				local n = self.session.sublevel_pool[1]
-				table.remove(self.session.sublevel_pool, 1)
+				local chance = (entry.count - self.session.sublevel + 1) / #self.session.sublevelPool
+				local n = self.session.sublevelPool[1]
+				table.remove(self.session.sublevelPool, 1)
 				if math.random() < chance then
 					self.session.levelID = n
 					break
@@ -219,11 +225,11 @@ function Profile:setupLevel()
 	local entry = self:getLevelEntry()
 
 	self.session.sublevel = 1
-	self.session.sublevel_pool = {}
+	self.session.sublevelPool = {}
 	-- If this entry is a randomizer, copy the pool to an internal profile field.
 	if entry.type == "randomizer" then
 		for i, levelID in ipairs(entry.pool) do
-			self.session.sublevel_pool[i] = levelID
+			self.session.sublevelPool[i] = levelID
 		end
 	end
 end
@@ -307,8 +313,16 @@ end
 
 ---Adds a given amount of points to the player's current score.
 ---@param score integer The score to be added.
-function Profile:grantScore(score)
+---@param unmultipliedScore integer The unmultiplied score to be added. The Level class generates this value for use in the life system, since Score Events are evaluated there.
+function Profile:grantScore(score, unmultipliedScore)
 	self.session.score = self.session.score + score
+	if self:getLifeConfig().type == "score" then
+		self.session.lifeScore = self.session.lifeScore + (self:getLifeConfig().countUnmultipliedScore and unmultipliedScore or score)
+		while self.session.lifeScore >= self:getLifeConfig().scorePerLife do
+			self:grantLife()
+			self.session.lifeScore = self.session.lifeScore - self:getLifeConfig().scorePerLife
+		end
+	end
 end
 
 
@@ -324,9 +338,11 @@ end
 ---Adds one coin to the player's current coin count. If reached 30, the player is granted an extra life, and the coin counter is reset back to 0.
 function Profile:grantCoin()
 	self.session.coins = self.session.coins + 1
-	if self.session.coins == 30 then
-		self:grantLife()
-		self.session.coins = 0
+	if self:getLifeConfig().type == "coins" then
+		while self.session.coins >= self:getLifeConfig().coinsPerLife do
+			self:grantLife()
+			self.session.coins = self.session.coins - self:getLifeConfig().coinsPerLife
+		end
 	end
 	_Game.uiManager:executeCallback("newCoin")
 end
@@ -350,11 +366,16 @@ end
 ---Takes one life away from the player and returns `true`, if the player has any. If not, returns `false`.
 ---@return boolean
 function Profile:takeLife()
+	-- You can always retry if there is no life system.
+	if self:getLifeConfig().type == "none" then
+		return true
+	end
+	-- Otherwise, check if there is a game over.
 	if self.session.lives == 0 then
 		return false
 	end
 	self.session.lives = self.session.lives - 1
-	-- returns true if the player can retry
+	-- Return `true` if the player can retry the level.
 	return true
 end
 
@@ -393,14 +414,19 @@ end
 ---@param difficulty string The path to the difficulty resource which is going to be used as a difficulty for this game.
 function Profile:newGame(checkpoint, difficulty)
 	self.session = {}
-	self.session.lives = 2
+	self.session.difficulty = difficulty
+	if self:getLifeConfig().type ~= "none" then
+		self.session.lives = self:getLifeConfig().startingLives
+	end
 	self.session.coins = 0
 	self.session.score = 0
-	self.session.difficulty = difficulty
+	if self:getLifeConfig().type == "score" then
+		self.session.lifeScore = 0
+	end
 
 	self.session.level = _Game.configManager.levelSet.checkpoints[checkpoint]
 	self.session.sublevel = 1
-	self.session.sublevel_pool = {}
+	self.session.sublevelPool = {}
 	self.session.levelID = 0
 	
 	self:setupLevel()
@@ -418,6 +444,7 @@ end
 --- - `session.lives` - The amount of lives that the player currently has.
 --- - `session.coins` - The amount of coins.
 --- - `session.score` - The player's current score.
+--- - `session.lifeScore` - The player's score. When it reaches a defined amount, an extra life is given.
 ---
 ---If the player does not have a game session active, the variables are removed.
 function Profile:dumpVariables()
@@ -425,6 +452,7 @@ function Profile:dumpVariables()
 		_Vars:setC("session", "lives", self.session.lives)
 		_Vars:setC("session", "coins", self.session.coins)
 		_Vars:setC("session", "score", self.session.score)
+		_Vars:setC("session", "lifeScore", self.session.lifeScore)
 	else
 		_Vars:unset("session")
 	end
@@ -444,6 +472,11 @@ function Profile:winLevel(score)
 	levelData.won = levelData.won + 1
 	self:setCurrentLevelData(levelData)
 	self:unsaveLevel()
+
+	if self:getLifeConfig().rollbackScoreAfterFailure then
+		-- Save the current score. We will roll back to it if we lose the next level.
+		self.session.rollbackScore = self.session.score
+	end
 end
 
 
@@ -484,6 +517,11 @@ function Profile:loseLevel()
 	self:setCurrentLevelData(levelData)
 
 	local canRetry = self:takeLife()
+
+	-- Rollback the score if defined in the life config.
+	if canRetry and self.session.rollbackScore then
+		self.session.score = self.session.rollbackScore
+	end
 
 	return canRetry
 end

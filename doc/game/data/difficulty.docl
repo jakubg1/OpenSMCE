@@ -1,3 +1,15 @@
 - (object) - The root object.
     - speedMultiplier (number) [>0] - The speed multiplier which will be applied to all levels on this difficulty.
     - scoreMultiplier (number) [>0] - The score multiplier which will be applied to all Score Events on this difficulty. Certain Score Events can ignore this multiplier by setting their `ignoreDifficultyMultiplier` field to `true`.
+    - lifeConfig (object) {type: The type of the life system.} - Defines the way lives should behave.
+        - "score" - Lives will be earned every set amount of points.
+            - startingLives (integer) [>=0] - How many lives the player will start the game with.
+            - scorePerLife (integer) [>0] - Every how many points an extra life should be granted.
+            - countUnmultipliedScore* (boolean) - Whether the score counted for the next life will be unaffected by the difficulty multiplier. Defaults to `false`.
+            - rollbackScoreAfterFailure* (boolean) - Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`.
+        - "coins" - Lives will be earned when a set amount of coins has been collected.
+            - startingLives (integer) [>=0] - How many lives the player will start the game with.
+            - coinsPerLife (integer) [>0] - After how many collected coins an extra life should be granted. The coin counter will decrement by this value.
+            - rollbackScoreAfterFailure* (boolean) - Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`.
+        - "none" - No life system. The player will be able to replay any level indefinitely.
+            - rollbackScoreAfterFailure* (boolean) - Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`.

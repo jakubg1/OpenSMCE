@@ -14,11 +14,142 @@
             "description": "The score multiplier which will be applied to all Score Events on this difficulty. Certain Score Events can ignore this multiplier by setting their ignoreDifficultyMultiplier field to true.",
             "markdownDescription": "The score multiplier which will be applied to all Score Events on this difficulty. Certain Score Events can ignore this multiplier by setting their `ignoreDifficultyMultiplier` field to `true`.",
             "exclusiveMinimum": 0.0
+        },
+        "lifeConfig": {
+            "type": "object",
+            "description": "Defines the way lives should behave.",
+            "properties": {
+                "type": {
+                    "enum": [
+                        "score",
+                        "coins",
+                        "none"
+                    ]
+                }
+            },
+            "allOf": [
+                {
+                    "properties": {
+                        "type": {
+                            "description": "The type of the life system."
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "score",
+                                "description": "Lives will be earned every set amount of points."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "startingLives": {
+                                "type": "integer",
+                                "description": "How many lives the player will start the game with.",
+                                "minimum": 0
+                            },
+                            "scorePerLife": {
+                                "type": "integer",
+                                "description": "Every how many points an extra life should be granted.",
+                                "exclusiveMinimum": 0
+                            },
+                            "countUnmultipliedScore": {
+                                "type": "boolean",
+                                "description": "Whether the score counted for the next life will be unaffected by the difficulty multiplier. Defaults to false.",
+                                "markdownDescription": "Whether the score counted for the next life will be unaffected by the difficulty multiplier. Defaults to `false`."
+                            },
+                            "rollbackScoreAfterFailure": {
+                                "type": "boolean",
+                                "description": "Whether the score will be reverted to the previous value when the level is lost. Defaults to false.",
+                                "markdownDescription": "Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`."
+                            }
+                        },
+                        "required": [
+                            "startingLives",
+                            "scorePerLife"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "coins",
+                                "description": "Lives will be earned when a set amount of coins has been collected."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "startingLives": {
+                                "type": "integer",
+                                "description": "How many lives the player will start the game with.",
+                                "minimum": 0
+                            },
+                            "coinsPerLife": {
+                                "type": "integer",
+                                "description": "After how many collected coins an extra life should be granted. The coin counter will decrement by this value.",
+                                "exclusiveMinimum": 0
+                            },
+                            "rollbackScoreAfterFailure": {
+                                "type": "boolean",
+                                "description": "Whether the score will be reverted to the previous value when the level is lost. Defaults to false.",
+                                "markdownDescription": "Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`."
+                            }
+                        },
+                        "required": [
+                            "startingLives",
+                            "coinsPerLife"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "none",
+                                "description": "No life system. The player will be able to replay any level indefinitely."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "rollbackScoreAfterFailure": {
+                                "type": "boolean",
+                                "description": "Whether the score will be reverted to the previous value when the level is lost. Defaults to false.",
+                                "markdownDescription": "Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`."
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                }
+            ],
+            "required": [
+                "type"
+            ]
         }
     },
     "required": [
         "speedMultiplier",
-        "scoreMultiplier"
+        "scoreMultiplier",
+        "lifeConfig"
     ],
     "additionalProperties": false
 }
