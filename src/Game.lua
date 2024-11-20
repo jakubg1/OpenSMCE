@@ -317,7 +317,7 @@ end
 ---Plays a sound and returns its instance for modification.
 ---@param name string|SoundEvent The name of the Sound Effect to be played.
 ---@param pos Vector2? The position of the sound.
----@return SoundInstance
+---@return SoundInstanceList
 function Game:playSound(name, pos)
 	-- TODO: Unmangle this code. Will the string representation be still necessary after we fully move to Config Classes?
 	if type(name) == "string" then

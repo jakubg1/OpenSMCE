@@ -28,13 +28,15 @@ local UI2SequenceConfig = require("src.Configs.UI2Sequence")
 function ResourceManager:new()
 	-- Resources are stored as the following objects:
 	-- `{type = "image", asset = <love2d image>, batches = {"map2"}}`
-	-- - `type` is one of the `RESOURCE_TYPES` below. It's `nil` when the resource is queued, but that's not a guarantee.
+	-- - `type` is one of the `RESOURCE_TYPES` below.
 	-- - `asset` holds the resource itself, if it's `nil` then the resource is just queued for loading and it's not loaded yet
 	-- - `batches` is a list of resource batches this resource was loaded as, once all of them are unloaded, this entry is deleted; can be `nil` to omit that feature for global resources
 	--
 	-- Keys are absolute paths starting from the root game directory. Use `ResourceManager:resolvePath()` to obtain a key to this table from stuff like `":flame.json"`.
+	-- If a resource is queued but not loaded, its entry will not exist at all.
 	self.resources = {}
-	-- Just names of the queued resources, used to preserve the loading order.
+	-- A list of keys of the queued resources alongside their batches. Used to preserve the loading order.
+	---@type [{key: string, batches: [string]}]
 	self.queuedResources = {}
 
 	-- Values below are used only for newly queued/loaded resources.
@@ -318,7 +320,7 @@ function ResourceManager:getAsset(path, type)
 	else
 		-- Remove the asset from the queue if already queued - we're doing it for the queue.
 		for i, k in ipairs(self.queuedResources) do
-			if k == key then
+			if k.key == key then
 				table.remove(self.queuedResources, i)
 				break
 			end
@@ -384,6 +386,12 @@ function ResourceManager:loadAsset(key, batches)
 			table.insert(newBatches, batch)
 		end
 	end
+
+	-- Prevent overwriting the resource. That's a no.
+	if self.resources[key] then
+		error(string.format("Tried to load a resource twice: %s", key))
+	end
+
 	-- TODO: Condensate the parameter set to the one used by Config Classes.
 	if self.RESOURCE_TYPES[type].paramSet == 2 then
 		-- Construct the resource and check for errors.
