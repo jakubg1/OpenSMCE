@@ -3,6 +3,7 @@
     - windowTitle* (string) - The window title which the engine window will have, if defined.
     - engineVersion (string) - Specifies the version a game is for, e.g. `"v0.48.0"`.
     - nativeResolution (Vector2) - The native resolution of the game.
+    - tickRate (integer) - The number of ticks to be performed per second. Defaults to `120`.
     - renderOnCanvas* (boolean) - If set, the game frames will be rendered on a canvas and that canvas will be resized instead of game elements (sprites, fonts, etc.) themselves.
     - canvasRenderingMode* (string) - If the canvas rendering is enabled, this field determines the exact rendering properties.
         - "filtered" - Default value. The canvas will be stretched to the maximum vertical extent with smooth scaling. The aspect ratio will be preserved.

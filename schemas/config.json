@@ -21,6 +21,11 @@
             "$ref": "_structures/Vector2.json",
             "description": "The native resolution of the game."
         },
+        "tickRate": {
+            "type": "integer",
+            "description": "The number of ticks to be performed per second. Defaults to 120.",
+            "markdownDescription": "The number of ticks to be performed per second. Defaults to `120`."
+        },
         "renderOnCanvas": {
             "type": "boolean",
             "description": "If set, the game frames will be rendered on a canvas and that canvas will be resized instead of game elements (sprites, fonts, etc.) themselves."
@@ -66,6 +71,7 @@
     "required": [
         "engineVersion",
         "nativeResolution",
+        "tickRate",
         "richPresence"
     ],
     "additionalProperties": false

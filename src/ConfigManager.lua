@@ -144,6 +144,12 @@ function ConfigManager:getCanvasRenderingMode()
 	return self.config.canvasRenderingMode or "filtered"
 end
 
+---Returns the game's tick rate. Defaults to `120`.
+---@return integer
+function ConfigManager:getTickRate()
+	return self.config.tickRate or 120
+end
+
 
 
 ---Gets the level number which the checkpoint points to.
