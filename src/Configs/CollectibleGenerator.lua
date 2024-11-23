@@ -18,7 +18,7 @@ function CollectibleGeneratorConfig:new(data, path)
         -- TODO: Replace with parseCollectible once collectibles are moved to config files
         self.name = u.parseString(data.name, path, "name")
     elseif self.type == "collectibleGenerator" then
-        self.generator = u.parseCollectibleGeneratorConfigRef(data.generator, path, "generator")
+        self.generator = u.parseCollectibleGeneratorConfig(data.generator, path, "generator")
     elseif self.type == "combine" then
         self.entries = {}
         for i = 1, #data.entries do

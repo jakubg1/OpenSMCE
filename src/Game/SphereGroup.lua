@@ -714,7 +714,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 
 	-- Spawn a coin if applicable.
 	if effectConfig.destroyCollectible then
-		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroyCollectible)
+		self.map.level:spawnCollectiblesFromEntry(pos, _Game.resourceManager:getCollectibleGeneratorConfig(effectConfig.destroyCollectible))
 	end
 	_Vars:unset("match")
 

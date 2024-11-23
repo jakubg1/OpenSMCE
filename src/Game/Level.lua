@@ -400,11 +400,9 @@ end
 
 ---Activates a collectible generator in a given position.
 ---@param pos Vector2 The position where the collectibles will spawn.
----@param entryName string The path to the Collectible Generator to be evaluated.
-function Level:spawnCollectiblesFromEntry(pos, entryName)
-	-- TODO: Replace collectible generator references so that the entry itself is passed.
-	local generator = _Game.resourceManager:getCollectibleGeneratorConfig(entryName)
-	local collectibles = self:evaluateCollectibleGeneratorEntry(generator)
+---@param entry CollectibleGeneratorConfig The Collectible Generator entry to be evaluated.
+function Level:spawnCollectiblesFromEntry(pos, entry)
+	local collectibles = self:evaluateCollectibleGeneratorEntry(entry)
 	for i, collectible in ipairs(collectibles) do
 		self:spawnCollectible(pos, collectible)
 	end

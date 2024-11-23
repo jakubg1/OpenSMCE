@@ -4,6 +4,7 @@ local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 local Expression = require("src.Expression")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
+local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 
 local utils = {}
@@ -229,34 +230,45 @@ end
 ---@return CollectibleGeneratorConfig
 function utils.parseCollectibleGeneratorConfig(data, path, field)
 	assert(data, string.format("field %s is missing (Collectible Generator Config expected)", field))
-	return CollectibleGeneratorConfig(data, path)
+	if type(data) == "string" then
+		return _Game.resourceManager:getCollectibleGeneratorConfig(data)
+	elseif type(data) == "table" then
+		return CollectibleGeneratorConfig(data, path)
+	end
+	error(string.format("field %s has incorrect data (Collectible Generator Config or a reference to it expected)", field))
 end
 
 ---@return CollectibleGeneratorConfig?
 function utils.parseCollectibleGeneratorConfigOpt(data, path, field)
-	return data and CollectibleGeneratorConfig(data, path)
-end
-
----@return CollectibleGeneratorConfig
-function utils.parseCollectibleGeneratorConfigRef(data, path, field)
-	assert(data, string.format("field %s is missing (Collectible Generator Config reference expected)", field))
-	return _Game.resourceManager:getCollectibleGeneratorConfig(data)
-end
-
----@return CollectibleGeneratorConfig?
-function utils.parseCollectibleGeneratorConfigRefOpt(data, path, field)
-	return data and _Game.resourceManager:getCollectibleGeneratorConfig(data)
+	if data then
+		if type(data) == "string" then
+			return _Game.resourceManager:getCollectibleGeneratorConfig(data)
+		elseif type(data) == "table" then
+			return CollectibleGeneratorConfig(data, path)
+		end
+	end
 end
 
 ---@return ScoreEventConfig
-function utils.parseScoreEventConfigRef(data, path, field)
-	assert(data, string.format("field %s is missing (Score Event Config reference expected)", field))
-	return _Game.resourceManager:getScoreEventConfig(data)
+function utils.parseScoreEventConfig(data, path, field)
+	assert(data, string.format("field %s is missing (Score Event Config expected)", field))
+	if type(data) == "string" then
+		return _Game.resourceManager:getScoreEventConfig(data)
+	elseif type(data) == "table" then
+		return ScoreEventConfig(data, path)
+	end
+	error(string.format("field %s has incorrect data (Score Event Config or a reference to it expected)", field))
 end
 
 ---@return ScoreEventConfig?
-function utils.parseScoreEventConfigRefOpt(data, path, field)
-	return data and _Game.resourceManager:getScoreEventConfig(data)
+function utils.parseScoreEventConfigOpt(data, path, field)
+	if data then
+		if type(data) == "string" then
+			return _Game.resourceManager:getScoreEventConfig(data)
+		elseif type(data) == "table" then
+			return ScoreEventConfig(data, path)
+		end
+	end
 end
 
 ---@return ShooterMovementConfig
