@@ -57,14 +57,6 @@ end
 function Shooter:changeTo(name)
     self.config = _Game.configManager:getShooter(name)
     self.movement = self.levelMovement or self.config.movement
-
-    self.sprite = self.config.sprite
-    self.shadowSprite = self.config.shadowSprite
-    self.speedShotSprite = self.config.speedShotBeam.sprite
-
-    self.reticleSprite = self.config.reticle.sprite
-    self.reticleNextSprite = self.config.reticle.nextBallSprite
-    self.radiusReticleSprite = self.config.reticle.radiusSprite
 end
 
 
@@ -192,7 +184,7 @@ function Shooter:setColor(color)
     if color ~= 0 then
         self:spawnSphereEntities()
 
-        if self.config.reticle.colorFadeTime then
+        if self.config.reticle and self.config.reticle.colorFadeTime then
             self.reticleOldColor = self.reticleColor
             self.reticleColorFade = 0
         end
@@ -208,7 +200,7 @@ function Shooter:setNextColor(color)
     self.nextColor = color
 
     if color ~= 0 then
-        if self.config.reticle.nextColorFadeTime then
+        if self.config.reticle and self.config.reticle.nextColorFadeTime then
             self.reticleOldNextColor = self.reticleNextColor
             self.reticleNextColorFade = 0
         end
@@ -389,10 +381,10 @@ end
 
 ---Drawing callback function.
 function Shooter:draw()
-    if self.shadowSprite then
-        self.shadowSprite:draw(self.pos + self.config.shadowSpriteOffset:rotate(self.angle), self.config.shadowSpriteAnchor, nil, nil, self.angle)
+    if self.config.shadowSprite then
+        self.config.shadowSprite:draw(self.pos + self.config.shadowSpriteOffset:rotate(self.angle), self.config.shadowSpriteAnchor, nil, nil, self.angle)
     end
-    self.sprite:draw(self.pos + self.config.spriteOffset:rotate(self.angle), self.config.spriteAnchor, nil, nil, self.angle)
+    self.config.sprite:draw(self.pos + self.config.spriteOffset:rotate(self.angle), self.config.spriteAnchor, nil, nil, self.angle)
 
     -- retical
     if _EngineSettings:getAimingRetical() then
@@ -435,7 +427,7 @@ function Shooter:drawSpeedShotBeam()
     for i = 1, self:getSphereCount() do
         local startPos = self:getSpherePos(i)
         local targetPos = self:getTargetPosForSphere(i)
-        local maxDistance = self.speedShotSprite.size.y
+        local maxDistance = self.config.speedShotBeam.sprite.size.y
         local distance = math.min(targetPos and (startPos - targetPos):len() or maxDistance, maxDistance)
         local distanceUnit = distance / maxDistance
         local scale = Vec2(1)
@@ -445,10 +437,10 @@ function Shooter:drawSpeedShotBeam()
         elseif self.config.speedShotBeam.renderingType == "cut" then
             -- if we need to cut the beam
             -- make a polygon: determine all four corners first
-            local p1 = _PosOnScreen(startPos + Vec2(-self.speedShotSprite.size.x / 2, -distance):rotate(self.angle))
-            local p2 = _PosOnScreen(startPos + Vec2(self.speedShotSprite.size.x / 2, -distance):rotate(self.angle))
-            local p3 = _PosOnScreen(startPos + Vec2(self.speedShotSprite.size.x / 2, 16):rotate(self.angle))
-            local p4 = _PosOnScreen(startPos + Vec2(-self.speedShotSprite.size.x / 2, 16):rotate(self.angle))
+            local p1 = _PosOnScreen(startPos + Vec2(-self.config.speedShotBeam.sprite.size.x / 2, -distance):rotate(self.angle))
+            local p2 = _PosOnScreen(startPos + Vec2(self.config.speedShotBeam.sprite.size.x / 2, -distance):rotate(self.angle))
+            local p3 = _PosOnScreen(startPos + Vec2(self.config.speedShotBeam.sprite.size.x / 2, 16):rotate(self.angle))
+            local p4 = _PosOnScreen(startPos + Vec2(-self.config.speedShotBeam.sprite.size.x / 2, 16):rotate(self.angle))
             -- mark all pixels within the polygon with value of 1
             love.graphics.stencil(function()
                 love.graphics.setColor(1, 1, 1)
@@ -460,7 +452,7 @@ function Shooter:drawSpeedShotBeam()
         -- apply color if wanted
         local color = self.config.speedShotBeam.colored and self:getReticleColor() or Color()
         -- draw the beam
-        self.speedShotSprite:draw(startPos + Vec2(0, 16):rotate(self.angle), Vec2(0.5, 1), nil, nil, self.angle, color, self.speedShotAnim, scale)
+        self.config.speedShotBeam.sprite:draw(startPos + Vec2(0, 16):rotate(self.angle), Vec2(0.5, 1), nil, nil, self.angle, color, self.speedShotAnim, scale)
         -- reset the scissor
         if self.config.speedShotBeam.renderingType == "cut" then
             love.graphics.setStencilTest()
@@ -476,13 +468,13 @@ function Shooter:drawReticle()
     local color = self:getReticleColor()
     local sphereConfig = self:getSphereConfig()
     if targetPos and sphereConfig.shootBehavior.type == "normal" then
-        if self.reticleSprite then
+        if self.config.reticle and self.config.reticle.sprite then
             local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2()):rotate(self.angle)
-            self.reticleSprite:draw(location, Vec2(0.5, 0), nil, nil, self.angle, color)
-            if self.reticleNextSprite then
+            self.config.reticle.sprite:draw(location, Vec2(0.5, 0), nil, nil, self.angle, color)
+            if self.config.reticle.nextBallSprite then
                 local nextColor = self:getNextReticleColor()
                 local nextLocation = location + (_ParseVec2(self.config.reticle.nextBallOffset) or Vec2()):rotate(self.angle)
-                self.reticleNextSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, self.angle, nextColor)
+                self.config.reticle.nextBallSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, self.angle, nextColor)
             end
         else
             love.graphics.setLineWidth(3 * _GetResolutionScale())
@@ -498,10 +490,10 @@ function Shooter:drawReticle()
 
         -- Fireball range highlight
         if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
-            if self.radiusReticleSprite then
+            if self.config.reticle and self.config.reticle.radiusSprite then
                 local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2())
-                local scale = Vec2(sphereConfig.hitBehavior.range * 2) / self.radiusReticleSprite.size
-                self.radiusReticleSprite:draw(location, Vec2(0.5), nil, nil, nil, color, nil, scale)
+                local scale = Vec2(sphereConfig.hitBehavior.range * 2) / self.config.reticle.radiusSprite.size
+                self.config.reticle.radiusSprite:draw(location, Vec2(0.5), nil, nil, nil, color, nil, scale)
             else
                 --love.graphics.setColor(1, 0, 0)
                 local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4

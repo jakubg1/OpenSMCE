@@ -5,9 +5,9 @@
         - "start" - The path entity will be spawned at the beginning of the path, and will move forwards along the path.
         - "end" - The path entity will be spawned at the end of the path, and will move backwards along the path.
         - "furthestSpheres" - The path entity will be spawned at the furthermost sphere on the path. The entity will move forwards along the path.
-    - spawnOffset* (number) - If set, the initial location of the path entity will be moved by this amount in pixels, in the movement direction dictated by the `spawnPlacement` field.
+    - spawnOffset* = 0 (number) - If set, the initial location of the path entity will be moved by this amount in pixels, in the movement direction dictated by the `spawnPlacement` field.
     - speed (number) [>=0] - The starting speed of this path entity, in pixels per second.
-    - acceleration* (number) [>=0] - The acceleration of this path entity, in pixels per second squared.
+    - acceleration* = 0 (number) [>=0] - The acceleration of this path entity, in pixels per second squared.
     - maxSpeed* (number) [>=0] - The maximum speed of this path entity, in pixels per second.
     - maxOffset* (number) [>=0] - The maximum distance from the initial location of the path entity, in pixels.
     - destroyOffset* (number) - The offset from either of the path ends this path entity is going towards, when this entity will be destroyed. Defaults to 0.

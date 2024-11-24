@@ -29,7 +29,7 @@ function DifficultyConfig:new(data, path)
     elseif self.lifeConfig.type == "none" then
         self.lifeConfig.rollbackScoreAfterFailure = u.parseBooleanOpt(data.lifeConfig.rollbackScoreAfterFailure, path, "lifeConfig.rollbackScoreAfterFailure") or false
     else
-        error(string.format("Unknown life config type: %s (expected \"score\", \"coins\" or \"none\")", self.lifeConfig.type))
+        error(string.format("Unknown lifeConfig type: %s (expected \"score\", \"coins\" or \"none\")", self.lifeConfig.type))
     end
 end
 

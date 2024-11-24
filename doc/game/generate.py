@@ -506,8 +506,21 @@ def docl_to_docld(data):
 
 			# If told to do so, this token will be a default value.
 			if default:
-				line_out["default"] = int(token)
-				default = False
+				if token == "true" or token == "false": # boolean
+					line_out["default"] = token == "true"
+				elif token[0] == "\"" and token[-1] == "\"": # string (spaces not allowed yet TODO)
+					line_out["default"] = token[1:-1]
+				elif token[0] == "(": # Vector2 component 1
+					line_out["default"] = {}
+					line_out["default"]["x"] = float(token[1:-1]) if "." in token[1:-1] else int(token[1:-1])
+				elif token[-1] == ")": # Vector2 component 2
+					line_out["default"]["y"] = float(token[:-1]) if "." in token[:-1] else int(token[:-1])
+				elif "." in token: # float
+					line_out["default"] = float(token)
+				else: # integer
+					line_out["default"] = int(token)
+				if token[0] != "(":
+					default = False
 				continue
 
 			# If we're parsing the curly brace part.
@@ -526,7 +539,6 @@ def docl_to_docld(data):
 				subtokens = token[1:-1].split("|")
 				for subtoken in subtokens:
 					if subtoken[0] == "%": # %expression
-						print("ADD ME! Expression types missing from documentation for now")
 						line_out["types"].append({"type": subtoken[1:], "expression": True})
 					elif subtoken[0] == "$": # $ref
 						line_out["types"].append({"ref": subtoken[1:]})
@@ -664,10 +676,12 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 						out["allOf"].append(child_block)
 						out["properties"][key]["enum"].append(child["const"])
 				out["required"] = [key]
-			elif not "name" in entry["children"][0]: # One nameless child in a regular object means that the object behaves like an array, with all keys possible.
+			elif not "name" in entry["children"][0]:
+				# One nameless child in a regular object means that the object behaves like an array, with all keys possible.
 				out["patternProperties"] = {}
 				out["patternProperties"]["^.*$"] = docld_to_schema(entry["children"][0], False, structures_path)
-			else: # Regular object.
+			else:
+				# Regular object.
 				out["properties"] = {}
 				out["required"] = []
 				out["additionalProperties"] = False
@@ -711,7 +725,7 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 
 # Converts a single entry's simple value (not an array, not an object) to the part after the `=` sign in Lua config class code.
 # `name` will be overwritten if it exists in the entry.
-def docld_to_lua_value(entry, context, name = None, error_name = None):
+def docld_to_lua_value(entry, context, error_context, name = None, error_name = None):
 	lua_type_assoc = {
 		"number": "parseNumber",
 		"integer": "parseInteger",
@@ -724,7 +738,12 @@ def docld_to_lua_value(entry, context, name = None, error_name = None):
 		"string": "parseExprString",
 		"boolean": "parseExprBoolean"
 	}
+	lua_ref_assoc = {
+		"shooter_movement": "parseShooterMovementConfig"
+	}
 	lua_structure_assoc = {
+		"Vector2": "parseVec2",
+		"Image": "parseImage",
 		"Sprite": "parseSprite",
 		"Font": "parseFont",
 		"Particle": "parseString", # Not yet...
@@ -749,16 +768,30 @@ def docld_to_lua_value(entry, context, name = None, error_name = None):
 			return "ERROR"
 		else:
 			function = "u." + (lua_expr_type_assoc if "expression" in entry else lua_type_assoc)[entry["type"]] + ("Opt" if optional else "")
-			return function + "(data." + context + name + ", path, \"" + context + error_name + "\")" + (" or " + str(entry["default"]) if "default" in entry else "")
+			default = ""
+			if "default" in entry:
+				if entry["type"] == "boolean":
+					default = "true" if entry["default"] else "false"
+				elif entry["type"] == "string":
+					default = "\"" + entry["default"] + "\""
+				else:
+					default = str(entry["default"])
+			return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")" + (" or " + default if "default" in entry else "")
 	elif "internal_ref" in entry:
 		print("TODO: Internal references not supported")
 		return "ERROR"
 	elif "ref" in entry:
-		print("TODO: References not supported")
-		return "ERROR"
+		function = "u." + lua_ref_assoc[entry["ref"]] + ("Opt" if optional else "")
+		return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")"
 	elif "structure" in entry:
 		function = "u." + lua_structure_assoc[entry["structure"]] + ("Opt" if optional else "")
-		return function + "(data." + context + name + ", path, \"" + context + error_name + "\")"
+		default = ""
+		if "default" in entry:
+			if entry["default"]["x"] == 0 and entry["default"]["y"] == 0:
+				default = "Vec2()"
+			else:
+				default = "Vec2(" + str(entry["default"]["x"]) + ", " + str(entry["default"]["y"]) + ")"
+		return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")" + (" or " + default if "default" in entry else "")
 	elif "const" in entry:
 		print("TODO: Consts not supported")
 		return "ERROR"
@@ -771,8 +804,10 @@ def docld_to_lua_value(entry, context, name = None, error_name = None):
 
 
 # Converts DocLangData to a Lua config class.
-# context is for example: "", "fonts.".
-def docld_to_lua(entry, class_name, is_root = True, context = "", indent = 0):
+# context is for example: "", "fonts.", "operations[i].", "nextBallSprites[tonumber(n)]".
+# data_context is analogically: None, None, None, "nextBallSprites[n]".
+# error_context is analogically: None, None, "operations[\" .. tostring(i) .. \"].", "nextBallSprites.\" .. tostring(n) .. \".".
+def docld_to_lua(entry, class_name, is_root = True, context = "", data_context = None, error_context = None):
 	out = []
 
 	if is_root:
@@ -789,11 +824,12 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", indent = 0):
 		out.append("local " + class_name + " = class:derive(\"" + class_name + "\")")
 		out.append("")
 		out.append("---Constructs an instance of " + class_name + ".")
-		out.append("---@param data table Raw path entity data.")
+		out.append("---@param data table Raw data from a file.")
 		out.append("---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.")
 		out.append("function " + class_name + ":new(data, path)")
-		out.append("    local u = _ConfigUtils")
-		out.append("    self._path = path")
+		out.append(1)
+		out.append("local u = _ConfigUtils")
+		out.append("self._path = path")
 		out.append("")
 	
 	# Optional entries have an asterisk.
@@ -803,60 +839,129 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", indent = 0):
 		if name[-1] == "*":
 			optional = True
 			name = name[:-1]
-	# Deal with simple fields.
+	
+	# Fill in the default context values.
+	if data_context == None:
+		data_context = context
+	if error_context == None:
+		error_context = context
+
+	# Deal with fields.
 	if "type" in entry:
 		if entry["type"] == "object":
-			if is_root:
+			if not is_root:
+				if "name" in entry:
+					out.append("")
+				if optional:
+					out.append("if data." + name + " then")
+					out.append(1)
+				table_id = "self." + context + name if "name" in entry else "self." + context[:-1]
+				out.append(table_id + " = {}")
+			if "regex" in entry:
+				# So-called "Regex Object".
+				child = entry["children"][0]
+				out.append("for n, _ in pairs(data." + context + name + ") do")
+				out.append(1)
+				out += docld_to_lua(child, class_name, False, context + name + "[tonumber(n)].", data_context + name + "[n].", error_context + name + ".\" .. tostring(n) .. \".")
+				out.append(-1)
+				out.append("end")
+			elif "keyconst" in entry:
+				# So-called "Enum Object".
+				full_keyconst = context + name + "." + entry["keyconst"] if "name" in entry else context + entry["keyconst"]
+				full_error_keyconst = error_context + name + "." + entry["keyconst"] if "name" in entry else error_context + entry["keyconst"]
+				out.append("self." + full_keyconst + " = u.parseString(data." + full_keyconst + ", path, \"" + full_error_keyconst + "\")")
+				first_child = True
+				for child in entry["children"]:
+					out.append(("if" if first_child else "elseif") + " self." + full_keyconst + " == \"" + child["const"] + "\" then")
+					for subchild in child["children"]:
+						new_context = context + name + "." if "name" in entry else context
+						new_data_context = data_context + name + "." if "name" in entry else data_context
+						new_error_context = error_context + name + "." if "name" in entry else error_context
+						out.append(1)
+						out += docld_to_lua(subchild, class_name, False, new_context, new_data_context, new_error_context)
+						out.append(-1)
+					first_child = False
+				out.append("else")
+				error_msg = ""
+				for i in range(len(entry["children"])):
+					if i > 0:
+						if i == len(entry["children"]) - 1:
+							error_msg += " or "
+						else:
+							error_msg += ", "
+					error_msg += "\\\"" + entry["children"][i]["const"] + "\\\""
+				out.append("    error(string.format(\"Unknown " + (name if "name" in entry else class_name) + " type: %s (expected " + error_msg + ")\", self." + full_keyconst + "))")
+				out.append("end")
+			else:
+				# Regular object.
 				if "children" in entry:
 					for child in entry["children"]:
-						out += docld_to_lua(child, class_name, False, context, indent + 1)
-			else:
+						new_context = context + name + "." if "name" in entry else context
+						new_data_context = data_context + name + "." if "name" in entry else data_context
+						new_error_context = error_context + name + "." if "name" in entry else error_context
+						out += docld_to_lua(child, class_name, False, new_context, new_data_context, new_error_context)
+			if not is_root:
 				if optional:
-					out.append("")
-					out.append("if data." + name + " then")
-					out.append("    self." + context + name + " = {}")
-					if "children" in entry:
-						for child in entry["children"]:
-							out += docld_to_lua(child, class_name, False, context + name + ".", indent)
+					out.append(-1)
 					out.append("end")
-				else:
-					out.append("self." + context + name + " = {}")
-					if "children" in entry:
-						for child in entry["children"]:
-							out += docld_to_lua(child, class_name, False, context + name + ".", indent)
+				if "name" in entry:
+					out.append("")
 		elif entry["type"] == "array":
+			out.append("")
+			child = entry["children"][0]
 			if optional:
 				print("todo")
 			else:
 				out.append("self." + context + name + " = {}")
 				out.append("for i = 1, #data." + context + name + " do")
-				out.append("    self." + context + name + "[i] = " + docld_to_lua_value(entry["children"][0], context, name + "[i]", name + "[\" .. tostring(i) .. \"]"))
+				out.append(1)
+				out += docld_to_lua(child, class_name, False, context + name + "[i].", data_context + name + "[i].", error_context + name + "[\" .. tostring(i) .. \"].")
+				out.append(-1)
 				out.append("end")
+			out.append("")
 		else:
-			out.append("self." + context + name + " = " + docld_to_lua_value(entry, context, name))
+			out.append("self." + context + name + " = " + docld_to_lua_value(entry, data_context, error_context, name))
 	elif "internal_ref" in entry:
 		print("TODO: Internal references not supported")
 	elif "ref" in entry:
-		print("TODO: References not supported")
+		out.append("self." + context + name + " = " + docld_to_lua_value(entry, data_context, error_context, name))
 	elif "structure" in entry:
-		out.append("self." + context + name + " = " + docld_to_lua_value(entry, context, name))
+		out.append("self." + context + name + " = " + docld_to_lua_value(entry, data_context, error_context, name))
 	elif "const" in entry:
 		print("TODO: Consts not supported")
 	elif "types" in entry:
 		print("TODO: Multitypes aren't supported")
 
 	if is_root:
+		# Remove all trailing empty lines.
+		while out[-1] == "":
+			out.pop()
+		out.append(-1)
 		out.append("end")
 		out.append("")
 		out.append("return " + class_name)
 	
-	for i in range(len(out)):
-		if out[i] == "":
-			# Don't indent empty lines.
-			continue
-		out[i] = "    " * indent + out[i]
-
-	return out
+	if is_root:
+		# Finalize if this is the end.
+		output = ""
+		indent = 0
+		last_line_empty = False
+		for i in range(len(out)):
+			if type(out[i]) is int:
+				indent += out[i]
+			else:
+				if out[i] == "":
+					# Don't indent empty lines.
+					if not last_line_empty:
+						output += "\n"
+						last_line_empty = True
+					continue
+				output += "    " * indent + out[i] + "\n"
+				last_line_empty = False
+		return output
+	else:
+		# Otherwise, return a raw list.
+		return out
 
 
 
@@ -868,7 +973,7 @@ def docl_to_schema(data, structures_path):
 # Converts DocLang to a Lua config class.
 def docl_to_lua(data, class_name):
 	data = docl_to_docld(data)
-	return "\n".join(docld_to_lua(data, class_name, True))
+	return docld_to_lua(data, class_name, True)
 
 
 

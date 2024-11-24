@@ -18,7 +18,6 @@ function SphereSelectorConfig:new(data, path)
         self.operations[i].type = u.parseString(data.operations[i].type, path, "operations[" .. tostring(i) .. "].type")
         self.operations[i].condition = u.parseExprBoolean(data.operations[i].condition, path, "operations[" .. tostring(i) .. "].condition")
     end
-    self.scoreEvent = u.parseScoreEventConfigOpt(data.scoreEvent, path, "scoreEvent")
 end
 
 

@@ -13,7 +13,6 @@ function ShooterMovementConfig:new(data, path)
     local u = _ConfigUtils
 
     self.type = u.parseString(data.type, path, "type")
-
     if self.type == "linear" then
         self.xMin = u.parseNumber(data.xMin, path, "xMin")
         self.xMax = u.parseNumber(data.xMax, path, "xMax")
@@ -23,7 +22,7 @@ function ShooterMovementConfig:new(data, path)
         self.x = u.parseNumber(data.x, path, "x")
         self.y = u.parseNumber(data.y, path, "y")
     else
-        error(string.format("Unknown shooter type: %s (expected \"linear\" or \"circular\")", self.type))
+        error(string.format("Unknown ShooterMovementConfig type: %s (expected \"linear\" or \"circular\")", self.type))
     end
 end
 

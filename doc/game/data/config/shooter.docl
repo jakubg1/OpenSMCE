@@ -1,23 +1,22 @@
 - (object) - The root object.
     - movement ($shooter_movement) - Describes the positioning and movement of the shooter.
     - sprite (Sprite) - The sprite for the shooter to be used.
-    - spriteOffset* (Vector2) - The offset of the shooter sprite. Defaults to `(0, 0)`.
-    - spriteAnchor* (Vector2) - The anchor point of the shooter sprite. Defaults to `(0.5, 0)`.
+    - spriteOffset* = (0, 0) (Vector2) - The offset of the shooter sprite. Defaults to `(0, 0)`.
+    - spriteAnchor* = (0.5, 0) (Vector2) - The anchor point of the shooter sprite. Defaults to `(0.5, 0)`.
     - shadowSprite* (Sprite) - The shadow sprite for the shooter to be used.
-    - shadowSpriteOffset* (Vector2) - The offset of the shooter shadow sprite. Defaults to `(8, 8)`.
-    - shadowSpriteAnchor* (Vector2) - The anchor point of the shooter shadow sprite. Defaults to `(0.5, 0)`.
+    - shadowSpriteOffset* = (8, 8) (Vector2) - The offset of the shooter shadow sprite. Defaults to `(8, 8)`.
+    - shadowSpriteAnchor* = (0.5, 0) (Vector2) - The anchor point of the shooter shadow sprite. Defaults to `(0.5, 0)`.
     - spheres (array) - A list of primary spheres that can be shot.
         - (object) - A single primary sphere.
             - pos (Vector2) - The position of the sphere, relative to the shooter.
             - shotPos* (Vector2) - If present, this is the position - relative to the shooter - that the sphere will warp to when shot and will start moving from that position. If absent, the sphere will start flying from its current position without any modifications.
-    - ballPos* (Vector2) - The position of the ball which can be shot. Defaults to `(0, 5)`.
     - nextBallSprites (object) <<^[-]?[0-9]*$>> - Contains next ball sprites for all possible sphere colors. Key names must be stringified integers.
         - (object) - Contains next sphere sprite data for that particular sphere color.
             - sprite (Sprite) - A sprite used to draw the shooter's next color indicator.
             - spriteAnimationSpeed* (number) [>=0] - When defined, the next sphere sprite will animate with that speed in frames per second.
-    - nextBallOffset (Vector2) - The offset of the shooter's next ball sprite.
-    - nextBallAnchor (Vector2) - The anchor point of the shooter's next ball sprite.
-    - reticle (object) - Describes the appearance of a shooting reticle.
+    - nextBallOffset* = (0, 21) (Vector2) - The offset of the shooter's next ball sprite. Defaults to `(0, 21)`.
+    - nextBallAnchor* = (0.5, 0) (Vector2) - The anchor point of the shooter's next ball sprite. Defaults to `(0.5, 0)`.
+    - reticle* (object) - Describes the appearance of a shooting reticle.
         - sprite* (Sprite) - The aiming reticle sprite to use when Aiming Retical is on. Will fallback to the default drawn caret if not defined.
         - offset* (Vector2) - The aiming reticle's offset, relative to the position the cursor is aiming at.
         - nextBallSprite* (Sprite) - The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if `sprite` is defined.
@@ -37,10 +36,10 @@
             - "scale" - The beam is shrunk so its top is touching a sphere train.
         - colored (boolean) - Whether the beam should be colored with the current sphere color.
     - speedShotParticle (Particle) - Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes.
-    - shotCooldown* (number) [>=0] - The minimum time between the shots, in seconds. If `multishot` is set to `false`, this time will be counted since the previous shot sphere has been appended/disappeared.
-    - shotCooldownFade* (number) [>=0] - The duration of the ball appearing animation, in seconds. During this time you can't shoot balls yet. This time is counted after `shotCooldown`, so the effective cooldown is this plus that value.
-    - multishot* (boolean) - If set, the player will be able to shoot another sphere before the previous one has hit the sphere train.
-    - destroySphereOnFail* (boolean) - If set, when the level is lost, the sphere held by the shooter will show its destruction particles. Otherwise, the ball will just disappear.
+    - shotCooldown* = 0 (number) [>=0] - The minimum time between the shots, in seconds. If `multishot` is set to `false`, this time will be counted since the previous shot sphere has been appended/disappeared.
+    - shotCooldownFade* = 0 (number) [>=0] - The duration of the ball appearing animation, in seconds. During this time you can't shoot balls yet. This time is counted after `shotCooldown`, so the effective cooldown is this plus that value.
+    - multishot* = false (boolean) - If set, the player will be able to shoot another sphere before the previous one has hit the sphere train.
+    - destroySphereOnFail* = false (boolean) - If set, when the level is lost, the sphere held by the shooter will show its destruction particles. Otherwise, the ball will just disappear.
     - shootSpeed (number) [>0] - The default speed of how fast the shot spheres will be, in pixels per second.
-    - hitboxOffset* (Vector2) - The offset of the Shooter's hitbox in pixels.
+    - hitboxOffset* = (0, 0) (Vector2) - The offset of the Shooter's hitbox in pixels.
     - hitboxSize (Vector2) - The size of the Shooter's hitbox in pixels.
