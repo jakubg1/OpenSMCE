@@ -16,7 +16,7 @@
             - spriteAnimationSpeed* (number) [>=0] - When defined, the next sphere sprite will animate with that speed in frames per second.
     - nextBallOffset* = (0, 21) (Vector2) - The offset of the shooter's next ball sprite. Defaults to `(0, 21)`.
     - nextBallAnchor* = (0.5, 0) (Vector2) - The anchor point of the shooter's next ball sprite. Defaults to `(0.5, 0)`.
-    - reticle* (object) - Describes the appearance of a shooting reticle.
+    - reticle* = {} (object) - Describes the appearance of a shooting reticle.
         - sprite* (Sprite) - The aiming reticle sprite to use when Aiming Retical is on. Will fallback to the default drawn caret if not defined.
         - offset* (Vector2) - The aiming reticle's offset, relative to the position the cursor is aiming at.
         - nextBallSprite* (Sprite) - The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if `sprite` is defined.

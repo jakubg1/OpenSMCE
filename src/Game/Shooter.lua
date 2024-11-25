@@ -184,7 +184,7 @@ function Shooter:setColor(color)
     if color ~= 0 then
         self:spawnSphereEntities()
 
-        if self.config.reticle and self.config.reticle.colorFadeTime then
+        if self.config.reticle.colorFadeTime then
             self.reticleOldColor = self.reticleColor
             self.reticleColorFade = 0
         end
@@ -200,7 +200,7 @@ function Shooter:setNextColor(color)
     self.nextColor = color
 
     if color ~= 0 then
-        if self.config.reticle and self.config.reticle.nextColorFadeTime then
+        if self.config.reticle.nextColorFadeTime then
             self.reticleOldNextColor = self.reticleNextColor
             self.reticleNextColorFade = 0
         end
@@ -468,7 +468,7 @@ function Shooter:drawReticle()
     local color = self:getReticleColor()
     local sphereConfig = self:getSphereConfig()
     if targetPos and sphereConfig.shootBehavior.type == "normal" then
-        if self.config.reticle and self.config.reticle.sprite then
+        if self.config.reticle.sprite then
             local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2()):rotate(self.angle)
             self.config.reticle.sprite:draw(location, Vec2(0.5, 0), nil, nil, self.angle, color)
             if self.config.reticle.nextBallSprite then
@@ -490,7 +490,7 @@ function Shooter:drawReticle()
 
         -- Fireball range highlight
         if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
-            if self.config.reticle and self.config.reticle.radiusSprite then
+            if self.config.reticle.radiusSprite then
                 local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2())
                 local scale = Vec2(sphereConfig.hitBehavior.range * 2) / self.config.reticle.radiusSprite.size
                 self.config.reticle.radiusSprite:draw(location, Vec2(0.5), nil, nil, nil, color, nil, scale)

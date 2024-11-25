@@ -514,6 +514,8 @@ def docl_to_docld(data):
 					line_out["default"] = token == "true"
 				elif token[0] == "\"" and token[-1] == "\"": # string (spaces not allowed yet TODO)
 					line_out["default"] = token[1:-1]
+				elif token == "{}": # object (only the empty state is available as defaults for the object)
+					line_out["default"] = {}
 				elif token[0] == "(": # Vector2 component 1
 					line_out["default"] = {}
 					line_out["default"]["x"] = float(token[1:-1]) if "." in token[1:-1] else int(token[1:-1])
@@ -596,6 +598,18 @@ def docl_to_docld(data):
 			pass # Throw an error - double indent.
 	
 	return out
+
+
+
+# Returns whether the entry has at least a single Vector2 structure inside itself which has a default value.
+def docld_contains_default_vector(entry):
+	if "structure" in entry and entry["structure"] == "Vector2" and "default" in entry:
+		return True
+	if "children" in entry:
+		for child in entry["children"]:
+			if docld_contains_default_vector(child):
+				return True
+	return False
 
 
 
@@ -855,6 +869,12 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 		out.append("---@class " + class_name)
 		out.append("---@overload fun(data, path):" + class_name)
 		out.append("local " + class_name + " = class:derive(\"" + class_name + "\")")
+		# Predict the Vector2 require for default vector parameters.
+		if docld_contains_default_vector(entry):
+			out.append("")
+			out.append("local Vec2 = require(\"src.Essentials.Vector2\")")
+		out.append("")
+		out.append("")
 		out.append("")
 		out.append("---Constructs an instance of " + class_name + ".")
 		out.append("---@param data table Raw data from a file.")
@@ -886,10 +906,13 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 				if "name" in entry:
 					out.append("")
 				table_id = "self." + context + name if "name" in entry else "self." + context[:-1]
-				out.append(table_id + " = {}")
+				if not optional or "default" in entry:
+					out.append(table_id + " = {}")
 				if optional:
 					out.append("if data." + name + " then")
 					out.append(1)
+					if not "default" in entry:
+						out.append(table_id + " = {}")
 			if "regex" in entry:
 				# So-called "Regex Object".
 				child = entry["children"][0]
@@ -941,8 +964,7 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 				if "name" in entry:
 					out.append("")
 		elif entry["type"] == "array":
-			if len(out) > 0:
-				out.append("")
+			out.append("")
 			child = entry["children"][0]
 			table_id = context + name if "name" in entry else context[:-1]
 			table_data_id = data_context + name if "name" in entry else data_context[:-1]
@@ -987,6 +1009,8 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 		out.append(-1)
 		out.append("end")
 		out.append("")
+		out.append("")
+		out.append("")
 		out.append("return " + class_name)
 	
 	if is_root:
@@ -1003,13 +1027,15 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 					# Note that certain blocks insert empty lines at the start and at the end to make sure they are surrounded with an empty line.
 					# However, if two blocks are next to each other, this will cause a double empty line.
 					# We will detect and fix these scenarios here.
-					if not last_line_empty:
+					# (Also, to make things even more complicated, we want to keep the three empty lines when indent = 0)
+					if not last_line_empty or indent == 0:
 						output += "\n"
 						last_line_empty = True
 					continue
 				output += "    " * indent + out[i] + "\n"
 				last_line_empty = False
-		return output
+		# Remove the last newline.
+		return output[:-1]
 	else:
 		# Otherwise, return a raw list.
 		return out
@@ -1038,7 +1064,7 @@ def docl_convert_file(path_in, path_out):
 # Converts a DocLang (.docl) file to an appropriate Lua config class file.
 def docl_convert_file_lua(path_in, path_out):
 	contents = load_file(path_in)
-	class_name = case_snake_to_pascal(path_in.split("/")[-1][:-5]) + "Config"
+	class_name = ("UI2" if "ui2" in path_in else "") + case_snake_to_pascal(path_in.split("/")[-1][:-5]) + "Config"
 	new_contents = docl_to_lua(contents, class_name)
 	save_file(path_out, new_contents)
 
@@ -1072,7 +1098,7 @@ def docl_all_to_configs():
 			if not file.endswith(".docl"):
 				continue
 			path_in = "data" + r + "/" + file
-			path_out = "out_lua/" + file[:-5] + ".lua"
+			path_out = "out_lua/" + ("UI2" if r == "/ui2" else "") + case_snake_to_pascal(file[:-5]) + ".lua"
 			if docl_is_config_class_protected(path_out):
 				print(path_in + " -> " + path_out + " - Skipped!")
 			print(path_in + " -> " + path_out)
