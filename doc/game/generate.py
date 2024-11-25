@@ -16,6 +16,10 @@ def save_file(path, contents):
 	file.write(contents)
 	file.close()
 
+#  Converts case like_this to case LikeThis.
+def case_snake_to_pascal(line):
+	return "".join(word[0].upper() + word[1:].lower() for word in line.split("_"))
+
 
 
 # Finds all pairs of Markdown. Kinda dodgy because it's not extensively used. Available pairs are `code`, *italic*, **bold** and ***bold italic***.
@@ -539,7 +543,10 @@ def docl_to_docld(data):
 				subtokens = token[1:-1].split("|")
 				for subtoken in subtokens:
 					if subtoken[0] == "%": # %expression
-						line_out["types"].append({"type": subtoken[1:], "expression": True})
+						if subtoken[1].lower() != subtoken[1]: # %Structure (applies only to %Vector2)
+							line_out["types"].append({"structure": subtoken[1:], "expression": True})
+						else:
+							line_out["types"].append({"type": subtoken[1:], "expression": True})
 					elif subtoken[0] == "$": # $ref
 						line_out["types"].append({"ref": subtoken[1:]})
 					elif subtoken[0] == "#": # #internal_ref
@@ -725,7 +732,7 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 
 # Converts a single entry's simple value (not an array, not an object) to the part after the `=` sign in Lua config class code.
 # `name` will be overwritten if it exists in the entry.
-def docld_to_lua_value(entry, context, error_context, name = None, error_name = None):
+def docld_to_lua_value(entry, class_name, context, error_context, name = None, error_name = None):
 	lua_type_assoc = {
 		"number": "parseNumber",
 		"integer": "parseInteger",
@@ -739,14 +746,36 @@ def docld_to_lua_value(entry, context, error_context, name = None, error_name = 
 		"boolean": "parseExprBoolean"
 	}
 	lua_ref_assoc = {
-		"shooter_movement": "parseShooterMovementConfig"
+		"shooter_movement": "parseShooterMovementConfig",
+		"collectible_effect": "parseCollectibleEffectConfig",
+		"level_sequence_entry": "parseLevelSequenceEntry",
+		"level_color_rules": "parseLevelColorRules",
+		"level_spawn_rules": "parseLevelSpawnRules",
+		"level_speed_transition": "parseLevelSpeedTransition",
+		"level_set_entry": "parseLevelSetEntry",
+		"sphere_shoot_behavior": "parseSphereShootBehavior",
+		"sphere_hit_behavior": "parseSphereHitBehavior",
+		"widget": "parseUI2Widget",
+		"node": "parseUI2Node",
+		"node_child": "parseUI2NodeChild",
+		"timeline_entry": "parseUI2TimelineEntry"
 	}
 	lua_structure_assoc = {
 		"Vector2": "parseVec2",
+		"Color": "parseColor",
 		"Image": "parseImage",
+		"Music": "parseMusic",
+		"FontFile": "parseFontFile",
 		"Sprite": "parseSprite",
 		"Font": "parseFont",
-		"Particle": "parseString", # Not yet...
+		"Sound": "parseSound",
+		"Particle": "parseParticle",
+		"ColorPalette": "parseColorPalette",
+		"SphereSelector": "parseSphereSelector",
+		"ColorGenerator": "parseColorGenerator",
+		"Shooter": "parseShooter",
+		"SphereEffect": "parseSphereEffect",
+		"PathEntity": "parsePathEntity",
 		"SoundEvent": "parseSoundEvent",
 		"ScoreEvent": "parseScoreEventConfig",
 		"CollectibleGenerator": "parseCollectibleGeneratorConfig"
@@ -778,8 +807,12 @@ def docld_to_lua_value(entry, context, error_context, name = None, error_name = 
 					default = str(entry["default"])
 			return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")" + (" or " + default if "default" in entry else "")
 	elif "internal_ref" in entry:
-		print("TODO: Internal references not supported")
-		return "ERROR"
+		if entry["internal_ref"] == "#":
+			function = "u.parse" + class_name + ("Opt" if optional else "")
+			return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")"
+		else:
+			print("TODO: Internal references not supported")
+			return "ERROR"
 	elif "ref" in entry:
 		function = "u." + lua_ref_assoc[entry["ref"]] + ("Opt" if optional else "")
 		return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")"
@@ -807,7 +840,7 @@ def docld_to_lua_value(entry, context, error_context, name = None, error_name = 
 # context is for example: "", "fonts.", "operations[i].", "nextBallSprites[tonumber(n)]".
 # data_context is analogically: None, None, None, "nextBallSprites[n]".
 # error_context is analogically: None, None, "operations[\" .. tostring(i) .. \"].", "nextBallSprites.\" .. tostring(n) .. \".".
-def docld_to_lua(entry, class_name, is_root = True, context = "", data_context = None, error_context = None):
+def docld_to_lua(entry, class_name, is_root = True, context = "", data_context = None, error_context = None, iterators_used = 0):
 	out = []
 
 	if is_root:
@@ -852,17 +885,17 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 			if not is_root:
 				if "name" in entry:
 					out.append("")
+				table_id = "self." + context + name if "name" in entry else "self." + context[:-1]
+				out.append(table_id + " = {}")
 				if optional:
 					out.append("if data." + name + " then")
 					out.append(1)
-				table_id = "self." + context + name if "name" in entry else "self." + context[:-1]
-				out.append(table_id + " = {}")
 			if "regex" in entry:
 				# So-called "Regex Object".
 				child = entry["children"][0]
 				out.append("for n, _ in pairs(data." + context + name + ") do")
 				out.append(1)
-				out += docld_to_lua(child, class_name, False, context + name + "[tonumber(n)].", data_context + name + "[n].", error_context + name + ".\" .. tostring(n) .. \".")
+				out += docld_to_lua(child, class_name, False, context + name + "[tonumber(n)].", data_context + name + "[n].", error_context + name + ".\" .. tostring(n) .. \".", iterators_used)
 				out.append(-1)
 				out.append("end")
 			elif "keyconst" in entry:
@@ -872,15 +905,16 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 				out.append("self." + full_keyconst + " = u.parseString(data." + full_keyconst + ", path, \"" + full_error_keyconst + "\")")
 				first_child = True
 				for child in entry["children"]:
-					out.append(("if" if first_child else "elseif") + " self." + full_keyconst + " == \"" + child["const"] + "\" then")
-					for subchild in child["children"]:
-						new_context = context + name + "." if "name" in entry else context
-						new_data_context = data_context + name + "." if "name" in entry else data_context
-						new_error_context = error_context + name + "." if "name" in entry else error_context
-						out.append(1)
-						out += docld_to_lua(subchild, class_name, False, new_context, new_data_context, new_error_context)
-						out.append(-1)
-					first_child = False
+					if "children" in child:
+						out.append(("if" if first_child else "elseif") + " self." + full_keyconst + " == \"" + child["const"] + "\" then")
+						for subchild in child["children"]:
+							new_context = context + name + "." if "name" in entry else context
+							new_data_context = data_context + name + "." if "name" in entry else data_context
+							new_error_context = error_context + name + "." if "name" in entry else error_context
+							out.append(1)
+							out += docld_to_lua(subchild, class_name, False, new_context, new_data_context, new_error_context, iterators_used)
+							out.append(-1)
+						first_child = False
 				out.append("else")
 				error_msg = ""
 				for i in range(len(entry["children"])):
@@ -899,7 +933,7 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 						new_context = context + name + "." if "name" in entry else context
 						new_data_context = data_context + name + "." if "name" in entry else data_context
 						new_error_context = error_context + name + "." if "name" in entry else error_context
-						out += docld_to_lua(child, class_name, False, new_context, new_data_context, new_error_context)
+						out += docld_to_lua(child, class_name, False, new_context, new_data_context, new_error_context, iterators_used)
 			if not is_root:
 				if optional:
 					out.append(-1)
@@ -907,35 +941,49 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 				if "name" in entry:
 					out.append("")
 		elif entry["type"] == "array":
-			out.append("")
+			if len(out) > 0:
+				out.append("")
 			child = entry["children"][0]
+			table_id = context + name if "name" in entry else context[:-1]
+			table_data_id = data_context + name if "name" in entry else data_context[:-1]
+			table_error_id = error_context + name if "name" in entry else error_context[:-1]
+			# If it's more than 5 layers deep, that's your fault !! lol
+			# I know this is some really terrible Python code
+			# Can YOU make it 40,000,000,000% faster?
+			iterator = "ijklm"[iterators_used]
+			out.append("self." + table_id + " = {}")
 			if optional:
-				print("todo")
-			else:
-				out.append("self." + context + name + " = {}")
-				out.append("for i = 1, #data." + context + name + " do")
+				out.append("if data." + table_id + " then")
 				out.append(1)
-				out += docld_to_lua(child, class_name, False, context + name + "[i].", data_context + name + "[i].", error_context + name + "[\" .. tostring(i) .. \"].")
+			out.append("for " + iterator + " = 1, #data." + table_id + " do")
+			out.append(1)
+			out += docld_to_lua(child, class_name, False, table_id + "[" + iterator + "].", table_data_id + "[" + iterator + "].", table_error_id + "[\" .. tostring(" + iterator + ") .. \"].", iterators_used + 1)
+			out.append(-1)
+			out.append("end")
+			if optional:
 				out.append(-1)
 				out.append("end")
 			out.append("")
 		else:
-			out.append("self." + context + name + " = " + docld_to_lua_value(entry, data_context, error_context, name))
-	elif "internal_ref" in entry:
-		print("TODO: Internal references not supported")
-	elif "ref" in entry:
-		out.append("self." + context + name + " = " + docld_to_lua_value(entry, data_context, error_context, name))
-	elif "structure" in entry:
-		out.append("self." + context + name + " = " + docld_to_lua_value(entry, data_context, error_context, name))
+			if "name" in entry:
+				out.append("self." + context + name + " = " + docld_to_lua_value(entry, class_name, data_context, error_context, name))
+			else:
+				out.append("self." + context[:-1] + " = " + docld_to_lua_value(entry, class_name, data_context[:-1], error_context[:-1], ""))
+	elif "internal_ref" in entry or "ref" in entry or "structure" in entry:
+		if "name" in entry:
+			out.append("self." + context + name + " = " + docld_to_lua_value(entry, class_name, data_context, error_context, name))
+		else:
+			out.append("self." + context[:-1] + " = " + docld_to_lua_value(entry, class_name, data_context[:-1], error_context[:-1], ""))
 	elif "const" in entry:
 		print("TODO: Consts not supported")
 	elif "types" in entry:
 		print("TODO: Multitypes aren't supported")
+	
+	# Remove all trailing empty lines.
+	while len(out) > 0 and (out[-1] == ""):
+		out.pop()
 
 	if is_root:
-		# Remove all trailing empty lines.
-		while out[-1] == "":
-			out.pop()
 		out.append(-1)
 		out.append("end")
 		out.append("")
@@ -952,6 +1000,9 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 			else:
 				if out[i] == "":
 					# Don't indent empty lines.
+					# Note that certain blocks insert empty lines at the start and at the end to make sure they are surrounded with an empty line.
+					# However, if two blocks are next to each other, this will cause a double empty line.
+					# We will detect and fix these scenarios here.
 					if not last_line_empty:
 						output += "\n"
 						last_line_empty = True
@@ -984,6 +1035,21 @@ def docl_convert_file(path_in, path_out):
 	new_contents = json.dumps(docl_to_schema(contents, structures_path), indent = 4)
 	save_file(path_out, new_contents)
 
+# Converts a DocLang (.docl) file to an appropriate Lua config class file.
+def docl_convert_file_lua(path_in, path_out):
+	contents = load_file(path_in)
+	class_name = case_snake_to_pascal(path_in.split("/")[-1][:-5]) + "Config"
+	new_contents = docl_to_lua(contents, class_name)
+	save_file(path_out, new_contents)
+
+# Checks if the Lua config class file is protected from writing.
+def docl_is_config_class_protected(path):
+	try:
+		contents = load_file(path)
+		return contents[:6] != "--!!--"
+	except IOError:
+		return False
+
 
 
 # Converts all .docl files in data folder to the corresponding schemas.
@@ -997,6 +1063,20 @@ def docl_all_to_schemas():
 			path_out = "../../schemas" + r + "/" + file[:-5] + ".json"
 			print(path_in + " -> " + path_out)
 			docl_convert_file(path_in, path_out)
+
+# Converts all .docl files in data folder to the corresponding config class files.
+def docl_all_to_configs():
+	for r, d, f in os.walk("data"):
+		r = r[4:].replace("\\", "/") # i.e. "data" -> "", "data\config" -> "/config"
+		for file in f:
+			if not file.endswith(".docl"):
+				continue
+			path_in = "data" + r + "/" + file
+			path_out = "out_lua/" + file[:-5] + ".lua"
+			if docl_is_config_class_protected(path_out):
+				print(path_in + " -> " + path_out + " - Skipped!")
+			print(path_in + " -> " + path_out)
+			docl_convert_file_lua(path_in, path_out)
 
 
 
