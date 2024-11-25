@@ -22,62 +22,31 @@ function CollectibleGeneratorConfig:new(data, path)
     self.type = u.parseString(data.type, path, "type")
     if self.type == "collectible" then
         self.name = u.parseString(data.name, path, "name")
-
-        self.conditions = {}
-        if data.conditions then
-            for i = 1, #data.conditions do
-                self.conditions[i] = u.parseExprBoolean(data.conditions[i], path, "conditions[" .. tostring(i) .. "]")
-            end
-        end
     elseif self.type == "collectibleGenerator" then
         self.generator = u.parseCollectibleGeneratorConfig(data.generator, path, "generator")
-
-        self.conditions = {}
-        if data.conditions then
-            for i = 1, #data.conditions do
-                self.conditions[i] = u.parseExprBoolean(data.conditions[i], path, "conditions[" .. tostring(i) .. "]")
-            end
-        end
     elseif self.type == "combine" then
-
         self.entries = {}
         for i = 1, #data.entries do
             self.entries[i] = u.parseCollectibleGeneratorConfig(data.entries[i], path, "entries[" .. tostring(i) .. "]")
         end
-
-        self.conditions = {}
-        if data.conditions then
-            for i = 1, #data.conditions do
-                self.conditions[i] = u.parseExprBoolean(data.conditions[i], path, "conditions[" .. tostring(i) .. "]")
-            end
-        end
     elseif self.type == "repeat" then
         self.entry = u.parseCollectibleGeneratorConfig(data.entry, path, "entry")
         self.count = u.parseExprInteger(data.count, path, "count")
-
-        self.conditions = {}
-        if data.conditions then
-            for i = 1, #data.conditions do
-                self.conditions[i] = u.parseExprBoolean(data.conditions[i], path, "conditions[" .. tostring(i) .. "]")
-            end
-        end
     elseif self.type == "randomPick" then
-
         self.pool = {}
         for i = 1, #data.pool do
             self.pool[i] = {}
             self.pool[i].entry = u.parseCollectibleGeneratorConfig(data.pool[i].entry, path, "pool[" .. tostring(i) .. "].entry")
             self.pool[i].weight = u.parseNumberOpt(data.pool[i].weight, path, "pool[" .. tostring(i) .. "].weight")
         end
-
-        self.conditions = {}
-        if data.conditions then
-            for i = 1, #data.conditions do
-                self.conditions[i] = u.parseExprBoolean(data.conditions[i], path, "conditions[" .. tostring(i) .. "]")
-            end
-        end
     else
-        error(string.format("Unknown CollectibleGeneratorConfig type: %s (expected \"collectible\", \"collectibleGenerator\", \"combine\", \"repeat\" or \"randomPick\")", self.type))
+        error(string.format("Unknown CollectibleGeneratorConfig type: %s (expected \"collectible\", \"collectibleGenerator\", \"combine\", \"repeat\", \"randomPick\")", self.type))
+    end
+    self.conditions = {}
+    if data.conditions then
+        for i = 1, #data.conditions do
+            self.conditions[i] = u.parseExprBoolean(data.conditions[i], path, "conditions[" .. tostring(i) .. "]")
+        end
     end
 end
 

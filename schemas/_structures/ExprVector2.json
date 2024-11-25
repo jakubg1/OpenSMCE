@@ -7,9 +7,9 @@
         },
         {
             "type": "string",
-            "description": "An expression of format \"$expr{...}\". Must evaluate to Vec2!",
-            "markdownDescription": "An expression of format `\"$expr{...}\"`. Must evaluate to Vec2!",
-            "pattern": "^\\$expr\\{.*\\}$"
+            "description": "An expression of format \"${...}\". Must evaluate to Vec2!",
+            "markdownDescription": "An expression of format `\"${...}\"`. Must evaluate to Vec2!",
+            "pattern": "^\\$\\{.*\\}$"
         }
     ]
 }

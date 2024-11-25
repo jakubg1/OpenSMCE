@@ -1,26 +1,18 @@
 - (object) {type: Type of the Collectible Generator Entry.} - A collectible generator entry.
     - "collectible" - Evaluates to a single collectible.
         - name (string) - A collectible ID to be evaluated to.
-        - conditions* (array) - A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.
-            - (%boolean) - A single condition.
     - "collectibleGenerator" - Evaluates to another collectible generator result.
         - generator (CollectibleGenerator) - Path to another Collectible Generator which will be evaluated.
-        - conditions* (array) - A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.
-            - (%boolean) - A single condition.
     - "combine" - Evaluates a list of given entries and returns a list of all collectibles generated.
         - entries (array) - A list of collectible entries to be evaluated.
             - (#) - A single collectible generator entry.
-        - conditions* (array) - A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.
-            - (%boolean) - A single condition.
     - "repeat" - Evaluates a given entry a number of times and returns a list of all collectibles generated.
         - entry (#) - A collectible entry to be evaluated.
         - count (%integer) [>=2] - How many times the entry should be evaluated.
-        - conditions* (array) - A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.
-            - (%boolean) - A single condition.
     - "randomPick" - Evaluates all the choices, discards empty ones, and selects one of the remaining results at random.
         - pool (array) - A list of choices to be picked from.
             - (object) - A single choice.
                 - entry (#) - A collectible generator entry to be evaluated.
                 - weight* (number) [>0] - The bigger this number is, the more likely this option is to be chosen. Defaults to 1.
-        - conditions* (array) - A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.
-            - (%boolean) - A single condition.
+    - conditions* (array) - A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.
+        - (%boolean) - A single condition.

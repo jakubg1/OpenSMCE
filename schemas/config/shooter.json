@@ -58,11 +58,6 @@
                 "additionalProperties": false
             }
         },
-        "ballPos": {
-            "$ref": "../_structures/Vector2.json",
-            "description": "The position of the ball which can be shot. Defaults to (0, 5).",
-            "markdownDescription": "The position of the ball which can be shot. Defaults to `(0, 5)`."
-        },
         "nextBallSprites": {
             "type": "object",
             "description": "Contains next ball sprites for all possible sphere colors. Key names must be stringified integers.",
@@ -93,11 +88,13 @@
         },
         "nextBallOffset": {
             "$ref": "../_structures/Vector2.json",
-            "description": "The offset of the shooter's next ball sprite."
+            "description": "The offset of the shooter's next ball sprite. Defaults to (0, 21).",
+            "markdownDescription": "The offset of the shooter's next ball sprite. Defaults to `(0, 21)`."
         },
         "nextBallAnchor": {
             "$ref": "../_structures/Vector2.json",
-            "description": "The anchor point of the shooter's next ball sprite."
+            "description": "The anchor point of the shooter's next ball sprite. Defaults to (0.5, 0).",
+            "markdownDescription": "The anchor point of the shooter's next ball sprite. Defaults to `(0.5, 0)`."
         },
         "reticle": {
             "type": "object",
@@ -243,9 +240,6 @@
         "sprite",
         "spheres",
         "nextBallSprites",
-        "nextBallOffset",
-        "nextBallAnchor",
-        "reticle",
         "sounds",
         "speedShotBeam",
         "speedShotParticle",

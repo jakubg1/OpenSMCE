@@ -22,7 +22,6 @@ function ConfigManager:new()
 	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
 	self.levelSet = _Utils.loadJson(_ParsePath("config/level_set.json"))
 
-	self.collectibles = self:loadFolder("config/collectibles", "collectible")
 	self.spheres = self:loadFolder("config/spheres", "sphere", true)
 	self.sphereEffects = self:loadFolder("config/sphere_effects", "sphere effect")
 	self.colorGenerators = self:loadFolder("config/color_generators", "color generator")
@@ -46,14 +45,6 @@ function ConfigManager:new()
 			end
 		end
 	end
-end
-
-
-
----Loads config files which are implemented the new way so that they require to be loaded before the resources.
-function ConfigManager:loadStuffBeforeResources()
-	-- Load some stuff the new way.
-	-- Or actually none?
 end
 
 

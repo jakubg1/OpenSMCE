@@ -635,7 +635,7 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 	elif "ref" in entry:
 		out["$ref"] = entry["ref"] + ".json"
 	elif "structure" in entry:
-		out["$ref"] = structures_path + entry["structure"] + ".json"
+		out["$ref"] = structures_path + ("Expr" if "expression" in entry else "") + entry["structure"] + ".json"
 	elif "const" in entry:
 		out["const"] = entry["const"]
 	elif "types" in entry:
@@ -649,7 +649,7 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 			elif "ref" in choice:
 				out["anyOf"].append({"$ref": choice["ref"] + ".json"})
 			elif "structure" in choice:
-				out["anyOf"].append({"$ref": structures_path + choice["structure"] + ".json"})
+				out["anyOf"].append({"$ref": structures_path + ("Expr" if "expression" in choice else "") + choice["structure"] + ".json"})
 			elif "const" in choice:
 				out["anyOf"].append({"const": choice["const"]})
 				
@@ -681,21 +681,23 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 				out["allOf"] = [{"properties": {key: {"description": entry["keyconst_description"]}}}]
 				if "children" in entry:
 					for child in entry["children"]:
-						child_block = {}
-						# We can't really hook up a call to itself here, because children of this child would get involved and mess things up.
-						child_block["if"] = {"properties": {key: {"const": child["const"], "description": child["description"]}}, "required": [key]}
-						# Now similar stuff to regular objects. Shenanigans incoming!!!
-						# Adding an array as a child at the front with an asterisk ensures that it will come first, display as True and won't show up as required twice.
-						child_children = [{"name": key + "*"}]
-						if "children" in child:
-							child_children += child["children"]
-						child_block["then"] = docld_to_schema({"type": "object", "children": child_children}, is_root, structures_path)
-						if "$schema" in child_block["then"]:
-							del child_block["then"]["$schema"]
-						del child_block["then"]["type"]
-						# Add prepared blocks.
-						out["allOf"].append(child_block)
-						out["properties"][key]["enum"].append(child["const"])
+						if "const" in child: # One of the choices in the Enum Object for the typed variable.
+							child_block = {}
+							# We can't really hook up a call to itself here, because children of this child would get involved and mess things up.
+							child_block["if"] = {"properties": {key: {"const": child["const"], "description": child["description"]}}, "required": [key]}
+							# Now similar stuff to regular objects. Shenanigans incoming!!!
+							# Adding an array as a child at the front with an asterisk ensures that it will come first, display as True and won't show up as required twice.
+							child_children = [{"name": key + "*"}]
+							if "children" in child:
+								child_children += child["children"]
+							child_block["then"] = docld_to_schema({"type": "object", "children": child_children}, is_root, structures_path)
+							if "$schema" in child_block["then"]:
+								del child_block["then"]["$schema"]
+							del child_block["then"]["type"]
+							# Add prepared blocks.
+							out["allOf"].append(child_block)
+							out["properties"][key]["enum"].append(child["const"])
+						# TODO: "Always-there" properties for Enum Objects.
 				out["required"] = [key]
 			elif not "name" in entry["children"][0]:
 				# One nameless child in a regular object means that the object behaves like an array, with all keys possible.
@@ -777,22 +779,22 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 	lua_structure_assoc = {
 		"Vector2": "parseVec2",
 		"Color": "parseColor",
-		"Image": "parseImage",
-		"Music": "parseMusic",
-		"FontFile": "parseFontFile",
 		"Sprite": "parseSprite",
-		"Font": "parseFont",
-		"Sound": "parseSound",
-		"Particle": "parseParticle",
+		"Image": "parseImage",
 		"ColorPalette": "parseColorPalette",
-		"SphereSelector": "parseSphereSelector",
-		"ColorGenerator": "parseColorGenerator",
-		"Shooter": "parseShooter",
-		"SphereEffect": "parseSphereEffect",
-		"PathEntity": "parsePathEntity",
+		"Font": "parseFont",
+		"FontFile": "parseFontFile",
 		"SoundEvent": "parseSoundEvent",
+		"Sound": "parseSound",
+		"Music": "parseMusic",
+		"CollectibleGenerator": "parseCollectibleGeneratorConfig",
+		"ColorGenerator": "parseColorGeneratorConfig",
+		"Particle": "parseParticle",
+		"PathEntity": "parsePathEntityConfig",
 		"ScoreEvent": "parseScoreEventConfig",
-		"CollectibleGenerator": "parseCollectibleGeneratorConfig"
+		"Shooter": "parseShooterConfig",
+		"SphereEffect": "parseSphereEffectConfig",
+		"SphereSelector": "parseSphereSelectorConfig"
 	}
 	
 	# Optional entries have an asterisk.
@@ -926,33 +928,35 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 				full_keyconst = context + name + "." + entry["keyconst"] if "name" in entry else context + entry["keyconst"]
 				full_error_keyconst = error_context + name + "." + entry["keyconst"] if "name" in entry else error_context + entry["keyconst"]
 				out.append("self." + full_keyconst + " = u.parseString(data." + full_keyconst + ", path, \"" + full_error_keyconst + "\")")
-				first_child = True
-				for child in entry["children"]:
-					if "children" in child:
-						out.append(("if" if first_child else "elseif") + " self." + full_keyconst + " == \"" + child["const"] + "\" then")
-						for subchild in child["children"]:
-							new_context = context + name + "." if "name" in entry else context
-							new_data_context = data_context + name + "." if "name" in entry else data_context
-							new_error_context = error_context + name + "." if "name" in entry else error_context
-							out.append(1)
-							out += docld_to_lua(subchild, class_name, False, new_context, new_data_context, new_error_context, iterators_used)
-							out.append(-1)
-						first_child = False
-				out.append("else")
 				error_msg = ""
-				for i in range(len(entry["children"])):
-					if i > 0:
-						if i == len(entry["children"]) - 1:
-							error_msg += " or "
+				children_processed = 0
+				for child in entry["children"]:
+					if "const" in child: # One of the choices in the Enum Object for the typed variable.
+						out.append(("if" if children_processed == 0 else "elseif") + " self." + full_keyconst + " == \"" + child["const"] + "\" then")
+						out.append(1)
+						if "children" in child:
+							for subchild in child["children"]:
+								new_context = context + name + "." if "name" in entry else context
+								new_data_context = data_context + name + "." if "name" in entry else data_context
+								new_error_context = error_context + name + "." if "name" in entry else error_context
+								out += docld_to_lua(subchild, class_name, False, new_context, new_data_context, new_error_context, iterators_used)
 						else:
-							error_msg += ", "
-					error_msg += "\\\"" + entry["children"][i]["const"] + "\\\""
+							out.append("-- No fields")
+						out.append(-1)
+						if children_processed > 0:
+							if child == entry["children"][-1]:
+								error_msg += " or "
+							else:
+								error_msg += ", "
+						error_msg += "\\\"" + child["const"] + "\\\""
+						children_processed += 1
+				out.append("else")
 				out.append("    error(string.format(\"Unknown " + (name if "name" in entry else class_name) + " type: %s (expected " + error_msg + ")\", self." + full_keyconst + "))")
 				out.append("end")
-			else:
-				# Regular object.
-				if "children" in entry:
-					for child in entry["children"]:
+			# Regular object, AND extra children in the enum/regex objects.
+			if "children" in entry:
+				for child in entry["children"]:
+					if not "const" in child: # Not a choice in the Enum Object.
 						new_context = context + name + "." if "name" in entry else context
 						new_data_context = data_context + name + "." if "name" in entry else data_context
 						new_error_context = error_context + name + "." if "name" in entry else error_context
@@ -964,7 +968,8 @@ def docld_to_lua(entry, class_name, is_root = True, context = "", data_context =
 				if "name" in entry:
 					out.append("")
 		elif entry["type"] == "array":
-			out.append("")
+			if len(out) > 0:
+				out.append("")
 			child = entry["children"][0]
 			table_id = context + name if "name" in entry else context[:-1]
 			table_data_id = data_context + name if "name" in entry else data_context[:-1]
@@ -1124,8 +1129,11 @@ def docl_print_lua(path, class_name):
 
 
 def main():
-	#docl_test()
+	#path = "data/collectible_generator.docl"
+	#docl_print_docld(path)
+	#docl_print_lua(path, "CollectibleGeneratorConfig")
 	docl_all_to_schemas()
+	docl_all_to_configs()
 	#process_data()
 	print("Done")
 	input()

@@ -487,31 +487,3 @@ function _ParseColor(data)
 	end
 	return Color(_ParseNumber(data.r), _ParseNumber(data.g), _ParseNumber(data.b))
 end
-
-
-
----Parses a number or an Expression which evaluates to a number, enclosed in a `"$expr{...}"` clause.
----@param data number|string A number or an Expression which evaluates to a number.
----@return number?
-function _ParseExprNumber(data)
-	if type(data) == "number" then
-		return data
-	end
-	if type(data) == "string" then
-		return _Vars:evaluateExpression(data)
-	end
-end
-
-
-
----Parses a table of `{x=number, y=number}` format or an Expression which evaluates to a Vector2, enclosed in a `"$expr{...}"` clause.
----@param data table|string A table or an Expression which evaluates to a number.
----@return Vector2?
-function _ParseExprVec2(data)
-	if type(data) == "table" then
-		return _ParseVec2(data)
-	end
-	if type(data) == "string" then
-		return _Vars:evaluateExpression(data)
-	end
-end

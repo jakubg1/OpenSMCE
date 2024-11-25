@@ -50,7 +50,6 @@ function Game:init()
 
 	-- Step 1. Load the config
 	self.configManager = ConfigManager()
-	self.configManager:loadStuffBeforeResources()
 
 	-- Step 2. Initialize the window and canvas if necessary
 	local res = self:getNativeResolution()

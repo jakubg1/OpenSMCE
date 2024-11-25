@@ -13,10 +13,13 @@ local Music = require("src.Essentials.Music")
 local Font = require("src.Essentials.Font")
 local ColorPalette = require("src.Essentials.ColorPalette")
 
+local CollectibleConfig = require("src.Configs.Collectible")
+local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local DifficultyConfig = require("src.Configs.Difficulty")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
+local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
 local UI2AnimationConfig = require("src.Configs.UI2Animation")
 local UI2NodeConfig = require("src.Configs.UI2Node")
@@ -55,13 +58,15 @@ function ResourceManager:new()
 		colorPalette = {extension = "json", constructor = ColorPalette, paramSet = 2},
 		sphere = {extension = "json"},
 		sphereEffect = {extension = "json"},
-		collectible = {extension = "json"},
+		collectible = {extension = "json", constructor = CollectibleConfig, paramSet = 2},
 		colorGenerator = {extension = "json"},
 		shooter = {extension = "json"},
+		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig, paramSet = 2},
 		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig, paramSet = 2},
 		difficulty = {extension = "json", constructor = DifficultyConfig, paramSet = 2},
 		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
 		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
+		shooterMovement = {extension = "json", constructor = ShooterMovementConfig, paramSet = 2},
 		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
 		map = {extension = "/"},
 		level = {extension = "json"},
@@ -79,12 +84,14 @@ function ResourceManager:new()
 		["particle.json"] = "particle",
 		["font.json"] = "font",
 		["color_palette.json"] = "colorPalette",
+		["config/color_generator.json"] = "colorGenerator",
+		["config/level.json"] = "level",
+		["config/shooter.json"] = "shooter",
+		["config/shooter_movement.json"] = "shooterMovement",
 		["config/sphere.json"] = "sphere",
 		["config/sphere_effect.json"] = "sphereEffect",
-		["config/collectible.json"] = "collectible",
-		["config/color_generator.json"] = "colorGenerator",
-		["config/shooter.json"] = "shooter",
-		["config/level.json"] = "level",
+		["collectible.json"] = "collectible",
+		["collectible_effect.json"] = "collectibleEffect",
 		["collectible_generator.json"] = "collectibleGenerator",
 		["difficulty.json"] = "difficulty",
 		["path_entity.json"] = "pathEntity",
@@ -190,6 +197,20 @@ function ResourceManager:getColorPalette(path)
 	return self:getAsset(path, "color palette")
 end
 
+---Retrieves a Collectible Config by a given path.
+---@param path string The resource path.
+---@return CollectibleConfig
+function ResourceManager:getCollectibleConfig(path)
+	return self:getAsset(path, "collectible")
+end
+
+---Retrieves a Collectible Effect Config by a given path.
+---@param path string The resource path.
+---@return CollectibleEffectConfig
+function ResourceManager:getCollectibleEffectConfig(path)
+	return self:getAsset(path, "collectible effect")
+end
+
 ---Retrieves a Collectible Generator Config by a given path.
 ---@param path string The resource path.
 ---@return CollectibleGeneratorConfig
@@ -216,6 +237,13 @@ end
 ---@return ScoreEventConfig
 function ResourceManager:getScoreEventConfig(path)
 	return self:getAsset(path, "score event")
+end
+
+---Retrieves a Shooter Movement Config by a given path.
+---@param path string The resource path.
+---@return ShooterMovementConfig
+function ResourceManager:getShooterMovementConfig(path)
+	return self:getAsset(path, "shooter movement")
 end
 
 ---Retrieves a Sphere Selector Config by a given path.

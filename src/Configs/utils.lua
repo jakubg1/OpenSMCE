@@ -3,9 +3,12 @@
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 local Expression = require("src.Expression")
+local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
+local PathEntityConfig = require("src.Configs.PathEntity")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
+local SphereSelectorConfig = require("src.Configs.SphereSelector")
 
 local utils = {}
 
@@ -124,6 +127,21 @@ function utils.parseExprStringOpt(data, path, field)
 	return data and Expression(data)
 end
 
+---@return Expression
+function utils.parseExprVec2(data, path, field)
+	assert(data, string.format("field %s is missing (Vector2 expression expected)", field))
+	assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+	return Expression(data)
+end
+
+---@return Expression?
+function utils.parseExprVec2Opt(data, path, field)
+	if data then
+		assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+	end
+	return data and Expression(data)
+end
+
 
 
 ---@return Color
@@ -227,59 +245,88 @@ end
 
 
 
+-- Internal function for class parsing logic.
+local function parseClassConfig(data, path, field, name, getter, constructor)
+	assert(data, string.format("field %s is missing (%s Config expected)", field, name))
+	if type(data) == "string" then
+		return getter(_Game.resourceManager, data)
+	elseif type(data) == "table" then
+		return constructor(data, path)
+	end
+	error(string.format("field %s has incorrect data (%s Config or a reference to it expected)", field, name))
+end
+
+-- Internal function for class parsing logic.
+local function parseClassConfigOpt(data, path, field, name, getter, constructor)
+	if data then
+		if type(data) == "string" then
+			return getter(_Game.resourceManager, data)
+		elseif type(data) == "table" then
+			return constructor(data, path)
+		end
+	end
+end
+
+
+
+---@return CollectibleEffectConfig
+function utils.parseCollectibleEffectConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Collectible Effect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
+end
+
+---@return CollectibleEffectConfig?
+function utils.parseCollectibleEffectConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Collectible Effect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
+end
+
 ---@return CollectibleGeneratorConfig
 function utils.parseCollectibleGeneratorConfig(data, path, field)
-	assert(data, string.format("field %s is missing (Collectible Generator Config expected)", field))
-	if type(data) == "string" then
-		return _Game.resourceManager:getCollectibleGeneratorConfig(data)
-	elseif type(data) == "table" then
-		return CollectibleGeneratorConfig(data, path)
-	end
-	error(string.format("field %s has incorrect data (Collectible Generator Config or a reference to it expected)", field))
+	return parseClassConfig(data, path, field, "Collectible Generator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
 
 ---@return CollectibleGeneratorConfig?
 function utils.parseCollectibleGeneratorConfigOpt(data, path, field)
-	if data then
-		if type(data) == "string" then
-			return _Game.resourceManager:getCollectibleGeneratorConfig(data)
-		elseif type(data) == "table" then
-			return CollectibleGeneratorConfig(data, path)
-		end
-	end
+	return parseClassConfigOpt(data, path, field, "Collectible Generator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
+end
+
+---@return PathEntityConfig
+function utils.parsePathEntityConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Path Entity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
+end
+
+---@return PathEntityConfig?
+function utils.parsePathEntityConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Path Entity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
 end
 
 ---@return ScoreEventConfig
 function utils.parseScoreEventConfig(data, path, field)
-	assert(data, string.format("field %s is missing (Score Event Config expected)", field))
-	if type(data) == "string" then
-		return _Game.resourceManager:getScoreEventConfig(data)
-	elseif type(data) == "table" then
-		return ScoreEventConfig(data, path)
-	end
-	error(string.format("field %s has incorrect data (Score Event Config or a reference to it expected)", field))
+	return parseClassConfig(data, path, field, "Score Event", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
 end
 
 ---@return ScoreEventConfig?
 function utils.parseScoreEventConfigOpt(data, path, field)
-	if data then
-		if type(data) == "string" then
-			return _Game.resourceManager:getScoreEventConfig(data)
-		elseif type(data) == "table" then
-			return ScoreEventConfig(data, path)
-		end
-	end
+	return parseClassConfigOpt(data, path, field, "Score Event", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
 end
 
 ---@return ShooterMovementConfig
 function utils.parseShooterMovementConfig(data, path, field)
-	assert(data, string.format("field %s is missing (Shooter Movement Config expected)", field))
-	return ShooterMovementConfig(data, path)
+	return parseClassConfig(data, path, field, "Shooter Movement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
 end
 
 ---@return ShooterMovementConfig?
 function utils.parseShooterMovementConfigOpt(data, path, field)
-	return data and ShooterMovementConfig(data, path)
+	return parseClassConfigOpt(data, path, field, "Shooter Movement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
+end
+
+---@return SphereSelectorConfig
+function utils.parseSphereSelectorConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Sphere Selector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
+end
+
+---@return SphereSelectorConfig?
+function utils.parseSphereSelectorConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Sphere Selector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
 end
 
 ---@return UI2AnimationConfig

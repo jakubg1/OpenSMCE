@@ -21,13 +21,14 @@ function Collectible:new(deserializationTable, pos, name)
 		self.pos = pos
 	end
 
-	self.config = _Game.configManager.collectibles[self.name]
+	-- TODO: Replace name with actual ID
+	self.config = _Game.resourceManager:getCollectibleConfig("collectibles/" .. name .. ".json")
 	assert(self.config, string.format("Unknown powerup: \"%s\"", self.name))
 
 	if not deserializationTable then
 		-- Read the speed and acceleration fields only when we're creating a brand new powerup.
-		self.speed = _ParseExprVec2(self.config.speed)
-		self.acceleration = _ParseExprVec2(self.config.acceleration)
+		self.speed = self.config.speed:evaluate()
+		self.acceleration = self.config.acceleration:evaluate()
 	end
 
 	_Game:playSound(self.config.spawnSound, self.pos)

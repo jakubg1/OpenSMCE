@@ -113,13 +113,16 @@ end
 
 ---Selects spheres based on a provided Sphere Selector Config and destroys them, executing any provided Score Events in the process.
 ---TODO: Move this to Level.lua, and at some point change the parameters from strings to actual objects.
----@param sphereSelector string The Sphere Selector that will be used to select the spheres to be destroyed.
+---@param sphereSelector SphereSelectorConfig|string The Sphere Selector that will be used to select the spheres to be destroyed.
 ---@param pos Vector2? The position used to calculate distances to spheres, and used in Floating Text position, unless `forceEventPosCalculation` is set.
----@param scoreEvent string? The Score Event that will be executed once on the whole batch.
----@param scoreEventPerSphere string? The Score Event that will be executed separately for each sphere.
+---@param scoreEvent ScoreEventConfig|string? The Score Event that will be executed once on the whole batch.
+---@param scoreEventPerSphere ScoreEventConfig|string? The Score Event that will be executed separately for each sphere.
 ---@param forceEventPosCalculation boolean? If set, the `pos` argument will be ignored and a new position for the Score Event will be calculated anyways.
 function Session:destroySelector(sphereSelector, pos, scoreEvent, scoreEventPerSphere, forceEventPosCalculation)
-	SphereSelectorResult(_Game.resourceManager:getSphereSelectorConfig(sphereSelector), pos):destroy(scoreEvent and _Game.resourceManager:getScoreEventConfig(scoreEvent), scoreEventPerSphere and _Game.resourceManager:getScoreEventConfig(scoreEventPerSphere), forceEventPosCalculation)
+	local selector = type(sphereSelector) == "string" and _Game.resourceManager:getSphereSelectorConfig(sphereSelector) or sphereSelector
+	local event = scoreEvent and (type(scoreEvent) == "string" and _Game.resourceManager:getScoreEventConfig(scoreEvent) or scoreEvent)
+	local eventPerSphere = scoreEventPerSphere and (type(scoreEventPerSphere) == "string" and _Game.resourceManager:getScoreEventConfig(scoreEventPerSphere) or scoreEventPerSphere)
+	SphereSelectorResult(selector, pos):destroy(event, eventPerSphere, forceEventPosCalculation)
 end
 
 

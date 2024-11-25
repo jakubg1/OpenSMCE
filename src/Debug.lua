@@ -491,29 +491,29 @@ function Debug:runCommand(command)
 	elseif command == "crash" then
 		return "crash"
 	elseif command == "expr" then
-		local result = _Vars:evaluateExpression(parameters[1])
-		self.console:print(string.format("expr(%s): %s", parameters[1], result))
+		local e = Expression(parameters[1], true)
+		self.console:print(string.format("expr(%s): %s", parameters[1], e:evaluate()))
 	elseif command == "exprt" then
-		local ce = Expression(parameters[1], true)
-		for i, step in ipairs(ce.data) do
+		local e = Expression(parameters[1], true)
+		for i, step in ipairs(e.data) do
 			_Log:printt("Debug", string.format("%s   %s", step.type, step.value))
 		end
-		self.console:print(string.format("exprt(%s): %s", parameters[1], ce:getDebug()))
+		self.console:print(string.format("exprt(%s): %s", parameters[1], e:getDebug()))
 	elseif command == "ex" then
-		local ce = Expression("2", true)
+		local e = Expression("2", true)
 		self.console:print(string.format("ex(%s):", parameters[1]))
-		local tokens = ce:tokenize(parameters[1])
+		local tokens = e:tokenize(parameters[1])
 		for i, token in ipairs(tokens) do
 			self.console:print(string.format("%s   %s", token.value, token.type))
 		end
 		self.console:print("")
 		self.console:print("")
 		self.console:print("Compilation result:")
-		ce.data = ce:compile(tokens)
-		for i, step in ipairs(ce.data) do
+		e.data = e:compile(tokens)
+		for i, step in ipairs(e.data) do
 			self.console:print(string.format("%s   %s", step.type, step.value))
 		end
-		self.console:print(string.format("ex(%s): %s", parameters[1], ce:evaluate()))
+		self.console:print(string.format("ex(%s): %s", parameters[1], e:evaluate()))
 	end
 end
 

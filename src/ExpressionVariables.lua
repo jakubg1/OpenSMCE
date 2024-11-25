@@ -89,29 +89,6 @@ end
 
 
 
----Evaluates an Expression and caches it, or evaluates an already cached Expression. Returns the result.
----TODO: Remove this once we move to Config Classes.
----@param expression string The expression string.
----@return number|string|Vector2
-function ExpressionVariables:evaluateExpression(expression)
-    -- Get an already cached and compiled expression if exists.
-    local c = self.expressionCache[expression]
-    if c then
-        return c:evaluate()
-    end
-    -- Else, compile and cache an expression first.
-    -- Is it in the $expr{...} format?
-    local actualExpression = expression
-    if string.sub(expression, 1, 6) == "$expr{" and string.sub(expression, string.len(expression)) == "}" then
-        actualExpression = string.sub(expression, 7, string.len(expression) - 1)
-    end
-    local e = Expression(actualExpression, true)
-    self.expressionCache[expression] = e
-    return e:evaluate()
-end
-
-
-
 ---A debug function which prints all the variables that are currently available for Expressions.
 function ExpressionVariables:printContents()
     print("")

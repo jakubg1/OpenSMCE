@@ -5,27 +5,27 @@
     "properties": {
         "$schema": true,
         "speed": {
-            "$ref": "../_structures/ExprVector2.json",
+            "$ref": "_structures/ExprVector2.json",
             "description": "The starting speed of this collectible."
         },
         "acceleration": {
-            "$ref": "../_structures/ExprVector2.json",
+            "$ref": "_structures/ExprVector2.json",
             "description": "The acceleration rate of this collectible."
         },
         "particle": {
-            "$ref": "../_structures/Particle.json",
+            "$ref": "_structures/Particle.json",
             "description": "A persistent particle packet which will follow the collectible entity."
         },
         "pickupParticle": {
-            "$ref": "../_structures/Particle.json",
+            "$ref": "_structures/Particle.json",
             "description": "A one-time particle packet which will be launched when the collectible is catched."
         },
         "spawnSound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A sound event which will play when the collectible is spawned."
         },
         "pickupSound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A sound event which will play when the collectible is collected."
         },
         "pickupName": {
@@ -33,7 +33,7 @@
             "description": "A label which will appear above the shooter when the powerup is collected."
         },
         "pickupFont": {
-            "$ref": "../_structures/Font.json",
+            "$ref": "_structures/Font.json",
             "description": "A font which will be used for the label."
         },
         "effects": {

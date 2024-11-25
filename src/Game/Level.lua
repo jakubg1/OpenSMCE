@@ -525,7 +525,7 @@ end
 
 
 ---Applies an effect to the level.
----@param effect table The effect data to be applied.
+---@param effect CollectibleEffectConfig The effect data to be applied.
 ---@param pos Vector2? The position of the effect.
 function Level:applyEffect(effect, pos)
 	if effect.type == "replaceSphere" then
@@ -551,7 +551,7 @@ function Level:applyEffect(effect, pos)
 	elseif effect.type == "spawnPathEntity" then
 		local path = self:getMostDangerousPath()
 		if path then
-			path:spawnPathEntity(_Game.resourceManager:getPathEntityConfig(effect.pathEntity))
+			path:spawnPathEntity(effect.pathEntity)
 		end
 	elseif effect.type == "lightningStorm" then
 		table.insert(self.lightningStorms, {count = effect.count, time = 0})
@@ -564,7 +564,7 @@ function Level:applyEffect(effect, pos)
 	elseif effect.type == "setCombo" then
 		self.combo = effect.combo
 	elseif effect.type == "executeScoreEvent" then
-		self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(effect.scoreEvent), pos)
+		self:executeScoreEvent(effect.scoreEvent, pos)
 	elseif effect.type == "grantCoin" then
 		self:grantCoin()
 	elseif effect.type == "incrementGemStat" then

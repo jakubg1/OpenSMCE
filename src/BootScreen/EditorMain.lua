@@ -45,7 +45,6 @@ function EditorMain:init()
 
 	-- Step 1. Load the config
 	self.configManager = ConfigManager()
-	self.configManager:loadStuffBeforeResources()
 
 	-- Step 2. Initialize the window
 	_SetResolution(self:getNativeResolution(), false, "OpenSMCE [" .. _VERSION .. "] - Game Editor - " .. self.name)
