@@ -7,3 +7,4 @@ log.txt
 autoload.txt
 settings.json
 doc/game/out/*.html
+doc/game/out_lua/*.lua

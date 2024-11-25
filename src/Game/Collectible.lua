@@ -19,19 +19,18 @@ function Collectible:new(deserializationTable, pos, name)
 	else
 		self.name = name
 		self.pos = pos
-	end
 
-	-- TODO: Replace name with actual ID
-	self.config = _Game.resourceManager:getCollectibleConfig("collectibles/" .. name .. ".json")
-	assert(self.config, string.format("Unknown powerup: \"%s\"", self.name))
+		-- TODO: Replace name with actual ID
+		self.config = _Game.resourceManager:getCollectibleConfig("collectibles/" .. name .. ".json")
+		assert(self.config, string.format("Unknown powerup: \"%s\"", self.name))
 
-	if not deserializationTable then
 		-- Read the speed and acceleration fields only when we're creating a brand new powerup.
 		self.speed = self.config.speed:evaluate()
 		self.acceleration = self.config.acceleration:evaluate()
+
+		_Game:playSound(self.config.spawnSound, self.pos)
 	end
 
-	_Game:playSound(self.config.spawnSound, self.pos)
 	self.particle = _Game:spawnParticle(self.config.particle, self.pos)
 
 	self.delQueue = false
@@ -116,7 +115,7 @@ end
 ---@return table
 function Collectible:serialize()
 	return {
-		name = self.name,
+		id = self.config._path,
 		pos = {x = self.pos.x, y = self.pos.y},
 		speed = {x = self.speed.x, y = self.speed.y},
 		acceleration = {x = self.acceleration.x, y = self.acceleration.y}
@@ -128,7 +127,7 @@ end
 ---Deserializes the Collectible's data, or in other words restores previously saved state.
 ---@param t table The data to be deserialized.
 function Collectible:deserialize(t)
-	self.name = t.name
+	self.config = _Game.resourceManager:getCollectibleConfig(t.id)
 	self.pos = Vec2(t.pos.x, t.pos.y)
 	self.speed = Vec2(t.speed.x, t.speed.y)
 	self.acceleration = Vec2(t.acceleration.x, t.acceleration.y)
