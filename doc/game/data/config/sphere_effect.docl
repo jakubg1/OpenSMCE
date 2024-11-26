@@ -1,6 +1,6 @@
 - (object) - The root entry.
     - particle* (Particle) - A persistent particle packet which will be applied to any affected sphere.
-    - time (number) [>=0] - After how many seconds the spheres will be destroyed.
+    - time (number) [>=0] - After how many seconds the spheres will be destroyed. If the effect can spread, the timer will start once the infection process is completed.
     - infectionSize (integer) [>=0] - How many times the effect expansion should occur.
     - infectionTime (number) [>=0] - Time between the expansions, in seconds.
     - applySound* (SoundEvent) - A sound event to be played when a sphere gets this effect.
@@ -15,5 +15,5 @@
     - canBoostChain (boolean) - If `true`, the chain combo value may rise after destroying a group with this effect.
     - applyChainMultiplier (boolean) - If `true`, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
     - canKeepCombo (boolean) - Whether shot spheres with this effect should not be counted towards combo reset.
-    - causeCheck (boolean) - When set to `true`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
+    - causeCheck (boolean) - When set to `false`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
     - ghostTime* (number) [>0] - Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation.

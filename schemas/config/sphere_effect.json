@@ -79,8 +79,8 @@
         },
         "causeCheck": {
             "type": "boolean",
-            "description": "When set to true, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the \"cause\" sphere.",
-            "markdownDescription": "When set to `true`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the \"cause\" sphere."
+            "description": "When set to false, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the \"cause\" sphere.",
+            "markdownDescription": "When set to `false`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the \"cause\" sphere."
         },
         "ghostTime": {
             "type": "number",
