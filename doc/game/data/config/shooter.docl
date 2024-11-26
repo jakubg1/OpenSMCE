@@ -41,5 +41,10 @@
     - multishot* = false (boolean) - If set, the player will be able to shoot another sphere before the previous one has hit the sphere train.
     - destroySphereOnFail* = false (boolean) - If set, when the level is lost, the sphere held by the shooter will show its destruction particles. Otherwise, the ball will just disappear.
     - shootSpeed (number) [>0] - The default speed of how fast the shot spheres will be, in pixels per second.
+    - knockback* (object) - Defines how the shooter should play its knockback animation.
+        - duration (number) [>0] - The duration of the knockback animation.
+        - strength (number) [>0] - The strength of the knockback animation. This is the movement distance in pixels.
+        - speedShotDuration* (number) [>0] - The duration of the knockback animation, if under the Speed Shot effect.
+        - speedShotStrength* (number) [>0] - The strength of the knockback animation, if under the Speed Shot effect.
     - hitboxOffset* = (0, 0) (Vector2) - The offset of the Shooter's hitbox in pixels.
     - hitboxSize (Vector2) - The size of the Shooter's hitbox in pixels.

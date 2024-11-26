@@ -226,6 +226,37 @@
             "description": "The default speed of how fast the shot spheres will be, in pixels per second.",
             "exclusiveMinimum": 0.0
         },
+        "knockback": {
+            "type": "object",
+            "description": "Defines how the shooter should play its knockback animation.",
+            "properties": {
+                "duration": {
+                    "type": "number",
+                    "description": "The duration of the knockback animation.",
+                    "exclusiveMinimum": 0.0
+                },
+                "strength": {
+                    "type": "number",
+                    "description": "The strength of the knockback animation. This is the movement distance in pixels.",
+                    "exclusiveMinimum": 0.0
+                },
+                "speedShotDuration": {
+                    "type": "number",
+                    "description": "The duration of the knockback animation, if under the Speed Shot effect.",
+                    "exclusiveMinimum": 0.0
+                },
+                "speedShotStrength": {
+                    "type": "number",
+                    "description": "The strength of the knockback animation, if under the Speed Shot effect.",
+                    "exclusiveMinimum": 0.0
+                }
+            },
+            "required": [
+                "duration",
+                "strength"
+            ],
+            "additionalProperties": false
+        },
         "hitboxOffset": {
             "$ref": "../_structures/Vector2.json",
             "description": "The offset of the Shooter's hitbox in pixels."

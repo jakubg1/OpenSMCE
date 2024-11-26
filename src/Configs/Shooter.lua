@@ -28,7 +28,6 @@ function ShooterConfig:new(data, path)
     self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
     self.shadowSpriteOffset = u.parseVec2Opt(data.shadowSpriteOffset, path, "shadowSpriteOffset") or Vec2(8, 8)
     self.shadowSpriteAnchor = u.parseVec2Opt(data.shadowSpriteAnchor, path, "shadowSpriteAnchor") or Vec2(0.5, 0)
-
     self.spheres = {}
     for i = 1, #data.spheres do
         self.spheres[i] = {}
@@ -71,6 +70,14 @@ function ShooterConfig:new(data, path)
     self.multishot = u.parseBooleanOpt(data.multishot, path, "multishot") or false
     self.destroySphereOnFail = u.parseBooleanOpt(data.destroySphereOnFail, path, "destroySphereOnFail") or false
     self.shootSpeed = u.parseNumber(data.shootSpeed, path, "shootSpeed")
+
+    if data.knockback then
+        self.knockback = {}
+        self.knockback.duration = u.parseNumber(data.knockback.duration, path, "knockback.duration")
+        self.knockback.strength = u.parseNumber(data.knockback.strength, path, "knockback.strength")
+        self.knockback.speedShotDuration = u.parseNumberOpt(data.knockback.speedShotDuration, path, "knockback.speedShotDuration")
+        self.knockback.speedShotStrength = u.parseNumberOpt(data.knockback.speedShotStrength, path, "knockback.speedShotStrength")
+    end
     self.hitboxOffset = u.parseVec2Opt(data.hitboxOffset, path, "hitboxOffset") or Vec2()
     self.hitboxSize = u.parseVec2(data.hitboxSize, path, "hitboxSize")
 end

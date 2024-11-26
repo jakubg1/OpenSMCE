@@ -30,6 +30,9 @@ function Shooter:new(data)
     self.speedShotAnim = 0
     self.speedShotParticles = {}
 
+    self.multiColorColor = nil
+    self.multiColorCount = 0
+
     self.reticleColor = 0
     self.reticleOldColor = nil
     self.reticleColorFade = nil
@@ -37,8 +40,8 @@ function Shooter:new(data)
     self.reticleOldNextColor = nil
     self.reticleNextColorFade = nil
 
-    self.multiColorColor = nil
-    self.multiColorCount = 0
+    self.knockbackTime = 0 -- This field counts down
+    self.knockbackAngle = 0
 
     -- memorizing the pressed keys for keyboard control of the shooter
     self.moveKeys = {left = false, right = false}
@@ -160,6 +163,14 @@ function Shooter:update(dt)
         if self.reticleNextColorFade >= self.config.reticle.nextColorFadeTime then
             self.reticleOldNextColor = nil
             self.reticleNextColorFade = nil
+        end
+    end
+
+    -- Update the knockback animation.
+    if self.knockbackTime > 0 then
+        self.knockbackTime = self.knockbackTime - dt
+        if self.knockbackTime < 0 then
+            self.knockbackTime = 0
         end
     end
 
@@ -301,6 +312,7 @@ function Shooter:shoot()
         return
     end
 
+    -- Spawn the Shot Sphere or deploy the sphere, depending on its config.
     local sphereConfig = self:getSphereConfig()
     for i = 1, self:getSphereCount() do
         if sphereConfig.shootBehavior.type == "destroySpheres" then
@@ -316,11 +328,21 @@ function Shooter:shoot()
         end
         _Game.session.level.spheresShot = _Game.session.level.spheresShot + 1
     end
+
+    -- Apply any effects to the sphere if it has one.
     if sphereConfig.shootEffects then
         for i, effect in ipairs(sphereConfig.shootEffects) do
             _Game.session.level:applyEffect(effect)
         end
     end
+
+    -- Deal the knockback.
+    if self.config.knockback and self.knockbackTime == 0 then
+        self.knockbackTime = self.speedShotTime > 0 and self.config.knockback.speedShotDuration or self.config.knockback.duration
+        self.knockbackAngle = self.angle
+    end
+
+    -- Play the sound, etc.
     _Game:playSound(sphereConfig.shootSound, self.pos)
     self.color = 0
     self.shotCooldown = self.config.shotCooldown
@@ -381,10 +403,11 @@ end
 
 ---Drawing callback function.
 function Shooter:draw()
+    local pos = self:getVisualPos()
     if self.config.shadowSprite then
-        self.config.shadowSprite:draw(self.pos + self.config.shadowSpriteOffset:rotate(self.angle), self.config.shadowSpriteAnchor, nil, nil, self.angle)
+        self.config.shadowSprite:draw(pos + self.config.shadowSpriteOffset:rotate(self.angle), self.config.shadowSpriteAnchor, nil, nil, self.angle)
     end
-    self.config.sprite:draw(self.pos + self.config.spriteOffset:rotate(self.angle), self.config.spriteAnchor, nil, nil, self.angle)
+    self.config.sprite:draw(pos + self.config.spriteOffset:rotate(self.angle), self.config.spriteAnchor, nil, nil, self.angle)
 
     -- retical
     if _EngineSettings:getAimingRetical() then
@@ -405,7 +428,7 @@ function Shooter:draw()
     end
     -- next color
     local sprite = self.config.nextBallSprites[self.nextColor].sprite
-    sprite:draw(self.pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, self:getNextSphereFrame(), self.angle)
+    sprite:draw(pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, self:getNextSphereFrame(), self.angle)
 
 	if _Debug.sphereDebugVisible2 then
 		self:drawDebug()
@@ -485,8 +508,6 @@ function Shooter:drawReticle()
             love.graphics.line(p1.x, p1.y, p2.x, p2.y)
             love.graphics.line(p2.x, p2.y, p3.x, p3.y)
         end
-
-        --_Game.resourceManager.
 
         -- Fireball range highlight
         if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
@@ -617,6 +638,26 @@ function Shooter:getInitialAngle()
         return 0
     end
     return 0
+end
+
+
+
+---Returns the current visual position of the shooter. This can differ from its actual position if the knockback animation is being played.
+---@return Vector2
+function Shooter:getVisualPos()
+    if not self.config.knockback or self.knockbackTime == 0 then
+        return self.pos
+    end
+
+    local duration = self.speedShotTime > 0 and self.config.knockback.speedShotDuration or self.config.knockback.duration
+    local strength = self.speedShotTime > 0 and self.config.knockback.speedShotStrength or self.config.knockback.strength
+    local t = 0
+    if self.knockbackTime > duration / 2 then
+        t = (duration - self.knockbackTime) / duration * 2
+    else
+        t = self.knockbackTime / duration * 2
+    end
+    return self.pos + Vec2(0, strength * t):rotate(self.knockbackAngle)
 end
 
 
