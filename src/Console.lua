@@ -167,6 +167,11 @@ function Console:inputBackspace()
 end
 
 function Console:inputEnter()
+	-- Do nothing if there's no input.
+	if self.command == "" then
+		return
+	end
+
 	local success, err = xpcall(function() return _Debug:runCommand(self.command) end, debug.traceback)
 	if not success and err then
 		self:print({{1, 0.4, 0.4}, "An error has occured when executing a command: " .. self.command})
@@ -184,7 +189,9 @@ function Console:inputEnter()
 		error(witty)
 	end
 
-	table.insert(self.history, self.command)
+	if self.command ~= self.history[#self.history] then
+		table.insert(self.history, self.command)
+	end
 	self.historyOffset = nil
 	self.command = ""
 	self.commandBuffer = nil
