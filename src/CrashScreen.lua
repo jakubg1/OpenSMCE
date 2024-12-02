@@ -88,6 +88,7 @@ function CrashScreen:draw()
     if not result then
         love.graphics.print("Unable to print the crash message. Look at the console for more information!", 30, 180)
     end
+    love.graphics.print(string.format("Version: %s (%s)", _VERSION_NAME, _VERSION), 550, 150)
 
     -- Button hovering
     love.graphics.setFont(_FONT_BIG)
