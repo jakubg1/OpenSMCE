@@ -49,6 +49,12 @@ Just proceed with the steps inside of the **README.txt** file contained in the r
 
 You can have multiple games at once - each game is its own directory in the `games` folder.
 
+***Important Note:***
+
+During OpenSMCE's development, the game converter is usually lagging behind the current state of the source code.
+Because of this, running the code from source will most likely **not** work with the converter result.
+Hopefully, the versions Beta 5.0.0 and onwards will no longer have this problem, but I can't promise anything yet!
+
 <!--The engine runs games and thus you need to have some installed.
 You can install games by putting them in the `games` directory where the executable/batch script sits.
 
