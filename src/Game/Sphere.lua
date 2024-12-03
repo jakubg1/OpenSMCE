@@ -228,6 +228,7 @@ function Sphere:deleteVisually(ghostTime, crushed)
 		if not self.map.level.lost then
 			-- Spawn collectibles, if any.
 			self.path:setOffsetVars("sphere", self:getOffset())
+			self:dumpVariables()
 			_Vars:setC("sphere", "crushed", crushed or false)
 			if self.config.destroyCollectible then
 				self.map.level:spawnCollectiblesFromEntry(self:getPos(), _Game.resourceManager:getCollectibleGeneratorConfig(self.config.destroyCollectible))
@@ -544,6 +545,30 @@ end
 ---@return boolean
 function Sphere:isOffscreen()
 	return self:getOffset() < 32
+end
+
+
+
+---Sets the Expression Variables in the `sphere` context:
+--- - `sphere.object` - The Sphere object. The only thing that can be done with this field is comparison, to see if two spheres are the same sphere.
+--- - `sphere.color` - The color ID of this Sphere.
+--- - `sphere.isOffscreen` - Whether this Sphere is close enough to the spawning point that it should be considered offscreen.
+---If `pos` is given, additional variables will be available:
+--- - `sphere.distance` - The linear distance between the given position and the current sphere position.
+--- - `sphere.distanceX` - Ditto, but only considering the X axis.
+---The context can be changed, but defaults to `sphere`.
+---
+---@param context string? The context to be used for the variables, `"sphere"` by default.
+---@param pos Vector2? The position relative to which additional variables can be inserted.
+function Sphere:dumpVariables(context, pos)
+	context = context or "sphere"
+	_Vars:setC(context, "object", self)
+	_Vars:setC(context, "color", self.color)
+	_Vars:setC(context, "isOffscreen", self:isOffscreen())
+	if pos then
+		_Vars:setC(context, "distance", (self:getPos() - pos):len())
+		_Vars:setC(context, "distanceX", math.abs(self:getPos().x - pos.x))
+	end
 end
 
 

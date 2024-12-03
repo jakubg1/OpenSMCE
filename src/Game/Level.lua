@@ -593,7 +593,7 @@ function Level:spawnLightningStormPiece()
 
 	-- spawn a particle, add points etc
 	local pos = sphere:getPos()
-	_Vars:setC("sphere", "color", sphere.color)
+	sphere:dumpVariables("sphere")
 	self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(_Game.configManager.gameplay.lightningStorm.scoreEvent), pos)
 	_Game:spawnParticle(_Game.configManager.gameplay.lightningStorm.particle, pos)
 	_Game:playSound(_Game.configManager.gameplay.lightningStorm.sound, pos)
@@ -1067,7 +1067,7 @@ end
 
 
 ---Selects spheres based on a provided Sphere Selector Config and destroys them, executing any provided Score Events in the process.
----TODO: Move this to Level.lua, and at some point change the parameters from strings to actual objects.
+---TODO: Change the parameters from strings to actual objects.
 ---@param sphereSelector SphereSelectorConfig|string The Sphere Selector that will be used to select the spheres to be destroyed.
 ---@param pos Vector2? The position used to calculate distances to spheres, and used in Floating Text position, unless `forceEventPosCalculation` is set.
 ---@param scoreEvent ScoreEventConfig|string? The Score Event that will be executed once on the whole batch.
@@ -1083,7 +1083,7 @@ end
 
 
 ---Selects spheres based on a provided Sphere Selector Config and changes their colors.
----TODO: Move this to Level.lua, and at some point change the parameters from strings to actual objects.
+---TODO: Change the parameters from strings to actual objects.
 ---@param sphereSelector string The Sphere Selector that will be used to select the spheres to be destroyed.
 ---@param pos Vector2? The position used to calculate distances to spheres.
 ---@param color integer The color that all selected spheres will be changed to.

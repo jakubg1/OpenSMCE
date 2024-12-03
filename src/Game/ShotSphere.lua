@@ -105,8 +105,7 @@ function ShotSphere:moveStep()
 			local hitSphere = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID]
 			local badShot = false
 			local shotCancelled = false
-			_Vars:setC("hitSphere", "object", hitSphere)
-			_Vars:setC("hitSphere", "color", hitSphere.color)
+			hitSphere:dumpVariables("hitSphere")
 			if not sphereConfig.doesNotCollideWith or not _Utils.isValueInTable(sphereConfig.doesNotCollideWith, hitSphere.color) then
 				if sphereConfig.hitBehavior.type == "destroySpheres" then
 					_Game.session.level:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)

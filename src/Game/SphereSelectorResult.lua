@@ -32,14 +32,7 @@ function SphereSelectorResult:new(config, pos)
 						local sphereGroup = sphereChain.sphereGroups[l]
 						for m = #sphereGroup.spheres, 1, -1 do
 							local sphere = sphereGroup.spheres[m]
-							local spherePos = sphereGroup:getSpherePos(m)
-							if pos then
-								_Vars:setC("sphere", "distance", (spherePos - pos):len())
-								_Vars:setC("sphere", "distanceX", math.abs(spherePos.x - pos.x))
-							end
-							_Vars:setC("sphere", "object", sphere)
-							_Vars:setC("sphere", "color", sphere.color)
-							_Vars:setC("sphere", "isOffscreen", sphere:isOffscreen())
+							sphere:dumpVariables("sphere", self.pos)
 							if sphere.color ~= 0 and operation.condition:evaluate() then
 								table.insert(self.spheres, {sphere = sphere, sphereGroup = sphereGroup, sphereIndex = m})
 							end
@@ -77,7 +70,7 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, forceEven
 	end
 	for i, sphere in ipairs(self.spheres) do
 		if scoreEventPerSphere then
-			_Vars:setC("sphere", "color", sphere.sphere.color)
+			sphere.sphere:dumpVariables("sphere", self.pos)
 			_Game.session.level:executeScoreEvent(scoreEventPerSphere, sphere.sphere:getPos())
 			_Vars:unset("sphere")
 		end
