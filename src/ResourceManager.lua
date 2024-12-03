@@ -19,6 +19,7 @@ local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local DifficultyConfig = require("src.Configs.Difficulty")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
+local ShooterConfig = require("src.Configs.Shooter")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
 local UI2AnimationConfig = require("src.Configs.UI2Animation")
@@ -60,12 +61,12 @@ function ResourceManager:new()
 		sphereEffect = {extension = "json"},
 		collectible = {extension = "json", constructor = CollectibleConfig, paramSet = 2},
 		colorGenerator = {extension = "json"},
-		shooter = {extension = "json"},
 		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig, paramSet = 2},
 		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig, paramSet = 2},
 		difficulty = {extension = "json", constructor = DifficultyConfig, paramSet = 2},
 		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
 		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
+		shooter = {extension = "json", constructor = ShooterConfig, paramSet = 2},
 		shooterMovement = {extension = "json", constructor = ShooterMovementConfig, paramSet = 2},
 		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
 		map = {extension = "/"},
@@ -237,6 +238,13 @@ end
 ---@return ScoreEventConfig
 function ResourceManager:getScoreEventConfig(path)
 	return self:getAsset(path, "score event")
+end
+
+---Retrieves a Shooter Config by a given path.
+---@param path string The resource path.
+---@return ShooterConfig
+function ResourceManager:getShooterConfig(path)
+	return self:getAsset(path, "shooter")
 end
 
 ---Retrieves a Shooter Movement Config by a given path.

@@ -89,9 +89,7 @@ end
 
 ---Initializes the game session, as well as UI and particle managers.
 function Game:initSession()
-	-- Load whatever needs loading the new way from config.
-	self.configManager:loadStuffAfterResources()
-	-- Setup the UI and particles
+	-- Setup the UI and particles.
 	self.uiManager:init()
 	self.particleManager = ParticleManager()
 
@@ -116,10 +114,6 @@ end
 function Game:tick(dt) -- always with 1/60 seconds
 	self.resourceManager:update(dt)
 
-	if self:sessionExists() then
-		self.session:update(dt)
-	end
-
 	if self.level then
 		self.level:update(dt)
 	end
@@ -142,6 +136,7 @@ end
 
 
 ---Starts a new Level from the current Profile, or loads one in progress if it has one.
+---This function is intended to be called ONLY from UI scripts, using the UI Manager as a proxy.
 function Game:startLevel()
 	self.level = Level(self:getCurrentProfile():getLevelData())
 	local savedLevelData = self:getCurrentProfile():getSavedLevel()
@@ -154,6 +149,7 @@ function Game:startLevel()
 end
 
 ---Destroys the level along with its save data.
+---This function is intended to be called ONLY from UI scripts, using the UI Manager as a proxy.
 function Game:endLevel()
 	self.level:unsave()
 	self.level:destroy()
@@ -161,12 +157,14 @@ function Game:endLevel()
 end
 
 ---Destroys the level and marks it as won.
+---This function is intended to be called ONLY from UI scripts, using the UI Manager as a proxy.
 function Game:winLevel()
 	self.level:win()
 	self:endLevel()
 end
 
 ---Destroys the level and saves it for the future.
+---This function is intended to be called ONLY from UI scripts, using the UI Manager as a proxy.
 function Game:saveLevel()
 	self.level:save()
 	self.level:destroy()
@@ -174,6 +172,7 @@ function Game:saveLevel()
 end
 
 ---Destroys the level and triggers a `gameOver` callback in the UI script.
+---This function is intended to be called ONLY from UI scripts, using the UI Manager as a proxy.
 function Game:gameOver()
 	self:endLevel()
 	self.uiManager:executeCallback("gameOver")

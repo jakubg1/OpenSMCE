@@ -49,13 +49,6 @@ end
 
 
 
----Loads config files which are implemented the new way so that they require to be loaded after the resources.
-function ConfigManager:loadStuffAfterResources()
-	self.shooters = self:loadFolder("config/shooters", "shooter", false, ShooterConfig)
-end
-
-
-
 ---Loads and returns multiple items from a folder.
 ---@param folderPath string The path to a folder where the files are stored.
 ---@param name string The name to be used when logging; also a file prefix if `isNumbers` is set to `true`.
@@ -80,15 +73,6 @@ function ConfigManager:loadFolder(folderPath, name, isNumbers, constructor)
 	end
 
 	return t
-end
-
-
-
----Returns a Shooter Config with a given name.
----@param name string The name of the Config.
----@return ShooterConfig
-function ConfigManager:getShooter(name)
-	return self.shooters[name]
 end
 
 

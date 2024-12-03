@@ -56,9 +56,10 @@ end
 
 
 ---Changes this Shooter's configuration to the given one.
+---TODO: Replace shooter names with resource paths.
 ---@param name string The new shooter config to be obeyed.
 function Shooter:changeTo(name)
-    self.config = _Game.configManager:getShooter(name)
+    self.config = _Game.resourceManager:getShooterConfig("config/shooters/" .. name .. ".json")
     self.movement = self.levelMovement or self.config.movement
 end
 
