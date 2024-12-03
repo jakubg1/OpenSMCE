@@ -256,14 +256,8 @@ end
 function Game:mousepressed(x, y, button)
 	if self.uiManager:isButtonHovered() then
 		self.uiManager:mousepressed(x, y, button)
-	else
-		if self.level then
-			if button == 1 then
-				self.level.shooter:shoot()
-			elseif button == 2 then
-				self.level.shooter:swapColors()
-			end
-		end
+	elseif self.level then
+		self.level:mousepressed(x, y, button)
 	end
 end
 
@@ -292,13 +286,8 @@ end
 ---@param key string The pressed key code.
 function Game:keypressed(key)
 	self.uiManager:keypressed(key)
-	-- shooter
 	if self.level then
-		local shooter = self.level.shooter
-		if key == "left" then shooter.moveKeys.left = true end
-		if key == "right" then shooter.moveKeys.right = true end
-		if key == "up" then shooter:shoot() end
-		if key == "down" then shooter:swapColors() end
+		self.level:keypressed(key)
 	end
 end
 
@@ -307,11 +296,8 @@ end
 ---Callback from `main.lua`.
 ---@param key string The released key code.
 function Game:keyreleased(key)
-	-- shooter
 	if self.level then
-		local shooter = self.level.shooter
-		if key == "left" then shooter.moveKeys.left = false end
-		if key == "right" then shooter.moveKeys.right = false end
+		self.level:keyreleased(key)
 	end
 end
 

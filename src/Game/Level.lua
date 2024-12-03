@@ -1341,6 +1341,32 @@ end
 
 
 
+---Callback from `main.lua`.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button which was pressed.
+function Level:mousepressed(x, y, button)
+	self.shooter:mousepressed(x, y, button)
+end
+
+
+
+---Callback from `main.lua`.
+---@param key string The pressed key code.
+function Level:keypressed(key)
+	self.shooter:keypressed(key)
+end
+
+
+
+---Callback from `main.lua`.
+---@param key string The released key code.
+function Level:keyreleased(key)
+	self.shooter:keyreleased(key)
+end
+
+
+
 ---Stores all necessary data to save the level in order to load it again with exact same things on board.
 ---@return table
 function Level:serialize()

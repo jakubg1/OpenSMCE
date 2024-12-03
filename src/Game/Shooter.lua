@@ -792,6 +792,40 @@ end
 
 
 
+---Callback from `main.lua`.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button which was pressed.
+function Shooter:mousepressed(x, y, button)
+    if button == 1 then
+        self:shoot()
+    elseif button == 2 then
+        self:swapColors()
+    end
+end
+
+
+
+---Callback from `main.lua`.
+---@param key string The pressed key code.
+function Shooter:keypressed(key)
+    if key == "left" then self.moveKeys.left = true end
+    if key == "right" then self.moveKeys.right = true end
+    if key == "up" then self:shoot() end
+    if key == "down" then self:swapColors() end
+end
+
+
+
+---Callback from `main.lua`.
+---@param key string The released key code.
+function Shooter:keyreleased(key)
+    if key == "left" then self.moveKeys.left = false end
+    if key == "right" then self.moveKeys.right = false end
+end
+
+
+
 ---Serializes this Shooter's data for saving purposes.
 ---@return table
 function Shooter:serialize()
