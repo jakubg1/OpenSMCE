@@ -92,7 +92,7 @@ function SphereChain:update(dt)
 			while self:getLastSphereGroup().offset >= 0 do
 				self:generateSphere()
 			end
-			if _Game:levelExists() and (self.map.level:areAllObjectivesReached() or self.map.level.lost) then
+			if self.map.level:areAllObjectivesReached() or self.map.level.lost then
 				self:concludeGeneration()
 			end
 		end
@@ -168,12 +168,8 @@ end
 
 -- FUNCTION UNUSED; DON'T USE
 function SphereChain:hasGeneratableSpheres()
-	-- todo: do something in the menu spheres
-	if not _Game.session or not _Game.session.level then
-		return true
-	end
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		local remTable = _Game.session.level:getCurrentColorGenerator().colors
+		local remTable = self.map.level:getCurrentColorGenerator().colors
 		for j, sphere in ipairs(sphereGroup.spheres) do
 			if _Utils.isValueInTable(remTable, sphere.color) then
 				return true

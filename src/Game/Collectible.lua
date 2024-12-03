@@ -46,7 +46,7 @@ function Collectible:update(dt)
 	self.pos = self.pos + self.speed * dt
 
 	-- catching/bouncing/destroying
-	if _Game.session.level.shooter:isPosCatchable(self.pos) or (_Game.session.level.netTime > 0 and self.pos.y >= _Game.configManager.gameplay.net.posY) then
+	if _Game.level.shooter:isPosCatchable(self.pos) or (_Game.level.netTime > 0 and self.pos.y >= _Game.configManager.gameplay.net.posY) then
 		self:catch()
 	end
 	if self.pos.x < 10 then -- left
@@ -62,7 +62,7 @@ function Collectible:update(dt)
 		self:destroy()
 		if self.config.dropEffects then
 			for i, effect in ipairs(self.config.dropEffects) do
-				_Game.session.level:applyEffect(effect, self.pos)
+				_Game.level:applyEffect(effect, self.pos)
 			end
 		end
 	end
@@ -79,14 +79,14 @@ function Collectible:catch()
 
 	if self.config.effects then
 		for i, effect in ipairs(self.config.effects) do
-			_Game.session.level:applyEffect(effect, self.pos)
+			_Game.level:applyEffect(effect, self.pos)
 		end
 	end
 
 	_Game:playSound(self.config.pickupSound, self.pos)
 	_Game:spawnParticle(self.config.pickupParticle, self.pos)
 	if self.config.pickupName then
-		_Game.session.level:spawnFloatingText(self.config.pickupName, self.pos, self.config.pickupFont)
+		_Game.level:spawnFloatingText(self.config.pickupName, self.pos, self.config.pickupFont)
 	end
 end
 

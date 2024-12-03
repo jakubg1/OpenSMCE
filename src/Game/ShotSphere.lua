@@ -77,7 +77,7 @@ function ShotSphere:moveStep()
 	self.pos = self.pos + Vec2(0, -self.PIXELS_PER_STEP):rotate(self.angle)
 
 	-- count the gaps
-	for i, path in ipairs(_Game.session.level.map.paths) do
+	for i, path in ipairs(_Game.level.map.paths) do
 		local offsets = path:getIntersectionPoints(oldPos, self.pos)
 		for j, offset in ipairs(offsets) do
 			local size, group = path:getGapSize(offset)
@@ -94,7 +94,7 @@ function ShotSphere:moveStep()
 	end
 
 	-- add if there's a sphere nearby
-	local nearestSphere = _Game.session.level:getNearestSphere(self.pos)
+	local nearestSphere = _Game.level:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.size) / 2 then
 		-- If hit sphere is fragile, destroy the fragile spheres instead of hitting.
 		if nearestSphere.sphere:isFragile() then
@@ -108,10 +108,10 @@ function ShotSphere:moveStep()
 			hitSphere:dumpVariables("hitSphere")
 			if not sphereConfig.doesNotCollideWith or not _Utils.isValueInTable(sphereConfig.doesNotCollideWith, hitSphere.color) then
 				if sphereConfig.hitBehavior.type == "destroySpheres" then
-					_Game.session.level:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
+					_Game.level:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
 					self:destroy()
 				elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
-					_Game.session.level:replaceColorSelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
+					_Game.level:replaceColorSelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
 					self:destroy()
 				else
 					if self.hitSphere.half then
@@ -147,7 +147,7 @@ function ShotSphere:moveStep()
 				end
 				_Vars:unset("shot")
 				if not badShot then
-					_Game.session.level:markSuccessfulShot()
+					_Game.level:markSuccessfulShot()
 				end
 			end
 			_Vars:unset("hitSphere")
@@ -157,7 +157,7 @@ function ShotSphere:moveStep()
 	-- delete if outside of the board
 	if self:isOutsideBoard() then
 		self:destroy(true)
-		_Game.session.level.combo = 0
+		_Game.level.combo = 0
 	end
 end
 
@@ -243,7 +243,7 @@ function ShotSphere:drawDebug()
 	for i = self.pos.y, 0, -self.PIXELS_PER_STEP do
 		local p = _PosOnScreen(Vec2(self.pos.x, i))
 		love.graphics.circle("fill", p.x, p.y, 2)
-		local nearestSphere = _Game.session.level:getNearestSphere(Vec2(self.pos.x, i))
+		local nearestSphere = _Game.level:getNearestSphere(Vec2(self.pos.x, i))
 		if nearestSphere.dist and nearestSphere.dist < 32 then
 			love.graphics.setLineWidth(3)
 			local p = _PosOnScreen(nearestSphere.pos)
@@ -302,12 +302,12 @@ function ShotSphere:deserialize(t)
 	self.speed = t.speed
 	self.steps = t.steps
 
-	self.shooter = _Game.session.level.shooter
+	self.shooter = _Game.level.shooter
 
 	self.gapsTraversed = {}
 	if t.gaps then
 		for i, gap in ipairs(t.gaps) do
-			local group = _Game.session.level.map.paths[gap.pathID].sphereChains[gap.chainID].sphereGroups[gap.groupID]
+			local group = _Game.level.map.paths[gap.pathID].sphereChains[gap.chainID].sphereGroups[gap.groupID]
 			table.insert(self.gapsTraversed, {group = group, size = gap.size})
 		end
 	end
@@ -318,7 +318,7 @@ function ShotSphere:deserialize(t)
 	if t.hitSphere then
 		self.hitSphere = {
 			sphereID = t.hitSphere.sphereID,
-			sphereGroup = _Game.session.level.map.paths[t.hitSphere.pathID].sphereChains[t.hitSphere.chainID].sphereGroups[t.hitSphere.groupID]
+			sphereGroup = _Game.level.map.paths[t.hitSphere.pathID].sphereChains[t.hitSphere.chainID].sphereGroups[t.hitSphere.groupID]
 		}
 	else
 		self.sphereEntity = SphereEntity(self.pos, self.color)

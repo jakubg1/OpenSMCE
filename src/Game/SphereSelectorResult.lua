@@ -25,7 +25,7 @@ function SphereSelectorResult:new(config, pos)
 	self.spheres = {}
 	for i, operation in ipairs(config.operations) do
 		if operation.type == "add" then
-			for j, path in ipairs(_Game.session.level.map.paths) do
+			for j, path in ipairs(_Game.level.map.paths) do
 				for k = #path.sphereChains, 1, -1 do
 					local sphereChain = path.sphereChains[k]
 					for l = #sphereChain.sphereGroups, 1, -1 do
@@ -65,13 +65,13 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, forceEven
 			eventPos = minPos and ((minPos + maxPos) / 2) or Vec2()
 		end
 		_Vars:setC("selector", "sphereCount", #self.spheres)
-		_Game.session.level:executeScoreEvent(scoreEvent, eventPos)
+		_Game.level:executeScoreEvent(scoreEvent, eventPos)
 		_Vars:unset("selector")
 	end
 	for i, sphere in ipairs(self.spheres) do
 		if scoreEventPerSphere then
 			sphere.sphere:dumpVariables("sphere", self.pos)
-			_Game.session.level:executeScoreEvent(scoreEventPerSphere, sphere.sphere:getPos())
+			_Game.level:executeScoreEvent(scoreEventPerSphere, sphere.sphere:getPos())
 			_Vars:unset("sphere")
 		end
 		sphere.sphereGroup:destroySphere(sphere.sphereIndex)

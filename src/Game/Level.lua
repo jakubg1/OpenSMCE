@@ -90,6 +90,7 @@ end
 function Level:updateLogic(dt)
 	self.map:update(dt)
 	self.shooter:update(dt)
+	self.colorManager:dumpVariables()
 
 	-- Danger sound
 	if self.dangerLoopSoundName then
@@ -665,7 +666,7 @@ function Level:generateColor(data)
 
 	elseif data.type == "nearEnd" then
 		-- Select a random path.
-		local path = _Game.session.level:getRandomPath(true, data.pathsInDangerOnly)
+		local path = self:getRandomPath(true, data.pathsInDangerOnly)
 		if not path:getEmpty() then
 			-- Get a SphereChain nearest to the pyramid
 			local sphereChain = path.sphereChains[1]
@@ -840,7 +841,7 @@ function Level:tryAgain()
 		_Game.uiManager:executeCallback("levelStart")
 		self:reset()
 	else
-		_Game.session:terminate()
+		_Game:gameOver()
 	end
 end
 

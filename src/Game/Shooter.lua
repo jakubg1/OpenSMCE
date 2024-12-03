@@ -106,7 +106,7 @@ function Shooter:update(dt)
     self.mousePos = _MousePos
 
     -- shot cooldown
-    if self.shotCooldown and (not _Game.session.level:hasShotSpheres() or self.config.multishot) then
+    if self.shotCooldown and (not _Game.level:hasShotSpheres() or self.config.multishot) then
         self.shotCooldown = self.shotCooldown - dt
         if self.shotCooldown <= 0 then
             self.shotCooldown = nil
@@ -124,11 +124,11 @@ function Shooter:update(dt)
     -- filling
     if self:isActive() then
         -- remove nonexistent colors, but only if the current color generator allows removing these colors
-        local remTable = _Game.session.level:getCurrentColorGenerator().colorsRemoveIfNonexistent
-        if remTable and _Utils.isValueInTable(remTable, self.color) and not _Game.session.level.colorManager:isColorExistent(self.color) then
+        local remTable = _Game.level:getCurrentColorGenerator().colorsRemoveIfNonexistent
+        if remTable and _Utils.isValueInTable(remTable, self.color) and not _Game.level.colorManager:isColorExistent(self.color) then
             self:setColor(0)
         end
-        if remTable and _Utils.isValueInTable(remTable, self.nextColor) and not _Game.session.level.colorManager:isColorExistent(self.nextColor) then
+        if remTable and _Utils.isValueInTable(remTable, self.nextColor) and not _Game.level.colorManager:isColorExistent(self.nextColor) then
             self:setNextColor(0)
         end
         self:fill()
@@ -236,7 +236,7 @@ end
 ---Swaps this and next sphere colors with each other, if possible.
 function Shooter:swapColors()
     -- we must be careful not to swap the spheres when they're absent
-    if _Game.session.level.pause or self.color == 0 or self.nextColor == 0 or self.shotCooldownFade or not self:getSphereConfig().interchangeable then
+    if _Game.level.pause or self.color == 0 or self.nextColor == 0 or self.shotCooldownFade or not self:getSphereConfig().interchangeable then
         return
     end
     local tmp = self.color
@@ -251,7 +251,7 @@ end
 ---@return integer
 function Shooter:getNextColor()
     if self.multiColorCount == 0 then
-        return _Game.session.level:getNewShooterColor()
+        return _Game.level:getNewShooterColor()
     else
         self.multiColorCount = self.multiColorCount - 1
         return self.multiColorColor
@@ -286,13 +286,12 @@ end
 ---Returns whether the Shooter is active.
 ---When the shooter is deactivated, new balls won't be added and existing can't be shot or removed.
 function Shooter:isActive()
-    local level = _Game.session.level
     -- Eliminate all cases where we're not in the main level gameplay loop.
-    if level:getCurrentSequenceStepType() ~= "gameplay" or level.levelSequenceVars.warmupTime or level:hasNoMoreSpheres() then
+    if _Game.level:getCurrentSequenceStepType() ~= "gameplay" or _Game.level.levelSequenceVars.warmupTime or _Game.level:hasNoMoreSpheres() then
         return false
     end
     -- When there's already a shot sphere and the config does not permit more, disallow.
-    if level:hasShotSpheres() and not self.config.multishot then
+    if _Game.level:hasShotSpheres() and not self.config.multishot then
         return false
     end
     -- Same for shooting delay.
@@ -308,7 +307,7 @@ end
 ---Launches the current sphere, if possible.
 function Shooter:shoot()
     -- if nothing to shoot, it's pointless
-    if _Game.session.level.pause or not self:isActive() or self.shotCooldownFade or self.color == 0 then
+    if _Game.level.pause or not self:isActive() or self.shotCooldownFade or self.color == 0 then
         return
     end
 
@@ -318,21 +317,21 @@ function Shooter:shoot()
         if sphereConfig.shootBehavior.type == "destroySpheres" then
             -- lightning spheres are not shot, they're deployed instantly
             _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
-            _Game.session.level:destroySelector(sphereConfig.shootBehavior.selector, self:getSpherePos(i), sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
+            _Game.level:destroySelector(sphereConfig.shootBehavior.selector, self:getSpherePos(i), sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
             self:destroySphereEntities()
         else
             -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
             self.sphereEntities[i]:setAlpha(self:getSphereAlpha())
-            _Game.session.level:spawnShotSphere(self, self:getSphereShotPos(i), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed(), self.sphereEntities[i])
+            _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed(), self.sphereEntities[i])
             self.sphereEntities[i] = nil
         end
-        _Game.session.level.spheresShot = _Game.session.level.spheresShot + 1
+        _Game.level.spheresShot = _Game.level.spheresShot + 1
     end
 
     -- Apply any effects to the sphere if it has one.
     if sphereConfig.shootEffects then
         for i, effect in ipairs(sphereConfig.shootEffects) do
-            _Game.session.level:applyEffect(effect)
+            _Game.level:applyEffect(effect)
         end
     end
 
@@ -374,7 +373,7 @@ end
 ---@param color integer The sphere color ID to be changed to.
 ---@param count integer The amount of spheres of that color to be given.
 function Shooter:getMultiSphere(color, count)
-    if _Game.session.level.lost then
+    if _Game.level.lost then
         return
     end
     self.multiColorColor = color
@@ -562,7 +561,7 @@ function Shooter:destroySphereEntities()
     for i = 1, self:getSphereCount() do
         if self.sphereEntities[i] then
             -- Show particles if the level was lost.
-            self.sphereEntities[i]:destroy(_Game.session.level.lost and self.config.destroySphereOnFail)
+            self.sphereEntities[i]:destroy(_Game.level.lost and self.config.destroySphereOnFail)
             self.sphereEntities[i] = nil
         end
     end
@@ -713,7 +712,7 @@ end
 ---Returns the reticle position.
 ---@return Vector2
 function Shooter:getTargetPos()
-    return _Game.session.level:getNearestSphereOnLine(self.pos, self.angle).targetPos
+    return _Game.level:getNearestSphereOnLine(self.pos, self.angle).targetPos
 end
 
 
@@ -722,7 +721,7 @@ end
 ---@param n integer The main slot number for the sphere to be checked for.
 ---@return Vector2
 function Shooter:getTargetPosForSphere(n)
-    return _Game.session.level:getNearestSphereOnLine(self:getSpherePos(n), self.angle).targetPos
+    return _Game.level:getNearestSphereOnLine(self:getSpherePos(n), self.angle).targetPos
 end
 
 

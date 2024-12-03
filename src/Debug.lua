@@ -185,7 +185,7 @@ function Debug:getDebugProfile()
 end
 
 function Debug:getDebugLevel()
-	local level = _Game.session.level
+	local level = _Game.level
 	local s = ""
 
 	s = s .. "LevelScore = " .. tostring(level.score) .. "\n"
@@ -204,15 +204,16 @@ function Debug:getDebugLevel()
 end
 
 function Debug:getDebugOptions()
+	local options = _Game.runtimeManager.options
 	local s = ""
 
-	s = s .. "MusicVolume = " .. tostring(_Game.runtimeManager.options:getMusicVolume()) .. "\n"
-	s = s .. "SoundVolume = " .. tostring(_Game.runtimeManager.options:getSoundVolume()) .. "\n"
-	s = s .. "FullScreen = " .. tostring(_Game.runtimeManager.options:getFullscreen()) .. "\n"
-	s = s .. "Mute = " .. tostring(_Game.runtimeManager.options:getMute()) .. "\n"
+	s = s .. "MusicVolume = " .. tostring(options:getMusicVolume()) .. "\n"
+	s = s .. "SoundVolume = " .. tostring(options:getSoundVolume()) .. "\n"
+	s = s .. "FullScreen = " .. tostring(options:getFullscreen()) .. "\n"
+	s = s .. "Mute = " .. tostring(options:getMute()) .. "\n"
 	s = s .. "\n"
-	s = s .. "EffMusicVolume = " .. tostring(_Game.runtimeManager.options:getEffectiveMusicVolume()) .. "\n"
-	s = s .. "EffSoundVolume = " .. tostring(_Game.runtimeManager.options:getEffectiveSoundVolume()) .. "\n"
+	s = s .. "EffMusicVolume = " .. tostring(options:getEffectiveMusicVolume()) .. "\n"
+	s = s .. "EffSoundVolume = " .. tostring(options:getEffectiveSoundVolume()) .. "\n"
 
 	return s
 end
@@ -227,15 +228,15 @@ function Debug:getDebugInfo()
 		s = s .. self:getDebugParticle()
 	end
 	s = s .. "\n===== COLOR MANAGER =====\n"
-	if _Game:levelExists() then
-		s = s .. _Game.session.level.colorManager:getDebugText()
+	if _Game.level then
+		s = s .. _Game.level.colorManager:getDebugText()
 	end
 	s = s .. "\n===== PROFILE =====\n"
 	if _Game:getCurrentProfile() and _Game:getCurrentProfile().session then
 		s = s .. self:getDebugProfile()
 	end
 	s = s .. "\n===== LEVEL =====\n"
-	if _Game:levelExists() then
+	if _Game.level then
 		s = s .. self:getDebugLevel()
 	end
 	s = s .. "\n===== OPTIONS =====\n"
@@ -317,8 +318,8 @@ function Debug:drawSphereInfo()
 	local n = 0
 	local m = 0
 
-	if _Game:levelExists() then
-		for i, path in ipairs(_Game.session.level.map.paths) do
+	if _Game.level then
+		for i, path in ipairs(_Game.level.map.paths) do
 			love.graphics.setColor(1, 1, 1)
 			love.graphics.print("Path " .. tostring(i), p.x + 10, p.y + 10 + n)
 			n = n + 25
@@ -444,18 +445,18 @@ function Debug:runCommand(command)
 						self.console:print({_COLORS.red, "Missing parameter (expected an integer from 1 to 7)."})
 						return
 					end
-					_Game.session:usePowerup({name = name, color = parameters[2]})
+					--_Game.session:usePowerup({name = name, color = parameters[2]})
 				else
-					_Game.session:usePowerup({name = name})
+					--_Game.session:usePowerup({name = name})
 				end
 				self.console:print("Powerup applied")
 			end
 		end
 	elseif command == "sp" then
-		_Game.session.level.destroyedSpheres = parameters[1]
+		_Game.level.destroyedSpheres = parameters[1]
 		self.console:print("Spheres destroyed set to " .. tostring(parameters[1]))
 	elseif command == "b" then
-		for i, path in ipairs(_Game.session.level.map.paths) do
+		for i, path in ipairs(_Game.level.map.paths) do
 			for j, sphereChain in ipairs(path.sphereChains) do
 				for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 					sphereGroup.offset = sphereGroup.offset + 1000
@@ -464,7 +465,7 @@ function Debug:runCommand(command)
 		end
 		self.console:print("Boosted!")
 	elseif command == "s" then
-		for i, path in ipairs(_Game.session.level.map.paths) do
+		for i, path in ipairs(_Game.level.map.paths) do
 			path:spawnChain()
 		end
 		self.console:print("Spawned new chains!")
@@ -481,11 +482,11 @@ function Debug:runCommand(command)
 		SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
 		self.console:print("Nuked!")
 	elseif command == "ppp" then
-		_Game.session.level:applyEffect({type = "spawnPathEntity", pathEntity = "path_entities/scorpion.json"})
+		_Game.level:applyEffect({type = "spawnPathEntity", pathEntity = "path_entities/scorpion.json"})
 	elseif command == "ls" then
-		_Game.session.level:applyEffect({type = "lightningStorm", count = 10})
+		_Game.level:applyEffect({type = "lightningStorm", count = 10})
 	elseif command == "net" then
-		_Game.session.level:applyEffect({type = "activateNet", time = 20})
+		_Game.level:applyEffect({type = "activateNet", time = 20})
 	elseif command == "test" then
 		_Game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
 	elseif command == "crash" then

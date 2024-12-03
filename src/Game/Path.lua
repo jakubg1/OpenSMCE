@@ -139,7 +139,7 @@ end
 ---Returns `true` if this Path will spawn a new Sphere Chain right now.
 ---@return boolean
 function Path:shouldSpawn()
-	if _Game:levelExists() and (self.map.level:getCurrentSequenceStepType() ~= "gameplay" or self.map.level:areAllObjectivesReached()) then
+	if self.map.level:getCurrentSequenceStepType() ~= "gameplay" or self.map.level:areAllObjectivesReached() then
 		return false
 	end
 	for i, sphereChain in ipairs(self.sphereChains) do

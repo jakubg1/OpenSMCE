@@ -14,7 +14,7 @@ local Timer = require("src.Timer")
 local ConfigManager = require("src.ConfigManager")
 local ResourceManager = require("src.ResourceManager")
 local RuntimeManager = require("src.Game.RuntimeManager")
-local Session = require("src.Game.Session")
+local Level = require("src.Game.Level")
 
 local UIManager = require("src.UI.Manager")
 local UI2Manager = require("src.UI2.Manager")
@@ -32,7 +32,7 @@ function Game:new(name)
 	self.configManager = nil
 	self.resourceManager = nil
 	self.runtimeManager = nil
-	self.session = nil
+	self.level = nil
 
 	self.uiManager = nil
 	self.particleManager = nil
@@ -95,8 +95,7 @@ function Game:initSession()
 	self.uiManager:init()
 	self.particleManager = ParticleManager()
 
-	self.session = Session()
-	self.session:init()
+	_Game.uiManager:executeCallback("sessionInit")
 end
 
 
@@ -121,8 +120,8 @@ function Game:tick(dt) -- always with 1/60 seconds
 		self.session:update(dt)
 	end
 
-	if self:levelExists() then
-		self.session.level.colorManager:dumpVariables()
+	if self.level then
+		self.level:update(dt)
 	end
 
 	if self:getCurrentProfile() then
@@ -142,14 +141,54 @@ end
 
 
 
+---Starts a new Level from the current Profile, or loads one in progress if it has one.
+function Game:startLevel()
+	self.level = Level(self:getCurrentProfile():getLevelData())
+	local savedLevelData = self:getCurrentProfile():getSavedLevel()
+	if savedLevelData then
+		self.level:deserialize(savedLevelData)
+		self.uiManager:executeCallback("levelLoaded")
+	else
+		self.uiManager:executeCallback("levelStart")
+	end
+end
+
+---Destroys the level along with its save data.
+function Game:endLevel()
+	self.level:unsave()
+	self.level:destroy()
+	self.level = nil
+end
+
+---Destroys the level and marks it as won.
+function Game:winLevel()
+	self.level:win()
+	self:endLevel()
+end
+
+---Destroys the level and saves it for the future.
+function Game:saveLevel()
+	self.level:save()
+	self.level:destroy()
+	self.level = nil
+end
+
+---Destroys the level and triggers a `gameOver` callback in the UI script.
+function Game:gameOver()
+	self:endLevel()
+	self.uiManager:executeCallback("gameOver")
+end
+
+
+
 ---Updates the game's Rich Presence information.
 function Game:updateRichPresence()
 	local p = self:getCurrentProfile()
 	local line1 = "Playing: " .. self.configManager:getGameName()
 	local line2 = ""
 
-	if self:levelExists() then
-		local l = self.session.level
+	if self.level then
+		local l = self.level
 		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
 			p:getLevelName(),
 			l.won and "Complete!" or string.format("%s%%", math.floor((l:getObjectiveProgress(1)) * 100)),
@@ -170,23 +209,6 @@ end
 
 
 
----Returns... not really a boolean?! But acts like one. Don't mess with the programmer.
----Oh and by the way, this function is self-explanatory.
----@return Session|nil
-function Game:sessionExists()
-	return self.session
-end
-
-
-
----This is even weirder. Don't ever try to use the returned result in any other way than a boolean!!!
----@return Level|nil
-function Game:levelExists()
-	return self.session and self.session.level
-end
-
-
-
 ---Draws the game contents.
 function Game:draw()
 	_Debug:profDraw2Start()
@@ -197,9 +219,9 @@ function Game:draw()
 		love.graphics.clear()
 	end
 
-	-- Session and level
-	if self:sessionExists() then
-		self.session:draw()
+	-- Level
+	if self.level then
+		self.level:draw()
 	end
 	_Debug:profDraw2Checkpoint()
 
@@ -237,11 +259,11 @@ function Game:mousepressed(x, y, button)
 	if self.uiManager:isButtonHovered() then
 		self.uiManager:mousepressed(x, y, button)
 	else
-		if self:levelExists() then
+		if self.level then
 			if button == 1 then
-				self.session.level.shooter:shoot()
+				self.level.shooter:shoot()
 			elseif button == 2 then
-				self.session.level.shooter:swapColors()
+				self.level.shooter:swapColors()
 			end
 		end
 	end
@@ -273,8 +295,8 @@ end
 function Game:keypressed(key)
 	self.uiManager:keypressed(key)
 	-- shooter
-	if self:levelExists() then
-		local shooter = self.session.level.shooter
+	if self.level then
+		local shooter = self.level.shooter
 		if key == "left" then shooter.moveKeys.left = true end
 		if key == "right" then shooter.moveKeys.right = true end
 		if key == "up" then shooter:shoot() end
@@ -288,8 +310,8 @@ end
 ---@param key string The released key code.
 function Game:keyreleased(key)
 	-- shooter
-	if self:levelExists() then
-		local shooter = self.session.level.shooter
+	if self.level then
+		local shooter = self.level.shooter
 		if key == "left" then shooter.moveKeys.left = false end
 		if key == "right" then shooter.moveKeys.right = false end
 	end
@@ -307,7 +329,9 @@ end
 
 ---Saves the game.
 function Game:save()
-	if self:levelExists() then self.session.level:save() end
+	if self.level then
+		self.level:save()
+	end
 	self.runtimeManager:save()
 end
 

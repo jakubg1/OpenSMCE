@@ -103,7 +103,7 @@ function PathEntity:update(dt)
 			end
 			local offset = self.offset - offsetFromCurrentOffset
 			if self.collectibleDistance > 0 then -- We don't spawn anything the moment this Entity is spawned.
-				_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), self.config.collectibleGenerator)
+				_Game.level:spawnCollectiblesFromEntry(self:getPos(), self.config.collectibleGenerator)
 			end
 			self.collectibleDistance = self.collectibleDistance + self.config.collectibleGeneratorSeparation
 		end
@@ -192,10 +192,10 @@ function PathEntity:explode()
 
 	local pos = self:getPos()
 	if self.config.destroyScoreEvent then
-		_Game.session.level:executeScoreEvent(self.config.destroyScoreEvent, pos)
+		_Game.level:executeScoreEvent(self.config.destroyScoreEvent, pos)
 	end
 	if self.config.destroyCollectibleGenerator then
-		_Game.session.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectibleGenerator)
+		_Game.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectibleGenerator)
 	end
 	if self.config.destroyParticle then
 		_Game:spawnParticle(self.config.destroyParticle, pos)
