@@ -9,6 +9,7 @@ local class = require "com.class"
 ---A root for all variable things during the game, such as level and player's progress.
 ---This class will be going bye-bye soon.
 ---To axe it, we need to have Sphere Selectors up and running.
+---We have Sphere Selectors already. Now what?
 ---@class Session
 ---@overload fun(path, deserializationTable):Session
 local Session = class:derive("Session")
@@ -18,7 +19,6 @@ local Vec2 = require("src.Essentials.Vector2")
 
 -- Include class constructors
 local Level = require("src.Game.Level")
-local ColorManager = require("src.Game.ColorManager")
 local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 
 
@@ -26,7 +26,6 @@ local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 ---Constructs a new Session.
 function Session:new()
 	self.level = nil
-	self.colorManager = ColorManager()
 end
 
 

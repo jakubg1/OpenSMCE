@@ -9,6 +9,7 @@ local Vec2 = require("src.Essentials.Vector2")
 
 local Map = require("src.Game.Map")
 local Shooter = require("src.Game.Shooter")
+local ColorManager = require("src.Game.ColorManager")
 local ShotSphere = require("src.Game.ShotSphere")
 local Collectible = require("src.Game.Collectible")
 local FloatingText = require("src.Game.FloatingText")
@@ -22,6 +23,7 @@ local Expression = require("src.Expression")
 function Level:new(data)
 	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior)
 	self.shooter = Shooter(data.shooter)
+	self.colorManager = ColorManager()
 
 	self.matchEffect = data.matchEffect
 
@@ -647,7 +649,7 @@ function Level:generateColor(data)
 		-- Make a pool with colors which are on the board.
 		local pool = {}
 		for i, color in ipairs(data.colors) do
-			if not data.hasToExist or _Game.session.colorManager:isColorExistent(color) then
+			if not data.hasToExist or self.colorManager:isColorExistent(color) then
 				table.insert(pool, color)
 			end
 		end
@@ -993,7 +995,7 @@ function Level:reset()
 	self:updateObjectives()
 
 	self.shooter.speedShotTime = 0
-	_Game.session.colorManager:reset()
+	self.colorManager:reset()
 end
 
 
@@ -1176,7 +1178,7 @@ end
 ---@param t table The data to be deserialized.
 function Level:deserialize(t)
 	-- Prepare the counters
-	_Game.session.colorManager:reset()
+	self.colorManager:reset()
 
 	-- Level stats
 	self.score = t.stats.score

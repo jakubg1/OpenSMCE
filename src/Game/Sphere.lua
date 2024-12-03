@@ -58,7 +58,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 	self.animationFrame = math.random() * self.frameCount
 
 	if not self.map.isDummy then
-		_Game.session.colorManager:increment(self.color)
+		self.map.level.colorManager:increment(self.color)
 	end
 
 	self.danger = false
@@ -142,9 +142,9 @@ function Sphere:update(dt)
 		if self.danger ~= danger then
 			self.danger = danger
 			if danger then
-				_Game.session.colorManager:increment(self.color, true)
+				self.map.level.colorManager:increment(self.color, true)
 			else
-				_Game.session.colorManager:decrement(self.color, true)
+				self.map.level.colorManager:decrement(self.color, true)
 			end
 		end
 	end
@@ -176,11 +176,11 @@ end
 ---@param color integer The new color for this Sphere to be obtained.
 ---@param particle string? A one-time particle packet pointer to be spawned if the color change is successful.
 function Sphere:changeColor(color, particle)
-	_Game.session.colorManager:decrement(self.color)
-	_Game.session.colorManager:increment(color)
+	self.map.level.colorManager:decrement(self.color)
+	self.map.level.colorManager:increment(color)
 	if self.danger then
-		_Game.session.colorManager:decrement(self.color, true)
-		_Game.session.colorManager:increment(color, true)
+		self.map.level.colorManager:decrement(self.color, true)
+		self.map.level.colorManager:increment(color, true)
 	end
 	self.color = color
 	self.entity:setColor(color)
@@ -239,9 +239,9 @@ function Sphere:deleteVisually(ghostTime, crushed)
 			_Vars:unset("sphere")
 		end
 		-- Update color count.
-		_Game.session.colorManager:decrement(self.color)
+		self.map.level.colorManager:decrement(self.color)
 		if self.danger then
-			_Game.session.colorManager:decrement(self.color, true)
+			self.map.level.colorManager:decrement(self.color, true)
 		end
 	end
 

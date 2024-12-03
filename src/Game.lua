@@ -122,7 +122,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 	end
 
 	if self:levelExists() then
-		self.session.colorManager:dumpVariables()
+		self.session.level.colorManager:dumpVariables()
 	end
 
 	if self:getCurrentProfile() then

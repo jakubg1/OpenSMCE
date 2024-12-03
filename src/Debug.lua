@@ -227,8 +227,8 @@ function Debug:getDebugInfo()
 		s = s .. self:getDebugParticle()
 	end
 	s = s .. "\n===== COLOR MANAGER =====\n"
-	if _Game:sessionExists() then
-		s = s .. _Game.session.colorManager:getDebugText()
+	if _Game:levelExists() then
+		s = s .. _Game.session.level.colorManager:getDebugText()
 	end
 	s = s .. "\n===== PROFILE =====\n"
 	if _Game:getCurrentProfile() and _Game:getCurrentProfile().session then
