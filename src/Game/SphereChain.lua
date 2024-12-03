@@ -92,7 +92,7 @@ function SphereChain:update(dt)
 			while self:getLastSphereGroup().offset >= 0 do
 				self:generateSphere()
 			end
-			if self.map.level:areAllObjectivesReached() or self.map.level.lost then
+			if not self.map.isDummy and (self.map.level:areAllObjectivesReached() or self.map.level.lost) then
 				self:concludeGeneration()
 			end
 		end
