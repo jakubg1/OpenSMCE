@@ -318,7 +318,7 @@ function Shooter:shoot()
         if sphereConfig.shootBehavior.type == "destroySpheres" then
             -- lightning spheres are not shot, they're deployed instantly
             _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
-            _Game.session:destroySelector(sphereConfig.shootBehavior.selector, self:getSpherePos(i), sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
+            _Game.session.level:destroySelector(sphereConfig.shootBehavior.selector, self:getSpherePos(i), sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
             self:destroySphereEntities()
         else
             -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
@@ -713,7 +713,7 @@ end
 ---Returns the reticle position.
 ---@return Vector2
 function Shooter:getTargetPos()
-    return _Game.session:getNearestSphereOnLine(self.pos, self.angle).targetPos
+    return _Game.session.level:getNearestSphereOnLine(self.pos, self.angle).targetPos
 end
 
 
@@ -722,7 +722,7 @@ end
 ---@param n integer The main slot number for the sphere to be checked for.
 ---@return Vector2
 function Shooter:getTargetPosForSphere(n)
-    return _Game.session:getNearestSphereOnLine(self:getSpherePos(n), self.angle).targetPos
+    return _Game.session.level:getNearestSphereOnLine(self:getSpherePos(n), self.angle).targetPos
 end
 
 

@@ -94,7 +94,7 @@ function ShotSphere:moveStep()
 	end
 
 	-- add if there's a sphere nearby
-	local nearestSphere = _Game.session:getNearestSphere(self.pos)
+	local nearestSphere = _Game.session.level:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.size) / 2 then
 		-- If hit sphere is fragile, destroy the fragile spheres instead of hitting.
 		if nearestSphere.sphere:isFragile() then
@@ -109,10 +109,10 @@ function ShotSphere:moveStep()
 			_Vars:setC("hitSphere", "color", hitSphere.color)
 			if not sphereConfig.doesNotCollideWith or not _Utils.isValueInTable(sphereConfig.doesNotCollideWith, hitSphere.color) then
 				if sphereConfig.hitBehavior.type == "destroySpheres" then
-					_Game.session:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
+					_Game.session.level:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
 					self:destroy()
 				elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
-					_Game.session:replaceColorSelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
+					_Game.session.level:replaceColorSelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
 					self:destroy()
 				else
 					if self.hitSphere.half then
@@ -244,7 +244,7 @@ function ShotSphere:drawDebug()
 	for i = self.pos.y, 0, -self.PIXELS_PER_STEP do
 		local p = _PosOnScreen(Vec2(self.pos.x, i))
 		love.graphics.circle("fill", p.x, p.y, 2)
-		local nearestSphere = _Game.session:getNearestSphere(Vec2(self.pos.x, i))
+		local nearestSphere = _Game.session.level:getNearestSphere(Vec2(self.pos.x, i))
 		if nearestSphere.dist and nearestSphere.dist < 32 then
 			love.graphics.setLineWidth(3)
 			local p = _PosOnScreen(nearestSphere.pos)

@@ -1,12 +1,10 @@
 local class = require "com.class"
 
----Represents a Sphere Group, which is a single group of spheres connected to each other. Sphere Groups can magnetize with each other.
+---Represents a Sphere Group, which is a single group of spheres connected to each other. Handles all sphere movement on the track.
 ---@class SphereGroup
 ---@overload fun(sphereChain, deserializationTable):SphereGroup
 local SphereGroup = class:derive("SphereGroup")
 
-local Vec2 = require("src.Essentials.Vector2")
-local Sprite = require("src.Essentials.Sprite")
 local Color = require("src.Essentials.Color")
 
 local Sphere = require("src.Game.Sphere")
@@ -427,7 +425,7 @@ function SphereGroup:join()
 		sphere.sphereGroup = self.prevGroup
 	end
 	if self.speed < 0 then
-		self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self.sphereChain.combo, 1)
+			self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self.sphereChain.combo, 1)
 		self.prevGroup.speedTime = self.config.knockbackTime
 	end
 	-- link the spheres from both groups
@@ -438,7 +436,7 @@ function SphereGroup:join()
 	-- remove this group
 	self:delete()
 	-- check for combo
-	if not self.map.level.lost and _Game.session:colorsMatch(self.prevGroup.spheres[joinPosition].color, self.spheres[1].color) and self.matchCheck and self.prevGroup:shouldMatch(joinPosition) then
+	if not self.map.level.lost and self.map.level:colorsMatch(self.prevGroup.spheres[joinPosition].color, self.spheres[1].color) and self.matchCheck and self.prevGroup:shouldMatch(joinPosition) then
 		self.prevGroup:matchAndDelete(joinPosition)
 	end
 	-- check for fragile spheres
@@ -533,9 +531,9 @@ end
 
 function SphereGroup:shouldFit(position)
 	return
-		self:getSphereInChain(position - 1) and _Game.session:colorsMatch(self:getSphereInChain(position - 1).color, self.spheres[position].color)
+		self:getSphereInChain(position - 1) and self.map.level:colorsMatch(self:getSphereInChain(position - 1).color, self.spheres[position].color)
 	or
-		self:getSphereInChain(position + 1) and _Game.session:colorsMatch(self:getSphereInChain(position + 1).color, self.spheres[position].color)
+		self:getSphereInChain(position + 1) and self.map.level:colorsMatch(self:getSphereInChain(position + 1).color, self.spheres[position].color)
 end
 
 
@@ -555,11 +553,11 @@ function SphereGroup:shouldMatch(position)
 	if self.config.permitLongMatches then
 		-- if is magnetizing with previous group and we want to maximize the count of spheres
 		-- We are doing a check whether that previous group is empty. It CAN be empty, if the Zuma sphere generation is enabled.
-		if self.prevGroup and #self.prevGroup.spheres > 0 and not self.prevGroup.delQueue and _Game.session:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) and position1 == 1 then
+		if self.prevGroup and #self.prevGroup.spheres > 0 and not self.prevGroup.delQueue and self.map.level:colorsMatch(self.prevGroup:getLastSphere().color, self.spheres[1].color) and position1 == 1 then
 			return false
 		end
 		-- same check with the next group
-		if self.nextGroup and not self.nextGroup.delQueue and _Game.session:colorsMatch(self:getLastSphere().color, self.nextGroup.spheres[1].color) and position2 == #self.spheres then
+		if self.nextGroup and not self.nextGroup.delQueue and self.map.level:colorsMatch(self:getLastSphere().color, self.nextGroup.spheres[1].color) and position2 == #self.spheres then
 			return false
 		end
 	end
@@ -712,7 +710,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	local score = self.map.level:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(effectConfig.destroyScoreEvent), pos)
 	self.sphereChain.comboScore = self.sphereChain.comboScore + score
 
-	-- Spawn a coin if applicable.
+	-- Spawn any collectibles if applicable.
 	if effectConfig.destroyCollectible then
 		self.map.level:spawnCollectiblesFromEntry(pos, _Game.resourceManager:getCollectibleGeneratorConfig(effectConfig.destroyCollectible))
 	end
@@ -759,7 +757,7 @@ function SphereGroup:isMagnetizing()
 	end
 
 	-- Check if on each side of the empty area there's the same color.
-	local byColor = _Game.session:colorsMatch(sphere1.color, sphere2.color)
+	local byColor = self.map.level:colorsMatch(sphere1.color, sphere2.color)
 	-- The scarab can magnetize any color.
 	local byScarab = sphere1.color == 0
 
@@ -811,7 +809,7 @@ function SphereGroup:getMatchPositions(position)
 	while true do
 		seekPosition = seekPosition - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[seekPosition] or not _Game.session:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition + 1].color) then
+		if not self.spheres[seekPosition] or not self.map.level:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition + 1].color) then
 			break
 		end
 		--if self.spheres[seekPosition].appendSize < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
@@ -822,7 +820,7 @@ function SphereGroup:getMatchPositions(position)
 	while true do
 		seekPosition = seekPosition + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[seekPosition] or not _Game.session:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition - 1].color) then
+		if not self.spheres[seekPosition] or not self.map.level:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition - 1].color) then
 			break
 		end
 		--if self.spheres[seekPosition].appendSize < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
@@ -841,7 +839,7 @@ function SphereGroup:getMatchBounds(position)
 	while true do
 		position1 = position1 - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position1] or not _Game.session:colorsMatch(self.spheres[position1].color, self.spheres[position1 + 1].color) then
+		if not self.spheres[position1] or not self.map.level:colorsMatch(self.spheres[position1].color, self.spheres[position1 + 1].color) then
 			break
 		end
 	end
@@ -849,7 +847,7 @@ function SphereGroup:getMatchBounds(position)
 	while true do
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position2] or not _Game.session:colorsMatch(self.spheres[position2].color, self.spheres[position2 - 1].color) then
+		if not self.spheres[position2] or not self.map.level:colorsMatch(self.spheres[position2].color, self.spheres[position2 - 1].color) then
 			break
 		end
 	end
@@ -915,7 +913,7 @@ function SphereGroup:getMatchLengthInChain(position)
 	while true do
 		position1 = position1 - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self:getSphereInChain(position1) or not _Game.session:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then
+		if not self:getSphereInChain(position1) or not self.map.level:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then
 			break
 		end
 	end
@@ -923,7 +921,7 @@ function SphereGroup:getMatchLengthInChain(position)
 	while true do
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self:getSphereInChain(position2) or not _Game.session:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then
+		if not self:getSphereInChain(position2) or not self.map.level:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then
 			break
 		end
 	end
@@ -941,7 +939,7 @@ function SphereGroup:getMatchBoundColorsInChain(position)
 	while true do
 		position1 = position1 - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self:getSphereInChain(position1) or not _Game.session:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then
+		if not self:getSphereInChain(position1) or not self.map.level:colorsMatch(self:getSphereInChain(position1).color, self:getSphereInChain(position1 + 1).color) then
 			break
 		end
 	end
@@ -949,7 +947,7 @@ function SphereGroup:getMatchBoundColorsInChain(position)
 	while true do
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self:getSphereInChain(position2) or not _Game.session:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then
+		if not self:getSphereInChain(position2) or not self.map.level:colorsMatch(self:getSphereInChain(position2).color, self:getSphereInChain(position2 - 1).color) then
 			break
 		end
 	end
