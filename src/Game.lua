@@ -182,23 +182,22 @@ end
 
 ---Updates the game's Rich Presence information.
 function Game:updateRichPresence()
-	local p = self:getCurrentProfile()
+	local profile = self:getCurrentProfile()
 	local line1 = "Playing: " .. self.configManager:getGameName()
 	local line2 = ""
 
 	if self.level then
-		local l = self.level
-		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
-			p:getLevelName(),
-			l.won and "Complete!" or string.format("%s%%", math.floor((l:getObjectiveProgress(1)) * 100)),
-			p:getScore(),
-			p:getLives()
+				line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
+			profile:getLevelName(),
+			self.level.won and "Complete!" or string.format("%s%%", math.floor((self.level:getObjectiveProgress(1)) * 100)),
+			profile:getScore(),
+			profile:getLives()
 		)
-		if l.pause then
+		if self.level.pause then
 			line1 = line1 .. " - Paused"
 		end
-	elseif p and p:getSession() then
-		line2 = string.format("In menus, Score: %s, Lives: %s", p:getScore(), p:getLives())
+	elseif profile and profile:getSession() then
+		line2 = string.format("In menus, Score: %s, Lives: %s", profile:getScore(), profile:getLives())
 	else
 		line2 = string.format("In menus")
 	end
