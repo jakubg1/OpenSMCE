@@ -293,33 +293,34 @@ function Level:updateMusic()
 		-- If the level hasn't started yet, is lost, won or the game is paused,
 		-- mute the music.
 		if self.levelSequenceStep == 0 or self:getCurrentSequenceStepType() == "end" or self.lost or self.pause then
-			self.music:setVolume(0)
-			self.dangerMusic:setVolume(0)
+			self.music:play(0, 1)
+			self.dangerMusic:play(0, 1)
 		else
 			-- Play the music accordingly to the danger flag.
 			if self.danger then
 				if self.dangerMusic.volume == 0 then
-					self.dangerMusic:reset()
+					self.dangerMusic:stop()
+					self.dangerMusic:play()
 				end
-				self.music:setVolume(0)
-				self.dangerMusic:setVolume(1)
+				self.music:play(0, 1)
+				self.dangerMusic:play(1, 1)
 			else
-				self.music:setVolume(1)
-				self.dangerMusic:setVolume(0)
+				self.music:play(1, 1)
+				self.dangerMusic:play(0, 1)
 			end
 		end
 	else
 		-- If there's no danger music, then mute it or unmute in a similar fashion.
 		if self.levelSequenceStep == 0 or self:getCurrentSequenceStepType() == "end" or self.lost or self.pause then
-			self.music:setVolume(0)
+			self.music:play(0, 1)
 		else
-			self.music:setVolume(1)
+			self.music:play(1, 1)
 		end
 	end
 
 	if self.ambientMusic then
 		-- Ambient music plays all the time.
-		self.ambientMusic:setVolume(1)
+		self.ambientMusic:play(1, 1)
 	end
 end
 
@@ -849,7 +850,8 @@ end
 
 ---Starts the Level.
 function Level:begin()
-	self.music:reset()
+	self.music:stop()
+	self.music:play()
 	self:advanceSequenceStep()
 end
 
@@ -857,7 +859,8 @@ end
 
 ---Resumes the Level after loading data.
 function Level:beginLoad()
-	self.music:reset()
+	self.music:stop()
+	self.music:play()
 end
 
 
@@ -947,7 +950,7 @@ function Level:destroy()
 
 	if self.ambientMusic then
 		-- Stop any ambient music.
-		self.ambientMusic:setVolume(0)
+		self.ambientMusic:play(0, 1)
 	end
 
 	if self.warmupLoop then

@@ -45,7 +45,8 @@ function UIManager:new()
 
     levelExecuteScoreEvent = function(event, pos) _Game.level:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(event), pos) end,
 
-    musicVolume = function(music, volume) _Game.resourceManager:getMusic(music):setVolume(volume) end,
+    musicVolume = function(music, volume, duration) _Game.resourceManager:getMusic(music):play(volume, duration) end,
+    musicStop = function(music, duration) _Game.resourceManager:getMusic(music):stop(duration) end,
 
     profileMSet = function(name) _Game.runtimeManager.profileManager:setCurrentProfile(name) end,
     profileMCreate = function(name) return _Game.runtimeManager.profileManager:createProfile(name) end,

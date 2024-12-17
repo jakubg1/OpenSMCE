@@ -1,11 +1,15 @@
 local class = require "com.class"
 
+---Represents a Music track. Music tracks live directly in the Resource Manager and should not be instantiated on the fly.
 ---@class Music
 ---@overload fun(data, path):Music
 local Music = class:derive("Music")
 
 
 
+---Constructs a new Music track.
+---@param data table The data from the Music Track configuration file.
+---@param path string The path to the Music Track file the data is loaded from. Used only in error messages.
 function Music:new(data, path)
     self.path = path
 
@@ -17,69 +21,76 @@ function Music:new(data, path)
 	self.instance:setLooping(true)
 
 	self.volume = 0
-	self.volumeDes = 0
-	self.volumeFadeSpeed = 1
+	self.targetVolume = 0
+	self.targetVolumeSpeed = nil
+	self.targetStop = false
 end
 
+
+
+---Updates the Music track.
+---@param dt number Time delta in seconds.
 function Music:update(dt)
-	local volumeDes = math.max(self.volumeDes, 0)
-	if self.volume ~= volumeDes then
-		if self.volume > volumeDes then
-			self.volume = math.max(self.volume - dt * self.volumeFadeSpeed, volumeDes)
+	-- Change the volume over time or instantly if the current volume doesn't match the target.
+	if self.volume ~= self.targetVolume then
+		if self.targetVolumeSpeed then
+			if self.volume > self.targetVolume then
+				self.volume = math.max(self.volume - dt * self.targetVolumeSpeed, self.targetVolume)
+			else
+				self.volume = math.min(self.volume + dt * self.targetVolumeSpeed, self.targetVolume)
+			end
 		else
-			self.volume = math.min(self.volume + dt * self.volumeFadeSpeed, volumeDes)
+			self.volume = self.targetVolume
 		end
 	end
-	self:updateVolume()
-	self:updatePlaying()
-end
 
-function Music:updateVolume()
+	-- Update the volume of the track based on its current volume and the global music volume.
 	self.instance:setVolume(self.volume * _Game:getEffectiveMusicVolume())
-end
 
-function Music:updatePlaying()
-	if self.instance:isPlaying() and self.volume <= 0 then
-		if self.volumeDes == -1 then
-			self:stop()
+	---Update the playing state of the track based on its current volume.
+	---When the volume reaches 0, the track is paused or stopped.
+	---When the volume is greater than 0, the track is resumed or played from the beginning.
+	if self.instance:isPlaying() and self.volume == 0 then
+		if self.targetStop then
+			self.instance:stop()
 		else
-			self:pause()
+			self.instance:pause()
 		end
 	end
 	if not self.instance:isPlaying() and self.volume > 0 then
-		self:play()
+		self.instance:play()
 	end
 end
 
-function Music:reset()
-	self:stop()
-	self:setVolume(1, true)
-	self:play()
+
+
+---Plays the track or changes its volume.
+---@param volume number? The track volume. `1` is maximum volume, `0` is mute. Defaults to `1`. Set to `0` if you want to pause the track.
+---@param duration number? The duration of the transition. If not specified, the change in volume will be instant.
+function Music:play(volume, duration)
+	volume = volume or 1
+	duration = duration or 0
+
+	self.targetVolume = volume
+	self.targetVolumeSpeed = (duration > 0) and (1 / duration)
+	self.targetStop = false
 end
 
-function Music:play()
-	self.instance:play()
-end
 
-function Music:pause()
-	self.instance:pause()
-end
 
-function Music:stop()
-	self.instance:stop()
-end
+---Stops the track. When played again, it will start from the beginning.
+---@param duration number? The duration of the transition. If not specified, the track will be stopped immediately.
+function Music:stop(duration)
+	duration = duration or 0
 
-function Music:setVolume(volume, instant, duration)
-	self.volumeDes = volume
-	if instant then
-		self.volume = self.volumeDes
-		self:updateVolume()
-	end
-	if duration then
-		self.volumeFadeSpeed = math.abs(self.volumeDes - self.volume) / duration
-	else
-		self.volumeFadeSpeed = 1
+	self.targetVolume = 0
+	self.targetVolumeSpeed = (duration > 0) and (1 / duration)
+	self.targetStop = true
+	if duration == 0 then
+		self.instance:stop()
 	end
 end
+
+
 
 return Music
