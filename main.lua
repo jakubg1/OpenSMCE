@@ -10,6 +10,12 @@ os = {
 	clock = os.clock
 }
 
+-- Enable Advanced Sound Library.
+love.audio.newAdvancedSource = require("com.asl")
+
+-- toolbox lol
+local t = love.timer.getTime()
+print(string.format("update took %dus", (love.timer.getTime() - t) * 1000000))
 
 
 -- INCLUDE ZONE

@@ -14,7 +14,7 @@ function Music:new(data, path)
     self.path = path
 
 	local sound = _Game.resourceManager:getSound(data.audio)
-	self.instance = sound:makeSource("stream")
+	self.instance = sound:makeAdvancedSource()
 	if not self.instance then
 		error("Failed to load sound data: " .. data.audio .. " from " .. path)
 	end
@@ -24,6 +24,8 @@ function Music:new(data, path)
 	self.targetVolume = 0
 	self.targetVolumeSpeed = nil
 	self.targetStop = false
+	self.sourceVolume = 0
+	self.sourceIsPlaying = false
 end
 
 
@@ -45,20 +47,29 @@ function Music:update(dt)
 	end
 
 	-- Update the volume of the track based on its current volume and the global music volume.
-	self.instance:setVolume(self.volume * _Game:getEffectiveMusicVolume())
+	local sourceVolume = self.volume * _Game:getEffectiveMusicVolume()
+	if self.sourceVolume ~= sourceVolume then
+		-- Setting the volumes of ASources is VERY, VERY EXPENSIVE!
+		-- Same for getting the volume. I do not know why that is...
+		self.instance:setVolume(sourceVolume)
+		self.sourceVolume = sourceVolume
+	end
 
 	---Update the playing state of the track based on its current volume.
 	---When the volume reaches 0, the track is paused or stopped.
 	---When the volume is greater than 0, the track is resumed or played from the beginning.
-	if self.instance:isPlaying() and self.volume == 0 then
+	---And yes, getting/setting the playback state is expensive as well!
+	if self.sourceIsPlaying and self.volume == 0 then
 		if self.targetStop then
 			self.instance:stop()
 		else
 			self.instance:pause()
 		end
+		self.sourceIsPlaying = false
 	end
-	if not self.instance:isPlaying() and self.volume > 0 then
+	if not self.sourceIsPlaying and self.volume > 0 then
 		self.instance:play()
+		self.sourceIsPlaying = true
 	end
 end
 

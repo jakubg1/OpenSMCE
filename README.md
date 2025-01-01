@@ -123,5 +123,6 @@ This repository contains code and other assets from the following sources:
   - Discord Rich Presence DLL from https://github.com/discord/discord-rpc (MIT license)
   - Lua wrapper for Discord Rich Presence from https://github.com/pfirsich/lua-discordRPC (MIT license)
   - JProf Profiler from https://github.com/pfirsich/jprof (MIT license)
+  - Advanced Sound Library from https://github.com/zorggn/love-asl (ISC license)
   - Unifont font from https://unifoundry.com/unifont/ (GNU GPLv2 license: https://unifoundry.com/LICENSE.txt)
   - DejaVu Sans font from https://dejavu-fonts.github.io/ (custom license: https://dejavu-fonts.github.io/License.html)
