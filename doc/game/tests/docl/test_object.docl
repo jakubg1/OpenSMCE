@@ -1,0 +1,5 @@
+- (object) - The root object.
+    - a (string) - This is a string.
+    - b (number) - This is a number.
+    - c (integer) - This is an integer.
+    - d* (integer) - This is an optional integer.

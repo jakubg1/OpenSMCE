@@ -1,0 +1,3 @@
+- (object) - The root object.
+    - object (object) <<^[-]?[0-9]*$>> - Key names must be stringified integers.
+        - (boolean) - An example boolean value.

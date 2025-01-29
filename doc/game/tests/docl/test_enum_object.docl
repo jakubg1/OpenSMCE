@@ -1,0 +1,10 @@
+- (object) {type: The value type.} - An object that holds a value.
+    - "string" - The object is holding a string.
+        - value (string) - The string value.
+    - "number" - The object is holding a number.
+        - value (number) - The number value.
+    - "both" - The object is holding *both* a string and a number.
+        - value (string) - The string value.
+        - value (number) - The number value.
+    - "none" - The object is not holding anything.
+    - visible* (boolean) - Whether the value is visible.

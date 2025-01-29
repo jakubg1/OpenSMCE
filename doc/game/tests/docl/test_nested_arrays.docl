@@ -1,0 +1,5 @@
+- (object) - The root object.
+    - one (array) - A list of lists of lists of integers.
+        - two (array) - A list of lists of integers.
+            - three (array) - A list of integers.
+                - value (integer) - An integer.

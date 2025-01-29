@@ -1,0 +1,3 @@
+- (object) - The root object.
+    - listOfNumbers (array) - A list of numbers.
+        - (number) - A single number.
