@@ -42,6 +42,7 @@ function CollectibleGeneratorConfig:new(data, path)
     else
         error(string.format("Unknown CollectibleGeneratorConfig type: %s (expected \"collectible\", \"collectibleGenerator\", \"combine\", \"repeat\", \"randomPick\")", self.type))
     end
+
     self.conditions = {}
     if data.conditions then
         for i = 1, #data.conditions do

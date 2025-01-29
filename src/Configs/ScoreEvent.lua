@@ -31,6 +31,7 @@ function ScoreEventConfig:new(data, path)
         for i = 1, #data.fonts.options do
             self.fonts.options[i] = u.parseFont(data.fonts.options[i], path, "fonts.options[" .. tostring(i) .. "]")
         end
+
         self.fonts.default = u.parseFont(data.fonts.default, path, "fonts.default")
         self.fonts.choice = u.parseExprInteger(data.fonts.choice, path, "fonts.choice")
     end

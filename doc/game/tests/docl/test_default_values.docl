@@ -1,0 +1,7 @@
+- (object) - The root object.
+    - a* = 2 (integer) - A default integer.
+    - b* = -3.14 (number) - A default number.
+    - c* = false (boolean) - A default falsy boolean.
+    - d* = true (boolean) - A default truey boolean.
+    - e* = "Hello, World!" (string) - A default string. This doesn't work yet.
+    - f* = (-2.5, 6) (Vector2) - A default Vector2.

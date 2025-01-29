@@ -28,6 +28,7 @@ function ShooterConfig:new(data, path)
     self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
     self.shadowSpriteOffset = u.parseVec2Opt(data.shadowSpriteOffset, path, "shadowSpriteOffset") or Vec2(8, 8)
     self.shadowSpriteAnchor = u.parseVec2Opt(data.shadowSpriteAnchor, path, "shadowSpriteAnchor") or Vec2(0.5, 0)
+
     self.spheres = {}
     for i = 1, #data.spheres do
         self.spheres[i] = {}
@@ -41,6 +42,7 @@ function ShooterConfig:new(data, path)
         self.nextBallSprites[tonumber(n)].sprite = u.parseSprite(data.nextBallSprites[n].sprite, path, "nextBallSprites." .. tostring(n) .. ".sprite")
         self.nextBallSprites[tonumber(n)].spriteAnimationSpeed = u.parseNumberOpt(data.nextBallSprites[n].spriteAnimationSpeed, path, "nextBallSprites." .. tostring(n) .. ".spriteAnimationSpeed")
     end
+
     self.nextBallOffset = u.parseVec2Opt(data.nextBallOffset, path, "nextBallOffset") or Vec2(0, 21)
     self.nextBallAnchor = u.parseVec2Opt(data.nextBallAnchor, path, "nextBallAnchor") or Vec2(0.5, 0)
 
@@ -64,6 +66,7 @@ function ShooterConfig:new(data, path)
     self.speedShotBeam.fadeTime = u.parseNumber(data.speedShotBeam.fadeTime, path, "speedShotBeam.fadeTime")
     self.speedShotBeam.renderingType = u.parseString(data.speedShotBeam.renderingType, path, "speedShotBeam.renderingType")
     self.speedShotBeam.colored = u.parseBoolean(data.speedShotBeam.colored, path, "speedShotBeam.colored")
+
     self.speedShotParticle = u.parseParticle(data.speedShotParticle, path, "speedShotParticle")
     self.shotCooldown = u.parseNumberOpt(data.shotCooldown, path, "shotCooldown") or 0
     self.shotCooldownFade = u.parseNumberOpt(data.shotCooldownFade, path, "shotCooldownFade") or 0
@@ -78,6 +81,7 @@ function ShooterConfig:new(data, path)
         self.knockback.speedShotDuration = u.parseNumberOpt(data.knockback.speedShotDuration, path, "knockback.speedShotDuration")
         self.knockback.speedShotStrength = u.parseNumberOpt(data.knockback.speedShotStrength, path, "knockback.speedShotStrength")
     end
+
     self.hitboxOffset = u.parseVec2Opt(data.hitboxOffset, path, "hitboxOffset") or Vec2()
     self.hitboxSize = u.parseVec2(data.hitboxSize, path, "hitboxSize")
 end

@@ -57,7 +57,7 @@ function CollectibleEffectConfig:new(data, path)
     elseif self.type == "incrementGemStat" then
         -- No fields
     else
-        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"lightningStorm\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"grantCoin\" or \"incrementGemStat\")", self.type))
+        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"lightningStorm\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"grantCoin\", \"incrementGemStat\")", self.type))
     end
 end
 

@@ -27,12 +27,14 @@ function CollectibleConfig:new(data, path)
     self.pickupSound = u.parseSoundEvent(data.pickupSound, path, "pickupSound")
     self.pickupName = u.parseStringOpt(data.pickupName, path, "pickupName")
     self.pickupFont = u.parseFontOpt(data.pickupFont, path, "pickupFont")
+
     self.effects = {}
     if data.effects then
         for i = 1, #data.effects do
             self.effects[i] = u.parseCollectibleEffectConfig(data.effects[i], path, "effects[" .. tostring(i) .. "]")
         end
     end
+
     self.dropEffects = {}
     if data.dropEffects then
         for i = 1, #data.dropEffects do

@@ -10,7 +10,7 @@
         },
         "time": {
             "type": "number",
-            "description": "After how many seconds the spheres will be destroyed.",
+            "description": "After how many seconds the spheres will be destroyed. If the effect can spread, the timer will start once the infection process is completed.",
             "minimum": 0.0
         },
         "infectionSize": {

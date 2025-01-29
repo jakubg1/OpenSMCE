@@ -1,0 +1,12 @@
+- (object) - The root object.
+    - a (object) - Before this object, there should be no whitespace.
+        - item (integer) - Contents.
+    - b (object) - Before this object, there should be a single whitespace.
+        - item (integer) - Contents.
+    - c (object) - Before this object, there should be a single whitespace.
+        - item (integer) - Contents.
+    - d (integer) - Before this object, there should be a single whitespace.
+    - e (integer) - Before this object, there should be no whitespace.
+    - f (integer) - Before this object, there should be no whitespace.
+    - g (object) - Before this object, there should be a single whitespace, and after it, there should be no whitespace.
+        - item (integer) - Contents.

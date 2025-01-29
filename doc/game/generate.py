@@ -512,6 +512,7 @@ def docl_to_docld(data):
 
 		# Go through the tokens, recognize them and fill in the data.
 		default = False
+		default_string = False
 		curly = False
 		for i in range(1, len(line)):
 			token = line[i]
@@ -520,8 +521,18 @@ def docl_to_docld(data):
 			if default:
 				if token == "true" or token == "false": # boolean
 					line_out["default"] = token == "true"
-				elif token[0] == "\"" and token[-1] == "\"": # string (spaces not allowed yet TODO)
-					line_out["default"] = token[1:-1]
+				elif token[0] == "\"": # string
+					if token[-1] == "\"": # single-word string
+						line_out["default"] = token[1:-1]
+					else: # start of string
+						line_out["default"] = token[1:]
+						default_string = True
+				elif default_string:
+					if token[-1] == "\"": # end of string
+						line_out["default"] += " " + token[:-1]
+						default_string = False
+					else: # middle of string
+						line_out["default"] += " " + token
 				elif token == "{}": # object (only the empty state is available as defaults for the object)
 					line_out["default"] = {}
 				elif token[0] == "(": # Vector2 component 1
@@ -533,7 +544,7 @@ def docl_to_docld(data):
 					line_out["default"] = float(token)
 				else: # integer
 					line_out["default"] = int(token)
-				if token[0] != "(":
+				if token[0] != "(" and not default_string:
 					default = False
 				continue
 
@@ -769,21 +780,6 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"string": "parseExprString",
 		"boolean": "parseExprBoolean"
 	}
-	lua_ref_assoc = {
-		"shooter_movement": "parseShooterMovementConfig",
-		"collectible_effect": "parseCollectibleEffectConfig",
-		"level_sequence_entry": "parseLevelSequenceEntry",
-		"level_color_rules": "parseLevelColorRules",
-		"level_spawn_rules": "parseLevelSpawnRules",
-		"level_speed_transition": "parseLevelSpeedTransition",
-		"level_set_entry": "parseLevelSetEntry",
-		"sphere_shoot_behavior": "parseSphereShootBehavior",
-		"sphere_hit_behavior": "parseSphereHitBehavior",
-		"widget": "parseUI2Widget",
-		"node": "parseUI2Node",
-		"node_child": "parseUI2NodeChild",
-		"timeline_entry": "parseUI2TimelineEntry"
-	}
 	lua_structure_assoc = {
 		"Vector2": "parseVec2",
 		"Color": "parseColor",
@@ -803,6 +799,24 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"Shooter": "parseShooterConfig",
 		"SphereEffect": "parseSphereEffectConfig",
 		"SphereSelector": "parseSphereSelectorConfig"
+	}
+	lua_expr_structure_assoc = {
+		"Vector2": "parseExprVec2"
+	}
+	lua_ref_assoc = {
+		"shooter_movement": "parseShooterMovementConfig",
+		"collectible_effect": "parseCollectibleEffectConfig",
+		"level_sequence_entry": "parseLevelSequenceEntry",
+		"level_color_rules": "parseLevelColorRules",
+		"level_spawn_rules": "parseLevelSpawnRules",
+		"level_speed_transition": "parseLevelSpeedTransition",
+		"level_set_entry": "parseLevelSetEntry",
+		"sphere_shoot_behavior": "parseSphereShootBehavior",
+		"sphere_hit_behavior": "parseSphereHitBehavior",
+		"widget": "parseUI2Widget",
+		"node": "parseUI2Node",
+		"node_child": "parseUI2NodeChild",
+		"timeline_entry": "parseUI2TimelineEntry"
 	}
 	
 	# Optional entries have an asterisk.
@@ -841,7 +855,7 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		function = "u." + lua_ref_assoc[entry["ref"]] + ("Opt" if optional else "")
 		return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")"
 	elif "structure" in entry:
-		function = "u." + lua_structure_assoc[entry["structure"]] + ("Opt" if optional else "")
+		function = "u." + (lua_expr_structure_assoc if "expression" in entry else lua_structure_assoc)[entry["structure"]] + ("Opt" if optional else "")
 		default = ""
 		if "default" in entry:
 			if entry["default"]["x"] == 0 and entry["default"]["y"] == 0:
@@ -969,9 +983,12 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 						new_context = context + name + "." if "name" in entry else context
 						new_data_context = data_context + name + "." if "name" in entry else data_context
 						new_error_context = error_context + name + "." if "name" in entry else error_context
-						if "children" in child and (len(out) > 0 and out[-1] != ""):
+						distinguish_block = (not "type" in child or child["type"] != "string") and "children" in child
+						if distinguish_block and (len(out) > 0 and out[-1] != ""):
 							out.append("")
 						out += docld_to_lua(child, class_name, False, omit_packing, new_context, new_data_context, new_error_context, iterators_used)
+						if distinguish_block:
+							out.append("")
 			if not is_root:
 				if optional:
 					out.append(-1)
@@ -979,7 +996,7 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 				if "name" in entry and out[-1] != "":
 					out.append("")
 		elif entry["type"] == "array":
-			if len(out) > 0:
+			if len(out) > 0 and out[-1] != "":
 				out.append("")
 			child = entry["children"][0]
 			table_id = context + name if "name" in entry else context[:-1]
@@ -1045,7 +1062,7 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 					# We will detect and fix these scenarios here.
 					# (Also, to make things even more complicated, we want to keep the three empty lines when indent = 0)
 					# TODO: This logic is disabled for now. We might figure out a way to not do this at all! If we do, remove it.
-					if False and not last_line_empty or indent == 0:
+					if True or not last_line_empty or indent == 0:
 						output += "\n"
 						last_line_empty = True
 					continue

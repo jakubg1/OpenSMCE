@@ -29,7 +29,7 @@ function ShooterMovementConfig:new(data, path)
         self.x = u.parseNumber(data.x, path, "x")
         self.y = u.parseNumber(data.y, path, "y")
     else
-        error(string.format("Unknown ShooterMovementConfig type: %s (expected \"linear\" or \"circular\")", self.type))
+        error(string.format("Unknown ShooterMovementConfig type: %s (expected \"linear\", \"circular\")", self.type))
     end
 end
 

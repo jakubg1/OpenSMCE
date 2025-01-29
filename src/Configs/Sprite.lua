@@ -36,6 +36,7 @@ function SpriteConfig:new(data, path)
         self.states[i].pos = u.parseVec2(data.states[i].pos, path, "states[" .. tostring(i) .. "].pos")
         self.states[i].frames = u.parseVec2(data.states[i].frames, path, "states[" .. tostring(i) .. "].frames")
     end
+
     self.batched = u.parseBooleanOpt(data.batched, path, "batched")
 end
 
