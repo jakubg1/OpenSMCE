@@ -23,6 +23,9 @@ local Vec2 = class:derive("Vec2")
 function Vec2:new(x, y)
 	self.x = x or 0
 	self.y = y or self.x
+	if _Debug then
+		_Debug.vec2PerFrame = _Debug.vec2PerFrame + 1
+	end
 end
 
 function Vec2.__tostring(o) return "(" .. tostring(o.x) .. ", " .. tostring(o.y) .. ")" end

@@ -56,6 +56,8 @@ function Debug:new()
 	self.profPages = {self.profUpdate, self.profMusic, self.profDrawLevel, self.prof3}
 
 	self.uiWidgetCount = 0
+	self.vec2PerFrame = 0
+	self.lastVec2PerFrame = 0
 	self.e = false
 
 
@@ -71,6 +73,8 @@ end
 
 function Debug:update(dt)
 	self.console:update(dt)
+	self.lastVec2PerFrame = self.vec2PerFrame
+	self.vec2PerFrame = 0
 end
 
 function Debug:draw()
@@ -147,11 +151,12 @@ function Debug:getDebugMain()
 	local s = ""
 
 	s = s .. "Version = " .. _VERSION .. "\n"
-	s = s .. "Game = " .. _Game.name .. "\n"
+	s = s .. "Game = " .. tostring(_Game.name) .. "\n"
 	s = s .. "FPS = " .. tostring(love.timer.getFPS()) .. "\n"
 	s = s .. "Drawcalls = " .. tostring(love.graphics.getStats().drawcalls) .. "\n"
 	s = s .. "DrawcallsSaved = " .. tostring(love.graphics.getStats().drawcallsbatched) .. "\n"
 	s = s .. "UIWidgetCount = " .. tostring(self.uiWidgetCount) .. "\n"
+	s = s .. "Vec2PerFrame = " .. tostring(self.lastVec2PerFrame) .. "\n"
 
 	return s
 end
@@ -232,7 +237,7 @@ function Debug:getDebugInfo()
 		s = s .. _Game.level.colorManager:getDebugText()
 	end
 	s = s .. "\n===== PROFILE =====\n"
-	if _Game:getCurrentProfile() and _Game:getCurrentProfile().session then
+	if _Game.getCurrentProfile and _Game:getCurrentProfile() and _Game:getCurrentProfile().session then
 		s = s .. self:getDebugProfile()
 	end
 	s = s .. "\n===== LEVEL =====\n"
