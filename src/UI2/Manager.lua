@@ -89,10 +89,10 @@ function UI2Manager:new()
 
         configGetLevelData = function(n) return _Game.configManager.levels[n] end,
         configGetMapData = function(name) return _Game.configManager.maps[name] end,
-        configGetLevelID = function(n) return _Game.configManager.levelSet.levelOrder[n].level end,
-        configGetLevelName = function(n) return _Game.configManager.levelSet.levelOrder[n].name end,
-        configGetCheckpointID = function(n) return _Game.configManager.levelSet.checkpoints[n] end,
-        configGetCheckpointLevel = function(n) return _Game.configManager:getCheckpointLevelN(n) end,
+        configGetLevelID = function(n) return _Game:getCurrentProfile().levelSetConfig.levelOrder[n].level end,
+        configGetLevelName = function(n) return _Game:getCurrentProfile().levelSetConfig.levelOrder[n].name end,
+        configGetCheckpointID = function(n) return _Game:getCurrentProfile().checkpoints[n].levelID end,
+        configGetCheckpointLevel = function(n) return _Game:getCurrentProfile():getCheckpointLevelN(n) end,
 
         optionsLoad = function() self:optionsLoad() end,
         optionsSave = function() self:optionsSave() end,

@@ -17,13 +17,26 @@ function Profile:new(data, name)
 	self.session = nil
 	self.levels = {}
 	self.checkpoints = {}
+	self.checkpointsUnlocked = {}
 	self.variables = {}
+
+	self.levelSetConfig = _Game.resourceManager:getLevelSetConfig("config/level_set.json")
+
+	-- Generate some shortcut data for checkpoints from the level config data.
+	for i, entry in ipairs(self.levelSetConfig.levelOrder) do
+		if entry.checkpoint then
+			self.checkpoints[entry.checkpoint.id] = {levelID = i, unlockedOnStart = entry.checkpoint.unlockedOnStart}
+		end
+	end
 
 	if data then
 		self:deserialize(data)
 	else
-		for i, checkpoint in ipairs(_Game.configManager.levelSet.startCheckpoints) do
-			self.checkpoints[i] = checkpoint
+		-- This is a new profile. Unlock the starting checkpoints.
+		for i, checkpoint in pairs(self.checkpoints) do
+			if checkpoint.unlockedOnStart then
+				table.insert(self.checkpointsUnlocked, i)
+			end
 		end
 	end
 end
@@ -100,7 +113,7 @@ end
 ---@return integer
 function Profile:getLevel()
 	-- Count (current level pointer - 1) entries from the level set.
-	local n = _Game.configManager:getLevelCountFromEntries(self.session.level - 1)
+	local n = self:getLevelCountFromEntries(self.session.level - 1)
 
 	return n + self.session.sublevel
 end
@@ -130,7 +143,13 @@ end
 ---Returns the player's current level entry.
 ---@return table
 function Profile:getLevelEntry()
-	return _Game.configManager.levelSet.levelOrder[self.session.level]
+	return self.levelSetConfig.levelOrder[self.session.level]
+end
+
+---Returns the player's next level entry. If the current level entry is the last one, returns `nil`.
+---@return table?
+function Profile:getNextLevelEntry()
+	return self.levelSetConfig.levelOrder[self.session.level + 1]
 end
 
 
@@ -239,21 +258,14 @@ end
 ---Returns the checkpoint ID which is assigned to the most recent level compared to the player's current level number.
 ---@return integer
 function Profile:getLatestCheckpoint()
-	local checkpoint = nil
-	local diff = nil
-
-	for i, level in ipairs(_Game.configManager.levelSet.checkpoints) do
-		if level == self.session.level then
-			return i
-		end
-		local d = self.session.level - level
-		if d > 0 and (not diff or diff > d) then
-			checkpoint = i
-			diff = d
+	for i = self.session.level, 1, -1 do
+		local entry = self.levelSetConfig.levelOrder[i]
+		if entry.checkpoint then
+			return entry.checkpoint.id
 		end
 	end
-
-	return checkpoint
+	-- TODO: What should be returned if none of the checkpoints have been beaten yet?
+	return -1000
 end
 
 
@@ -268,10 +280,9 @@ function Profile:isCheckpointUpcoming()
 		return false
 	end
 
-	for i, level in ipairs(_Game.configManager.levelSet.checkpoints) do
-		if level == self.session.level + 1 then
-			return true
-		end
+	local nextEntry = self:getNextLevelEntry()
+	if nextEntry and nextEntry.checkpoint then
+		return true
 	end
 	return false
 end
@@ -299,6 +310,40 @@ end
 ---@return integer
 function Profile:getUSMNumber()
 	return self:getSession() and self:getLevelPtr() or 1
+end
+
+
+
+---Returns the level number corresponding to the provided checkpoint ID.
+---TODO: This should be parsed at the start and stored once.
+---@param checkpoint number The checkpoint ID.
+---@return integer
+function Profile:getCheckpointLevelN(checkpoint)
+	local entryN = self.checkpoints[checkpoint]
+
+	return self:getLevelCountFromEntries(entryN - 1) + 1
+end
+
+
+
+---Returns how many levels the first N level set entries have in total.
+---@param entries integer The total number of entries to be considered.
+---@return integer
+function Profile:getLevelCountFromEntries(entries)
+	local n = 0
+
+	-- If it's a single level, count 1.
+	-- If it's a randomizer, count that many levels as there are defined in the randomizer.
+	for i = 1, entries do
+		local entry = self.levelSetConfig.levelOrder[i]
+		if entry.type == "level" then
+			n = n + 1
+		elseif entry.type == "randomizer" then
+			n = n + entry.count
+		end
+	end
+
+	return n
 end
 
 
@@ -386,14 +431,14 @@ end
 ---Returns a list of checkpoints this player has unlocked.
 ---@return table
 function Profile:getUnlockedCheckpoints()
-	return self.checkpoints
+	return self.checkpointsUnlocked
 end
 
 ---Returns whether this player has unlocked a given checkpoint.
 ---@param n integer The checkpoint ID to be checked.
 ---@return boolean
 function Profile:isCheckpointUnlocked(n)
-	return _Utils.isValueInTable(self.checkpoints, n)
+	return _Utils.isValueInTable(self.checkpointsUnlocked, n)
 end
 
 ---Unlocks a given checkpoint for the player if it has not been unlocked yet.
@@ -402,7 +447,7 @@ function Profile:unlockCheckpoint(n)
 	if self:isCheckpointUnlocked(n) then
 		return
 	end
-	table.insert(self.checkpoints, n)
+	table.insert(self.checkpointsUnlocked, n)
 end
 
 
@@ -424,7 +469,7 @@ function Profile:newGame(checkpoint, difficulty)
 		self.session.lifeScore = 0
 	end
 
-	self.session.level = _Game.configManager.levelSet.checkpoints[checkpoint]
+	self.session.level = self.checkpoints[checkpoint].level
 	self.session.sublevel = 1
 	self.session.sublevelPool = {}
 	self.session.levelID = 0
@@ -575,7 +620,7 @@ function Profile:serialize()
 	local t = {
 		session = self.session,
 		levels = self.levels,
-		checkpoints = self.checkpoints,
+		checkpoints = self.checkpointsUnlocked,
 		variables = self.variables,
 		ultimatelySatisfyingMode = self.ultimatelySatisfyingMode
 	}
@@ -589,7 +634,7 @@ end
 function Profile:deserialize(t)
 	self.session = t.session
 	self.levels = t.levels
-	self.checkpoints = t.checkpoints
+	self.checkpointsUnlocked = t.checkpoints
 	if t.variables then
 		self.variables = t.variables
 	end

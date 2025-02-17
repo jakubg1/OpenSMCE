@@ -17,6 +17,7 @@ local CollectibleConfig = require("src.Configs.Collectible")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local DifficultyConfig = require("src.Configs.Difficulty")
+local LevelSetConfig = require("src.Configs.LevelSet")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterConfig = require("src.Configs.Shooter")
@@ -64,6 +65,7 @@ function ResourceManager:new()
 		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig, paramSet = 2},
 		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig, paramSet = 2},
 		difficulty = {extension = "json", constructor = DifficultyConfig, paramSet = 2},
+		levelSet = {extension = "json", constructor = LevelSetConfig, paramSet = 2},
 		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
 		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
 		shooter = {extension = "json", constructor = ShooterConfig, paramSet = 2},
@@ -95,6 +97,7 @@ function ResourceManager:new()
 		["collectible_effect.json"] = "collectibleEffect",
 		["collectible_generator.json"] = "collectibleGenerator",
 		["difficulty.json"] = "difficulty",
+		["config/level_set.json"] = "levelSet",
 		["path_entity.json"] = "pathEntity",
 		["score_event.json"] = "scoreEvent",
 		["sphere_selector.json"] = "sphereSelector",
@@ -224,6 +227,13 @@ end
 ---@return DifficultyConfig
 function ResourceManager:getDifficultyConfig(path)
 	return self:getAsset(path, "difficulty")
+end
+
+---Retrieves a Level Set Config by a given path.
+---@param path string The resource path.
+---@return LevelSetConfig
+function ResourceManager:getLevelSetConfig(path)
+	return self:getAsset(path, "level set")
 end
 
 ---Retrieves a Path Entity Config by a given path.

@@ -20,7 +20,6 @@ function ConfigManager:new()
 	self.gameplay = _Utils.loadJson(_ParsePath("config/gameplay.json"))
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
 	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
-	self.levelSet = _Utils.loadJson(_ParsePath("config/level_set.json"))
 
 	self.spheres = self:loadFolder("config/spheres", "sphere", true)
 	self.sphereEffects = self:loadFolder("config/sphere_effects", "sphere effect")
@@ -123,39 +122,6 @@ end
 ---@return integer
 function ConfigManager:getTickRate()
 	return self.config.tickRate or 120
-end
-
-
-
----Gets the level number which the checkpoint points to.
----@param checkpoint number The checkpoint ID.
----@return integer
-function ConfigManager:getCheckpointLevelN(checkpoint)
-	local entryN = self.levelSet.checkpoints[checkpoint]
-
-	return self:getLevelCountFromEntries(entryN - 1) + 1
-end
-
-
-
----Returns how many levels the first N level set entries have in total.
----@param entries integer The total number of entries to be considered.
----@return integer
-function ConfigManager:getLevelCountFromEntries(entries)
-	local n = 0
-
-	-- If it's a single level, count 1.
-	-- If it's a randomizer, count that many levels as there are defined in the randomizer.
-	for i = 1, entries do
-		local entry = self.levelSet.levelOrder[i]
-		if entry.type == "level" then
-			n = n + 1
-		elseif entry.type == "randomizer" then
-			n = n + entry.count
-		end
-	end
-
-	return n
 end
 
 

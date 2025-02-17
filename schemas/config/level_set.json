@@ -8,33 +8,131 @@
             "type": "array",
             "description": "A list which contains level entries. Levels will be played in this order.",
             "items": {
-                "$ref": "level_set_entry.json",
-                "description": "A single level entry."
-            }
-        },
-        "checkpoints": {
-            "type": "array",
-            "description": "A list of level order indices, where checkpoints should be placed.\nIf the player starts the game from a given checkpoint, they start from the entry the checkpoint is pointing to.",
-            "items": {
-                "type": "integer",
-                "description": "A single index corresponding to an entry in the levelOrder field.",
-                "markdownDescription": "A single index corresponding to an entry in the `levelOrder` field."
-            }
-        },
-        "startCheckpoints": {
-            "type": "array",
-            "description": "A list of checkpoint indices, which are unlocked upon profile creation.",
-            "items": {
-                "type": "integer",
-                "description": "A single index, which corresponds to an entry in the checkpoints field.",
-                "markdownDescription": "A single index, which corresponds to an entry in the `checkpoints` field."
+                "type": "object",
+                "description": "A single level entry.",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "level",
+                            "randomizer"
+                        ]
+                    }
+                },
+                "allOf": [
+                    {
+                        "properties": {
+                            "type": {
+                                "description": "The type of the level entry."
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "level",
+                                    "description": "A single level to be played."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "level": {
+                                    "type": "integer",
+                                    "description": "A single level ID to be loaded and played."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "A level name."
+                                }
+                            },
+                            "required": [
+                                "level",
+                                "name"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "randomizer",
+                                    "description": "A group of levels to be played in random order."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "pool": {
+                                    "type": "array",
+                                    "description": "A list of level IDs to be chosen from.",
+                                    "items": {
+                                        "type": "integer",
+                                        "description": "A single level ID."
+                                    }
+                                },
+                                "names": {
+                                    "type": "array",
+                                    "description": "A list of level names. It is not shuffled, and this list should have the same length as the count field.",
+                                    "markdownDescription": "A list of level names. It is not shuffled, and this list should have the same length as the `count` field.",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "A single level name."
+                                    }
+                                },
+                                "count": {
+                                    "type": "integer",
+                                    "description": "How many levels are to be picked from the pool.",
+                                    "minimum": 1
+                                },
+                                "mode": {
+                                    "type": "string",
+                                    "description": "How the levels will be randomized.",
+                                    "oneOf": [
+                                        {
+                                            "const": "repeat",
+                                            "description": "Every next level is simply drawn at random from the list."
+                                        },
+                                        {
+                                            "const": "noRepeat",
+                                            "description": "Same as above, but an entry is removed from the pool once it's been picked. Requires the pool size to be greater or equal to the count field.",
+                                            "markdownDescription": "Same as above, but an entry is removed from the pool once it's been picked. Requires the pool size to be greater or equal to the `count` field."
+                                        },
+                                        {
+                                            "const": "order",
+                                            "description": "Chooses entries from the pool at random without changing their order. Requires the pool size to be greater or equal to the count field.",
+                                            "markdownDescription": "Chooses entries from the pool at random without changing their order. Requires the pool size to be greater or equal to the `count` field."
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "pool",
+                                "names",
+                                "count",
+                                "mode"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                ],
+                "required": [
+                    "type"
+                ]
             }
         }
     },
     "required": [
-        "levelOrder",
-        "checkpoints",
-        "startCheckpoints"
+        "levelOrder"
     ],
     "additionalProperties": false
 }
