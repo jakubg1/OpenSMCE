@@ -319,7 +319,7 @@ end
 ---@param checkpoint number The checkpoint ID.
 ---@return integer
 function Profile:getCheckpointLevelN(checkpoint)
-	local entryN = self.checkpoints[checkpoint]
+	local entryN = self.checkpoints[checkpoint].levelID
 
 	return self:getLevelCountFromEntries(entryN - 1) + 1
 end
@@ -469,7 +469,7 @@ function Profile:newGame(checkpoint, difficulty)
 		self.session.lifeScore = 0
 	end
 
-	self.session.level = self.checkpoints[checkpoint].level
+	self.session.level = self.checkpoints[checkpoint].levelID
 	self.session.sublevel = 1
 	self.session.sublevelPool = {}
 	self.session.levelID = 0
