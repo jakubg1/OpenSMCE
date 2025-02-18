@@ -282,8 +282,12 @@ end
 ---@param resolution Vector2 The new window resolution.
 ---@param resizable boolean Whether the window can be resized.
 ---@param title string The window title.
-function _SetResolution(resolution, resizable, title)
+---@param maximized boolean? If set, the window will be maximized.
+function _SetResolution(resolution, resizable, title, maximized)
 	love.window.setMode(resolution.x, resolution.y, {resizable = resizable})
+	if maximized then
+		love.window.maximize()
+	end
 	love.window.setTitle(title)
 	_DisplaySize = resolution
 end

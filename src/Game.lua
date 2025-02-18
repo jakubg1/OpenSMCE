@@ -53,7 +53,7 @@ function Game:init()
 
 	-- Step 2. Initialize the window and canvas if necessary
 	local res = self:getNativeResolution()
-	_SetResolution(res, true, self.configManager:getWindowTitle())
+	_SetResolution(res, true, self.configManager:getWindowTitle(), true)
 	if self.configManager:isCanvasRenderingEnabled() then
 		self.renderCanvas = love.graphics.newCanvas(res.x, res.y)
 		if self.configManager:getCanvasRenderingMode() == "pixel" then
