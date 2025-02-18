@@ -475,6 +475,12 @@ function Level:executeScoreEvent(scoreEvent, pos)
 	end
 	_Vars:unset("event")
 
+	-- Execute a UI callback.
+	_Game.uiManager:executeCallback({
+		name = "scoreAdded",
+		parameters = {score}
+	})
+
 	return score
 end
 

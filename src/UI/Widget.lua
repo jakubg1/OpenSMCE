@@ -245,6 +245,10 @@ function UIWidget:hide()
 	end
 end
 
+function UIWidget:resetHideDelay()
+	self.time = self.hideDelay
+end
+
 function UIWidget:clean()
 	self.alpha = 0
 	if self.widget and self.widget.type == "particle" then
