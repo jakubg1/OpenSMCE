@@ -5,6 +5,7 @@
             - (object) - A single character.
                 - offset (integer) [>=0] - The X offset of the image where the character starts, in pixels.
                 - width (integer) [>=0] - The width of the character, in pixels.
+        - newlineAdjustment* = 0 (number) - The padding between lines to be added in a multiline text, in pixels.
     - "truetype" - The font loads glyphs from a TTF file.
         - path (FontFile) - The path to a TTF font file which contains the characters.
         - size (integer) [>0] - The size of the Font, in pixels.

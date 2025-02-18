@@ -67,6 +67,10 @@
                                 "additionalProperties": false
                             }
                         }
+                    },
+                    "newlineAdjustment": {
+                        "type": "number",
+                        "description": "The padding between lines to be added in a multiline text, in pixels."
                     }
                 },
                 "required": [

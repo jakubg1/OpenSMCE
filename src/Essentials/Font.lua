@@ -17,6 +17,7 @@ function Font:new(data, path)
 	if self.type == "image" then
 		self.image = _Game.resourceManager:getImage(data.image)
 		self.height = self.image.size.y
+		self.newlineAdjustment = data.newlineAdjustment or 0
 		self.characters = {}
 		for characterN, character in pairs(data.characters) do
 			self.characters[characterN] = {
@@ -94,7 +95,7 @@ function Font:draw(text, pos, align, color, alpha)
 			if character == "\n" then
 				self:drawLine(line, Vec2(pos.x, y), align.x)
 				line = ""
-				y = y + self.height
+				y = y + self.height + self.newlineAdjustment
 			else
 				line = line .. character
 			end
