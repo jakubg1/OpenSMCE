@@ -62,9 +62,10 @@ end
 
 
 ---Returns the player's current level's map data. This is the raw map data which is written in `maps/*/config.json`.
----@return table
+---Returns `nil` if the current level is a UI script entry.
+---@return table?
 function Profile:getMapData()
-	return _Game.configManager.maps[self:getLevelData().map]
+	return self:getLevelData() and _Game.configManager.maps[self:getLevelData().map]
 end
 
 
@@ -188,7 +189,7 @@ function Profile:incrementLevel()
 	local entry = self:getLevelEntry()
 
 	-- Update the pointers.
-	if entry.type == "level" then
+	if entry.type == "level" or entry.type == "uiScript" then
 		self.session.level = self.session.level + 1
 		self:setupLevel()
 	elseif entry.type == "randomizer" then

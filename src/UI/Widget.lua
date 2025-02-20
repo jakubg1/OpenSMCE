@@ -145,8 +145,10 @@ function UIWidget:update(dt)
 			self.time = nil
 			-- If we're visible, hide us, otherwise - show us.
 			if self.visible then
+				self:executeAction("hideStart")
 				self:hide()
 			else
+				self:executeAction("showStart")
 				self:show()
 			end
 		end

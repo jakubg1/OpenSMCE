@@ -136,15 +136,21 @@ end
 
 
 ---Starts a new Level from the current Profile, or loads one in progress if it has one.
+---This also executes an appropriate entry in the UI script if the current level set's entry is a UI Script one. Yep, it's a mess.
 ---This function is intended to be called ONLY from UI scripts, using the UI Manager as a proxy.
 function Game:startLevel()
-	self.level = Level(self:getCurrentProfile():getLevelData())
-	local savedLevelData = self:getCurrentProfile():getSavedLevel()
+	local profile = self:getCurrentProfile()
+	if profile:getLevelEntry().type == "uiScript" then
+		_Game.uiManager:executeCallback(profile:getLevelEntry().callback)
+	else
+		self.level = Level(profile:getLevelData())
+		local savedLevelData = profile:getSavedLevel()
 	if savedLevelData then
 		self.level:deserialize(savedLevelData)
 		self.uiManager:executeCallback("levelLoaded")
 	else
 		self.uiManager:executeCallback("levelStart")
+		end
 	end
 end
 

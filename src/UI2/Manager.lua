@@ -53,6 +53,7 @@ function UI2Manager:new()
 
         musicVolume = function(music, volume, duration) _Game.resourceManager:getMusic(music):play(volume, duration) end,
         musicStop = function(music, duration) _Game.resourceManager:getMusic(music):stop(duration) end,
+        playSound = function(sound) _Game:playSound(sound) end,
 
         profileMSet = function(name) _Game.runtimeManager.profileManager:setCurrentProfile(name) end,
         profileMCreate = function(name) return _Game.runtimeManager.profileManager:createProfile(name) end,

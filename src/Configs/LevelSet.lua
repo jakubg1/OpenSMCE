@@ -26,6 +26,9 @@ function LevelSetConfig:new(data, path)
         if self.levelOrder[i].type == "level" then
             self.levelOrder[i].level = u.parseInteger(data.levelOrder[i].level, path, "levelOrder[" .. tostring(i) .. "].level")
             self.levelOrder[i].name = u.parseString(data.levelOrder[i].name, path, "levelOrder[" .. tostring(i) .. "].name")
+        elseif self.levelOrder[i].type == "uiScript" then
+            self.levelOrder[i].callback = u.parseString(data.levelOrder[i].callback, path, "levelOrder[" .. tostring(i) .. "].callback")
+            self.levelOrder[i].name = u.parseString(data.levelOrder[i].name, path, "levelOrder[" .. tostring(i) .. "].name")
         elseif self.levelOrder[i].type == "randomizer" then
             self.levelOrder[i].pool = {}
             for j = 1, #data.levelOrder[i].pool do
@@ -38,7 +41,7 @@ function LevelSetConfig:new(data, path)
             self.levelOrder[i].count = u.parseInteger(data.levelOrder[i].count, path, "levelOrder[" .. tostring(i) .. "].count")
             self.levelOrder[i].mode = u.parseString(data.levelOrder[i].mode, path, "levelOrder[" .. tostring(i) .. "].mode")
         else
-            error(string.format("Unknown LevelSetConfig type: %s (expected \"level\", \"randomizer\")", self.levelOrder[i].type))
+            error(string.format("Unknown LevelSetConfig type: %s (expected \"level\", \"uiScript\", \"randomizer\")", self.levelOrder[i].type))
         end
 
         if data.levelOrder[i].checkpoint then

@@ -14,6 +14,7 @@
                     "type": {
                         "enum": [
                             "level",
+                            "uiScript",
                             "randomizer"
                         ]
                     }
@@ -52,6 +53,37 @@
                             },
                             "required": [
                                 "level",
+                                "name"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "uiScript",
+                                    "description": "A UI Script callback will be executed. It's the UI Script's duty to advance to the next level, otherwise the game might softlock."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "callback": {
+                                    "type": "string",
+                                    "description": "The UI Script callback name to be executed, without any parameters."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "A level name."
+                                }
+                            },
+                            "required": [
+                                "callback",
                                 "name"
                             ],
                             "additionalProperties": false

@@ -4,6 +4,9 @@
             - "level" - A single level to be played.
                 - level (integer) - A single level ID to be loaded and played.
                 - name (string) - A level name.
+            - "uiScript" - A UI Script callback will be executed. It's the UI Script's duty to advance to the next level, otherwise the game might softlock.
+                - callback (string) - The UI Script callback name to be executed, without any parameters.
+                - name (string) - A level name.
             - "randomizer" - A group of levels to be played in random order.
                 - pool (array) - A list of level IDs to be chosen from.
                     - (integer) - A single level ID.
