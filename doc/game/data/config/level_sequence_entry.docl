@@ -25,3 +25,4 @@
         - status (string) - Can be one of the following:
             - "win" - The level will be registered as won and a `levelComplete` UI callback will be executed.
             - "fail" - The level will be registered as lost and a `levelLost` UI callback will be executed.
+    - muteMusic* (boolean) - If set, the level and danger music will not be playing while this level sequence entry is active.

@@ -289,29 +289,43 @@ end
 
 ---Adjusts which music is playing based on the level's internal state.
 function Level:updateMusic()
+	local mute = self.levelSequenceStep == 0 or self:getCurrentSequenceStep().muteMusic or self.pause
+
 	if self.dangerMusic then
 		-- If the level hasn't started yet, is lost, won or the game is paused,
 		-- mute the music.
-		if self.levelSequenceStep == 0 or self:getCurrentSequenceStepType() == "end" or self.lost or self.pause then
+		if mute then
 			self.music:play(0, 1)
 			self.dangerMusic:play(0, 1)
 		else
 			-- Play the music accordingly to the danger flag.
-			if self.danger then
-				if self.dangerMusic.volume == 0 then
-					self.dangerMusic:stop()
-					self.dangerMusic:play()
+			-- This "if" statement is an experimental feature where the music is sped up when in danger. Works with ASL only.
+			-- TODO: Make this configurable.
+			if true then
+				if self.danger then
+					-- TODO: Make the danger music continue instead of starting over if the game has been unpaused.
+					if self.dangerMusic.volume == 0 then
+						self.dangerMusic:stop()
+						self.dangerMusic:play()
+					end
+					self.music:play(0, 1)
+					self.dangerMusic:play(1, 1)
+				else
+					self.music:play(1, 1)
+					self.dangerMusic:play(0, 1)
 				end
-				self.music:play(0, 1)
-				self.dangerMusic:play(1, 1)
 			else
-				self.music:play(1, 1)
-				self.dangerMusic:play(0, 1)
+				if self.danger then
+					self.music.instance:setTimeStretch(3)
+				else
+					self.music:play(1, 1)
+					self.music.instance:setTimeStretch(1)
+				end
 			end
 		end
 	else
 		-- If there's no danger music, then mute it or unmute in a similar fashion.
-		if self.levelSequenceStep == 0 or self:getCurrentSequenceStepType() == "end" or self.lost or self.pause then
+		if mute then
 			self.music:play(0, 1)
 		else
 			self.music:play(1, 1)
@@ -918,6 +932,15 @@ function Level:getCurrentSequenceStepType()
 	return self.levelSequence[self.levelSequenceStep].type
 end
 
+---Returns the data of the current level sequence step.
+---@return table?
+function Level:getCurrentSequenceStep()
+	if self.levelSequenceStep == 0 then
+		return
+	end
+	return self.levelSequence[self.levelSequenceStep]
+end
+
 
 
 ---Saves the current progress on this Level.
@@ -954,8 +977,14 @@ function Level:destroy()
 	self.map:destroy()
 	self:destroyNet()
 
+	-- Stop any music.
+	if self.music then
+		self.music:play(0, 1)
+	end
+	if self.dangerMusic then
+		self.dangerMusic:play(0, 1)
+	end
 	if self.ambientMusic then
-		-- Stop any ambient music.
 		self.ambientMusic:play(0, 1)
 	end
 
