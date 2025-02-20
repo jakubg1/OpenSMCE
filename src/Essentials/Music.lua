@@ -14,7 +14,9 @@ function Music:new(data, path)
     self.path = path
 
 	local sound = _Game.resourceManager:getSound(data.audio)
-	self.instance = sound:makeAdvancedSource()
+	-- TODO: This likes to crash with certain music files. Look into it in the future.
+	--self.instance = sound:makeAdvancedSource()
+	self.instance = sound:makeSource("stream")
 	if not self.instance then
 		error("Failed to load sound data: " .. data.audio .. " from " .. path)
 	end
