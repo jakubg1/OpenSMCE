@@ -538,7 +538,6 @@ function Profile:advanceLevel()
 	end
 
 	self:incrementLevel()
-	_Game:playSound(_Game.configManager.gameplay.ui.levelAdvanceSound)
 end
 
 

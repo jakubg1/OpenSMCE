@@ -23,16 +23,11 @@
                 "buttonHoverSound": {
                     "$ref": "../_structures/SoundEvent.json",
                     "description": "The sound event that will be played whenever a mouse is hovering over a button."
-                },
-                "levelAdvanceSound": {
-                    "$ref": "../_structures/SoundEvent.json",
-                    "description": "The sound event that will be played whenever the player advances a level (on the level map)."
                 }
             },
             "required": [
                 "buttonClickSound",
-                "buttonHoverSound",
-                "levelAdvanceSound"
+                "buttonHoverSound"
             ],
             "additionalProperties": false
         },
