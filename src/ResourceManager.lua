@@ -23,9 +23,6 @@ local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterConfig = require("src.Configs.Shooter")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
-local UI2AnimationConfig = require("src.Configs.UI2Animation")
-local UI2NodeConfig = require("src.Configs.UI2Node")
-local UI2SequenceConfig = require("src.Configs.UI2Sequence")
 
 
 
@@ -72,10 +69,7 @@ function ResourceManager:new()
 		shooterMovement = {extension = "json", constructor = ShooterMovementConfig, paramSet = 2},
 		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
 		map = {extension = "/"},
-		level = {extension = "json"},
-		ui2AnimationConfig = {extension = "json", constructor = UI2AnimationConfig, paramSet = 2},
-		ui2NodeConfig = {extension = "json", constructor = UI2NodeConfig, paramSet = 2},
-		ui2SequenceConfig = {extension = "json", constructor = UI2SequenceConfig, paramSet = 2}
+		level = {extension = "json"}
 	}
 	-- TODO: Auto-generate these two below.
 	-- Maybe consider registering the resource types dynamically?
@@ -100,10 +94,7 @@ function ResourceManager:new()
 		["config/level_set.json"] = "levelSet",
 		["path_entity.json"] = "pathEntity",
 		["score_event.json"] = "scoreEvent",
-		["sphere_selector.json"] = "sphereSelector",
-		["ui2/animation.json"] = "ui2AnimationConfig",
-		["ui2/node.json"] = "ui2NodeConfig",
-		["ui2/sequence.json"] = "ui2SequenceConfig"
+		["sphere_selector.json"] = "sphereSelector"
 	}
 	self.EXTENSION_TO_RESOURCE_MAP = {
 		png = "image",
@@ -269,27 +260,6 @@ end
 ---@return SphereSelectorConfig
 function ResourceManager:getSphereSelectorConfig(path)
 	return self:getAsset(path, "sphere selector")
-end
-
----Retrieves a UI Animation Config by a given path.
----@param path string The resource path.
----@return UI2AnimationConfig
-function ResourceManager:getUIAnimationConfig(path)
-	return self:getAsset(path, "UI2 animation")
-end
-
----Retrieves a UI Node Config by a given path.
----@param path string The resource path.
----@return UI2NodeConfig
-function ResourceManager:getUINodeConfig(path)
-	return self:getAsset(path, "UI2 node")
-end
-
----Retrieves a UI Sequence Config by a given path.
----@param path string The resource path.
----@return UI2SequenceConfig
-function ResourceManager:getUISequenceConfig(path)
-	return self:getAsset(path, "UI2 sequence")
 end
 
 

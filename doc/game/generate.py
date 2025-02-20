@@ -812,11 +812,7 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"level_speed_transition": "parseLevelSpeedTransition",
 		"level_set_entry": "parseLevelSetEntry",
 		"sphere_shoot_behavior": "parseSphereShootBehavior",
-		"sphere_hit_behavior": "parseSphereHitBehavior",
-		"widget": "parseUI2Widget",
-		"node": "parseUI2Node",
-		"node_child": "parseUI2NodeChild",
-		"timeline_entry": "parseUI2TimelineEntry"
+		"sphere_hit_behavior": "parseSphereHitBehavior"
 	}
 	
 	# Optional entries have an asterisk.

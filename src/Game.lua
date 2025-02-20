@@ -17,7 +17,6 @@ local RuntimeManager = require("src.Game.RuntimeManager")
 local Level = require("src.Game.Level")
 
 local UIManager = require("src.UI.Manager")
-local UI2Manager = require("src.UI2.Manager")
 local ParticleManager = require("src.Particle.Manager")
 
 
@@ -71,8 +70,8 @@ function Game:init()
 	-- Step 5. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
 
-	-- Step 6. Set up the UI Manager or the experimental UI2 Manager
-	self.uiManager = self.configManager.config.useUI2 and UI2Manager() or UIManager()
+	-- Step 6. Set up the UI Manager
+	self.uiManager = UIManager()
 	self.uiManager:initSplash()
 end
 

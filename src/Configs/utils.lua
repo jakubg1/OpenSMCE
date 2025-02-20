@@ -329,39 +329,6 @@ function utils.parseSphereSelectorConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Sphere Selector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
 end
 
----@return UI2AnimationConfig
-function utils.parseUIAnimationConfig(data, path, field)
-	assert(data, string.format("field %s is missing (UI2 Animation Config expected)", field))
-	return _Game.resourceManager:getUIAnimationConfig(data)
-end
-
----@return UI2AnimationConfig?
-function utils.parseUIAnimationConfigOpt(data, path, field)
-	return data and _Game.resourceManager:getUIAnimationConfig(data)
-end
-
----@return UI2NodeConfig
-function utils.parseUINodeConfig(data, path, field)
-	assert(data, string.format("field %s is missing (UI2 Node Config expected)", field))
-	return _Game.resourceManager:getUINodeConfig(data)
-end
-
----@return UI2NodeConfig?
-function utils.parseUINodeConfigOpt(data, path, field)
-	return data and _Game.resourceManager:getUINodeConfig(data)
-end
-
----@return UI2SequenceConfig
-function utils.parseUISequenceConfig(data, path, field)
-	assert(data, string.format("field %s is missing (UI2 Sequence Config expected)", field))
-	return _Game.resourceManager:getUISequenceConfig(data)
-end
-
----@return UI2SequenceConfig?
-function utils.parseUISequenceConfigOpt(data, path, field)
-	return data and _Game.resourceManager:getUISequenceConfig(data)
-end
-
 
 
 

@@ -62,10 +62,6 @@
                 "enabled"
             ],
             "additionalProperties": false
-        },
-        "useUI2": {
-            "type": "boolean",
-            "description": "Enables experimental UI2 support. The game will launch using UI2 instead of legacy UI."
         }
     },
     "required": [

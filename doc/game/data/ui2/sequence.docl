@@ -1,3 +1,0 @@
-- (object) - The root object.
-    - timeline (array) - Defines a Timeline consisting of Timeline Entries.
-        - ($timeline_entry) - Defines a single Timeline Entry.

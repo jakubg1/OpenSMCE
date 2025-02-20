@@ -11,4 +11,3 @@
     - richPresence (object) - Defines the Discord Rich Presence behavior.
         - enabled (boolean) - Should be always `true`, unless you want the game to be a secret. In that case, loading a game with this flag set to `false` causes Rich Presence to disconnect.
         - applicationID* (string) - Optional. If defined, this will be used as an Application ID when running this game, instead of the default OpenSMCE one.
-    - useUI2* (boolean) - Enables experimental UI2 support. The game will launch using UI2 instead of legacy UI.

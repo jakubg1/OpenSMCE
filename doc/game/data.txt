@@ -329,54 +329,6 @@ E
 =========================================================================================================================================================================
 
 
-F	ui2.animation
-N	ui2/animations/*.json
-
-P	Defines a UI2 animation. Animations are base blocks when it comes to applying different changes to UI which happen either instantly or over a certain time. They are used in UI2 Sequences.
-DIE	../../schemas/ui2/animation.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
-F	ui2.node
-N	ui2/layouts/*.json | node
-
-P	Defines a UI2 layout (also called a Node). Every Node may or may not contain a Widget, which is its visual representation. Nodes can have multiple children, either included in the file, or from another file.
-DI	../../schemas/ui2/node.json
-
-H2	Possible widget types | widget
-P	<i>Debug information: this can be checked in UI2Node:new().</i>
-DIE	../../schemas/ui2/widget.json
-
-H2	Possible node child types | node_child
-P	<i>Debug information: this can be checked in UI2Node:new().</i>
-DIE	../../schemas/ui2/node_child.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
-F	ui2.sequence
-N	ui2/sequences/*.json
-
-P	Defines a UI2 Sequence. Sequences are sequences of actions happening in sequence. Each of these actions can perform operations such as altering any Node's visibility or executing functions defined in the UI Script.
-DI	../../schemas/ui2/sequence.json
-
-H2	Possible sequence entry types | timeline_entry
-P	<i>Debug information: this can be checked in UI2Sequence:executeEntry().</i>
-DIE	../../schemas/ui2/timeline_entry.json
-
-E
-
-
-=========================================================================================================================================================================
-
-
 F	font
 N	fonts/*.json
 
