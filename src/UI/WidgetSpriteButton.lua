@@ -1,14 +1,14 @@
 local class = require "com.class"
 
 ---@class UIWidgetSpriteButton
----@overload fun(parent, sprite):UIWidgetSpriteButton
+---@overload fun(parent, sprite, clickSound, releaseSound, hoverSound):UIWidgetSpriteButton
 local UIWidgetSpriteButton = class:derive("UIWidgetSpriteButton")
 
 local Vec2 = require("src.Essentials.Vector2")
 
 
 
-function UIWidgetSpriteButton:new(parent, sprite)
+function UIWidgetSpriteButton:new(parent, sprite, clickSound, releaseSound, hoverSound)
 	self.type = "spriteButton"
 
 	self.parent = parent
@@ -21,12 +21,17 @@ function UIWidgetSpriteButton:new(parent, sprite)
 
 	self.sprite = _Game.resourceManager:getSprite(sprite)
 	self.size = self.sprite.config.frameSize
+	self.clickSound = clickSound and _Game.resourceManager:getSoundEvent(clickSound) or _Game.configManager:getUIClickSound()
+	self.releaseSound = releaseSound and _Game.resourceManager:getSoundEvent(releaseSound) or _Game.configManager:getUIReleaseSound()
+	self.hoverSound = hoverSound and _Game.resourceManager:getSoundEvent(hoverSound) or _Game.configManager:getUIHoverSound()
 end
 
 function UIWidgetSpriteButton:click()
 	if not self.parent:isVisible() or not self.hovered or self.clicked then return end
 	self.clicked = true
-	_Game:playSound(_Game.configManager.gameplay.ui.buttonClickSound)
+	if self.clickSound then
+		_Game:playSound(self.clickSound)
+	end
 	print("Button clicked: " .. self.parent:getFullName())
 end
 
@@ -34,6 +39,9 @@ function UIWidgetSpriteButton:unclick()
 	if not self.clicked then return end
 	if self.hovered then
 		self.parent:executeAction("buttonClick")
+	end
+	if self.releaseSound then
+		_Game:playSound(self.releaseSound)
 	end
 	self.clicked = false
 end
@@ -61,8 +69,8 @@ function UIWidgetSpriteButton:draw()
 	if hovered ~= self.hovered then
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end
-		if hovered then
-			_Game:playSound(_Game.configManager.gameplay.ui.buttonHoverSound)
+		if hovered and self.hoverSound then
+			_Game:playSound(self.hoverSound)
 		end
 	end
 

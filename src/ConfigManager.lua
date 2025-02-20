@@ -126,4 +126,24 @@ end
 
 
 
+---Returns the default Sound Event which will be played when a UI button is pressed.
+---@return SoundEvent?
+function ConfigManager:getUIClickSound()
+	return self.gameplay.ui.buttonClickSound and _Game.resourceManager:getSoundEvent(self.gameplay.ui.buttonClickSound)
+end
+
+---Returns the default Sound Event which will be played when a UI button is released.
+---@return SoundEvent?
+function ConfigManager:getUIReleaseSound()
+	return self.gameplay.ui.buttonReleaseSound and _Game.resourceManager:getSoundEvent(self.gameplay.ui.buttonReleaseSound)
+end
+
+---Returns the default Sound Event which will be played when a UI button is hovered.
+---@return SoundEvent?
+function ConfigManager:getUIHoverSound()
+	return self.gameplay.ui.buttonHoverSound and _Game.resourceManager:getSoundEvent(self.gameplay.ui.buttonHoverSound)
+end
+
+
+
 return ConfigManager

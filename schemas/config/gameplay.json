@@ -18,17 +18,17 @@
             "properties": {
                 "buttonClickSound": {
                     "$ref": "../_structures/SoundEvent.json",
-                    "description": "The sound event that will be played whenever a button is clicked."
+                    "description": "The default Sound Event that will be played whenever a UI button has been clicked."
                 },
                 "buttonHoverSound": {
                     "$ref": "../_structures/SoundEvent.json",
-                    "description": "The sound event that will be played whenever a mouse is hovering over a button."
+                    "description": "The default Sound Event that will be played whenever a UI button has been hovered with a mouse cursor."
+                },
+                "buttonReleaseSound": {
+                    "$ref": "../_structures/SoundEvent.json",
+                    "description": "The default Sound Event that will be played whenever a UI button has been released (unpressed)."
                 }
             },
-            "required": [
-                "buttonClickSound",
-                "buttonHoverSound"
-            ],
             "additionalProperties": false
         },
         "sphereBehavior": {

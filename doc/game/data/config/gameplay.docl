@@ -2,8 +2,9 @@
     - levelSequence (array) - Defines a Level Sequence. This is a list of states every level can have and will be performed in order, unless specified otherwise.
         - ($level_sequence_entry) - A single sequence step.
     - ui (object) - Defines parameters which are constant throughout the entire UI.
-        - buttonClickSound (SoundEvent) - The sound event that will be played whenever a button is clicked.
-        - buttonHoverSound (SoundEvent) - The sound event that will be played whenever a mouse is hovering over a button.
+        - buttonClickSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been clicked.
+        - buttonHoverSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been hovered with a mouse cursor.
+        - buttonReleaseSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been released (unpressed).
     - sphereBehavior (object) - Defines behavior of the spheres.
         - acceleration (number) - The default acceleration rate of spheres being pushed.
         - foulAcceleration* (number) - The acceleration rate of spheres used only when the player fails to complete a level.

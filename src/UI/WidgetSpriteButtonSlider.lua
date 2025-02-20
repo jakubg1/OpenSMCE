@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class UIWidgetSpriteButtonSlider
----@overload fun(parent, sprite, bounds):UIWidgetSpriteButtonSlider
+---@overload fun(parent, sprite, bounds, clickSound, releaseSound, hoverSound):UIWidgetSpriteButtonSlider
 local UIWidgetSpriteButtonSlider = class:derive("UIWidgetSpriteButtonSlider")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -9,11 +9,11 @@ local UIWidgetSpriteButton = require("src.UI.WidgetSpriteButton")
 
 
 
-function UIWidgetSpriteButtonSlider:new(parent, sprite, bounds)
+function UIWidgetSpriteButtonSlider:new(parent, sprite, bounds, clickSound, releaseSound, hoverSound)
 	self.type = "spriteButtonSlider"
 
 	self.parent = parent
-	self.button = UIWidgetSpriteButton(parent, sprite)
+	self.button = UIWidgetSpriteButton(parent, sprite, clickSound, releaseSound, hoverSound)
 
 	self.value = 0
 	self.bounds = bounds
