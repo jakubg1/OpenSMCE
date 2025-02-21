@@ -48,7 +48,7 @@ function UIWidget:new(name, data, parent)
 	elseif data.type == "sprite" then
 		self.widget = UIWidgetSprite(self, data.sprite)
 	elseif data.type == "spriteButton" then
-		self.widget = UIWidgetSpriteButton(self, data.sprite, data.clickSound, data.releaseSound, data.hoverSound)
+		self.widget = UIWidgetSpriteButton(self, data.sprite, data.clickSound, data.releaseSound, data.hoverSound, data.orbMasterHoverEffect)
 	elseif data.type == "spriteButtonCheckbox" then
 		self.widget = UIWidgetSpriteButtonCheckbox(self, data.sprite, data.clickSound, data.releaseSound, data.hoverSound)
 	elseif data.type == "spriteButtonSlider" then
