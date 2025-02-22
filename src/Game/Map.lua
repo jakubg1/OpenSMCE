@@ -104,7 +104,13 @@ function Map:draw()
 		end
 	end
 
-	-- Objects that will be drown when the BCM is off
+	-- Draw particles for hidden spheres before the map's foreground sprites.
+	-- In order to accomplish that, Sphere.lua dispatches four quasi-layers called "(_DUMMY)_SPHERES(_H)".
+	-- Particles are drawn directly after the corresponding spheres, and none of the particles are drawn twice,
+	-- so we need to separate the layers for them into hidden and non-hidden.
+	_Game.particleManager:draw(self.isDummy and "_DUMMY_SPHERES_H" or "_SPHERES_H")
+
+	-- Objects that will be drawn when the BCM is off (foreground sprites)
 	if not _Debug.e then
 		for i, sprite in ipairs(self.sprites) do
 			if not sprite.background and not sprite.foreground then
@@ -116,7 +122,7 @@ end
 
 
 
----Draws spheres on this map, and foreground sprites.
+---Draws spheres, their particles, and foreground sprites which appear on this map.
 function Map:drawSpheres()
 	for x = 1, 2 do
 		for i, path in ipairs(self.paths) do
@@ -126,6 +132,8 @@ function Map:drawSpheres()
 			path:draw(false)
 		end
 	end
+
+	_Game.particleManager:draw(self.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
 
 	for i, sprite in ipairs(self.sprites) do
 		if not sprite.background and sprite.foreground then

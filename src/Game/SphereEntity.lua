@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents an actual drawable form of Spheres.
 ---@class SphereEntity
----@overload fun(pos, color):SphereEntity
+---@overload fun(pos, color, layer):SphereEntity
 local SphereEntity = class:derive("SphereEntity")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -13,7 +13,8 @@ local Color = require("src.Essentials.Color")
 ---Constructs a new Sphere Entity.
 ---@param pos Vector2 The initial position of this Sphere Entity.
 ---@param color integer The initial sphere color.
-function SphereEntity:new(pos, color)
+---@param layer string? The layer on which the sphere's idle particles should appear. If not specified, they will be drawn in the main pass of the Particle Manager, i.e. on top of everything.
+function SphereEntity:new(pos, color, layer)
 	self.pos = pos
 	self.angle = 0
 	self.scale = Vec2(1)
@@ -21,13 +22,14 @@ function SphereEntity:new(pos, color)
 	self.colorM = Color()
 	self.color = color
 	self.alpha = 1
+	self.layer = layer
 
 	self.config = _Game.configManager.spheres[color]
 	self.config.shadowOffset = _ParseVec2(self.config.shadowOffset) or Vec2(4)
 
 	self.shadowSprite = _Game.resourceManager:getSprite(self.config.shadowSprite or "sprites/game/ball_shadow.json")
 	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
-	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, pos)
+	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, pos, layer)
 end
 
 
@@ -89,7 +91,7 @@ function SphereEntity:setColor(color)
 		self.particle = nil
 	end
 	if self.config.idleParticle then
-		self.particle = _Game:spawnParticle(self.config.idleParticle, self.pos)
+		self.particle = _Game:spawnParticle(self.config.idleParticle, self.pos, self.layer)
 	end
 end
 
@@ -99,6 +101,17 @@ end
 ---@param alpha number The transparency of this entity, from `0` (fully invisible) to `1` (fully visible).
 function SphereEntity:setAlpha(alpha)
 	self.alpha = alpha
+end
+
+
+
+---Moves the idle particle effect of this sphere entity to the provided layer.
+---@param layer string The new layer name.
+function SphereEntity:setLayer(layer)
+	self.layer = layer
+	if self.particle then
+		self.particle:setLayer(layer)
+	end
 end
 
 
@@ -114,7 +127,7 @@ function SphereEntity:destroy(spawnParticle)
 		self.particle = nil
 	end
 	if spawnParticle and self.config.destroyParticle then
-		_Game:spawnParticle(self.config.destroyParticle, self.pos)
+		_Game:spawnParticle(self.config.destroyParticle, self.pos, self.layer)
 	end
 end
 

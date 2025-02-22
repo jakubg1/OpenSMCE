@@ -44,4 +44,10 @@ function ParticlePacket:clean()
 	self.manager:cleanParticlePacket(self)
 end
 
+function ParticlePacket:setLayer(layer)
+	self.layer = layer
+	-- HACK: Move all spawners and pieces belonging to this Packet by iterating over all of them.
+	self.manager:setParticlePacketLayer(self, layer)
+end
+
 return ParticlePacket

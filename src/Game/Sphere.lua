@@ -44,7 +44,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.ghostTime = nil
     end
 
-	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
+	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color, self.map.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
 
 	self:loadConfig()
 
@@ -148,11 +148,6 @@ function Sphere:update(dt)
 			end
 		end
 	end
-
-	-- animation
-	local dist = self:getOffset() - self.animationPrevOffset
-	self.animationPrevOffset = self:getOffset()
-	self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or (2 / math.pi))) % self.frameCount
 end
 
 
@@ -600,12 +595,24 @@ function Sphere:draw(color, hidden, shadow)
 
 	local colorM = self:getColor()
 
-	-- Update the entity position.
+	-- Rolling animation
+	local dist = self:getOffset() - self.animationPrevOffset
+	self.animationPrevOffset = self:getOffset()
+	self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or (2 / math.pi))) % self.frameCount
+
+	-- Update the entity position, rotation, scale, frame, etc.
 	self.entity:setPos(pos)
 	self.entity:setAngle(angle)
 	self.entity:setScale(scale)
 	self.entity:setFrame(frame)
 	self.entity:setColorM(colorM)
+
+	-- Move the particles to the appropriate layer.
+	if self:getHidden() then
+		self.entity:setLayer(self.map.isDummy and "_DUMMY_SPHERES_H" or "_SPHERES_H")
+	else
+		self.entity:setLayer(self.map.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
+	end
 
 	self.entity:draw(shadow)
 

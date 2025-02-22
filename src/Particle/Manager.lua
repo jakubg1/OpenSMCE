@@ -63,6 +63,19 @@ function ParticleManager:cleanParticlePacket(particlePacket)
 	end
 end
 
+function ParticleManager:setParticlePacketLayer(particlePacket, layer)
+	for i, particleSpawner in ipairs(self.particleSpawners) do
+		if particleSpawner.packet == particlePacket then
+			particleSpawner.layer = layer
+		end
+	end
+	for i, particlePiece in ipairs(self.particlePieces) do
+		if particlePiece.packet == particlePacket then
+			particlePiece.layer = layer
+		end
+	end
+end
+
 function ParticleManager:getParticlePacketID(particlePacket)
 	for i, particlePacketT in ipairs(self.particlePackets) do
 		if particlePacket == particlePacketT then return i end
