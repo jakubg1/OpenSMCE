@@ -648,84 +648,6 @@ end
 
 
 
----Returns currently used color generator data.
----@return table
-function Level:getCurrentColorGenerator()
-	if self.danger then
-		return _Game.configManager.colorGenerators[self.colorGeneratorDanger]
-	else
-		return _Game.configManager.colorGenerators[self.colorGeneratorNormal]
-	end
-end
-
-
-
----Generates a new color for the Shooter.
----@return integer
-function Level:getNewShooterColor()
-	return self:generateColor(self:getCurrentColorGenerator())
-end
-
-
-
----Generates a color based on the data.
----@param data table Shooter color generator data.
----@return integer
-function Level:generateColor(data)
-	if data.type == "random" then
-		-- Make a pool with colors which are on the board.
-		local pool = {}
-		for i, color in ipairs(data.colors) do
-			if not data.hasToExist or self.colorManager:isColorExistent(color) then
-				table.insert(pool, color)
-			end
-		end
-		-- Return a random item from the pool.
-		if #pool > 0 then
-			return pool[math.random(#pool)]
-		end
-
-	elseif data.type == "nearEnd" then
-		-- Select a random path.
-		local path = self:getRandomPath(true, data.pathsInDangerOnly)
-		if not path:getEmpty() then
-			-- Get a SphereChain nearest to the pyramid
-			local sphereChain = path.sphereChains[1]
-			-- Iterate through all groups and then spheres in each group
-			local lastGoodColor = nil
-			-- reverse iteration!!!
-			for i, sphereGroup in ipairs(sphereChain.sphereGroups) do
-				for j = #sphereGroup.spheres, 1, -1 do
-					local sphere = sphereGroup.spheres[j]
-					local color = sphere.color
-					-- If this color is generatable, check if we're lucky this time.
-					if _Utils.isValueInTable(data.colors, color) then
-						if math.random() < data.selectChance then
-							return color
-						end
-						-- Save this color in case if no more spheres are left.
-						lastGoodColor = color
-					end
-				end
-			end
-			-- no more spheres left, get the last good one if exists
-			if lastGoodColor then
-				return lastGoodColor
-			end
-		end
-	end
-
-	-- Else, return a fallback value.
-	if type(data.fallback) == "table" then
-		return self:generateColor(data.fallback)
-	end
-	return data.fallback
-end
-
-
-
-
-
 ---Returns `true` if no Paths on this Level's Map contain any Spheres.
 ---@return boolean
 function Level:getEmpty()
@@ -820,6 +742,18 @@ function Level:getRandomPath(notEmpty, inDanger)
 	else
 		return self:getRandomPath()
 	end
+end
+
+
+
+---Returns all sphere colors that can spawn on this level on the path.
+---@return table
+function Level:getSpawnableColors()
+	local colors = {}
+	for i, path in ipairs(self.map.paths) do
+		colors = _Utils.tableUnion(colors, path:getSpawnableColors())
+	end
+	return colors
 end
 
 

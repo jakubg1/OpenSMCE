@@ -44,7 +44,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.ghostTime = nil
     end
 
-	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color, self.map.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
+	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
 
 	self:loadConfig()
 

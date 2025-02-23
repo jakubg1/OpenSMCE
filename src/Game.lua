@@ -350,7 +350,7 @@ end
 
 
 ---Spawns and returns a particle packet.
----@param name string The name of a particle packet.
+---@param name string|table The name of a particle packet, or its definition as a table.
 ---@param pos Vector2 The position for the particle packet to be spawned.
 ---@param layer string? The layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game, and not UI.
 ---@return ParticlePacket

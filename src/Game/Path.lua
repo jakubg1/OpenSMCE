@@ -110,6 +110,19 @@ end
 
 
 
+---Returns all sphere colors that can spawn on this Path.
+---@return table
+function Path:getSpawnableColors()
+	if self.colorRules.type == "random" then
+		return _Utils.tableRemoveDuplicates(self.colorRules.colors)
+	elseif self.colorRules.type == "pattern" then
+		return _Utils.tableRemoveDuplicates(self.colorRules.pattern)
+	end
+	error(string.format("Invalid colorRules type for the level: %s", self.colorRules.type))
+end
+
+
+
 ---Updates the Path.
 ---@param dt number Delta time in seconds.
 function Path:update(dt)

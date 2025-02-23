@@ -23,6 +23,7 @@ function Shooter:new(data)
 
     self.color = 0
     self.nextColor = 0
+    self.suppressColorRemoval = false
     self.shotCooldown = nil
     self.shotCooldownFade = nil
     self.speedShotSpeed = 0
@@ -125,12 +126,16 @@ function Shooter:update(dt)
     -- filling
     if self:isActive() then
         -- remove nonexistent colors, but only if the current color generator allows removing these colors
-        local remTable = _Game.level:getCurrentColorGenerator().colorsRemoveIfNonexistent
-        if remTable and _Utils.isValueInTable(remTable, self.color) and not _Game.level.colorManager:isColorExistent(self.color) then
-            self:setColor(0)
-        end
-        if remTable and _Utils.isValueInTable(remTable, self.nextColor) and not _Game.level.colorManager:isColorExistent(self.nextColor) then
-            self:setNextColor(0)
+        if not self.suppressColorRemoval then
+            local remTable = self:getCurrentColorGenerator().discardableColors
+            if remTable then
+                if _Utils.isValueInTable(remTable, self.color) and not _Game.level.colorManager:isColorExistent(self.color) then
+                    self:setColor(0)
+                end
+                if _Utils.isValueInTable(remTable, self.nextColor) and not _Game.level.colorManager:isColorExistent(self.nextColor) then
+                    self:setNextColor(0)
+                end
+            end
         end
         self:fill()
     end
@@ -252,7 +257,7 @@ end
 ---@return integer
 function Shooter:getNextColor()
     if self.multiColorCount == 0 then
-        return _Game.level:getNewShooterColor()
+        return self:getNewShooterColor()
     else
         self.multiColorCount = self.multiColorCount - 1
         return self.multiColorColor
@@ -263,23 +268,113 @@ end
 
 ---Fills any empty spaces in the shooter.
 function Shooter:fill()
+    -- If anything is going to happen, play the sphere fill sound and reset the discard suppression flag.
     if self.nextColor == 0 or self.color == 0 then
+        self.suppressColorRemoval = false
         _Game:playSound(self.config.sounds.sphereFill, self.pos)
     end
+    -- Fill the reserve slot with a random color.
     if self.nextColor == 0 then
         self:setNextColor(self:getNextColor())
     end
+    -- If the main slot is empty and the reserve slot is not, move the reserve sphere to the main sphere and generate another sphere for the reserve slot.
     if self.color == 0 and self.nextColor ~= 0 then
         self:setColor(self.nextColor)
-        self:setNextColor(self:getNextColor())
+        -- If we are suppressing color removal, spawn two spheres of the same color.
+        if self.suppressColorRemoval then
+            self:setNextColor(self.color)
+        else
+            self:setNextColor(self:getNextColor())
+        end
     end
 end
 
 ---Fills only the reserve space in the shooter.
 function Shooter:fillReserve()
     if self.nextColor == 0 then
+        self.suppressColorRemoval = false
         self:setNextColor(self:getNextColor())
     end
+end
+
+
+
+---Returns currently used color generator data for the Shooter.
+---@return table
+function Shooter:getCurrentColorGenerator()
+	if _Game.level.danger then
+		return _Game.configManager.colorGenerators[_Game.level.colorGeneratorDanger]
+	else
+		return _Game.configManager.colorGenerators[_Game.level.colorGeneratorNormal]
+	end
+end
+
+---Generates a color based on the provided Color Generator.
+---@param data table Shooter color generator data.
+---@return integer
+function Shooter:generateColor(data)
+	if data.type == "random" then
+		-- Make a pool with colors which are on the board.
+		local pool = {}
+		for i, color in ipairs(data.colors) do
+			if not data.hasToExist or _Game.level.colorManager:isColorExistent(color) then
+				table.insert(pool, color)
+			end
+		end
+		-- Return a random item from the pool.
+		if #pool > 0 then
+			return pool[math.random(#pool)]
+		end
+	elseif data.type == "nearEnd" then
+		-- Select a random path.
+		local path = _Game.level:getRandomPath(true, data.pathsInDangerOnly)
+		if not path:getEmpty() then
+			-- Get a SphereChain nearest to the pyramid
+			local sphereChain = path.sphereChains[1]
+			-- Iterate through all groups and then spheres in each group
+			local lastGoodColor = nil
+			-- reverse iteration!!!
+			for i, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for j = #sphereGroup.spheres, 1, -1 do
+					local sphere = sphereGroup.spheres[j]
+					local color = sphere.color
+					-- If this color is generatable, check if we're lucky this time.
+					if _Utils.isValueInTable(data.colors, color) then
+						if math.random() < data.selectChance then
+							return color
+						end
+						-- Save this color in case if no more spheres are left.
+						lastGoodColor = color
+					end
+				end
+			end
+			-- no more spheres left, get the last good one if exists
+			if lastGoodColor then
+				return lastGoodColor
+			end
+		end
+    elseif data.type == "giveUp" then
+        -- Draw a random color and keep it no matter what. Also, trip the shooter flag so it does not get rid of it anytime soon.
+        -- TODO: This is some very finicky code. How do we communicate this better? The color generator should not be in charge of doing this fallback, or should it?
+        self.suppressColorRemoval = true
+        local colors = data.colors
+        if data.spawnableColorsOnly then
+            colors = _Utils.tableMultiply(colors, _Game.level:getSpawnableColors())
+        end
+        return colors[math.random(#colors)]
+	end
+
+	-- Else, return a fallback value.
+	if type(data.fallback) == "table" then
+		return self:generateColor(data.fallback)
+	end
+	return data.fallback
+end
+
+---Generates a new color for the Shooter.
+---@return integer
+function Shooter:getNewShooterColor()
+	return self:generateColor(self:getCurrentColorGenerator())
 end
 
 
