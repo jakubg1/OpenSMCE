@@ -1,0 +1,33 @@
+- (object) - The root object.
+    - sequence (array) - Defines a Level Sequence. This is a list of states every level can have and will be performed in order, unless specified otherwise.
+        - (object) {type: The type of the level sequence entry.} - A single level sequence step entry.
+            - "wait" - Waits a specified amount of time and then moves to the next step.
+                - delay (number) [>0] - The amount of time that the level sequence should wait, in seconds.
+            - "waitForCollectibles" - Waits until all collectibles in the level are gone, and then moves to the next step.
+            - "uiCallback" - Executes a UI Script callback.
+                - callback (string) - The name of the UI Script callback function to be executed.
+                - waitUntilFinished (boolean) - If set, the sequence will wait until the `levelContinue` UI Script function will be executed. Otherwise, the sequence will immediately move on to the next step.
+            - "pathEntity" - Spawns Path Entities on all of the paths.
+                - pathEntity (PathEntity) - The Path Entity that should be spawned.
+                - separatePaths (boolean) - If set, the next Path Entity will be spawned only after the previous Path Entity has been destroyed.
+                - launchDelay (number) [>=0] - The amount of time to wait between consecutive spawns of Path Entities, in seconds.
+                - waitUntilFinished (boolean) - If set, the sequence will wait until the last Path Entity has been destroyed before moving on to the next step. Otherwise, the sequence will move on to the next step immediately.
+                - skippable (boolean) - Doesn't work for now.
+            - "gameplay" - The actual gameplay of a level.
+                - warmupTime (number) [>=0] - The amount of time to wait after spawning the sphere trains until the control is given to the player.
+                - previewFirstShooterColor* (boolean) - If set, the first sphere that will be available for shooting will be displayed in the shooter's reserve slot during the warmup time.
+                - onFail* (integer) [>=1] - The level sequence index to jump to if the level is lost. If not specified, the sequence will move to the next step.
+                - onWin* (integer) [>=1] - The level sequence index to jump to if the level is won (the target is reached and all spheres are destroyed). If not specified, the sequence will move to the next step.
+                - onObjectivesReached* (integer) [>=1] - The level sequence index to jump to if all of the level's objectives have been reached. Invalidates `onWin`.
+            - "fail" - The spheres will rush to the endpoint.
+                - waitUntilFinished (boolean) - If set, the sequence will wait until all spheres are gone, and then the sequence will move to the next step. Otherwise, the sequence will move on to the next step immediately.
+                - skippable (boolean) - Doesn't work for now.
+            - "clearBoard" - Empties the Shooter and disables the Net. Transient: immediately jumps to the next step.
+            - "collectibleEffect" - Activates a list of Collectible Effects without a position set.
+                - effects (array) - A list of Collectible Effects.
+                    - ($collectible_effect) - A single Collectible Effect.
+            - "end" - The end of a level.
+                - status (string) - Can be one of the following:
+                    - "win" - The level will be registered as won and a `levelComplete` UI callback will be executed.
+                    - "fail" - The level will be registered as lost and a `levelLost` UI callback will be executed.
+            - muteMusic* (boolean) - If set, the level and danger music will not be playing while this level sequence entry is active.

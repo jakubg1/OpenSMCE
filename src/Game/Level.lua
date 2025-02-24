@@ -55,10 +55,9 @@ function Level:new(data)
 
 	self.lightningStormDelay = _Game.configManager.gameplay.lightningStorm and Expression(_Game.configManager.gameplay.lightningStorm.delay)
 
-	self.levelSequence = _Game.configManager.gameplay.levelSequence
+	self.levelSequence = _Game.resourceManager:getLevelSequenceConfig(data.sequence).sequence
 
-	-- Additional variables come from this method!
-	self:reset()
+	-- Additional variables come from `:reset()`!
 end
 
 
@@ -196,11 +195,6 @@ function Level:updateLogic(dt)
 	-- Current sequence step config
 	local step = self.levelSequence[self.levelSequenceStep]
 
-	-- No step (when the level hasn't started yet)
-	if not step then
-		return
-	end
-
 	if step.type == "wait" then
 		self.levelSequenceVars.time = self.levelSequenceVars.time + dt
 		if self.levelSequenceVars.time >= step.delay then
@@ -226,7 +220,7 @@ function Level:updateLogic(dt)
 				break
 			else
 				local currentPath = self.map.paths[self.levelSequenceVars.pathID]
-				currentPath:spawnPathEntity(_Game.resourceManager:getPathEntityConfig(step.pathEntity))
+				currentPath:spawnPathEntity(step.pathEntity)
 				self.levelSequenceVars.pathID = self.levelSequenceVars.pathID + 1
 				self.levelSequenceVars.delay = step.launchDelay
 				isThereAnythingOnPreviousPaths = true
@@ -289,7 +283,7 @@ end
 
 ---Adjusts which music is playing based on the level's internal state.
 function Level:updateMusic()
-	local mute = self.levelSequenceStep == 0 or self:getCurrentSequenceStep().muteMusic or self.pause
+	local mute = self:getCurrentSequenceStep().muteMusic or self.pause
 
 	if self.dangerMusic then
 		-- If the level hasn't started yet, is lost, won or the game is paused,
@@ -793,7 +787,6 @@ end
 ---Takes one life away from the current Profile, and either restarts this Level, or ends the game.
 function Level:tryAgain()
 	if _Game:getCurrentProfile():loseLevel() then
-		_Game.uiManager:executeCallback("levelStart")
 		self:reset()
 	else
 		_Game:gameOver()
@@ -802,17 +795,8 @@ end
 
 
 
----Starts the Level.
-function Level:begin()
-	self.music:stop()
-	self.music:play()
-	self:advanceSequenceStep()
-end
-
-
-
----Resumes the Level after loading data.
-function Level:beginLoad()
+---Starts the level music from the beginning.
+function Level:restartMusic()
 	self.music:stop()
 	self.music:play()
 end
@@ -831,7 +815,12 @@ end
 function Level:jumpToSequenceStep(stepN)
 	self.levelSequenceStep = stepN
 	local step = self.levelSequence[self.levelSequenceStep]
-	if step.type == "pathEntity" then
+	if step.type == "uiCallback" then
+		_Game.uiManager:executeCallback(step.callback)
+		if not step.waitUntilFinished then
+			self:advanceSequenceStep()
+		end
+	elseif step.type == "pathEntity" then
 		self.levelSequenceVars = {pathID = 1, delay = 0}
 	elseif step.type == "gameplay" then
 		self.levelSequenceVars = {warmupTime = 0}
@@ -858,21 +847,23 @@ end
 
 
 ---Returns the type of the current level sequence step.
----@return string?
+---@return string
 function Level:getCurrentSequenceStepType()
-	if self.levelSequenceStep == 0 then
-		return
-	end
 	return self.levelSequence[self.levelSequenceStep].type
 end
 
 ---Returns the data of the current level sequence step.
----@return table?
+---@return table
 function Level:getCurrentSequenceStep()
-	if self.levelSequenceStep == 0 then
-		return
-	end
 	return self.levelSequence[self.levelSequenceStep]
+end
+
+---Moves on to the next sequence step if the current step is a UI callback which is waiting.
+function Level:continueSequence()
+	local step = self:getCurrentSequenceStep()
+	if step.type == "uiCallback" and step.waitUntilFinished then
+		self:advanceSequenceStep()
+	end
 end
 
 
@@ -963,6 +954,7 @@ function Level:reset()
 
 	self.levelSequenceStep = 0
 	self.levelSequenceVars = nil
+	self:jumpToSequenceStep(1)
 
 	self.gameSpeed = 1
 	self.gameSpeedTime = 0

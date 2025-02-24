@@ -1,5 +1,6 @@
 - (object) - The root object.
     - map (string) - The map name. Specifically, the name of the folder in the `maps` folder of the game.
+    - sequence (LevelSequence) - The level sequence which will be obeyed for this level.
     - music (Music) - Which soundtrack should be played throughout the level.
     - dangerMusic* (Music) - Which soundtrack should be played during the danger phase.
     - ambientMusic* (Music) - Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks.

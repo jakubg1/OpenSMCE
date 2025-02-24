@@ -1,6 +1,4 @@
 - (object) - The root entry.
-    - levelSequence (array) - Defines a Level Sequence. This is a list of states every level can have and will be performed in order, unless specified otherwise.
-        - ($level_sequence_entry) - A single sequence step.
     - ui (object) - Defines parameters which are constant throughout the entire UI.
         - buttonClickSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been clicked.
         - buttonHoverSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been hovered with a mouse cursor.

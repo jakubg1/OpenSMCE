@@ -1,0 +1,337 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "sequence": {
+            "type": "array",
+            "description": "Defines a Level Sequence. This is a list of states every level can have and will be performed in order, unless specified otherwise.",
+            "items": {
+                "type": "object",
+                "description": "A single level sequence step entry.",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "wait",
+                            "waitForCollectibles",
+                            "uiCallback",
+                            "pathEntity",
+                            "gameplay",
+                            "fail",
+                            "clearBoard",
+                            "collectibleEffect",
+                            "end"
+                        ]
+                    }
+                },
+                "allOf": [
+                    {
+                        "properties": {
+                            "type": {
+                                "description": "The type of the level sequence entry."
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "wait",
+                                    "description": "Waits a specified amount of time and then moves to the next step."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "delay": {
+                                    "type": "number",
+                                    "description": "The amount of time that the level sequence should wait, in seconds.",
+                                    "exclusiveMinimum": 0.0
+                                }
+                            },
+                            "required": [
+                                "delay"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "waitForCollectibles",
+                                    "description": "Waits until all collectibles in the level are gone, and then moves to the next step."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "uiCallback",
+                                    "description": "Executes a UI Script callback."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "callback": {
+                                    "type": "string",
+                                    "description": "The name of the UI Script callback function to be executed."
+                                },
+                                "waitUntilFinished": {
+                                    "type": "boolean",
+                                    "description": "If set, the sequence will wait until the levelContinue UI Script function will be executed. Otherwise, the sequence will immediately move on to the next step.",
+                                    "markdownDescription": "If set, the sequence will wait until the `levelContinue` UI Script function will be executed. Otherwise, the sequence will immediately move on to the next step."
+                                }
+                            },
+                            "required": [
+                                "callback",
+                                "waitUntilFinished"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "pathEntity",
+                                    "description": "Spawns Path Entities on all of the paths."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "pathEntity": {
+                                    "$ref": "_structures/PathEntity.json",
+                                    "description": "The Path Entity that should be spawned."
+                                },
+                                "separatePaths": {
+                                    "type": "boolean",
+                                    "description": "If set, the next Path Entity will be spawned only after the previous Path Entity has been destroyed."
+                                },
+                                "launchDelay": {
+                                    "type": "number",
+                                    "description": "The amount of time to wait between consecutive spawns of Path Entities, in seconds.",
+                                    "minimum": 0.0
+                                },
+                                "waitUntilFinished": {
+                                    "type": "boolean",
+                                    "description": "If set, the sequence will wait until the last Path Entity has been destroyed before moving on to the next step. Otherwise, the sequence will move on to the next step immediately."
+                                },
+                                "skippable": {
+                                    "type": "boolean",
+                                    "description": "Doesn't work for now."
+                                }
+                            },
+                            "required": [
+                                "pathEntity",
+                                "separatePaths",
+                                "launchDelay",
+                                "waitUntilFinished",
+                                "skippable"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "gameplay",
+                                    "description": "The actual gameplay of a level."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "warmupTime": {
+                                    "type": "number",
+                                    "description": "The amount of time to wait after spawning the sphere trains until the control is given to the player.",
+                                    "minimum": 0.0
+                                },
+                                "previewFirstShooterColor": {
+                                    "type": "boolean",
+                                    "description": "If set, the first sphere that will be available for shooting will be displayed in the shooter's reserve slot during the warmup time."
+                                },
+                                "onFail": {
+                                    "type": "integer",
+                                    "description": "The level sequence index to jump to if the level is lost. If not specified, the sequence will move to the next step.",
+                                    "minimum": 1
+                                },
+                                "onWin": {
+                                    "type": "integer",
+                                    "description": "The level sequence index to jump to if the level is won (the target is reached and all spheres are destroyed). If not specified, the sequence will move to the next step.",
+                                    "minimum": 1
+                                },
+                                "onObjectivesReached": {
+                                    "type": "integer",
+                                    "description": "The level sequence index to jump to if all of the level's objectives have been reached. Invalidates onWin.",
+                                    "markdownDescription": "The level sequence index to jump to if all of the level's objectives have been reached. Invalidates `onWin`.",
+                                    "minimum": 1
+                                }
+                            },
+                            "required": [
+                                "warmupTime"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "fail",
+                                    "description": "The spheres will rush to the endpoint."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "waitUntilFinished": {
+                                    "type": "boolean",
+                                    "description": "If set, the sequence will wait until all spheres are gone, and then the sequence will move to the next step. Otherwise, the sequence will move on to the next step immediately."
+                                },
+                                "skippable": {
+                                    "type": "boolean",
+                                    "description": "Doesn't work for now."
+                                }
+                            },
+                            "required": [
+                                "waitUntilFinished",
+                                "skippable"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "clearBoard",
+                                    "description": "Empties the Shooter and disables the Net. Transient: immediately jumps to the next step."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "collectibleEffect",
+                                    "description": "Activates a list of Collectible Effects without a position set."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "effects": {
+                                    "type": "array",
+                                    "description": "A list of Collectible Effects.",
+                                    "items": {
+                                        "$ref": "collectible_effect.json",
+                                        "description": "A single Collectible Effect."
+                                    }
+                                }
+                            },
+                            "required": [
+                                "effects"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "end",
+                                    "description": "The end of a level."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "status": {
+                                    "type": "string",
+                                    "description": "Can be one of the following:",
+                                    "oneOf": [
+                                        {
+                                            "const": "win",
+                                            "description": "The level will be registered as won and a levelComplete UI callback will be executed.",
+                                            "markdownDescription": "The level will be registered as won and a `levelComplete` UI callback will be executed."
+                                        },
+                                        {
+                                            "const": "fail",
+                                            "description": "The level will be registered as lost and a levelLost UI callback will be executed.",
+                                            "markdownDescription": "The level will be registered as lost and a `levelLost` UI callback will be executed."
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "status"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
+                ],
+                "required": [
+                    "type"
+                ]
+            }
+        }
+    },
+    "required": [
+        "sequence"
+    ],
+    "additionalProperties": false
+}

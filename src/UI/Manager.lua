@@ -19,8 +19,8 @@ function UIManager:new()
     loadingGetProgress = function() return _Game.resourceManager:getLoadProgress("main") end,
 
     levelStart = function() _Game:startLevel() end,
-    levelBegin = function() _Game.level:begin() end,
-    levelBeginLoad = function() _Game.level:beginLoad() end,
+    levelRestartMusic = function() _Game.level:restartMusic() end,
+    levelContinue = function() _Game.level:continueSequence() end,
     levelPause = function() _Game.level:setPause(true) end,
     levelUnpause = function() _Game.level:setPause(false) end,
     levelRestart = function() _Game.level:tryAgain() end,

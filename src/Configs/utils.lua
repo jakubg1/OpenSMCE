@@ -5,6 +5,7 @@ local Color = require("src.Essentials.Color")
 local Expression = require("src.Expression")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
+local LevelSequenceConfig = require("src.Configs.LevelSequence")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
@@ -287,6 +288,16 @@ end
 ---@return CollectibleGeneratorConfig?
 function utils.parseCollectibleGeneratorConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Collectible Generator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
+end
+
+---@return LevelSequenceConfig
+function utils.parseLevelSequenceConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Level Sequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
+end
+
+---@return LevelSequenceConfig?
+function utils.parseLevelSequenceConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Level Sequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
 end
 
 ---@return PathEntityConfig

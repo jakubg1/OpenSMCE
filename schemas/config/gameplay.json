@@ -4,14 +4,6 @@
     "description": "The root entry.",
     "properties": {
         "$schema": true,
-        "levelSequence": {
-            "type": "array",
-            "description": "Defines a Level Sequence. This is a list of states every level can have and will be performed in order, unless specified otherwise.",
-            "items": {
-                "$ref": "level_sequence_entry.json",
-                "description": "A single sequence step."
-            }
-        },
         "ui": {
             "type": "object",
             "description": "Defines parameters which are constant throughout the entire UI.",
@@ -202,7 +194,6 @@
         }
     },
     "required": [
-        "levelSequence",
         "ui",
         "sphereBehavior"
     ],

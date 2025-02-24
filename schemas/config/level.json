@@ -9,6 +9,10 @@
             "description": "The map name. Specifically, the name of the folder in the maps folder of the game.",
             "markdownDescription": "The map name. Specifically, the name of the folder in the `maps` folder of the game."
         },
+        "sequence": {
+            "$ref": "../_structures/LevelSequence.json",
+            "description": "The level sequence which will be obeyed for this level."
+        },
         "music": {
             "$ref": "../_structures/Music.json",
             "description": "Which soundtrack should be played throughout the level."
@@ -179,6 +183,7 @@
     },
     "required": [
         "map",
+        "sequence",
         "music",
         "colorGeneratorNormal",
         "colorGeneratorDanger",

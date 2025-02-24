@@ -17,6 +17,7 @@ local CollectibleConfig = require("src.Configs.Collectible")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local DifficultyConfig = require("src.Configs.Difficulty")
+local LevelSequenceConfig = require("src.Configs.LevelSequence")
 local LevelSetConfig = require("src.Configs.LevelSet")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
@@ -62,6 +63,7 @@ function ResourceManager:new()
 		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig, paramSet = 2},
 		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig, paramSet = 2},
 		difficulty = {extension = "json", constructor = DifficultyConfig, paramSet = 2},
+		levelSequence = {extension = "json", constructor = LevelSequenceConfig, paramSet = 2},
 		levelSet = {extension = "json", constructor = LevelSetConfig, paramSet = 2},
 		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
 		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
@@ -83,6 +85,7 @@ function ResourceManager:new()
 		["color_palette.json"] = "colorPalette",
 		["config/color_generator.json"] = "colorGenerator",
 		["config/level.json"] = "level",
+		["config/level_set.json"] = "levelSet",
 		["config/shooter.json"] = "shooter",
 		["config/shooter_movement.json"] = "shooterMovement",
 		["config/sphere.json"] = "sphere",
@@ -91,7 +94,7 @@ function ResourceManager:new()
 		["collectible_effect.json"] = "collectibleEffect",
 		["collectible_generator.json"] = "collectibleGenerator",
 		["difficulty.json"] = "difficulty",
-		["config/level_set.json"] = "levelSet",
+		["level_sequence.json"] = "levelSequence",
 		["path_entity.json"] = "pathEntity",
 		["score_event.json"] = "scoreEvent",
 		["sphere_selector.json"] = "sphereSelector"
@@ -218,6 +221,13 @@ end
 ---@return DifficultyConfig
 function ResourceManager:getDifficultyConfig(path)
 	return self:getAsset(path, "difficulty")
+end
+
+---Retrieves a Level Sequence Config by a given path.
+---@param path string The resource path.
+---@return LevelSequenceConfig
+function ResourceManager:getLevelSequenceConfig(path)
+	return self:getAsset(path, "level sequence")
 end
 
 ---Retrieves a Level Set Config by a given path.
