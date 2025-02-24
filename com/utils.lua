@@ -232,6 +232,72 @@ end
 
 
 
+---Returns a table with duplicate values from table `t` removed.
+---@param t table The table to have duplicate values removed.
+---@return table
+function utils.tableRemoveDuplicates(t)
+	local values = {}
+	local r = {}
+	for i, v in ipairs(t) do
+		if not values[v] then
+			values[v] = true
+			table.insert(r, v)
+		end
+	end
+	return r
+end
+
+
+
+---Returns a table with combined entries of both tables. All values are unique; duplicates are removed.
+---@param t1 table The first table.
+---@param t2 table The second table.
+---@return table
+function utils.tableUnion(t1, t2)
+	local t = {}
+	for i, v in ipairs(t1) do
+		table.insert(t, v)
+	end
+	for i, v in ipairs(t2) do
+		table.insert(t, v)
+	end
+	return utils.tableRemoveDuplicates(t)
+end
+
+
+
+---Returns a table with entries which are only present in both tables.
+---@param t1 table The first table.
+---@param t2 table The second table.
+---@return table
+function utils.tableMultiply(t1, t2)
+	local t = {}
+	for i, v in ipairs(t1) do
+		if utils.isValueInTable(t2, v) then
+			table.insert(t, v)
+		end
+	end
+	return t
+end
+
+
+
+---Returns a table `t1` with all values from the table `t2` removed.
+---@param t1 table The table which contains the possible values.
+---@param t2 table The table which should be subtracted from the first table.
+---@return table
+function utils.tableSubtract(t1, t2)
+	local t = {}
+	for i, v in ipairs(t1) do
+		if not utils.isValueInTable(t2, v) then
+			table.insert(t, v)
+		end
+	end
+	return t
+end
+
+
+
 ---Returns an index of the provided weight list, randomly picked from that list.
 ---For example, providing `{1, 2, 3}` will return `1` 1/6 of the time, `2` 2/6 of the time and `3` 3/6 of the time.
 ---@param weights table A list of integers, which depict the weights.
