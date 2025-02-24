@@ -58,6 +58,7 @@ function Level:new(data)
 	self.levelSequence = _Game.resourceManager:getLevelSequenceConfig(data.sequence).sequence
 
 	-- Additional variables come from `:reset()`!
+	self:reset()
 end
 
 
@@ -952,10 +953,6 @@ function Level:reset()
 	self.lost = false
 	self.ended = false
 
-	self.levelSequenceStep = 0
-	self.levelSequenceVars = nil
-	self:jumpToSequenceStep(1)
-
 	self.gameSpeed = 1
 	self.gameSpeedTime = 0
 	self.lightningStorms = {}
@@ -966,6 +963,15 @@ function Level:reset()
 
 	self.shooter.speedShotTime = 0
 	self.colorManager:reset()
+end
+
+
+
+---Resets the sequence to the first step.
+function Level:resetSequence()
+	self.levelSequenceStep = 0
+	self.levelSequenceVars = nil
+	self:jumpToSequenceStep(1)
 end
 
 

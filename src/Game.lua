@@ -148,7 +148,7 @@ function Game:startLevel()
 		self.level:deserialize(savedLevelData)
 		self.uiManager:executeCallback("levelLoaded")
 	else
-			self.level:reset()
+			self.level:resetSequence()
 		end
 	end
 end
