@@ -789,6 +789,7 @@ end
 function Level:tryAgain()
 	if _Game:getCurrentProfile():loseLevel() then
 		self:reset()
+		self:resetSequence()
 	else
 		_Game:gameOver()
 	end
