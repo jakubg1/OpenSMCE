@@ -11,6 +11,7 @@ local VersionManager = class:derive("VersionManager")
 function VersionManager:new(path)
   -- versions sorted from most recent to oldest
 	self.versions = {
+    "v0.49.0",
     "v0.48.0",
     "v0.47.2",
     "v0.47.1",
@@ -20,7 +21,8 @@ function VersionManager:new(path)
   }
 
 	self.versionData = {
-    ["v0.48.0"] = {inconvertible = false},
+    ["v0.49.0"] = {inconvertible = false},
+    ["v0.48.0"] = {inconvertible = true},
     ["v0.47.2"] = {inconvertible = true},
     ["v0.47.1"] = {inconvertible = true},
 		["v0.40.0"] = {inconvertible = true, supported = true},
