@@ -48,7 +48,7 @@ function SphereGroup:update(dt)
 	local speedGrp = self:getLastChainedGroup()
 	local speedBound = speedGrp.sphereChain.path:getSpeed(speedGrp:getLastSphereOffset())
 
-	local speedDesired = self.sphereChain.speedOverrideBase + speedBound * self.sphereChain.speedOverrideMult
+	self.speedDesired = self.sphereChain.speedOverrideBase + speedBound * self.sphereChain.speedOverrideMult
 	if self:isMagnetizing() and not self:hasImmobileSpheres() then
 		self.maxSpeed = self.config.attractionSpeedBase + self.config.attractionSpeedMult * math.max(self.sphereChain.combo, 1)
 	else
@@ -67,18 +67,18 @@ function SphereGroup:update(dt)
 		elseif speedGrp:hasImmobileSpheres() then
 			-- The same goes for the first daisy-chained group.
 			self.maxSpeed = 0
-		elseif speedDesired >= 0 then
+		elseif self.speedDesired >= 0 then
 			-- Note that this group only pushes, so it must have positive speed in order to work!
-			self.maxSpeed = speedDesired
+			self.maxSpeed = self.speedDesired
 		end
 	end
 	-- If this group is last, it can pull spheres back when the speed is going to be negative.
 	if not self.nextGroup then
 		-- If the level is lost or this group is magnetizing at this moment, do not apply any other speed.
 		if not self.map.level.lost and not self:isMagnetizing() and not self:hasImmobileSpheres() then
-			if speedDesired < 0 then
+			if self.speedDesired < 0 then
 				-- Note that this group only pulls, so it must have negative speed in order to work!
-				self.maxSpeed = speedDesired
+				self.maxSpeed = self.speedDesired
 			end
 		end
 	end
@@ -98,7 +98,7 @@ function SphereGroup:update(dt)
 			local deccel = self.config.decceleration
 
 			-- Can be different if defined accordingly, such as reverse powerup, magnetizing or under a slow powerup.
-			if self.sphereChain.speedOverrideTime > 0 and speedDesired < 0 and not self:isMagnetizing() then
+			if self.sphereChain.speedOverrideTime > 0 and self.speedDesired < 0 and not self:isMagnetizing() then
 				deccel = self.sphereChain.speedOverrideDecc or deccel
 			elseif self:isMagnetizing() then
 				deccel = self.config.attractionAcceleration or deccel
@@ -146,15 +146,15 @@ function SphereGroup:update(dt)
 
 	-- Tick the powerup timers, but only if the current speed matches the desired value.
 	if self.sphereChain.speedOverrideTime > 0 then
-		local fw = not self.prevGroup and speedDesired >= 0 and speedDesired == self.speed
-		local bw = not self.nextGroup and speedDesired < 0 and speedDesired == self.speed
+		local fw = not self.prevGroup and self.speedDesired >= 0 and self.speedDesired == self.speed
+		local bw = not self.nextGroup and self.speedDesired < 0 and self.speedDesired == self.speed
 
 		if fw or bw then
 			self.sphereChain.speedOverrideTime = math.max(self.sphereChain.speedOverrideTime - dt, 0)
 		end
 
 		-- Reset the timer if the spheres are outside of the screen.
-		if not self.nextGroup and self:getLastSphereOffset() < 0 and speedDesired <= 0 then
+		if not self.nextGroup and self:getLastSphereOffset() < 0 and self.speedDesired <= 0 then
 			self.sphereChain.speedOverrideTime = 0
 		end
 
@@ -425,7 +425,12 @@ function SphereGroup:join()
 		sphere.sphereGroup = self.prevGroup
 	end
 	if self.speed < 0 then
+		if self.config.luxorized and self.speedDesired < 0 then
+			-- Reverse powerup in OG Luxor works a bit wonky.
+			self.prevGroup.speed = self.speed
+		else
 			self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self.sphereChain.combo, 1)
+		end
 		self.prevGroup.speedTime = self.config.knockbackTime
 	end
 	-- link the spheres from both groups
