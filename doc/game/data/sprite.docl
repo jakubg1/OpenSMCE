@@ -1,5 +1,5 @@
 - (object) - The root entry.
-    - path (Image) - The path to an image associated with this Sprite.
+    - image (Image) - The path to an image associated with this Sprite.
     - frameSize (Vector2) - The size of a single frame.
     - frameCuts* (object) - If specified, this Sprite will be a nine-slice sprite. Nine-sliced sprites do not specify their own size, which means that the rendered rectangle size needs to be specified whenever this Sprite is referred to. Not all structures support this notation, and only support standard sprites. The `frameSize` field still needs to be specified and is the full rectangle size.
         - x1 (integer) [>=0] - The first vertical cut offset, in pixels.

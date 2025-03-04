@@ -19,7 +19,7 @@ function SpriteConfig:new(data, path)
     local u = _ConfigUtils
     self._path = path
 
-    self.image = u.parseImage(data.path, path, "path")
+    self.image = u.parseImage(data.image, path, "image")
     self.frameSize = u.parseVec2(data.frameSize, path, "frameSize")
 
     if data.frameCuts then

@@ -4,7 +4,7 @@
     "description": "The root entry.",
     "properties": {
         "$schema": true,
-        "path": {
+        "image": {
             "$ref": "_structures/Image.json",
             "description": "The path to an image associated with this Sprite."
         },
@@ -75,7 +75,7 @@
         }
     },
     "required": [
-        "path",
+        "image",
         "frameSize",
         "states"
     ],
