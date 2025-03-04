@@ -1,11 +1,11 @@
 body {
 	font-family: tahoma;
 	color: #EEE;
-	background-color: #092977;
+	background-color: #137;
 }
 
 #banner {
-	background-color: #092977;
+	background-color: #127;
 	height: 150px;
 	width: 50%;
 	color: white;
@@ -13,13 +13,13 @@ body {
 }
 
 #navigation {
-	background-color: #092977;
-	width: 300px;
+	background-color: #127;
+	width: 400px;
 	float: left;
 }
 
 #main {
-	width: calc(100% - 320px);
+	width: calc(100% - 420px);
 	float: left;
 	padding: 10px;
 }
