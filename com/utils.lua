@@ -49,7 +49,7 @@ end
 
 ---Saves a file to the given path with the given contents, converted and beautified in JSON format. Errors out if the file cannot be created.
 ---@param path string The path to the file.
----@param data string The contents of the file.
+---@param data table The contents of the file.
 function utils.saveJson(path, data)
 	print("Saving JSON data to " .. path .. "...")
 	utils.saveFile(path, utils.jsonBeautify(json.encode(data)))

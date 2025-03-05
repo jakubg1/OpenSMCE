@@ -13,27 +13,25 @@ local Checkbox = require("src.BootScreen.UI.Checkbox")
 function BootSettings:new(bootScreen)
   	self.bootScreen = bootScreen
 
+	self.SETTINGS = {
+		{name = "Enable Discord Rich Presence", f = function(state) _EngineSettings:setDiscordRPC(state) end, tooltip = "Shows your game progress in your Discord profile, if you have Discord running\non your computer."},
+		{name = "Go back to the boot menu when exiting a game", f = function(state) _EngineSettings:setBackToBoot(state) end, tooltip = "If enabled, when quitting a game, the Boot Screen will show up again."},
+		{name = "  Even if the game window is closed by X", f = function(state) _EngineSettings:setBackToBootWithX(state) end, tooltip = "If enabled, when quitting a game by pressing X on the window, the Boot Screen\nwill show up again as well."},
+		{name = "Aiming Retical", f = function(state) _EngineSettings:setAimingRetical(state) end, tooltip = "Enables the Aiming Retical, which is either one defined by the game or\na simple placeholder, if not defined."},
+		{name = "Debug console window", f = function(state) _EngineSettings:setConsoleWindow(state) end, tooltip = "Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from the source code,\nbut the console output will be suppressed.\nYou will need to restart the engine for this setting change to take effect."},
+		{name = "Enable 3D Sound", f = function(state) _EngineSettings:set3DSound(state) end, tooltip = "Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker."},
+		{name = "Hide incompatible games", f = function(state) _EngineSettings:setHideIncompatibleGames(state) end, tooltip = "Hides all incompatible games from the boot menu, including games which have\nan unknown supported version."}
+	}
+
 	-- buttons
 	self.saveBtn = Button("Save", _FONT_BIG, Vec2(540, 530), Vec2(230, 24), function() _EngineSettings:save(); self.bootScreen:setScene("main") end)
 	self.menuBtn = Button("Cancel", _FONT_BIG, Vec2(540, 554), Vec2(230, 24), function() self.bootScreen:setScene("main") end)
-	self.settingCheckboxes = {
-		Checkbox("Enable Discord Rich Presence", _FONT_BIG, Vec2(34, 64), Vec2(732, 24), function(state) _EngineSettings:setDiscordRPC(state) end),
-		Checkbox("Go back to the boot menu when exiting a game", _FONT_BIG, Vec2(34, 88), Vec2(732, 24), function(state) _EngineSettings:setBackToBoot(state) end),
-		Checkbox("Aiming Retical", _FONT_BIG, Vec2(34, 112), Vec2(732, 24), function(state) _EngineSettings:setAimingRetical(state) end),
-		Checkbox("Debug console window", _FONT_BIG, Vec2(34, 136), Vec2(732, 24), function(state) _EngineSettings:setConsoleWindow(state) end),
-		Checkbox("Enable 3D Sound", _FONT_BIG, Vec2(34, 160), Vec2(732, 24), function(state) _EngineSettings:set3DSound(state) end),
-		Checkbox("Hide incompatible games", _FONT_BIG, Vec2(34, 184), Vec2(732, 24), function(state) _EngineSettings:setHideIncompatibleGames(state); self.bootScreen:fetchGameList() end)
-	}
+	self.settingCheckboxes = {}
+	for i, setting in ipairs(self.SETTINGS) do
+		table.insert(self.settingCheckboxes, Checkbox(setting.name, _FONT_BIG, Vec2(34, 64 + (i - 1) * 24), Vec2(732, 24), setting.f))
+	end
 
 	-- tooltip
-	self.TOOLTIPS = {
-		"Shows your game progress in your Discord profile, if you have Discord running\non your computer.",
-		"If enabled, when quitting a game, the Boot Screen will show up again.\nThis setting does NOT affect quitting by pressing X on the window!",
-		"Enables Aiming Retical, which is either one defined by the game or\na simple placeholder, if not defined.",
-		"Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from the source code,\nbut the console output will be suppressed.\nYou will need to restart the engine for this setting change to take effect.",
-		"Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker.",
-		"Hides all incompatible games from the boot menu, including games which have\nan unknown supported version."
-	}
 	self.tooltip = nil
 end
 
@@ -42,10 +40,11 @@ end
 function BootSettings:init()
 	self.settingCheckboxes[1].selected = _EngineSettings:getDiscordRPC()
 	self.settingCheckboxes[2].selected = _EngineSettings:getBackToBoot()
-	self.settingCheckboxes[3].selected = _EngineSettings:getAimingRetical()
-	self.settingCheckboxes[4].selected = _EngineSettings:getConsoleWindow()
-	self.settingCheckboxes[5].selected = _EngineSettings:get3DSound()
-	self.settingCheckboxes[6].selected = _EngineSettings:getHideIncompatibleGames()
+	self.settingCheckboxes[3].selected = _EngineSettings:getBackToBootWithX()
+	self.settingCheckboxes[4].selected = _EngineSettings:getAimingRetical()
+	self.settingCheckboxes[5].selected = _EngineSettings:getConsoleWindow()
+	self.settingCheckboxes[6].selected = _EngineSettings:get3DSound()
+	self.settingCheckboxes[7].selected = _EngineSettings:getHideIncompatibleGames()
 end
 
 
@@ -58,7 +57,7 @@ function BootSettings:update(dt)
 	for i, checkbox in ipairs(self.settingCheckboxes) do
 		checkbox:update(dt)
 		if checkbox.hovered then
-			self.tooltip = self.TOOLTIPS[i]
+			self.tooltip = self.SETTINGS[i].tooltip
 		end
 	end
 end

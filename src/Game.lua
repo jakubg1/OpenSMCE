@@ -144,10 +144,10 @@ function Game:startLevel()
 	else
 		self.level = Level(profile:getLevelData())
 		local savedLevelData = profile:getSavedLevel()
-	if savedLevelData then
-		self.level:deserialize(savedLevelData)
-		self.uiManager:executeCallback("levelLoaded")
-	else
+		if savedLevelData then
+			self.level:deserialize(savedLevelData)
+			self.uiManager:executeCallback("levelLoaded")
+		else
 			self.level:resetSequence()
 		end
 	end
@@ -192,7 +192,7 @@ function Game:updateRichPresence()
 	local line2 = ""
 
 	if self.level then
-				line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
+		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
 			profile:getLevelName(),
 			self.level.won and "Complete!" or string.format("%s%%", math.floor((self.level:getObjectiveProgress(1)) * 100)),
 			profile:getScore(),
@@ -405,7 +405,6 @@ function Game:quit(forced)
 	self:save()
 	self.resourceManager:unload()
 	if _EngineSettings:getBackToBoot() and not forced then
-		love.window.setMode(800, 600) -- reset window size
 		_LoadBootScreen()
 	else
 		love.event.quit()

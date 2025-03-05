@@ -15,6 +15,7 @@ local BootSettings = require("src.BootScreen.Scene.BootSettings")
 
 function BootScreen:new()
 	self.nativeResolution = Vec2(800, 600)
+	self.isBootScreen = true
 
 	self.versionManager = VersionManager()
 

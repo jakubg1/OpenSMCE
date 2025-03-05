@@ -249,7 +249,14 @@ end
 
 function love.quit()
 	_Log:printt("main", "User-caused Exit...")
-	if _Game and _Game.quit then _Game:quit(true) end
+	local canGoBack = not _Game.isBootScreen
+	if _Game and _Game.quit then
+		_Game:quit(not _EngineSettings:getBackToBootWithX())
+	end
+	-- Do not quit the engine if pressing X should return to the boot screen.
+	if _EngineSettings:getBackToBootWithX() and canGoBack then
+		return true
+	end
 	_DiscordRPC:disconnect()
 	_Log:save(true)
 	_Profiler.write("performance.jprof")

@@ -21,6 +21,7 @@ function Settings:reset()
 
 	if self:getDiscordRPC() == nil then self:setDiscordRPC(true) end
 	if self:getBackToBoot() == nil then self:setBackToBoot(false) end
+	if self:getBackToBootWithX() == nil then self:setBackToBootWithX(false) end
 	if self:getAimingRetical() == nil then self:setAimingRetical(false) end
 	if self:getConsoleWindow() == nil then self:setConsoleWindow(true) end
 	if self:get3DSound() == nil then self:set3DSound(false) end
@@ -43,6 +44,14 @@ end
 
 function Settings:getBackToBoot()
 	return self.data.backToBoot
+end
+
+function Settings:setBackToBootWithX(value)
+	self.data.backToBootWithX = value
+end
+
+function Settings:getBackToBootWithX()
+	return self.data.backToBootWithX
 end
 
 function Settings:setAimingRetical(value)
