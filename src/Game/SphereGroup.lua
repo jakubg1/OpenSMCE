@@ -237,8 +237,6 @@ function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects
 	sphere:updateOffset()
 	-- If the new sphere can stop growing, we must check if it actually will.
 	if canStopGrowing then
-		print("guh")
-		print(self:getMatchLengthInChain(position))
 		if self:getMatchLengthInChain(position) >= 3 then
 			sphere:stopGrowing()
 		end
@@ -612,7 +610,6 @@ function SphereGroup:matchAndDelete(position)
 	end
 	-- Now, apply the effect.
 	for i = position1, position2 do
-		print("guh the 4th")
 		self.spheres[i]:applyEffect(effectName, nil, nil, effectGroupID)
 	end
 end

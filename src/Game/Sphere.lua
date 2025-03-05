@@ -165,7 +165,6 @@ end
 ---Executed when this Sphere finishes its growth, either naturally or by it being stopped.
 ---Checks the matches, combos, etc.
 function Sphere:finishShot()
-	print("guh the 2nd")
 	local index = self.sphereGroup:getSphereID(self)
 	if self.sphereGroup:shouldBoostCombo(index) then
 		self.boostCombo = true
@@ -173,7 +172,6 @@ function Sphere:finishShot()
 		self.map.level.combo = 0
 	end
 	if self.sphereGroup:shouldMatch(index) then
-		print("guh the 3rd")
 		self.sphereGroup:matchAndDelete(index)
 	end
 end
