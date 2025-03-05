@@ -761,7 +761,7 @@ function Sphere:deserialize(t)
 				infectionSize = effect.infectionSize,
 				infectionTime = effect.infectionTime,
 				effectGroupID = effect.effectGroupID,
-				particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, self:getPos())
 			}
 			table.insert(self.effects, e)
 		end
