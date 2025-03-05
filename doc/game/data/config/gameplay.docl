@@ -19,11 +19,13 @@
         - knockbackStopAfterTime* (boolean) - Only if `knockbackTime` is set. If `true`, the speed of the group will be set to 0 once the knockback time is over. Else, the sphere group will deccelerate normally.
         - foulSpeed (number) - Maximum speed of spheres when the player fails to complete a level.
         - overspeedCheck (boolean) - If `true`, spheres will never move faster than the maximum speed defined at a given point of the path.
-        - invincibleScarabs (boolean) - If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
+        - invincibleScarabs* (boolean) - If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
+        - invincibleScarabFrontMatters* (boolean) - If `true`, the trains at the back cannot push the trains at the front and are instead blocked by them.
         - luxorized* (boolean) - Enables sphere physics gimmicks specific to the original Luxor game to mimic it better.
         - joinSound (SoundEvent) - A sound event to be played when two groups of spheres hit each other.
         - newGroupSound (SoundEvent) - A sound event to be played when a new sphere chain appears on the board.
-        - noScarabs (boolean) - If `true`, the scarabs will not appear in the game.
+        - noScarabs* (boolean) - If `true`, the scarabs will not appear in the game.
+        - noScarabAttraction* (boolean) - If `true`, the scarab will not attract any spheres.
         - permitLongMatches (boolean) - If `true`, the spheres will try to make the biggest clump possible before matching together.
     - net* (object) - Defines the Net.
         - particle (Particle) - A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires.

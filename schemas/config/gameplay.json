@@ -98,6 +98,11 @@
                     "description": "If true, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.",
                     "markdownDescription": "If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed."
                 },
+                "invincibleScarabFrontMatters": {
+                    "type": "boolean",
+                    "description": "If true, the trains at the back cannot push the trains at the front and are instead blocked by them.",
+                    "markdownDescription": "If `true`, the trains at the back cannot push the trains at the front and are instead blocked by them."
+                },
                 "luxorized": {
                     "type": "boolean",
                     "description": "Enables sphere physics gimmicks specific to the original Luxor game to mimic it better."
@@ -115,6 +120,11 @@
                     "description": "If true, the scarabs will not appear in the game.",
                     "markdownDescription": "If `true`, the scarabs will not appear in the game."
                 },
+                "noScarabAttraction": {
+                    "type": "boolean",
+                    "description": "If true, the scarab will not attract any spheres.",
+                    "markdownDescription": "If `true`, the scarab will not attract any spheres."
+                },
                 "permitLongMatches": {
                     "type": "boolean",
                     "description": "If true, the spheres will try to make the biggest clump possible before matching together.",
@@ -130,10 +140,8 @@
                 "knockbackSpeedMult",
                 "foulSpeed",
                 "overspeedCheck",
-                "invincibleScarabs",
                 "joinSound",
                 "newGroupSound",
-                "noScarabs",
                 "permitLongMatches"
             ],
             "additionalProperties": false

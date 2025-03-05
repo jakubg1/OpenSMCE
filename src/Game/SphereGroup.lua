@@ -764,7 +764,7 @@ function SphereGroup:isMagnetizing()
 	-- Check if on each side of the empty area there's the same color.
 	local byColor = self.map.level:colorsMatch(sphere1.color, sphere2.color)
 	-- The scarab can magnetize any color.
-	local byScarab = sphere1.color == 0
+	local byScarab = sphere1.color == 0 and not self.config.noScarabAttraction
 
 
 	return byColor or byScarab
