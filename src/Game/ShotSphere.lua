@@ -132,7 +132,7 @@ function ShotSphere:moveStep()
 					local d = (self.pos - p):len()
 					-- calculate time
 					self.hitTimeMax = d / self.speed * 5
-					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects, self:getGapSizeList())
+					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects, self:getGapSizeList(), _Game.configManager.gameplay.instantMatches)
 					badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 				end
 			else
@@ -193,18 +193,6 @@ function ShotSphere:getGapSizeList()
 		table.insert(gaps, gap.size)
 	end
 	return gaps
-end
-
-
-
----Returns a table of IDs of the hit sphere, or `nil` if this sphere did not hit anything yet. Used for serialization purposes.
----@return table?
-function ShotSphere:getHitSphereIDs()
-	if not self.hitSphere then
-		return nil
-	end
-
-	return self.hitSphere.sphere:getIDs()
 end
 
 
@@ -273,7 +261,7 @@ function ShotSphere:serialize()
 		color = self.color,
 		speed = self.speed,
 		steps = self.steps,
-		hitSphere = self:getHitSphereIDs(),
+		hitSphere = self.hitSphere and self.hitSphere.sphere:getIDs(),
 		hitTime = self.hitTime,
 		hitTimeMax = self.hitTimeMax
 	}

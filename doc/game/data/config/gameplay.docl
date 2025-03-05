@@ -27,6 +27,7 @@
         - noScarabs* (boolean) - If `true`, the scarabs will not appear in the game.
         - noScarabAttraction* (boolean) - If `true`, the scarab will not attract any spheres.
         - permitLongMatches (boolean) - If `true`, the spheres will try to make the biggest clump possible before matching together.
+        - instantMatches* (boolean) - If `true`, the spheres will match instantly when they can match. If the match effect has a delay, the sphere will be attached to the nearest sphere and will match after the specified period of time.
     - net* (object) - Defines the Net.
         - particle (Particle) - A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires.
         - sound (SoundEvent) - A looping sound event that will be played when the Net is currently active.

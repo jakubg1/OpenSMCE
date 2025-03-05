@@ -211,7 +211,8 @@ end
 ---@param position integer The new sphere will gain this ID, which means it will be created BEHIND a sphere of this ID in this group.
 ---@param effects table? A list of effects to be applied.
 ---@param gaps table? A list of gaps through which this sphere has traversed.
-function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps)
+---@param canStopGrowing boolean? If set, the new sphere will not grow if it constitutes a match.
+function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps, canStopGrowing)
 	local sphere = Sphere(self, nil, color, pos, time, sphereEntity, gaps)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
@@ -234,6 +235,14 @@ function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects
 		self:updateSphereOffsets()
 	end
 	sphere:updateOffset()
+	-- If the new sphere can stop growing, we must check if it actually will.
+	if canStopGrowing then
+		print("guh")
+		print(self:getMatchLengthInChain(position))
+		if self:getMatchLengthInChain(position) >= 3 then
+			sphere:stopGrowing()
+		end
+	end
 end
 
 
@@ -579,7 +588,7 @@ function SphereGroup:matchAndDelete(position)
 	local boostCombo = false
 	-- abort if any sphere from the given ones has not joined yet and see if we have to boost the combo
 	for i = position1, position2 do
-		if self.spheres[i].appendSize < 1 then
+		if not self.spheres[i]:isReadyForMatching() then
 			return
 		end
 		boostCombo = boostCombo or self.spheres[i].boostCombo
@@ -603,6 +612,7 @@ function SphereGroup:matchAndDelete(position)
 	end
 	-- Now, apply the effect.
 	for i = position1, position2 do
+		print("guh the 4th")
 		self.spheres[i]:applyEffect(effectName, nil, nil, effectGroupID)
 	end
 end
@@ -651,7 +661,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	local boostCombo = false
 	-- Abort if any sphere from the given ones has not joined yet and see if we have to boost the combo.
 	for i, sphere in ipairs(spheres) do
-		if sphere.appendSize < 1 then
+		if not sphere:isReadyForMatching() then
 			return
 		end
 		boostCombo = boostCombo or sphere.boostCombo
@@ -817,7 +827,7 @@ function SphereGroup:getMatchPositions(position)
 		if not self.spheres[seekPosition] or not self.map.level:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition + 1].color) then
 			break
 		end
-		--if self.spheres[seekPosition].appendSize < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
+		--if not self.spheres[seekPosition]:isReadyForMatching() then return {position} end -- combinations with not spawned yet balls are forbidden
 		table.insert(positions, seekPosition)
 	end
 	-- seek forwards
@@ -828,7 +838,7 @@ function SphereGroup:getMatchPositions(position)
 		if not self.spheres[seekPosition] or not self.map.level:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition - 1].color) then
 			break
 		end
-		--if self.spheres[seekPosition].appendSize < 1 then return {position} end -- combinations with not spawned yet balls are forbidden
+		--if not self.spheres[seekPosition]:isReadyForMatching() then return {position} end -- combinations with not spawned yet balls are forbidden
 		table.insert(positions, seekPosition)
 	end
 	return positions
@@ -1114,7 +1124,7 @@ end
 
 function SphereGroup:hasShotSpheres()
 	for i, sphere in ipairs(self.spheres) do
-		if sphere.appendSize < 1 then
+		if not sphere:isReadyForMatching() then
 			return true
 		end
 	end

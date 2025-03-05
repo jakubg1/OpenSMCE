@@ -42,11 +42,14 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.effects = {}
 		self.gaps = gaps or {}
 		self.ghostTime = nil
+		self.growStopped = false
+		self.attachedSphere = nil -- The sphere this sphere is attached to, if its growth has been stopped.
+		self.attachedAngle = nil -- The relative angle between this sphere and the attached sphere.
     end
 
-	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
-
 	self:loadConfig()
+
+	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
 
 	if shootOrigin then
 		self.shootOrigin = shootOrigin
@@ -72,21 +75,13 @@ end
 ---@param dt number Time delta in seconds.
 function Sphere:update(dt)
 	-- for spheres that are being added
-	if self.appendSize < 1 then
+	if self.appendSize < 1 and not self.growStopped then
 		self.appendSize = self.appendSize + dt / self.shootTime
 		if self.appendSize >= 1 then
 			self.appendSize = 1
 			self.shootOrigin = nil
 			self.shootTime = nil
-			local index = self.sphereGroup:getSphereID(self)
-			if self.sphereGroup:shouldBoostCombo(index) then
-				self.boostCombo = true
-			else
-				self.map.level.combo = 0
-			end
-			if self.sphereGroup:shouldMatch(index) then
-				self.sphereGroup:matchAndDelete(index)
-			end
+			self:finishShot()
 		end
 		self:updateOffset()
 	end
@@ -162,6 +157,24 @@ function Sphere:updateOffset()
 	-- TODO: Pointless on certain paths. Might optimize this down at some point.
 	for i = 1, 4 do
 		self.offset = self.prevSphere and self.prevSphere.offset + self:getPrevSeparation() or 0
+	end
+end
+
+
+
+---Executed when this Sphere finishes its growth, either naturally or by it being stopped.
+---Checks the matches, combos, etc.
+function Sphere:finishShot()
+	print("guh the 2nd")
+	local index = self.sphereGroup:getSphereID(self)
+	if self.sphereGroup:shouldBoostCombo(index) then
+		self.boostCombo = true
+	else
+		self.map.level.combo = 0
+	end
+	if self.sphereGroup:shouldMatch(index) then
+		print("guh the 3rd")
+		self.sphereGroup:matchAndDelete(index)
 	end
 end
 
@@ -329,6 +342,14 @@ end
 
 
 
+---Returns `true` if this sphere is either mature or its growth has been stopped (it will never be mature).
+---@return boolean
+function Sphere:isReadyForMatching()
+	return self.appendSize == 1 or self.growStopped
+end
+
+
+
 ---Destroys this and any number of connected spheres with a given effect.
 ---@param name string The name of the sphere effect.
 function Sphere:matchEffect(name)
@@ -459,6 +480,29 @@ end
 
 
 
+---Makes the Sphere's appending size locked at the current value so it never grows further.
+function Sphere:stopGrowing()
+	if self.growStopped or self.appendSize == 1 then
+		return
+	end
+	self.growStopped = true
+	-- Attach to the nearest sphere.
+	if self.prevSphere and not self.nextSphere then
+		self.attachedSphere = self.prevSphere
+	elseif not self.prevSphere and self.nextSphere then
+		self.attachedSphere = self.nextSphere
+	else
+		local prevDistance = (self.prevSphere:getPos() - self:getPos()):len()
+		local nextDistance = (self.nextSphere:getPos() - self:getPos()):len()
+		self.attachedSphere = prevDistance < nextDistance and self.prevSphere or self.nextSphere
+	end
+	self.attachedAngle = (self.attachedSphere:getPos() - self:getPos()):angle() - self.attachedSphere:getAngle()
+	-- Calculate the matches and so on.
+	self:finishShot()
+end
+
+
+
 ---Returns the current global offset of this sphere on its path.
 ---@return number
 function Sphere:getOffset()
@@ -470,6 +514,9 @@ end
 ---Returns the current global position of this Sphere.
 ---@return Vector2
 function Sphere:getPos()
+	if self.appendSize < 1 then
+		return self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize)) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
+	end
 	return self.path:getPos(self:getOffset())
 end
 
@@ -578,8 +625,8 @@ function Sphere:draw(color, hidden, shadow)
 	end
 
 	local pos = self:getPos()
-	if self.appendSize < 1 then
-		pos = self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize)) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
+	if self.attachedSphere and self.attachedAngle then
+		pos = self.attachedSphere:getPos() - Vec2(self:getSize() + self.attachedSphere:getSize(), 0):rotate(self.attachedAngle + self.attachedSphere:getAngle())
 	end
 
 	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
@@ -697,7 +744,9 @@ function Sphere:serialize()
 		--animationFrame = self.animationFrame, -- who cares about that, you can uncomment this if you do
 		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil,
 		shootTime = self.shootTime,
-		ghostTime = self.ghostTime
+		ghostTime = self.ghostTime,
+		attachedSphere = self.attachedSphere and self.attachedSphere:getIDs(),
+		attachedAngle = self.attachedAngle
 	}
 
 	if self.appendSize ~= 1 then
@@ -724,9 +773,12 @@ function Sphere:serialize()
 	if #self.gaps > 0 then
 		t.gaps = self.gaps
 	end
+	if self.growStopped then
+		t.growStopped = self.growStopped
+	end
 
 	-- If the only data to be saved is the sphere's color, serialize to an integer value.
-	if not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostCombo and not t.effects and not t.gaps then
+	if not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostCombo and not t.effects and not t.gaps and not t.growStopped then
 		return t.color
 	end
 
@@ -749,6 +801,8 @@ function Sphere:deserialize(t)
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
 	self.shootTime = t.shootTime
 	self.ghostTime = t.ghostTime
+	-- The `attachedSphere` field is loaded in `Level:deserialize()` because of the loading order (the reference is incomplete during the loading progress).
+	self.attachedAngle = t.attachedAngle
 
 	self.effects = {}
 	if t.effects then
@@ -768,6 +822,7 @@ function Sphere:deserialize(t)
 	end
 
 	self.gaps = t.gaps or {}
+	self.growStopped = t.growStopped or false
 end
 
 

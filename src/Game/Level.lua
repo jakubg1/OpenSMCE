@@ -1399,6 +1399,19 @@ function Level:deserialize(t)
 	self.levelSequenceVars = t.levelSequenceVars
 	-- Paths
 	self.map:deserialize(t.paths)
+	-- We need to resolve the `Sphere.attachedSphere` field here for the loading order reasons.
+	for i, path in ipairs(self.map.paths) do
+		for j, sphereChain in ipairs(path.sphereChains) do
+			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for l, sphere in ipairs(sphereGroup.spheres) do
+					local attachedSphere = type(t.paths[i].sphereChains[j].sphereGroups[k].spheres[l]) == "table" and t.paths[i].sphereChains[j].sphereGroups[k].spheres[l].attachedSphere
+					if attachedSphere then
+						sphere.attachedSphere = self.map.paths[attachedSphere.pathID].sphereChains[attachedSphere.chainID].sphereGroups[attachedSphere.groupID].spheres[attachedSphere.sphereID]
+					end
+				end
+			end
+		end
+	end
 	-- Shooter
 	self.shooter:deserialize(t.shooter)
 	-- Shot spheres, collectibles

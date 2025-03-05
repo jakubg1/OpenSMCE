@@ -129,6 +129,11 @@
                     "type": "boolean",
                     "description": "If true, the spheres will try to make the biggest clump possible before matching together.",
                     "markdownDescription": "If `true`, the spheres will try to make the biggest clump possible before matching together."
+                },
+                "instantMatches": {
+                    "type": "boolean",
+                    "description": "If true, the spheres will match instantly when they can match. If the match effect has a delay, the sphere will be attached to the nearest sphere and will match after the specified period of time.",
+                    "markdownDescription": "If `true`, the spheres will match instantly when they can match. If the match effect has a delay, the sphere will be attached to the nearest sphere and will match after the specified period of time."
                 }
             },
             "required": [
