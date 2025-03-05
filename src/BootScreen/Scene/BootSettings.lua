@@ -17,6 +17,7 @@ function BootSettings:new(bootScreen)
 		{name = "Enable Discord Rich Presence", f = function(state) _EngineSettings:setDiscordRPC(state) end, tooltip = "Shows your game progress in your Discord profile, if you have Discord running\non your computer."},
 		{name = "Go back to the boot menu when exiting a game", f = function(state) _EngineSettings:setBackToBoot(state) end, tooltip = "If enabled, when quitting a game, the Boot Screen will show up again."},
 		{name = "  Even if the game window is closed by X", f = function(state) _EngineSettings:setBackToBootWithX(state) end, tooltip = "If enabled, when quitting a game by pressing X on the window, the Boot Screen\nwill show up again as well."},
+		{name = "Maximize On Start", f = function(state) _EngineSettings:setMaximizeOnStart(state) end, tooltip = "Some games have a large native resolution, which is bigger than the desktop size.\nThis setting makes sure that the window will be maximized to prevent overgrowing."},
 		{name = "Aiming Retical", f = function(state) _EngineSettings:setAimingRetical(state) end, tooltip = "Enables the Aiming Retical, which is either one defined by the game or\na simple placeholder, if not defined."},
 		{name = "Debug console window", f = function(state) _EngineSettings:setConsoleWindow(state) end, tooltip = "Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from the source code,\nbut the console output will be suppressed.\nYou will need to restart the engine for this setting change to take effect."},
 		{name = "Enable 3D Sound", f = function(state) _EngineSettings:set3DSound(state) end, tooltip = "Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker."},
@@ -41,10 +42,11 @@ function BootSettings:init()
 	self.settingCheckboxes[1].selected = _EngineSettings:getDiscordRPC()
 	self.settingCheckboxes[2].selected = _EngineSettings:getBackToBoot()
 	self.settingCheckboxes[3].selected = _EngineSettings:getBackToBootWithX()
-	self.settingCheckboxes[4].selected = _EngineSettings:getAimingRetical()
-	self.settingCheckboxes[5].selected = _EngineSettings:getConsoleWindow()
-	self.settingCheckboxes[6].selected = _EngineSettings:get3DSound()
-	self.settingCheckboxes[7].selected = _EngineSettings:getHideIncompatibleGames()
+	self.settingCheckboxes[4].selected = _EngineSettings:getMaximizeOnStart()
+	self.settingCheckboxes[5].selected = _EngineSettings:getAimingRetical()
+	self.settingCheckboxes[6].selected = _EngineSettings:getConsoleWindow()
+	self.settingCheckboxes[7].selected = _EngineSettings:get3DSound()
+	self.settingCheckboxes[8].selected = _EngineSettings:getHideIncompatibleGames()
 end
 
 
