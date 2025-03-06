@@ -9,6 +9,8 @@ local Vec2 = require("src.Essentials.Vector2")
 ---Constructs a Display Manager.
 function Display:new()
     self.size = Vec2(800, 600)
+    self.renderResolution = Vec2(800, 600)
+    self.renderCanvas = nil
 end
 
 ---Sets the window settings: resolution, whether it can be changed, and its title.
@@ -33,9 +35,20 @@ function Display:setFullscreen(fullscreen)
         local _, _, flags = love.window.getMode()
         self.size = Vec2(love.window.getDesktopDimensions(flags.display))
     else
-        self.size = _Game:getNativeResolution()
+        self.size = self.renderResolution
     end
     love.window.setMode(self.size.x, self.size.y, {fullscreen = fullscreen, resizable = true})
+end
+
+---Generates a new Canvas which can be drawn on.
+---@param resolution Vector2 The new canvas resolution (native resolution).
+---@param mode "filtered"|"pixel" The canvas mode. If `"pixel"`, the canvas image will not be interpolated.
+function Display:setCanvas(resolution, mode)
+    self.renderResolution = resolution
+	self.renderCanvas = love.graphics.newCanvas(resolution.x, resolution.y)
+	if mode == "pixel" then
+		self.renderCanvas:setFilter("nearest", "nearest")
+	end
 end
 
 ---Returns the X offset of actual screen contents.
@@ -43,13 +56,13 @@ end
 ---in such a way that the contents are exactly in the center.
 ---@return number
 function Display:getDisplayOffsetX()
-	return (self.size.x - _Game:getNativeResolution().x * self:getCanvasScale()) / 2
+	return (self.size.x - self.renderResolution.x * self:getCanvasScale()) / 2
 end
 
 ---Returns the scale of screen contents, depending on the current window size.
 ---@return number
 function Display:getCanvasScale()
-	return self.size.y / _Game:getNativeResolution().y
+	return self.size.y / self.renderResolution.y
 end
 
 ---Returns the logical position of the given onscreen point.
@@ -57,6 +70,19 @@ end
 ---@return Vector2
 function Display:posFromScreen(pos)
 	return (pos - Vec2(self:getDisplayOffsetX(), 0)) / self:getCanvasScale()
+end
+
+---Starts drawing on this Display's canvas, clearing it beforehand.
+function Display:canvasStart()
+	love.graphics.setCanvas({self.renderCanvas, stencil = true})
+	love.graphics.clear()
+end
+
+---Finishes drawing on this Display's canvas and draws it onto the screen.
+function Display:canvasStop()
+	love.graphics.setCanvas()
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), 0, 0, self:getCanvasScale())
 end
 
 return Display

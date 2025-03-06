@@ -50,13 +50,10 @@ function Game:init()
 	-- Step 1. Load the config
 	self.configManager = ConfigManager()
 
-	-- Step 2. Initialize the window and canvas if necessary
+	-- Step 2. Initialize the window and canvas
 	local res = self:getNativeResolution()
 	_Display:setResolution(res, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
-		self.renderCanvas = love.graphics.newCanvas(res.x, res.y)
-		if self.configManager:getCanvasRenderingMode() == "pixel" then
-			self.renderCanvas:setFilter("nearest", "nearest")
-	end
+	_Display:setCanvas(res, self.configManager:getCanvasRenderingMode())
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -215,8 +212,7 @@ function Game:draw()
 	_Debug:profDraw2Start()
 
 	-- Start drawing on canvas
-		love.graphics.setCanvas({self.renderCanvas, stencil = true})
-		love.graphics.clear()
+	_Display:canvasStart()
 
 	-- Level
 	if self.level then
@@ -232,14 +228,13 @@ function Game:draw()
 	_Debug:profDraw2Checkpoint()
 
 	-- Finish drawing on canvas
-		love.graphics.setCanvas()
-		love.graphics.setColor(1, 1, 1)
-	love.graphics.draw(self.renderCanvas, _Display:getDisplayOffsetX(), 0, 0, _Display:getCanvasScale())
+	_Display:canvasStop()
 
 	-- Borders
-	love.graphics.setColor(0, 0, 0)
-	love.graphics.rectangle("fill", 0, 0, _Display:getDisplayOffsetX(), _Display.size.y)
-	love.graphics.rectangle("fill", _Display.size.x - _Display:getDisplayOffsetX(), 0, _Display:getDisplayOffsetX(), _Display.size.y)
+	-- Not necessary; leaving this code for the future when the widescreen frame comes to the engine!
+	--love.graphics.setColor(0, 0, 0)
+	--love.graphics.rectangle("fill", 0, 0, _Display:getDisplayOffsetX(), _Display.size.y)
+	--love.graphics.rectangle("fill", _Display.size.x - _Display:getDisplayOffsetX(), 0, _Display:getDisplayOffsetX(), _Display.size.y)
 
 	love.graphics.setColor(1, 1, 1)
 	--self.resourceManager:getSprite("sprites/game/ball_1.json").img:draw(0, 0)
