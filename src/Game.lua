@@ -197,7 +197,11 @@ function Game:updateRichPresence()
 			line1 = line1 .. " - Paused"
 		end
 	elseif profile and profile:getSession() then
+		if profile:getLives() then
 		line2 = string.format("In menus, Score: %s, Lives: %s", profile:getScore(), profile:getLives())
+		else
+			line2 = string.format("In menus, Score: %s", profile:getScore())
+		end
 	else
 		line2 = string.format("In menus")
 	end
