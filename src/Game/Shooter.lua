@@ -555,10 +555,10 @@ function Shooter:drawSpeedShotBeam()
         elseif self.config.speedShotBeam.renderingType == "cut" then
             -- if we need to cut the beam
             -- make a polygon: determine all four corners first
-            local p1 = _PosOnScreen(startPos + Vec2(-self.config.speedShotBeam.sprite.size.x / 2, -distance):rotate(self.angle))
-            local p2 = _PosOnScreen(startPos + Vec2(self.config.speedShotBeam.sprite.size.x / 2, -distance):rotate(self.angle))
-            local p3 = _PosOnScreen(startPos + Vec2(self.config.speedShotBeam.sprite.size.x / 2, 16):rotate(self.angle))
-            local p4 = _PosOnScreen(startPos + Vec2(-self.config.speedShotBeam.sprite.size.x / 2, 16):rotate(self.angle))
+            local p1 = _Display:posOnScreen(startPos + Vec2(-self.config.speedShotBeam.sprite.size.x / 2, -distance):rotate(self.angle))
+            local p2 = _Display:posOnScreen(startPos + Vec2(self.config.speedShotBeam.sprite.size.x / 2, -distance):rotate(self.angle))
+            local p3 = _Display:posOnScreen(startPos + Vec2(self.config.speedShotBeam.sprite.size.x / 2, 16):rotate(self.angle))
+            local p4 = _Display:posOnScreen(startPos + Vec2(-self.config.speedShotBeam.sprite.size.x / 2, 16):rotate(self.angle))
             -- mark all pixels within the polygon with value of 1
             love.graphics.stencil(function()
                 love.graphics.setColor(1, 1, 1)
@@ -595,11 +595,11 @@ function Shooter:drawReticle()
                 self.config.reticle.nextBallSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, self.angle, nextColor)
             end
         else
-            love.graphics.setLineWidth(3 * _GetResolutionScale())
+            love.graphics.setLineWidth(3 * _Display:getResolutionScale())
             love.graphics.setColor(color.r, color.g, color.b)
-            local p1 = _PosOnScreen(targetPos + Vec2(-8, 8):rotate(self.angle))
-            local p2 = _PosOnScreen(targetPos)
-            local p3 = _PosOnScreen(targetPos + Vec2(8, 8):rotate(self.angle))
+            local p1 = _Display:posOnScreen(targetPos + Vec2(-8, 8):rotate(self.angle))
+            local p2 = _Display:posOnScreen(targetPos)
+            local p3 = _Display:posOnScreen(targetPos + Vec2(8, 8):rotate(self.angle))
             love.graphics.line(p1.x, p1.y, p2.x, p2.y)
             love.graphics.line(p2.x, p2.y, p3.x, p3.y)
         end
@@ -615,8 +615,8 @@ function Shooter:drawReticle()
                 local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4
                 for i = 1, dotCount do
                     local angle = (2 * i * math.pi / dotCount) + _TotalTime / 2
-                    local p = _PosOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
-                    love.graphics.circle("fill", p.x, p.y, 2 * _GetResolutionScale())
+                    local p = _Display:posOnScreen(targetPos + Vec2(sphereConfig.hitBehavior.range, 0):rotate(angle))
+                    love.graphics.circle("fill", p.x, p.y, 2 * _Display:getResolutionScale())
                 end
                 --love.graphics.setLineWidth(3 * getResolutionScale())
                 --love.graphics.circle("line", p2.x, p2.y, sphereConfig.hitBehavior.range)
@@ -629,8 +629,8 @@ end
 
 ---Draws this Shooter's hitbox.
 function Shooter:drawDebug()
-    local p = _PosOnScreen(self.pos + self.config.hitboxOffset - self.config.hitboxSize / 2)
-    local s = self.config.hitboxSize * _GetResolutionScale()
+    local p = _Display:posOnScreen(self.pos + self.config.hitboxOffset - self.config.hitboxSize / 2)
+    local s = self.config.hitboxSize * _Display:getResolutionScale()
     love.graphics.rectangle("line", p.x, p.y, s.x, s.y)
 end
 

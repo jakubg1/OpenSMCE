@@ -16,7 +16,7 @@ function Options:new(data)
 	if not self.data then self:reset() end
 
 	-- fullscreen on start
-	if self:getFullscreen() then _Game:setFullscreen(true) end
+	if self:getFullscreen() then _Display:setFullscreen(true) end
 end
 
 
@@ -62,7 +62,7 @@ end
 ---@param value boolean Whether the fullscreen should be active.
 function Options:setFullscreen(value)
 	self.data.fullscreen = value
-	_Game:setFullscreen(value)
+	_Display:setFullscreen(value)
 end
 
 ---Returns the current fullscreen flag status.

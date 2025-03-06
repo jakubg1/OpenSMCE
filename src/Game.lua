@@ -52,7 +52,7 @@ function Game:init()
 
 	-- Step 2. Initialize the window and canvas if necessary
 	local res = self:getNativeResolution()
-	_SetResolution(res, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
+	_Display:setResolution(res, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
 	if self.configManager:isCanvasRenderingEnabled() then
 		self.renderCanvas = love.graphics.newCanvas(res.x, res.y)
 		if self.configManager:getCanvasRenderingMode() == "pixel" then
@@ -239,13 +239,13 @@ function Game:draw()
 	if self.renderCanvas then
 		love.graphics.setCanvas()
 		love.graphics.setColor(1, 1, 1)
-		love.graphics.draw(self.renderCanvas, _GetDisplayOffsetX(true), 0, 0, _GetResolutionScale(true))
+		love.graphics.draw(self.renderCanvas, _Display:getDisplayOffsetX(true), 0, 0, _Display:getResolutionScale(true))
 	end
 
 	-- Borders
 	love.graphics.setColor(0, 0, 0)
-	love.graphics.rectangle("fill", 0, 0, _GetDisplayOffsetX(true), _DisplaySize.y)
-	love.graphics.rectangle("fill", _DisplaySize.x - _GetDisplayOffsetX(true), 0, _GetDisplayOffsetX(true), _DisplaySize.y)
+	love.graphics.rectangle("fill", 0, 0, _Display:getDisplayOffsetX(true), _Display.size.y)
+	love.graphics.rectangle("fill", _Display.size.x - _Display:getDisplayOffsetX(true), 0, _Display:getDisplayOffsetX(true), _Display.size.y)
 
 	love.graphics.setColor(1, 1, 1)
 	--self.resourceManager:getSprite("sprites/game/ball_1.json").img:draw(0, 0)
@@ -380,21 +380,6 @@ end
 ---@return number
 function Game:getEffectiveMusicVolume()
 	return self.runtimeManager.options:getEffectiveMusicVolume()
-end
-
-
-
----Enables or disables fullscreen.
----@param fullscreen boolean Whether the fullscreen mode should be active.
-function Game:setFullscreen(fullscreen)
-	if fullscreen == love.window.getFullscreen() then return end
-	if fullscreen then
-		local _, _, flags = love.window.getMode()
-		_DisplaySize = Vec2(love.window.getDesktopDimensions(flags.display))
-	else
-		_DisplaySize = self:getNativeResolution()
-	end
-	love.window.setMode(_DisplaySize.x, _DisplaySize.y, {fullscreen = fullscreen, resizable = true})
 end
 
 

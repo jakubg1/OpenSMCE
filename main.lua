@@ -38,6 +38,7 @@ local Color = require("src.Essentials.Color")
 
 local Log = require("src.Log")
 local Debug = require("src.Debug")
+local Display = require("src.Display")
 
 local Game = require("src.Game")
 local EditorMain = require("src.BootScreen.EditorMain")
@@ -84,7 +85,6 @@ _BUILD_NUMBER = "unknown"
 
 
 -- GLOBAL ZONE
-_DisplaySize = Vec2(800, 600)
 _DisplayFullscreen = false
 _MousePos = Vec2(0, 0)
 _KeyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
@@ -93,12 +93,12 @@ _FSPrefix = ""
 
 ---@type Game|BootScreen|EditorMain
 _Game = nil
-
 ---@type Log
 _Log = nil
-
 ---@type Debug
 _Debug = nil
+---@type Display
+_Display = nil
 
 _Vars = ExpressionVariables()
 _Network = Network()
@@ -131,6 +131,7 @@ function love.load(args)
 	-- Initialize some classes
 	_Log = Log()
 	_Debug = Debug()
+	_Display = Display()
 	_EngineSettings = Settings("settings.json")
 	_DiscordRPC = DiscordRichPresence()
 
@@ -165,7 +166,7 @@ end
 function love.update(dt)
 	_Debug:profUpdateStart()
 
-	_MousePos = _PosFromScreen(Vec2(love.mouse.getPosition()))
+	_MousePos = _Display:posFromScreen(Vec2(love.mouse.getPosition()))
 	if _Game then
 		_Game:update(dt * _TimeScale)
 	end
@@ -244,7 +245,7 @@ function love.textinput(t)
 end
 
 function love.resize(w, h)
-	_DisplaySize = Vec2(w, h)
+	_Display.size = Vec2(w, h)
 end
 
 function love.quit()
@@ -281,63 +282,6 @@ function _LoadBootScreen()
 end
 
 
-
-
-
-
----Sets the window settings: resolution, whether it can be changed, and its title.
----@param resolution Vector2 The new window resolution.
----@param resizable boolean Whether the window can be resized.
----@param title string The window title.
----@param maximized boolean? If set, the window will be maximized.
-function _SetResolution(resolution, resizable, title, maximized)
-	love.window.setMode(resolution.x, resolution.y, {resizable = resizable})
-	if maximized then
-		love.window.maximize()
-	end
-	love.window.setTitle(title)
-	_DisplaySize = resolution
-end
-
----Returns the X offset of actual screen contents.
----The game is scaled so the vertical axis is always fully covered. This means that on the X axis, the contents need to be positioned
----in such a way that the contents are exactly in the center.
----@param force boolean? Whether the returned value should be scaled with the window even if the canvas rendering is enabled.
----@return number
-function _GetDisplayOffsetX(force)
-	return (_DisplaySize.x - _Game:getNativeResolution().x * _GetResolutionScale(force)) / 2
-end
-
----Returns the scale of screen contents, depending on the current window size.
----@param force boolean? Whether the returned value should be scaled with the window even if the canvas rendering is enabled.
----@return number
-function _GetResolutionScale(force)
-	if _Game.renderCanvas and not force then
-		-- If all stuff is rendered on a canvas, the canvas itself will be scaled.
-		return 1
-	else
-		return _DisplaySize.y / _Game:getNativeResolution().y
-	end
-end
-
----Returns the onscreen (or on-canvas if canvas rendering is enabled) position of the given logical point.
----@param pos Vector2 The logical point of which the onscreen position will be returned.
----@return Vector2
-function _PosOnScreen(pos)
-	if _Game.renderCanvas then
-		-- If all stuff is rendered on a canvas, the canvas itself will be scaled and positioned.
-		return pos
-	else
-		return pos * _GetResolutionScale() + Vec2(_GetDisplayOffsetX(), 0)
-	end
-end
-
----Returns the logical position of the given onscreen point.
----@param pos Vector2 The onscreen point of which the logical position will be returned.
----@return Vector2
-function _PosFromScreen(pos)
-	return (pos - Vec2(_GetDisplayOffsetX(true), 0)) / _GetResolutionScale(true)
-end
 
 
 

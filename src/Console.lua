@@ -79,7 +79,7 @@ function Console:scrollToHistoryEntry(n)
 end
 
 function Console:draw()
-	local pos = Vec2(5, _DisplaySize.y)
+	local pos = Vec2(5, _Display.size.y)
 	local size = Vec2(600, 200)
 
 	love.graphics.setColor(1, 1, 1)

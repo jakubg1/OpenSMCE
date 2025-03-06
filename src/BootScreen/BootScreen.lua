@@ -32,7 +32,7 @@ end
 
 function BootScreen:init()
 	-- window title and size
-	_SetResolution(self:getNativeResolution(), false, "OpenSMCE [" .. _VERSION .. "] - Boot Menu")
+	_Display:setResolution(self:getNativeResolution(), false, "OpenSMCE [" .. _VERSION .. "] - Boot Menu")
 
 	-- game list
 	self:fetchGameList()

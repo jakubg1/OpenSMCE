@@ -82,9 +82,9 @@ function Debug:draw()
 	if self.profVisible then
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.setFont(_FONT)
-		self.profPages[self.profPage]:draw(Vec2(0, _DisplaySize.y))
-		self.profDraw:draw(Vec2(400, _DisplaySize.y))
-		self.profDraw2:draw(Vec2(400, _DisplaySize.y))
+		self.profPages[self.profPage]:draw(Vec2(0, _Display.size.y))
+		self.profDraw:draw(Vec2(400, _Display.size.y))
+		self.profDraw2:draw(Vec2(400, _Display.size.y))
 
 		self:drawVisibleText("Debug Keys:", Vec2(10, 10), 15)
 		self:drawVisibleText("[F1] Performance", Vec2(10, 25), 15)
@@ -313,8 +313,8 @@ end
 
 
 function Debug:drawSphereInfo()
-	local p = Vec2(0, _DisplaySize.y - 200)
-	local s = Vec2(_DisplaySize.x, 200)
+	local p = Vec2(0, _Display.size.y - 200)
+	local s = Vec2(_Display.size.x, 200)
 
 	-- background
 	love.graphics.setColor(0, 0, 0, 0.5)

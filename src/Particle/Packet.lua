@@ -27,7 +27,7 @@ function ParticlePacket:update(dt)
 end
 
 function ParticlePacket:draw()
-	local p = _PosOnScreen(self.pos)
+	local p = _Display:posOnScreen(self.pos)
 	love.graphics.setColor(1, 1, 0)
 	love.graphics.setLineWidth(2)
 	love.graphics.circle("line", p.x, p.y, 15 + self.spawnerCount * 5)

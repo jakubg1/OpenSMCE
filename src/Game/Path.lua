@@ -364,7 +364,7 @@ end
 ---Even one more debug function.
 function Path:drawDebugFill()
 	love.graphics.setColor(1, 0.2, 0)
-	local pos = _PosOnScreen(self:getPos(self:getMaxOffset()))
+	local pos = _Display:posOnScreen(self:getPos(self:getMaxOffset()))
 	love.graphics.circle("fill", pos.x, pos.y, 10)
 end
 

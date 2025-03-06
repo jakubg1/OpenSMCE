@@ -106,8 +106,8 @@ function Font:draw(text, pos, align, color, alpha)
 
 		love.graphics.setColor(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
 		love.graphics.setFont(self.font)
-		local p = _PosOnScreen(pos - self:getTextSize(text) * align)
-		love.graphics.print(text, p.x, p.y, 0, _GetResolutionScale())
+		local p = _Display:posOnScreen(pos - self:getTextSize(text) * align)
+		love.graphics.print(text, p.x, p.y, 0, _Display:getResolutionScale())
 
 		love.graphics.setFont(oldFont)
 	end
@@ -125,8 +125,8 @@ end
 
 -- Image type only
 function Font:drawCharacter(character, pos)
-	pos = _PosOnScreen(pos)
-	self.image:draw(self:getCharacter(character).quad, math.floor(pos.x), math.floor(pos.y), 0, _GetResolutionScale())
+	pos = _Display:posOnScreen(pos)
+	self.image:draw(self:getCharacter(character).quad, math.floor(pos.x), math.floor(pos.y), 0, _Display:getResolutionScale())
 end
 
 return Font
