@@ -229,13 +229,11 @@ end
 function ShotSphere:drawDebug()
 	love.graphics.setColor(0, 1, 1)
 	for i = self.pos.y, 0, -self.PIXELS_PER_STEP do
-		local p = _Display:posOnScreen(Vec2(self.pos.x, i))
-		love.graphics.circle("fill", p.x, p.y, 2)
+		love.graphics.circle("fill", self.pos.x, i, 2)
 		local nearestSphere = _Game.level:getNearestSphere(Vec2(self.pos.x, i))
 		if nearestSphere.dist and nearestSphere.dist < 32 then
 			love.graphics.setLineWidth(3)
-			local p = _Display:posOnScreen(nearestSphere.pos)
-			love.graphics.circle("line", p.x, p.y, self.size / 2 * _Display:getResolutionScale())
+			love.graphics.circle("line", nearestSphere.pos.x, nearestSphere.pos.y, self.size / 2)
 			break
 		end
 	end

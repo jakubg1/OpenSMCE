@@ -106,12 +106,6 @@ function ConfigManager:getRichPresenceApplicationID()
 	return self.config.richPresence.applicationID
 end
 
----Returns whether the game should be rendered on a canvas.
----@return boolean
-function ConfigManager:isCanvasRenderingEnabled()
-	return self.config.renderOnCanvas or false
-end
-
 ---Returns the canvas rendering mode, `"filtered"` by default.
 ---@return string
 function ConfigManager:getCanvasRenderingMode()

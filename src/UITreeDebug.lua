@@ -37,7 +37,7 @@ function UITreeDebug:draw()
 
     -- Scrolling logic.
     local height = love.graphics.getHeight()
-    local mousePos = _Display:posOnScreen(_MousePos)
+    local mousePos = _MousePos
     local mousePressed = love.mouse.isDown(1)
     local scrollbarWidth = 15
     local scrollbarHeight = 50
@@ -190,7 +190,7 @@ end
 ---Returns whether the UI Tree Debug is hovered.
 ---@return boolean
 function UITreeDebug:isHovered()
-    return self.visible and _Display:posOnScreen(_MousePos).x < 500
+    return self.visible and _MousePos.x < 500
 end
 
 

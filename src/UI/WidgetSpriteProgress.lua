@@ -37,8 +37,7 @@ end
 
 function UIWidgetSpriteProgress:draw(variables)
 	local pos = self.parent:getPos()
-	local pos2 = _Display:posOnScreen(pos)
-	love.graphics.setScissor(pos2.x, pos2.y, self.size.x * _Display:getResolutionScale() * self.value, self.size.y * _Display:getResolutionScale())
+	love.graphics.setScissor(pos.x, pos.y, self.size.x * self.value, self.size.y)
 	self.sprite:draw(pos, nil, nil, nil, nil, nil, self.parent:getAlpha())
 	love.graphics.setScissor()
 end

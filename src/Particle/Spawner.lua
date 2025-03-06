@@ -64,10 +64,10 @@ function ParticleSpawner:getPos()
 end
 
 function ParticleSpawner:draw()
-	local p = _Display:posOnScreen(self:getPos())
+	local pos = self:getPos()
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.setLineWidth(2)
-	love.graphics.rectangle("line", p.x - 10, p.y - 10, 20, 20)
+	love.graphics.rectangle("line", pos.x - 10, pos.y - 10, 20, 20)
 end
 
 function ParticleSpawner:spawnPiece()

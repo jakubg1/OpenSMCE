@@ -669,25 +669,25 @@ function Sphere:draw(color, hidden, shadow)
 	end
 
 	if _Debug.sphereDebugVisible2 and self.appendSize < 1 then
-		local p1 = _Display:posOnScreen(self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize)))
-		local p2 = _Display:posOnScreen(self.shootOrigin)
+		local p1 = self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize))
+		local p2 = self.shootOrigin
 		love.graphics.setColor(1, 0.5, 0)
 		love.graphics.setLineWidth(3)
 		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.setLineWidth(1)
-		love.graphics.circle("line", p1.x, p1.y, 15 * _Display:getResolutionScale())
+		love.graphics.circle("line", p1.x, p1.y, 15)
 	end
 
 	-- debug: you can peek some sphere-related values here
 
 	--if not shadow and self:hasEffect("match") then
-	--	local p = _Display:posOnScreen(self:getPos())
+	--	local p = self:getPos()
 	--	love.graphics.print(self:getEffectGroupID("match"), p.x, p.y + 20)
 	--end
 
 	--if not shadow and _Debug.sphereDebugVisible2 and self.appendSize < 1 then
-	--	local p = _Display:posOnScreen(self:getPos())
+	--	local p = self:getPos()
 	--	local s = ""
 	--	s = s .. "offset: " .. tostring(self.offset) .. "\n"
 	--	s = s .. "getOffset(): " .. tostring(self:getOffset()) .. "\n"

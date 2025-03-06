@@ -369,9 +369,9 @@ function UIWidget:draw()
 end
 
 function UIWidget:drawDebug()
-	local p = _Display:posOnScreen(self:getPos())
-	local s = self:getSize() * _Display:getResolutionScale()
-	local ps = (self.widget and self.widget.align) and _Display:posOnScreen(self:getPos() - self:getSize() * self.widget.align) or p
+	local p = self:getPos()
+	local s = self:getSize()
+	local ps = (self.widget and self.widget.align) and self:getPos() - self:getSize() * self.widget.align or p
 	-- Draw size
 	love.graphics.setColor(0, 1, 1, self:getAlpha())
 	love.graphics.setLineWidth(2)

@@ -800,13 +800,13 @@ function SphereGroup:drawDebug()
 	if #self.spheres == 0 then
 		return
 	end
-	local pos = _Display:posOnScreen(self.sphereChain.path:getPos(self:getFrontPos()))
+	local pos = self.sphereChain.path:getPos(self:getFrontPos())
 	love.graphics.setColor(0.5, 1, 0)
 	love.graphics.circle("fill", pos.x, pos.y, 6)
-	local pos = _Display:posOnScreen(self.sphereChain.path:getPos(self:getBackPos()))
+	local pos = self.sphereChain.path:getPos(self:getBackPos())
 	love.graphics.setColor(1, 0.5, 0)
 	love.graphics.circle("fill", pos.x, pos.y, 6)
-	local pos = _Display:posOnScreen(self.sphereChain.path:getPos(self.offset))
+	local pos = self.sphereChain.path:getPos(self.offset)
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.circle("fill", pos.x, pos.y, 4)
 end

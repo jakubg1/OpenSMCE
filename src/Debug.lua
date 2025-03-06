@@ -294,13 +294,10 @@ end
 
 function Debug:drawDebugInfo()
 	-- Debug screen
-	--local p = posOnScreen(Vec2())
-	local p = Vec2()
-
 	local spl = _Utils.strSplit(self:getDebugInfo(), "\n")
 
 	for i, l in ipairs(spl) do
-		self:drawVisibleText(l, p + Vec2(0, 15 * (i - 1)), 15)
+		self:drawVisibleText(l, Vec2(0, 15 * (i - 1)), 15)
 	end
 end
 

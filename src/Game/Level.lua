@@ -1305,7 +1305,7 @@ function Level:draw()
 		floatingText:draw()
 	end
 
-	-- local p = posOnScreen(Vec2(20, 500))
+	-- local p = Vec2(20, 500)
 	-- love.graphics.setColor(1, 1, 1)
 	-- love.graphics.print(tostring(self.warningDelay) .. "\n" .. tostring(self.warningDelayMax), p.x, p.y)
 end
