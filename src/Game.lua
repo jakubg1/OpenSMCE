@@ -187,20 +187,21 @@ function Game:updateRichPresence()
 	local line2 = ""
 
 	if self.level then
-		line2 = string.format("Level %s (%s), Score: %s, Lives: %s",
+		line2 = string.format("Level %s (%s), Score: %s",
 			profile:getLevelName(),
-			self.level.won and "Complete!" or string.format("%s%%", math.floor((self.level:getObjectiveProgress(1)) * 100)),
-			profile:getScore(),
-			profile:getLives()
+			string.format("%s%%", math.floor((self.level:getObjectiveProgress(1)) * 100)),
+			profile:getScore()
 		)
+		if profile:getLives() then
+			line2 = line2 .. string.format(", Lives: %s", profile:getLives())
+		end
 		if self.level.pause then
 			line1 = line1 .. " - Paused"
 		end
 	elseif profile and profile:getSession() then
+		line2 = string.format("In menus, Score: %s", profile:getScore())
 		if profile:getLives() then
-		line2 = string.format("In menus, Score: %s, Lives: %s", profile:getScore(), profile:getLives())
-		else
-			line2 = string.format("In menus, Score: %s", profile:getScore())
+			line2 = line2 .. string.format(", Lives: %s", profile:getLives())
 		end
 	else
 		line2 = string.format("In menus")
