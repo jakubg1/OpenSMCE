@@ -4,8 +4,8 @@
     - infectionSize (integer) [>=0] - How many times the effect expansion should occur.
     - infectionTime (number) [>=0] - Time between the expansions, in seconds.
     - applySound* (SoundEvent) - A sound event to be played when a sphere gets this effect.
-    - destroySound (SoundEvent) - A sound event to be played when spheres afflicted with this effect are destroyed.
-    - destroyScoreEvent (ScoreEvent) - A score event to be executed when spheres affected with this effect are destroyed.
+    - destroySound* (SoundEvent) - A sound event to be played when spheres afflicted with this effect are destroyed.
+    - destroyScoreEvent* (ScoreEvent) - A score event to be executed when spheres affected with this effect are destroyed.
     - destroyParticle* (Particle) - A one-time particle packet used when a sphere with this effect is destroyed.
     - destroyCollectible* (CollectibleGenerator) - The collectible generator to be used when spheres with this effect are destroyed.
     - levelLossProtection (boolean) - If set to `true`, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
@@ -17,3 +17,7 @@
     - canKeepCombo (boolean) - Whether shot spheres with this effect should not be counted towards combo reset.
     - causeCheck (boolean) - When set to `false`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
     - ghostTime* (number) [>0] - Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation.
+    - eventsBefore* (array) - The list of Game Events to be executed before the `destroySound`, `destroyScoreEvent` and `destroyCollectible` values are evaluated.
+        - (GameEvent) - The game event to be executed.
+    - eventsAfter* (array) - The list of Game Events to be executed after the `destroySound`, `destroyScoreEvent` and `destroyCollectible` values are evaluated.
+        - (GameEvent) - The game event to be executed.

@@ -1,0 +1,6 @@
+- (object) {type: Type of the game event.} - The root object.
+    - "setLevelVariable" - Sets the value of the Level Variable. If no Level is currently active, the event will do nothing.
+        - variable (string) - The name of the Level Variable to be set.
+        - value (%number) - The new value for this Level Variable.
+    - conditions* (array) - A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.
+        - (%boolean) - A single condition.

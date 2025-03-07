@@ -201,6 +201,12 @@ function Debug:getDebugLevel()
 		s = s .. string.format("  %s: %s %s/%s\n", i, objective.type, objective.progress, objective.target)
 	end
 	s = s .. "\n"
+	s = s .. "Variables:\n"
+	for name, variable in pairs(level.variables) do
+		s = s .. string.format("  - %s = %s", name, variable)
+	end
+	s = s .. "\n"
+	s = s .. "\n"
 	s = s .. "Collectible# = " .. tostring(#level.collectibles) .. "\n"
 	s = s .. "FloatingText# = " .. tostring(#level.floatingTexts) .. "\n"
 	s = s .. "ShotSphere# = " .. tostring(#level.shotSpheres) .. "\n"

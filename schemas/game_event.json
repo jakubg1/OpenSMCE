@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "type": {
+            "enum": [
+                "setLevelVariable"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "Type of the game event."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "setLevelVariable",
+                        "description": "Sets the value of the Level Variable. If no Level is currently active, the event will do nothing."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "variable": {
+                        "type": "string",
+                        "description": "The name of the Level Variable to be set."
+                    },
+                    "value": {
+                        "type": "number",
+                        "description": "The new value for this Level Variable."
+                    }
+                },
+                "required": [
+                    "variable",
+                    "value"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}

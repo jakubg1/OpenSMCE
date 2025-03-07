@@ -5,17 +5,12 @@ local class = require "com.class"
 ---@overload fun(name):Game
 local Game = class:derive("Game")
 
-
-
-local Vec2 = require("src.Essentials.Vector2")
-
+local Expression = require("src.Expression")
 local Timer = require("src.Timer")
-
 local ConfigManager = require("src.ConfigManager")
 local ResourceManager = require("src.ResourceManager")
 local RuntimeManager = require("src.Game.RuntimeManager")
 local Level = require("src.Game.Level")
-
 local UIManager = require("src.UI.Manager")
 local ParticleManager = require("src.Particle.Manager")
 
@@ -178,6 +173,81 @@ function Game:gameOver()
 	self.uiManager:executeCallback("gameOver")
 end
 
+---Saves the game.
+function Game:save()
+	if self.level then
+		self.level:save()
+	end
+	self.runtimeManager:save()
+end
+
+---Plays a sound and returns its instance for modification.
+---@param name string|SoundEvent The name of the Sound Effect to be played.
+---@param pos Vector2? The position of the sound.
+---@return SoundInstanceList
+function Game:playSound(name, pos)
+	-- TODO: Unmangle this code. Will the string representation be still necessary after we fully move to Config Classes?
+	if type(name) == "string" then
+		return self.resourceManager:getSoundEvent(name):play(pos)
+	else
+		return name:play(pos)
+	end
+end
+
+---Spawns and returns a particle packet.
+---@param name string|table The name of a particle packet, or its definition as a table.
+---@param pos Vector2 The position for the particle packet to be spawned.
+---@param layer string? The layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game, and not UI.
+---@return ParticlePacket
+function Game:spawnParticle(name, pos, layer)
+	return self.particleManager:spawnParticlePacket(name, pos, layer)
+end
+
+---Executes a Game Event.
+---TODO: Move this function's parameter to a Config Class.
+---@param event table The game event to be executed.
+function Game:executeGameEvent(event)
+	-- Abort the execution if any of the conditions are not met.
+	if event.conditions then
+		for i, condition in ipairs(event.conditions) do
+			if not Expression(condition):evaluate() then
+				return
+			end
+		end
+	end
+	-- Execute the event.
+	if event.type == "setLevelVariable" then
+		if not self.level then
+			return
+		end
+		self.level:setVariable(event.variable, Expression(event.value):evaluate())
+	end
+end
+
+---Returns the native resolution of this Game.
+---@return Vector2
+function Game:getNativeResolution()
+	return self.configManager:getNativeResolution()
+end
+
+---Returns the currently selected Profile.
+---@return Profile
+function Game:getCurrentProfile()
+	return self.runtimeManager.profileManager:getCurrentProfile()
+end
+
+---Returns the effective sound volume, dictated by the game options.
+---@return number
+function Game:getEffectiveSoundVolume()
+	return self.runtimeManager.options:getEffectiveSoundVolume()
+end
+
+---Returns the effective music volume, dictated by the game options.
+---@return number
+function Game:getEffectiveMusicVolume()
+	return self.runtimeManager.options:getEffectiveMusicVolume()
+end
+
 
 
 ---Updates the game's Rich Presence information.
@@ -306,74 +376,6 @@ end
 ---@param t string Something which makes text going.
 function Game:textinput(t)
 	self.uiManager:textinput(t)
-end
-
-
-
----Saves the game.
-function Game:save()
-	if self.level then
-		self.level:save()
-	end
-	self.runtimeManager:save()
-end
-
-
-
----Plays a sound and returns its instance for modification.
----@param name string|SoundEvent The name of the Sound Effect to be played.
----@param pos Vector2? The position of the sound.
----@return SoundInstanceList
-function Game:playSound(name, pos)
-	-- TODO: Unmangle this code. Will the string representation be still necessary after we fully move to Config Classes?
-	if type(name) == "string" then
-		return self.resourceManager:getSoundEvent(name):play(pos)
-	else
-		return name:play(pos)
-	end
-end
-
-
-
----Returns the currently selected Profile.
----@return Profile
-function Game:getCurrentProfile()
-	return self.runtimeManager.profileManager:getCurrentProfile()
-end
-
-
-
----Spawns and returns a particle packet.
----@param name string|table The name of a particle packet, or its definition as a table.
----@param pos Vector2 The position for the particle packet to be spawned.
----@param layer string? The layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game, and not UI.
----@return ParticlePacket
-function Game:spawnParticle(name, pos, layer)
-	return self.particleManager:spawnParticlePacket(name, pos, layer)
-end
-
-
-
----Returns the native resolution of this Game.
----@return Vector2
-function Game:getNativeResolution()
-	return self.configManager:getNativeResolution()
-end
-
-
-
----Returns the effective sound volume, dictated by the game options.
----@return number
-function Game:getEffectiveSoundVolume()
-	return self.runtimeManager.options:getEffectiveSoundVolume()
-end
-
-
-
----Returns the effective music volume, dictated by the game options.
----@return number
-function Game:getEffectiveMusicVolume()
-	return self.runtimeManager.options:getEffectiveMusicVolume()
 end
 
 

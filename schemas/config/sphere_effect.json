@@ -86,14 +86,30 @@
             "type": "number",
             "description": "Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation.",
             "exclusiveMinimum": 0.0
+        },
+        "eventsBefore": {
+            "type": "array",
+            "description": "The list of Game Events to be executed before the destroySound, destroyScoreEvent and destroyCollectible values are evaluated.",
+            "markdownDescription": "The list of Game Events to be executed before the `destroySound`, `destroyScoreEvent` and `destroyCollectible` values are evaluated.",
+            "items": {
+                "$ref": "../_structures/GameEvent.json",
+                "description": "The game event to be executed."
+            }
+        },
+        "eventsAfter": {
+            "type": "array",
+            "description": "The list of Game Events to be executed after the destroySound, destroyScoreEvent and destroyCollectible values are evaluated.",
+            "markdownDescription": "The list of Game Events to be executed after the `destroySound`, `destroyScoreEvent` and `destroyCollectible` values are evaluated.",
+            "items": {
+                "$ref": "../_structures/GameEvent.json",
+                "description": "The game event to be executed."
+            }
         }
     },
     "required": [
         "time",
         "infectionSize",
         "infectionTime",
-        "destroySound",
-        "destroyScoreEvent",
         "levelLossProtection",
         "immobile",
         "fragile",

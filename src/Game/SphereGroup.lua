@@ -704,27 +704,37 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		self.map.level.combo = self.map.level.combo + 1
 	end
 
-	-- Play a sound.
+	-- Spawn collectibles, play sounds, add score, etc.
 	_Vars:setC("match", "length", length)
 	_Vars:setC("match", "streak", self.map.level.combo)
 	_Vars:setC("match", "streakBoost", boostCombo)
 	_Vars:setC("match", "cascade", self.sphereChain.combo)
 	_Vars:setC("match", "gapCount", #gaps)
 	_Vars:setC("match", "color", color)
-	_Game:playSound(effectConfig.destroySound, pos)
-
-	--[[
-	local scoreGapTexts = {"GAP BONUS!", "DOUBLE GAP BONUS!", "TRIPLE GAP BONUS!", "QUADRUPLE GAP BONUS!", "QUINTUPLE GAP BONUS!"}
-	if #gaps > 0 then
-		scoreText = scoreText .. "\n" .. scoreGapTexts[#gaps]
+	-- Execute the "before" game events.
+	if effectConfig.eventsBefore then
+		for i, event in ipairs(effectConfig.eventsBefore) do
+			_Game:executeGameEvent(event)
+		end
 	end
-	]]
-	local score = self.map.level:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(effectConfig.destroyScoreEvent), pos)
-	self.sphereChain.comboScore = self.sphereChain.comboScore + score
-
+	-- Play sounds.
+	if effectConfig.destroySound then
+		_Game:playSound(effectConfig.destroySound, pos)
+	end
+	-- Execute a score event.
+	if effectConfig.destroyScoreEvent then
+		local score = self.map.level:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(effectConfig.destroyScoreEvent), pos)
+		self.sphereChain.comboScore = self.sphereChain.comboScore + score
+	end
 	-- Spawn any collectibles if applicable.
 	if effectConfig.destroyCollectible then
 		self.map.level:spawnCollectiblesFromEntry(pos, _Game.resourceManager:getCollectibleGeneratorConfig(effectConfig.destroyCollectible))
+	end
+	-- Execute the "after" game events.
+	if effectConfig.eventsAfter then
+		for i, event in ipairs(effectConfig.eventsAfter) do
+			_Game:executeGameEvent(event)
+		end
 	end
 	_Vars:unset("match")
 

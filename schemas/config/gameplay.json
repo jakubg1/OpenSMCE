@@ -151,6 +151,19 @@
             ],
             "additionalProperties": false
         },
+        "levelVariables": {
+            "type": "object",
+            "description": "Defines the starting values for the Level Variables. Keys are variable names, values must be numbers. Level variables will be reset every time the level is retried or a new level is started.",
+            "propertyNames": {
+                "pattern": "^.$"
+            },
+            "patternProperties": {
+                "^.*$": {
+                    "type": "number",
+                    "description": "The value for this Level Variable."
+                }
+            }
+        },
         "net": {
             "type": "object",
             "description": "Defines the Net.",
