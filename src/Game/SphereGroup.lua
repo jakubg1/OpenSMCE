@@ -237,7 +237,7 @@ function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects
 	sphere:updateOffset()
 	-- If the new sphere can stop growing, we must check if it actually will.
 	if canStopGrowing then
-		if self:getMatchLengthInChain(position) >= 3 then
+		if self:getMatchLength(position) >= 3 then
 			sphere:stopGrowing()
 		end
 	end
@@ -864,6 +864,31 @@ function SphereGroup:getMatchBounds(position)
 		end
 	end
 	return position1 + 1, position2 - 1
+end
+
+
+
+function SphereGroup:getMatchLength(position)
+	local position1 = position
+	local position2 = position
+	local color = self.spheres[position].color
+	-- seek backwards
+	while true do
+		position1 = position1 - 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self.spheres[position1] or not self.map.level:colorsMatch(self.spheres[position1].color, self.spheres[position1 + 1].color) then
+			break
+		end
+	end
+	-- seek forwards
+	while true do
+		position2 = position2 + 1
+		-- end if no more spheres or found an unmatched sphere
+		if not self.spheres[position2] or not self.map.level:colorsMatch(self.spheres[position2].color, self.spheres[position2 - 1].color) then
+			break
+		end
+	end
+	return position2 - position1 - 1
 end
 
 

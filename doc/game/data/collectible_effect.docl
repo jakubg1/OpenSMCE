@@ -25,10 +25,13 @@
         - time (number) [>0] - The duration of the effect in seconds.
     - "changeGameSpeed" - Changes the game speed to a defined value for a specified period of time.
         - speed (number) [>0] - The game speed multiplier.
-        - duration (number) [>0] - The duration of the effect in seconds. It is not affected by the game speed itself.
+        - time (number) [>0] - The duration of the effect in seconds. It is not affected by the game speed itself.
     - "setCombo" - Sets the current level combo to a specified value.
         - combo (integer) [>=0] - The combo value to be set.
     - "executeScoreEvent" - Executes a Score Event on the current player.
         - scoreEvent (ScoreEvent) - The Score Event to be executed.
+    - "setScoreMultiplier" - Sets a temporary level-based Score Multiplier.
+        - multiplier (number) [>=0] - The score multiplier to be set.
+        - time (number) [>0] - The duration of the effect, in seconds.
     - "grantCoin" - Grants a single coin to the current player.
     - "incrementGemStat" - Adds one to the gem pickup statistics for the current level.

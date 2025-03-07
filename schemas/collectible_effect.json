@@ -17,6 +17,7 @@
                 "changeGameSpeed",
                 "setCombo",
                 "executeScoreEvent",
+                "setScoreMultiplier",
                 "grantCoin",
                 "incrementGemStat"
             ]
@@ -327,7 +328,7 @@
                         "description": "The game speed multiplier.",
                         "exclusiveMinimum": 0.0
                     },
-                    "duration": {
+                    "time": {
                         "type": "number",
                         "description": "The duration of the effect in seconds. It is not affected by the game speed itself.",
                         "exclusiveMinimum": 0.0
@@ -335,7 +336,7 @@
                 },
                 "required": [
                     "speed",
-                    "duration"
+                    "time"
                 ],
                 "additionalProperties": false
             }
@@ -391,6 +392,40 @@
                 },
                 "required": [
                     "scoreEvent"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "setScoreMultiplier",
+                        "description": "Sets a temporary level-based Score Multiplier."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "multiplier": {
+                        "type": "number",
+                        "description": "The score multiplier to be set.",
+                        "minimum": 0.0
+                    },
+                    "time": {
+                        "type": "number",
+                        "description": "The duration of the effect, in seconds.",
+                        "exclusiveMinimum": 0.0
+                    }
+                },
+                "required": [
+                    "multiplier",
+                    "time"
                 ],
                 "additionalProperties": false
             }

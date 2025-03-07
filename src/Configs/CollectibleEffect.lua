@@ -47,17 +47,20 @@ function CollectibleEffectConfig:new(data, path)
         self.time = u.parseNumber(data.time, path, "time")
     elseif self.type == "changeGameSpeed" then
         self.speed = u.parseNumber(data.speed, path, "speed")
-        self.duration = u.parseNumber(data.duration, path, "duration")
+        self.time = u.parseNumber(data.time, path, "time")
     elseif self.type == "setCombo" then
         self.combo = u.parseInteger(data.combo, path, "combo")
     elseif self.type == "executeScoreEvent" then
         self.scoreEvent = u.parseScoreEventConfig(data.scoreEvent, path, "scoreEvent")
+    elseif self.type == "setScoreMultiplier" then
+        self.multiplier = u.parseNumber(data.multiplier, path, "multiplier")
+        self.time = u.parseNumber(data.time, path, "time")
     elseif self.type == "grantCoin" then
         -- No fields
     elseif self.type == "incrementGemStat" then
         -- No fields
     else
-        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"lightningStorm\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"grantCoin\", \"incrementGemStat\")", self.type))
+        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"lightningStorm\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"setScoreMultiplier\", \"grantCoin\", \"incrementGemStat\")", self.type))
     end
 end
 

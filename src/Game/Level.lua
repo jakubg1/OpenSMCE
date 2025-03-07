@@ -73,6 +73,7 @@ function Level:update(dt)
 		if self.gameSpeedTime <= 0 then
 			-- The time has elapsed. Return to default speed.
 			self.gameSpeed = 1
+			self.gameSpeedTime = 0
 		end
 	end
 
@@ -162,6 +163,16 @@ function Level:updateLogic(dt)
 		if self.netTime <= 0 then
 			self.netTime = 0
 			self:destroyNet()
+		end
+	end
+
+	-- Score multiplier
+	if self.scoreMultiplierTime > 0 then
+		self.scoreMultiplierTime = self.scoreMultiplierTime - dt
+		if self.scoreMultiplierTime <= 0 then
+			-- The time has elapsed. Return to default multiplier.
+			self.scoreMultiplier = 1
+			self.scoreMultiplierTime = 0
 		end
 	end
 
@@ -466,6 +477,7 @@ function Level:executeScoreEvent(scoreEvent, pos)
 	if not scoreEvent.ignoreDifficultyMultiplier then
 		score = score * _Game:getCurrentProfile():getDifficultyConfig().scoreMultiplier
 	end
+	score = score * self.scoreMultiplier
 	_Vars:setC("event", "score", score)
 	self:grantScore(score, unmultipliedScore)
 
@@ -584,11 +596,14 @@ function Level:applyEffect(effect, pos)
 		self:spawnNet()
 	elseif effect.type == "changeGameSpeed" then
 		self.gameSpeed = effect.speed
-		self.gameSpeedTime = effect.duration
+		self.gameSpeedTime = effect.time
 	elseif effect.type == "setCombo" then
 		self.combo = effect.combo
 	elseif effect.type == "executeScoreEvent" then
 		self:executeScoreEvent(effect.scoreEvent, pos)
+	elseif effect.type == "setScoreMultiplier" then
+		self.scoreMultiplier = effect.multiplier
+		self.scoreMultiplierTime = effect.time
 	elseif effect.type == "grantCoin" then
 		self:grantCoin()
 	elseif effect.type == "incrementGemStat" then
@@ -956,6 +971,8 @@ function Level:reset()
 
 	self.gameSpeed = 1
 	self.gameSpeedTime = 0
+	self.scoreMultiplier = 1
+	self.scoreMultiplierTime = 0
 	self.lightningStorms = {}
 	self.netTime = 0
 	self:destroyNet()
