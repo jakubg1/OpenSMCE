@@ -119,6 +119,12 @@ function ShotSphere:moveStep()
 				elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
 					_Game.level:replaceColorSelector(sphereConfig.hitBehavior, self.pos)
 					self:destroy()
+				elseif sphereConfig.hitBehavior.type == "splitAndPushBack" then
+					if hitSphere.nextSphere then
+						hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
+					end
+					hitSphere.sphereGroup.speed = -sphereConfig.hitBehavior.speed
+					self:destroy()
 				else
 					if self.hitSphere.half then
 						self.hitSphere.sphereID = self.hitSphere.sphereID + 1
