@@ -103,15 +103,21 @@ function ShotSphere:moveStep()
 			self.hitSphere = nearestSphere
 			local sphereConfig = _Game.configManager.spheres[self.color]
 			local hitSphere = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID]
+			local redirectedHitSphere = hitSphere
+			-- Redirect the hit sphere if it's a scarab.
+			if hitSphere.color == 0 then
+				redirectedHitSphere = hitSphere:getNextSphereInChain()
+			end
 			local badShot = false
 			local shotCancelled = false
 			hitSphere:dumpVariables("hitSphere")
+			redirectedHitSphere:dumpVariables("redirectedHitSphere")
 			if not sphereConfig.doesNotCollideWith or not _Utils.isValueInTable(sphereConfig.doesNotCollideWith, hitSphere.color) then
 				if sphereConfig.hitBehavior.type == "destroySpheres" then
 					_Game.level:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
 					self:destroy()
 				elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
-					_Game.level:replaceColorSelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.color, sphereConfig.hitBehavior.particle)
+					_Game.level:replaceColorSelector(sphereConfig.hitBehavior, self.pos)
 					self:destroy()
 				else
 					if self.hitSphere.half then
@@ -151,6 +157,7 @@ function ShotSphere:moveStep()
 				end
 			end
 			_Vars:unset("hitSphere")
+			_Vars:unset("redirectedHitSphere")
 		end
 	end
 

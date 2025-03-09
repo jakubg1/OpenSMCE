@@ -1102,12 +1102,13 @@ end
 
 ---Selects spheres based on a provided Sphere Selector Config and changes their colors.
 ---TODO: Change the parameters from strings to actual objects.
----@param sphereSelector string The Sphere Selector that will be used to select the spheres to be destroyed.
+---@param hitBehavior table The sphere's Hit Behavior with, `selector`, `color` and `particle` (optional) fields.
 ---@param pos Vector2? The position used to calculate distances to spheres.
----@param color integer The color that all selected spheres will be changed to.
----@param particle table? A one-time Particle Effect that will be created at every affected sphere.
-function Level:replaceColorSelector(sphereSelector, pos, color, particle)
-	SphereSelectorResult(_Game.resourceManager:getSphereSelectorConfig(sphereSelector), pos):changeColor(color, particle)
+function Level:replaceColorSelector(hitBehavior, pos)
+	local selector = _Game.resourceManager:getSphereSelectorConfig(hitBehavior.selector)
+	local color = Expression(hitBehavior.color):evaluate()
+	local particle = hitBehavior.particle
+	SphereSelectorResult(selector, pos):changeColor(color, particle)
 end
 
 

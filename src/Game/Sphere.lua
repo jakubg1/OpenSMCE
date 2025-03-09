@@ -332,6 +332,20 @@ end
 
 
 
+---Returns the next Sphere in this Sphere Chain, or `nil` if this is the last (frontmost) sphere in the chain.
+---@return Sphere?
+function Sphere:getNextSphereInChain()
+	if self.nextSphere then
+		return self.nextSphere
+	end
+	-- The next sphere might be in the next group.
+	if self.sphereGroup.nextGroup then
+		return self.sphereGroup.nextGroup:getFirstSphere()
+	end
+end
+
+
+
 ---Returns `true` if this sphere is a stone sphere.
 ---@return boolean
 function Sphere:isStone()
