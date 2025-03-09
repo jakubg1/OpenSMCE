@@ -115,16 +115,28 @@ function ShotSphere:moveStep()
 			if not sphereConfig.doesNotCollideWith or not _Utils.isValueInTable(sphereConfig.doesNotCollideWith, hitSphere.color) then
 				if sphereConfig.hitBehavior.type == "destroySpheres" then
 					_Game.level:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
-					self:destroy()
+					if not sphereConfig.hitBehavior.pierce then
+						self:destroy()
+					else
+						self.hitSphere = nil
+					end
 				elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
 					_Game.level:replaceColorSelector(sphereConfig.hitBehavior, self.pos)
-					self:destroy()
+					if not sphereConfig.hitBehavior.pierce then
+						self:destroy()
+					else
+						self.hitSphere = nil
+					end
 				elseif sphereConfig.hitBehavior.type == "splitAndPushBack" then
 					if hitSphere.nextSphere then
 						hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
 					end
 					hitSphere.sphereGroup.speed = -sphereConfig.hitBehavior.speed
-					self:destroy()
+					if not sphereConfig.hitBehavior.pierce then
+						self:destroy()
+					else
+						self.hitSphere = nil
+					end
 				else
 					if self.hitSphere.half then
 						self.hitSphere.sphereID = self.hitSphere.sphereID + 1

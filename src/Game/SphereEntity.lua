@@ -116,6 +116,20 @@ end
 
 
 
+---Returns a new instance of itself.
+---@return SphereEntity
+function SphereEntity:copy()
+	local entity = SphereEntity(self.pos, self.color, self.layer)
+	entity.angle = self.angle
+	entity.scale = self.scale
+	entity.frame = self.frame
+	entity.colorM = self.colorM
+	entity.alpha = self.alpha
+	return entity
+end
+
+
+
 ---Destroys this sphere entity.
 ---@param spawnParticle boolean? Whether to emit sphere destruction particles. Defaults to `true`.
 function SphereEntity:destroy(spawnParticle)

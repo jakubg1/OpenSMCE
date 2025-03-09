@@ -410,16 +410,24 @@ function Shooter:shoot()
     -- Spawn the Shot Sphere or deploy the sphere, depending on its config.
     local sphereConfig = self:getSphereConfig()
     for i = 1, self:getSphereCount() do
-        if sphereConfig.shootBehavior.type == "destroySpheres" then
+        if sphereConfig.shootBehavior.type == "normal" then
+            -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
+            self.sphereEntities[i]:setAlpha(self:getSphereAlpha())
+            local amount = sphereConfig.shootBehavior.amount or 1
+            local angleTotal = sphereConfig.shootBehavior.spreadAngle or 0
+            local angleStart = amount == 1 and 0 or -angleTotal / 2
+            local angleStep = amount == 1 and 0 or angleTotal / (amount - 1)
+            for j = 1, amount do
+                local angle = self.angle + angleStart + angleStep * (j - 1)
+                local entity = j == 1 and self.sphereEntities[i] or self.sphereEntities[i]:copy()
+                _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity)
+            end
+            self.sphereEntities[i] = nil
+        elseif sphereConfig.shootBehavior.type == "destroySpheres" then
             -- lightning spheres are not shot, they're deployed instantly
             _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
             _Game.level:destroySelector(sphereConfig.shootBehavior.selector, self:getSpherePos(i), sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
             self:destroySphereEntities()
-        else
-            -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
-            self.sphereEntities[i]:setAlpha(self:getSphereAlpha())
-            _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), self.angle, self:getSphereSize(), self.color, self:getShootingSpeed(), self.sphereEntities[i])
-            self.sphereEntities[i] = nil
         end
         _Game.level.spheresShot = _Game.level.spheresShot + 1
     end

@@ -33,7 +33,17 @@
             "then": {
                 "properties": {
                     "$schema": true,
-                    "type": true
+                    "type": true,
+                    "amount": {
+                        "type": "integer",
+                        "description": "The amount of spheres that will be launched.",
+                        "minimum": 1
+                    },
+                    "spreadAngle": {
+                        "type": "number",
+                        "description": "The total spreadout angle in radians between all launched spheres.",
+                        "minimum": 0.0
+                    }
                 },
                 "additionalProperties": false
             }

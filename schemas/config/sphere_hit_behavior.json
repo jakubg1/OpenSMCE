@@ -7,7 +7,8 @@
             "enum": [
                 "normal",
                 "destroySpheres",
-                "recolorSpheres"
+                "recolorSpheres",
+                "splitAndPushBack"
             ]
         }
     },
@@ -66,6 +67,10 @@
                     "scoreEventPerSphere": {
                         "$ref": "../_structures/ScoreEvent.json",
                         "description": "A Score Event which will be executed separately for each Sphere that is destroyed."
+                    },
+                    "pierce": {
+                        "type": "boolean",
+                        "description": "If set, the sphere will not be destroyed upon hitting the sphere train."
                     }
                 },
                 "required": [
@@ -101,11 +106,47 @@
                     "particle": {
                         "$ref": "../_structures/Particle.json",
                         "description": "A one-time particle packet launched for all affected spheres."
+                    },
+                    "pierce": {
+                        "type": "boolean",
+                        "description": "If set, the sphere will not be destroyed upon hitting the sphere train."
                     }
                 },
                 "required": [
                     "selector",
                     "color"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "splitAndPushBack",
+                        "description": "The sphere gets destroyed, splits the sphere group in front of the hit sphere and applies negative speed to the back part of it."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "speed": {
+                        "type": "number",
+                        "description": "The knockback speed, in pixels per second.",
+                        "minimum": 0.0
+                    },
+                    "pierce": {
+                        "type": "boolean",
+                        "description": "If set, the sphere will not be destroyed upon hitting the sphere train."
+                    }
+                },
+                "required": [
+                    "speed"
                 ],
                 "additionalProperties": false
             }
