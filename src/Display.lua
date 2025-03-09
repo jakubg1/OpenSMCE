@@ -11,6 +11,8 @@ function Display:new()
     self.size = Vec2(800, 600)
     self.renderResolution = Vec2(800, 600)
     self.renderCanvas = nil
+
+    self.funniFlashlight = false
 end
 
 ---Sets the window settings: resolution, whether it can be changed, and its title.
@@ -81,8 +83,19 @@ end
 ---Finishes drawing on this Display's canvas and draws it onto the screen.
 function Display:canvasStop()
 	love.graphics.setCanvas()
+    if self.funniFlashlight then
+        love.graphics.stencil(function()
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.circle("fill", _MousePos.x * self:getCanvasScale() + self:getDisplayOffsetX(), _MousePos.y * self:getCanvasScale(), 100 * self:getCanvasScale())
+        end, "replace", 1)
+        -- mark only these pixels as the pixels which can be affected
+        love.graphics.setStencilTest("equal", 1)
+    end
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), 0, 0, self:getCanvasScale())
+    if self.funniFlashlight then
+        love.graphics.setStencilTest()
+    end
 end
 
 return Display
