@@ -8,6 +8,8 @@
     - "speedShot" - Replaces the default shooting speed and spawns a speed shot beam effect.
         - time (number) [>0] - The duration of the effect in seconds.
         - speed (number) [>0] - A new speed of the shot balls, in pixels per second.
+    - "homingBugs" - The shot spheres will gravitate towards the largest sphere group of matching color.
+        - time (number) [>0] - The duration of the effect in seconds.
     - "speedOverride" - Changes the speed of spheres on the board.
         - speedBase (number) - A value to be added to the multiplied sphere speed.
         - speedMultiplier (number) - A multiplier by which the nominal path speed will be multiplied.\nThe formula for the final speed is: `speedBase + (pathSpeed * speedMultiplier)`.

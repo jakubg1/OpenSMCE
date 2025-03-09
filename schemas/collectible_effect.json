@@ -9,6 +9,7 @@
                 "multiSphere",
                 "removeMultiSphere",
                 "speedShot",
+                "homingBugs",
                 "speedOverride",
                 "destroySpheres",
                 "spawnPathEntity",
@@ -141,6 +142,34 @@
                 "required": [
                     "time",
                     "speed"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "homingBugs",
+                        "description": "The shot spheres will gravitate towards the largest sphere group of matching color."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "time": {
+                        "type": "number",
+                        "description": "The duration of the effect in seconds.",
+                        "exclusiveMinimum": 0.0
+                    }
+                },
+                "required": [
+                    "time"
                 ],
                 "additionalProperties": false
             }

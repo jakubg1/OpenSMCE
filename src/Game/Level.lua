@@ -115,24 +115,15 @@ function Level:updateLogic(dt)
 	for i, shotSphere in ipairs(self.shotSpheres) do
 		shotSphere:update(dt)
 	end
-	for i = #self.shotSpheres, 1, -1 do
-		local shotSphere = self.shotSpheres[i]
-		if shotSphere.delQueue then table.remove(self.shotSpheres, i) end
-	end
+	_Utils.removeDeadObjects(self.shotSpheres)
 	for i, collectible in ipairs(self.collectibles) do
 		collectible:update(dt)
 	end
-	for i = #self.collectibles, 1, -1 do
-		local collectible = self.collectibles[i]
-		if collectible.delQueue then table.remove(self.collectibles, i) end
-	end
+	_Utils.removeDeadObjects(self.collectibles)
 	for i, floatingText in ipairs(self.floatingTexts) do
 		floatingText:update(dt)
 	end
-	for i = #self.floatingTexts, 1, -1 do
-		local floatingText = self.floatingTexts[i]
-		if floatingText.delQueue then table.remove(self.floatingTexts, i) end
-	end
+	_Utils.removeDeadObjects(self.floatingTexts)
 
 
 
@@ -593,6 +584,8 @@ function Level:applyEffect(effect, pos)
 	elseif effect.type == "speedShot" then
 		self.shooter.speedShotTime = effect.time
 		self.shooter.speedShotSpeed = effect.speed
+	elseif effect.type == "homingBugs" then
+		self.shooter.homingBugsTime = effect.time
 	elseif effect.type == "speedOverride" then
 		for i, path in ipairs(self.map.paths) do
 			for j, sphereChain in ipairs(path.sphereChains) do
@@ -630,51 +623,6 @@ function Level:applyEffect(effect, pos)
 		self:grantGem()
 	end
 end
-
-
-
----Strikes a single time during a lightning storm.
-function Level:spawnLightningStormPiece()
-	-- get a sphere candidate to be destroyed
-	local sphere = self:getLightningStormSphere()
-	-- if no candidate, the lightning storms are over
-	if not sphere then
-		self.lightningStorms = {}
-		return
-	end
-
-	-- spawn a particle, add points etc
-	local pos = sphere:getPos()
-	sphere:dumpVariables("sphere")
-	self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(_Game.configManager.gameplay.lightningStorm.scoreEvent), pos)
-	_Game:spawnParticle(_Game.configManager.gameplay.lightningStorm.particle, pos)
-	_Game:playSound(_Game.configManager.gameplay.lightningStorm.sound, pos)
-	_Vars:unset("sphere")
-	-- destroy it
-	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
-end
-
-
-
----Picks a sphere to be destroyed by a lightning storm strike, or `nil` if no spheres are found.
----@return Sphere|nil
-function Level:getLightningStormSphere()
-	local length = self:getLowestMatchLength()
-	-- first, check for spheres that would make matching easier when destroyed
-	local spheres = self:getSpheresWithMatchLength(length, true)
-	if #spheres > 0 then
-		return spheres[math.random(#spheres)]
-	end
-	-- if none, then check for any of the shortest groups
-	spheres = self:getSpheresWithMatchLength(length)
-	if #spheres > 0 then
-		return spheres[math.random(#spheres)]
-	end
-	-- if none, return nothing
-	return nil
-end
-
-
 
 
 
@@ -772,6 +720,24 @@ function Level:getRandomPath(notEmpty, inDanger)
 	else
 		return self:getRandomPath()
 	end
+end
+
+
+
+---Returns a randomly selected sphere, or `nil` if this level does not contain any spheres.
+---@return Sphere?
+function Level:getRandomSphere()
+	local spheres = {}
+	for i, path in ipairs(self.map.paths) do
+		for j, sphereChain in ipairs(path.sphereChains) do
+			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for l, sphere in ipairs(sphereGroup.spheres) do
+					table.insert(spheres, sphere)
+				end
+			end
+		end
+	end
+	return spheres[math.random(#spheres)]
 end
 
 
@@ -1171,6 +1137,92 @@ end
 
 
 
+---Returns a list of spheres constituting towards the largest group matching with the provided color.
+---@param color integer The sphere color which must match with the returned group.
+---@return table
+function Level:getSpheresOfBiggestGroupMatchingColor(color)
+	local spheres = {}
+	local topLength = 0
+	for i, path in ipairs(self.map.paths) do
+		for j, sphereChain in ipairs(path.sphereChains) do
+			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for l, sphere in ipairs(sphereGroup.spheres) do
+					if sphere.color == color and not sphere:isOffscreen() then
+						local length = sphereGroup:getMatchLengthInChain(l)
+						if length > topLength then
+							spheres = {sphere}
+							topLength = length
+						elseif length == topLength then
+							table.insert(spheres, sphere)
+						end
+					end
+				end
+			end
+		end
+	end
+	return spheres
+end
+
+
+
+---Picks a sphere to be destroyed by a lightning storm strike, or `nil` if no spheres are found.
+---@return Sphere|nil
+function Level:getLightningStormSphere()
+	local length = self:getLowestMatchLength()
+	-- first, check for spheres that would make matching easier when destroyed
+	local spheres = self:getSpheresWithMatchLength(length, true)
+	if #spheres > 0 then
+		return spheres[math.random(#spheres)]
+	end
+	-- if none, then check for any of the shortest groups
+	spheres = self:getSpheresWithMatchLength(length)
+	if #spheres > 0 then
+		return spheres[math.random(#spheres)]
+	end
+	-- if none, return nothing
+	return nil
+end
+
+
+
+---Strikes a single time during a lightning storm.
+function Level:spawnLightningStormPiece()
+	-- get a sphere candidate to be destroyed
+	local sphere = self:getLightningStormSphere()
+	-- if no candidate, the lightning storms are over
+	if not sphere then
+		self.lightningStorms = {}
+		return
+	end
+
+	-- spawn a particle, add points etc
+	local pos = sphere:getPos()
+	sphere:dumpVariables("sphere")
+	self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(_Game.configManager.gameplay.lightningStorm.scoreEvent), pos)
+	_Game:spawnParticle(_Game.configManager.gameplay.lightningStorm.particle, pos)
+	_Game:playSound(_Game.configManager.gameplay.lightningStorm.sound, pos)
+	_Vars:unset("sphere")
+	-- destroy it
+	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
+end
+
+
+
+---Picks a sphere to be set as a target by a homing sphere. This will be a sphere from the largest group of the specified color, or a random one in case none of them match.
+---@param color integer The target color for the homing sphere.
+---@return Sphere?
+function Level:getHomingBugsSphere(color)
+	-- First, check for spheres of the biggest group size.
+	local spheres = self:getSpheresOfBiggestGroupMatchingColor(color)
+	if #spheres > 0 then
+		return spheres[math.random(#spheres)]
+	end
+	-- If none, return a random sphere from the board.
+	return self:getRandomSphere()
+end
+
+
+
 ---Returns the nearest sphere to the given position along with some extra data.
 ---The returned table has the following fields:
 ---
@@ -1282,8 +1334,9 @@ end
 ---@param color integer The sphere ID to be shot.
 ---@param speed number The sphere speed.
 ---@param sphereEntity SphereEntity The Sphere Entity that was attached to the Shooter from which this entity is created.
-function Level:spawnShotSphere(shooter, pos, angle, size, color, speed, sphereEntity)
-	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, size, color, speed, sphereEntity))
+---@param isHoming boolean? If set, the sphere will be homing towards a specific sphere determined by `:getHomingBugsSphere()`.
+function Level:spawnShotSphere(shooter, pos, angle, size, color, speed, sphereEntity, isHoming)
+	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, size, color, speed, sphereEntity, isHoming))
 end
 
 

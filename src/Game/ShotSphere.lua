@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Sphere which has been shot from the Shooter and is flying on the screen until it finds a Sphere Group on its way.
 ---@class ShotSphere
----@overload fun(deserializationTable, shooter, pos, angle, size, color, speed, sphereEntity):ShotSphere
+---@overload fun(deserializationTable, shooter, pos, angle, size, color, speed, sphereEntity, isHoming):ShotSphere
 local ShotSphere = class:derive("ShotSphere")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -20,7 +20,8 @@ local SphereEntity = require("src.Game.SphereEntity")
 ---@param color integer The color of this Shot Sphere.
 ---@param speed number The initial speed of this Shot Sphere.
 ---@param sphereEntity SphereEntity The Sphere Entity that was attached to the Shooter from which this entity is created.
-function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, speed, sphereEntity)
+---@param isHoming boolean? If set, the sphere will be homing towards a specific sphere determined by `Level:getHomingBugsSphere()`.
+function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, speed, sphereEntity, isHoming)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
@@ -32,6 +33,10 @@ function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, 
 		self.color = color
 		self.speed = speed
 		self.sphereEntity = sphereEntity
+		self.homingTowards = nil
+		if isHoming then
+			self:pickNewHomingTarget()
+		end
 
 		self.gapsTraversed = {}
 
@@ -58,6 +63,18 @@ function ShotSphere:update(dt)
 			self:destroy(true)
 		end
 	else
+		-- If this is a homing sphere, go towards that.
+		if self.homingTowards then
+			-- If the sphere we were homing towards has been destroyed, pick a new homing target.
+			if self.homingTowards.delQueue then
+				self:pickNewHomingTarget()
+			end
+			-- If there is no new homing target, do not proceed.
+			if self.homingTowards then
+				local targetAngle = (self.homingTowards:getPos() - self.pos):angle() + math.pi / 2
+				self.angle = targetAngle
+			end
+		end
 		-- move
 		self.steps = self.steps + self.speed * dt / self.PIXELS_PER_STEP
 		while self.steps > 0 and not self.hitSphere and not self.delQueue do
@@ -95,7 +112,7 @@ function ShotSphere:moveStep()
 
 	-- add if there's a sphere nearby
 	local nearestSphere = _Game.level:getNearestSphere(self.pos)
-	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.size) / 2 then
+	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.size) / 2 and (not self.homingTowards or self.homingTowards == nearestSphere.sphere) then
 		-- If hit sphere is fragile, destroy the fragile spheres instead of hitting.
 		if nearestSphere.sphere:isFragile() then
 			nearestSphere.sphere:matchEffectFragile()
@@ -222,6 +239,16 @@ end
 
 
 
+---Picks a random sphere from `Level:getHomingBugsTarget()` and sets that sphere as the new homing target.
+function ShotSphere:pickNewHomingTarget()
+	self.homingTowards = _Game.level:getHomingBugsSphere(self.color)
+	if not self.homingTowards then
+		self:destroy()
+	end
+end
+
+
+
 ---Deinitializates itself, destroys the associated sphere entity and allows the shooter to shoot again.
 ---@param silent boolean? If set, the sphere will not emit any particles.
 function ShotSphere:destroy(silent)
@@ -284,6 +311,7 @@ function ShotSphere:serialize()
 		color = self.color,
 		speed = self.speed,
 		steps = self.steps,
+		homingTowards = self.homingTowards and self.homingTowards:getIDs(),
 		hitSphere = self.hitSphere and self.hitSphere.sphere:getIDs(),
 		hitTime = self.hitTime,
 		hitTimeMax = self.hitTimeMax
@@ -312,6 +340,9 @@ function ShotSphere:deserialize(t)
 	self.color = t.color
 	self.speed = t.speed
 	self.steps = t.steps
+	if t.homingTowards then
+		self.homingTowards = _Game.level.map.paths[t.homingTowards.pathID].sphereChains[t.homingTowards.chainID].sphereGroups[t.homingTowards.groupID].spheres[t.homingTowards.sphereID]
+	end
 
 	self.shooter = _Game.level.shooter
 

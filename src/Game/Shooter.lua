@@ -30,6 +30,7 @@ function Shooter:new(data)
     self.speedShotTime = 0
     self.speedShotAnim = 0
     self.speedShotParticles = {}
+    self.homingBugsTime = 0
 
     self.multiColorColor = nil
     self.multiColorCount = 0
@@ -154,6 +155,11 @@ function Shooter:update(dt)
     else
         self.speedShotAnim = math.max(self.speedShotAnim - dt / self.config.speedShotBeam.fadeTime, 0)
         self:destroySpeedShotParticles()
+    end
+
+    -- homing bugs time counting
+    if self.homingBugsTime > 0 then
+        self.homingBugsTime = math.max(self.homingBugsTime - dt, 0)
     end
 
     -- Update the reticle color fade animation.
@@ -420,7 +426,7 @@ function Shooter:shoot()
             for j = 1, amount do
                 local angle = self.angle + angleStart + angleStep * (j - 1)
                 local entity = j == 1 and self.sphereEntities[i] or self.sphereEntities[i]:copy()
-                _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity)
+                _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity, self.homingBugsTime > 0)
             end
             self.sphereEntities[i] = nil
         elseif sphereConfig.shootBehavior.type == "destroySpheres" then
@@ -938,7 +944,8 @@ function Shooter:serialize()
         multiColorColor = self.multiColorColor,
         multiColorCount = self.multiColorCount,
         speedShotTime = self.speedShotTime,
-        speedShotSpeed = self.speedShotSpeed
+        speedShotSpeed = self.speedShotSpeed,
+        homingBugsTime = self.homingBugsTime
     }
 end
 
@@ -953,6 +960,7 @@ function Shooter:deserialize(t)
     self.multiColorCount = t.multiColorCount
     self.speedShotTime = t.speedShotTime
     self.speedShotSpeed = t.speedShotSpeed
+    self.homingBugsTime = t.homingBugsTime
 
     self.reticleColor = t.color
     self.reticleNextColor = t.nextColor
