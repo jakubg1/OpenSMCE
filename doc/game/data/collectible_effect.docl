@@ -32,6 +32,8 @@
         - combo (integer) [>=0] - The combo value to be set.
     - "executeScoreEvent" - Executes a Score Event on the current player.
         - scoreEvent (ScoreEvent) - The Score Event to be executed.
+    - "executeGameEvent" - Executes a Game Event.
+        - gameEvent (GameEvent) - The Game Event to be executed.
     - "setScoreMultiplier" - Sets a temporary level-based Score Multiplier.
         - multiplier (number) [>=0] - The score multiplier to be set.
         - time (number) [>0] - The duration of the effect, in seconds.

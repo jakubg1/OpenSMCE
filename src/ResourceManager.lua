@@ -17,12 +17,14 @@ local CollectibleConfig = require("src.Configs.Collectible")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local DifficultyConfig = require("src.Configs.Difficulty")
+local GameEventConfig = require("src.Configs.GameEvent")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
 local LevelSetConfig = require("src.Configs.LevelSet")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterConfig = require("src.Configs.Shooter")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
+local SphereEffectConfig = require("src.Configs.SphereEffect")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
 
 
@@ -57,18 +59,19 @@ function ResourceManager:new()
 		fontFile = {extension = "ttf"},
 		colorPalette = {extension = "json", constructor = ColorPalette, paramSet = 2},
 		sphere = {extension = "json"},
-		sphereEffect = {extension = "json"},
 		collectible = {extension = "json", constructor = CollectibleConfig, paramSet = 2},
 		colorGenerator = {extension = "json"},
 		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig, paramSet = 2},
 		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig, paramSet = 2},
 		difficulty = {extension = "json", constructor = DifficultyConfig, paramSet = 2},
+		gameEvent = {extension = "json", constructor = GameEventConfig, paramSet = 2},
 		levelSequence = {extension = "json", constructor = LevelSequenceConfig, paramSet = 2},
 		levelSet = {extension = "json", constructor = LevelSetConfig, paramSet = 2},
 		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
 		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
 		shooter = {extension = "json", constructor = ShooterConfig, paramSet = 2},
 		shooterMovement = {extension = "json", constructor = ShooterMovementConfig, paramSet = 2},
+		sphereEffect = {extension = "json", constructor = SphereEffectConfig, paramSet = 2},
 		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
 		map = {extension = "/"},
 		level = {extension = "json"}
@@ -89,14 +92,15 @@ function ResourceManager:new()
 		["config/shooter.json"] = "shooter",
 		["config/shooter_movement.json"] = "shooterMovement",
 		["config/sphere.json"] = "sphere",
-		["config/sphere_effect.json"] = "sphereEffect",
 		["collectible.json"] = "collectible",
 		["collectible_effect.json"] = "collectibleEffect",
 		["collectible_generator.json"] = "collectibleGenerator",
 		["difficulty.json"] = "difficulty",
+		["game_event.json"] = "gameEvent",
 		["level_sequence.json"] = "levelSequence",
 		["path_entity.json"] = "pathEntity",
 		["score_event.json"] = "scoreEvent",
+		["sphere_effect.json"] = "sphereEffect",
 		["sphere_selector.json"] = "sphereSelector"
 	}
 	self.EXTENSION_TO_RESOURCE_MAP = {
@@ -223,6 +227,13 @@ function ResourceManager:getDifficultyConfig(path)
 	return self:getAsset(path, "difficulty")
 end
 
+---Retrieves a Game Event Config by a given path.
+---@param path string The resource path.
+---@return GameEventConfig
+function ResourceManager:getGameEventConfig(path)
+	return self:getAsset(path, "game event")
+end
+
 ---Retrieves a Level Sequence Config by a given path.
 ---@param path string The resource path.
 ---@return LevelSequenceConfig
@@ -263,6 +274,13 @@ end
 ---@return ShooterMovementConfig
 function ResourceManager:getShooterMovementConfig(path)
 	return self:getAsset(path, "shooter movement")
+end
+
+---Retrieves a Sphere Effect Config by a given path.
+---@param path string The resource path.
+---@return SphereEffectConfig
+function ResourceManager:getSphereEffectConfig(path)
+	return self:getAsset(path, "sphere effect")
 end
 
 ---Retrieves a Sphere Selector Config by a given path.

@@ -5,10 +5,12 @@ local Color = require("src.Essentials.Color")
 local Expression = require("src.Expression")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
+local GameEventConfig = require("src.Configs.GameEvent")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
+local SphereEffectConfig = require("src.Configs.SphereEffect")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
 
 local utils = {}
@@ -86,6 +88,21 @@ function utils.parseVec2Opt(data, path, field)
 end
 
 
+
+---@return Expression
+function utils.parseExprNumber(data, path, field)
+	assert(data, string.format("field %s is missing (number expression expected)", field))
+	assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+	return Expression(data)
+end
+
+---@return Expression?
+function utils.parseExprNumberOpt(data, path, field)
+	if data then
+		assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+	end
+	return data and Expression(data)
+end
 
 ---@return Expression
 function utils.parseExprInteger(data, path, field)
@@ -290,6 +307,16 @@ function utils.parseCollectibleGeneratorConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Collectible Generator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
 
+---@return GameEventConfig
+function utils.parseGameEventConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Game Event", _Game.resourceManager.getGameEventConfig, GameEventConfig)
+end
+
+---@return GameEventConfig?
+function utils.parseGameEventConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Game Event", _Game.resourceManager.getGameEventConfig, GameEventConfig)
+end
+
 ---@return LevelSequenceConfig
 function utils.parseLevelSequenceConfig(data, path, field)
 	return parseClassConfig(data, path, field, "Level Sequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
@@ -328,6 +355,16 @@ end
 ---@return ShooterMovementConfig?
 function utils.parseShooterMovementConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Shooter Movement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
+end
+
+---@return SphereEffectConfig
+function utils.parseSphereEffectConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Sphere Effect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
+end
+
+---@return SphereEffectConfig?
+function utils.parseSphereEffectConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Sphere Effect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
 end
 
 ---@return SphereSelectorConfig

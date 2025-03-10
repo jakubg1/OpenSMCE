@@ -800,7 +800,8 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"SphereEffect": "parseSphereEffectConfig",
 		"SphereSelector": "parseSphereSelectorConfig",
 		"LevelSequence": "parseLevelSequenceConfig",
-		"GameEvent": "parseGameEventConfig"
+		"GameEvent": "parseGameEventConfig",
+		"CollectibleEffect": "parseCollectibleEffectConfig"
 	}
 	lua_expr_structure_assoc = {
 		"Vector2": "parseExprVec2"

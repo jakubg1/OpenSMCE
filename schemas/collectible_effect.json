@@ -18,6 +18,7 @@
                 "changeGameSpeed",
                 "setCombo",
                 "executeScoreEvent",
+                "executeGameEvent",
                 "setScoreMultiplier",
                 "grantCoin",
                 "incrementGemStat"
@@ -421,6 +422,33 @@
                 },
                 "required": [
                     "scoreEvent"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "executeGameEvent",
+                        "description": "Executes a Game Event."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "gameEvent": {
+                        "$ref": "_structures/GameEvent.json",
+                        "description": "The Game Event to be executed."
+                    }
+                },
+                "required": [
+                    "gameEvent"
                 ],
                 "additionalProperties": false
             }

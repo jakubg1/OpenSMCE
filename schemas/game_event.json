@@ -5,7 +5,12 @@
     "properties": {
         "type": {
             "enum": [
-                "setLevelVariable"
+                "sequence",
+                "random",
+                "setCoins",
+                "setLevelVariable",
+                "collectibleEffect",
+                "playSound"
             ]
         }
     },
@@ -15,6 +20,95 @@
                 "type": {
                     "description": "Type of the game event."
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "sequence",
+                        "description": "Executes a list of Game Events."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "events": {
+                        "type": "array",
+                        "description": "The list of Game Events. The events will be executed in the specified order.",
+                        "items": {
+                            "$ref": "_structures/GameEvent.json",
+                            "description": "A Game Event to be executed."
+                        }
+                    }
+                },
+                "required": [
+                    "events"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "random",
+                        "description": "Executes a random Game Event from the list."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "events": {
+                        "type": "array",
+                        "description": "The list of Game Events. From the list, one of them will be picked at random and executed.",
+                        "items": {
+                            "$ref": "_structures/GameEvent.json",
+                            "description": "A Game Event to be executed."
+                        }
+                    }
+                },
+                "required": [
+                    "events"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "setCoins",
+                        "description": "Sets the amount of coins for the current player. If no Profile is currently selected, this event will do nothing."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "value": {
+                        "type": "integer",
+                        "description": "The new amount of coins the current player will have."
+                    }
+                },
+                "required": [
+                    "value"
+                ],
+                "additionalProperties": false
             }
         },
         {
@@ -45,6 +139,60 @@
                 "required": [
                     "variable",
                     "value"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "collectibleEffect",
+                        "description": "Executes a Collectible Effect on the current Level. If no Level is currently active, the event will do nothing."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "collectibleEffect": {
+                        "$ref": "_structures/CollectibleEffect.json",
+                        "description": "The Collectible Effect to be executed."
+                    }
+                },
+                "required": [
+                    "collectibleEffect"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "playSound",
+                        "description": "Plays a Sound Event."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "soundEvent": {
+                        "$ref": "_structures/SoundEvent.json",
+                        "description": "The Sound Event to be played."
+                    }
+                },
+                "required": [
+                    "soundEvent"
                 ],
                 "additionalProperties": false
             }

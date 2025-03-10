@@ -381,6 +381,13 @@ function Profile:getCoins()
 	return self.session.coins
 end
 
+---Sets the player's coin count to the specified value.
+---This function does not check for an extra life and does not execute any UI callbacks.
+---@param amount integer The new amount of coins.
+function Profile:setCoins(amount)
+	self.session.coins = amount
+end
+
 ---Adds one coin to the player's current coin count. If reached 30, the player is granted an extra life, and the coin counter is reset back to 0.
 function Profile:grantCoin()
 	self.session.coins = self.session.coins + 1

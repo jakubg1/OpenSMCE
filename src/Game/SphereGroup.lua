@@ -618,7 +618,7 @@ end
 
 -- Similar to the one above, because it also grants score and destroys spheres collectively, however the bounds are based on an effect.
 function SphereGroup:matchAndDeleteEffect(position, effect)
-	local effectConfig = _Game.configManager.sphereEffects[effect]
+	local effectConfig = _Game.resourceManager:getSphereEffectConfig(effect)
 	local effectGroupID = self.spheres[position]:getEffectGroupID(effect)
 
 	-- Prepare a list of spheres to be destroyed.
@@ -723,12 +723,12 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	end
 	-- Execute a score event.
 	if effectConfig.destroyScoreEvent then
-		local score = self.map.level:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(effectConfig.destroyScoreEvent), pos)
+		local score = self.map.level:executeScoreEvent(effectConfig.destroyScoreEvent, pos)
 		self.sphereChain.comboScore = self.sphereChain.comboScore + score
 	end
 	-- Spawn any collectibles if applicable.
 	if effectConfig.destroyCollectible then
-		self.map.level:spawnCollectiblesFromEntry(pos, _Game.resourceManager:getCollectibleGeneratorConfig(effectConfig.destroyCollectible))
+		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroyCollectible)
 	end
 	-- Execute the "after" game events.
 	if effectConfig.eventsAfter then

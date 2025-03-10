@@ -1,6 +1,18 @@
 - (object) {type: Type of the game event.} - The root object.
+    - "sequence" - Executes a list of Game Events.
+        - events (array) - The list of Game Events. The events will be executed in the specified order.
+            - (GameEvent) - A Game Event to be executed.
+    - "random" - Executes a random Game Event from the list.
+        - events (array) - The list of Game Events. From the list, one of them will be picked at random and executed.
+            - (GameEvent) - A Game Event to be executed.
+    - "setCoins" - Sets the amount of coins for the current player. If no Profile is currently selected, this event will do nothing.
+        - value (%integer) - The new amount of coins the current player will have.
     - "setLevelVariable" - Sets the value of the Level Variable. If no Level is currently active, the event will do nothing.
         - variable (string) - The name of the Level Variable to be set.
         - value (%number) - The new value for this Level Variable.
+    - "collectibleEffect" - Executes a Collectible Effect on the current Level. If no Level is currently active, the event will do nothing.
+        - collectibleEffect (CollectibleEffect) - The Collectible Effect to be executed.
+    - "playSound" - Plays a Sound Event.
+        - soundEvent (SoundEvent) - The Sound Event to be played.
     - conditions* (array) - A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.
         - (%boolean) - A single condition.

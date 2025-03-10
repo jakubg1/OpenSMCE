@@ -205,22 +205,41 @@ end
 
 ---Executes a Game Event.
 ---TODO: Move this function's parameter to a Config Class.
----@param event table The game event to be executed.
+---@param event GameEventConfig The game event to be executed.
 function Game:executeGameEvent(event)
 	-- Abort the execution if any of the conditions are not met.
 	if event.conditions then
 		for i, condition in ipairs(event.conditions) do
-			if not Expression(condition):evaluate() then
+			if not condition:evaluate() then
 				return
 			end
 		end
 	end
 	-- Execute the event.
-	if event.type == "setLevelVariable" then
+	if event.type == "sequence" then
+		for i, subevent in ipairs(event.events) do
+			self:executeGameEvent(subevent)
+		end
+	elseif event.type == "random" then
+		self:executeGameEvent(event.events[math.random(#event.events)])
+	elseif event.type == "setCoins" then
+		local profile = self:getCurrentProfile()
+		if not profile then
+			return
+		end
+		profile:setCoins(event.value:evaluate())
+	elseif event.type == "setLevelVariable" then
 		if not self.level then
 			return
 		end
-		self.level:setVariable(event.variable, Expression(event.value):evaluate())
+		self.level:setVariable(event.variable, event.value:evaluate())
+	elseif event.type == "collectibleEffect" then
+		if not self.level then
+			return
+		end
+		self.level:applyEffect(event.collectibleEffect)
+	elseif event.type == "playSound" then
+		self:playSound(event.soundEvent)
 	end
 end
 

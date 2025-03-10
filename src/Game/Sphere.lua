@@ -293,7 +293,7 @@ end
 
 
 ---Applies an effect to this sphere.
----@param name string The sphere effect ID.
+---@param name string The path to the sphere effect. TODO: Change to sphere effect config!
 ---@param infectionSize integer? How many spheres can this effect traverse to in one direction. If not set, data from the sphere effect config is prepended.
 ---@param infectionTime number? The time that needs to elapse before this effect traverses to the neighboring spheres. If not set, data from the sphere effect config is prepended.
 ---@param effectGroupID integer? The sphere effect group ID this sphere belongs to. Used to determine the cause sphere.
@@ -304,7 +304,7 @@ function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
 	end
 
 	-- Load a configuration for the given effect.
-	local effectConfig = _Game.configManager.sphereEffects[name]
+	local effectConfig = _Game.resourceManager:getSphereEffectConfig(name)
 	-- Create an effect group if it doesn't exist.
 	if not effectGroupID then
 		effectGroupID = self.path:createSphereEffectGroup(self)
@@ -819,7 +819,7 @@ function Sphere:deserialize(t)
 	self.effects = {}
 	if t.effects then
 		for i, effect in ipairs(t.effects) do
-			local effectConfig = _Game.configManager.sphereEffects[effect.name]
+			local effectConfig = _Game.resourceManager:getSphereEffectConfig(effect.name)
 			local e = {
 				name = effect.name,
 				config = effectConfig,

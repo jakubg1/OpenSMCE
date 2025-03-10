@@ -5,7 +5,7 @@
     "properties": {
         "$schema": true,
         "particle": {
-            "$ref": "../_structures/Particle.json",
+            "$ref": "_structures/Particle.json",
             "description": "A persistent particle packet which will be applied to any affected sphere."
         },
         "time": {
@@ -24,23 +24,23 @@
             "minimum": 0.0
         },
         "applySound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A sound event to be played when a sphere gets this effect."
         },
         "destroySound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A sound event to be played when spheres afflicted with this effect are destroyed."
         },
         "destroyScoreEvent": {
-            "$ref": "../_structures/ScoreEvent.json",
+            "$ref": "_structures/ScoreEvent.json",
             "description": "A score event to be executed when spheres affected with this effect are destroyed."
         },
         "destroyParticle": {
-            "$ref": "../_structures/Particle.json",
+            "$ref": "_structures/Particle.json",
             "description": "A one-time particle packet used when a sphere with this effect is destroyed."
         },
         "destroyCollectible": {
-            "$ref": "../_structures/CollectibleGenerator.json",
+            "$ref": "_structures/CollectibleGenerator.json",
             "description": "The collectible generator to be used when spheres with this effect are destroyed."
         },
         "levelLossProtection": {
@@ -92,7 +92,7 @@
             "description": "The list of Game Events to be executed before the destroySound, destroyScoreEvent and destroyCollectible values are evaluated.",
             "markdownDescription": "The list of Game Events to be executed before the `destroySound`, `destroyScoreEvent` and `destroyCollectible` values are evaluated.",
             "items": {
-                "$ref": "../_structures/GameEvent.json",
+                "$ref": "_structures/GameEvent.json",
                 "description": "The game event to be executed."
             }
         },
@@ -101,7 +101,7 @@
             "description": "The list of Game Events to be executed after the destroySound, destroyScoreEvent and destroyCollectible values are evaluated.",
             "markdownDescription": "The list of Game Events to be executed after the `destroySound`, `destroyScoreEvent` and `destroyCollectible` values are evaluated.",
             "items": {
-                "$ref": "../_structures/GameEvent.json",
+                "$ref": "_structures/GameEvent.json",
                 "description": "The game event to be executed."
             }
         }

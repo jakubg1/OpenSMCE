@@ -22,7 +22,6 @@ function ConfigManager:new()
 	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
 
 	self.spheres = self:loadFolder("config/spheres", "sphere", true)
-	self.sphereEffects = self:loadFolder("config/sphere_effects", "sphere effect")
 	self.colorGenerators = self:loadFolder("config/color_generators", "color generator")
 
 	-- Load level and map data.
