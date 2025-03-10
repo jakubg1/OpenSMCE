@@ -208,6 +208,11 @@
                 "scoreEvent": {
                     "$ref": "../_structures/ScoreEvent.json",
                     "description": "A Score Event executed on the sphere that's been destroyed."
+                },
+                "cancelWhenNoSpheresToDestroy": {
+                    "type": "boolean",
+                    "description": "If true, the entire Lightning Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted.",
+                    "markdownDescription": "If `true`, the entire Lightning Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted."
                 }
             },
             "required": [

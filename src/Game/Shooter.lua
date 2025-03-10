@@ -935,6 +935,14 @@ end
 
 
 
+---Resets the values for when the level is restarted.
+function Shooter:reset()
+    self.speedShotTime = 0
+    self.homingBugsTime = 0
+end
+
+
+
 ---Serializes this Shooter's data for saving purposes.
 ---@return table
 function Shooter:serialize()

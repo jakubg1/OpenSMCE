@@ -53,7 +53,8 @@ function Level:new(data)
 	self.failSoundName = data.failSound or "sound_events/foul.json"
 	self.failLoopName = data.failLoopSound or "sound_events/spheres_roll.json"
 
-	self.lightningStormDelay = _Game.configManager.gameplay.lightningStorm and Expression(_Game.configManager.gameplay.lightningStorm.delay)
+	self.lightningStormConfig = _Game.configManager.gameplay.lightningStorm
+	self.lightningStormDelay = self.lightningStormConfig and Expression(self.lightningStormConfig.delay)
 
 	self.levelSequence = _Game.resourceManager:getLevelSequenceConfig(data.sequence).sequence
 	self.startingVariables = _Game.configManager.gameplay.levelVariables
@@ -578,7 +579,7 @@ function Level:applyEffect(effect, pos)
 	if effect.type == "replaceSphere" then
 		self.shooter:getSphere(effect.color)
 	elseif effect.type == "multiSphere" then
-		self.shooter:getMultiSphere(effect.color, effect.count)
+		self.shooter:getMultiSphere(effect.color, effect.count:evaluate())
 	elseif effect.type == "removeMultiSphere" then
 		self.shooter:removeMultiSphere()
 	elseif effect.type == "speedShot" then
@@ -603,7 +604,7 @@ function Level:applyEffect(effect, pos)
 			path:spawnPathEntity(effect.pathEntity)
 		end
 	elseif effect.type == "lightningStorm" then
-		table.insert(self.lightningStorms, {count = effect.count, time = 0})
+		table.insert(self.lightningStorms, {count = effect.count:evaluate(), time = 0})
 	elseif effect.type == "activateNet" then
 		self.netTime = effect.time
 		self:spawnNet()
@@ -956,7 +957,7 @@ function Level:reset()
 		end
 	end
 
-	self.shooter.speedShotTime = 0
+	self.shooter:reset()
 	self.colorManager:reset()
 end
 
@@ -1063,15 +1064,16 @@ end
 
 ---Returns a randomly selected sphere, or `nil` if this level does not contain any spheres.
 ---@param excludeScarabs boolean? If `true`, scarabs will not be counted.
+---@param ignoreOffscreen boolean? If `true`, this function will never return an offscreen sphere.
 ---@param ignoreHidden boolean? If set to `true`, this function will never return a sphere which is in a tunnel.
 ---@return Sphere?
-function Level:getRandomSphere(excludeScarabs, ignoreHidden)
+function Level:getRandomSphere(excludeScarabs, ignoreOffscreen, ignoreHidden)
 	local spheres = {}
 	for i, path in ipairs(self.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
-					if (not excludeScarabs or sphere.color ~= 0) and (not ignoreHidden or not sphere:getHidden()) then
+					if (not excludeScarabs or sphere.color ~= 0) and (not ignoreOffscreen or not sphere:isOffscreen()) and (not ignoreHidden or not sphere:getHidden()) then
 						table.insert(spheres, sphere)
 					end
 				end
@@ -1192,20 +1194,24 @@ end
 
 ---Strikes a single time during a lightning storm.
 function Level:spawnLightningStormPiece()
+	assert(self.lightningStormConfig, "The `lightningStorm` section in your `config/gameplay.json` file is missing. Please refer to game documentation.")
 	-- get a sphere candidate to be destroyed
 	local sphere = self:getLightningStormSphere()
-	-- if no candidate, the lightning storms are over
+	-- if no candidate, the attempt is over.
 	if not sphere then
-		self.lightningStorms = {}
+		-- End the entire lightning storm if configured to do so.
+		if self.lightningStormConfig.cancelWhenNoSpheresToDestroy ~= false then
+			self.lightningStorms = {}
+		end
 		return
 	end
 
 	-- spawn a particle, add points etc
 	local pos = sphere:getPos()
 	sphere:dumpVariables("sphere")
-	self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(_Game.configManager.gameplay.lightningStorm.scoreEvent), pos)
-	_Game:spawnParticle(_Game.configManager.gameplay.lightningStorm.particle, pos)
-	_Game:playSound(_Game.configManager.gameplay.lightningStorm.sound, pos)
+	self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(self.lightningStormConfig.scoreEvent), pos)
+	_Game:spawnParticle(self.lightningStormConfig.particle, pos)
+	_Game:playSound(self.lightningStormConfig.sound, pos)
 	_Vars:unset("sphere")
 	-- destroy it
 	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
@@ -1223,7 +1229,7 @@ function Level:getHomingBugsSphere(color)
 		return spheres[math.random(#spheres)]
 	end
 	-- If none, return a random sphere from the board.
-	return self:getRandomSphere(true, true)
+	return self:getRandomSphere(true, true, true)
 end
 
 

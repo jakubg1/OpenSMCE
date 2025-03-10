@@ -39,3 +39,4 @@
         - particle (Particle) - A one-time particle effect which will be spawned on the sphere that's been destroyed.
         - sound (SoundEvent) - A sound event to be played when a sphere is destroyed.
         - scoreEvent (ScoreEvent) - A Score Event executed on the sphere that's been destroyed.
+        - cancelWhenNoSpheresToDestroy* = true (boolean) - If `true`, the entire Lightning Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted.

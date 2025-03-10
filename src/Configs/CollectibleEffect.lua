@@ -24,7 +24,7 @@ function CollectibleEffectConfig:new(data, path)
         self.color = u.parseInteger(data.color, path, "color")
     elseif self.type == "multiSphere" then
         self.color = u.parseInteger(data.color, path, "color")
-        self.count = u.parseInteger(data.count, path, "count")
+        self.count = u.parseExprInteger(data.count, path, "count")
     elseif self.type == "removeMultiSphere" then
         -- No fields
     elseif self.type == "speedShot" then
@@ -44,7 +44,7 @@ function CollectibleEffectConfig:new(data, path)
     elseif self.type == "spawnPathEntity" then
         self.pathEntity = u.parsePathEntityConfig(data.pathEntity, path, "pathEntity")
     elseif self.type == "lightningStorm" then
-        self.count = u.parseInteger(data.count, path, "count")
+        self.count = u.parseExprInteger(data.count, path, "count")
     elseif self.type == "activateNet" then
         self.time = u.parseNumber(data.time, path, "time")
     elseif self.type == "changeGameSpeed" then

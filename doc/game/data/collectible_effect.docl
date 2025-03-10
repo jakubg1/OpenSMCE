@@ -3,7 +3,7 @@
         - color (integer) - A sphere ID of a sphere the shooter should get.
     - "multiSphere" - Spawns a certain amount of a defined sphere to the shooter. This can be used to i.e. spawn 10 daggers the player can shoot anywhere they want.
         - color (integer) - A sphere ID of a sphere the shooter should get.
-        - count (integer) [>=1] - How many spheres of that type should be given.
+        - count (%integer) [>=1] - How many spheres of that type should be given.
     - "removeMultiSphere" - Despawns a previously given multi-sphere effect.
     - "speedShot" - Replaces the default shooting speed and spawns a speed shot beam effect.
         - time (number) [>0] - The duration of the effect in seconds.
@@ -22,7 +22,7 @@
     - "spawnPathEntity" - Spawns a Path Entity on the path that has its spheres closest to the endpoint (the "most dangerous" path).
         - pathEntity (PathEntity) - The Path Entity to be spawned.
     - "lightningStorm" - Starts a lightning storm, spawning a given amount of strikes which destroy single spheres.
-        - count (integer) [>=1] - The amount of strikes.
+        - count (%integer) [>=1] - The amount of strikes.
     - "activateNet" - Activates a net which collects collectibles for a given amount of time.
         - time (number) [>0] - The duration of the effect in seconds.
     - "changeGameSpeed" - Changes the game speed to a defined value for a specified period of time.
