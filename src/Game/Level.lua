@@ -724,24 +724,6 @@ end
 
 
 
----Returns a randomly selected sphere, or `nil` if this level does not contain any spheres.
----@return Sphere?
-function Level:getRandomSphere()
-	local spheres = {}
-	for i, path in ipairs(self.map.paths) do
-		for j, sphereChain in ipairs(path.sphereChains) do
-			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
-				for l, sphere in ipairs(sphereGroup.spheres) do
-					table.insert(spheres, sphere)
-				end
-			end
-		end
-	end
-	return spheres[math.random(#spheres)]
-end
-
-
-
 ---Returns all sphere colors that can spawn on this level on the path.
 ---@return table
 function Level:getSpawnableColors()
@@ -1079,6 +1061,28 @@ end
 
 
 
+---Returns a randomly selected sphere, or `nil` if this level does not contain any spheres.
+---@param excludeScarabs boolean? If `true`, scarabs will not be counted.
+---@param ignoreHidden boolean? If set to `true`, this function will never return a sphere which is in a tunnel.
+---@return Sphere?
+function Level:getRandomSphere(excludeScarabs, ignoreHidden)
+	local spheres = {}
+	for i, path in ipairs(self.map.paths) do
+		for j, sphereChain in ipairs(path.sphereChains) do
+			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
+				for l, sphere in ipairs(sphereGroup.spheres) do
+					if (not excludeScarabs or sphere.color ~= 0) and (not ignoreHidden or not sphere:getHidden()) then
+						table.insert(spheres, sphere)
+					end
+				end
+			end
+		end
+	end
+	return spheres[math.random(#spheres)]
+end
+
+
+
 ---Returns the lowest length out of all sphere groups of a single color on the screen.
 ---This function ignores spheres that are offscreen.
 ---@return integer
@@ -1139,15 +1143,16 @@ end
 
 ---Returns a list of spheres constituting towards the largest group matching with the provided color.
 ---@param color integer The sphere color which must match with the returned group.
+---@param ignoreHidden boolean? If set to `true`, this function will never return a sphere which is in a tunnel.
 ---@return table
-function Level:getSpheresOfBiggestGroupMatchingColor(color)
+function Level:getSpheresOfBiggestGroupMatchingColor(color, ignoreHidden)
 	local spheres = {}
 	local topLength = 0
 	for i, path in ipairs(self.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
-					if sphere.color == color and not sphere:isOffscreen() then
+					if self:colorsMatch(sphere.color, color) and not sphere:isOffscreen() and (not ignoreHidden or not sphere:getHidden()) then
 						local length = sphereGroup:getMatchLengthInChain(l)
 						if length > topLength then
 							spheres = {sphere}
@@ -1213,12 +1218,12 @@ end
 ---@return Sphere?
 function Level:getHomingBugsSphere(color)
 	-- First, check for spheres of the biggest group size.
-	local spheres = self:getSpheresOfBiggestGroupMatchingColor(color)
+	local spheres = self:getSpheresOfBiggestGroupMatchingColor(color, true)
 	if #spheres > 0 then
 		return spheres[math.random(#spheres)]
 	end
 	-- If none, return a random sphere from the board.
-	return self:getRandomSphere()
+	return self:getRandomSphere(true, true)
 end
 
 

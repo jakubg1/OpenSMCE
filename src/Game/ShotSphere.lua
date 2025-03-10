@@ -65,14 +65,16 @@ function ShotSphere:update(dt)
 	else
 		-- If this is a homing sphere, go towards that.
 		if self.homingTowards then
-			-- If the sphere we were homing towards has been destroyed, pick a new homing target.
-			if self.homingTowards.delQueue then
+			-- If the sphere we were homing towards has been destroyed or is in a tunnel, pick a new homing target.
+			if self.homingTowards.delQueue or self.homingTowards:getHidden() then
 				self:pickNewHomingTarget()
 			end
 			-- If there is no new homing target, do not proceed.
 			if self.homingTowards then
 				local targetAngle = (self.homingTowards:getPos() - self.pos):angle() + math.pi / 2
 				self.angle = targetAngle
+			else
+				self:destroy()
 			end
 		end
 		-- move
@@ -242,9 +244,6 @@ end
 ---Picks a random sphere from `Level:getHomingBugsTarget()` and sets that sphere as the new homing target.
 function ShotSphere:pickNewHomingTarget()
 	self.homingTowards = _Game.level:getHomingBugsSphere(self.color)
-	if not self.homingTowards then
-		self:destroy()
-	end
 end
 
 
