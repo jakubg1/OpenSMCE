@@ -749,7 +749,6 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 	if "type" in entry:
 		if "expression" in entry:
 			out["$ref"] = structures_path + "Expr" + entry["type"].capitalize() + ".json"
-			print(out["$ref"])
 		else:
 			out["type"] = entry["type"]
 	elif "internal_ref" in entry:
