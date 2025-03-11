@@ -298,6 +298,18 @@ end
 
 
 
+---Creates and returns a shallow copy of the given table.
+---@param t table The table to be copied.
+function utils.copyTable(t)
+	local new = {}
+	for k, v in pairs(t) do
+		new[k] = v
+	end
+	return new
+end
+
+
+
 ---Returns an index of the provided weight list, randomly picked from that list.
 ---For example, providing `{1, 2, 3}` will return `1` 1/6 of the time, `2` 2/6 of the time and `3` 3/6 of the time.
 ---@param weights table A list of integers, which depict the weights.

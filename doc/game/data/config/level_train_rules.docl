@@ -1,0 +1,30 @@
+- (object) {type: The type of the color rules.} - The color rules.
+    - "random" - The spheres will be chosen randomly from a given color list. The frequency of color changes can be changed.
+        - colors (array) - A list of integers. These are the colors that will be assigned to the newly created Spheres on the path.
+            - (integer) - A single sphere color.
+        - colorStreak (number) [>=0,<=1] - The probability of the next color being the same as the previous one in sequence.
+        - forceDifferentColor* (boolean) - If set, two like-colored clumps cannot have the same color if next to each other. This reduces likelihood of apparent big clumps of a single color.
+        - length* (integer) [>0] - The train length. If not set, the spheres will spawn continously until all objectives have been reached.
+    - "pattern" - The sphere order will be chosen from a predefined list. The list will wrap around.
+        - pattern (array) - A list of integers. Colors will be drawn in order from this list and will wrap around.
+            - (integer) - A single sphere color.
+        - length* (integer) [>0] - The train length. If not set, the spheres will spawn continously until all objectives have been reached.
+    - "waves" - Spheres will come as predefined trains, with color pools defined inside.
+        - key (array) - A list of keys to be used as building blocks for train presets.
+            - (object) - A single key.
+                - key* (string) - A single key. Must be a single character. Use either this or `keys`.
+                - keys* (array) - If specified, this entry will define multiple keys.
+                    - (string) - A single key. Must be a single character.
+                - colors (array) - A list of colors this entry's key(s) will be assigned to.
+                    - (integer) - A single color ID.
+                - homogenous* (boolean) - If set, this key will spawn the same color across the entire train (but not between different trains).
+                - noColorRepeats* (boolean) - Only if multiple `keys` are specified. If set, each of the keys will be assigned a different color from the `colors` list, without any repeats.
+                - colorStreak* (number) [>=0,<=1] - Only if `homogenous` is not set. Specifies how likely will the next color from this key be the same color as the previous one (from the same key).
+                - forceDifferentColor* (boolean) - Only if `homogenous` is not set. If set, two like-colored clumps cannot have the same color if next to each other.
+        - waves (array) - A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the `key` field.
+            - (string) - A single sphere train preset.
+        - behavior (string) - How should the waves be picked from the list.
+            - "random" - Each spawned train will pick a train preset randomly from the list.
+            - "panic" - The train presets will be picked from the list in the top-to-bottom order, and after the list has been exhausted, they will be picked from the list at random.
+            - "repeatLast" - The train presets will be picked from the list in the top-to-bottom order, and after the list has been exhausted, the last entry will keep being picked over and over again.
+            - "repeat" - The train presets will be picked from the list in the top-to-bottom order, and after the list has been exhausted, the list will wrap around.

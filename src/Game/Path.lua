@@ -31,8 +31,10 @@ function Path:new(map, pathData, pathBehavior)
 		nodes[i] = {pos = Vec2(node.x, node.y), scale = node.scale or 1, hidden = node.hidden, warp = node.warp}
 	end
 
-	self.colorRules = pathBehavior.colorRules
-	self.spawnRules = pathBehavior.spawnRules
+	self.trainRules = pathBehavior.trainRules
+	self.currentWave = 0
+	self.reachedFinalWave = false
+	--[[
 	if _Game.satMode then
 		local n = _Game:getCurrentProfile():getUSMNumber() * 10
 		self.spawnRules = {
@@ -41,6 +43,7 @@ function Path:new(map, pathData, pathBehavior)
 			type = "continuous"
 		}
 	end
+	]]
 	self.spawnAmount = 0
 	self.spawnDistance = pathBehavior.spawnDistance
 	self.dangerDistance = pathBehavior.dangerDistance
@@ -110,19 +113,6 @@ end
 
 
 
----Returns all sphere colors that can spawn on this Path.
----@return table
-function Path:getSpawnableColors()
-	if self.colorRules.type == "random" then
-		return _Utils.tableRemoveDuplicates(self.colorRules.colors)
-	elseif self.colorRules.type == "pattern" then
-		return _Utils.tableRemoveDuplicates(self.colorRules.pattern)
-	end
-	error(string.format("Invalid colorRules type for the level: %s", self.colorRules.type))
-end
-
-
-
 ---Updates the Path.
 ---@param dt number Delta time in seconds.
 function Path:update(dt)
@@ -175,6 +165,7 @@ end
 
 ---Summons a new Sphere Chain on this Path.
 function Path:spawnChain()
+	self:advanceWave()
 	local sphereChain = SphereChain(self)
 	-- TODO: HARDCODED - make it configurable (launch speed - zero? path speed?)
 	if not self.map.isDummy and self.map.level.levelSequenceVars.warmupTime then
@@ -201,6 +192,73 @@ end
 ---@return boolean
 function Path:hasPathEntities()
 	return #self.pathEntities > 0
+end
+
+
+
+-- TODO: Make a separate class for Train Rules.
+
+---Returns all sphere colors that can spawn on this Path.
+---@return table
+function Path:getSpawnableColors()
+	if self.trainRules.type == "random" then
+		return _Utils.tableRemoveDuplicates(self.trainRules.colors)
+	elseif self.trainRules.type == "pattern" then
+		return _Utils.tableRemoveDuplicates(self.trainRules.pattern)
+	elseif self.trainRules.type == "waves" then
+		local colors = {}
+		for i, key in self.trainRules.key do
+			colors = _Utils.tableUnion(colors, key.colors)
+		end
+		return colors
+	end
+	error(string.format("Invalid trainRules type for the level: %s", self.trainRules.type))
+end
+
+---Advances or resets the wave pointer for the `"waves"` train rule type.
+function Path:advanceWave()
+	if not self.trainRules.type == "waves" then
+		return
+	end
+	if self.trainRules.behavior == "random" then
+		self.currentWave = math.random(#self.trainRules.waves)
+	elseif self.trainRules.behavior == "panic" then
+		if not self.reachedFinalWave then
+			self.currentWave = self.currentWave + 1
+			if self.currentWave == #self.trainRules.waves then
+				self.reachedFinalWave = true
+			end
+		else
+			self.currentWave = math.random(#self.trainRules.wave)
+		end
+	elseif self.trainRules.behavior == "repeatLast" then
+		if self.currentWave < #self.trainRules.waves then
+			self.currentWave = self.currentWave + 1
+		end
+	elseif self.trainRules.behavior == "repeat" then
+		if self.currentWave < #self.trainRules.waves then
+			self.currentWave = self.currentWave + 1
+		else
+			self.currentWave = 1
+		end
+	end
+end
+
+---Works only if `trainRules.type == "waves"`. Returns the current wave as a string.
+---@return string
+function Path:getCurrentTrainPreset()
+	assert(self.trainRules.type == "waves", "Incorrect getCurrentTrainPreset call, this should never happen")
+	return self.trainRules.waves[self.currentWave]
+end
+
+---Returns the length of the current train (on the current wave), or `nil` if the train is going to be continuous.
+---@return integer?
+function Path:getCurrentTrainLength()
+	if self.trainRules.type == "waves" then
+		return self.trainRules.waves[self.currentWave]:len()
+	else
+		return self.trainRules.length
+	end
 end
 
 
@@ -664,6 +722,8 @@ end
 function Path:serialize()
 	local t = {
 		sphereChains = {},
+		currentWave = self.currentWave,
+		reachedFinalWave = self.reachedFinalWave,
 		clearOffset = self.clearOffset,
 		pathEntities = {},
 		sphereEffectGroups = {}
@@ -692,6 +752,8 @@ function Path:deserialize(t)
 	for i, sphereChain in ipairs(t.sphereChains) do
 		table.insert(self.sphereChains, SphereChain(self, sphereChain))
 	end
+	self.currentWave = t.currentWave
+	self.reachedFinalWave = t.reachedFinalWave
 	self.clearOffset = t.clearOffset
 	self.pathEntities = {}
 	for i, pathEntity in ipairs(t.pathEntities) do

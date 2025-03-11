@@ -5,6 +5,7 @@ local class = require "com.class"
 ---@overload fun(path, deserializationTable):SphereChain
 local SphereChain = class:derive("SphereChain")
 
+local json = require("com.json")
 local SphereGroup = require("src.Game.SphereGroup")
 
 
@@ -25,21 +26,56 @@ function SphereChain:new(path, deserializationTable)
 		self.speedOverrideTime = 0
 
 		self.sphereGroups = {}
-		self.generationAllowed = self.path.spawnRules.type == "continuous"
-		-- Set the initial state for the color generation.
-		if self.path.colorRules.type == "random" then
-			self.generationColor = self.path.colorRules.colors[math.random(1, #self.path.colorRules.colors)]
-		elseif self.path.colorRules.type == "pattern" then
-			self.generationIndex = 1
-		end
+		print("=========================================")
 
+		local length = self.path:getCurrentTrainLength()
+		self.generationAllowed = length == nil
+		-- Set the initial state for the color generation.
+		if self.path.trainRules.type == "random" then
+			self.generationColor = self.path.trainRules.colors[math.random(#self.path.trainRules.colors)]
+		elseif self.path.trainRules.type == "pattern" then
+			self.generationIndex = 1
+		elseif self.path.trainRules.type == "waves" then
+			self.generationIndex = 1
+			self.generationPreset = self.path:getCurrentTrainPreset()
+			self.generationKeys = {}
+			for i, key in ipairs(self.path.trainRules.key) do
+				if key.key then
+					-- A single key.
+					local keyData = {}
+					keyData.color = key.colors[math.random(#key.colors)]
+					if not key.homogenous and key.colorStreak then
+						keyData.streak = key.colorStreak
+						keyData.colors = key.colors
+					end
+					self.generationKeys[key.key] = keyData
+				elseif key.keys then
+					-- Multiple keys.
+					local colorPool = _Utils.copyTable(key.colors)
+					for j, keyName in ipairs(key.keys) do
+						local keyData = {}
+						local colorIdx = math.random(#colorPool)
+						keyData.color = colorPool[colorIdx]
+						if key.noColorRepeats then
+							table.remove(colorPool, colorIdx)
+						end
+						if not key.homogenous and key.colorStreak then
+							keyData.streak = key.colorStreak
+							keyData.colors = key.colors
+							keyData.forceDifferentColor = key.forceDifferentColor
+						end
+						self.generationKeys[keyName] = keyData
+					end
+				end
+			end
+		end
 
 		-- Generate the first group.
 		self.sphereGroups[1] = SphereGroup(self)
 
 		-- Pre-generate spheres if the level spawning rules allow doing so.
-		if self.path.spawnRules.type == "waves" then
-			for i = 1, self.path.spawnRules.amount do
+		if length then
+			for i = 1, length do
 				self:generateSphere()
 			end
 			self:concludeGeneration()
@@ -232,15 +268,15 @@ end
 ---Returns the next color to spawn in this Sphere Chain. Alters the generator's state.
 ---@return integer
 function SphereChain:newSphereColor()
-	local rules = self.path.colorRules
+	local rules = self.path.trainRules
 	if rules.type == "random" then
 		local result = self.generationColor
-		-- `colorStreak` chance to change the currently generated color.
-		if math.random() >= rules.colorStreak then
+		-- `1 - colorStreak` chance to change the currently generated color.
+		if math.random() < 1 - rules.colorStreak then
 			local oldColor = self.generationColor
 			repeat
 				-- Reroll if we've got the same color and the config doesn't allow that.
-				self.generationColor = rules.colors[math.random(1, #rules.colors)]
+				self.generationColor = rules.colors[math.random(#rules.colors)]
 			until oldColor ~= self.generationColor or not rules.forceDifferentColor
 		end
 		return result
@@ -248,9 +284,25 @@ function SphereChain:newSphereColor()
 		local result = rules.pattern[self.generationIndex]
 		self.generationIndex = self.generationIndex % #rules.pattern + 1
 		return result
+	elseif rules.type == "waves" then
+		local key = self.generationPreset:sub(self.generationIndex, self.generationIndex)
+		local keyData = self.generationKeys[key]
+		local result = keyData.color
+		if keyData.streak then
+			-- `1 - colorStreak` chance to change the currently generated color.
+			if math.random() < 1 - keyData.streak then
+				local oldColor = keyData.color
+				repeat
+					-- Reroll if we've got the same color and the config doesn't allow that.
+					keyData.color = keyData.colors[math.random(#keyData.colors)]
+				until oldColor ~= keyData.color or not keyData.forceDifferentColor
+			end
+		end
+		self.generationIndex = self.generationIndex + 1
+		return result
 	end
 	-- This shouldn't happen.
-	error(string.format("Invalid rule type: %s", rules.type))
+	error(string.format("Invalid train rule type: %s", rules.type))
 end
 
 function SphereChain:generateSphere()
@@ -357,7 +409,9 @@ function SphereChain:serialize()
 		sphereGroups = {},
 		generationAllowed = self.generationAllowed,
 		generationColor = self.generationColor,
-		generationIndex = self.generationIndex
+		generationIndex = self.generationIndex,
+		generationPreset = self.generationPreset,
+		generationKeys = self.generationKeys
 	}
 
 	for i, sphereGroup in ipairs(self.sphereGroups) do
@@ -378,6 +432,8 @@ function SphereChain:deserialize(t)
 	self.generationAllowed = t.generationAllowed
 	self.generationColor = t.generationColor
 	self.generationIndex = t.generationIndex
+	self.generationPreset = t.generationPreset
+	self.generationKeys = t.generationKeys
 
 	for i, sphereGroup in ipairs(t.sphereGroups) do
 		local s = SphereGroup(self, sphereGroup)

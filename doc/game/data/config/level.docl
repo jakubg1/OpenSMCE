@@ -24,8 +24,7 @@
             - target (number) [>0] - How many spheres destroyed, time survived or score gained is needed in order to fulfill this objective.
     - pathsBehavior (array) - Defines the behavior of paths. The n-th entry of this list corresponds to the n-th path. If this list is shorter than the number of paths, this list will wrap around during the behavior assignment process. If this list is longer than the number of paths, all subsequent entries are discarded.
         - (object) - A single path behavior.
-            - colorRules ($level_color_rules) - How colors should be assigned to the spawned spheres.
-            - spawnRules ($level_spawn_rules) - How the spheres should be spawned.
+            - trainRules ($level_train_rules) - How trains should be spawned, including their length and color distribution.
             - spawnDistance (number) [>=0,<=1] - How far the path must be clear for a new Sphere Chain to spawn.
             - dangerDistance (number) [>=0,<=1] - How far into the path the spheres have to be in order for the player to be in danger.
             - speeds (array) - A list of speeds which will translate to the actual speed on any point of the path.

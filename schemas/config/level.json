@@ -121,13 +121,9 @@
                 "type": "object",
                 "description": "A single path behavior.",
                 "properties": {
-                    "colorRules": {
-                        "$ref": "level_color_rules.json",
-                        "description": "How colors should be assigned to the spawned spheres."
-                    },
-                    "spawnRules": {
-                        "$ref": "level_spawn_rules.json",
-                        "description": "How the spheres should be spawned."
+                    "trainRules": {
+                        "$ref": "level_train_rules.json",
+                        "description": "How trains should be spawned, including their length and color distribution."
                     },
                     "spawnDistance": {
                         "type": "number",
@@ -171,8 +167,7 @@
                     }
                 },
                 "required": [
-                    "colorRules",
-                    "spawnRules",
+                    "trainRules",
                     "spawnDistance",
                     "dangerDistance",
                     "speeds"

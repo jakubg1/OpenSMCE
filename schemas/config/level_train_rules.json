@@ -1,0 +1,221 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The color rules.",
+    "properties": {
+        "type": {
+            "enum": [
+                "random",
+                "pattern",
+                "waves"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "properties": {
+                "type": {
+                    "description": "The type of the color rules."
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "random",
+                        "description": "The spheres will be chosen randomly from a given color list. The frequency of color changes can be changed."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "colors": {
+                        "type": "array",
+                        "description": "A list of integers. These are the colors that will be assigned to the newly created Spheres on the path.",
+                        "items": {
+                            "type": "integer",
+                            "description": "A single sphere color."
+                        }
+                    },
+                    "colorStreak": {
+                        "type": "number",
+                        "description": "The probability of the next color being the same as the previous one in sequence.",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    },
+                    "forceDifferentColor": {
+                        "type": "boolean",
+                        "description": "If set, two like-colored clumps cannot have the same color if next to each other. This reduces likelihood of apparent big clumps of a single color."
+                    },
+                    "length": {
+                        "type": "integer",
+                        "description": "The train length. If not set, the spheres will spawn continously until all objectives have been reached.",
+                        "exclusiveMinimum": 0
+                    }
+                },
+                "required": [
+                    "colors",
+                    "colorStreak"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "pattern",
+                        "description": "The sphere order will be chosen from a predefined list. The list will wrap around."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "pattern": {
+                        "type": "array",
+                        "description": "A list of integers. Colors will be drawn in order from this list and will wrap around.",
+                        "items": {
+                            "type": "integer",
+                            "description": "A single sphere color."
+                        }
+                    },
+                    "length": {
+                        "type": "integer",
+                        "description": "The train length. If not set, the spheres will spawn continously until all objectives have been reached.",
+                        "exclusiveMinimum": 0
+                    }
+                },
+                "required": [
+                    "pattern"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "waves",
+                        "description": "Spheres will come as predefined trains, with color pools defined inside."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "key": {
+                        "type": "array",
+                        "description": "A list of keys to be used as building blocks for train presets.",
+                        "items": {
+                            "type": "object",
+                            "description": "A single key.",
+                            "properties": {
+                                "key": {
+                                    "type": "string",
+                                    "description": "A single key. Must be a single character. Use either this or keys.",
+                                    "markdownDescription": "A single key. Must be a single character. Use either this or `keys`."
+                                },
+                                "keys": {
+                                    "type": "array",
+                                    "description": "If specified, this entry will define multiple keys.",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "A single key. Must be a single character."
+                                    }
+                                },
+                                "colors": {
+                                    "type": "array",
+                                    "description": "A list of colors this entry's key(s) will be assigned to.",
+                                    "items": {
+                                        "type": "integer",
+                                        "description": "A single color ID."
+                                    }
+                                },
+                                "homogenous": {
+                                    "type": "boolean",
+                                    "description": "If set, this key will spawn the same color across the entire train (but not between different trains)."
+                                },
+                                "noColorRepeats": {
+                                    "type": "boolean",
+                                    "description": "Only if multiple keys are specified. If set, each of the keys will be assigned a different color from the colors list, without any repeats.",
+                                    "markdownDescription": "Only if multiple `keys` are specified. If set, each of the keys will be assigned a different color from the `colors` list, without any repeats."
+                                },
+                                "colorStreak": {
+                                    "type": "number",
+                                    "description": "Only if homogenous is not set. Specifies how likely will the next color from this key be the same color as the previous one (from the same key).",
+                                    "markdownDescription": "Only if `homogenous` is not set. Specifies how likely will the next color from this key be the same color as the previous one (from the same key).",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0
+                                },
+                                "forceDifferentColor": {
+                                    "type": "boolean",
+                                    "description": "Only if homogenous is not set. If set, two like-colored clumps cannot have the same color if next to each other.",
+                                    "markdownDescription": "Only if `homogenous` is not set. If set, two like-colored clumps cannot have the same color if next to each other."
+                                }
+                            },
+                            "required": [
+                                "colors"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "waves": {
+                        "type": "array",
+                        "description": "A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the key field.",
+                        "markdownDescription": "A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the `key` field.",
+                        "items": {
+                            "type": "string",
+                            "description": "A single sphere train preset."
+                        }
+                    },
+                    "behavior": {
+                        "type": "string",
+                        "description": "How should the waves be picked from the list.",
+                        "oneOf": [
+                            {
+                                "const": "random",
+                                "description": "Each spawned train will pick a train preset randomly from the list."
+                            },
+                            {
+                                "const": "panic",
+                                "description": "The train presets will be picked from the list in the top-to-bottom order, and after the list has been exhausted, they will be picked from the list at random."
+                            },
+                            {
+                                "const": "repeatLast",
+                                "description": "The train presets will be picked from the list in the top-to-bottom order, and after the list has been exhausted, the last entry will keep being picked over and over again."
+                            },
+                            {
+                                "const": "repeat",
+                                "description": "The train presets will be picked from the list in the top-to-bottom order, and after the list has been exhausted, the list will wrap around."
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "key",
+                    "waves",
+                    "behavior"
+                ],
+                "additionalProperties": false
+            }
+        }
+    ],
+    "required": [
+        "type"
+    ]
+}
