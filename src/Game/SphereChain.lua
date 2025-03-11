@@ -26,7 +26,6 @@ function SphereChain:new(path, deserializationTable)
 		self.speedOverrideTime = 0
 
 		self.sphereGroups = {}
-		print("=========================================")
 
 		local length = self.path:getCurrentTrainLength()
 		self.generationAllowed = length == nil
