@@ -229,7 +229,7 @@ function Path:advanceWave()
 				self.reachedFinalWave = true
 			end
 		else
-			self.currentWave = math.random(#self.trainRules.wave)
+			self.currentWave = math.random(#self.trainRules.waves)
 		end
 	elseif self.trainRules.behavior == "repeatLast" then
 		if self.currentWave < #self.trainRules.waves then
