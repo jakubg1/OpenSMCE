@@ -6,8 +6,10 @@ import os, sys, json
 #
 
 C_RESET = "\33[0m"
+C_BOLD = "\33[1m"
 C_RED = "\33[91m"
 C_GREEN = "\33[92m"
+C_YELLOW = "\33[93m"
 
 def load_file(path):
 	file = open(path, "r")
@@ -27,6 +29,103 @@ def case_snake_to_pascal(line):
 # Adds a number of spaces before each line of any multiline text.
 def indent_text(text, spaces):
 	return "\n".join((" " * spaces) + line for line in text.split("\n"))
+
+
+
+#
+#    BEAUTIFIER
+#
+
+def get_pretty_value(value, indent):
+	if type(value) is dict:
+		return get_pretty_dict(value, indent + 1)
+	elif type(value) is list:
+		return get_pretty_list(value, indent + 1)
+	elif type(value) is int or type(value) is float:
+		return C_BOLD + C_YELLOW + str(value) + C_RESET
+	elif type(value) is str:
+		if "\33" in value:
+			return C_BOLD + C_YELLOW + "<\"" + C_RESET + value + C_RESET + C_BOLD + C_YELLOW + "\">" + C_RESET
+		else:
+			return C_BOLD + "\"" + value + "\"" + C_RESET
+	elif type(value) is bool:
+		if value:
+			return C_BOLD + C_GREEN + "True" + C_RESET
+		else:
+			return C_BOLD + C_RED + "False" + C_RESET
+	else:
+		return str(value)
+
+
+
+def get_pretty_dict(data, indent = 0):
+	keys = list(data.keys())
+	keys.sort()
+	# Type key will be always first.
+	if "type" in keys:
+		keys.remove("type")
+		keys = ["type"] + keys
+	###
+	has_compound_values = False
+	for key in keys:
+		if type(data[key]) is dict or type(data[key]) is list:
+			has_compound_values = True
+			break
+	s = "{"
+	if has_compound_values:
+		s += "\n"
+	for key in keys:
+		value = data[key]
+		value_str = get_pretty_value(value, indent)
+		if has_compound_values:
+			s += " " * ((indent + 1) * 4)
+		if key == "type":
+			s += C_YELLOW + key + C_RESET + ": " + value_str
+		else:
+			s += key + ": " + value_str
+		if key != keys[-1]:
+			s += ","
+			if not has_compound_values:
+				s += " "
+		if has_compound_values:
+			s += "\n"
+	if has_compound_values:
+		s += " " * (indent * 4)
+	s += "}"
+	return s
+
+
+
+def get_pretty_list(data, indent = 0):
+	has_compound_values = False
+	for value in data:
+		if type(value) is dict or type(value) is list:
+			has_compound_values = True
+			break
+	s = "["
+	if has_compound_values:
+		s += "\n"
+	for i in range(len(data)):
+		value = data[i]
+		value_str = get_pretty_value(value, indent)
+		if has_compound_values:
+			s += " " * ((indent + 1) * 4)
+		s += value_str
+		if i != len(data) - 1:
+			s += ","
+			if not has_compound_values:
+				s += " "
+		if has_compound_values:
+			s += "\n"
+	if has_compound_values:
+		s += " " * (indent * 4)
+	s += "]"
+	return s
+
+
+
+def print_pretty_dict(data):
+	print(get_pretty_dict(data))
 
 
 
@@ -648,7 +747,11 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 		out["$schema"] = "http://json-schema.org/draft-07/schema"
 	# Carry the type over.
 	if "type" in entry:
-		out["type"] = entry["type"]
+		if "expression" in entry:
+			out["$ref"] = structures_path + "Expr" + entry["type"].capitalize() + ".json"
+			print(out["$ref"])
+		else:
+			out["type"] = entry["type"]
 	elif "internal_ref" in entry:
 		out["$ref"] = entry["internal_ref"]
 	elif "ref" in entry:
@@ -698,6 +801,7 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 				key = entry["keyconst"]
 				out["properties"] = {key: {"enum": []}}
 				out["allOf"] = [{"properties": {key: {"description": entry["keyconst_description"]}}}]
+				out["required"] = [key]
 				if "children" in entry:
 					for child in entry["children"]:
 						if "const" in child: # One of the choices in the Enum Object for the typed variable.
@@ -716,8 +820,19 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 							# Add prepared blocks.
 							out["allOf"].append(child_block)
 							out["properties"][key]["enum"].append(child["const"])
-						# TODO: "Always-there" properties for Enum Objects.
-				out["required"] = [key]
+						else: # "Always-there" properties for Enum Objects.
+							for child_block in out["allOf"]:
+								# The first entry is the type definition, so we need to omit that one.
+								if "then" in child_block:
+									name = child["name"]
+									# Names ending with an asterisk depict optional properties.
+									if name[-1] == "*":
+										name = name[:-1]
+									else:
+										if not "required" in child_block["then"]:
+											child_block["then"]["required"] = []
+										child_block["then"]["required"].append(name)
+									child_block["then"]["properties"][name] = docld_to_schema(child, False, structures_path)
 			elif not "name" in entry["children"][0]:
 				# One nameless child in a regular object means that the object behaves like an array, with all keys possible.
 				out["patternProperties"] = {}
@@ -1194,6 +1309,10 @@ def main():
 			if len(sys.argv) >= 3:
 				docl_print_docld(sys.argv[2])
 				print_usage = False
+		elif sys.argv[1] == "-ps":
+			if len(sys.argv) >= 3:
+				docl_print_schema(sys.argv[2])
+				print_usage = False
 
 	#docl_print_lua(path, "CollectibleGeneratorConfig")
 
@@ -1204,6 +1323,7 @@ def main():
 		print("  generate.py -a         - Converts all DocLang files to schemas and Config Classes.")
 		print("  generate.py -t         - Performs DocLang to Config Class tests.")
 		print("  generate.py -pd <file> - Prints DocLD data from the given DocL file.")
+		print("  generate.py -ps <file> - Prints a schema generated from the given DocL file.")
 	else:
 		print("Done")
 		input()

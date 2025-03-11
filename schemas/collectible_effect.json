@@ -81,7 +81,7 @@
                         "description": "A sphere ID of a sphere the shooter should get."
                     },
                     "count": {
-                        "type": "integer",
+                        "$ref": "_structures/ExprInteger.json",
                         "description": "How many spheres of that type should be given.",
                         "minimum": 1
                     }
@@ -298,7 +298,7 @@
                     "$schema": true,
                     "type": true,
                     "count": {
-                        "type": "integer",
+                        "$ref": "_structures/ExprInteger.json",
                         "description": "The amount of strikes.",
                         "minimum": 1
                     }

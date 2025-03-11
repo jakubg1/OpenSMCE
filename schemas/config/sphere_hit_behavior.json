@@ -100,7 +100,7 @@
                         "description": "The Sphere Selector which will select the spheres of which the color will be changed."
                     },
                     "color": {
-                        "type": "integer",
+                        "$ref": "../_structures/ExprInteger.json",
                         "description": "Which color the spheres will be changed to."
                     },
                     "particle": {

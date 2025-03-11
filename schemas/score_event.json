@@ -5,7 +5,7 @@
     "properties": {
         "$schema": true,
         "score": {
-            "type": "integer",
+            "$ref": "_structures/ExprInteger.json",
             "description": "The score to be granted when this Score Event is fired."
         },
         "ignoreDifficultyMultiplier": {
@@ -14,7 +14,7 @@
             "markdownDescription": "Whether the score should NOT be multiplied by the player's difficulty multiplier. Defaults to `false`."
         },
         "text": {
-            "type": "string",
+            "$ref": "_structures/ExprString.json",
             "description": "The text to be displayed when this Score Event is fired. The text will be displayed at a position of where the Score Event has been fired. By default, this is the raw score value."
         },
         "font": {
@@ -39,7 +39,7 @@
                     "description": "The default font, if the choice matches none of the above choices."
                 },
                 "choice": {
-                    "type": "integer",
+                    "$ref": "_structures/ExprInteger.json",
                     "description": "An integer expression which evaluates to a number identifying one of the options."
                 }
             },

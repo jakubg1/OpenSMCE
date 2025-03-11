@@ -6,10 +6,9 @@
             - startingLives (integer) [>=0] - How many lives the player will start the game with.
             - scorePerLife (integer) [>0] - Every how many points an extra life should be granted.
             - countUnmultipliedScore* = false (boolean) - Whether the score counted for the next life will be unaffected by the difficulty multiplier. Defaults to `false`.
-            - rollbackScoreAfterFailure* = false (boolean) - Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`.
         - "coins" - Lives will be earned when a set amount of coins has been collected.
             - startingLives (integer) [>=0] - How many lives the player will start the game with.
             - coinsPerLife (integer) [>0] - After how many collected coins an extra life should be granted. The coin counter will decrement by this value.
-            - rollbackScoreAfterFailure* = false (boolean) - Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`.
         - "none" - No life system. The player will be able to replay any level indefinitely.
-            - rollbackScoreAfterFailure* = false (boolean) - Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`.
+        - rollbackScoreAfterFailure* = false (boolean) - Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`.
+        - rollbackCoinsAfterFailure* = false (boolean) - Whether the coins will be reverted to the previous value when the level is lost. Defaults to `false`.

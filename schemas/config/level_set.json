@@ -49,6 +49,32 @@
                                 "name": {
                                     "type": "string",
                                     "description": "A level name."
+                                },
+                                "checkpoint": {
+                                    "type": "object",
+                                    "description": "If specified, this entry will have a checkpoint.",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "description": "The ID of this checkpoint. It must be a unique number, which will be used to refer to this specific checkpoint elsewhere in the game."
+                                        },
+                                        "unlockedOnStart": {
+                                            "type": "boolean",
+                                            "description": "If set, this checkpoint will be instantly unlocked when creating a new profile."
+                                        }
+                                    },
+                                    "required": [
+                                        "id"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                "unlockCheckpointsOnBeat": {
+                                    "type": "array",
+                                    "description": "If specified, after beating this entry, checkpoints with IDs provided in this list will be unlocked.",
+                                    "items": {
+                                        "type": "integer",
+                                        "description": "A single checkpoint ID."
+                                    }
                                 }
                             },
                             "required": [
@@ -80,6 +106,32 @@
                                 "name": {
                                     "type": "string",
                                     "description": "A level name."
+                                },
+                                "checkpoint": {
+                                    "type": "object",
+                                    "description": "If specified, this entry will have a checkpoint.",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "description": "The ID of this checkpoint. It must be a unique number, which will be used to refer to this specific checkpoint elsewhere in the game."
+                                        },
+                                        "unlockedOnStart": {
+                                            "type": "boolean",
+                                            "description": "If set, this checkpoint will be instantly unlocked when creating a new profile."
+                                        }
+                                    },
+                                    "required": [
+                                        "id"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                "unlockCheckpointsOnBeat": {
+                                    "type": "array",
+                                    "description": "If specified, after beating this entry, checkpoints with IDs provided in this list will be unlocked.",
+                                    "items": {
+                                        "type": "integer",
+                                        "description": "A single checkpoint ID."
+                                    }
                                 }
                             },
                             "required": [
@@ -145,6 +197,32 @@
                                             "markdownDescription": "Chooses entries from the pool at random without changing their order. Requires the pool size to be greater or equal to the `count` field."
                                         }
                                     ]
+                                },
+                                "checkpoint": {
+                                    "type": "object",
+                                    "description": "If specified, this entry will have a checkpoint.",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "description": "The ID of this checkpoint. It must be a unique number, which will be used to refer to this specific checkpoint elsewhere in the game."
+                                        },
+                                        "unlockedOnStart": {
+                                            "type": "boolean",
+                                            "description": "If set, this checkpoint will be instantly unlocked when creating a new profile."
+                                        }
+                                    },
+                                    "required": [
+                                        "id"
+                                    ],
+                                    "additionalProperties": false
+                                },
+                                "unlockCheckpointsOnBeat": {
+                                    "type": "array",
+                                    "description": "If specified, after beating this entry, checkpoints with IDs provided in this list will be unlocked.",
+                                    "items": {
+                                        "type": "integer",
+                                        "description": "A single checkpoint ID."
+                                    }
                                 }
                             },
                             "required": [

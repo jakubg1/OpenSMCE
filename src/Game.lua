@@ -139,6 +139,7 @@ function Game:startLevel()
 			self.uiManager:executeCallback("levelLoaded")
 		else
 			self.level:resetSequence()
+			profile:startLevel()
 		end
 	end
 end

@@ -155,7 +155,7 @@
             "type": "object",
             "description": "Defines the starting values for the Level Variables. Keys are variable names, values must be numbers. Level variables will be reset every time the level is retried or a new level is started.",
             "propertyNames": {
-                "pattern": "^.$"
+                "pattern": "^.*$"
             },
             "patternProperties": {
                 "^.*$": {
@@ -193,7 +193,7 @@
             "description": "Defines the Lightning Storm.",
             "properties": {
                 "delay": {
-                    "type": "number",
+                    "$ref": "../_structures/ExprNumber.json",
                     "description": "The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike.",
                     "exclusiveMinimum": 0.0
                 },

@@ -18,12 +18,12 @@
             "description": "If set, the 3D positioning will be disabled for this Sound Event. Note that if you use a stereo Sound, 3D positioning will be forcefully disabled and this flag will have no effect on the playback."
         },
         "volume": {
-            "type": "number",
+            "$ref": "_structures/ExprNumber.json",
             "description": "The base volume of the sound.",
             "minimum": 0.0
         },
         "pitch": {
-            "type": "number",
+            "$ref": "_structures/ExprNumber.json",
             "description": "The base pitch of the sound.",
             "exclusiveMinimum": 0.0
         },
@@ -53,12 +53,12 @@
                         "description": "If set, the 3D positioning will be disabled for this entry. Note that if you use a stereo Sound, 3D positioning will be forcefully disabled and this flag will have no effect on the playback."
                     },
                     "volume": {
-                        "type": "number",
+                        "$ref": "_structures/ExprNumber.json",
                         "description": "The volume of the sound.",
                         "minimum": 0.0
                     },
                     "pitch": {
-                        "type": "number",
+                        "$ref": "_structures/ExprNumber.json",
                         "description": "The pitch of the sound.",
                         "exclusiveMinimum": 0.0
                     },
@@ -71,7 +71,7 @@
                         "type": "array",
                         "description": "If specified, all conditions inside must be satisfied in order for this entry to be played.",
                         "items": {
-                            "type": "boolean",
+                            "$ref": "_structures/ExprBoolean.json",
                             "description": "A single condition."
                         }
                     }

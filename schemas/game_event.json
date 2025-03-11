@@ -45,6 +45,14 @@
                             "$ref": "_structures/GameEvent.json",
                             "description": "A Game Event to be executed."
                         }
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
                     }
                 },
                 "required": [
@@ -76,6 +84,14 @@
                             "$ref": "_structures/GameEvent.json",
                             "description": "A Game Event to be executed."
                         }
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
                     }
                 },
                 "required": [
@@ -101,8 +117,16 @@
                     "$schema": true,
                     "type": true,
                     "value": {
-                        "type": "integer",
+                        "$ref": "_structures/ExprInteger.json",
                         "description": "The new amount of coins the current player will have."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
                     }
                 },
                 "required": [
@@ -132,8 +156,16 @@
                         "description": "The name of the Level Variable to be set."
                     },
                     "value": {
-                        "type": "number",
+                        "$ref": "_structures/ExprNumber.json",
                         "description": "The new value for this Level Variable."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
                     }
                 },
                 "required": [
@@ -162,6 +194,14 @@
                     "collectibleEffect": {
                         "$ref": "_structures/CollectibleEffect.json",
                         "description": "The Collectible Effect to be executed."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
                     }
                 },
                 "required": [
@@ -189,6 +229,14 @@
                     "soundEvent": {
                         "$ref": "_structures/SoundEvent.json",
                         "description": "The Sound Event to be played."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
                     }
                 },
                 "required": [

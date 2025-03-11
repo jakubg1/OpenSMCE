@@ -41,7 +41,7 @@
                             "properties": {
                                 "type": true,
                                 "condition": {
-                                    "type": "boolean",
+                                    "$ref": "_structures/ExprBoolean.json",
                                     "description": "The condition expression, which is evaluated for each sphere separately. Must evaluate to true in order for a sphere to be added to the list.",
                                     "markdownDescription": "The condition expression, which is evaluated for each sphere separately. Must evaluate to `true` in order for a sphere to be added to the list."
                                 }

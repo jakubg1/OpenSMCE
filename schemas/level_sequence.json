@@ -52,6 +52,10 @@
                                     "type": "number",
                                     "description": "The amount of time that the level sequence should wait, in seconds.",
                                     "exclusiveMinimum": 0.0
+                                },
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
                                 }
                             },
                             "required": [
@@ -74,7 +78,11 @@
                         },
                         "then": {
                             "properties": {
-                                "type": true
+                                "type": true,
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
+                                }
                             },
                             "additionalProperties": false
                         }
@@ -102,6 +110,10 @@
                                     "type": "boolean",
                                     "description": "If set, the sequence will wait until the levelContinue UI Script function will be executed. Otherwise, the sequence will immediately move on to the next step.",
                                     "markdownDescription": "If set, the sequence will wait until the `levelContinue` UI Script function will be executed. Otherwise, the sequence will immediately move on to the next step."
+                                },
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
                                 }
                             },
                             "required": [
@@ -146,6 +158,10 @@
                                 "skippable": {
                                     "type": "boolean",
                                     "description": "Doesn't work for now."
+                                },
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
                                 }
                             },
                             "required": [
@@ -197,6 +213,10 @@
                                     "description": "The level sequence index to jump to if all of the level's objectives have been reached. Invalidates onWin.",
                                     "markdownDescription": "The level sequence index to jump to if all of the level's objectives have been reached. Invalidates `onWin`.",
                                     "minimum": 1
+                                },
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
                                 }
                             },
                             "required": [
@@ -227,6 +247,10 @@
                                 "skippable": {
                                     "type": "boolean",
                                     "description": "Doesn't work for now."
+                                },
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
                                 }
                             },
                             "required": [
@@ -250,7 +274,11 @@
                         },
                         "then": {
                             "properties": {
-                                "type": true
+                                "type": true,
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
+                                }
                             },
                             "additionalProperties": false
                         }
@@ -277,6 +305,10 @@
                                         "$ref": "collectible_effect.json",
                                         "description": "A single Collectible Effect."
                                     }
+                                },
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
                                 }
                             },
                             "required": [
@@ -315,6 +347,10 @@
                                             "markdownDescription": "The level will be registered as lost and a `levelLost` UI callback will be executed."
                                         }
                                     ]
+                                },
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
                                 }
                             },
                             "required": [

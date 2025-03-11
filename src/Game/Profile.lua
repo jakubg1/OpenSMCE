@@ -515,6 +515,19 @@ end
 
 -- Level
 
+---Saves the current score as a rollback score if score rollback is enabled.
+function Profile:startLevel()
+	-- Save the current score. We will roll back to it if we lose this level.
+	if self:getLifeConfig().rollbackScoreAfterFailure then
+		self.session.rollbackScore = self.session.score
+	end
+	if self:getLifeConfig().rollbackCoinsAfterFailure then
+		self.session.rollbackCoins = self.session.coins
+	end
+end
+
+
+
 ---Increments the level win count, updates the level record if needed and removes the saved level data.
 ---Does not increment the level itself!
 ---@param score integer The level score.
@@ -525,11 +538,6 @@ function Profile:winLevel(score)
 	levelData.won = levelData.won + 1
 	self:setCurrentLevelData(levelData)
 	self:unsaveLevel()
-
-	if self:getLifeConfig().rollbackScoreAfterFailure then
-		-- Save the current score. We will roll back to it if we lose the next level.
-		self.session.rollbackScore = self.session.score
-	end
 end
 
 
@@ -571,8 +579,13 @@ function Profile:loseLevel()
 	local canRetry = self:takeLife()
 
 	-- Rollback the score if defined in the life config.
-	if canRetry and self.session.rollbackScore then
-		self.session.score = self.session.rollbackScore
+	if canRetry then
+		if self.session.rollbackScore then
+			self.session.score = self.session.rollbackScore
+		end
+		if self.session.rollbackCoins then
+			self.session.coins = self.session.rollbackCoins
+		end
 	end
 
 	return canRetry

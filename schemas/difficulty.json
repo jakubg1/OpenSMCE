@@ -69,6 +69,11 @@
                                 "type": "boolean",
                                 "description": "Whether the score will be reverted to the previous value when the level is lost. Defaults to false.",
                                 "markdownDescription": "Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`."
+                            },
+                            "rollbackCoinsAfterFailure": {
+                                "type": "boolean",
+                                "description": "Whether the coins will be reverted to the previous value when the level is lost. Defaults to false.",
+                                "markdownDescription": "Whether the coins will be reverted to the previous value when the level is lost. Defaults to `false`."
                             }
                         },
                         "required": [
@@ -107,6 +112,11 @@
                                 "type": "boolean",
                                 "description": "Whether the score will be reverted to the previous value when the level is lost. Defaults to false.",
                                 "markdownDescription": "Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`."
+                            },
+                            "rollbackCoinsAfterFailure": {
+                                "type": "boolean",
+                                "description": "Whether the coins will be reverted to the previous value when the level is lost. Defaults to false.",
+                                "markdownDescription": "Whether the coins will be reverted to the previous value when the level is lost. Defaults to `false`."
                             }
                         },
                         "required": [
@@ -135,6 +145,11 @@
                                 "type": "boolean",
                                 "description": "Whether the score will be reverted to the previous value when the level is lost. Defaults to false.",
                                 "markdownDescription": "Whether the score will be reverted to the previous value when the level is lost. Defaults to `false`."
+                            },
+                            "rollbackCoinsAfterFailure": {
+                                "type": "boolean",
+                                "description": "Whether the coins will be reverted to the previous value when the level is lost. Defaults to false.",
+                                "markdownDescription": "Whether the coins will be reverted to the previous value when the level is lost. Defaults to `false`."
                             }
                         },
                         "additionalProperties": false

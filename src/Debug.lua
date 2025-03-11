@@ -179,6 +179,7 @@ function Debug:getDebugProfile()
 	s = s .. "LevelID = " .. profile:getLevelIDStr() .. "\n"
 	s = s .. "LatestCheckpoint = " .. tostring(profile:getLatestCheckpoint()) .. "\n"
 	s = s .. "CheckpointUpcoming = " .. tostring(profile:isCheckpointUpcoming()) .. "\n"
+	s = s .. string.format("Rollback: Score = %s, Coins = %s", profile.session.rollbackScore, profile.session.rollbackCoins) .. "\n"
 	local levelData = profile:getCurrentLevelData()
 	if levelData then
 		s = s .. "LevelRecord = " .. tostring(levelData.score) .. "\n"
