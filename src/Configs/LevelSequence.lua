@@ -29,12 +29,13 @@ function LevelSequenceConfig:new(data, path)
             -- No fields
         elseif self.sequence[i].type == "uiCallback" then
             self.sequence[i].callback = u.parseString(data.sequence[i].callback, path, "sequence[" .. tostring(i) .. "].callback")
-            self.sequence[i].waitUntilFinished = u.parseBoolean(data.sequence[i].waitUntilFinished, path, "sequence[" .. tostring(i) .. "].waitUntilFinished")
+            self.sequence[i].waitUntilFinished = u.parseBooleanOpt(data.sequence[i].waitUntilFinished, path, "sequence[" .. tostring(i) .. "].waitUntilFinished")
+            self.sequence[i].retriggerWhenLoaded = u.parseBooleanOpt(data.sequence[i].retriggerWhenLoaded, path, "sequence[" .. tostring(i) .. "].retriggerWhenLoaded") or true
         elseif self.sequence[i].type == "pathEntity" then
             self.sequence[i].pathEntity = u.parsePathEntityConfig(data.sequence[i].pathEntity, path, "sequence[" .. tostring(i) .. "].pathEntity")
             self.sequence[i].separatePaths = u.parseBoolean(data.sequence[i].separatePaths, path, "sequence[" .. tostring(i) .. "].separatePaths")
             self.sequence[i].launchDelay = u.parseNumber(data.sequence[i].launchDelay, path, "sequence[" .. tostring(i) .. "].launchDelay")
-            self.sequence[i].waitUntilFinished = u.parseBoolean(data.sequence[i].waitUntilFinished, path, "sequence[" .. tostring(i) .. "].waitUntilFinished")
+            self.sequence[i].waitUntilFinished = u.parseBooleanOpt(data.sequence[i].waitUntilFinished, path, "sequence[" .. tostring(i) .. "].waitUntilFinished")
             self.sequence[i].skippable = u.parseBoolean(data.sequence[i].skippable, path, "sequence[" .. tostring(i) .. "].skippable")
         elseif self.sequence[i].type == "gameplay" then
             self.sequence[i].warmupTime = u.parseNumber(data.sequence[i].warmupTime, path, "sequence[" .. tostring(i) .. "].warmupTime")
@@ -43,7 +44,7 @@ function LevelSequenceConfig:new(data, path)
             self.sequence[i].onWin = u.parseIntegerOpt(data.sequence[i].onWin, path, "sequence[" .. tostring(i) .. "].onWin")
             self.sequence[i].onObjectivesReached = u.parseIntegerOpt(data.sequence[i].onObjectivesReached, path, "sequence[" .. tostring(i) .. "].onObjectivesReached")
         elseif self.sequence[i].type == "fail" then
-            self.sequence[i].waitUntilFinished = u.parseBoolean(data.sequence[i].waitUntilFinished, path, "sequence[" .. tostring(i) .. "].waitUntilFinished")
+            self.sequence[i].waitUntilFinished = u.parseBooleanOpt(data.sequence[i].waitUntilFinished, path, "sequence[" .. tostring(i) .. "].waitUntilFinished")
             self.sequence[i].skippable = u.parseBoolean(data.sequence[i].skippable, path, "sequence[" .. tostring(i) .. "].skippable")
         elseif self.sequence[i].type == "clearBoard" then
             -- No fields

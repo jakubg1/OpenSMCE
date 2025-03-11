@@ -6,12 +6,13 @@
             - "waitForCollectibles" - Waits until all collectibles in the level are gone, and then moves to the next step.
             - "uiCallback" - Executes a UI Script callback.
                 - callback (string) - The name of the UI Script callback function to be executed.
-                - waitUntilFinished (boolean) - If set, the sequence will wait until the `levelContinue` UI Script function will be executed. Otherwise, the sequence will immediately move on to the next step.
+                - waitUntilFinished* (boolean) - If set, the sequence will wait until the `levelContinue` UI Script function will be executed. Otherwise, the sequence will immediately move on to the next step.
+                - retriggerWhenLoaded* = true (boolean) - If set, the callback will be restarted if the level was on this step when saved.
             - "pathEntity" - Spawns Path Entities on all of the paths.
                 - pathEntity (PathEntity) - The Path Entity that should be spawned.
                 - separatePaths (boolean) - If set, the next Path Entity will be spawned only after the previous Path Entity has been destroyed.
                 - launchDelay (number) [>=0] - The amount of time to wait between consecutive spawns of Path Entities, in seconds.
-                - waitUntilFinished (boolean) - If set, the sequence will wait until the last Path Entity has been destroyed before moving on to the next step. Otherwise, the sequence will move on to the next step immediately.
+                - waitUntilFinished* (boolean) - If set, the sequence will wait until the last Path Entity has been destroyed before moving on to the next step. Otherwise, the sequence will move on to the next step immediately.
                 - skippable (boolean) - Doesn't work for now.
             - "gameplay" - The actual gameplay of a level.
                 - warmupTime (number) [>=0] - The amount of time to wait after spawning the sphere trains until the control is given to the player.
@@ -20,7 +21,7 @@
                 - onWin* (integer) [>=1] - The level sequence index to jump to if the level is won (the target is reached and all spheres are destroyed). If not specified, the sequence will move to the next step.
                 - onObjectivesReached* (integer) [>=1] - The level sequence index to jump to if all of the level's objectives have been reached. Invalidates `onWin`.
             - "fail" - The spheres will rush to the endpoint.
-                - waitUntilFinished (boolean) - If set, the sequence will wait until all spheres are gone, and then the sequence will move to the next step. Otherwise, the sequence will move on to the next step immediately.
+                - waitUntilFinished* (boolean) - If set, the sequence will wait until all spheres are gone, and then the sequence will move to the next step. Otherwise, the sequence will move on to the next step immediately.
                 - skippable (boolean) - Doesn't work for now.
             - "clearBoard" - Empties the Shooter and disables the Net. Transient: immediately jumps to the next step.
             - "collectibleEffect" - Activates a list of Collectible Effects without a position set.

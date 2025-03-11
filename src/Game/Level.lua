@@ -210,6 +210,12 @@ function Level:updateLogic(dt)
 		if self:getFinish() then
 			self:advanceSequenceStep()
 		end
+	elseif step.type == "uiCallback" then
+		-- Restart the callback if it needs to do so.
+		if step.retriggerWhenLoaded and self.levelSequenceLoad then
+			self:retriggerSequenceStep()
+			self.levelSequenceLoad = false
+		end
 	elseif step.type == "pathEntity" then
 		local isThereAnythingOnPreviousPaths = false
 		for i = 1, self.levelSequenceVars.pathID do
@@ -791,6 +797,11 @@ end
 
 
 
+---Restarts the current level sequence step.
+function Level:retriggerSequenceStep()
+	self:jumpToSequenceStep(self.levelSequenceStep)
+end
+
 ---Advances the level sequence program by one step.
 function Level:advanceSequenceStep()
 	self:jumpToSequenceStep(self.levelSequenceStep + 1)
@@ -969,6 +980,7 @@ end
 function Level:resetSequence()
 	self.levelSequenceStep = 0
 	self.levelSequenceVars = nil
+	self.levelSequenceLoad = false
 	self:jumpToSequenceStep(1)
 end
 
@@ -1511,6 +1523,7 @@ function Level:deserialize(t)
 	self.lost = t.lost
 	self.levelSequenceStep = t.levelSequenceStep
 	self.levelSequenceVars = t.levelSequenceVars
+	self.levelSequenceLoad = true
 	self.variables = t.variables
 	-- Paths
 	self.map:deserialize(t.paths)
