@@ -26,7 +26,7 @@ function Music:new(data, path)
 	self.targetVolume = 0
 	self.targetVolumeSpeed = nil
 	self.targetStop = false
-	self.sourceVolume = 0
+	self.sourceVolume = nil
 	self.sourceIsPlaying = false
 end
 
