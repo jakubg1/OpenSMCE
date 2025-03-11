@@ -8,7 +8,8 @@
                 "normal",
                 "destroySpheres",
                 "recolorSpheres",
-                "splitAndPushBack"
+                "splitAndPushBack",
+                "applyEffect"
             ]
         }
     },
@@ -35,7 +36,15 @@
             "then": {
                 "properties": {
                     "$schema": true,
-                    "type": true
+                    "type": true,
+                    "effects": {
+                        "type": "array",
+                        "description": "The list of Sphere Effects this Sphere should be inflicted with after this sphere slots into the train.",
+                        "items": {
+                            "$ref": "../_structures/SphereEffect.json",
+                            "description": "A single Sphere Effect."
+                        }
+                    }
                 },
                 "additionalProperties": false
             }
@@ -147,6 +156,42 @@
                 },
                 "required": [
                     "speed"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "applyEffect",
+                        "description": "The sphere gets destroyed and inflicts a Sphere Effect to the spheres selected by the provided sphere selector."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "selector": {
+                        "$ref": "../_structures/SphereSelector.json",
+                        "description": "The Sphere Selector which will select the spheres to be destroyed."
+                    },
+                    "effect": {
+                        "$ref": "../_structures/SphereEffect.json",
+                        "description": "The Sphere Effect which should be inflicted on the selected spheres."
+                    },
+                    "pierce": {
+                        "type": "boolean",
+                        "description": "If set, the sphere will not be destroyed upon hitting the sphere train."
+                    }
+                },
+                "required": [
+                    "selector",
+                    "effect"
                 ],
                 "additionalProperties": false
             }

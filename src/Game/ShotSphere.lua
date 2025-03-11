@@ -146,6 +146,13 @@ function ShotSphere:moveStep()
 					else
 						self.hitSphere = nil
 					end
+				elseif sphereConfig.hitBehavior.type == "applyEffect" then
+					_Game.level:applyEffectSelector(sphereConfig.hitBehavior, self.pos)
+					if not sphereConfig.hitBehavior.pierce then
+						self:destroy()
+					else
+						self.hitSphere = nil
+					end
 				elseif sphereConfig.hitBehavior.type == "splitAndPushBack" then
 					if hitSphere.nextSphere then
 						hitSphere.sphereGroup:divide(self.hitSphere.sphereID)

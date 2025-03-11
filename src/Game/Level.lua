@@ -1064,14 +1064,24 @@ end
 
 
 ---Selects spheres based on a provided Sphere Selector Config and changes their colors.
----TODO: Change the parameters from strings to actual objects.
----@param hitBehavior table The sphere's Hit Behavior with, `selector`, `color` and `particle` (optional) fields.
+---@param hitBehavior table The sphere's Hit Behavior with `selector`, `color` and `particle` (optional) fields.
 ---@param pos Vector2? The position used to calculate distances to spheres.
 function Level:replaceColorSelector(hitBehavior, pos)
 	local selector = _Game.resourceManager:getSphereSelectorConfig(hitBehavior.selector)
 	local color = Expression(hitBehavior.color):evaluate()
 	local particle = hitBehavior.particle
 	SphereSelectorResult(selector, pos):changeColor(color, particle)
+end
+
+
+
+---Selects spheres based on a provided Sphere Selector Config and applies a Sphere Effect on them.
+---@param hitBehavior table The sphere's Hit Behavior with `selector` and `effect` fields.
+---@param pos Vector2? The position used to calculate distances to spheres.
+function Level:applyEffectSelector(hitBehavior, pos)
+	local selector = _Game.resourceManager:getSphereSelectorConfig(hitBehavior.selector)
+	local effect = hitBehavior.effect
+	SphereSelectorResult(selector, pos):applyEffect(effect)
 end
 
 

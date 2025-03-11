@@ -91,4 +91,14 @@ end
 
 
 
+---Applies a Sphere Effect to all of the spheres contained in this Result.
+---@param effect string The path to the Sphere Effect to be applied.
+function SphereSelectorResult:applyEffect(effect)
+	for i, sphere in ipairs(self.spheres) do
+		sphere.sphere:applyEffect(effect)
+	end
+end
+
+
+
 return SphereSelectorResult
