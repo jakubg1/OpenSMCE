@@ -11,6 +11,7 @@ function Display:new()
     self.size = Vec2(800, 600)
     self.renderResolution = Vec2(800, 600)
     self.renderCanvas = nil
+    self.renderLayers = {}
 
     self.funniFlashlight = false
 end
@@ -48,6 +49,7 @@ end
 function Display:setCanvas(resolution, mode)
     self.renderResolution = resolution
 	self.renderCanvas = love.graphics.newCanvas(resolution.x, resolution.y)
+    self.renderLayers.MAIN =  love.graphics.newCanvas(resolution.x, resolution.y)
 	if mode == "pixel" then
 		self.renderCanvas:setFilter("nearest", "nearest")
 	end
@@ -76,7 +78,7 @@ end
 
 ---Starts drawing on this Display's canvas, clearing it beforehand.
 function Display:canvasStart()
-	love.graphics.setCanvas({self.renderCanvas, stencil = true})
+	love.graphics.setCanvas({self.renderLayers.MAIN, stencil = true})
 	love.graphics.clear()
 end
 
@@ -93,6 +95,7 @@ function Display:canvasStop()
     end
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), 0, 0, self:getCanvasScale())
+    love.graphics.draw(self.renderLayers.MAIN, self:getDisplayOffsetX(), 0, 0, self:getCanvasScale())
     if self.funniFlashlight then
         love.graphics.setStencilTest()
     end

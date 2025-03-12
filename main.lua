@@ -66,7 +66,9 @@ _COLORS = {
 	green = {0.2, 1, 0.2},
 	aqua = {0.2, 1, 1},
 	white = {1, 1, 1},
-	yellow = {1, 1, 0.2}
+	yellow = {1, 1, 0.2},
+	gray = {0.3, 0.3, 0.3},
+	black = {0, 0, 0}
 }
 
 -- Fonts

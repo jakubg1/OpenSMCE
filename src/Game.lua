@@ -70,6 +70,8 @@ end
 ---Loads all game resources.
 function Game:loadMain()
 	self.resourceManager:startLoadCounter("main")
+	-- DEBUG: Make the game load everything on the fly
+	--self.resourceManager.loadCounters.main = {queued = 1, loaded = 1, active = false, queueKeys = {}}
 	self.resourceManager:scanResources()
 	self.resourceManager:stopLoadCounter("main")
 end
@@ -102,6 +104,13 @@ end
 ---@param dt number Delta time in seconds.
 function Game:tick(dt) -- always with 1/60 seconds
 	self.resourceManager:update(dt)
+
+	-- DEBUG: Shoot when mouse held
+	if self.level then
+		if love.mouse.isDown(1) then
+			--self.level.shooter:shoot()
+		end
+	end
 
 	if self.level then
 		self.level:update(dt)

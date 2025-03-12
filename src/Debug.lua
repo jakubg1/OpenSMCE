@@ -15,16 +15,12 @@ local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 
 
 
+---Constructs a Debug class.
 function Debug:new()
 	self.console = Console()
 	self.uiDebug = UIDebug()
 
 	self.commands = {
-		p = {description = "Doesn't work. Used to activate a powerup.", parameters = {{name = "name", type = "string", optional = false}, {name = "color", type = "integer", optional = true}}},
-		sp = {description = "Doesn't work. Used to set the number of spheres destroyed.", parameters = {{name = "count", type = "integer", optional = false}}},
-		b = {description = "Doesn't work. Used to boost spheres.", parameters = {}},
-		s = {description = "Doesn't work. Used to immediately spawn new sphere chains on all paths.", parameters = {}},
-		fs = {description = "Doesn't work. Used to activate Full Screen.", parameters = {}},
 		t = {description = "Adjusts the speed scale of the game. 1 = default.", parameters = {{name = "scale", type = "number", optional = false}}},
 		e = {description = "Toggles the Background Cheat Mode. Spheres render over tunnels.", parameters = {}},
 		n = {description = "Destroys all spheres on the board.", parameters = {}},
@@ -36,7 +32,8 @@ function Debug:new()
 		expr = {description = "Evaluates an Expression.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
 		exprt = {description = "Breaks down an Expression and shows the list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
 		ex = {description = "Debugs an Expression: shows detailed tokenization and list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
-		help = {description = "Displays this list.", parameters = {}}
+		help = {description = "Displays this list.", parameters = {}},
+		collectible = {description = "Spawns a Collectible in the middle of the screen.", parameters = {{name = "collectible", type = "Collectible", optional = false}}}
 	}
 	self.commandNames = {}
 	for commandName, commandData in pairs(self.commands) do
@@ -71,12 +68,15 @@ end
 
 
 
+---Updates the debug class.
+---@param dt number Time delta in seconds.
 function Debug:update(dt)
 	self.console:update(dt)
 	self.lastVec2PerFrame = self.vec2PerFrame
 	self.vec2PerFrame = 0
 end
 
+---Draws the debug class, which includes the help overlay, profiler, console, UI debugging and all elements controlled with F* keys.
 function Debug:draw()
 	-- Profilers
 	if self.profVisible then
@@ -145,6 +145,14 @@ function Debug:wheelmoved(x, y)
 	self.uiDebug:wheelmoved(x, y)
 end
 
+
+
+---Prints a deprecation notice to the ingame console.
+---@param message string The message to be printed.
+---@param depth integer? The message will contain one line in the traceback. This parameter determines how many jumps back in the traceback should be made.
+function Debug:deprecationNotice(message, depth)
+    depth = depth or 1
+end
 
 
 function Debug:getDebugMain()
@@ -278,14 +286,23 @@ end
 
 
 
-function Debug:drawVisibleText(text, pos, height, width, alpha, shadow)
+---Draws a text with a semitransparent background.
+---@param text string|table The text to be drawn.
+---@param pos Vector2 The text position.
+---@param height number The box height, in pixels.
+---@param width number? The box width, in pixels. Defaults to the text width.
+---@param alpha number? The semitransparency parameter.
+---@param shadow boolean? If set, the text will have a shadow drawn for extra visibility.
+---@param backgroundColor table? The background color, black by default.
+function Debug:drawVisibleText(text, pos, height, width, alpha, shadow, backgroundColor)
 	alpha = alpha or 1
+	backgroundColor = backgroundColor or _COLORS.black
 
 	if text == "" then
 		return
 	end
 
-	love.graphics.setColor(0, 0, 0, 0.7 * alpha)
+	love.graphics.setColor(backgroundColor[1], backgroundColor[2], backgroundColor[3], 0.7 * alpha)
 	if width then
 		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
 	else
@@ -383,6 +400,42 @@ end
 
 
 
+---Returns a list of TAB completion suggestions for the current command.
+---@param command string The incomplete command. The suggestions will be provided for the last word.
+---@return table
+function Debug:getCommandCompletionSuggestions(command)
+	local suggestions = {}
+	local words = _Utils.strSplit(command, " ")
+	if #words == 1 then
+		-- First word: provide the suggestions for command names.
+		suggestions = _Utils.copyTable(_Debug.commandNames)
+	else
+		-- Subsequent word: check the command and provide the suggestions for command arguments.
+		local commandConfig = self.commands[words[1]]
+		if commandConfig then
+			local parameter = commandConfig.parameters[#words - 1]
+			if parameter then
+				if parameter.type == "Collectible" then
+					if _Game.resourceManager then
+						suggestions = _Game.resourceManager:getAssetList("collectible")
+					end
+				end
+			end
+		end
+	end
+
+	-- Remove irrelevant suggestions and sort them alphabetically.
+	for i = #suggestions, 1, -1 do
+		if not _Utils.strStartsWith(suggestions[i], words[#words]) then
+			table.remove(suggestions, i)
+		end
+	end
+	table.sort(suggestions)
+	return suggestions
+end
+
+
+
 function Debug:runCommand(command)
 	local words = _Utils.strSplit(command, " ")
 
@@ -410,6 +463,8 @@ function Debug:runCommand(command)
 					self.console:print({_COLORS.red, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
 					return
 				end
+			elseif parameter.type == "Collectible" then
+				raw = _Game.resourceManager:getCollectibleConfig(raw)
 			end
 			-- Greedy parameters can only be strings and are always last (taking the rest of the command).
 			if parameter.type == "string" and parameter.greedy then
@@ -446,6 +501,7 @@ function Debug:runCommand(command)
 			self.console:print(msg)
 		end
 	elseif command == "p" then
+		-- REMOVED: kept for reference in the future
 		local t = {fire = "bomb", ligh = "lightning", wild = "wild", bomb = "colorbomb", slow = "slow", stop = "stop", rev = "reverse", shot = "shotspeed"}
 		for word, name in pairs(t) do
 			if parameters[1] == word then
@@ -462,9 +518,11 @@ function Debug:runCommand(command)
 			end
 		end
 	elseif command == "sp" then
+		-- REMOVED: kept for reference in the future
 		_Game.level.destroyedSpheres = parameters[1]
 		self.console:print("Spheres destroyed set to " .. tostring(parameters[1]))
 	elseif command == "b" then
+		-- REMOVED: kept for reference in the future
 		for i, path in ipairs(_Game.level.map.paths) do
 			for j, sphereChain in ipairs(path.sphereChains) do
 				for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
@@ -474,13 +532,11 @@ function Debug:runCommand(command)
 		end
 		self.console:print("Boosted!")
 	elseif command == "s" then
+		-- REMOVED: kept for reference in the future
 		for i, path in ipairs(_Game.level.map.paths) do
 			path:spawnChain()
 		end
 		self.console:print("Spawned new chains!")
-	elseif command == "fs" then
-		--toggleFullscreen()
-		self.console:print("Fullscreen toggled")
 	elseif command == "t" then
 		_TimeScale = parameters[1]
 		self.console:print("Time scale set to " .. tostring(parameters[1]))
@@ -524,6 +580,8 @@ function Debug:runCommand(command)
 			self.console:print(string.format("%s   %s", step.type, step.value))
 		end
 		self.console:print(string.format("ex(%s): %s", parameters[1], e:evaluate()))
+	elseif command == "collectible" then
+		_Game.level:spawnCollectible(_Game:getNativeResolution() / 2, parameters[1].id)
 	end
 end
 

@@ -68,6 +68,8 @@ end
 ---@param alpha number? Sprite transparency. `0` is fully transparent. `1` is fully opaque.
 ---@param scale Vector2? The scale of this sprite.
 function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
+	--_Log:deprecationNotice("Test deprecation notice/Sprites will need layers soon!", 1)
+
 	align = align or Vec2()
 	state = state or 1
 	frame = frame or 1
