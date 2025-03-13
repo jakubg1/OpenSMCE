@@ -25,8 +25,11 @@ function SphereSelectorConfig:new(data, path)
         self.operations[i].type = u.parseString(data.operations[i].type, path, "operations[" .. tostring(i) .. "].type")
         if self.operations[i].type == "add" then
             self.operations[i].condition = u.parseExprBoolean(data.operations[i].condition, path, "operations[" .. tostring(i) .. "].condition")
+        elseif self.operations[i].type == "select" then
+            self.operations[i].percentage = u.parseNumber(data.operations[i].percentage, path, "operations[" .. tostring(i) .. "].percentage")
+            self.operations[i].round = u.parseStringOpt(data.operations[i].round, path, "operations[" .. tostring(i) .. "].round") or "down"
         else
-            error(string.format("Unknown SphereSelectorConfig type: %s (expected \"add\")", self.operations[i].type))
+            error(string.format("Unknown SphereSelectorConfig type: %s (expected \"add\", \"select\")", self.operations[i].type))
         end
     end
 end

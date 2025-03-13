@@ -41,6 +41,19 @@ function SphereSelectorResult:new(config, pos)
 					end
 				end
 			end
+		elseif operation.type == "select" then
+			local amount = #self.spheres * operation.percentage
+			if operation.round == "down" then
+				amount = math.floor(amount)
+			elseif operation.round == "up" then
+				amount = math.ceil(amount)
+			elseif operation.round == "nearest" then
+				amount = math.floor(amount + 0.5)
+			end
+			-- Remove spheres randomly until the required amount has been reached.
+			while #self.spheres > amount do
+				table.remove(self.spheres, math.random(#self.spheres))
+			end
 		end
 	end
 end

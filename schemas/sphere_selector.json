@@ -13,7 +13,8 @@
                 "properties": {
                     "type": {
                         "enum": [
-                            "add"
+                            "add",
+                            "select"
                         ]
                     }
                 },
@@ -48,6 +49,52 @@
                             },
                             "required": [
                                 "condition"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "select",
+                                    "description": "Selects some spheres out of the list of spheres currently selected."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "percentage": {
+                                    "type": "number",
+                                    "description": "The percentage of spheres which will be selected at random. This is not a chance per sphere!",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0
+                                },
+                                "round": {
+                                    "type": "string",
+                                    "description": "The rounding method.",
+                                    "oneOf": [
+                                        {
+                                            "const": "up",
+                                            "description": "The amount of spheres will be rounded up."
+                                        },
+                                        {
+                                            "const": "down",
+                                            "description": "The amount of spheres will be rounded down."
+                                        },
+                                        {
+                                            "const": "nearest",
+                                            "description": "The amount of spheres will be rounded to the nearest integer."
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "percentage"
                             ],
                             "additionalProperties": false
                         }
