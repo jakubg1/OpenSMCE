@@ -56,6 +56,9 @@ function SphereChain:new(path, deserializationTable)
 						local colorIdx = math.random(#colorPool)
 						keyData.color = colorPool[colorIdx]
 						if key.noColorRepeats then
+							if #colorPool == 0 then
+								error("Level error: Insufficient color amount for the `noColorRepeats` field. Must provide at least as many colors as there are keys!")
+							end
 							table.remove(colorPool, colorIdx)
 						end
 						if not key.homogenous and key.colorStreak then
