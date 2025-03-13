@@ -3,5 +3,5 @@
     - b* = -3.14 (number) - A default number.
     - c* = false (boolean) - A default falsy boolean.
     - d* = true (boolean) - A default truey boolean.
-    - e* = "Hello, World!" (string) - A default string. This doesn't work yet.
+    - e* = "Hello, World!" (string) - A default string.
     - f* = (-2.5, 6) (Vector2) - A default Vector2.

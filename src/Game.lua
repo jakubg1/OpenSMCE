@@ -5,7 +5,6 @@ local class = require "com.class"
 ---@overload fun(name):Game
 local Game = class:derive("Game")
 
-local Expression = require("src.Expression")
 local Timer = require("src.Timer")
 local ConfigManager = require("src.ConfigManager")
 local ResourceManager = require("src.ResourceManager")
