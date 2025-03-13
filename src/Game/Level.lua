@@ -151,6 +151,29 @@ function Level:updateLogic(dt)
 
 
 
+	-- Collectible rains
+	for i, rain in ipairs(self.collectibleRains) do
+		if rain.count > 0 then
+			rain.time = rain.time - dt
+			if rain.time <= 0 then
+				self:spawnCollectiblesFromEntry(Vec2(math.random() * _Game:getNativeResolution().x, -32), rain.generator)
+				rain.count = rain.count - 1
+				if rain.count > 0 then
+					rain.time = rain.time + rain.delay
+				end
+			end
+		end
+	end
+
+	-- Remove finished collectible rains.
+	for i = #self.collectibleRains, 1, -1 do
+		if self.collectibleRains[i].count == 0 then
+			table.remove(self.collectibleRains, i)
+		end
+	end
+
+
+
 	-- Net
 	if self.netTime > 0 then
 		self.netTime = self.netTime - dt
@@ -626,6 +649,8 @@ function Level:applyEffect(effect, pos)
 	elseif effect.type == "setScoreMultiplier" then
 		self.scoreMultiplier = effect.multiplier
 		self.scoreMultiplierTime = effect.time
+	elseif effect.type == "collectibleRain" then
+		table.insert(self.collectibleRains, {count = effect.count:evaluate(), time = 0, delay = effect.delay, generator = effect.collectibleGenerator})
 	elseif effect.type == "grantCoin" then
 		self:grantCoin()
 	elseif effect.type == "incrementGemStat" then
@@ -958,6 +983,7 @@ function Level:reset()
 	self.scoreMultiplier = 1
 	self.scoreMultiplierTime = 0
 	self.lightningStorms = {}
+	self.collectibleRains = {}
 	self.netTime = 0
 	self:destroyNet()
 
@@ -1493,6 +1519,7 @@ function Level:serialize()
 		collectibles = {},
 		combo = self.combo,
 		lightningStorms = self.lightningStorms,
+		collectibleRains = {},
 		netTime = self.netTime,
 		destroyedSpheres = self.destroyedSpheres,
 		paths = self.map:serialize(),
@@ -1506,6 +1533,14 @@ function Level:serialize()
 	end
 	for i, collectible in ipairs(self.collectibles) do
 		table.insert(t.collectibles, collectible:serialize())
+	end
+	for i, collectibleRain in ipairs(self.collectibleRains) do
+		table.insert(t.collectibleRains, {
+			count = collectibleRain.count,
+			time = collectibleRain.time,
+			delay = collectibleRain.delay,
+			generator = collectibleRain.generator._path
+		})
 	end
 	return t
 end
@@ -1563,6 +1598,15 @@ function Level:deserialize(t)
 	end
 	-- Effects
 	self.lightningStorms = t.lightningStorms
+	self.collectibleRains = {}
+	for i, tCollectibleRain in ipairs(t.collectibleRains) do
+		table.insert(self.collectibleRains, {
+			count = tCollectibleRain.count,
+			time = tCollectibleRain.time,
+			delay = tCollectibleRain.delay,
+			generator = _Game.resourceManager:getCollectibleGeneratorConfig(tCollectibleRain.generator)
+		})
+	end
 	self.netTime = t.netTime
 	if self.netTime > 0 then
 		self:spawnNet()

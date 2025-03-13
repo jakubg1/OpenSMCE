@@ -40,5 +40,9 @@
     - "setScoreMultiplier" - Sets a temporary level-based Score Multiplier.
         - multiplier (number) [>=0] - The score multiplier to be set.
         - time (number) [>0] - The duration of the effect, in seconds.
+    - "collectibleRain" - Collectibles will spawn at the top of the screen.
+        - collectibleGenerator (CollectibleGenerator) - The Collectible Generator which will be used to pick the collectibles to spawn.
+        - count (%integer) [>=1] - The amount of collectibles to be generated.
+        - delay (number) [>0] - The delay between collectible spawns, in seconds.
     - "grantCoin" - Grants a single coin to the current player.
     - "incrementGemStat" - Adds one to the gem pickup statistics for the current level.

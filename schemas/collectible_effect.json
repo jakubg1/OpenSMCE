@@ -20,6 +20,7 @@
                 "executeScoreEvent",
                 "executeGameEvent",
                 "setScoreMultiplier",
+                "collectibleRain",
                 "grantCoin",
                 "incrementGemStat"
             ]
@@ -496,6 +497,45 @@
                 "required": [
                     "multiplier",
                     "time"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "collectibleRain",
+                        "description": "Collectibles will spawn at the top of the screen."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "collectibleGenerator": {
+                        "$ref": "_structures/CollectibleGenerator.json",
+                        "description": "The Collectible Generator which will be used to pick the collectibles to spawn."
+                    },
+                    "count": {
+                        "$ref": "_structures/ExprInteger.json",
+                        "description": "The amount of collectibles to be generated.",
+                        "minimum": 1
+                    },
+                    "delay": {
+                        "type": "number",
+                        "description": "The delay between collectible spawns, in seconds.",
+                        "exclusiveMinimum": 0.0
+                    }
+                },
+                "required": [
+                    "collectibleGenerator",
+                    "count",
+                    "delay"
                 ],
                 "additionalProperties": false
             }

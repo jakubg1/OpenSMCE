@@ -61,12 +61,16 @@ function CollectibleEffectConfig:new(data, path)
     elseif self.type == "setScoreMultiplier" then
         self.multiplier = u.parseNumber(data.multiplier, path, "multiplier")
         self.time = u.parseNumber(data.time, path, "time")
+    elseif self.type == "collectibleRain" then
+        self.collectibleGenerator = u.parseCollectibleGeneratorConfig(data.collectibleGenerator, path, "collectibleGenerator")
+        self.count = u.parseExprInteger(data.count, path, "count")
+        self.delay = u.parseNumber(data.delay, path, "delay")
     elseif self.type == "grantCoin" then
         -- No fields
     elseif self.type == "incrementGemStat" then
         -- No fields
     else
-        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"homingBugs\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"lightningStorm\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"executeGameEvent\", \"setScoreMultiplier\", \"grantCoin\", \"incrementGemStat\")", self.type))
+        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"homingBugs\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"lightningStorm\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"executeGameEvent\", \"setScoreMultiplier\", \"collectibleRain\", \"grantCoin\", \"incrementGemStat\")", self.type))
     end
 end
 
