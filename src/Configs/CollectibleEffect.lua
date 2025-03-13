@@ -24,9 +24,11 @@ function CollectibleEffectConfig:new(data, path)
         self.color = u.parseInteger(data.color, path, "color")
     elseif self.type == "multiSphere" then
         self.color = u.parseInteger(data.color, path, "color")
-        self.count = u.parseExprInteger(data.count, path, "count")
+        self.count = u.parseExprIntegerOpt(data.count, path, "count")
+        self.time = u.parseNumberOpt(data.time, path, "time")
+        self.removeWhenTimeOut = u.parseBooleanOpt(data.removeWhenTimeOut, path, "removeWhenTimeOut")
     elseif self.type == "removeMultiSphere" then
-        -- No fields
+        self.removeSpheres = u.parseBooleanOpt(data.removeSpheres, path, "removeSpheres")
     elseif self.type == "speedShot" then
         self.time = u.parseNumber(data.time, path, "time")
         self.speed = u.parseNumber(data.speed, path, "speed")

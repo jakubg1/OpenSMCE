@@ -585,9 +585,9 @@ function Level:applyEffect(effect, pos)
 	if effect.type == "replaceSphere" then
 		self.shooter:getSphere(effect.color)
 	elseif effect.type == "multiSphere" then
-		self.shooter:getMultiSphere(effect.color, effect.count:evaluate())
+		self.shooter:getMultiSphere(effect.color, effect.count and effect.count:evaluate(), effect.time, effect.removeWhenTimeOut)
 	elseif effect.type == "removeMultiSphere" then
-		self.shooter:removeMultiSphere()
+		self.shooter:removeMultiSphere(effect.removeSpheres)
 	elseif effect.type == "speedShot" then
 		self.shooter.speedShotTime = effect.time
 		self.shooter.speedShotSpeed = effect.speed

@@ -84,11 +84,20 @@
                         "$ref": "_structures/ExprInteger.json",
                         "description": "How many spheres of that type should be given.",
                         "minimum": 1
+                    },
+                    "time": {
+                        "type": "number",
+                        "description": "The amount of time the spheres will be available for, in seconds.",
+                        "exclusiveMinimum": 0.0
+                    },
+                    "removeWhenTimeOut": {
+                        "type": "boolean",
+                        "description": "If set, after the time in the time field expires, the spheres will be removed. Otherwise, the remaining spheres will be still available in the shooter.",
+                        "markdownDescription": "If set, after the time in the `time` field expires, the spheres will be removed. Otherwise, the remaining spheres will be still available in the shooter."
                     }
                 },
                 "required": [
-                    "color",
-                    "count"
+                    "color"
                 ],
                 "additionalProperties": false
             }
@@ -98,7 +107,7 @@
                 "properties": {
                     "type": {
                         "const": "removeMultiSphere",
-                        "description": "Despawns a previously given multi-sphere effect."
+                        "description": "Stops a previously given multi-sphere effect."
                     }
                 },
                 "required": [
@@ -108,7 +117,11 @@
             "then": {
                 "properties": {
                     "$schema": true,
-                    "type": true
+                    "type": true,
+                    "removeSpheres": {
+                        "type": "boolean",
+                        "description": "If set, the spheres corresponding to the current multi-sphere color will be removed from the shooter."
+                    }
                 },
                 "additionalProperties": false
             }

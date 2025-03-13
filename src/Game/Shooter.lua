@@ -33,7 +33,9 @@ function Shooter:new(data)
     self.homingBugsTime = 0
 
     self.multiColorColor = nil
-    self.multiColorCount = 0
+    self.multiColorCount = nil
+    self.multiColorTime = nil
+    self.multiColorRemoveWhenTimeOut = nil
 
     self.reticleColor = 0
     self.reticleOldColor = nil
@@ -162,6 +164,14 @@ function Shooter:update(dt)
         self.homingBugsTime = math.max(self.homingBugsTime - dt, 0)
     end
 
+    -- Count the time of the multi-sphere.
+    if self.multiColorColor and self.multiColorTime then
+        self.multiColorTime = math.max(self.multiColorTime - dt, 0)
+        if self.multiColorTime == 0 then
+            self:removeMultiSphere(self.multiColorRemoveWhenTimeOut)
+        end
+    end
+
     -- Update the reticle color fade animation.
     if self.reticleColorFade then
         self.reticleColorFade = self.reticleColorFade + dt
@@ -239,7 +249,9 @@ function Shooter:empty()
     self:setColor(0)
     self:setNextColor(0)
     self.multiColorColor = nil
-    self.multiColorCount = 0
+    self.multiColorCount = nil
+    self.multiColorTime = nil
+    self.multiColorRemoveWhenTimeOut = nil
     self.speedShotTime = 0
 end
 
@@ -262,10 +274,12 @@ end
 ---Generates a new sphere color ID for this shooter.
 ---@return integer
 function Shooter:getNextColor()
-    if self.multiColorCount == 0 then
+    if not self.multiColorColor then
         return self:getNewShooterColor()
     else
-        self.multiColorCount = self.multiColorCount - 1
+        if self.multiColorCount then
+            self.multiColorCount = self.multiColorCount - 1
+        end
         return self.multiColorColor
     end
 end
@@ -481,13 +495,17 @@ end
 
 ---Activates the multi-sphere mode and applies a given amount of spheres of a given color.
 ---@param color integer The sphere color ID to be changed to.
----@param count integer The amount of spheres of that color to be given.
-function Shooter:getMultiSphere(color, count)
+---@param count integer? The amount of spheres of that color to be given. If not specified, an infinite supply will be given.
+---@param time number? The time for which the spheres will be able to be generated.
+---@param removeWhenTimeOut boolean? If set, when the time expires, the multi-sphere spheres will be removed from the shooter.
+function Shooter:getMultiSphere(color, count, time, removeWhenTimeOut)
     if _Game.level.lost then
         return
     end
     self.multiColorColor = color
     self.multiColorCount = count
+    self.multiColorTime = time
+    self.multiColorRemoveWhenTimeOut = removeWhenTimeOut
     self:setColor(0)
     self:setNextColor(0)
 end
@@ -495,15 +513,20 @@ end
 
 
 ---Deactivates the multi-sphere mode and removes all already existing spheres of that type from the shooter.
-function Shooter:removeMultiSphere()
-    if self.color == self.multiColorColor then
-        self:setColor(0)
-    end
-    if self.nextColor == self.multiColorColor then
-        self:setNextColor(0)
+---@param removeSpheres boolean If set, removes all instances of the multi-color from the shooter.
+function Shooter:removeMultiSphere(removeSpheres)
+    if removeSpheres then
+        if self.color == self.multiColorColor then
+            self:setColor(0)
+        end
+        if self.nextColor == self.multiColorColor then
+            self:setNextColor(0)
+        end
     end
     self.multiColorColor = nil
-    self.multiColorCount = 0
+    self.multiColorCount = nil
+    self.multiColorTime = nil
+    self.multiColorRemoveWhenTimeOut = nil
 end
 
 
@@ -951,6 +974,8 @@ function Shooter:serialize()
         nextColor = self.nextColor,
         multiColorColor = self.multiColorColor,
         multiColorCount = self.multiColorCount,
+        multiColorTime = self.multiColorTime,
+        multiColorRemoveWhenTimeOut = self.multiColorRemoveWhenTimeOut,
         speedShotTime = self.speedShotTime,
         speedShotSpeed = self.speedShotSpeed,
         homingBugsTime = self.homingBugsTime
@@ -966,6 +991,8 @@ function Shooter:deserialize(t)
     self.nextColor = t.nextColor
     self.multiColorColor = t.multiColorColor
     self.multiColorCount = t.multiColorCount
+    self.multiColorTime = t.multiColorTime
+    self.multiColorRemoveWhenTimeOut = self.multiColorRemoveWhenTimeOut
     self.speedShotTime = t.speedShotTime
     self.speedShotSpeed = t.speedShotSpeed
     self.homingBugsTime = t.homingBugsTime
