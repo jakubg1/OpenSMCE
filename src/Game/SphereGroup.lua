@@ -64,9 +64,11 @@ function SphereGroup:update(dt)
 		elseif self:hasImmobileSpheres() then
 			-- If this group has immobile spheres, prevent from moving.
 			self.maxSpeed = 0
+			self.speed = 0
 		elseif speedGrp:hasImmobileSpheres() then
 			-- The same goes for the first daisy-chained group.
 			self.maxSpeed = 0
+			self.speed = 0
 		elseif self.speedDesired >= 0 then
 			-- Note that this group only pushes, so it must have positive speed in order to work!
 			self.maxSpeed = self.speedDesired
