@@ -71,6 +71,7 @@ function ShooterConfig:new(data, path)
     self.shotCooldown = u.parseNumberOpt(data.shotCooldown, path, "shotCooldown") or 0
     self.shotCooldownFade = u.parseNumberOpt(data.shotCooldownFade, path, "shotCooldownFade") or 0
     self.multishot = u.parseBooleanOpt(data.multishot, path, "multishot") or false
+    self.autofire = u.parseBooleanOpt(data.autofire, path, "autofire") or false
     self.destroySphereOnFail = u.parseBooleanOpt(data.destroySphereOnFail, path, "destroySphereOnFail") or false
     self.shootSpeed = u.parseNumber(data.shootSpeed, path, "shootSpeed")
 

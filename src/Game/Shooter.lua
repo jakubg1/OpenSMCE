@@ -26,6 +26,7 @@ function Shooter:new(data)
     self.suppressColorRemoval = false
     self.shotCooldown = nil
     self.shotCooldownFade = nil
+    self.shotPressed = false
     self.speedShotSpeed = 0
     self.speedShotTime = 0
     self.speedShotAnim = 0
@@ -141,6 +142,11 @@ function Shooter:update(dt)
             end
         end
         self:fill()
+    end
+
+    -- Autofire!
+    if self.shotPressed and self:canAutofire() then
+        self:shoot()
     end
 
     -- speed shot time counting
@@ -416,6 +422,14 @@ function Shooter:isActive()
     end
     -- Otherwise, allow.
     return true
+end
+
+
+
+---Returns whether the Shooter can autofire (shoot automatically when the left mouse button is pressed).
+---@return boolean
+function Shooter:canAutofire()
+    return self.config.autofire or self:getSphereConfig().autofire
 end
 
 
@@ -931,6 +945,7 @@ end
 function Shooter:mousepressed(x, y, button)
     if button == 1 then
         self:shoot()
+        self.shotPressed = true
     elseif button == 2 then
         self:swapColors()
     end
@@ -939,12 +954,30 @@ end
 
 
 ---Callback from `main.lua`.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button which was released.
+function Shooter:mousereleased(x, y, button)
+    if button == 1 then
+        self.shotPressed = false
+    end
+end
+
+
+
+---Callback from `main.lua`.
 ---@param key string The pressed key code.
 function Shooter:keypressed(key)
-    if key == "left" then self.moveKeys.left = true end
-    if key == "right" then self.moveKeys.right = true end
-    if key == "up" then self:shoot() end
-    if key == "down" then self:swapColors() end
+    if key == "left" then
+        self.moveKeys.left = true
+    elseif key == "right" then
+        self.moveKeys.right = true
+    elseif key == "up" then
+        self:shoot()
+        self.shotPressed = true
+    elseif key == "down" then
+        self:swapColors()
+    end
 end
 
 
@@ -952,8 +985,13 @@ end
 ---Callback from `main.lua`.
 ---@param key string The released key code.
 function Shooter:keyreleased(key)
-    if key == "left" then self.moveKeys.left = false end
-    if key == "right" then self.moveKeys.right = false end
+    if key == "left" then
+        self.moveKeys.left = false
+    elseif key == "right" then
+        self.moveKeys.right = false
+    elseif key == "up" then
+        self.shotPressed = false
+    end
 end
 
 

@@ -39,6 +39,7 @@
     - shotCooldown* = 0 (number) [>=0] - The minimum time between the shots, in seconds. If `multishot` is set to `false`, this time will be counted since the previous shot sphere has been appended/disappeared.
     - shotCooldownFade* = 0 (number) [>=0] - The duration of the ball appearing animation, in seconds. During this time you can't shoot balls yet. This time is counted after `shotCooldown`, so the effective cooldown is this plus that value.
     - multishot* = false (boolean) - If set, the player will be able to shoot another sphere before the previous one has hit the sphere train.
+    - autofire* = false (boolean) - If set, the player will be able to shoot whenever the left mouse button is held.
     - destroySphereOnFail* = false (boolean) - If set, when the level is lost, the sphere held by the shooter will show its destruction particles. Otherwise, the ball will just disappear.
     - shootSpeed (number) [>0] - The default speed of how fast the shot spheres will be, in pixels per second.
     - knockback* (object) - Defines how the shooter should play its knockback animation.

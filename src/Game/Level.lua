@@ -1548,6 +1548,16 @@ end
 
 
 ---Callback from `main.lua`.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button which was released.
+function Level:mousereleased(x, y, button)
+	self.shooter:mousereleased(x, y, button)
+end
+
+
+
+---Callback from `main.lua`.
 ---@param key string The pressed key code.
 function Level:keypressed(key)
 	self.shooter:keypressed(key)

@@ -104,13 +104,6 @@ end
 function Game:tick(dt) -- always with 1/60 seconds
 	self.resourceManager:update(dt)
 
-	-- DEBUG: Shoot when mouse held
-	if self.level then
-		if love.mouse.isDown(1) then
-			--self.level.shooter:shoot()
-		end
-	end
-
 	if self.level then
 		self.level:update(dt)
 	end
@@ -365,7 +358,11 @@ end
 ---@param y integer The Y coordinate of mouse position.
 ---@param button integer The mouse button which was released.
 function Game:mousereleased(x, y, button)
-	self.uiManager:mousereleased(x, y, button)
+	if self.uiManager:isButtonHovered() then
+		self.uiManager:mousereleased(x, y, button)
+	elseif self.level then
+		self.level:mousereleased(x, y, button)
+	end
 end
 
 
