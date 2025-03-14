@@ -39,6 +39,7 @@ function Shooter:new(data)
     self.multiColorCount = nil
     self.multiColorTime = nil
     self.multiColorRemoveWhenTimeOut = nil
+    self.multiColorHoldTimeRate = nil
 
     self.reticleColor = 0
     self.reticleOldColor = nil
@@ -194,7 +195,11 @@ function Shooter:update(dt)
 
     -- Count the time of the multi-sphere.
     if self.multiColorColor and self.multiColorTime then
-        self.multiColorTime = math.max(self.multiColorTime - dt, 0)
+        local rate = 1
+        if self.multiColorHoldTimeRate and self.shotPressed then
+            rate = self.multiColorHoldTimeRate
+        end
+        self.multiColorTime = math.max(self.multiColorTime - dt * rate, 0)
         if self.multiColorTime == 0 then
             self:removeMultiSphere(self.multiColorRemoveWhenTimeOut)
         end
@@ -285,6 +290,7 @@ function Shooter:empty()
     self.multiColorCount = nil
     self.multiColorTime = nil
     self.multiColorRemoveWhenTimeOut = nil
+    self.multiColorHoldTimeRate = nil
     self.speedShotTime = 0
 end
 
@@ -541,7 +547,8 @@ end
 ---@param count integer? The amount of spheres of that color to be given. If not specified, an infinite supply will be given.
 ---@param time number? The time for which the spheres will be able to be generated.
 ---@param removeWhenTimeOut boolean? If set, when the time expires, the multi-sphere spheres will be removed from the shooter.
-function Shooter:getMultiSphere(color, count, time, removeWhenTimeOut)
+---@param holdTimeRate number? The ratio the timer will run at when the fire button is held.
+function Shooter:getMultiSphere(color, count, time, removeWhenTimeOut, holdTimeRate)
     if _Game.level.lost then
         return
     end
@@ -549,6 +556,7 @@ function Shooter:getMultiSphere(color, count, time, removeWhenTimeOut)
     self.multiColorCount = count
     self.multiColorTime = time
     self.multiColorRemoveWhenTimeOut = removeWhenTimeOut
+    self.multiColorHoldTimeRate = holdTimeRate
     self:setColor(0)
     self:setNextColor(0)
 end
@@ -570,6 +578,7 @@ function Shooter:removeMultiSphere(removeSpheres)
     self.multiColorCount = nil
     self.multiColorTime = nil
     self.multiColorRemoveWhenTimeOut = nil
+    self.multiColorHoldTimeRate = nil
 end
 
 
@@ -1058,6 +1067,7 @@ function Shooter:serialize()
         multiColorCount = self.multiColorCount,
         multiColorTime = self.multiColorTime,
         multiColorRemoveWhenTimeOut = self.multiColorRemoveWhenTimeOut,
+        multiColorHoldTimeRate = self.multiColorHoldTimeRate,
         speedShotTime = self.speedShotTime,
         speedShotSpeed = self.speedShotSpeed,
         homingBugsTime = self.homingBugsTime
@@ -1077,7 +1087,8 @@ function Shooter:deserialize(t)
     self.multiColorColor = t.multiColorColor
     self.multiColorCount = t.multiColorCount
     self.multiColorTime = t.multiColorTime
-    self.multiColorRemoveWhenTimeOut = self.multiColorRemoveWhenTimeOut
+    self.multiColorRemoveWhenTimeOut = t.multiColorRemoveWhenTimeOut
+    self.multiColorHoldTimeRate = t.multiColorHoldTimeRate
     self.speedShotTime = t.speedShotTime
     self.speedShotSpeed = t.speedShotSpeed
     self.homingBugsTime = t.homingBugsTime

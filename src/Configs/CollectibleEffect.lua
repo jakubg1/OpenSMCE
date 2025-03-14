@@ -27,6 +27,7 @@ function CollectibleEffectConfig:new(data, path)
         self.count = u.parseExprIntegerOpt(data.count, path, "count")
         self.time = u.parseNumberOpt(data.time, path, "time")
         self.removeWhenTimeOut = u.parseBooleanOpt(data.removeWhenTimeOut, path, "removeWhenTimeOut")
+        self.holdTimeRate = u.parseNumberOpt(data.holdTimeRate, path, "holdTimeRate")
     elseif self.type == "removeMultiSphere" then
         self.removeSpheres = u.parseBooleanOpt(data.removeSpheres, path, "removeSpheres")
     elseif self.type == "speedShot" then

@@ -96,6 +96,12 @@
                         "type": "boolean",
                         "description": "If set, after the time in the time field expires, the spheres will be removed. Otherwise, the remaining spheres will be still available in the shooter.",
                         "markdownDescription": "If set, after the time in the `time` field expires, the spheres will be removed. Otherwise, the remaining spheres will be still available in the shooter."
+                    },
+                    "holdTimeRate": {
+                        "type": "number",
+                        "description": "How fast should the timer go down when the left mouse button is held. Works best with spheres with autofire set to true.",
+                        "markdownDescription": "How fast should the timer go down when the left mouse button is held. Works best with spheres with `autofire` set to `true`.",
+                        "minimum": 0.0
                     }
                 },
                 "required": [
