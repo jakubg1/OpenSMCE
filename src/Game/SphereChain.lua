@@ -372,11 +372,6 @@ function SphereChain:performColorSortStep()
 					local colorTmp = sphereList[j].color
 					sphereList[j]:changeColor(sphereList[swapSphereIndex].color)
 					sphereList[swapSphereIndex]:changeColor(colorTmp)
-					local s = ""
-					for k, sphere2 in ipairs(sphereList) do
-						s = s .. tostring(sphere2.color)
-					end
-					print(s)
 					if self.colorSortType == "bubble" then
 						return
 					else
