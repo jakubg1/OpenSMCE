@@ -53,7 +53,6 @@ function Projectile:update(dt)
     else
         -- Come closer to the target if we're not there yet.
         local targetAngle = (self.targetPos - self.pos):angle()
-        print(distanceThisFrame, self.pos)
         self.pos = self.pos + Vec2(distanceThisFrame, 0):rotate(targetAngle)
     end
 
@@ -66,7 +65,7 @@ function Projectile:explode()
     self:destroy()
 
     _Game.level:destroySelector(self.config.destroySphereSelector, self.pos, self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere)
-    
+
     if self.config.destroySound then
         _Game:playSound(self.config.destroySound, self.pos)
     end
@@ -85,7 +84,6 @@ end
 ---Draws this Projectile on the screen.
 ---But wait! Projectiles are drawn by the ParticleManager, just like Collectibles, because they are particles! Fun!
 function Projectile:draw()
-	-- *crickets*
     if _Debug.sphereDebugVisible then
         love.graphics.setColor(1, 0, 0.5)
         love.graphics.circle("fill", self.targetPos.x, self.targetPos.y, 15)
