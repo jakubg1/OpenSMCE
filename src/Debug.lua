@@ -59,11 +59,10 @@ function Debug:new()
 
 
 
-	self.particleSpawnersVisible = false
-	self.gameDebugVisible = false -- Switched by F4
-	self.fpsDebugVisible = false
+	self.gameDebugVisible = false -- Switched by F3
+	self.textDebugVisible = false -- Switched by F4
+	self.fpsDebugVisible = false -- Switched by F5
 	self.sphereDebugVisible = false -- Switched by F6
-	self.sphereDebugVisible2 = false
 end
 
 
@@ -90,11 +89,10 @@ function Debug:draw()
 		self:drawVisibleText("[F1] Performance", Vec2(10, 25), 15)
 		self:drawVisibleText("[F2] UI Tree", Vec2(10, 40), 15)
 		self:drawVisibleText("    [Ctrl+F2] Collapse all invisible UI Nodes", Vec2(10, 55), 15)
-		self:drawVisibleText("[F3] Particle spawners", Vec2(10, 70), 15)
-		self:drawVisibleText("[F4] Miscellaneous (FPS, level data, etc.)", Vec2(10, 85), 15)
+		self:drawVisibleText("[F3] Gameplay debug display", Vec2(10, 70), 15)
+		self:drawVisibleText("[F4] Debug text (FPS, level data, etc.)", Vec2(10, 85), 15)
 		self:drawVisibleText("[F5] FPS Counter", Vec2(10, 100), 15)
 		self:drawVisibleText("[F6] Sphere trains path overlay", Vec2(10, 115), 15)
-		self:drawVisibleText("[F7] Display heads and tails of Sphere Groups", Vec2(10, 130), 15)
 	end
 
 	-- Console
@@ -104,19 +102,25 @@ function Debug:draw()
 	self.uiDebug:draw()
 
 	-- Game and spheres
-	if self.gameDebugVisible then self:drawDebugInfo() end
+	if self.textDebugVisible then self:drawDebugInfo() end
 	if self.fpsDebugVisible then self:drawFpsInfo() end
 	if self.sphereDebugVisible then self:drawSphereInfo() end
 end
 
 function Debug:keypressed(key)
 	if not self.console.active then
-		if key == "f1" then self.profVisible = not self.profVisible end
-		if key == "f3" then self.particleSpawnersVisible = not self.particleSpawnersVisible end
-		if key == "f4" then self.gameDebugVisible = not self.gameDebugVisible end
-		if key == "f5" then self.fpsDebugVisible = not self.fpsDebugVisible end
-		if key == "f6" then self.sphereDebugVisible = not self.sphereDebugVisible end
-		if key == "f7" then self.sphereDebugVisible2 = not self.sphereDebugVisible2 end
+		if key == "f1" then
+			self.profVisible = not self.profVisible
+		elseif key == "f3" then
+			self.gameDebugVisible = not self.gameDebugVisible
+			self.console:print({_COLORS.aqua, string.format("[Debug] Gameplay Debug: %s", self.gameDebugVisible and "ON" or "OFF")})
+		elseif key == "f4" then
+			self.textDebugVisible = not self.textDebugVisible
+		elseif key == "f5" then
+			self.fpsDebugVisible = not self.fpsDebugVisible
+		elseif key == "f6" then
+			self.sphereDebugVisible = not self.sphereDebugVisible
+		end
 		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
 		if key == "kp+" and self.profPage < #self.profPages then self.profPage = self.profPage + 1 end
 		self.uiDebug:keypressed(key)

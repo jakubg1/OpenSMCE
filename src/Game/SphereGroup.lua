@@ -801,7 +801,7 @@ function SphereGroup:draw(color, hidden, shadow)
 	for i, sphere in ipairs(self.spheres) do
 		sphere:draw(color, hidden, shadow)
 	end
-	if _Debug.sphereDebugVisible2 then
+	if _Debug.gameDebugVisible then
 		self:drawDebug()
 	end
 end

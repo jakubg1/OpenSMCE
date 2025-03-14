@@ -682,7 +682,7 @@ function Sphere:draw(color, hidden, shadow)
 		end
 	end
 
-	if _Debug.sphereDebugVisible2 and self.appendSize < 1 then
+	if _Debug.gameDebugVisible and self.appendSize < 1 then
 		local p1 = self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize))
 		local p2 = self.shootOrigin
 		love.graphics.setColor(1, 0.5, 0)
@@ -700,7 +700,7 @@ function Sphere:draw(color, hidden, shadow)
 	--	love.graphics.print(self:getEffectGroupID("match"), p.x, p.y + 20)
 	--end
 
-	--if not shadow and _Debug.sphereDebugVisible2 and self.appendSize < 1 then
+	--if not shadow and _Debug.gameDebugVisible and self.appendSize < 1 then
 	--	local p = self:getPos()
 	--	local s = ""
 	--	s = s .. "offset: " .. tostring(self.offset) .. "\n"

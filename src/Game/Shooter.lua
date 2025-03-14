@@ -562,7 +562,7 @@ function Shooter:draw()
     local sprite = self.config.nextBallSprites[self.nextColor].sprite
     sprite:draw(pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, self:getNextSphereFrame(), self.angle)
 
-	if _Debug.sphereDebugVisible2 then
+	if _Debug.gameDebugVisible then
 		self:drawDebug()
 	end
 end

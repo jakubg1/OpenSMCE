@@ -123,7 +123,7 @@ function ParticleManager:draw(layer)
 	for i, particlePiece in ipairs(self.particlePieces) do
 		particlePiece:draw(layer)
 	end
-	if _Debug.particleSpawnersVisible then
+	if _Debug.gameDebugVisible then
 		for i, particlePacket in ipairs(self.particlePackets) do
 			particlePacket:draw()
 		end
