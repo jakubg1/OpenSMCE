@@ -21,6 +21,7 @@ local GameEventConfig = require("src.Configs.GameEvent")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
 local LevelSetConfig = require("src.Configs.LevelSet")
 local PathEntityConfig = require("src.Configs.PathEntity")
+local ProjectileConfig = require("src.Configs.Projectile")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterConfig = require("src.Configs.Shooter")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
@@ -68,6 +69,7 @@ function ResourceManager:new()
 		levelSequence = {extension = "json", constructor = LevelSequenceConfig, paramSet = 2},
 		levelSet = {extension = "json", constructor = LevelSetConfig, paramSet = 2},
 		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
+		projectile = {extension = "json", constructor = ProjectileConfig, paramSet = 2},
 		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
 		shooter = {extension = "json", constructor = ShooterConfig, paramSet = 2},
 		shooterMovement = {extension = "json", constructor = ShooterMovementConfig, paramSet = 2},
@@ -99,6 +101,7 @@ function ResourceManager:new()
 		["game_event.json"] = "gameEvent",
 		["level_sequence.json"] = "levelSequence",
 		["path_entity.json"] = "pathEntity",
+		["projectile.json"] = "projectile",
 		["score_event.json"] = "scoreEvent",
 		["sphere_effect.json"] = "sphereEffect",
 		["sphere_selector.json"] = "sphereSelector"
@@ -253,6 +256,13 @@ end
 ---@return PathEntityConfig
 function ResourceManager:getPathEntityConfig(path)
 	return self:getAsset(path, "path entity")
+end
+
+---Retrieves a Projectile Config by a given path.
+---@param path string The resource path.
+---@return ProjectileConfig
+function ResourceManager:getProjectileConfig(path)
+	return self:getAsset(path, "projectile")
 end
 
 ---Retrieves a Score Event Config by a given path.

@@ -60,9 +60,9 @@ function Debug:new()
 
 
 	self.particleSpawnersVisible = false
-	self.gameDebugVisible = false
+	self.gameDebugVisible = false -- Switched by F4
 	self.fpsDebugVisible = false
-	self.sphereDebugVisible = false
+	self.sphereDebugVisible = false -- Switched by F6
 	self.sphereDebugVisible2 = false
 end
 

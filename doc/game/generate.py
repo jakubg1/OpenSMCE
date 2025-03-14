@@ -905,17 +905,18 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"SoundEvent": "parseSoundEvent",
 		"Sound": "parseSound",
 		"Music": "parseMusic",
+		"CollectibleEffect": "parseCollectibleEffectConfig",
 		"CollectibleGenerator": "parseCollectibleGeneratorConfig",
 		"ColorGenerator": "parseColorGeneratorConfig",
+		"GameEvent": "parseGameEventConfig",
+		"LevelSequence": "parseLevelSequenceConfig",
 		"Particle": "parseParticle",
 		"PathEntity": "parsePathEntityConfig",
+		"Projectile": "parseProjectileConfig",
 		"ScoreEvent": "parseScoreEventConfig",
 		"Shooter": "parseShooterConfig",
 		"SphereEffect": "parseSphereEffectConfig",
 		"SphereSelector": "parseSphereSelectorConfig",
-		"LevelSequence": "parseLevelSequenceConfig",
-		"GameEvent": "parseGameEventConfig",
-		"CollectibleEffect": "parseCollectibleEffectConfig"
 	}
 	lua_expr_structure_assoc = {
 		"Vector2": "parseExprVec2"

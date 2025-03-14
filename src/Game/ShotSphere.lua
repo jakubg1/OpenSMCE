@@ -347,7 +347,7 @@ function ShotSphere:deserialize(t)
 	self.speed = t.speed
 	self.steps = t.steps
 	if t.homingTowards then
-		self.homingTowards = _Game.level.map.paths[t.homingTowards.pathID].sphereChains[t.homingTowards.chainID].sphereGroups[t.homingTowards.groupID].spheres[t.homingTowards.sphereID]
+		self.homingTowards = _Game.level:getSphere(t.homingTowards)
 	end
 
 	self.shooter = _Game.level.shooter
@@ -366,7 +366,7 @@ function ShotSphere:deserialize(t)
 	if t.hitSphere then
 		self.hitSphere = {
 			sphereID = t.hitSphere.sphereID,
-			sphereGroup = _Game.level.map.paths[t.hitSphere.pathID].sphereChains[t.hitSphere.chainID].sphereGroups[t.hitSphere.groupID]
+			sphereGroup = _Game.level:getSphere(t.hitSphere).sphereGroup
 		}
 	else
 		self.sphereEntity = SphereEntity(self.pos, self.color)

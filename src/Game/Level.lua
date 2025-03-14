@@ -13,6 +13,7 @@ local ColorManager = require("src.Game.ColorManager")
 local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 local ShotSphere = require("src.Game.ShotSphere")
 local Collectible = require("src.Game.Collectible")
+local Projectile = require("src.Game.Projectile")
 local FloatingText = require("src.Game.FloatingText")
 
 local Expression = require("src.Expression")
@@ -121,6 +122,10 @@ function Level:updateLogic(dt)
 		collectible:update(dt)
 	end
 	_Utils.removeDeadObjects(self.collectibles)
+	for i, projectile in ipairs(self.projectiles) do
+		projectile:update(dt)
+	end
+	_Utils.removeDeadObjects(self.projectiles)
 	for i, floatingText in ipairs(self.floatingTexts) do
 		floatingText:update(dt)
 	end
@@ -169,6 +174,29 @@ function Level:updateLogic(dt)
 	for i = #self.collectibleRains, 1, -1 do
 		if self.collectibleRains[i].count == 0 then
 			table.remove(self.collectibleRains, i)
+		end
+	end
+
+
+
+	-- Projectile storms
+	for i, storm in ipairs(self.projectileStorms) do
+		if storm.count > 0 then
+			storm.time = storm.time - dt
+			if storm.time <= 0 then
+				self:spawnProjectile(storm.projectile)
+				storm.count = storm.count - 1
+				if storm.count > 0 then
+					storm.time = storm.time + storm.delay
+				end
+			end
+		end
+	end
+
+	-- Remove finished projectile storms.
+	for i = #self.projectileStorms, 1, -1 do
+		if self.projectileStorms[i].count == 0 then
+			table.remove(self.projectileStorms, i)
 		end
 	end
 
@@ -651,6 +679,8 @@ function Level:applyEffect(effect, pos)
 		self.scoreMultiplierTime = effect.time
 	elseif effect.type == "collectibleRain" then
 		table.insert(self.collectibleRains, {count = effect.count:evaluate(), time = 0, delay = effect.delay, generator = effect.collectibleGenerator})
+	elseif effect.type == "projectileStorm" then
+		table.insert(self.projectileStorms, {count = effect.count:evaluate(), time = 0, delay = effect.delay, projectile = effect.projectile})
 	elseif effect.type == "grantCoin" then
 		self:grantCoin()
 	elseif effect.type == "incrementGemStat" then
@@ -797,7 +827,7 @@ end
 ---Returns `true` if the level has been finished, i.e. there are no more spheres and no more collectibles.
 ---@return boolean
 function Level:getFinish()
-	return self:hasNoMoreSpheres() and #self.collectibles == 0
+	return self:hasNoMoreSpheres() and #self.collectibles == 0 and #self.projectiles == 0
 end
 
 
@@ -923,6 +953,9 @@ function Level:destroy()
 	for i, collectible in ipairs(self.collectibles) do
 		collectible:destroy()
 	end
+	for i, projectile in ipairs(self.projectiles) do
+		projectile:destroy()
+	end
 	self.map:destroy()
 	self:destroyNet()
 	-- Remove all Expression Variables associated with the level.
@@ -966,6 +999,7 @@ function Level:reset()
 
 	self.shotSpheres = {}
 	self.collectibles = {}
+	self.projectiles = {}
 	self.floatingTexts = {}
 
 	self.danger = false
@@ -984,6 +1018,7 @@ function Level:reset()
 	self.scoreMultiplierTime = 0
 	self.lightningStorms = {}
 	self.collectibleRains = {}
+	self.projectileStorms = {}
 	self.netTime = 0
 	self:destroyNet()
 
@@ -1194,7 +1229,7 @@ end
 
 
 ---Returns a list of spheres constituting towards the largest group matching with the provided color.
----@param color integer The sphere color which must match with the returned group.
+---@param color integer? The sphere color which must match with the returned group. If not specified, any color is taken into consideration.
 ---@param ignoreHidden boolean? If set to `true`, this function will never return a sphere which is in a tunnel.
 ---@return table
 function Level:getSpheresOfBiggestGroupMatchingColor(color, ignoreHidden)
@@ -1204,7 +1239,7 @@ function Level:getSpheresOfBiggestGroupMatchingColor(color, ignoreHidden)
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
-					if self:colorsMatch(sphere.color, color) and not sphere:isOffscreen() and (not ignoreHidden or not sphere:getHidden()) then
+					if (not color or self:colorsMatch(sphere.color, color)) and not sphere:isOffscreen() and (not ignoreHidden or not sphere:getHidden()) then
 						local length = sphereGroup:getMatchLengthInChain(l)
 						if length > topLength then
 							spheres = {sphere}
@@ -1270,7 +1305,7 @@ end
 
 
 ---Picks a sphere to be set as a target by a homing sphere. This will be a sphere from the largest group of the specified color, or a random one in case none of them match.
----@param color integer The target color for the homing sphere.
+---@param color integer? The target color for the homing sphere. If not specified, any color can be targeted.
 ---@return Sphere?
 function Level:getHomingBugsSphere(color)
 	-- First, check for spheres of the biggest group size.
@@ -1387,6 +1422,16 @@ end
 
 
 
+---Returns a Sphere which has been saved by using `Sphere:getIDs()`.
+---This function will only work correctly if the IDs have been saved at the same frame!
+---@param ids table The ID table obtained with `Sphere:getIDs()`.
+---@return Sphere
+function Level:getSphere(ids)
+	return self.map.paths[ids.pathID].sphereChains[ids.chainID].sphereGroups[ids.groupID].spheres[ids.sphereID]
+end
+
+
+
 ---Spawns a new Shot Sphere into the level.
 ---@param shooter Shooter The shooter which has shot the sphere.
 ---@param pos Vector2 Where the Shot Sphere should be spawned at.
@@ -1407,6 +1452,22 @@ end
 ---@param name string The collectible ID.
 function Level:spawnCollectible(pos, name)
 	table.insert(self.collectibles, Collectible(nil, pos, name))
+end
+
+
+
+---Spawns a new Projectile into the Level.
+---@param projectile ProjectileConfig The projectile which should be spawned.
+function Level:spawnProjectile(projectile)
+	local targetSphere
+	if projectile.sphereAlgorithm == "homingBugs" then
+		targetSphere = self:getHomingBugsSphere()
+	elseif projectile.sphereAlgorithm == "lightningStorm" then
+		targetSphere = self:getLightningStormSphere()
+	end
+	if targetSphere then
+		table.insert(self.projectiles, Projectile(nil, projectile, targetSphere))
+	end
 end
 
 
@@ -1461,6 +1522,9 @@ function Level:draw()
 	end
 	for i, collectible in ipairs(self.collectibles) do
 		collectible:draw()
+	end
+	for i, projectile in ipairs(self.projectiles) do
+		projectile:draw()
 	end
 	for i, floatingText in ipairs(self.floatingTexts) do
 		floatingText:draw()
@@ -1517,9 +1581,11 @@ function Level:serialize()
 		shooter = self.shooter:serialize(),
 		shotSpheres = {},
 		collectibles = {},
+		projectiles = {},
 		combo = self.combo,
 		lightningStorms = self.lightningStorms,
 		collectibleRains = {},
+		projectileStorms = {},
 		netTime = self.netTime,
 		destroyedSpheres = self.destroyedSpheres,
 		paths = self.map:serialize(),
@@ -1534,12 +1600,23 @@ function Level:serialize()
 	for i, collectible in ipairs(self.collectibles) do
 		table.insert(t.collectibles, collectible:serialize())
 	end
+	for i, projectile in ipairs(self.projectiles) do
+		table.insert(t.projectiles, projectile:serialize())
+	end
 	for i, collectibleRain in ipairs(self.collectibleRains) do
 		table.insert(t.collectibleRains, {
 			count = collectibleRain.count,
 			time = collectibleRain.time,
 			delay = collectibleRain.delay,
 			generator = collectibleRain.generator._path
+		})
+	end
+	for i, projectileStorm in ipairs(self.projectileStorms) do
+		table.insert(t.projectileStorms, {
+			count = projectileStorm.count,
+			time = projectileStorm.time,
+			delay = projectileStorm.delay,
+			projectile = projectileStorm.projectile._path
 		})
 	end
 	return t
@@ -1596,6 +1673,10 @@ function Level:deserialize(t)
 	for i, tCollectible in ipairs(t.collectibles) do
 		table.insert(self.collectibles, Collectible(tCollectible))
 	end
+	self.projectiles = {}
+	for i, tProjectile in ipairs(t.projectiles) do
+		table.insert(self.projectiles, Projectile(tProjectile))
+	end
 	-- Effects
 	self.lightningStorms = t.lightningStorms
 	self.collectibleRains = {}
@@ -1605,6 +1686,15 @@ function Level:deserialize(t)
 			time = tCollectibleRain.time,
 			delay = tCollectibleRain.delay,
 			generator = _Game.resourceManager:getCollectibleGeneratorConfig(tCollectibleRain.generator)
+		})
+	end
+	self.projectileStorms = {}
+	for i, tProjectileStorm in ipairs(t.projectileStorms) do
+		table.insert(self.projectileStorms, {
+			count = tProjectileStorm.count,
+			time = tProjectileStorm.time,
+			delay = tProjectileStorm.delay,
+			projectile = _Game.resourceManager:getProjectileConfig(tProjectileStorm.projectile)
 		})
 	end
 	self.netTime = t.netTime

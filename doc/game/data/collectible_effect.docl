@@ -43,6 +43,10 @@
     - "collectibleRain" - Collectibles will spawn at the top of the screen.
         - collectibleGenerator (CollectibleGenerator) - The Collectible Generator which will be used to pick the collectibles to spawn.
         - count (%integer) [>=1] - The amount of collectibles to be generated.
-        - delay (number) [>0] - The delay between collectible spawns, in seconds.
+        - delay (number) [>0] - The delay between consecutive collectible spawns, in seconds.
+    - "projectileStorm" - Starts a rain/storm, spawning a given amount of projectiles which can destroy spheres.
+        - projectile (Projectile) - The Projectile which will be spawning.
+        - count (%integer) [>=1] - The amount of projectiles to be spawned.
+        - delay (number) [>0] - The delay between consecutive projectile spawns, in seconds.
     - "grantCoin" - Grants a single coin to the current player.
     - "incrementGemStat" - Adds one to the gem pickup statistics for the current level.

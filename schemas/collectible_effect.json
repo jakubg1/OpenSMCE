@@ -21,6 +21,7 @@
                 "executeGameEvent",
                 "setScoreMultiplier",
                 "collectibleRain",
+                "projectileStorm",
                 "grantCoin",
                 "incrementGemStat"
             ]
@@ -528,12 +529,51 @@
                     },
                     "delay": {
                         "type": "number",
-                        "description": "The delay between collectible spawns, in seconds.",
+                        "description": "The delay between consecutive collectible spawns, in seconds.",
                         "exclusiveMinimum": 0.0
                     }
                 },
                 "required": [
                     "collectibleGenerator",
+                    "count",
+                    "delay"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "projectileStorm",
+                        "description": "Starts a rain/storm, spawning a given amount of projectiles which can destroy spheres."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "projectile": {
+                        "$ref": "_structures/Projectile.json",
+                        "description": "The Projectile which will be spawning."
+                    },
+                    "count": {
+                        "$ref": "_structures/ExprInteger.json",
+                        "description": "The amount of projectiles to be spawned.",
+                        "minimum": 1
+                    },
+                    "delay": {
+                        "type": "number",
+                        "description": "The delay between consecutive projectile spawns, in seconds.",
+                        "exclusiveMinimum": 0.0
+                    }
+                },
+                "required": [
+                    "projectile",
                     "count",
                     "delay"
                 ],

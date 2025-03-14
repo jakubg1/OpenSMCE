@@ -1,0 +1,72 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "particle": {
+            "$ref": "_structures/Particle.json",
+            "description": "A persistent particle packet which will follow the projectile entity."
+        },
+        "speed": {
+            "type": "number",
+            "description": "The projectile speed, in pixels per second.",
+            "minimum": 0.0
+        },
+        "spawnDistance": {
+            "$ref": "_structures/ExprNumber.json",
+            "description": "The distance from the target sphere around which the projectile will be spawned, in pixels.",
+            "minimum": 0.0
+        },
+        "spawnSound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A sound event which will play when the projectile is spawned."
+        },
+        "sphereAlgorithm": {
+            "type": "string",
+            "description": "Which algorithm should be used to determine the target sphere.",
+            "oneOf": [
+                {
+                    "const": "homingBugs",
+                    "description": "The projectile will use the homing bugs algorithm, preferring the largest groups first."
+                },
+                {
+                    "const": "lightningStorm",
+                    "description": "The projectile will use the lightning storm algorithm, preferring the smallest groups first."
+                }
+            ]
+        },
+        "homing": {
+            "type": "boolean",
+            "description": "Whether the projectile should actively go towards the target sphere. If the target sphere is lost, the projectile will go towards its last known position."
+        },
+        "destroyParticle": {
+            "$ref": "_structures/Particle.json",
+            "description": "A one-time particle packet which will be launched when the projectile is destroyed."
+        },
+        "destroySound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A sound event which will play when the projectile is destroyed."
+        },
+        "destroySphereSelector": {
+            "$ref": "_structures/SphereSelector.json",
+            "description": "A sphere selector which will select spheres to be destroyed, positioned on the projectile's position."
+        },
+        "destroyScoreEvent": {
+            "$ref": "_structures/ScoreEvent.json",
+            "description": "A Score Event which will be executed once for the whole batch of spheres when this projectile is destroyed."
+        },
+        "destroyScoreEventPerSphere": {
+            "$ref": "_structures/ScoreEvent.json",
+            "description": "A Score Event which will be executed separately for each Sphere that is destroyed."
+        }
+    },
+    "required": [
+        "speed",
+        "spawnDistance",
+        "sphereAlgorithm",
+        "destroyParticle",
+        "destroySphereSelector"
+    ],
+    "additionalProperties": false
+}

@@ -8,6 +8,7 @@ local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local GameEventConfig = require("src.Configs.GameEvent")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
 local PathEntityConfig = require("src.Configs.PathEntity")
+local ProjectileConfig = require("src.Configs.Projectile")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 local SphereEffectConfig = require("src.Configs.SphereEffect")
@@ -335,6 +336,16 @@ end
 ---@return PathEntityConfig?
 function utils.parsePathEntityConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Path Entity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
+end
+
+---@return ProjectileConfig
+function utils.parseProjectileConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
+end
+
+---@return ProjectileConfig?
+function utils.parseProjectileConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
 end
 
 ---@return ScoreEventConfig
