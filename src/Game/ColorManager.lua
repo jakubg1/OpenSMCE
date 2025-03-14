@@ -74,6 +74,21 @@ end
 
 
 
+---Returns the total number of spheres on the board.
+---Excludes scarabs.
+---@return integer
+function ColorManager:getTotalSphereCount()
+	local amount = 0
+	for i, v in pairs(self.sphereColorCounts) do
+		if i ~= 0 then
+			amount = amount + v.normal
+		end
+	end
+	return amount
+end
+
+
+
 ---Returns the color ID which is the most frequent on the board, excluding ID = 0 (scarab).
 ---If there is a tie, this function returns a random color out of all tied colors.
 ---@return integer
@@ -99,11 +114,13 @@ end
 
 ---Sets the Expression Variables in the `color` context.
 --- - `color.#` - For each registered sphere color (`#`), the amount of spheres of that color currently on the board.
+--- - `color.totalSpheres` - The total amount of spheres on the board, excluding scarabs.
 --- - `color.mostFrequent` - The most frequently appearing color on the board, excluding the scarab (ID = 0). If there's a tie, selects a random color from this tie.
 function ColorManager:dumpVariables()
 	for i, v in pairs(self.sphereColorCounts) do
 		_Vars:setC("color", i, v.normal)
 	end
+	_Vars:setC("color", "totalSpheres", self:getTotalSphereCount())
 	_Vars:setC("color", "mostFrequent", self:getMostFrequentColor())
 end
 
