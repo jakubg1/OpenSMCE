@@ -22,6 +22,7 @@
                 "setScoreMultiplier",
                 "collectibleRain",
                 "projectileStorm",
+                "colorSort",
                 "grantCoin",
                 "incrementGemStat"
             ]
@@ -582,6 +583,52 @@
                     "projectile",
                     "count",
                     "delay"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "colorSort",
+                        "description": "Starts a color sorting process on the current sphere trains."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "sortType": {
+                        "type": "string",
+                        "description": "How will the colors be sorted.",
+                        "oneOf": [
+                            {
+                                "const": "instant",
+                                "description": "The entire train will be sorted instantly."
+                            },
+                            {
+                                "const": "bubble",
+                                "description": "The spheres will be swapped one by one until they are sorted."
+                            }
+                        ]
+                    },
+                    "delay": {
+                        "type": "number",
+                        "description": "The delay between consecutive sorts, in seconds.",
+                        "minimum": 0.0
+                    },
+                    "stopWhenTampered": {
+                        "type": "boolean",
+                        "description": "If set, the sorting process will be stopped when the train contents change."
+                    }
+                },
+                "required": [
+                    "sortType"
                 ],
                 "additionalProperties": false
             }

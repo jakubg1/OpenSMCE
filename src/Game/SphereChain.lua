@@ -25,6 +25,11 @@ function SphereChain:new(path, deserializationTable)
 		self.speedOverrideDecc = 0
 		self.speedOverrideTime = 0
 
+		self.colorSortType = nil
+		self.colorSortDelay = nil
+		self.colorSortTime = nil
+		self.colorSortStopWhenTampered = nil
+
 		self.sphereGroups = {}
 
 		local length = self.path:getCurrentTrainLength()
@@ -114,7 +119,16 @@ function SphereChain:update(dt)
 			end
 		end
 	end
-	
+
+	-- Update sorting.
+	if self.colorSortTime then
+		self.colorSortTime = self.colorSortTime - dt
+		if self.colorSortTime <= 0 then
+			self.colorSortTime = self.colorSortTime + self.colorSortDelay
+			self:performColorSortStep()
+		end
+	end
+
 	-- Update all sphere groups.
 	-- Ultra-Safe Loop (TM)
 	local i = 1
@@ -326,6 +340,69 @@ end
 
 
 
+---Initiates the process of sorting the colors in this Sphere Chain.
+---@param sortType "instant"|"bubble" The sorting type.
+---@param delay number The delay between consecutive sorts, or for `"instant"` type, the delay until the sort will happen.
+---@param stopWhenTampered boolean If set, the sorting process will stop when this Sphere Chain is tampered with.
+function SphereChain:sortColors(sortType, delay, stopWhenTampered)
+	self.colorSortType = sortType
+	self.colorSortDelay = delay
+	self.colorSortTime = delay
+	self.colorSortStopWhenTampered = stopWhenTampered
+end
+
+---Performs a Color Sort step on this Sphere Chain.
+function SphereChain:performColorSortStep()
+	local sphereList = self:getSphereList()
+	local checkedColors = {0} -- The scarab is always banned from sorting.
+	-- Search for a sphere which could be sorted.
+	for i, sphere in ipairs(sphereList) do
+		if not _Utils.isValueInTable(checkedColors, sphere.color) then
+			-- Found a new color. Let's see if we can find a sphere which we could move back by one.
+			local swapSphereIndex = nil
+			for j = i + 1, #sphereList do
+				if not swapSphereIndex and sphereList[j].color ~= sphere.color then
+					-- We've moved past the first clump of the current color. The next sphere of that color can be moved back.
+					swapSphereIndex = j
+				elseif swapSphereIndex and sphereList[j].color == sphere.color then
+					if self.colorSortType == "bubble" then
+						swapSphereIndex = j - 1
+					end
+					-- We've found our prey! Move it back [by one and return only when bubble sorting].
+					local colorTmp = sphereList[j].color
+					sphereList[j]:changeColor(sphereList[swapSphereIndex].color)
+					sphereList[swapSphereIndex]:changeColor(colorTmp)
+					local s = ""
+					for k, sphere2 in ipairs(sphereList) do
+						s = s .. tostring(sphere2.color)
+					end
+					print(s)
+					if self.colorSortType == "bubble" then
+						return
+					else
+						-- Now we will need to swap the next sphere.
+						swapSphereIndex = swapSphereIndex + 1
+					end
+				end
+			end
+			-- If we've come here, this color is sorted. No need to look for that one.
+			table.insert(checkedColors, sphere.color)
+		end
+	end
+	-- We went through all spheres and did not find anything to sort. The sorting is complete!
+	self:stopColorSort()
+end
+
+---Stops the color sorting process for this Sphere Chain.
+function SphereChain:stopColorSort()
+	self.colorSortType = nil
+	self.colorSortDelay = nil
+	self.colorSortTime = nil
+	self.colorSortStopWhenTampered = nil
+end
+
+
+
 function SphereChain:draw(color, hidden, shadow)
 	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
@@ -351,6 +428,19 @@ end
 
 function SphereChain:getLastSphereGroup()
 	return self.sphereGroups[#self.sphereGroups]
+end
+
+---Returns a list of all Spheres in this Sphere Chain, bypassing Sphere Groups.
+---The list starts from the tail. Last element is the frontmost one.
+---@return table
+function SphereChain:getSphereList()
+	local spheres = {}
+	for i = #self.sphereGroups, 1, -1 do
+		for j, sphere in ipairs(self.sphereGroups[i].spheres) do
+			table.insert(spheres, sphere)
+		end
+	end
+	return spheres
 end
 
 function SphereChain:getDanger()
@@ -408,6 +498,10 @@ function SphereChain:serialize()
 		speedOverrideMult = self.speedOverrideMult,
 		speedOverrideDecc = self.speedOverrideDecc,
 		speedOverrideTime = self.speedOverrideTime,
+		colorSortType = self.colorSortType,
+		colorSortDelay = self.colorSortDelay,
+		colorSortTime = self.colorSortTime,
+		colorSortStopWhenTampered = self.colorSortStopWhenTampered,
 		sphereGroups = {},
 		generationAllowed = self.generationAllowed,
 		generationColor = self.generationColor,
@@ -430,6 +524,10 @@ function SphereChain:deserialize(t)
 	self.speedOverrideMult = t.speedOverrideMult
 	self.speedOverrideDecc = t.speedOverrideDecc
 	self.speedOverrideTime = t.speedOverrideTime
+	self.colorSortType = t.colorSortType
+	self.colorSortDelay = t.colorSortDelay
+	self.colorSortTime = t.colorSortTime
+	self.colorSortStopWhenTampered = t.colorSortStopWhenTampered
 	self.sphereGroups = {}
 	self.generationAllowed = t.generationAllowed
 	self.generationColor = t.generationColor

@@ -49,5 +49,11 @@
         - projectile (Projectile) - The Projectile which will be spawning.
         - count (%integer) [>=1] - The amount of projectiles to be spawned.
         - delay (number) [>0] - The delay between consecutive projectile spawns, in seconds.
+    - "colorSort" - Starts a color sorting process on the current sphere trains.
+        - sortType (string) - How will the colors be sorted.
+            - "instant" - The entire train will be sorted instantly.
+            - "bubble" - The spheres will be swapped one by one until they are sorted.
+        - delay* = 0 (number) [>=0] - The delay between consecutive sorts, in seconds.
+        - stopWhenTampered* = false (boolean) - If set, the sorting process will be stopped when the train contents change.
     - "grantCoin" - Grants a single coin to the current player.
     - "incrementGemStat" - Adds one to the gem pickup statistics for the current level.

@@ -681,6 +681,12 @@ function Level:applyEffect(effect, pos)
 		table.insert(self.collectibleRains, {count = effect.count:evaluate(), time = 0, delay = effect.delay, generator = effect.collectibleGenerator})
 	elseif effect.type == "projectileStorm" then
 		table.insert(self.projectileStorms, {count = effect.count:evaluate(), time = 0, delay = effect.delay, projectile = effect.projectile})
+	elseif effect.type == "colorSort" then
+		for i, path in ipairs(self.map.paths) do
+			for j, sphereChain in ipairs(path.sphereChains) do
+				sphereChain:sortColors(effect.sortType, effect.delay, effect.stopWhenTampered)
+			end
+		end
 	elseif effect.type == "grantCoin" then
 		self:grantCoin()
 	elseif effect.type == "incrementGemStat" then
