@@ -26,11 +26,13 @@ function Shooter:new(data)
     self.suppressColorRemoval = false
     self.shotCooldown = nil
     self.shotCooldownFade = nil
+    self.shotCooldownSphere = nil
     self.shotPressed = false
     self.speedShotSpeed = 0
     self.speedShotTime = 0
     self.speedShotAnim = 0
     self.speedShotParticles = {}
+    self.sphereHoldParticles = {}
     self.homingBugsTime = 0
 
     self.multiColorColor = nil
@@ -126,6 +128,13 @@ function Shooter:update(dt)
             self.shotCooldownFade = nil
         end
     end
+    -- shot cooldown per-sphere (independent of shot cooldown/shot cooldown fade)
+    if self.shotCooldownSphere then
+        self.shotCooldownSphere = self.shotCooldownSphere - dt
+        if self.shotCooldownSphere <= 0 then
+            self.shotCooldownSphere = nil
+        end
+    end
 
     -- filling
     if self:isActive() then
@@ -149,7 +158,20 @@ function Shooter:update(dt)
         self:shoot()
     end
 
-    -- speed shot time counting
+    -- Sphere hold particles
+    if self.shotPressed and self:getSphereConfig().holdParticle then
+        for i = 1, self:getSphereCount() do
+            if self.sphereHoldParticles[i] then
+                self.sphereHoldParticles[i].pos = self:getSpherePos(i)
+            else
+                self.sphereHoldParticles[i] = _Game:spawnParticle(self:getSphereConfig().holdParticle, self:getSpherePos(i))
+            end
+        end
+    else
+        self:destroySphereHoldParticles()
+    end
+
+    -- Speed Shot timer and particles
     if self.speedShotTime > 0 then
         self.speedShotTime = math.max(self.speedShotTime - dt, 0)
         self.speedShotAnim = math.min(self.speedShotAnim + dt / self.config.speedShotBeam.fadeTime, 1)
@@ -222,6 +244,11 @@ function Shooter:setColor(color)
     end
     if color ~= 0 then
         self:spawnSphereEntities()
+
+        local shotCooldown = self:getSphereConfig().shotCooldown
+        if shotCooldown then
+            self.shotCooldownSphere = shotCooldown
+        end
 
         if self.config.reticle.colorFadeTime then
             self.reticleOldColor = self.reticleColor
@@ -417,7 +444,7 @@ function Shooter:isActive()
         return false
     end
     -- Same for shooting delay.
-    if self.shotCooldown then
+    if self.shotCooldown or self.shotCooldownFade or self.shotCooldownSphere then
         return false
     end
     -- Otherwise, allow.
@@ -437,7 +464,7 @@ end
 ---Launches the current sphere, if possible.
 function Shooter:shoot()
     -- if nothing to shoot, it's pointless
-    if _Game.level.pause or not self:isActive() or self.shotCooldownFade or self.color == 0 then
+    if _Game.level.pause or not self:isActive() or self.color == 0 then
         return
     end
 
@@ -459,7 +486,9 @@ function Shooter:shoot()
             self.sphereEntities[i] = nil
         elseif sphereConfig.shootBehavior.type == "destroySpheres" then
             -- lightning spheres are not shot, they're deployed instantly
-            _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
+            if sphereConfig.destroyParticle then
+                _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
+            end
             _Game.level:destroySelector(sphereConfig.shootBehavior.selector, self:getSpherePos(i), sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
             self:destroySphereEntities()
         end
@@ -722,6 +751,18 @@ function Shooter:destroySpeedShotParticles()
         if self.speedShotParticles[i] then
             self.speedShotParticles[i]:destroy()
             self.speedShotParticles[i] = nil
+        end
+    end
+end
+
+
+
+---Destroys all sphere hold particles from this Shooter.
+function Shooter:destroySphereHoldParticles()
+    for i = 1, self:getSphereCount() do
+        if self.sphereHoldParticles[i] then
+            self.sphereHoldParticles[i]:destroy()
+            self.sphereHoldParticles[i] = nil
         end
     end
 end
@@ -1010,6 +1051,9 @@ function Shooter:serialize()
     return {
         color = self.color,
         nextColor = self.nextColor,
+        shotCooldown = self.shotCooldown,
+        shotCooldownFade = self.shotCooldownFade,
+        shotCooldownSphere = self.shotCooldownSphere,
         multiColorColor = self.multiColorColor,
         multiColorCount = self.multiColorCount,
         multiColorTime = self.multiColorTime,
@@ -1027,6 +1071,9 @@ end
 function Shooter:deserialize(t)
     self.color = t.color
     self.nextColor = t.nextColor
+    self.shotCooldown = t.shotCooldown
+    self.shotCooldownFade = t.shotCooldownFade
+    self.shotCooldownSphere = t.shotCooldownSphere
     self.multiColorColor = t.multiColorColor
     self.multiColorCount = t.multiColorCount
     self.multiColorTime = t.multiColorTime
