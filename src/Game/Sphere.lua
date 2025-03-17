@@ -724,6 +724,14 @@ end
 
 
 
+---Returns the config of this Sphere.
+---@return table
+function Sphere:getConfig()
+	return self.config
+end
+
+
+
 ---Returns a table of IDs, which at the very moment identify this very sphere. Use if you want to reference this Sphere in the save file.
 ---@return table
 function Sphere:getIDs()

@@ -89,14 +89,15 @@ end
 
 
 
----Returns the color ID which is the most frequent on the board, excluding ID = 0 (scarab).
+---Returns the color ID which is the most frequent on the board, excluding ID = 0 (scarab) and stone spheres.
 ---If there is a tie, this function returns a random color out of all tied colors.
 ---@return integer
 function ColorManager:getMostFrequentColor()
 	local maxAmount = 0
 	local maxColors = {}
 	for i, v in pairs(self.sphereColorCounts) do
-		if i ~= 0 then
+		-- TODO: Omitting scarabs and stone spheres should be dehardcoded (Variable Providers).
+		if i ~= 0 and _Game.configManager.spheres[i].type ~= "stone" then
 			if v.normal > maxAmount then
 				-- New leader found! Reset the list.
 				maxAmount = v.normal

@@ -121,11 +121,31 @@ function ShotSphere:moveStep()
 		else
 			self.hitSphere = nearestSphere
 			local sphereConfig = _Game.configManager.spheres[self.color]
+			-- TODO: Move this logic to Sphere.lua and dehardcode it.
 			local hitSphere = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID]
+			-- Redirect the hit sphere if it's a scarab or a stone sphere.
 			local redirectedHitSphere = hitSphere
-			-- Redirect the hit sphere if it's a scarab.
-			if hitSphere.color == 0 then
-				redirectedHitSphere = hitSphere:getNextSphereInChain()
+			if hitSphere.color == 0 or hitSphere:isStone() then
+				-- The sphere can be redirected to the front or to the back. Both searches stop when either something that matches the requirements is found (valid result) or not (invalid result).
+				local redirectedHitSpherePrev = redirectedHitSphere
+				local redirectedHitSphereNext = redirectedHitSphere
+				while redirectedHitSpherePrev and (redirectedHitSpherePrev.color == 0 or redirectedHitSpherePrev:isStone()) do
+					redirectedHitSpherePrev = redirectedHitSpherePrev:getPrevSphereInChain()
+				end
+				while redirectedHitSphereNext and (redirectedHitSphereNext.color == 0 or redirectedHitSphereNext:isStone()) do
+					redirectedHitSphereNext = redirectedHitSphereNext:getNextSphereInChain()
+				end
+				if redirectedHitSpherePrev and redirectedHitSphereNext then
+					-- We found both. Choose randomly.
+					redirectedHitSphere = math.random() < 0.5 and redirectedHitSpherePrev or redirectedHitSphereNext
+				elseif redirectedHitSpherePrev then
+					redirectedHitSphere = redirectedHitSpherePrev
+				elseif redirectedHitSphereNext then
+					redirectedHitSphere = redirectedHitSphereNext
+				else
+					-- We found nothing...?
+					error("Congratulations! You found an error because the lazy developer doesn't even bother to write code for edge cases like this! Yay!")
+				end
 			end
 			local badShot = false
 			local shotCancelled = false

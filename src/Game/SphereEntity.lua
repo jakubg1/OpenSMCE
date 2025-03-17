@@ -116,6 +116,14 @@ end
 
 
 
+---Returns the config of this Sphere Entity.
+---@return table
+function SphereEntity:getConfig()
+	return self.config
+end
+
+
+
 ---Returns a new instance of itself.
 ---@return SphereEntity
 function SphereEntity:copy()
