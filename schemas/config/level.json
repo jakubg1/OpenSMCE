@@ -146,7 +146,18 @@
                             "properties": {
                                 "distance": {
                                     "type": "number",
-                                    "description": "How far into the path the given speed should be applied."
+                                    "description": "How far into the path as a percentage of the path the given speed should be applied. Either this, offset or offsetFromEnd must exist.",
+                                    "markdownDescription": "How far into the path as a percentage of the path the given speed should be applied. Either this, `offset` or `offsetFromEnd` must exist."
+                                },
+                                "offset": {
+                                    "type": "number",
+                                    "description": "How far into the path in pixels from its start the given speed should be applied. Either this, distance or offsetFromEnd must exist.",
+                                    "markdownDescription": "How far into the path in pixels from its start the given speed should be applied. Either this, `distance` or `offsetFromEnd` must exist."
+                                },
+                                "offsetFromEnd": {
+                                    "type": "number",
+                                    "description": "How far into the path in pixels from its end the given speed should be applied. Either this, offset or distance must exist.",
+                                    "markdownDescription": "How far into the path in pixels from its end the given speed should be applied. Either this, `offset` or `distance` must exist."
                                 },
                                 "speed": {
                                     "type": "number",
@@ -154,12 +165,101 @@
                                     "minimum": 0.0
                                 },
                                 "transition": {
-                                    "$ref": "level_speed_transition.json",
-                                    "description": "Defines the transition between this and the next node on the speed graph. By default, linear transition is applied."
+                                    "type": "object",
+                                    "description": "Defines the transition between this and the next node on the speed graph. By default, linear transition is applied.",
+                                    "properties": {
+                                        "type": {
+                                            "enum": [
+                                                "instant",
+                                                "linear",
+                                                "bezier"
+                                            ]
+                                        }
+                                    },
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "type": {
+                                                    "description": "The type of the level speed transition."
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "if": {
+                                                "properties": {
+                                                    "type": {
+                                                        "const": "instant",
+                                                        "description": "Instant speed transition. This node's speed will apply all the way to the next speed node."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type"
+                                                ]
+                                            },
+                                            "then": {
+                                                "properties": {
+                                                    "type": true
+                                                },
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        {
+                                            "if": {
+                                                "properties": {
+                                                    "type": {
+                                                        "const": "linear",
+                                                        "description": "Linear speed transition. This is the default transition type."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type"
+                                                ]
+                                            },
+                                            "then": {
+                                                "properties": {
+                                                    "type": true
+                                                },
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        {
+                                            "if": {
+                                                "properties": {
+                                                    "type": {
+                                                        "const": "bezier",
+                                                        "description": "The values will be interpolated via a one-dimensional Bezier curve: http://www.demofox.org/bezcubic1d.html on a normalized time value of 0 to 1."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type"
+                                                ]
+                                            },
+                                            "then": {
+                                                "properties": {
+                                                    "type": true,
+                                                    "point1": {
+                                                        "type": "number",
+                                                        "description": "The first control point value."
+                                                    },
+                                                    "point2": {
+                                                        "type": "number",
+                                                        "description": "The second control point value."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "point1",
+                                                    "point2"
+                                                ],
+                                                "additionalProperties": false
+                                            }
+                                        }
+                                    ],
+                                    "required": [
+                                        "type"
+                                    ]
                                 }
                             },
                             "required": [
-                                "distance",
                                 "speed"
                             ],
                             "additionalProperties": false

@@ -29,6 +29,13 @@
             - dangerDistance (number) [>=0,<=1] - How far into the path the spheres have to be in order for the player to be in danger.
             - speeds (array) - A list of speeds which will translate to the actual speed on any point of the path.
                 - (object) - A single speed graph node.
-                    - distance (number) - How far into the path the given speed should be applied.
+                    - distance* (number) - How far into the path as a percentage of the path the given speed should be applied. Either this, `offset` or `offsetFromEnd` must exist.
+                    - offset* (number) - How far into the path in pixels from its start the given speed should be applied. Either this, `distance` or `offsetFromEnd` must exist.
+                    - offsetFromEnd* (number) - How far into the path in pixels from its end the given speed should be applied. Either this, `offset` or `distance` must exist.
                     - speed (number) [>=0] - The desired speed of the sphere trains, in pixels per second.
-                    - transition* ($level_speed_transition) - Defines the transition between this and the next node on the speed graph. By default, linear transition is applied.
+                    - transition* (object) {type: The type of the level speed transition.} - Defines the transition between this and the next node on the speed graph. By default, linear transition is applied.
+                        - "instant" - Instant speed transition. This node's speed will apply all the way to the next speed node.
+                        - "linear" - Linear speed transition. This is the default transition type.
+                        - "bezier" - The values will be interpolated via a one-dimensional Bezier curve: http://www.demofox.org/bezcubic1d.html on a normalized time value of 0 to 1.
+                            - point1 (number) - The first control point value.
+                            - point2 (number) - The second control point value.

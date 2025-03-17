@@ -367,7 +367,9 @@ function Path:draw(hidden)
 		pathEntity:draw(hidden, false)
 	end
 
-	--if not hidden then self:drawDebugFill() end
+	if not hidden then
+		--self:drawDebugBrightness()
+	end
 end
 
 
@@ -392,9 +394,10 @@ end
 
 ---Another debug function.
 function Path:drawDebugBrightness()
-	for i = 1, 800 do
-		local h = self:getSpeed(i) / 20
-		local n, r = self:getNodeID(i)
+	for i = 0, 799 do
+		local d = self.length / 799 * i
+		local h = self:getSpeed(d) / 20
+		local n, r = self:getNodeID(d)
 		local t = r < 1
 		if t then
 			love.graphics.setColor(0, 1, 1)
@@ -420,6 +423,7 @@ end
 
 
 ---Even one more debug function.
+---This one draws a circle where the max offset is located.
 function Path:drawDebugFill()
 	love.graphics.setColor(1, 0.2, 0)
 	local pos = self:getPos(self:getMaxOffset())
@@ -477,18 +481,21 @@ function Path:getSpeed(pixels)
 		speedMultiplier = speedMultiplier * _Game:getCurrentProfile():getDifficultyConfig().speedMultiplier
 	end
 
-	local part = pixels / self.length
 	for i, speed in ipairs(self.speeds) do
-		if part < speed.distance then
+		local speedOffset = self:getSpeedOffset(speed)
+		if pixels < speedOffset then
 			local prevSpeed = self.speeds[i - 1]
-			if prevSpeed and speed.distance - prevSpeed.distance > 0 then
-				local t = 1 - (speed.distance - part) / (speed.distance - prevSpeed.distance)
-
+			local prevSpeedOffset = prevSpeed and self:getSpeedOffset(prevSpeed)
+			if prevSpeed and speedOffset - prevSpeedOffset > 0 then
 				-- between nodes
+				-- The transition is linear by default.
+				local t = 1 - (speedOffset - pixels) / (speedOffset - prevSpeedOffset)
 				if prevSpeed.transition and prevSpeed.transition.type == "bezier" then
 					local p1 = prevSpeed.transition.point1
 					local p2 = prevSpeed.transition.point2
 					t = _Utils.bzLerp(t, p1, p2)
+				elseif prevSpeed.transition.type == "instant" then
+					t = 0
 				end
 				return (prevSpeed.speed * (1 - t) + speed.speed * t) * speedMultiplier
 			end
@@ -500,6 +507,22 @@ function Path:getSpeed(pixels)
 
 	-- after last node
 	return self.speeds[#self.speeds].speed * speedMultiplier
+end
+
+
+
+---Returns the offset (distance of a speed node in pixels counting from the first node), depending on what data is contained inside.
+---@param speed table The speed data, an entry from `self.speeds`.
+---@return number
+function Path:getSpeedOffset(speed)
+	if speed.distance then
+		return speed.distance * self.length
+	elseif speed.offset then
+		return speed.offset
+	elseif speed.offsetFromEnd then
+		return self.length - speed.offsetFromEnd
+	end
+	error("Level error: in a speed node - neither `distance`, `offset` nor `offsetFromEnd` were specified")
 end
 
 

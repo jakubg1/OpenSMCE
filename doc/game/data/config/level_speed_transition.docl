@@ -1,5 +1,0 @@
-- (object) {type: The type of the level speed transition.} - A level speed transition.
-    - "linear" - The transition will be linear.
-    - "bezier" - The transition will be interpolated via a one-dimensional Bezier curve: http://www.demofox.org/bezcubic1d.html on a normalized time value of 0 to 1.
-        - point1 (number) - The first control point value.
-        - point2 (number) - The second control point value.
