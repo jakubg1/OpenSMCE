@@ -332,6 +332,20 @@ end
 
 
 
+---Returns the previous Sphere in this Sphere Chain, or `nil` if this is the first (backmost) sphere in the chain.
+---@return Sphere?
+function Sphere:getPrevSphereInChain()
+	if self.prevSphere then
+		return self.prevSphere
+	end
+	-- The previous sphere might be in the previous group.
+	if self.sphereGroup.prevGroup then
+		return self.sphereGroup.prevGroup:getLastSphere()
+	end
+end
+
+
+
 ---Returns the next Sphere in this Sphere Chain, or `nil` if this is the last (frontmost) sphere in the chain.
 ---@return Sphere?
 function Sphere:getNextSphereInChain()
