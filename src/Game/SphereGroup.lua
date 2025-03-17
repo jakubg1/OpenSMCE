@@ -686,10 +686,12 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 
 	-- Destroy adjacent spheres if they are stone spheres.
 	if nextSphere and nextSphere:isStone() then
-		self.nextGroup:destroySphere(self.nextGroup:getSphereID(nextSphere))
+		local group = nextSphere.sphereGroup
+		group:destroySphere(group:getSphereID(nextSphere))
 	end
 	if prevSphere and prevSphere:isStone() then
-		self:destroySphere(self:getSphereID(prevSphere))
+		local group = prevSphere.sphereGroup
+		group:destroySphere(group:getSphereID(prevSphere))
 	end
 
 	-- Now that we've finished destroying the spheres, we can adjust the group speed.
