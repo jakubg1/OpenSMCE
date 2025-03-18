@@ -1288,7 +1288,7 @@ def docl_all_to_configs(internal_output):
 
 # Converts all `.docl` files in the `tests/docl` folder to config class files and checks them with corresponding files from `tests/lua`.
 def docl_test_all_configs():
-	all_success = True
+	failure_count = 0
 	for r, d, f in os.walk("tests/docl"):
 		r = r[10:].replace("\\", "/") # i.e. "tests/docl" -> "", "tests/docl\config" -> "/config"
 		for file in f:
@@ -1297,11 +1297,12 @@ def docl_test_all_configs():
 			path_test = "tests/docl" + r + "/" + file
 			path_against = "tests/lua" + r + "/" + file[:-5] + ".lua"
 			result = docl_test_file_lua(path_test, path_against)
-			all_success = all_success and result
-	if all_success:
-		print(C_GREEN + C_BOLD + "All tests passed! :D" + C_RESET)
+			if not result:
+				failure_count += 1
+	if failure_count == 0:
+		print(C_GREEN + C_BOLD + "All tests have passed! :D" + C_RESET)
 	else:
-		print(C_RED + C_BOLD + "Some tests did not pass... :( Check above for more information." + C_RESET)
+		print(C_RED + C_BOLD + str(failure_count) + " " + ("tests" if failure_count > 1 else "test") + " did not pass... :( Check above for more information." + C_RESET)
 
 
 
