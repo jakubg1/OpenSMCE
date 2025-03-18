@@ -5,7 +5,6 @@
         - buttonReleaseSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been released (unpressed).
     - sphereBehavior (object) - Defines behavior of the spheres.
         - acceleration (number) - The default acceleration rate of spheres being pushed.
-        - foulAcceleration* (number) - The acceleration rate of spheres used only when the player fails to complete a level.
         - attractionAcceleration* (number) - The acceleration rate of spheres magnetizing to each other.
         - attractionForwardDecceleration* (number) - The decceleration rate of spheres when magnetizing to the group behind while still moving forward.
         - attractionForwardDeccelerationScarab* (number) - The decceleration rate of spheres when magnetizing to a scarab behind while still moving forward.
@@ -18,6 +17,12 @@
         - knockbackTime* (number) - If set, this will be the duration the knockback speed will persist for, in seconds.
         - knockbackStopAfterTime* (boolean) - Only if `knockbackTime` is set. If `true`, the speed of the group will be set to 0 once the knockback time is over. Else, the sphere group will deccelerate normally.
         - foulSpeed (number) - Maximum speed of spheres when the player fails to complete a level.
+        - foulAcceleration* (number) - The acceleration rate of spheres used only when the player fails to complete a level.
+        - foulDestroySpheres (object) {type: The type of level fail animation.} - Determines how the spheres should be destroyed after the level is failed.
+            - "atEnd" - The spheres will be destroyed once they reach the final node.
+            - "fromEnd" - The spheres will be destroyed starting at the frontmost one every specified amount of time.
+                - delay (number) [>=0] - How long it should take for the spheres to start being destroyed, in seconds.
+                - subsequentDelay (number) [>0] - The delay between consecutive sphere destructions, in seconds.
         - overspeedCheck (boolean) - If `true`, spheres will never move faster than the maximum speed defined at a given point of the path.
         - invincibleScarabs* (boolean) - If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
         - invincibleScarabFrontMatters* (boolean) - If `true`, the trains at the back cannot push the trains at the front and are instead blocked by them.

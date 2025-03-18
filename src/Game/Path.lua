@@ -443,6 +443,18 @@ function Path:getSphereChainID(sphereChain)
 	end
 end
 
+---Returns the first (frontmost) Sphere Chain on this Path.
+---@return SphereChain
+function Path:getFirstSphereChain()
+	return self.sphereChains[1]
+end
+
+---Returns the last (backmost) Sphere Chain on this Path.
+---@return SphereChain
+function Path:getLastSphereChain()
+	return self.sphereChains[#self.sphereChains]
+end
+
 
 
 ---Returns the offset of the frontmost sphere on this Path.

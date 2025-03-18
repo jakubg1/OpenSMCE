@@ -31,10 +31,6 @@
                     "type": "number",
                     "description": "The default acceleration rate of spheres being pushed."
                 },
-                "foulAcceleration": {
-                    "type": "number",
-                    "description": "The acceleration rate of spheres used only when the player fails to complete a level."
-                },
                 "attractionAcceleration": {
                     "type": "number",
                     "description": "The acceleration rate of spheres magnetizing to each other."
@@ -87,6 +83,86 @@
                 "foulSpeed": {
                     "type": "number",
                     "description": "Maximum speed of spheres when the player fails to complete a level."
+                },
+                "foulAcceleration": {
+                    "type": "number",
+                    "description": "The acceleration rate of spheres used only when the player fails to complete a level."
+                },
+                "foulDestroySpheres": {
+                    "type": "object",
+                    "description": "Determines how the spheres should be destroyed after the level is failed.",
+                    "properties": {
+                        "type": {
+                            "enum": [
+                                "atEnd",
+                                "fromEnd"
+                            ]
+                        }
+                    },
+                    "allOf": [
+                        {
+                            "properties": {
+                                "type": {
+                                    "description": "The type of level fail animation."
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "atEnd",
+                                        "description": "The spheres will be destroyed once they reach the final node."
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            },
+                            "then": {
+                                "properties": {
+                                    "type": true
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "fromEnd",
+                                        "description": "The spheres will be destroyed starting at the frontmost one every specified amount of time."
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            },
+                            "then": {
+                                "properties": {
+                                    "type": true,
+                                    "delay": {
+                                        "type": "number",
+                                        "description": "How long it should take for the spheres to start being destroyed, in seconds.",
+                                        "minimum": 0.0
+                                    },
+                                    "subsequentDelay": {
+                                        "type": "number",
+                                        "description": "The delay between consecutive sphere destructions, in seconds.",
+                                        "exclusiveMinimum": 0.0
+                                    }
+                                },
+                                "required": [
+                                    "delay",
+                                    "subsequentDelay"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    ],
+                    "required": [
+                        "type"
+                    ]
                 },
                 "overspeedCheck": {
                     "type": "boolean",
@@ -144,6 +220,7 @@
                 "knockbackSpeedBase",
                 "knockbackSpeedMult",
                 "foulSpeed",
+                "foulDestroySpheres",
                 "overspeedCheck",
                 "joinSound",
                 "newGroupSound",

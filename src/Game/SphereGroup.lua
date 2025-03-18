@@ -167,10 +167,12 @@ function SphereGroup:update(dt)
 		end
 	end
 
-	for i = #self.spheres, 1, -1 do
-		-- Remove spheres at the end of path when the level is lost/it's a dummy path.
-		if (self.map.level.lost or self.map.isDummy) and self:getSphereOffset(i) >= self.sphereChain.path.length then
-			self:destroySphere(i)
+	if (self.map.level.lost and self.config.foulDestroySpheres.type == "atEnd") or self.map.isDummy then
+		for i = #self.spheres, 1, -1 do
+			-- Remove spheres at the end of path when the level is lost/it's a dummy path.
+			if self:getSphereOffset(i) >= self.sphereChain.path.length then
+				self:destroySphere(i)
+			end
 		end
 	end
 

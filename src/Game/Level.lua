@@ -321,6 +321,14 @@ function Level:updateLogic(dt)
 			end
 		end
 	elseif step.type == "fail" then
+		if self.failDestructionDelay then
+			self.failDestructionDelay = self.failDestructionDelay - dt
+			if self.failDestructionDelay <= 0 then
+				self:destroyFrontmostSphere()
+				local failConfig = _Game.configManager.gameplay.sphereBehavior.foulDestroySpheres
+				self.failDestructionDelay = self.failDestructionDelay + failConfig.subsequentDelay
+			end
+		end
 		if self:getEmpty() then
 			self:advanceSequenceStep()
 		end
@@ -950,6 +958,46 @@ end
 
 
 
+---Forfeits the level. The shooter is emptied, and spheres start rushing into the pyramid.
+function Level:lose()
+	if self:getCurrentSequenceStepType() ~= "gameplay" then
+		return
+	end
+	self.lost = true
+	-- empty the shooter
+	self.shooter:empty()
+	-- delete all shot balls
+	for i, shotSphere in ipairs(self.shotSpheres) do
+		shotSphere:destroy()
+	end
+	self.shotSpheres = {}
+	-- Start the destruction if the loss type has been configured to do so.
+	local failConfig = _Game.configManager.gameplay.sphereBehavior.foulDestroySpheres
+	if failConfig.type == "fromEnd" then
+		self.failDestructionDelay = failConfig.delay
+	end
+	-- stop warmup sound
+	if self.warmupLoop then
+		self.warmupLoop:stop()
+	end
+	-- play loss sounds
+	if self.failSoundName then
+		_Game:playSound(self.failSoundName)
+	end
+	if self.failLoopName then
+		self.failLoop = _Game:playSound(self.failLoopName)
+	end
+	-- update sequence step
+	local jumpTo = self.levelSequence[self.levelSequenceStep].onFail
+	if jumpTo then
+		self:jumpToSequenceStep(jumpTo)
+	else
+		self:advanceSequenceStep()
+	end
+end
+
+
+
 ---Uninitialization function. Uninitializes Level's elements which need deinitializing.
 function Level:destroy()
 	self.shooter:destroy()
@@ -1012,6 +1060,7 @@ function Level:reset()
 	self.dangerSound = nil
 	self.warningDelay = 0
 	self.warningDelayMax = nil
+	self.failDestructionDelay = nil
 
 	self.pause = false
 	self.canPause = true
@@ -1049,41 +1098,6 @@ function Level:resetSequence()
 	self.levelSequenceVars = nil
 	self.levelSequenceLoad = false
 	self:jumpToSequenceStep(1)
-end
-
-
-
----Forfeits the level. The shooter is emptied, and spheres start rushing into the pyramid.
-function Level:lose()
-	if self:getCurrentSequenceStepType() ~= "gameplay" then
-		return
-	end
-	self.lost = true
-	-- empty the shooter
-	self.shooter:empty()
-	-- delete all shot balls
-	for i, shotSphere in ipairs(self.shotSpheres) do
-		shotSphere:destroy()
-	end
-	self.shotSpheres = {}
-	-- stop warmup sound
-	if self.warmupLoop then
-		self.warmupLoop:stop()
-	end
-	-- play loss sounds
-	if self.failSoundName then
-		_Game:playSound(self.failSoundName)
-	end
-	if self.failLoopName then
-		self.failLoop = _Game:playSound(self.failLoopName)
-	end
-	-- update sequence step
-	local jumpTo = self.levelSequence[self.levelSequenceStep].onFail
-	if jumpTo then
-		self:jumpToSequenceStep(jumpTo)
-	else
-		self:advanceSequenceStep()
-	end
 end
 
 
@@ -1321,6 +1335,16 @@ function Level:getHomingBugsSphere(color)
 	end
 	-- If none, return a random sphere from the board.
 	return self:getRandomSphere(true, true, true)
+end
+
+
+
+---Destroys the frontmost sphere on all paths, for the purposes of fail animation.
+function Level:destroyFrontmostSphere()
+	for i, path in ipairs(self.map.paths) do
+		local group = path:getFirstSphereChain():getFirstSphereGroup()
+		group:destroySphere(#group.spheres)
+	end
 end
 
 
@@ -1606,6 +1630,7 @@ function Level:serialize()
 		destroyedSpheres = self.destroyedSpheres,
 		paths = self.map:serialize(),
 		lost = self.lost,
+		failDestructionDelay = self.failDestructionDelay,
 		levelSequenceStep = self.levelSequenceStep,
 		levelSequenceVars = self.levelSequenceVars,
 		variables = self.variables
@@ -1659,6 +1684,7 @@ function Level:deserialize(t)
 	self.destroyedSpheres = t.destroyedSpheres
 	self.time = t.time
 	self.lost = t.lost
+	self.failDestructionDelay = t.failDestructionDelay
 	self.levelSequenceStep = t.levelSequenceStep
 	self.levelSequenceVars = t.levelSequenceVars
 	self.levelSequenceLoad = true

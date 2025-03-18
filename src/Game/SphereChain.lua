@@ -417,10 +417,14 @@ function SphereChain:getSphereGroupID(sphereGroup)
 	return "ERROR"
 end
 
+---Returns the first (frontmost) Sphere Group in this Sphere Chain.
+---@return SphereGroup
 function SphereChain:getFirstSphereGroup()
 	return self.sphereGroups[1]
 end
 
+---Returns the last (backmost) Sphere Group in this Sphere Chain.
+---@return SphereGroup
 function SphereChain:getLastSphereGroup()
 	return self.sphereGroups[#self.sphereGroups]
 end
