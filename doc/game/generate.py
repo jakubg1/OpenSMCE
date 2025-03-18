@@ -10,6 +10,8 @@ C_BOLD = "\33[1m"
 C_RED = "\33[91m"
 C_GREEN = "\33[92m"
 C_YELLOW = "\33[93m"
+C_CYAN = "\33[96m"
+C_WHITE = "\33[97m"
 
 def load_file(path):
 	file = open(path, "r")
@@ -1044,7 +1046,7 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 				if not optional or "default" in entry:
 					out.append(table_id + " = {}")
 				if optional:
-					out.append("if data." + name + " then")
+					out.append("if data." + context + name + " then")
 					out.append(1)
 					if not "default" in entry:
 						out.append(table_id + " = {}")
@@ -1218,16 +1220,26 @@ def docl_convert_file_lua(path_in, path_out):
 # Converts a DocLang (.docl) file to a config class, and then matches its contents with what's in the specified Config Class file (.lua).
 def docl_test_file_lua(path_test, path_against):
 	contents_test = load_file(path_test)
-	contents_against = load_file(path_against)
+	try:
+		contents_against = load_file(path_against)
+	except IOError:
+		contents_against = None
 	contents_tested = docl_to_lua(contents_test, "ExampleObject", True)
-	if contents_tested == contents_against:
+	if contents_against == None:
+		print(path_test + " -> " + path_against + ": " + C_YELLOW + "NO LUA FILE FOUND" + C_RESET)
+		print(indent_text(C_YELLOW + C_BOLD + "Should be:" + C_RESET, 4))
+		print(indent_text(contents_tested, 8))
+		return False
+	elif contents_tested == contents_against:
 		print(path_test + " -> " + path_against + ": " + C_GREEN + "SUCCESS" + C_RESET)
+		return True
 	else:
 		print(path_test + " -> " + path_against + ": " + C_RED + "FAILURE" + C_RESET)
-		print("Expected:")
-		print(indent_text(contents_against, 4))
-		print("Actual:")
-		print(indent_text(contents_tested, 4))
+		print(indent_text(C_YELLOW + C_BOLD + "Expected:" + C_RESET, 4))
+		print(indent_text(contents_against, 8))
+		print(indent_text(C_YELLOW + C_BOLD + "Actual:" + C_RESET, 4))
+		print(indent_text(contents_tested, 8))
+		return False
 
 # Checks if the Lua config class file is protected from writing.
 def docl_is_config_class_protected(path):
@@ -1235,7 +1247,8 @@ def docl_is_config_class_protected(path):
 		contents = load_file(path)
 		return contents[:6] != "--!!--"
 	except IOError:
-		return False
+		# TODO: When all Config Classes are implemented, set this to False to allow new config files to be created.
+		return True
 
 
 
@@ -1252,21 +1265,30 @@ def docl_all_to_schemas():
 			docl_convert_file(path_in, path_out)
 
 # Converts all .docl files in data folder to the corresponding config class files.
-def docl_all_to_configs():
+# internal_output works as follows:
+#   - True: All config files will be converted and put into the `out_lua` folder. All files will be overwritten and no checks are being performed.
+#   - False: The config files will land in `src/Configs` in the root game folder. Only existing and unprotected files will be overwritten.
+# After all config classes will be implemented, the flag will be removed and new files could be created, only in `src/Configs`. The `out_lua` folder will be removed.
+def docl_all_to_configs(internal_output):
 	for r, d, f in os.walk("data"):
 		r = r[4:].replace("\\", "/") # i.e. "data" -> "", "data\config" -> "/config"
 		for file in f:
 			if not file.endswith(".docl"):
 				continue
 			path_in = "data" + r + "/" + file
-			path_out = "out_lua/" + ("UI2" if r == "/ui2" else "") + case_snake_to_pascal(file[:-5]) + ".lua"
-			if docl_is_config_class_protected(path_out):
-				print(path_in + " -> " + path_out + " - Skipped!")
-			print(path_in + " -> " + path_out)
-			docl_convert_file_lua(path_in, path_out)
+			if internal_output:
+				path_out = "out_lua/" + ("UI2" if r == "/ui2" else "") + case_snake_to_pascal(file[:-5]) + ".lua"
+			else:
+				path_out = "../../src/Configs/" + ("UI2" if r == "/ui2" else "") + case_snake_to_pascal(file[:-5]) + ".lua"
+			if not internal_output and docl_is_config_class_protected(path_out):
+				print(C_YELLOW + path_in + " -> " + path_out + " - Skipped!" + C_RESET)
+			else:
+				print(C_GREEN + path_in + " -> " + path_out + C_RESET)
+				docl_convert_file_lua(path_in, path_out)
 
 # Converts all `.docl` files in the `tests/docl` folder to config class files and checks them with corresponding files from `tests/lua`.
 def docl_test_all_configs():
+	all_success = True
 	for r, d, f in os.walk("tests/docl"):
 		r = r[10:].replace("\\", "/") # i.e. "tests/docl" -> "", "tests/docl\config" -> "/config"
 		for file in f:
@@ -1274,7 +1296,12 @@ def docl_test_all_configs():
 				continue
 			path_test = "tests/docl" + r + "/" + file
 			path_against = "tests/lua" + r + "/" + file[:-5] + ".lua"
-			docl_test_file_lua(path_test, path_against)
+			result = docl_test_file_lua(path_test, path_against)
+			all_success = all_success and result
+	if all_success:
+		print(C_GREEN + C_BOLD + "All tests passed! :D" + C_RESET)
+	else:
+		print(C_RED + C_BOLD + "Some tests did not pass... :( Check above for more information." + C_RESET)
 
 
 
@@ -1300,7 +1327,10 @@ def main():
 	if len(sys.argv) >= 2:
 		if sys.argv[1] == "-a":
 			docl_all_to_schemas()
-			docl_all_to_configs()
+			docl_all_to_configs(False)
+			print_usage = False
+		elif sys.argv[1] == "-c":
+			docl_all_to_configs(True)
 			print_usage = False
 		elif sys.argv[1] == "-t":
 			docl_test_all_configs()
@@ -1320,10 +1350,11 @@ def main():
 
 	if print_usage:
 		print("Usage:")
-		print("  generate.py -a         - Converts all DocLang files to schemas and Config Classes.")
-		print("  generate.py -t         - Performs DocLang to Config Class tests.")
-		print("  generate.py -pd <file> - Prints DocLD data from the given DocL file.")
-		print("  generate.py -ps <file> - Prints a schema generated from the given DocL file.")
+		print("  generate.py " + C_YELLOW + C_BOLD + "-a" + C_RESET + "         - Converts all DocLang files to schemas and Config Classes.")
+		print("  generate.py " + C_YELLOW + C_BOLD + "-c" + C_RESET + "         - Converts all DocLang files to Config Classes without protection checks into the " + C_WHITE + C_BOLD + "out_lua" + C_RESET + " directory.")
+		print("  generate.py " + C_YELLOW + C_BOLD + "-t" + C_RESET + "         - Performs DocLang to Config Class tests.")
+		print("  generate.py " + C_YELLOW + C_BOLD + "-pd" + C_RESET + " " + C_CYAN + C_BOLD + "<file>" + C_RESET + " - Prints DocLD data from the given DocL file.")
+		print("  generate.py " + C_YELLOW + C_BOLD + "-ps" + C_RESET + " " + C_CYAN + C_BOLD + "<file>" + C_RESET + " - Prints a schema generated from the given DocL file.")
 	else:
 		print("Done")
 		input()

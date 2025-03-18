@@ -1,0 +1,5 @@
+- (object) - The root object.
+    - obj (object) {type: The type of the level entry.} - A single level entry.
+        - "test" - Example type.
+        - a* (object) - The problematic object.
+            - field (integer) - Example field.
