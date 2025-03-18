@@ -3,7 +3,7 @@
         - color (integer) - A sphere ID of a sphere the shooter should get.
     - "multiSphere" - Spawns a certain amount of a defined sphere to the shooter. This can be used to i.e. spawn 10 daggers the player can shoot anywhere they want.
         - color (integer) - A sphere ID of a sphere the shooter should get.
-        - count* (%integer) [>=1] - How many spheres of that type should be given.
+        - count* ($integer) [>=1] - How many spheres of that type should be given.
         - time* (number) [>0] - The amount of time the spheres will be available for, in seconds.
         - removeWhenTimeOut* (boolean) - If set, after the time in the `time` field expires, the spheres will be removed. Otherwise, the remaining spheres will be still available in the shooter.
         - holdTimeRate* (number) [>=0] - How fast should the timer go down when the left mouse button is held. Works best with spheres with `autofire` set to `true`.
@@ -26,7 +26,7 @@
     - "spawnPathEntity" - Spawns a Path Entity on the path that has its spheres closest to the endpoint (the "most dangerous" path).
         - pathEntity (PathEntity) - The Path Entity to be spawned.
     - "lightningStorm" - Starts a lightning storm, spawning a given amount of strikes which destroy single spheres.
-        - count (%integer) [>=1] - The amount of strikes.
+        - count ($integer) [>=1] - The amount of strikes.
     - "activateNet" - Activates a net which collects collectibles for a given amount of time.
         - time (number) [>0] - The duration of the effect in seconds.
     - "changeGameSpeed" - Changes the game speed to a defined value for a specified period of time.
@@ -43,11 +43,11 @@
         - time (number) [>0] - The duration of the effect, in seconds.
     - "collectibleRain" - Collectibles will spawn at the top of the screen.
         - collectibleGenerator (CollectibleGenerator) - The Collectible Generator which will be used to pick the collectibles to spawn.
-        - count (%integer) [>=1] - The amount of collectibles to be generated.
+        - count ($integer) [>=1] - The amount of collectibles to be generated.
         - delay (number) [>0] - The delay between consecutive collectible spawns, in seconds.
     - "projectileStorm" - Starts a rain/storm, spawning a given amount of projectiles which can destroy spheres.
         - projectile (Projectile) - The Projectile which will be spawning.
-        - count (%integer) [>=1] - The amount of projectiles to be spawned.
+        - count ($integer) [>=1] - The amount of projectiles to be spawned.
         - delay (number) [>0] - The delay between consecutive projectile spawns, in seconds.
     - "colorSort" - Starts a color sorting process on the current sphere trains.
         - sortType (string) - How will the colors be sorted.

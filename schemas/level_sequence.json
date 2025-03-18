@@ -303,7 +303,7 @@
                                     "type": "array",
                                     "description": "A list of Collectible Effects.",
                                     "items": {
-                                        "$ref": "collectible_effect.json",
+                                        "$ref": "_structures/CollectibleEffect.json",
                                         "description": "A single Collectible Effect."
                                     }
                                 },

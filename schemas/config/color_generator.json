@@ -63,7 +63,7 @@
                                 "description": "The color to be generated when this generator fails."
                             },
                             {
-                                "$ref": "#",
+                                "$ref": "../_structures/ColorGenerator.json",
                                 "description": "Another Color Generator to be used when this generator fails."
                             }
                         ]
@@ -127,7 +127,7 @@
                                 "description": "The color to be generated when this generator fails."
                             },
                             {
-                                "$ref": "#",
+                                "$ref": "../_structures/ColorGenerator.json",
                                 "description": "Another Color Generator to be used when this generator fails."
                             }
                         ]
@@ -178,7 +178,7 @@
                                 "description": "The color to be generated when this generator fails."
                             },
                             {
-                                "$ref": "#",
+                                "$ref": "../_structures/ColorGenerator.json",
                                 "description": "Another Color Generator to be used when this generator fails."
                             }
                         ]

@@ -40,7 +40,7 @@
             "type": "array",
             "description": "A list of effects to be applied when the powerup is collected.",
             "items": {
-                "$ref": "collectible_effect.json",
+                "$ref": "_structures/CollectibleEffect.json",
                 "description": "A single collectible effect."
             }
         },
@@ -48,7 +48,7 @@
             "type": "array",
             "description": "A list of effects to be applied when the powerup is not collected and falls out of the screen.",
             "items": {
-                "$ref": "collectible_effect.json",
+                "$ref": "_structures/CollectibleEffect.json",
                 "description": "A single collectible effect."
             }
         }

@@ -13,7 +13,7 @@
     - colorGeneratorDanger (ColorGenerator) - The Color Generator used to generate colors for the shooter when in danger.
     - shooter* (object) - Defines the Shooter. If not present, the shooter named `default` will be used along with its default movement.
         - name (Shooter) - Which Shooter will be used for this level.
-        - movement* ($shooter_movement) - If defined, overrides the default movement of this Shooter.
+        - movement* (ShooterMovement) - If defined, overrides the default movement of this Shooter.
     - matchEffect (SphereEffect) - The Sphere Effect to be used during normal matches for this level. Whenever a match is made, spheres are inflicted with this effect.
     - objectives (array) - A list of objectives. All of them must be fulfilled in order to complete the level.
         - (object) - A single objective.
@@ -24,7 +24,7 @@
             - target (number) [>0] - How many spheres destroyed, time survived or score gained is needed in order to fulfill this objective.
     - pathsBehavior (array) - Defines the behavior of paths. The n-th entry of this list corresponds to the n-th path. If this list is shorter than the number of paths, this list will wrap around during the behavior assignment process. If this list is longer than the number of paths, all subsequent entries are discarded.
         - (object) - A single path behavior.
-            - trainRules ($level_train_rules) - How trains should be spawned, including their length and color distribution.
+            - trainRules (LevelTrainRules) - How trains should be spawned, including their length and color distribution.
             - spawnDistance (number) [>=0,<=1] - How far the path must be clear for a new Sphere Chain to spawn.
             - dangerDistance (number) [>=0,<=1] - How far into the path the spheres have to be in order for the player to be in danger.
             - speeds (array) - A list of speeds which will translate to the actual speed on any point of the path.

@@ -5,7 +5,7 @@
     "properties": {
         "$schema": true,
         "movement": {
-            "$ref": "shooter_movement.json",
+            "$ref": "../_structures/ShooterMovement.json",
             "description": "Describes the positioning and movement of the shooter."
         },
         "sprite": {

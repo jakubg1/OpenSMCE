@@ -14,4 +14,4 @@
         - (integer) - A single sphere ID.
     - fallback - What should be generated when this generator fails.
         - (integer) - The color to be generated when this generator fails.
-        - (#) - Another Color Generator to be used when this generator fails.
+        - (ColorGenerator) - Another Color Generator to be used when this generator fails.

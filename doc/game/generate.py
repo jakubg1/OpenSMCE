@@ -663,25 +663,21 @@ def docl_to_docld(data):
 				continue
 
 			# Otherwise, just parse the token as normal.
-			if token[0] == "(" and token[-1] == ")": # (type) or ($ref) or (#internal_ref) or (Structure)
-				# Different types can be separated with | and mixed around, e.g. (#internal_ref|#internal_ref|Structure).
+			if token[0] == "(" and token[-1] == ")": # (type) or (Structure)
+				# Different types can be separated with | and mixed around, e.g. (type|type|Structure).
 				line_out["types"] = []
 				subtokens = token[1:-1].split("|")
 				for subtoken in subtokens:
-					if subtoken[0] == "%": # %expression
-						if subtoken[1].lower() != subtoken[1]: # %Structure (applies only to %Vector2)
+					if subtoken[0] == "$": # $expression
+						if subtoken[1].lower() != subtoken[1]: # $Structure (applies only to $Vector2)
 							line_out["types"].append({"structure": subtoken[1:], "expression": True})
 						else:
 							line_out["types"].append({"type": subtoken[1:], "expression": True})
-					elif subtoken[0] == "$": # $ref
-						line_out["types"].append({"ref": subtoken[1:]})
-					elif subtoken[0] == "#": # #internal_ref
-						line_out["types"].append({"internal_ref": subtoken})
 					elif subtoken[0].lower() != subtoken[0]: # Structure
 						line_out["types"].append({"structure": subtoken})
 					else: # type
 						line_out["types"].append({"type": subtoken})
-				# "types" don't exist if there's one type. Instead, have a direct field: "ref", "internal_ref", "structure" or "type".
+				# "types" don't exist if there's one type. Instead, have a direct field: "structure" or "type".
 				if len(line_out["types"]) == 1:
 					for i in range(len(line_out["types"][0].keys())):
 						line_out[list(line_out["types"][0].keys())[i]] = list(line_out["types"][0].values())[i]
@@ -757,10 +753,6 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 			out["$ref"] = structures_path + "Expr" + entry["type"].capitalize() + ".json"
 		else:
 			out["type"] = entry["type"]
-	elif "internal_ref" in entry:
-		out["$ref"] = entry["internal_ref"]
-	elif "ref" in entry:
-		out["$ref"] = entry["ref"] + ".json"
 	elif "structure" in entry:
 		out["$ref"] = structures_path + ("Expr" if "expression" in entry else "") + entry["structure"] + ".json"
 	elif "const" in entry:
@@ -771,10 +763,6 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 		for choice in entry["types"]:
 			if "type" in choice:
 				out["anyOf"].append({"type": choice["type"]})
-			elif "internal_ref" in choice:
-				out["anyOf"].append({"$ref": choice["internal_ref"]})
-			elif "ref" in choice:
-				out["anyOf"].append({"$ref": choice["ref"] + ".json"})
 			elif "structure" in choice:
 				out["anyOf"].append({"$ref": structures_path + ("Expr" if "expression" in choice else "") + choice["structure"] + ".json"})
 			elif "const" in choice:
@@ -921,21 +909,12 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"Projectile": "parseProjectileConfig",
 		"ScoreEvent": "parseScoreEventConfig",
 		"Shooter": "parseShooterConfig",
+		"ShooterMovement": "parseShooterMovementConfig",
 		"SphereEffect": "parseSphereEffectConfig",
-		"SphereSelector": "parseSphereSelectorConfig",
+		"SphereSelector": "parseSphereSelectorConfig"
 	}
 	lua_expr_structure_assoc = {
 		"Vector2": "parseExprVec2"
-	}
-	lua_ref_assoc = {
-		"shooter_movement": "parseShooterMovementConfig",
-		"collectible_effect": "parseCollectibleEffectConfig",
-		"level_sequence_entry": "parseLevelSequenceEntry",
-		"level_train_rules": "parseLevelTrainRules",
-		"level_speed_transition": "parseLevelSpeedTransition",
-		"level_set_entry": "parseLevelSetEntry",
-		"sphere_shoot_behavior": "parseSphereShootBehavior",
-		"sphere_hit_behavior": "parseSphereHitBehavior"
 	}
 	
 	# Optional entries have an asterisk.
@@ -963,16 +942,6 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 				else:
 					default = str(entry["default"])
 			return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")" + (" or " + default if "default" in entry else "")
-	elif "internal_ref" in entry:
-		if entry["internal_ref"] == "#":
-			function = "u.parse" + class_name + ("Opt" if optional else "")
-			return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")"
-		else:
-			print("TODO: Internal references not supported")
-			return "ERROR"
-	elif "ref" in entry:
-		function = "u." + lua_ref_assoc[entry["ref"]] + ("Opt" if optional else "")
-		return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")"
 	elif "structure" in entry:
 		function = "u." + (lua_expr_structure_assoc if "expression" in entry else lua_structure_assoc)[entry["structure"]] + ("Opt" if optional else "")
 		default = ""
@@ -1150,7 +1119,7 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 				out.append("self." + context + name + " = " + docld_to_lua_value(entry, class_name, data_context, error_context, name))
 			else:
 				out.append("self." + context[:-1] + " = " + docld_to_lua_value(entry, class_name, data_context[:-1], error_context[:-1], ""))
-	elif "internal_ref" in entry or "ref" in entry or "structure" in entry:
+	elif "structure" in entry:
 		if "name" in entry:
 			out.append("self." + context + name + " = " + docld_to_lua_value(entry, class_name, data_context, error_context, name))
 		else:

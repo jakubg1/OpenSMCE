@@ -109,9 +109,9 @@
                     "type": true,
                     "entries": {
                         "type": "array",
-                        "description": "A list of collectible entries to be evaluated.",
+                        "description": "A list of collectible generator entries to be evaluated.",
                         "items": {
-                            "$ref": "#",
+                            "$ref": "_structures/CollectibleGenerator.json",
                             "description": "A single collectible generator entry."
                         }
                     },
@@ -147,8 +147,8 @@
                     "$schema": true,
                     "type": true,
                     "entry": {
-                        "$ref": "#",
-                        "description": "A collectible entry to be evaluated."
+                        "$ref": "_structures/CollectibleGenerator.json",
+                        "description": "A collectible generator entry to be evaluated."
                     },
                     "count": {
                         "$ref": "_structures/ExprInteger.json",
@@ -195,7 +195,7 @@
                             "description": "A single choice.",
                             "properties": {
                                 "entry": {
-                                    "$ref": "#",
+                                    "$ref": "_structures/CollectibleGenerator.json",
                                     "description": "A collectible generator entry to be evaluated."
                                 },
                                 "weight": {

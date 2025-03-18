@@ -63,7 +63,7 @@
                     "description": "Which Shooter will be used for this level."
                 },
                 "movement": {
-                    "$ref": "shooter_movement.json",
+                    "$ref": "../_structures/ShooterMovement.json",
                     "description": "If defined, overrides the default movement of this Shooter."
                 }
             },
@@ -122,7 +122,7 @@
                 "description": "A single path behavior.",
                 "properties": {
                     "trainRules": {
-                        "$ref": "level_train_rules.json",
+                        "$ref": "../_structures/LevelTrainRules.json",
                         "description": "How trains should be spawned, including their length and color distribution."
                     },
                     "spawnDistance": {

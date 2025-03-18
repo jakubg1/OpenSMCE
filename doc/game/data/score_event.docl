@@ -1,10 +1,10 @@
 - (object) - The root object.
-    - score (%integer) - The score to be granted when this Score Event is fired.
+    - score ($integer) - The score to be granted when this Score Event is fired.
     - ignoreDifficultyMultiplier* (boolean) - Whether the score should NOT be multiplied by the player's difficulty multiplier. Defaults to `false`.
-    - text* (%string) - The text to be displayed when this Score Event is fired. The text will be displayed at a position of where the Score Event has been fired. By default, this is the raw score value.
+    - text* ($string) - The text to be displayed when this Score Event is fired. The text will be displayed at a position of where the Score Event has been fired. By default, this is the raw score value.
     - font* (Font) - The font which will be used to display the score text. If not specified, the score text will not appear.
     - fonts* (object) - If the event can display the score in different fonts, use this object. Cannot coexist with `font`.
         - options (array) - A list of fonts, one of which will be picked.
             - (Font) - A single font.
         - default (Font) - The default font, if the choice matches none of the above choices.
-        - choice (%integer) - An integer expression which evaluates to a number identifying one of the options.
+        - choice ($integer) - An integer expression which evaluates to a number identifying one of the options.

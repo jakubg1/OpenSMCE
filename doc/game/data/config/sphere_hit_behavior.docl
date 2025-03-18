@@ -9,7 +9,7 @@
         - pierce* (boolean) - If set, the sphere will not be destroyed upon hitting the sphere train.
     - "recolorSpheres" - The sphere gets destroyed and changes the color of the spheres selected by the provided sphere selector.
         - selector (SphereSelector) - The Sphere Selector which will select the spheres of which the color will be changed.
-        - color (%integer) - Which color the spheres will be changed to.
+        - color ($integer) - Which color the spheres will be changed to.
         - particle* (Particle) - A one-time particle packet launched for all affected spheres.
         - pierce* (boolean) - If set, the sphere will not be destroyed upon hitting the sphere train.
     - "splitAndPushBack" - The sphere gets destroyed, splits the sphere group in front of the hit sphere and applies negative speed to the back part of it.

@@ -26,7 +26,7 @@
             - "clearBoard" - Empties the Shooter and disables the Net. Transient: immediately jumps to the next step.
             - "collectibleEffect" - Activates a list of Collectible Effects without a position set.
                 - effects (array) - A list of Collectible Effects.
-                    - ($collectible_effect) - A single Collectible Effect.
+                    - (CollectibleEffect) - A single Collectible Effect.
             - "end" - The end of a level.
                 - status (string) - Can be one of the following:
                     - "win" - The level will be registered as won and a `levelComplete` UI callback will be executed.
