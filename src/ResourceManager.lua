@@ -78,6 +78,7 @@ function ResourceManager:new()
 		map = {extension = "/"},
 		level = {extension = "json"}
 	}
+	CollectibleConfig.inject(ResourceManager)
 	-- TODO: Auto-generate these two below.
 	-- Maybe consider registering the resource types dynamically?
 	-- Alongside this, update the table in Resource Management section in the wiki!
@@ -200,13 +201,6 @@ end
 ---@return ColorPalette
 function ResourceManager:getColorPalette(path)
 	return self:getAsset(path, "color palette")
-end
-
----Retrieves a Collectible Config by a given path.
----@param path string The resource path.
----@return CollectibleConfig
-function ResourceManager:getCollectibleConfig(path)
-	return self:getAsset(path, "collectible")
 end
 
 ---Retrieves a Collectible Effect Config by a given path.

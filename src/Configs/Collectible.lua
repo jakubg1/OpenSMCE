@@ -10,8 +10,6 @@ local class = require "com.class"
 ---@overload fun(data, path):CollectibleConfig
 local CollectibleConfig = class:derive("CollectibleConfig")
 
-
-
 ---Constructs an instance of CollectibleConfig.
 ---@param data table Raw data from a file.
 ---@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
@@ -43,6 +41,18 @@ function CollectibleConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager unknown Resource Manager class to inject the functions to.
+function CollectibleConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a Collectible Config by a given path.
+    ---@param path string The resource path.
+    ---@return CollectibleConfig
+    function ResourceManager:getCollectibleConfig(path)
+        return self:getAsset(path, "collectible")
+    end
+end
 
 return CollectibleConfig
