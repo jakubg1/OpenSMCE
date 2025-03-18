@@ -32,6 +32,10 @@ def case_snake_to_pascal(line):
 def indent_text(text, spaces):
 	return "\n".join((" " * spaces) + line for line in text.split("\n"))
 
+# Returns `True` if the given regex is numeric (any string satisfying it must be parseable into a number).
+def is_regex_numeric(regex):
+	return regex in ["^[-]?[0-9]*$", "^[0-9]*$", "^-[0-9]*$"]
+
 
 
 #
@@ -1055,7 +1059,14 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 				child = entry["children"][0]
 				out.append("for n, _ in pairs(data." + context + name + ") do")
 				out.append(1)
-				out += docld_to_lua(child, class_name, False, omit_packing, context + name + "[tonumber(n)].", data_context + name + "[n].", error_context + name + ".\" .. tostring(n) .. \".", iterators_used)
+				if is_regex_numeric(entry["regex"]):
+					key = "tonumber(n)"
+				else:
+					key = "n"
+				new_context = context + name + "[" + key + "]."
+				new_data_context = data_context + name + "[n]."
+				new_error_context = error_context + name + ".\" .. tostring(n) .. \"."
+				out += docld_to_lua(child, class_name, False, omit_packing, new_context, new_data_context, new_error_context, iterators_used)
 				out.append(-1)
 				out.append("end")
 			elif "keyconst" in entry:

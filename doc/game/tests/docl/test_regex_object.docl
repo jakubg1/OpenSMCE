@@ -1,3 +1,11 @@
 - (object) - The root object.
-    - object (object) <<^[-]?[0-9]*$>> - Key names must be stringified integers.
+    - integers (object) <<^[-]?[0-9]*$>> - Object with integers as keys.
+        - (boolean) - An example boolean value.
+    - nonNegative (object) <<^[0-9]*$>> - Object with non-negative integers as keys.
+        - (boolean) - An example boolean value.
+    - negative (object) <<^-[0-9]*$>> - Object with negative integers as keys.
+        - (boolean) - An example boolean value.
+    - any (object) <<^.*$>> - Object with any string as keys.
+        - (boolean) - An example boolean value.
+    - characters (object) <<^.$>> - Object with characters as keys.
         - (boolean) - An example boolean value.
