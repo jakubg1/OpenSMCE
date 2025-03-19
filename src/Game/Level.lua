@@ -1340,10 +1340,19 @@ end
 
 
 ---Destroys the frontmost sphere on all paths, for the purposes of fail animation.
+---If the path has no spheres rolled out past the spawn area (offset<0), kills all spheres on that path.
 function Level:destroyFrontmostSphere()
 	for i, path in ipairs(self.map.paths) do
-		local group = path:getFirstSphereChain():getFirstSphereGroup()
-		group:destroySphere(#group.spheres)
+		if path:getMaxOffset() > 0 then
+			local sphereGroup = path:getFirstSphereChain():getFirstSphereGroup()
+			sphereGroup:destroySphere(#sphereGroup.spheres)
+		else
+			for j, sphereChain in ipairs(path.sphereChains) do
+				for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
+					sphereGroup:destroySpheres(1, #sphereGroup.spheres)
+				end
+			end
+		end
 	end
 end
 
