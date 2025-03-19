@@ -9,7 +9,9 @@
                 "random",
                 "setCoins",
                 "setLevelVariable",
+                "setLevelTimer",
                 "collectibleEffect",
+                "scoreEvent",
                 "playSound"
             ]
         }
@@ -179,6 +181,45 @@
             "if": {
                 "properties": {
                     "type": {
+                        "const": "setLevelTimer",
+                        "description": "Sets or resets the value of the Level Timer. If no Level is currently active, the event will do nothing."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "timer": {
+                        "type": "string",
+                        "description": "The name of the Level Timer to be set."
+                    },
+                    "time": {
+                        "$ref": "_structures/ExprNumber.json",
+                        "description": "The new value for this Level Timer. If not specified, the timer will be reset to 0."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "timer"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
                         "const": "collectibleEffect",
                         "description": "Executes a Collectible Effect on the current Level. If no Level is currently active, the event will do nothing."
                     }
@@ -206,6 +247,41 @@
                 },
                 "required": [
                     "collectibleEffect"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "scoreEvent",
+                        "description": "Executes a Score Event on the current Level. If no Level is currently active, the event will do nothing."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "scoreEvent": {
+                        "$ref": "_structures/ScoreEvent.json",
+                        "description": "The Score Event to be executed."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "scoreEvent"
                 ],
                 "additionalProperties": false
             }

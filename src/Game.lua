@@ -235,11 +235,21 @@ function Game:executeGameEvent(event)
 			return
 		end
 		self.level:setVariable(event.variable, event.value:evaluate())
+	elseif event.type == "setLevelTimer" then
+		if not self.level then
+			return
+		end
+		self.level:setTimer(event.timer, event.time:evaluate())
 	elseif event.type == "collectibleEffect" then
 		if not self.level then
 			return
 		end
 		self.level:applyEffect(event.collectibleEffect)
+	elseif event.type == "scoreEvent" then
+		if not self.level then
+			return
+		end
+		self.level:executeScoreEvent(event.scoreEvent)
 	elseif event.type == "playSound" then
 		self:playSound(event.soundEvent)
 	end

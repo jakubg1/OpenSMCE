@@ -219,6 +219,11 @@ function Debug:getDebugLevel()
 		s = s .. string.format("  - %s = %s", name, variable)
 	end
 	s = s .. "\n"
+	s = s .. "Timers:\n"
+	for name, timer in pairs(level.timers) do
+		s = s .. string.format("  - %s = %.2f", name, timer)
+	end
+	s = s .. "\n"
 	s = s .. "\n"
 	s = s .. "Collectible# = " .. tostring(#level.collectibles) .. "\n"
 	s = s .. "FloatingText# = " .. tostring(#level.floatingTexts) .. "\n"

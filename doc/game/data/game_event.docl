@@ -10,8 +10,13 @@
     - "setLevelVariable" - Sets the value of the Level Variable. If no Level is currently active, the event will do nothing.
         - variable (string) - The name of the Level Variable to be set.
         - value ($number) - The new value for this Level Variable.
+    - "setLevelTimer" - Sets or resets the value of the Level Timer. If no Level is currently active, the event will do nothing.
+        - timer (string) - The name of the Level Timer to be set.
+        - time* = 0 ($number) - The new value for this Level Timer. If not specified, the timer will be reset to 0.
     - "collectibleEffect" - Executes a Collectible Effect on the current Level. If no Level is currently active, the event will do nothing.
         - collectibleEffect (CollectibleEffect) - The Collectible Effect to be executed.
+    - "scoreEvent" - Executes a Score Event on the current Level. If no Level is currently active, the event will do nothing.
+        - scoreEvent (ScoreEvent) - The Score Event to be executed.
     - "playSound" - Plays a Sound Event.
         - soundEvent (SoundEvent) - The Sound Event to be played.
     - conditions* (array) - A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.
