@@ -21,7 +21,8 @@ function BootSettings:new(bootScreen)
 		{name = "Aiming Retical", f = function(state) _EngineSettings:setAimingRetical(state) end, tooltip = "Enables the Aiming Retical, which is either one defined by the game or\na simple placeholder, if not defined."},
 		{name = "Debug console window", f = function(state) _EngineSettings:setConsoleWindow(state) end, tooltip = "Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from the source code,\nbut the console output will be suppressed.\nYou will need to restart the engine for this setting change to take effect."},
 		{name = "Enable 3D Sound", f = function(state) _EngineSettings:set3DSound(state) end, tooltip = "Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker."},
-		{name = "Hide incompatible games", f = function(state) _EngineSettings:setHideIncompatibleGames(state) end, tooltip = "Hides all incompatible games from the boot menu, including games which have\nan unknown supported version."}
+		{name = "Hide incompatible games", f = function(state) _EngineSettings:setHideIncompatibleGames(state) end, tooltip = "Hides all incompatible games from the boot menu, including games which have\nan unknown supported version."},
+		{name = "Print deprecation notices", f = function(state) _EngineSettings:setPrintDeprecationNotices(state) end, tooltip = "For developers!\n\nEnables printing code deprecation notices."}
 	}
 
 	-- buttons
@@ -47,6 +48,7 @@ function BootSettings:init()
 	self.settingCheckboxes[6].selected = _EngineSettings:getConsoleWindow()
 	self.settingCheckboxes[7].selected = _EngineSettings:get3DSound()
 	self.settingCheckboxes[8].selected = _EngineSettings:getHideIncompatibleGames()
+	self.settingCheckboxes[9].selected = _EngineSettings:getPrintDeprecationNotices()
 end
 
 

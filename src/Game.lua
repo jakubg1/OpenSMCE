@@ -190,6 +190,7 @@ end
 function Game:playSound(name, pos)
 	-- TODO: Unmangle this code. Will the string representation be still necessary after we fully move to Config Classes?
 	if type(name) == "string" then
+		_Debug:deprecationNotice("Game:playSound(): String argument will be phased out soon!", 2)
 		return self.resourceManager:getSoundEvent(name):play(pos)
 	else
 		return name:play(pos)
@@ -206,7 +207,6 @@ function Game:spawnParticle(name, pos, layer)
 end
 
 ---Executes a Game Event.
----TODO: Move this function's parameter to a Config Class.
 ---@param event GameEventConfig The game event to be executed.
 function Game:executeGameEvent(event)
 	-- Abort the execution if any of the conditions are not met.

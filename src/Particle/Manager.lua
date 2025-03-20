@@ -37,6 +37,7 @@ function ParticleManager:spawnParticlePacket(path, pos, layer)
 	-- TODO: Unmangle this code. Will the string representation be still needed after we fully move to Config Classes?
 	local data
 	if type(path) == "string" then
+		_Debug:deprecationNotice("ParticleManager:spawnParticlePacket(): String argument will be phased out soon!", 2)
 		data = _Game.resourceManager:getParticle(path)
 	else
 		data = path

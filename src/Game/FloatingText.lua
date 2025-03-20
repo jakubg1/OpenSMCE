@@ -19,6 +19,7 @@ function FloatingText:new(text, pos, font)
 	self.font = font
 	if type(self.font) == "string" then
 		-- TODO: Remove at some point when we get rid of pointing to resources via names.
+		_Debug:deprecationNotice("FloatingText:new(): String argument will be phased out soon!", 2)
 		self.font = _Game.resourceManager:getFont(self.font)
 	end
 

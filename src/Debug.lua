@@ -57,6 +57,8 @@ function Debug:new()
 	self.lastVec2PerFrame = 0
 	self.e = false
 
+	self.displayedDeprecationTraces = {}
+
 
 
 	self.gameDebugVisible = false -- Switched by F3
@@ -120,6 +122,8 @@ function Debug:keypressed(key)
 			self.fpsDebugVisible = not self.fpsDebugVisible
 		elseif key == "f6" then
 			self.sphereDebugVisible = not self.sphereDebugVisible
+		elseif key == "f10" then
+			self:deprecationNotice("test")
 		end
 		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
 		if key == "kp+" and self.profPage < #self.profPages then self.profPage = self.profPage + 1 end
@@ -153,9 +157,19 @@ end
 
 ---Prints a deprecation notice to the ingame console.
 ---@param message string The message to be printed.
----@param depth integer? The message will contain one line in the traceback. This parameter determines how many jumps back in the traceback should be made.
+---@param depth integer? The message will contain one line in the traceback. This parameter determines how many jumps back in the traceback should be made. The function will never print more than one instance of the same line.
 function Debug:deprecationNotice(message, depth)
+	if not _EngineSettings:getPrintDeprecationNotices() then
+		return
+	end
     depth = depth or 1
+	local trace = _Utils.strTrim(_Utils.strSplit(debug.traceback(), "\n")[depth + 2])
+	if _Utils.isValueInTable(self.displayedDeprecationTraces, trace) then
+		return
+	end
+	table.insert(self.displayedDeprecationTraces, trace)
+	self.console:print({_COLORS.aqua, "[Debug] ", _COLORS.red, "Deprecation Notice: ", _COLORS.purple, message})
+	self.console:print({_COLORS.yellow, "        " .. trace})
 end
 
 

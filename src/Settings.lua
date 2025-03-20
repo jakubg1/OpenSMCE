@@ -27,6 +27,7 @@ function Settings:reset()
 	if self:getConsoleWindow() == nil then self:setConsoleWindow(true) end
 	if self:get3DSound() == nil then self:set3DSound(false) end
 	if self:getHideIncompatibleGames() == nil then self:setHideIncompatibleGames(false) end
+	if self:getPrintDeprecationNotices() == nil then self:setPrintDeprecationNotices(false) end
 end
 
 
@@ -95,6 +96,14 @@ function Settings:getHideIncompatibleGames()
 	return self.data.hideIncompatibleGames
 end
 
+function Settings:setPrintDeprecationNotices(value)
+	self.data.printDeprecationNotices = value
+end
+
+function Settings:getPrintDeprecationNotices()
+	return self.data.printDeprecationNotices
+end
+
 
 
 function Settings:save()
@@ -105,7 +114,11 @@ function Settings:load()
 	local success, data = pcall(function() return _Utils.loadJson(self.path) end)
 
 	-- default options if not found
-	if success then self.data = data else self.data = nil end
+	if success then
+		self.data = data
+	else
+		self.data = nil
+	end
 	self:reset()
 end
 
