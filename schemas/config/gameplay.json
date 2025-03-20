@@ -210,6 +210,52 @@
                     "type": "boolean",
                     "description": "If true, the spheres will match instantly when they can match. If the match effect has a delay, the sphere will be attached to the nearest sphere and will match after the specified period of time.",
                     "markdownDescription": "If `true`, the spheres will match instantly when they can match. If the match effect has a delay, the sphere will be attached to the nearest sphere and will match after the specified period of time."
+                },
+                "distanceEvents": {
+                    "type": "array",
+                    "description": "Specifies any number of Distance Events (Game Events which will happen whenever any Sphere Group moves through a certain point).",
+                    "items": {
+                        "type": "object",
+                        "description": "A single Distance Event.",
+                        "properties": {
+                            "reference": {
+                                "type": "string",
+                                "description": "The reference point of the Sphere Group to be checked.",
+                                "oneOf": [
+                                    {
+                                        "const": "front",
+                                        "description": "The frontmost point of the Sphere Group will be checked."
+                                    },
+                                    {
+                                        "const": "back",
+                                        "description": "The backmost point of the Sphere Group will be checked."
+                                    }
+                                ]
+                            },
+                            "distance": {
+                                "type": "number",
+                                "description": "The percentage of the path through which the reference point should move in order to execute the event."
+                            },
+                            "forwards": {
+                                "type": "boolean",
+                                "description": "Whether the event should be executed when the reference point moves forwards."
+                            },
+                            "backwards": {
+                                "type": "boolean",
+                                "description": "Whether the event should be executed when the reference point moves backwards."
+                            },
+                            "event": {
+                                "$ref": "../_structures/GameEvent.json",
+                                "description": "The Game Event which will be executed when this Distance Event's conditions are satisfied."
+                            }
+                        },
+                        "required": [
+                            "reference",
+                            "distance",
+                            "event"
+                        ],
+                        "additionalProperties": false
+                    }
                 }
             },
             "required": [

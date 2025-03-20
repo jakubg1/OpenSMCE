@@ -27,6 +27,7 @@ function SphereGroup:new(sphereChain, deserializationTable)
 		self.speedTime = nil -- this is used ONLY in zuma knockback; aka the speed of this group will be locked for this time
 		self.spheres = {}
 		self.matchCheck = true -- this is used ONLY in vise destruction to not trigger a chain reaction
+		self.distanceEventStates = {}
 	end
 
 	self.maxSpeed = 0
@@ -167,9 +168,9 @@ function SphereGroup:update(dt)
 		end
 	end
 
+	-- Remove spheres at the end of path when the level is lost/it's a dummy path.
 	if (self.map.level.lost and self.config.foulDestroySpheres.type == "atEnd") or self.map.isDummy then
 		for i = #self.spheres, 1, -1 do
-			-- Remove spheres at the end of path when the level is lost/it's a dummy path.
 			if self:getSphereOffset(i) >= self.sphereChain.path.length then
 				self:destroySphere(i)
 			end
@@ -361,6 +362,32 @@ end
 
 
 
+function SphereGroup:updateDistanceEvents()
+	-- Abort if no Distance Events are defined.
+	if not self.config.distanceEvents then
+		return
+	end
+	-- Go through Distance Events.
+	for i, event in ipairs(self.config.distanceEvents) do
+		local refDistance = event.reference == "front" and self:getFrontPos() or self:getBackPos()
+		local distance = self.sphereChain.path.length * event.distance
+		local rolledPast = refDistance > distance
+		if not self.distanceEventStates[i] then
+			self.distanceEventStates[i] = {rolledPast = rolledPast}
+		else
+			if event.forwards and rolledPast and not self.distanceEventStates[i].rolledPast then
+				_Game:executeGameEvent(_Game.resourceManager:getGameEventConfig(event.event))
+			end
+			if event.backwards and not rolledPast and self.distanceEventStates[i].rolledPast then
+				_Game:executeGameEvent(_Game.resourceManager:getGameEventConfig(event.event))
+			end
+			self.distanceEventStates[i].rolledPast = rolledPast
+		end
+	end
+end
+
+
+
 function SphereGroup:checkDeletion()
 	-- abort if this group is unfinished
 	if self:isUnfinished() then
@@ -395,7 +422,7 @@ end
 function SphereGroup:move(offset)
 	self.offset = self.offset + offset
 	self:updateSphereOffsets()
-	-- if reached the end of the level, it's over
+	-- If reached the end of the level, it's over.
 	if self:getLastSphereOffset() >= self.sphereChain.path.length and
 		not self:isMagnetizing() and
 		not self:hasShotSpheres() and
@@ -405,6 +432,11 @@ function SphereGroup:move(offset)
 	then
 		self.map.level:lose()
 	end
+	-- Update Distance Events.
+	if not self.map.level.lost then
+		self:updateDistanceEvents()
+	end
+	-- Check collisions.
 	if offset <= 0 then
 		-- if it's gonna crash into the previous group, move only what is needed
 		-- join the previous group if this group starts to overlap the previous one
@@ -1311,7 +1343,8 @@ function SphereGroup:serialize()
 		speed = self.speed,
 		speedTime = self.speedTime,
 		spheres = {},
-		matchCheck = self.matchCheck
+		matchCheck = self.matchCheck,
+		distanceEventStates = self.distanceEventStates
 	}
 	for i, sphere in ipairs(self.spheres) do
 		table.insert(t.spheres, sphere:serialize())
@@ -1338,6 +1371,7 @@ function SphereGroup:deserialize(t)
 		table.insert(self.spheres, s)
 	end
 	self.matchCheck = t.matchCheck
+	self.distanceEventStates = t.distanceEventStates
 	self:updateSphereOffsets()
 end
 
