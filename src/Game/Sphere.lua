@@ -109,7 +109,7 @@ function Sphere:update(dt)
 			effect.time = effect.time - dt
 			-- If the timer elapses, destroy this sphere.
 			if effect.time <= 0 then
-				self:matchEffect(effect.name)
+				self:matchEffect(effect.config)
 			end
 		end
 	end
@@ -237,7 +237,7 @@ function Sphere:deleteVisually(ghostTime, crushed)
 			_Vars:setC("sphere", "crushed", crushed or false)
 			-- Spawn collectibles, if any.
 			if self.config.destroyCollectible then
-				self.map.level:spawnCollectiblesFromEntry(self:getPos(), _Game.resourceManager:getCollectibleGeneratorConfig(self.config.destroyCollectible))
+				self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectible)
 			end
 			-- Play a sound.
 			if self.config.destroySound then
@@ -245,7 +245,7 @@ function Sphere:deleteVisually(ghostTime, crushed)
 			end
 			-- Execute a Game Event.
 			if self.config.destroyEvent then
-				_Game:executeGameEvent(_Game.resourceManager:getGameEventConfig(self.config.destroyEvent))
+				_Game:executeGameEvent(self.config.destroyEvent)
 			end
 			_Vars:unset("sphere")
 		end
@@ -297,18 +297,16 @@ end
 
 
 ---Applies an effect to this sphere.
----@param name string The path to the sphere effect. TODO: Change to sphere effect config!
+---@param effectConfig SphereEffectConfig The config of the Sphere Effect to be applied to this Sphere.
 ---@param infectionSize integer? How many spheres can this effect traverse to in one direction. If not set, data from the sphere effect config is prepended.
 ---@param infectionTime number? The time that needs to elapse before this effect traverses to the neighboring spheres. If not set, data from the sphere effect config is prepended.
 ---@param effectGroupID integer? The sphere effect group ID this sphere belongs to. Used to determine the cause sphere.
-function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
+function Sphere:applyEffect(effectConfig, infectionSize, infectionTime, effectGroupID)
 	-- Don't allow a single sphere to have the same effect applied twice.
-	if self:hasEffect(name) then
+	if self:hasEffect(effectConfig) then
 		return
 	end
 
-	-- Load a configuration for the given effect.
-	local effectConfig = _Game.resourceManager:getSphereEffectConfig(name)
 	-- Create an effect group if it doesn't exist.
 	if not effectGroupID then
 		effectGroupID = self.path:createSphereEffectGroup(self)
@@ -316,7 +314,7 @@ function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
 	self.path:incrementSphereEffectGroup(effectGroupID)
 	-- Prepare effect data and insert it.
 	local effect = {
-		name = name,
+		name = effectConfig._path,
 		config = effectConfig,
 		time = effectConfig.time,
 		infectionSize = infectionSize or effectConfig.infectionSize,
@@ -330,7 +328,7 @@ function Sphere:applyEffect(name, infectionSize, infectionTime, effectGroupID)
 
 	-- Sound effect.
 	if effectConfig.applySound then
-		_Game:playSound(effectConfig.applySound, self:getPos())
+		_Game:playSound(effect.applySound, self:getPos())
 	end
 end
 
@@ -381,33 +379,33 @@ end
 
 
 ---Destroys this and any number of connected spheres with a given effect.
----@param name string The name of the sphere effect.
-function Sphere:matchEffect(name)
-	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), name)
+---@param effectConfig SphereEffectConfig The sphere effect config.
+function Sphere:matchEffect(effectConfig)
+	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), effectConfig)
 end
 
 
 
----Destroys this and any number of connected spheres with a fragile effect.
+---Destroys this and any number of connected spheres with the first found fragile effect.
 function Sphere:matchEffectFragile()
-	local name = nil
+	local effectConfig = nil
 	for i, effect in ipairs(self.effects) do
 		if effect.config.fragile then
-			name = effect.name
+			effectConfig = effect.config
 			break
 		end
 	end
-	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), name)
+	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), effectConfig)
 end
 
 
 
 ---Returns the effect group ID of a given effect of this sphere, or `nil` if not found.
----@param name string The ID of the sphere effect.
+---@param effectConfig SphereEffectConfig The sphere effect config.
 ---@return integer?
-function Sphere:getEffectGroupID(name)
+function Sphere:getEffectGroupID(effectConfig)
 	for i, effect in ipairs(self.effects) do
-		if effect.name == name then
+		if effect.name == effectConfig._path then
 			return effect.effectGroupID
 		end
 	end
@@ -416,12 +414,12 @@ end
 
 
 ---Returns `true` if this sphere is inflicted with a given effect.
----@param name string The ID of the sphere effect.
+---@param effectConfig SphereEffectConfig The sphere effect config.
 ---@param effectGroupID integer? If given, this function will return `true` only if this sphere is in that particular effect group ID.
 ---@return boolean
-function Sphere:hasEffect(name, effectGroupID)
+function Sphere:hasEffect(effectConfig, effectGroupID)
 	for i, effect in ipairs(self.effects) do
-		if effect.name == name and (not effectGroupID or effect.effectGroupID == effectGroupID) then
+		if effect.name == effectConfig._path and (not effectGroupID or effect.effectGroupID == effectGroupID) then
 			return true
 		end
 	end
@@ -497,7 +495,7 @@ end
 ---Returns `true` if this sphere is a ghost, i.e. has no visual representation and no hitbox, but exists.
 ---@return boolean
 function Sphere:isGhost()
-	return self.ghostTime and self.ghostTime >= 0
+	return self.ghostTime and self.ghostTime >= 0 or false
 end
 
 
@@ -505,7 +503,7 @@ end
 ---Returns `true` if this sphere is a ghost and can be now removed entirely from the board.
 ---@return boolean
 function Sphere:isGhostForDeletion()
-	return self.ghostTime and self.ghostTime <= 0
+	return self.ghostTime and self.ghostTime <= 0 or false
 end
 
 
@@ -712,29 +710,34 @@ function Sphere:draw(color, hidden, shadow)
 	end
 
 	-- debug: you can peek some sphere-related values here
+	--[[
+	local effectConfig = _Game.resourceManager:getSphereEffectConfig("sphere_effects/match.json")
+	if not shadow and self:hasEffect(effectConfig) then
+		local p = self:getPos()
+		love.graphics.print(self:getEffectGroupID(effectConfig), p.x, p.y + 20)
+	end
+	]]
 
-	--if not shadow and self:hasEffect("match") then
-	--	local p = self:getPos()
-	--	love.graphics.print(self:getEffectGroupID("match"), p.x, p.y + 20)
-	--end
-
-	--if not shadow and _Debug.gameDebugVisible and self.appendSize < 1 then
-	--	local p = self:getPos()
-	--	local s = ""
-	--	s = s .. "offset: " .. tostring(self.offset) .. "\n"
-	--	s = s .. "getOffset(): " .. tostring(self:getOffset()) .. "\n"
-	--	s = s .. "appendSize: " .. tostring(self.appendSize) .. "\n"
-	--	s = s .. "\nResult: " .. tostring(self:getOffset() + 32 - self.appendSize * 32)
-	--	love.graphics.print(s, p.x, p.y + 20)
-	--end
+	-- Sphere appending
+	--[[
+	if not shadow and _Debug.gameDebugVisible and self.appendSize < 1 then
+		local p = self:getPos()
+		local s = ""
+		s = s .. "offset: " .. tostring(self.offset) .. "\n"
+		s = s .. "getOffset(): " .. tostring(self:getOffset()) .. "\n"
+		s = s .. "appendSize: " .. tostring(self.appendSize) .. "\n"
+		s = s .. "\nResult: " .. tostring(self:getOffset() + 32 - self.appendSize * 32)
+		love.graphics.print(s, p.x, p.y + 20)
+	end
+	]]
 end
 
 
 
 ---Reloads the configuration variables of the current sphere color.
 function Sphere:loadConfig()
-	self.config = _Game.configManager.spheres[self.color]
-	self.sprite = _Game.resourceManager:getSprite(self.config.sprite)
+	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
+	self.sprite = self.config.sprite
 	-- TODO/DEPRECATED: Remove default value
 	self.frameCount = self.sprite.states[1].frameCount
 	self.size = self.config.size or 32

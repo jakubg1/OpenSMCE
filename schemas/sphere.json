@@ -1,0 +1,439 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "sprite": {
+            "$ref": "_structures/Sprite.json",
+            "description": "A sprite to be drawn when the sphere is on the screen."
+        },
+        "shadowSprite": {
+            "$ref": "_structures/Sprite.json",
+            "description": "A shadow sprite to be drawn along the sphere."
+        },
+        "shadowOffset": {
+            "$ref": "_structures/Vector2.json",
+            "description": "The offset of the shadow sprite, compared to the base sprite. Defaults to (4, 4).",
+            "markdownDescription": "The offset of the shadow sprite, compared to the base sprite. Defaults to `(4, 4)`."
+        },
+        "spriteAnimationSpeed": {
+            "type": "number",
+            "description": "When defined, the sphere sprite will animate with that speed in frames per second. This disables rolling animation and rotation. When left out, the sphere will have their usual rolling animation and will rotate based on the path curvature.",
+            "minimum": 0.0
+        },
+        "spriteRollingSpeed": {
+            "type": "number",
+            "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 0.63662, which is a close approximation of 2/pi, to ensure a smooth rolling effect.",
+            "markdownDescription": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to `0.63662`, which is a close approximation of `2/pi`, to ensure a smooth rolling effect.",
+            "minimum": 0.0
+        },
+        "size": {
+            "type": "number",
+            "description": "The diameter of this sphere, in pixels. The sprite will be resized if needed. Defaults to 32.",
+            "markdownDescription": "The diameter of this sphere, in pixels. The sprite will be resized if needed. Defaults to `32`.",
+            "exclusiveMinimum": 0.0
+        },
+        "idleParticle": {
+            "$ref": "_structures/Particle.json",
+            "description": "A persistent particle packet used when the sphere is on the board."
+        },
+        "holdParticle": {
+            "$ref": "_structures/Particle.json",
+            "description": "A persistent particle packet used whenever the left mouse button is held. Works best with autofire enabled.",
+            "markdownDescription": "A persistent particle packet used whenever the left mouse button is held. Works best with `autofire` enabled."
+        },
+        "destroyParticle": {
+            "$ref": "_structures/Particle.json",
+            "description": "A one-time particle packet used when the sphere is destroyed."
+        },
+        "destroyCollectible": {
+            "$ref": "_structures/CollectibleGenerator.json",
+            "description": "A collectible generator used when the sphere is destroyed. Note: The generator will be evaluated for each single sphere of this type removed from the board. You may want to check out Sphere Effects' collectible generators instead.",
+            "markdownDescription": "A collectible generator used when the sphere is destroyed. **Note:** The generator will be evaluated for each single sphere of this type removed from the board. You may want to check out Sphere Effects' collectible generators instead."
+        },
+        "destroySound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A sound event to be played when a sphere of this type is destroyed. Note: This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' sound events instead.",
+            "markdownDescription": "A sound event to be played when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' sound events instead."
+        },
+        "destroyEvent": {
+            "$ref": "_structures/GameEvent.json",
+            "description": "A game event to be executed when a sphere of this type is destroyed. Note: This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' game events instead.",
+            "markdownDescription": "A game event to be executed when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' game events instead."
+        },
+        "color": {
+            "$ref": "_structures/Color.json",
+            "description": "The color used by the shooting reticle. Either this or colorPalette must exist.",
+            "markdownDescription": "The color used by the shooting reticle. Either this or `colorPalette` must exist."
+        },
+        "colorPalette": {
+            "$ref": "_structures/ColorPalette.json",
+            "description": "The color palette used by the shooting reticle. Either this or color must exist.",
+            "markdownDescription": "The color palette used by the shooting reticle. Either this or `color` must exist."
+        },
+        "colorPaletteSpeed": {
+            "type": "number",
+            "description": "Must be present only if colorPalette is set. Defines how fast (in pixels per second) the palette will be animated.",
+            "markdownDescription": "Must be present only if `colorPalette` is set. Defines how fast (in pixels per second) the palette will be animated.",
+            "exclusiveMinimum": 0.0
+        },
+        "swappable": {
+            "type": "boolean",
+            "description": "Whether this sphere can be changed when in the first slot of the shooter. true by default.",
+            "markdownDescription": "Whether this sphere can be changed when in the first slot of the shooter. `true` by default."
+        },
+        "shotBehavior": {
+            "type": "object",
+            "description": "Defines how this Sphere should behave when released from the Shooter.",
+            "properties": {
+                "type": {
+                    "enum": [
+                        "normal",
+                        "destroySpheres"
+                    ]
+                }
+            },
+            "allOf": [
+                {
+                    "properties": {
+                        "type": {
+                            "description": "A sphere shot behavior type."
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "normal",
+                                "description": "The sphere gets launched and flies upwards with a speed defined by the shooter and whether the speed shot is active."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "amount": {
+                                "type": "integer",
+                                "description": "The amount of spheres that will be launched.",
+                                "minimum": 1
+                            },
+                            "spreadAngle": {
+                                "type": "number",
+                                "description": "The total spreadout angle in radians between all launched spheres.",
+                                "minimum": 0.0
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "destroySpheres",
+                                "description": "The sphere does not get launched and instead is destroyed immediately, destroying the spheres selected by the provided sphere selector."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "selector": {
+                                "$ref": "_structures/SphereSelector.json",
+                                "description": "The Sphere Selector which will select the spheres to be destroyed."
+                            },
+                            "scoreEvent": {
+                                "$ref": "_structures/ScoreEvent.json",
+                                "description": "A Score Event which will be executed once for the whole batch of spheres."
+                            },
+                            "scoreEventPerSphere": {
+                                "$ref": "_structures/ScoreEvent.json",
+                                "description": "A Score Event which will be executed separately for each Sphere that is destroyed."
+                            }
+                        },
+                        "required": [
+                            "selector"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            ],
+            "required": [
+                "type"
+            ]
+        },
+        "shotEffects": {
+            "type": "array",
+            "description": "A list of collectible effects to be executed when this sphere is shot.",
+            "items": {
+                "$ref": "_structures/CollectibleEffect.json",
+                "description": "A single collectible effect."
+            }
+        },
+        "shotSpeed": {
+            "type": "number",
+            "description": "If specified, overrides the speed of this sphere when shot. By default, the shot sphere will use the current shooter speed.",
+            "exclusiveMinimum": 0.0
+        },
+        "shotCooldown": {
+            "type": "number",
+            "description": "If set, the sphere will not be able to be shot once it enters the shooter's main slot before this amount of time in seconds passes. The sphere can still be swapped and when swapped back, the cooldown counter will start from the beginning.",
+            "exclusiveMinimum": 0.0
+        },
+        "shotSound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A sound event launched when this sphere is shot."
+        },
+        "hitBehavior": {
+            "type": "object",
+            "description": "Defines how this sphere should behave when it hits a sphere train.",
+            "properties": {
+                "type": {
+                    "enum": [
+                        "normal",
+                        "destroySpheres",
+                        "recolorSpheres",
+                        "splitAndPushBack",
+                        "applyEffect"
+                    ]
+                }
+            },
+            "allOf": [
+                {
+                    "properties": {
+                        "type": {
+                            "description": "A sphere hit behavior type."
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "normal",
+                                "description": "The sphere gets appended to the sphere train where it landed."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "effects": {
+                                "type": "array",
+                                "description": "The list of Sphere Effects this Sphere should be inflicted with after this sphere slots into the train.",
+                                "items": {
+                                    "$ref": "_structures/SphereEffect.json",
+                                    "description": "A single Sphere Effect."
+                                }
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "destroySpheres",
+                                "description": "The sphere gets destroyed and destroys the spheres selected by the provided sphere selector."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "selector": {
+                                "$ref": "_structures/SphereSelector.json",
+                                "description": "The Sphere Selector which will select the spheres to be destroyed."
+                            },
+                            "scoreEvent": {
+                                "$ref": "_structures/ScoreEvent.json",
+                                "description": "A Score Event which will be executed once for the whole batch of spheres."
+                            },
+                            "scoreEventPerSphere": {
+                                "$ref": "_structures/ScoreEvent.json",
+                                "description": "A Score Event which will be executed separately for each Sphere that is destroyed."
+                            },
+                            "pierce": {
+                                "type": "boolean",
+                                "description": "If set, the sphere will not be destroyed upon hitting the sphere train."
+                            }
+                        },
+                        "required": [
+                            "selector"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "recolorSpheres",
+                                "description": "The sphere gets destroyed and changes the color of the spheres selected by the provided sphere selector."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "selector": {
+                                "$ref": "_structures/SphereSelector.json",
+                                "description": "The Sphere Selector which will select the spheres of which the color will be changed."
+                            },
+                            "color": {
+                                "$ref": "_structures/ExprInteger.json",
+                                "description": "Which color the spheres will be changed to."
+                            },
+                            "particle": {
+                                "$ref": "_structures/Particle.json",
+                                "description": "A one-time particle packet launched for all affected spheres."
+                            },
+                            "pierce": {
+                                "type": "boolean",
+                                "description": "If set, the sphere will not be destroyed upon hitting the sphere train."
+                            }
+                        },
+                        "required": [
+                            "selector",
+                            "color"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "splitAndPushBack",
+                                "description": "The sphere gets destroyed, splits the sphere group in front of the hit sphere and applies negative speed to the back part of it."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "speed": {
+                                "type": "number",
+                                "description": "The knockback speed, in pixels per second.",
+                                "minimum": 0.0
+                            },
+                            "pierce": {
+                                "type": "boolean",
+                                "description": "If set, the sphere will not be destroyed upon hitting the sphere train."
+                            }
+                        },
+                        "required": [
+                            "speed"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "applyEffect",
+                                "description": "The sphere gets destroyed and inflicts a Sphere Effect to the spheres selected by the provided sphere selector."
+                            }
+                        },
+                        "required": [
+                            "type"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "type": true,
+                            "selector": {
+                                "$ref": "_structures/SphereSelector.json",
+                                "description": "The Sphere Selector which will select the spheres to be destroyed."
+                            },
+                            "effect": {
+                                "$ref": "_structures/SphereEffect.json",
+                                "description": "The Sphere Effect which should be inflicted on the selected spheres."
+                            },
+                            "pierce": {
+                                "type": "boolean",
+                                "description": "If set, the sphere will not be destroyed upon hitting the sphere train."
+                            }
+                        },
+                        "required": [
+                            "selector",
+                            "effect"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            ],
+            "required": [
+                "type"
+            ]
+        },
+        "hitSound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A sound event launched when this sphere hits a sphere train. Contains a shot Expression Context with one field: bad - Whether the shot has been marked as bad (did not match any of the neighboring spheres' colors).",
+            "markdownDescription": "A sound event launched when this sphere hits a sphere train. Contains a `shot` Expression Context with one field: `bad` - Whether the shot has been marked as bad (did not match any of the neighboring spheres' colors)."
+        },
+        "type": {
+            "type": "string",
+            "description": "The sphere type.",
+            "oneOf": [
+                {
+                    "const": "normal",
+                    "description": "The sphere behaves like usual."
+                },
+                {
+                    "const": "stone",
+                    "description": "The sphere can be destroyed by a nearby match."
+                }
+            ]
+        },
+        "autofire": {
+            "type": "boolean",
+            "description": "Whether the player can automatically fire this sphere when the left mouse button is held."
+        },
+        "matches": {
+            "type": "array",
+            "description": "A list of sphere type IDs (integers) this sphere type matches with.",
+            "items": {
+                "type": "integer",
+                "description": "A single sphere ID."
+            }
+        },
+        "doesNotCollideWith": {
+            "type": "array",
+            "description": "A list of sphere type IDs (integers) this sphere will phase through as a shot entity.",
+            "items": {
+                "type": "integer",
+                "description": "A single sphere ID."
+            }
+        }
+    },
+    "required": [
+        "sprite",
+        "shotBehavior",
+        "hitBehavior",
+        "matches"
+    ],
+    "additionalProperties": false
+}

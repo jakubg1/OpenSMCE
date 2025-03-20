@@ -213,7 +213,7 @@ end
 ---@param time number? How long will that sphere "grow" until it's completely in its place.
 ---@param sphereEntity SphereEntity? A sphere entity to be used (nil = create a new entity).
 ---@param position integer The new sphere will gain this ID, which means it will be created BEHIND a sphere of this ID in this group.
----@param effects table? A list of effects to be applied.
+---@param effects table? A list of Sphere Effects to be applied to the added sphere.
 ---@param gaps table? A list of gaps through which this sphere has traversed.
 ---@param canStopGrowing boolean? If set, the new sphere will not grow if it constitutes a match.
 function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps, canStopGrowing)
@@ -422,6 +422,9 @@ end
 
 
 
+---Joins this Sphere Group with the previous Sphere Group, if it exists.
+---During the process, this Sphere Group is destroyed.
+---This function also checks for matches, fragile spheres and applies appropriate knockback.
 function SphereGroup:join()
 	-- join this group with a previous group
 	-- the first group has nothing to join to
@@ -435,6 +438,7 @@ function SphereGroup:join()
 		table.insert(self.prevGroup.spheres, sphere)
 		sphere.sphereGroup = self.prevGroup
 	end
+	-- Apply appropriate knockback.
 	if self.speed < 0 then
 		if self.config.luxorized and self.speedDesired < 0 then
 			-- Reverse powerup in OG Luxor works a bit wonky.
@@ -545,11 +549,15 @@ end
 
 
 
+---Returns `true` if the sphere at the given position matches at least one of its neighbors by color.
+---@param position integer The sphere index in this sphere group.
+---@return boolean
 function SphereGroup:shouldFit(position)
 	return
 		self:getSphereInChain(position - 1) and self.map.level:colorsMatch(self:getSphereInChain(position - 1).color, self.spheres[position].color)
 	or
 		self:getSphereInChain(position + 1) and self.map.level:colorsMatch(self:getSphereInChain(position + 1).color, self.spheres[position].color)
+	or false
 end
 
 
@@ -583,9 +591,10 @@ end
 
 
 
+---Checks for a match at the given position and, if all requirements are satisfied, applies a `match` Sphere Effect from the Level Config file to all involved spheres.
+---@param position integer The sphere index in this sphere group which should be checked.
 function SphereGroup:matchAndDelete(position)
 	local position1, position2 = self:getMatchBounds(position)
-	local length = (position2 - position1 + 1)
 
 	local boostCombo = false
 	-- abort if any sphere from the given ones has not joined yet and see if we have to boost the combo
@@ -596,15 +605,12 @@ function SphereGroup:matchAndDelete(position)
 		boostCombo = boostCombo or self.spheres[i].boostCombo
 	end
 
-	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
-	local color = self.spheres[position].color
-
 	-- First, check if any of the matched spheres do have the match effect already.
-	local effectName = self.map.level.matchEffect
+	local effectConfig = _Game.resourceManager:getSphereEffectConfig(self.map.level.matchEffect)
 	local effectGroupID = nil
 	for i = position1, position2 do
-		if self.spheres[i]:hasEffect(effectName) then
-			effectGroupID = self.spheres[i]:getEffectGroupID(effectName)
+		if self.spheres[i]:hasEffect(effectConfig) then
+			effectGroupID = self.spheres[i]:getEffectGroupID(effectConfig)
 			break
 		end
 	end
@@ -614,16 +620,15 @@ function SphereGroup:matchAndDelete(position)
 	end
 	-- Now, apply the effect.
 	for i = position1, position2 do
-		self.spheres[i]:applyEffect(effectName, nil, nil, effectGroupID)
+		self.spheres[i]:applyEffect(effectConfig, nil, nil, effectGroupID)
 	end
 end
 
 
 
 -- Similar to the one above, because it also grants score and destroys spheres collectively, however the bounds are based on an effect.
-function SphereGroup:matchAndDeleteEffect(position, effect)
-	local effectConfig = _Game.resourceManager:getSphereEffectConfig(effect)
-	local effectGroupID = self.spheres[position]:getEffectGroupID(effect)
+function SphereGroup:matchAndDeleteEffect(position, effectConfig)
+	local effectGroupID = self.spheres[position]:getEffectGroupID(effectConfig)
 
 	-- Prepare a list of spheres to be destroyed.
 	local spheres = {}
@@ -632,7 +637,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 	if effectConfig.causeCheck then
 		-- Cause check: destroy all spheres in the same group if they have the same cause.
 		for i, sphere in ipairs(self.spheres) do
-			if sphere:hasEffect(effect, effectGroupID) and not sphere:isGhost() then
+			if sphere:hasEffect(effectConfig, effectGroupID) and not sphere:isGhost() then
 				table.insert(spheres, sphere)
 				if not position1 then
 					position1 = i
@@ -642,7 +647,7 @@ function SphereGroup:matchAndDeleteEffect(position, effect)
 		end
 	else
 		-- No cause check: destroy all spheres in the same group if they lay near each other.
-		position1, position2 = self:getEffectBounds(position, effect)
+		position1, position2 = self:getEffectBounds(position, effectConfig)
 		for i = position1, position2 do
 			if not self.spheres[i]:isGhost() then
 				table.insert(spheres, self.spheres[i])
@@ -754,13 +759,14 @@ end
 -- Only removes the already destroyed spheres which have been ghosts.
 function SphereGroup:deleteGhost(position)
 	-- Prepare a list of spheres to be destroyed.
-	local spheres = {}
 	local position1, position2 = self:getGhostBounds(position)
 	self:destroySpheres(position1, position2)
 end
 
 
 
+---Returns whether this Sphere Group should be attracted to the previous Sphere Group, if it exists.
+---@return boolean
 function SphereGroup:isMagnetizing()
 	--print("----- " .. (self.prevGroup and self.prevGroup:getDebugText() or "xxx") .. " -> " .. self:getDebugText() .. " -> " .. (self.nextGroup and self.nextGroup:getDebugText() or "xxx"))
 	--print("----- " .. tostring(self.sphereChain:getSphereGroupID(self.prevGroup)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self)) .. " -> " .. tostring(self.sphereChain:getSphereGroupID(self.nextGroup)))
@@ -862,7 +868,6 @@ end
 function SphereGroup:getMatchBounds(position)
 	local position1 = position
 	local position2 = position
-	local color = self.spheres[position].color
 	-- seek backwards
 	while true do
 		position1 = position1 - 1
@@ -887,7 +892,6 @@ end
 function SphereGroup:getMatchLength(position)
 	local position1 = position
 	local position2 = position
-	local color = self.spheres[position].color
 	-- seek backwards
 	while true do
 		position1 = position1 - 1
@@ -909,14 +913,20 @@ end
 
 
 
-function SphereGroup:getEffectBounds(position, effect, effectGroupID)
+---Returns the sphere indices from this group, representing a continuous chunk of spheres, which all have the provided Sphere Effect.
+---@param position integer The index of the sphere which will be the search origin.
+---@param effectConfig SphereEffectConfig The config of the Sphere Effect which will be searched for.
+---@param effectGroupID integer? If given, the continuous chunk of spheres will be guaranteed to have this particular effect group ID.
+---@return integer
+---@return integer
+function SphereGroup:getEffectBounds(position, effectConfig, effectGroupID)
 	local position1 = position
 	local position2 = position
 	-- seek backwards
 	while true do
 		position1 = position1 - 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position1] or not self.spheres[position1]:hasEffect(effect, effectGroupID) then
+		if not self.spheres[position1] or not self.spheres[position1]:hasEffect(effectConfig, effectGroupID) then
 			break
 		end
 	end
@@ -924,7 +934,7 @@ function SphereGroup:getEffectBounds(position, effect, effectGroupID)
 	while true do
 		position2 = position2 + 1
 		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position2] or not self.spheres[position2]:hasEffect(effect, effectGroupID) then
+		if not self.spheres[position2] or not self.spheres[position2]:hasEffect(effectConfig, effectGroupID) then
 			break
 		end
 	end
@@ -961,7 +971,6 @@ function SphereGroup:getMatchLengthInChain(position)
 	-- special seek for a shouldBoostCombo function
 	local position1 = position
 	local position2 = position
-	local color = self.spheres[position].color
 	-- seek backwards
 	while true do
 		position1 = position1 - 1
@@ -987,7 +996,6 @@ function SphereGroup:getMatchBoundColorsInChain(position)
 	-- special seek for a lightning storm search algorithm
 	local position1 = position
 	local position2 = position
-	local color = self.spheres[position].color
 	-- seek backwards
 	while true do
 		position1 = position1 - 1

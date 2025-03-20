@@ -335,6 +335,8 @@ end
 ---@param k string A delimiter which determines where to split `s`.
 ---@return table
 function utils.strSplit(s, k)
+	assert(s, "input string is nil")
+	assert(k, "input delimiter is nil")
 	local t = {}
 	local l = k:len()
 	while true do

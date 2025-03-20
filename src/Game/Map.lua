@@ -97,7 +97,8 @@ function Map:draw()
 	-- Draw hidden spheres and other hidden path stuff
 	for x = 1, 2 do
 		for i, path in ipairs(self.paths) do
-			for sphereID, sphere in pairs(_Game.configManager.spheres) do
+			-- TODO/IMPORTANT: Make obtaining a list of sphere IDs possible.
+			for sphereID = -20, 20 do
 				path:drawSpheres(sphereID, true, x == 1)
 			end
 			path:draw(true)
@@ -126,7 +127,8 @@ end
 function Map:drawSpheres()
 	for x = 1, 2 do
 		for i, path in ipairs(self.paths) do
-			for sphereID, sphere in pairs(_Game.configManager.spheres) do
+			-- TODO/IMPORTANT: Make obtaining a list of sphere IDs possible.
+			for sphereID = -20, 20 do
 				path:drawSpheres(sphereID, false, x == 1)
 			end
 			path:draw(false)

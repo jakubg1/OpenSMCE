@@ -10,21 +10,15 @@ local ColorManager = class:derive("ColorManager")
 ---Constructs a new ColorManager.
 function ColorManager:new()
 	self.sphereColorCounts = {}
-	self.lastSphereColor = 1
-
-	self:reset()
+	self.dangerColorCounts = {}
 end
 
 
 
 ---Resets the onboard color counters back to 0.
 function ColorManager:reset()
-	for i, sphere in pairs(_Game.configManager.spheres) do
-		self.sphereColorCounts[i] = {
-			normal = 0,
-			danger = 0
-		}
-	end
+	self.sphereColorCounts = {}
+	self.dangerColorCounts = {}
 end
 
 
@@ -34,9 +28,9 @@ end
 ---@param danger boolean? Whether we are changing the danger zone counter.
 function ColorManager:increment(color, danger)
 	if danger then
-		self.sphereColorCounts[color].danger = self.sphereColorCounts[color].danger + 1
+		self.dangerColorCounts[color] = (self.dangerColorCounts[color] or 0) + 1
 	else
-		self.sphereColorCounts[color].normal = self.sphereColorCounts[color].normal + 1
+		self.sphereColorCounts[color] = (self.sphereColorCounts[color] or 0) + 1
 	end
 end
 
@@ -47,11 +41,16 @@ end
 ---@param danger boolean? Whether we are changing the danger zone counter.
 function ColorManager:decrement(color, danger)
 	if danger then
-		self.sphereColorCounts[color].danger = self.sphereColorCounts[color].danger - 1
+		self.dangerColorCounts[color] = self.dangerColorCounts[color] - 1
+		if self.dangerColorCounts[color] == 0 then
+			self.dangerColorCounts[color] = nil
+		end
 	else
-		self.sphereColorCounts[color].normal = self.sphereColorCounts[color].normal - 1
+		self.sphereColorCounts[color] = self.sphereColorCounts[color] - 1
+		if self.sphereColorCounts[color] == 0 then
+			self.sphereColorCounts[color] = nil
+		end
 	end
-	self.lastSphereColor = color
 end
 
 
@@ -60,7 +59,7 @@ end
 ---@param color integer The color ID to be checked against.
 ---@return boolean
 function ColorManager:isColorExistent(color)
-	return self.sphereColorCounts[color].normal > 0
+	return self.sphereColorCounts[color] ~= nil
 end
 
 
@@ -69,7 +68,7 @@ end
 ---@param color integer The color ID to be checked against.
 ---@return integer
 function ColorManager:getColorCount(color)
-	return self.sphereColorCounts[color].normal
+	return self.sphereColorCounts[color] or 0
 end
 
 
@@ -81,7 +80,7 @@ function ColorManager:getTotalSphereCount()
 	local amount = 0
 	for i, v in pairs(self.sphereColorCounts) do
 		if i ~= 0 then
-			amount = amount + v.normal
+			amount = amount + v
 		end
 	end
 	return amount
@@ -97,12 +96,13 @@ function ColorManager:getMostFrequentColor()
 	local maxColors = {}
 	for i, v in pairs(self.sphereColorCounts) do
 		-- TODO: Omitting scarabs and stone spheres should be dehardcoded (Variable Providers).
-		if i ~= 0 and _Game.configManager.spheres[i].type ~= "stone" then
-			if v.normal > maxAmount then
+		local sphereConfig = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. i .. ".json")
+		if i ~= 0 and sphereConfig.type ~= "stone" then
+			if v > maxAmount then
 				-- New leader found! Reset the list.
-				maxAmount = v.normal
+				maxAmount = v
 				maxColors = {i}
-			elseif v.normal == maxAmount then
+			elseif v == maxAmount then
 				-- A tie! Add the color to the list.
 				table.insert(maxColors, i)
 			end
@@ -119,7 +119,7 @@ end
 --- - `color.mostFrequent` - The most frequently appearing color on the board, excluding the scarab (ID = 0). If there's a tie, selects a random color from this tie.
 function ColorManager:dumpVariables()
 	for i, v in pairs(self.sphereColorCounts) do
-		_Vars:setC("color", i, v.normal)
+		_Vars:setC("color", i, v)
 	end
 	_Vars:setC("color", "totalSpheres", self:getTotalSphereCount())
 	_Vars:setC("color", "mostFrequent", self:getMostFrequentColor())
@@ -133,10 +133,9 @@ function ColorManager:getDebugText()
 	local s = ""
 
 	for i, v in pairs(self.sphereColorCounts) do
-		if v.normal ~= 0 or v.danger ~= 0 then
-			s = s .. string.format("%s:   N %s   D %s\n", i, v.normal, v.danger)
-		end
+		s = s .. string.format("%s:   N %s   D %s\n", i, v, self.dangerColorCounts[i] or 0)
 	end
+	-- No color should ever be only in the danger counter.
 
 	return s
 end

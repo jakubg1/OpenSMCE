@@ -25,6 +25,7 @@ local ProjectileConfig = require("src.Configs.Projectile")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterConfig = require("src.Configs.Shooter")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
+local SphereConfig = require("src.Configs.Sphere")
 local SphereEffectConfig = require("src.Configs.SphereEffect")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
 
@@ -59,7 +60,6 @@ function ResourceManager:new()
 		font = {extension = "json", constructor = Font, paramSet = 2},
 		fontFile = {extension = "ttf"},
 		colorPalette = {extension = "json", constructor = ColorPalette, paramSet = 2},
-		sphere = {extension = "json"},
 		collectible = {extension = "json", constructor = CollectibleConfig, paramSet = 2},
 		colorGenerator = {extension = "json"},
 		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig, paramSet = 2},
@@ -73,6 +73,7 @@ function ResourceManager:new()
 		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
 		shooter = {extension = "json", constructor = ShooterConfig, paramSet = 2},
 		shooterMovement = {extension = "json", constructor = ShooterMovementConfig, paramSet = 2},
+		sphere = {extension = "json", constructor = SphereConfig, paramSet = 2},
 		sphereEffect = {extension = "json", constructor = SphereEffectConfig, paramSet = 2},
 		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
 		map = {extension = "/"},
@@ -104,6 +105,7 @@ function ResourceManager:new()
 		["path_entity.json"] = "pathEntity",
 		["projectile.json"] = "projectile",
 		["score_event.json"] = "scoreEvent",
+		["sphere.json"] = "sphere",
 		["sphere_effect.json"] = "sphereEffect",
 		["sphere_selector.json"] = "sphereSelector"
 	}
@@ -278,6 +280,13 @@ end
 ---@return ShooterMovementConfig
 function ResourceManager:getShooterMovementConfig(path)
 	return self:getAsset(path, "shooter movement")
+end
+
+---Retrieves a Sphere Config by a given path.
+---@param path string The resource path.
+---@return SphereConfig
+function ResourceManager:getSphereConfig(path)
+	return self:getAsset(path, "sphere")
 end
 
 ---Retrieves a Sphere Effect Config by a given path.

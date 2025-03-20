@@ -73,7 +73,7 @@ function CollectibleEffectConfig:new(data, path)
     elseif self.type == "colorSort" then
         self.sortType = u.parseString(data.sortType, path, "sortType")
         self.delay = u.parseNumberOpt(data.delay, path, "delay") or 0
-        self.stopWhenTampered = u.parseBooleanOpt(data.stopWhenTampered, path, "stopWhenTampered") or false
+        self.stopWhenTampered = u.parseBooleanOpt(data.stopWhenTampered, path, "stopWhenTampered") == true
     elseif self.type == "grantCoin" then
         -- No fields
     elseif self.type == "incrementGemStat" then

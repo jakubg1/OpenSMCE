@@ -70,9 +70,9 @@ function ShooterConfig:new(data, path)
     self.speedShotParticle = u.parseParticle(data.speedShotParticle, path, "speedShotParticle")
     self.shotCooldown = u.parseNumberOpt(data.shotCooldown, path, "shotCooldown") or 0
     self.shotCooldownFade = u.parseNumberOpt(data.shotCooldownFade, path, "shotCooldownFade") or 0
-    self.multishot = u.parseBooleanOpt(data.multishot, path, "multishot") or false
-    self.autofire = u.parseBooleanOpt(data.autofire, path, "autofire") or false
-    self.destroySphereOnFail = u.parseBooleanOpt(data.destroySphereOnFail, path, "destroySphereOnFail") or false
+    self.multishot = u.parseBooleanOpt(data.multishot, path, "multishot") == true
+    self.autofire = u.parseBooleanOpt(data.autofire, path, "autofire") == true
+    self.destroySphereOnFail = u.parseBooleanOpt(data.destroySphereOnFail, path, "destroySphereOnFail") == true
     self.shootSpeed = u.parseNumber(data.shootSpeed, path, "shootSpeed")
 
     if data.knockback then

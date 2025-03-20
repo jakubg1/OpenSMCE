@@ -1156,23 +1156,20 @@ end
 ---@param color2 integer The second color to be checked against.
 ---@return boolean
 function Level:colorsMatch(color1, color2)
-	return _Utils.isValueInTable(_Game.configManager.spheres[color1].matches, color2)
+	local sphereConfig1 = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color1 .. ".json")
+	return _Utils.isValueInTable(sphereConfig1.matches, color2)
 end
 
 
 
 ---Selects spheres based on a provided Sphere Selector Config and destroys them, executing any provided Score Events in the process.
----TODO: Change the parameters from strings to actual objects.
----@param sphereSelector SphereSelectorConfig|string The Sphere Selector that will be used to select the spheres to be destroyed.
+---@param sphereSelector SphereSelectorConfig The Sphere Selector that will be used to select the spheres to be destroyed.
 ---@param pos Vector2? The position used to calculate distances to spheres, and used in Floating Text position, unless `forceEventPosCalculation` is set.
----@param scoreEvent ScoreEventConfig|string? The Score Event that will be executed once on the whole batch.
----@param scoreEventPerSphere ScoreEventConfig|string? The Score Event that will be executed separately for each sphere.
+---@param scoreEvent ScoreEventConfig? The Score Event that will be executed once on the whole batch.
+---@param scoreEventPerSphere ScoreEventConfig? The Score Event that will be executed separately for each sphere.
 ---@param forceEventPosCalculation boolean? If set, the `pos` argument will be ignored and a new position for the Score Event will be calculated anyways.
 function Level:destroySelector(sphereSelector, pos, scoreEvent, scoreEventPerSphere, forceEventPosCalculation)
-	local selector = type(sphereSelector) == "string" and _Game.resourceManager:getSphereSelectorConfig(sphereSelector) or sphereSelector
-	local event = scoreEvent and (type(scoreEvent) == "string" and _Game.resourceManager:getScoreEventConfig(scoreEvent) or scoreEvent)
-	local eventPerSphere = scoreEventPerSphere and (type(scoreEventPerSphere) == "string" and _Game.resourceManager:getScoreEventConfig(scoreEventPerSphere) or scoreEventPerSphere)
-	SphereSelectorResult(selector, pos):destroy(event, eventPerSphere, forceEventPosCalculation)
+	SphereSelectorResult(sphereSelector, pos):destroy(scoreEvent, scoreEventPerSphere, forceEventPosCalculation)
 end
 
 
@@ -1181,10 +1178,7 @@ end
 ---@param hitBehavior table The sphere's Hit Behavior with `selector`, `color` and `particle` (optional) fields.
 ---@param pos Vector2? The position used to calculate distances to spheres.
 function Level:replaceColorSelector(hitBehavior, pos)
-	local selector = _Game.resourceManager:getSphereSelectorConfig(hitBehavior.selector)
-	local color = Expression(hitBehavior.color):evaluate()
-	local particle = hitBehavior.particle
-	SphereSelectorResult(selector, pos):changeColor(color, particle)
+	SphereSelectorResult(hitBehavior.selector, pos):changeColor(hitBehavior.color:evaluate(), hitBehavior.particlecle)
 end
 
 
@@ -1193,9 +1187,7 @@ end
 ---@param hitBehavior table The sphere's Hit Behavior with `selector` and `effect` fields.
 ---@param pos Vector2? The position used to calculate distances to spheres.
 function Level:applyEffectSelector(hitBehavior, pos)
-	local selector = _Game.resourceManager:getSphereSelectorConfig(hitBehavior.selector)
-	local effect = hitBehavior.effect
-	SphereSelectorResult(selector, pos):applyEffect(effect)
+	SphereSelectorResult(hitBehavior.selector, pos):applyEffect(hitBehavior.effect)
 end
 
 

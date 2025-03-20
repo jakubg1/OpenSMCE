@@ -21,7 +21,6 @@ function ConfigManager:new()
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
 	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
 
-	self.spheres = self:loadFolder("config/spheres", "sphere", true)
 	self.colorGenerators = self:loadFolder("config/color_generators", "color generator")
 
 	-- Load level and map data.
@@ -50,23 +49,15 @@ end
 ---Loads and returns multiple items from a folder.
 ---@param folderPath string The path to a folder where the files are stored.
 ---@param name string The name to be used when logging; also a file prefix if `isNumbers` is set to `true`.
----@param isNumbers boolean? If set to `true`, all IDs will be converted to numbers instead of being strings.
----@param constructor any? The config class constructor. If set, the returned table will contain instances of this class instead of raw data structures.
 ---@return table
-function ConfigManager:loadFolder(folderPath, name, isNumbers, constructor)
+function ConfigManager:loadFolder(folderPath, name)
 	local t = {}
 
 	local fileList = _Utils.getDirListing(_ParsePath(folderPath), "file", "json")
 	for i, path in ipairs(fileList) do
 		local id = string.sub(path, 1, -6)
-		if isNumbers then
-			id = tonumber(string.sub(path, 2 + string.len(name), -6))
-		end
 		_Log:printt("ConfigManager", string.format("Loading %s %s, %s", name, id, path))
 		local item = _Utils.loadJson(_ParsePath(folderPath .. "/" .. path))
-		if constructor then
-			item = constructor(item, folderPath .. "/" .. path)
-		end
 		t[id] = item
 	end
 

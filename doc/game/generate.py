@@ -904,6 +904,7 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"ColorGenerator": "parseColorGeneratorConfig",
 		"GameEvent": "parseGameEventConfig",
 		"LevelSequence": "parseLevelSequenceConfig",
+		"LevelTrainRules": "parseLevelTrainRulesConfig",
 		"Particle": "parseParticle",
 		"PathEntity": "parsePathEntityConfig",
 		"Projectile": "parseProjectileConfig",
@@ -936,12 +937,15 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 			default = ""
 			if "default" in entry:
 				if entry["type"] == "boolean":
-					default = "true" if entry["default"] else "false"
+					default = "~= false" if entry["default"] else "== true"
 				elif entry["type"] == "string":
 					default = "\"" + entry["default"] + "\""
 				else:
 					default = str(entry["default"])
-			return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")" + (" or " + default if "default" in entry else "")
+			if entry["type"] == "boolean":
+				return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")" + (" " + default if "default" in entry else "")
+			else:
+				return function + "(data." + context + name + ", path, \"" + error_context + error_name + "\")" + (" or " + default if "default" in entry else "")
 	elif "structure" in entry:
 		function = "u." + (lua_expr_structure_assoc if "expression" in entry else lua_structure_assoc)[entry["structure"]] + ("Opt" if optional else "")
 		default = ""

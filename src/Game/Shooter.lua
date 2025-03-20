@@ -299,7 +299,7 @@ end
 ---Swaps this and next sphere colors with each other, if possible.
 function Shooter:swapColors()
     -- we must be careful not to swap the spheres when they're absent
-    if _Game.level.pause or self.color == 0 or self.nextColor == 0 or self.shotCooldownFade or not self:getSphereConfig().interchangeable then
+    if _Game.level.pause or self.color == 0 or self.nextColor == 0 or self.shotCooldownFade or not self:getSphereConfig().swappable then
         return
     end
     local tmp = self.color
@@ -477,11 +477,11 @@ function Shooter:shoot()
     -- Spawn the Shot Sphere or deploy the sphere, depending on its config.
     local sphereConfig = self:getSphereConfig()
     for i = 1, self:getSphereCount() do
-        if sphereConfig.shootBehavior.type == "normal" then
+        if sphereConfig.shotBehavior.type == "normal" then
             -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
             self.sphereEntities[i]:setAlpha(self:getSphereAlpha())
-            local amount = sphereConfig.shootBehavior.amount or 1
-            local angleTotal = sphereConfig.shootBehavior.spreadAngle or 0
+            local amount = sphereConfig.shotBehavior.amount or 1
+            local angleTotal = sphereConfig.shotBehavior.spreadAngle or 0
             local angleStart = amount == 1 and 0 or -angleTotal / 2
             local angleStep = amount == 1 and 0 or angleTotal / (amount - 1)
             for j = 1, amount do
@@ -490,20 +490,20 @@ function Shooter:shoot()
                 _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity, self.homingBugsTime > 0)
             end
             self.sphereEntities[i] = nil
-        elseif sphereConfig.shootBehavior.type == "destroySpheres" then
+        elseif sphereConfig.shotBehavior.type == "destroySpheres" then
             -- lightning spheres are not shot, they're deployed instantly
             if sphereConfig.destroyParticle then
                 _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
             end
-            _Game.level:destroySelector(sphereConfig.shootBehavior.selector, self:getSpherePos(i), sphereConfig.shootBehavior.scoreEvent, sphereConfig.shootBehavior.scoreEventPerSphere, true)
+            _Game.level:destroySelector(sphereConfig.shotBehavior.selector, self:getSpherePos(i), sphereConfig.shotBehavior.scoreEvent, sphereConfig.shotBehavior.scoreEventPerSphere, true)
             self:destroySphereEntities()
         end
         _Game.level.spheresShot = _Game.level.spheresShot + 1
     end
 
     -- Apply any effects to the sphere if it has one.
-    if sphereConfig.shootEffects then
-        for i, effect in ipairs(sphereConfig.shootEffects) do
+    if sphereConfig.shotEffects then
+        for i, effect in ipairs(sphereConfig.shotEffects) do
             _Game.level:applyEffect(effect)
         end
     end
@@ -515,7 +515,7 @@ function Shooter:shoot()
     end
 
     -- Play the sound, etc.
-    _Game:playSound(sphereConfig.shootSound, self.pos)
+    _Game:playSound(sphereConfig.shotSound, self.pos)
     self.color = 0
     self.shotCooldown = self.config.shotCooldown
 end
@@ -674,7 +674,7 @@ function Shooter:drawReticle()
     local targetPos = self:getTargetPos()
     local color = self:getReticleColor()
     local sphereConfig = self:getSphereConfig()
-    if targetPos and sphereConfig.shootBehavior.type == "normal" then
+    if targetPos and sphereConfig.shotBehavior.type == "normal" then
         if self.config.reticle.sprite then
             local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2()):rotate(self.angle)
             self.config.reticle.sprite:draw(location, Vec2(0.5, 0), nil, nil, self.angle, color)
@@ -804,12 +804,13 @@ end
 ---@param color integer The sphere ID for which the color should be checked.
 ---@return Color
 function Shooter:getReticleColorForSphere(color)
-    local config = _Game.configManager.spheres[color]
-    if type(config.color) == "string" then
-        return _Game.resourceManager:getColorPalette(config.color):getColor(_TotalTime * config.colorSpeed)
-    else
+    local config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color .. ".json")
+    if config.colorPalette then
+        return config.colorPalette:getColor(_TotalTime * config.colorPaletteSpeed)
+    elseif config.color then
         return Color(config.color.r, config.color.g, config.color.b)
     end
+    error("Sphere error: Sphere of color " .. color .. " has neither `colorPalette` nor `color` fields set; one of them must exist")
 end
 
 
@@ -937,18 +938,18 @@ end
 
 
 
----Returns config for the current sphere.
----@return table
+---Returns the config of the current sphere.
+---@return SphereConfig
 function Shooter:getSphereConfig()
-    return _Game.configManager.spheres[self.color]
+    return _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
 end
 
 
 
----Returns config for the next sphere.
----@return table
+---Returns the config of the next sphere.
+---@return SphereConfig
 function Shooter:getNextSphereConfig()
-    return _Game.configManager.spheres[self.nextColor]
+    return _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.nextColor .. ".json")
 end
 
 

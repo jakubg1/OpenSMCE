@@ -45,6 +45,8 @@ function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, 
 		self.hitSphere = nil
 	end
 
+	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
+
 	self.PIXELS_PER_STEP = 8
 
 	self.delQueue = false
@@ -120,7 +122,6 @@ function ShotSphere:moveStep()
 			nearestSphere.sphere:matchEffectFragile()
 		else
 			self.hitSphere = nearestSphere
-			local sphereConfig = _Game.configManager.spheres[self.color]
 			-- TODO: Move this logic to Sphere.lua and dehardcode it.
 			local hitSphere = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID]
 			-- Redirect the hit sphere if it's a scarab or a stone sphere.
@@ -151,34 +152,34 @@ function ShotSphere:moveStep()
 			local shotCancelled = false
 			hitSphere:dumpVariables("hitSphere")
 			redirectedHitSphere:dumpVariables("redirectedHitSphere")
-			if not sphereConfig.doesNotCollideWith or not _Utils.isValueInTable(sphereConfig.doesNotCollideWith, hitSphere.color) then
-				if sphereConfig.hitBehavior.type == "destroySpheres" then
-					_Game.level:destroySelector(sphereConfig.hitBehavior.selector, self.pos, sphereConfig.hitBehavior.scoreEvent, sphereConfig.hitBehavior.scoreEventPerSphere)
-					if not sphereConfig.hitBehavior.pierce then
+			if not self.config.doesNotCollideWith or not _Utils.isValueInTable(self.config.doesNotCollideWith, hitSphere.color) then
+				if self.config.hitBehavior.type == "destroySpheres" then
+					_Game.level:destroySelector(self.config.hitBehavior.selector, self.pos, self.config.hitBehavior.scoreEvent, self.config.hitBehavior.scoreEventPerSphere)
+					if not self.config.hitBehavior.pierce then
 						self:destroy()
 					else
 						self.hitSphere = nil
 					end
-				elseif sphereConfig.hitBehavior.type == "recolorSpheres" then
-					_Game.level:replaceColorSelector(sphereConfig.hitBehavior, self.pos)
-					if not sphereConfig.hitBehavior.pierce then
+				elseif self.config.hitBehavior.type == "recolorSpheres" then
+					_Game.level:replaceColorSelector(self.config.hitBehavior, self.pos)
+					if not self.config.hitBehavior.pierce then
 						self:destroy()
 					else
 						self.hitSphere = nil
 					end
-				elseif sphereConfig.hitBehavior.type == "applyEffect" then
-					_Game.level:applyEffectSelector(sphereConfig.hitBehavior, self.pos)
-					if not sphereConfig.hitBehavior.pierce then
+				elseif self.config.hitBehavior.type == "applyEffect" then
+					_Game.level:applyEffectSelector(self.config.hitBehavior, self.pos)
+					if not self.config.hitBehavior.pierce then
 						self:destroy()
 					else
 						self.hitSphere = nil
 					end
-				elseif sphereConfig.hitBehavior.type == "splitAndPushBack" then
+				elseif self.config.hitBehavior.type == "splitAndPushBack" then
 					if hitSphere.nextSphere then
 						hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
 					end
-					hitSphere.sphereGroup.speed = -sphereConfig.hitBehavior.speed
-					if not sphereConfig.hitBehavior.pierce then
+					hitSphere.sphereGroup.speed = -self.config.hitBehavior.speed
+					if not self.config.hitBehavior.pierce then
 						self:destroy()
 					else
 						self.hitSphere = nil
@@ -202,7 +203,7 @@ function ShotSphere:moveStep()
 					local d = (self.pos - p):len()
 					-- calculate time
 					self.hitTimeMax = d / self.speed * 5
-					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, sphereConfig.hitBehavior.effects, self:getGapSizeList(), _Game.configManager.gameplay.sphereBehavior.instantMatches)
+					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, self.config.hitBehavior.effects, self:getGapSizeList(), _Game.configManager.gameplay.sphereBehavior.instantMatches)
 					badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 				end
 			else
@@ -212,8 +213,8 @@ function ShotSphere:moveStep()
 				self.hitSphere = nil -- avoid deleting this time
 			else
 				_Vars:setC("shot", "bad", badShot)
-				if sphereConfig.hitSound then
-					_Game:playSound(sphereConfig.hitSound, self.pos)
+				if self.config.hitSound then
+					_Game:playSound(self.config.hitSound, self.pos)
 				end
 				_Vars:unset("shot")
 				if not badShot then

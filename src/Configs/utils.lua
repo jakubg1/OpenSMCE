@@ -11,6 +11,7 @@ local PathEntityConfig = require("src.Configs.PathEntity")
 local ProjectileConfig = require("src.Configs.Projectile")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
 local ShooterMovementConfig = require("src.Configs.ShooterMovement")
+local SphereConfig = require("src.Configs.Sphere")
 local SphereEffectConfig = require("src.Configs.SphereEffect")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
 
@@ -366,6 +367,16 @@ end
 ---@return ShooterMovementConfig?
 function utils.parseShooterMovementConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Shooter Movement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
+end
+
+---@return SphereConfig
+function utils.parseSphereConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
+end
+
+---@return SphereConfig?
+function utils.parseSphereConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
 end
 
 ---@return SphereEffectConfig

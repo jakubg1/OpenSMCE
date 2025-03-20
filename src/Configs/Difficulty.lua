@@ -27,7 +27,7 @@ function DifficultyConfig:new(data, path)
     if self.lifeConfig.type == "score" then
         self.lifeConfig.startingLives = u.parseInteger(data.lifeConfig.startingLives, path, "lifeConfig.startingLives")
         self.lifeConfig.scorePerLife = u.parseInteger(data.lifeConfig.scorePerLife, path, "lifeConfig.scorePerLife")
-        self.lifeConfig.countUnmultipliedScore = u.parseBooleanOpt(data.lifeConfig.countUnmultipliedScore, path, "lifeConfig.countUnmultipliedScore") or false
+        self.lifeConfig.countUnmultipliedScore = u.parseBooleanOpt(data.lifeConfig.countUnmultipliedScore, path, "lifeConfig.countUnmultipliedScore") == true
     elseif self.lifeConfig.type == "coins" then
         self.lifeConfig.startingLives = u.parseInteger(data.lifeConfig.startingLives, path, "lifeConfig.startingLives")
         self.lifeConfig.coinsPerLife = u.parseInteger(data.lifeConfig.coinsPerLife, path, "lifeConfig.coinsPerLife")
@@ -36,8 +36,8 @@ function DifficultyConfig:new(data, path)
     else
         error(string.format("Unknown lifeConfig type: %s (expected \"score\", \"coins\", \"none\")", self.lifeConfig.type))
     end
-    self.lifeConfig.rollbackScoreAfterFailure = u.parseBooleanOpt(data.lifeConfig.rollbackScoreAfterFailure, path, "lifeConfig.rollbackScoreAfterFailure") or false
-    self.lifeConfig.rollbackCoinsAfterFailure = u.parseBooleanOpt(data.lifeConfig.rollbackCoinsAfterFailure, path, "lifeConfig.rollbackCoinsAfterFailure") or false
+    self.lifeConfig.rollbackScoreAfterFailure = u.parseBooleanOpt(data.lifeConfig.rollbackScoreAfterFailure, path, "lifeConfig.rollbackScoreAfterFailure") == true
+    self.lifeConfig.rollbackCoinsAfterFailure = u.parseBooleanOpt(data.lifeConfig.rollbackCoinsAfterFailure, path, "lifeConfig.rollbackCoinsAfterFailure") == true
 end
 
 

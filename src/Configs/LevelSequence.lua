@@ -30,7 +30,7 @@ function LevelSequenceConfig:new(data, path)
         elseif self.sequence[i].type == "uiCallback" then
             self.sequence[i].callback = u.parseString(data.sequence[i].callback, path, "sequence[" .. tostring(i) .. "].callback")
             self.sequence[i].waitUntilFinished = u.parseBooleanOpt(data.sequence[i].waitUntilFinished, path, "sequence[" .. tostring(i) .. "].waitUntilFinished")
-            self.sequence[i].retriggerWhenLoaded = u.parseBooleanOpt(data.sequence[i].retriggerWhenLoaded, path, "sequence[" .. tostring(i) .. "].retriggerWhenLoaded") or true
+            self.sequence[i].retriggerWhenLoaded = u.parseBooleanOpt(data.sequence[i].retriggerWhenLoaded, path, "sequence[" .. tostring(i) .. "].retriggerWhenLoaded") ~= false
         elseif self.sequence[i].type == "pathEntity" then
             self.sequence[i].pathEntity = u.parsePathEntityConfig(data.sequence[i].pathEntity, path, "sequence[" .. tostring(i) .. "].pathEntity")
             self.sequence[i].separatePaths = u.parseBoolean(data.sequence[i].separatePaths, path, "sequence[" .. tostring(i) .. "].separatePaths")
