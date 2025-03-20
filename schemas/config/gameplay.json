@@ -228,44 +228,6 @@
             ],
             "additionalProperties": false
         },
-        "levelVariables": {
-            "type": "object",
-            "description": "Defines the starting values for the Level Variables. Keys are variable names, values must be numbers. Level variables will be reset every time the level is retried or a new level is started.",
-            "propertyNames": {
-                "pattern": "^.*$"
-            },
-            "patternProperties": {
-                "^.*$": {
-                    "type": "number",
-                    "description": "The value for this Level Variable."
-                }
-            }
-        },
-        "levelTimers": {
-            "type": "object",
-            "description": "Defines the starting values for the Level Timers. Keys are timer names. Level timers will be reset every time the level is retried or a new level is started.",
-            "propertyNames": {
-                "pattern": "^.*$"
-            },
-            "patternProperties": {
-                "^.*$": {
-                    "type": "object",
-                    "description": "A single Level Timer.",
-                    "properties": {
-                        "countDown": {
-                            "type": "boolean",
-                            "description": "If set, the timer will be counting down instead of up, and will stop at 0 when it ticks down all the way there."
-                        },
-                        "value": {
-                            "type": "number",
-                            "description": "The starting value of the timer. Defaults to 0.",
-                            "minimum": 0.0
-                        }
-                    },
-                    "additionalProperties": false
-                }
-            }
-        },
         "net": {
             "type": "object",
             "description": "Defines the Net.",
@@ -324,6 +286,59 @@
                 "scoreEvent"
             ],
             "additionalProperties": false
+        },
+        "levelVariables": {
+            "type": "object",
+            "description": "Defines the starting values for the Level Variables. Keys are variable names, values must be numbers. Level variables will be reset every time the level is retried or a new level is started.",
+            "propertyNames": {
+                "pattern": "^.*$"
+            },
+            "patternProperties": {
+                "^.*$": {
+                    "type": "number",
+                    "description": "The value for this Level Variable."
+                }
+            }
+        },
+        "levelTimers": {
+            "type": "object",
+            "description": "Defines the starting values for the Level Timers. Keys are timer names. Level timers will be reset every time the level is retried or a new level is started.",
+            "propertyNames": {
+                "pattern": "^.*$"
+            },
+            "patternProperties": {
+                "^.*$": {
+                    "type": "object",
+                    "description": "A single Level Timer.",
+                    "properties": {
+                        "countDown": {
+                            "type": "boolean",
+                            "description": "If set, the timer will be counting down instead of up, and will stop at 0 when it ticks down all the way there."
+                        },
+                        "value": {
+                            "type": "number",
+                            "description": "The starting value of the timer. Defaults to 0.",
+                            "minimum": 0.0
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "levelTimerSeries": {
+            "type": "object",
+            "description": "Defines the Level Timer Series. Keys are names of timer series. Level Timer Series are lists of timers. Entries can be added with various lifespan. Level Timer Series are useful when checking how often certain events happen over a certain period of time.",
+            "propertyNames": {
+                "pattern": "^.*$"
+            },
+            "patternProperties": {
+                "^.*$": {
+                    "type": "object",
+                    "description": "A single Level Timer Series.",
+                    "properties": {},
+                    "additionalProperties": false
+                }
+            }
         }
     },
     "required": [

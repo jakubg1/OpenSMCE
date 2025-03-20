@@ -13,6 +13,11 @@
     - "setLevelTimer" - Sets or resets the value of the Level Timer. If no Level is currently active, the event will do nothing.
         - timer (string) - The name of the Level Timer to be set.
         - time* = 0 ($number) - The new value for this Level Timer. If not specified, the timer will be reset to 0.
+    - "addToTimerSeries" - Adds a new entry to the Level Timer Series. If no Level is currently active, the event will do nothing.
+        - timerSeries (string) - The name of the Level Timer Series to be added to.
+        - time ($number) [>0] - The lifetime of the new entry. After this time expires, this entry will be removed from the Timer Series.
+    - "clearTimerSeries" - Removes all entries from the Level Timer Series. If no Level is currently active, the event will do nothing.
+        - timerSeries (string) - The name of the Level Timer Series to be reset.
     - "collectibleEffect" - Executes a Collectible Effect on the current Level. If no Level is currently active, the event will do nothing.
         - collectibleEffect (CollectibleEffect) - The Collectible Effect to be executed.
     - "scoreEvent" - Executes a Score Event on the current Level. If no Level is currently active, the event will do nothing.

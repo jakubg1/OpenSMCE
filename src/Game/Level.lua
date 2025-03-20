@@ -60,6 +60,7 @@ function Level:new(data)
 	self.levelSequence = _Game.resourceManager:getLevelSequenceConfig(data.sequence).sequence
 	self.startingVariables = _Game.configManager.gameplay.levelVariables
 	self.startingTimers = _Game.configManager.gameplay.levelTimers
+	self.startingTimerSeries = _Game.configManager.gameplay.levelTimerSeries
 
 	-- Additional variables come from `:reset()`!
 	self:reset()
@@ -439,10 +440,25 @@ function Level:setTimer(name, value)
 	_Vars:setC("level", name, value)
 end
 
+---Adds a new entry to the Level Timer Series.
+---@param name string The name of timer series.
+---@param time number The lifetime of the entry.
+function Level:addToTimerSeries(name, time)
+	table.insert(self.timerSeries[name], time)
+	_Vars:setC("level", name .. "_length", #self.timerSeries[name])
+end
+
+---Erases all entries from the given Level Timer Series.
+---@param name string The name of timer series.
+function Level:clearTimerSeries(name)
+	self.timerSeries[name] = {}
+end
+
 ---Exposes the current state of the level to Expression Variables:
 --- - Level combo: `[level.combo]`
 --- - Level variables: `[level.<variable>]`
 --- - Level timers: `[level.<timer>]`
+--- - Level timer series: `[level.<timerSeries>.length]`
 function Level:updateVariables()
 	_Vars:setC("level", "combo", self.combo)
 	for name, variable in pairs(self.variables) do
@@ -451,17 +467,31 @@ function Level:updateVariables()
 	for name, timer in pairs(self.timers) do
 		_Vars:setC("level", name, timer)
 	end
+	for name, timerSeries in pairs(self.timerSeries) do
+		_Vars:setC("level", name .. "_length", #timerSeries)
+	end
 end
 
----Ticks all the Level Timers up or down.
+---Ticks all the Level Timers up or down, and all elements of Level Timer Series down.
 ---Timers which are counting down are capped at 0.
+---Timer Series elements which reach 0 are removed.
 ---@param dt number Time delta in seconds.
 function Level:updateTimers(dt)
+	-- Timers
 	for name, time in pairs(self.timers) do
 		if self.startingTimers[name].countDown then
 			self:setTimer(name, math.max(time - dt, 0))
 		else
 			self:setTimer(name, time + dt)
+		end
+	end
+	-- Timer series
+	for name, timerSeries in pairs(self.timerSeries) do
+		for i = #timerSeries, 1, -1 do
+			timerSeries[i] = timerSeries[i] - dt
+			if timerSeries[i] <= 0 then
+				table.remove(timerSeries, i)
+			end
 		end
 	end
 end
@@ -1118,6 +1148,12 @@ function Level:reset()
 			self.timers[timerName] = timer.value or 0
 		end
 	end
+	self.timerSeries = {}
+	if self.startingTimerSeries then
+		for timerSeriesName, timerSeries in pairs(self.startingTimerSeries) do
+			self.timerSeries[timerSeriesName] = {}
+		end
+	end
 
 	self.shooter:reset()
 	self.colorManager:reset()
@@ -1641,16 +1677,14 @@ end
 ---@return table
 function Level:serialize()
 	local t = {
-		stats = {
-			score = self.score,
-			coins = self.coins,
-			gems = self.gems,
-			spheresShot = self.spheresShot,
-			successfulShots = self.successfulShots,
-			sphereChainsSpawned = self.sphereChainsSpawned,
-			maxChain = self.maxChain,
-			maxCombo = self.maxCombo
-		},
+		score = self.score,
+		coins = self.coins,
+		gems = self.gems,
+		spheresShot = self.spheresShot,
+		successfulShots = self.successfulShots,
+		sphereChainsSpawned = self.sphereChainsSpawned,
+		maxChain = self.maxChain,
+		maxCombo = self.maxCombo,
 		time = self.time,
 		shooter = self.shooter:serialize(),
 		shotSpheres = {},
@@ -1668,7 +1702,8 @@ function Level:serialize()
 		levelSequenceStep = self.levelSequenceStep,
 		levelSequenceVars = self.levelSequenceVars,
 		variables = self.variables,
-		timers = self.timers
+		timers = self.timers,
+		timerSeries = self.timerSeries
 	}
 	for i, shotSphere in ipairs(self.shotSpheres) do
 		table.insert(t.shotSpheres, shotSphere:serialize())
@@ -1707,14 +1742,14 @@ function Level:deserialize(t)
 	self.colorManager:reset()
 
 	-- Level stats
-	self.score = t.stats.score
-	self.coins = t.stats.coins
-	self.gems = t.stats.gems
-	self.spheresShot = t.stats.spheresShot
-	self.successfulShots = t.stats.successfulShots
-	self.sphereChainsSpawned = t.stats.sphereChainsSpawned
-	self.maxChain = t.stats.maxChain
-	self.maxCombo = t.stats.maxCombo
+	self.score = t.score
+	self.coins = t.coins
+	self.gems = t.gems
+	self.spheresShot = t.spheresShot
+	self.successfulShots = t.successfulShots
+	self.sphereChainsSpawned = t.sphereChainsSpawned
+	self.maxChain = t.maxChain
+	self.maxCombo = t.maxCombo
 	self.combo = t.combo
 	self.destroyedSpheres = t.destroyedSpheres
 	self.time = t.time
@@ -1725,6 +1760,7 @@ function Level:deserialize(t)
 	self.levelSequenceLoad = true
 	self.variables = t.variables
 	self.timers = t.timers
+	self.timerSeries = t.timerSeries
 	-- Paths
 	self.map:deserialize(t.paths)
 	-- We need to resolve the `Sphere.attachedSphere` field here for the loading order reasons.

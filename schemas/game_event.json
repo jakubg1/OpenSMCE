@@ -10,6 +10,8 @@
                 "setCoins",
                 "setLevelVariable",
                 "setLevelTimer",
+                "addToTimerSeries",
+                "clearTimerSeries",
                 "collectibleEffect",
                 "scoreEvent",
                 "playSound"
@@ -212,6 +214,82 @@
                 },
                 "required": [
                     "timer"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "addToTimerSeries",
+                        "description": "Adds a new entry to the Level Timer Series. If no Level is currently active, the event will do nothing."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "timerSeries": {
+                        "type": "string",
+                        "description": "The name of the Level Timer Series to be added to."
+                    },
+                    "time": {
+                        "$ref": "_structures/ExprNumber.json",
+                        "description": "The lifetime of the new entry. After this time expires, this entry will be removed from the Timer Series.",
+                        "exclusiveMinimum": 0.0
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "timerSeries",
+                    "time"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "clearTimerSeries",
+                        "description": "Removes all entries from the Level Timer Series. If no Level is currently active, the event will do nothing."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "timerSeries": {
+                        "type": "string",
+                        "description": "The name of the Level Timer Series to be reset."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "timerSeries"
                 ],
                 "additionalProperties": false
             }

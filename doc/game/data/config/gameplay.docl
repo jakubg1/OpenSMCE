@@ -33,12 +33,6 @@
         - noScarabAttraction* (boolean) - If `true`, the scarab will not attract any spheres.
         - permitLongMatches (boolean) - If `true`, the spheres will try to make the biggest clump possible before matching together.
         - instantMatches* (boolean) - If `true`, the spheres will match instantly when they can match. If the match effect has a delay, the sphere will be attached to the nearest sphere and will match after the specified period of time.
-    - levelVariables* (object) <<^.*$>> - Defines the starting values for the Level Variables. Keys are variable names, values must be numbers. Level variables will be reset every time the level is retried or a new level is started.
-        - (number) - The value for this Level Variable.
-    - levelTimers* (object) <<^.*$>> - Defines the starting values for the Level Timers. Keys are timer names. Level timers will be reset every time the level is retried or a new level is started.
-        - (object) - A single Level Timer.
-            - countDown* (boolean) - If set, the timer will be counting down instead of up, and will stop at 0 when it ticks down all the way there.
-            - value* = 0 (number) [>=0] - The starting value of the timer. Defaults to 0.
     - net* (object) - Defines the Net.
         - particle (Particle) - A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires.
         - sound (SoundEvent) - A looping sound event that will be played when the Net is currently active.
@@ -49,3 +43,11 @@
         - sound (SoundEvent) - A sound event to be played when a sphere is destroyed.
         - scoreEvent (ScoreEvent) - A Score Event executed on the sphere that's been destroyed.
         - cancelWhenNoSpheresToDestroy* = true (boolean) - If `true`, the entire Lightning Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted.
+    - levelVariables* (object) <<^.*$>> - Defines the starting values for the Level Variables. Keys are variable names, values must be numbers. Level variables will be reset every time the level is retried or a new level is started.
+        - (number) - The value for this Level Variable.
+    - levelTimers* (object) <<^.*$>> - Defines the starting values for the Level Timers. Keys are timer names. Level timers will be reset every time the level is retried or a new level is started.
+        - (object) - A single Level Timer.
+            - countDown* (boolean) - If set, the timer will be counting down instead of up, and will stop at 0 when it ticks down all the way there.
+            - value* = 0 (number) [>=0] - The starting value of the timer. Defaults to 0.
+    - levelTimerSeries* (object) <<^.*$>> - Defines the Level Timer Series. Keys are names of timer series. Level Timer Series are lists of timers. Entries can be added with various lifespan. Level Timer Series are useful when checking how often certain events happen over a certain period of time.
+        - (object) - A single Level Timer Series.

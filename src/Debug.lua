@@ -34,6 +34,8 @@ function Debug:new()
 		ex = {description = "Debugs an Expression: shows detailed tokenization and list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
 		help = {description = "Displays this list.", parameters = {}},
 		collectible = {description = "Spawns a Collectible in the middle of the screen.", parameters = {{name = "collectible", type = "Collectible", optional = false}}}
+		-- Add commands to tinker with Expression Variables
+		-- Add a list of Expression Variables in a debug screen
 	}
 	self.commandNames = {}
 	for commandName, commandData in pairs(self.commands) do
@@ -236,6 +238,21 @@ function Debug:getDebugLevel()
 	s = s .. "Timers:\n"
 	for name, timer in pairs(level.timers) do
 		s = s .. string.format("  - %s = %.2f", name, timer)
+	end
+	s = s .. "\n"
+	s = s .. "Timer Series:\n"
+	for name, timerSeries in pairs(level.timerSeries) do
+		s = s .. string.format("  - %s = ", name)
+		if #timerSeries == 0 then
+			s = s .. "(empty)"
+		else
+			for i, time in ipairs(timerSeries) do
+				if i > 1 then
+					s = s .. ", "
+				end
+				s = s .. string.format("%.2f", time)
+			end
+		end
 	end
 	s = s .. "\n"
 	s = s .. "\n"

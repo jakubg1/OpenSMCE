@@ -38,6 +38,11 @@ function GameEventConfig:new(data, path)
     elseif self.type == "setLevelTimer" then
         self.timer = u.parseString(data.timer, path, "timer")
         self.time = u.parseExprNumberOpt(data.time, path, "time") or 0
+    elseif self.type == "addToTimerSeries" then
+        self.timerSeries = u.parseString(data.timerSeries, path, "timerSeries")
+        self.time = u.parseExprNumber(data.time, path, "time")
+    elseif self.type == "clearTimerSeries" then
+        self.timerSeries = u.parseString(data.timerSeries, path, "timerSeries")
     elseif self.type == "collectibleEffect" then
         self.collectibleEffect = u.parseCollectibleEffectConfig(data.collectibleEffect, path, "collectibleEffect")
     elseif self.type == "scoreEvent" then
@@ -45,7 +50,7 @@ function GameEventConfig:new(data, path)
     elseif self.type == "playSound" then
         self.soundEvent = u.parseSoundEvent(data.soundEvent, path, "soundEvent")
     else
-        error(string.format("Unknown GameEventConfig type: %s (expected \"sequence\", \"random\", \"setCoins\", \"setLevelVariable\", \"setLevelTimer\", \"collectibleEffect\", \"scoreEvent\", \"playSound\")", self.type))
+        error(string.format("Unknown GameEventConfig type: %s (expected \"sequence\", \"random\", \"setCoins\", \"setLevelVariable\", \"setLevelTimer\", \"addToTimerSeries\", \"clearTimerSeries\", \"collectibleEffect\", \"scoreEvent\", \"playSound\")", self.type))
     end
 
     self.conditions = {}

@@ -240,6 +240,16 @@ function Game:executeGameEvent(event)
 			return
 		end
 		self.level:setTimer(event.timer, event.time:evaluate())
+	elseif event.type == "addToTimerSeries" then
+		if not self.level then
+			return
+		end
+		self.level:addToTimerSeries(event.timerSeries, event.time:evaluate())
+	elseif event.type == "clearTimerSeries" then
+		if not self.level then
+			return
+		end
+		self.level:clearTimerSeries(event.timerSeries)
 	elseif event.type == "collectibleEffect" then
 		if not self.level then
 			return

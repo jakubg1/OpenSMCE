@@ -826,7 +826,7 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 											child_block["then"]["required"] = []
 										child_block["then"]["required"].append(name)
 									child_block["then"]["properties"][name] = docld_to_schema(child, False, structures_path)
-			elif not "name" in entry["children"][0]:
+			elif "children" in entry and not "name" in entry["children"][0]:
 				# One nameless child in a regular object means that the object behaves like an array, with all keys possible.
 				out["patternProperties"] = {}
 				out["patternProperties"]["^.*$"] = docld_to_schema(entry["children"][0], False, structures_path)
