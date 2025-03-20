@@ -108,6 +108,10 @@ function ColorManager:getMostFrequentColor()
 			end
 		end
 	end
+	-- Failsafe if there's absolutely NOTHING on the board.
+	if #maxColors == 0 then
+		return 1
+	end
 	return maxColors[math.random(#maxColors)]
 end
 
