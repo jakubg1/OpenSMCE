@@ -153,7 +153,9 @@ end
 ---@param shadow boolean? If set to `true`, the shadow of this entity will be drawn instead of the sphere itself.
 function SphereEntity:draw(shadow)
 	if shadow then
-		self.config.shadowSprite:draw(self.pos + self.config.shadowOffset, Vec2(0.5), nil, nil, self.angle, nil, self.alpha, self.scale)
+		if self.config.shadowSprite then
+			self.config.shadowSprite:draw(self.pos + self.config.shadowOffset, Vec2(0.5), nil, nil, self.angle, nil, self.alpha, self.scale)
+		end
 	else
 		self.config.sprite:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM, self.alpha, self.scale)
 	end
