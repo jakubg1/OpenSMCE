@@ -97,11 +97,11 @@ function Sphere:update(dt)
 				effect.infectionTime = effect.infectionTime + effect.config.infectionTime
 				effect.infectionSize = effect.infectionSize - 1
 				if self.prevSphere and self.prevSphere.color ~= 0 then -- TODO: make a sphere tag in order to determine which spheres to infect.
-					self.prevSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime, effect.effectGroupID)
+					self.prevSphere:applyEffect(effect.config, effect.infectionSize, effect.infectionTime, effect.effectGroupID)
 				end
 				if self.nextSphere and self.nextSphere.color ~= 0 then -- TODO: as above.
 					-- We need to compensate the time for the next sphere, because it will be updated in this tick!
-					self.nextSphere:applyEffect(effect.name, effect.infectionSize, effect.infectionTime + dt, effect.effectGroupID)
+					self.nextSphere:applyEffect(effect.config, effect.infectionSize, effect.infectionTime + dt, effect.effectGroupID)
 				end
 			end
 		else
@@ -328,7 +328,7 @@ function Sphere:applyEffect(effectConfig, infectionSize, infectionTime, effectGr
 
 	-- Sound effect.
 	if effectConfig.applySound then
-		_Game:playSound(effect.applySound, self:getPos())
+		_Game:playSound(effectConfig.applySound, self:getPos())
 	end
 end
 
