@@ -20,6 +20,228 @@ local Expression = class:derive("Expression")
 
 local Vec2 = require("src.Essentials.Vector2")
 
+-- Patterns used in `:tokenize()`.
+local PATTERNS = {
+	{pattern = "%d", type = "number"},
+	{pattern = "[\"']", type = "string"},
+	{pattern = "[%a_]", type = "literal"},
+	{pattern = "[%+%-%/%*%%%^%|%&%=%!%<%>%?%,%:%.]", type = "operator"},
+	{pattern = "[%(%)%[%]]", type = "bracket"}
+}
+
+-- Operators.
+local OPERATORS = {
+	["^"] = {precedence = 10, rightAssoc = true},
+	["!"] = {precedence = 9, rightAssoc = true},
+	["-u"] = {precedence = 9, rightAssoc = true},
+	["*"] = {precedence = 8, rightAssoc = false},
+	["/"] = {precedence = 8, rightAssoc = false},
+	["%"] = {precedence = 8, rightAssoc = false},
+	["+"] = {precedence = 7, rightAssoc = false},
+	["-"] = {precedence = 7, rightAssoc = false},
+	[".."] = {precedence = 6, rightAssoc = true},
+	[">"] = {precedence = 5, rightAssoc = false},
+	[">="] = {precedence = 5, rightAssoc = false},
+	["<"] = {precedence = 5, rightAssoc = false},
+	["<="] = {precedence = 5, rightAssoc = false},
+	["=="] = {precedence = 4, rightAssoc = false},
+	["!="] = {precedence = 4, rightAssoc = false},
+	["&&"] = {precedence = 3, rightAssoc = false},
+	["||"] = {precedence = 2, rightAssoc = false},
+	["?"] = {precedence = 1, rightAssoc = true},
+	[":"] = {precedence = 1, rightAssoc = true},
+	[","] = {precedence = 0, rightAssoc = false}
+}
+
+local OPERATOR_FUNCTIONS = {
+	-- Artithmetic: Takes two last numbers in the stack (one in case of unary minus), performs an operation and puts the result number back.
+	["+"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a + b)
+	end,
+	["-"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a - b)
+	end,
+	["-u"] = function(stack)
+		local a = table.remove(stack)
+		table.insert(stack, -a)
+	end,
+	["*"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a * b)
+	end,
+	["/"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a / b)
+	end,
+	["^"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a ^ b)
+	end,
+	["%"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a % b)
+	end,
+
+	-- String manipulation: Takes two last strings in the stack, performs an operation and puts the result number back.
+	[".."] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, tostring(a) .. tostring(b))
+	end,
+
+	-- Comparison: Compares two numbers or strings in the stack, consuming them and puts the result boolean back.
+	["=="] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a == b)
+	end,
+	["!="] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a ~= b)
+	end,
+	[">"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a > b)
+	end,
+	["<"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a < b)
+	end,
+	[">="] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a >= b)
+	end,
+	["<="] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a <= b)
+	end,
+
+	-- Logic: Performs a logic operation on one or two booleans, consuming them and puts back one boolean result.
+	["||"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a or b)
+	end,
+	["&&"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a and b)
+	end,
+	["!"] = function(stack)
+		local a = table.remove(stack)
+		table.insert(stack, not a)
+	end,
+
+	-- Ternary (the only available) "if" operation.
+	-- The colon is ignored; serves as a separator.
+	["?"] = function(stack)
+		local c = table.remove(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a and b or c)
+	end,
+
+	-- Functions.
+	["floor"] = function(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.floor(a))
+	end,
+	["ceil"] = function(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.ceil(a))
+	end,
+	["round"] = function(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.floor(a + 0.5))
+	end,
+	["random"] = function(stack)
+		table.insert(stack, math.random())
+	end,
+	["randomf"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, a + math.random() * (b - a))
+	end,
+	["vec2"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, Vec2(a, b))
+	end,
+	["sin"] = function(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.sin(a))
+	end,
+	["cos"] = function(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.cos(a))
+	end,
+	["tan"] = function(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.tan(a))
+	end,
+	["max"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.max(a,b))
+	end,
+	["min"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.min(a,b))
+	end,
+	-- clamp a, b, c where b is the lower bound and c is the upper bound
+	["clamp"] = function(stack)
+		local c = table.remove(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.min(math.max(a,b),c))
+	end,
+
+	-- Miscellaneous.
+	["strnum"] = function(stack)
+		-- Adds thousands, millions, etc. separators to the provided number and converts it into a string.
+		local a = table.remove(stack)
+		table.insert(stack, _Utils.formatNumber(a))
+	end,
+	["get"] = function(stack)
+		-- Get a value of a variable.
+		local a = table.remove(stack)
+		table.insert(stack, _Vars:get(a))
+	end,
+	["getd"] = function(stack)
+		-- Get a value of a variable, or return a specified value if nil.
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, _Vars:get(a, b))
+	end,
+	["getc"] = function(stack)
+		-- Get a value of a context variable.
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, _Vars:getC(a, b))
+	end,
+	["getcd"] = function(stack)
+		-- Get a value of a context variable, or return a specified value if nil.
+		local c = table.remove(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, _Vars:getC(a, b, c))
+	end
+}
+
 
 
 ---Constructs and compiles a new Expression.
@@ -27,196 +249,6 @@ local Vec2 = require("src.Essentials.Vector2")
 ---@param raw boolean? Whether the provided `str` value is guaranteed to be a valid expression which is not packed inside the `${...}` clause.
 function Expression:new(str, raw)
 	self.str = str
-
-	-- Operators.
-	self.OPERATOR_FUNCTIONS = {
-		-- Artithmetic: Takes two last numbers in the stack (one in case of unary minus), performs an operation and puts the result number back.
-		["+"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a + b)
-		end,
-		["-"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a - b)
-		end,
-		["-u"] = function(stack)
-			local a = table.remove(stack)
-			table.insert(stack, -a)
-		end,
-		["*"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a * b)
-		end,
-		["/"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a / b)
-		end,
-		["^"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a ^ b)
-		end,
-		["%"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a % b)
-		end,
-
-		-- String manipulation: Takes two last strings in the stack, performs an operation and puts the result number back.
-		[".."] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, tostring(a) .. tostring(b))
-		end,
-
-		-- Comparison: Compares two numbers or strings in the stack, consuming them and puts the result boolean back.
-		["=="] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a == b)
-		end,
-		["!="] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a ~= b)
-		end,
-		[">"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a > b)
-		end,
-		["<"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a < b)
-		end,
-		[">="] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a >= b)
-		end,
-		["<="] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a <= b)
-		end,
-
-		-- Logic: Performs a logic operation on one or two booleans, consuming them and puts back one boolean result.
-		["||"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a or b)
-		end,
-		["&&"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a and b)
-		end,
-		["!"] = function(stack)
-			local a = table.remove(stack)
-			table.insert(stack, not a)
-		end,
-
-		-- Ternary (the only available) "if" operation.
-		-- The colon is ignored; serves as a separator.
-		["?"] = function(stack)
-			local c = table.remove(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a and b or c)
-		end,
-
-		-- Functions.
-		["floor"] = function(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.floor(a))
-		end,
-		["ceil"] = function(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.ceil(a))
-		end,
-		["round"] = function(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.floor(a + 0.5))
-		end,
-		["random"] = function(stack)
-			table.insert(stack, math.random())
-		end,
-		["randomf"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, a + math.random() * (b - a))
-		end,
-		["vec2"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, Vec2(a, b))
-		end,
-		["sin"] = function(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.sin(a))
-		end,
-		["cos"] = function(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.cos(a))
-		end,
-		["tan"] = function(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.tan(a))
-		end,
-		["max"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.max(a,b))
-		end,
-		["min"] = function(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.min(a,b))
-		end,
-		-- clamp a, b, c where b is the lower bound and c is the upper bound
-		["clamp"] = function(stack)
-			local c = table.remove(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, math.min(math.max(a,b),c))
-		end,
-
-		-- Miscellaneous.
-		["strnum"] = function(stack)
-			-- Adds thousands, millions, etc. separators to the provided number and converts it into a string.
-			local a = table.remove(stack)
-			table.insert(stack, _Utils.formatNumber(a))
-		end,
-		["get"] = function(stack)
-			-- Get a value of a variable.
-			local a = table.remove(stack)
-			table.insert(stack, _Vars:get(a))
-		end,
-		["getd"] = function(stack)
-			-- Get a value of a variable, or return a specified value if nil.
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, _Vars:get(a, b))
-		end,
-		["getc"] = function(stack)
-			-- Get a value of a context variable.
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, _Vars:getC(a, b))
-		end,
-		["getcd"] = function(stack)
-			-- Get a value of a context variable, or return a specified value if nil.
-			local c = table.remove(stack)
-			local b = table.remove(stack)
-			local a = table.remove(stack)
-			table.insert(stack, _Vars:getC(a, b, c))
-		end
-	}
 
 	-- Prepare the Expression.
 	-- If this is not a string, but instead a number, then there's nothing to talk about.
@@ -245,13 +277,6 @@ function Expression:getToken(str)
 	-- Let's compare the first character.
 	local c = string.sub(str, 1, 1)
 	local type = nil
-	local PATTERNS = {
-		{pattern = "%d", type = "number"},
-		{pattern = "[\"']", type = "string"},
-		{pattern = "[%a_]", type = "literal"},
-		{pattern = "[%+%-%/%*%%%^%|%&%=%!%<%>%?%,%:%.]", type = "operator"},
-		{pattern = "[%(%)%[%]]", type = "bracket"}
-	}
 	for i, pattern in ipairs(PATTERNS) do
 		if string.find(c, pattern.pattern) then
 			type = pattern.type
@@ -355,29 +380,6 @@ end
 function Expression:compile(tokens)
 	-- This function uses an extended version of the shunting yard algorithm.
 	-- https://en.wikipedia.org/wiki/Shunting_yard_algorithm
-	local OPERATORS = {
-		["^"] = {precedence = 10, rightAssoc = true},
-		["!"] = {precedence = 9, rightAssoc = true},
-		["-u"] = {precedence = 9, rightAssoc = true},
-		["*"] = {precedence = 8, rightAssoc = false},
-		["/"] = {precedence = 8, rightAssoc = false},
-		["%"] = {precedence = 8, rightAssoc = false},
-		["+"] = {precedence = 7, rightAssoc = false},
-		["-"] = {precedence = 7, rightAssoc = false},
-		[".."] = {precedence = 6, rightAssoc = true},
-		[">"] = {precedence = 5, rightAssoc = false},
-		[">="] = {precedence = 5, rightAssoc = false},
-		["<"] = {precedence = 5, rightAssoc = false},
-		["<="] = {precedence = 5, rightAssoc = false},
-		["=="] = {precedence = 4, rightAssoc = false},
-		["!="] = {precedence = 4, rightAssoc = false},
-		["&&"] = {precedence = 3, rightAssoc = false},
-		["||"] = {precedence = 2, rightAssoc = false},
-		["?"] = {precedence = 1, rightAssoc = true},
-		[":"] = {precedence = 1, rightAssoc = true},
-		[","] = {precedence = 0, rightAssoc = false}
-	}
-
 	local steps = {}
 	local opStack = {}
 
@@ -386,7 +388,6 @@ function Expression:compile(tokens)
 			table.insert(steps, {type = "value", value = token.value})
 		elseif token.type == "bracket" then
 			local op = token.value
-			local opData = OPERATORS[op]
 			if op == "(" then
 				table.insert(opStack, {type = "operator", value = op})
 			elseif op == ")" then
@@ -426,10 +427,10 @@ function Expression:compile(tokens)
 			local opData = OPERATORS[op]
 			local lastFunction = nil
 			local lastFunctionI = nil
-			for i = #opStack, 1, -1 do
-				if opStack[i].type == "function" then
-					lastFunction = opStack[i].value
-					lastFunctionI = i
+			for j = #opStack, 1, -1 do
+				if opStack[j].type == "function" then
+					lastFunction = opStack[j].value
+					lastFunctionI = j
 					break
 				end
 			end
@@ -488,7 +489,7 @@ function Expression:evaluate()
 		elseif step.type == "operator" then
 			local op = step.value
 			-- Execute the corresponding operator function.
-			local f = self.OPERATOR_FUNCTIONS[op]
+			local f = OPERATOR_FUNCTIONS[op]
 			if f then
 				f(stack)
 			end

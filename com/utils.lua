@@ -353,6 +353,38 @@ end
 
 
 
+---Combines a table of strings together to produce a string and returns the result.
+---Deprecated, please use `table.concat` instead.
+---@param t table A table of strings to be combined.
+---@param k string A delimiter which will separate the terms.
+---@return string
+function utils.strJoin(t, k)
+	local s = ""
+	for i, n in ipairs(t) do
+		if i > 1 then s = s .. k end
+		s = s .. n
+	end
+	return s
+end
+
+
+
+---Indents a string `s` by adding `n` spaces at the front of each line.
+---@param s string A string to be indented.
+---@param n integer The amount of spaces to be added at the front of each line.
+---@return string
+function utils.strIndent(s, n)
+	local l = utils.strSplit(s, "\n")
+	for i = 1, #l do
+		if l[i] ~= "" then
+			l[i] = string.rep(" ", n) .. l[i]
+		end
+	end
+	return utils.strJoin(l, "\n")
+end
+
+
+
 ---Returns `true` if the string `s` starts with the clause `c`.
 ---@param s string The string to be searched.
 ---@param c string The expected beginning of the string `s`.
@@ -369,22 +401,6 @@ end
 ---@return boolean
 function utils.strEndsWith(s, c)
 	return s:sub(s:len() - c:len() + 1) == c
-end
-
-
-
----Combines a table of strings together to produce a string and returns the result.
----Deprecated, please use `table.concat` instead.
----@param t table A table of strings to be combined.
----@param k string A delimiter which will separate the terms.
----@return string
-function utils.strJoin(t, k)
-	local s = ""
-	for i, n in ipairs(t) do
-		if i > 1 then s = s .. k end
-		s = s .. n
-	end
-	return s
 end
 
 

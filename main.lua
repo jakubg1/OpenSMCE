@@ -62,6 +62,7 @@ _START_TIME = love.timer.getTime()
 -- Colors
 _COLORS = {
 	red = {1, 0.2, 0.2},
+	lightRed = {1, 0.4, 0.4},
 	purple = {1, 0.2, 1},
 	green = {0.2, 1, 0.2},
 	aqua = {0.2, 1, 1},
