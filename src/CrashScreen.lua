@@ -23,6 +23,8 @@ function CrashScreen:new(err)
     self.bottomText2 = ""
     self.url = "https://github.com/jakubg1/OpenSMCE/issues"
 
+    self.e00000e00 = math.random() < 1 / 100
+
 
 
     if math.random() <3 then
@@ -45,13 +47,13 @@ function CrashScreen:update(dt)
                         _MousePos.y < button.pos.y + button.size.y
         if button.hovered then
             if i == 1 then
-                self.bottomText = "Copies the error data to clipboard."
+                self.bottomText = self:transformText("Copies the error data to clipboard.")
             elseif i == 2 then
-                self.bottomText = "Copies the error data to clipboard and opens the issues page on GitHub."
+                self.bottomText = self:transformText("Copies the error data to clipboard and opens the issues page on GitHub.")
             elseif i == 3 then
-                self.bottomText = "Attempts to recover your progress."
+                self.bottomText = self:transformText("Attempts to recover your progress.")
             elseif i == 4 then
-                self.bottomText = "Exits the program."
+                self.bottomText = self:transformText("Exits the program.")
             end
         end
     end
@@ -69,10 +71,10 @@ function CrashScreen:draw()
 
     -- Header
     love.graphics.setFont(_FONT_GIANT)
-    love.graphics.print("Oh no!", 30, 30)
+    love.graphics.print(self:transformText("Oh no!"), 30, 30)
     -- Text
     love.graphics.setFont(_FONT_MED)
-    love.graphics.print("OpenSMCE has encountered a problem and crashed.\nThis is not meant to happen and you should report this error to the Github repository page\n(unless you caused the crash, of course).\nYou can try to emergency save the progress, in order not to lose it.\n\nHere's some error info:", 30, 70)
+    love.graphics.print(self:transformText("OpenSMCE has encountered a problem and crashed.\nThis is not meant to happen and you should report this error to the Github repository page\n(unless you caused the crash, of course).\nYou can try to emergency save the progress, in order not to lose it.\n\nHere's some error info:"), 30, 70)
 
     -- Error frame
     love.graphics.setColor(1, 1, 1)
@@ -173,6 +175,23 @@ function CrashScreen:emergencySave()
         self.bottomText2 = "There was nothing to save, you were in Boot Screen, duh."
         _Log:printt("CrashScreen", "No, we're ending here")
     end
+end
+
+function CrashScreen:transformText(text)
+    if not self.e00000e00 then
+        return text
+    end
+    local s = ""
+    for i = 1, text:len() do
+        local c = text:sub(i, i)
+        local b = c:byte()
+        if b >= 97 and b <= 122 then
+            s = s .. "0"
+        else
+            s = s .. c
+        end
+    end
+    return s
 end
 
 
