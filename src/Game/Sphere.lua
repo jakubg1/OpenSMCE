@@ -234,7 +234,7 @@ function Sphere:deleteVisually(ghostTime, crushed)
 		if not self.map.level.lost then
 			self.path:setOffsetVars("sphere", self:getOffset())
 			self:dumpVariables()
-			_Vars:setC("sphere", "crushed", crushed or false)
+			_Vars:set("sphere.crushed", crushed or false)
 			-- Spawn collectibles, if any.
 			if self.config.destroyCollectible then
 				self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectible)
@@ -632,12 +632,12 @@ end
 ---@param pos Vector2? The position relative to which additional variables can be inserted.
 function Sphere:dumpVariables(context, pos)
 	context = context or "sphere"
-	_Vars:setC(context, "object", self)
-	_Vars:setC(context, "color", self.color)
-	_Vars:setC(context, "isOffscreen", self:isOffscreen())
+	_Vars:set(context .. ".object", self)
+	_Vars:set(context .. ".color", self.color)
+	_Vars:set(context .. ".isOffscreen", self:isOffscreen())
 	if pos then
-		_Vars:setC(context, "distance", (self:getPos() - pos):len())
-		_Vars:setC(context, "distanceX", math.abs(self:getPos().x - pos.x))
+		_Vars:set(context .. ".distance", (self:getPos() - pos):len())
+		_Vars:set(context .. ".distanceX", math.abs(self:getPos().x - pos.x))
 	end
 end
 

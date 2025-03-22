@@ -748,12 +748,12 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	end
 
 	-- Spawn collectibles, play sounds, add score, etc.
-	_Vars:setC("match", "length", length)
-	_Vars:setC("match", "streak", self.map.level.combo)
-	_Vars:setC("match", "streakBoost", boostCombo)
-	_Vars:setC("match", "cascade", self.sphereChain.combo)
-	_Vars:setC("match", "gapCount", #gaps)
-	_Vars:setC("match", "color", color)
+	_Vars:set("match.length", length)
+	_Vars:set("match.streak", self.map.level.combo)
+	_Vars:set("match.streakBoost", boostCombo)
+	_Vars:set("match.cascade", self.sphereChain.combo)
+	_Vars:set("match.gapCount", #gaps)
+	_Vars:set("match.color", color)
 	-- Execute the "before" game events.
 	if effectConfig.eventsBefore then
 		for i, event in ipairs(effectConfig.eventsBefore) do

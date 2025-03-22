@@ -226,19 +226,6 @@ local OPERATOR_FUNCTIONS = {
 		local b = table.remove(stack)
 		local a = table.remove(stack)
 		table.insert(stack, _Vars:get(a, b))
-	end,
-	["getc"] = function(stack)
-		-- Get a value of a context variable.
-		local b = table.remove(stack)
-		local a = table.remove(stack)
-		table.insert(stack, _Vars:getC(a, b))
-	end,
-	["getcd"] = function(stack)
-		-- Get a value of a context variable, or return a specified value if nil.
-		local c = table.remove(stack)
-		local b = table.remove(stack)
-		local a = table.remove(stack)
-		table.insert(stack, _Vars:getC(a, b, c))
 	end
 }
 
@@ -385,7 +372,14 @@ function Expression:compile(tokens)
 
 	for i, token in ipairs(tokens) do
 		if token.type == "number" or token.type == "boolean" or token.type == "string" or token.type == "literal" then
-			table.insert(steps, {type = "value", value = token.value})
+			if #opStack > 0 and opStack[#opStack].type == "operator" and opStack[#opStack].value == "." then
+				-- If there is a dot, take it out and merge the previous literal with this one.
+				table.remove(opStack)
+				assert(steps[#steps].type == "value", string.format("Cannot join a non-value with . in Expression(%s)!", self.str))
+				steps[#steps].value = steps[#steps].value .. "." .. token.value
+			else
+				table.insert(steps, {type = "value", value = token.value})
+			end
 		elseif token.type == "bracket" then
 			local op = token.value
 			if op == "(" then
@@ -435,16 +429,14 @@ function Expression:compile(tokens)
 				end
 			end
 			if op == "|" then
-				-- This is a symbol which changes get to getd, and getc to getcd.
-				assert(lastFunction == "get" or lastFunction == "getc", string.format("| in incorrect place in Expression(%s)!", self.str))
-				if lastFunction == "get" then
-					opStack[lastFunctionI].value = "getd"
-				else
-					opStack[lastFunctionI].value = "getcd"
-				end
-			elseif op == "." and lastFunction == "get" then
-				-- This is a symbol which changes get to getc.
-				opStack[lastFunctionI].value = "getc"
+				-- This is a symbol which changes get to getd.
+				assert(lastFunction == "get", string.format("| in incorrect place in Expression(%s)!", self.str))
+				opStack[lastFunctionI].value = "getd"
+			elseif op == "." then
+				-- Place this in the operator stack. Next literal will be merged with the previous one, inserting a dot in the middle.
+				-- This is exclusive to square brackets (get), but nowhere else is the dot used.
+				assert(lastFunction == "get", string.format(". in incorrect place in Expression(%s)!", self.str))
+				table.insert(opStack, {type = "operator", value = op})
 			elseif OPERATORS[op] then
 				-- Pop any required operators.
 				local opLast = opStack[#opStack] and opStack[#opStack].value

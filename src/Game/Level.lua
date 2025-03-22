@@ -429,7 +429,7 @@ end
 ---@param value number The new value.
 function Level:setVariable(name, value)
 	self.variables[name] = value
-	_Vars:setC("level", name, value)
+	_Vars:set("level." .. name, value)
 end
 
 ---Sets the Level Timer to the given value.
@@ -437,7 +437,7 @@ end
 ---@param value number The new value.
 function Level:setTimer(name, value)
 	self.timers[name] = value
-	_Vars:setC("level", name, value)
+	_Vars:set("level." .. name, value)
 end
 
 ---Adds a new entry to the Level Timer Series.
@@ -445,7 +445,7 @@ end
 ---@param time number The lifetime of the entry.
 function Level:addToTimerSeries(name, time)
 	table.insert(self.timerSeries[name], time)
-	_Vars:setC("level", name .. "_length", #self.timerSeries[name])
+	_Vars:set("level." .. name .. ".length", #self.timerSeries[name])
 end
 
 ---Erases all entries from the given Level Timer Series.
@@ -460,15 +460,15 @@ end
 --- - Level timers: `[level.<timer>]`
 --- - Level timer series: `[level.<timerSeries>.length]`
 function Level:updateVariables()
-	_Vars:setC("level", "combo", self.combo)
+	_Vars:set("level.combo", self.combo)
 	for name, variable in pairs(self.variables) do
-		_Vars:setC("level", name, variable)
+		_Vars:set("level." .. name, variable)
 	end
 	for name, timer in pairs(self.timers) do
-		_Vars:setC("level", name, timer)
+		_Vars:set("level." .. name, timer)
 	end
 	for name, timerSeries in pairs(self.timerSeries) do
-		_Vars:setC("level", name .. "_length", #timerSeries)
+		_Vars:set("level." .. name .. ".length", #timerSeries)
 	end
 end
 
@@ -504,7 +504,7 @@ end
 function Level:evaluateCollectibleGeneratorEntry(generator)
 	-- Run any present conditions and check them. If they aren't met, this entry returns an empty list.
 	if generator.conditions then
-		_Vars:setC("generator", "latestCheckpoint", _Game:getCurrentProfile():getLatestCheckpoint())
+		_Vars:set("generator.latestCheckpoint", _Game:getCurrentProfile():getLatestCheckpoint())
 		for i, condition in ipairs(generator.conditions) do
 			if not condition:evaluate() then
 				_Vars:unset("generator")
@@ -529,7 +529,7 @@ function Level:evaluateCollectibleGeneratorEntry(generator)
 		return result
 	elseif generator.type == "repeat" then
 		local result = {}
-		_Vars:setC("generator", "latestCheckpoint", _Game:getCurrentProfile():getLatestCheckpoint())
+		_Vars:set("generator.latestCheckpoint", _Game:getCurrentProfile():getLatestCheckpoint())
 		for i = 1, generator.count:evaluate() do
 			-- Append the results of each roll separately.
 			local subresult = self:evaluateCollectibleGeneratorEntry(generator.entry)
@@ -612,7 +612,7 @@ function Level:executeScoreEvent(scoreEvent, pos)
 		score = score * _Game:getCurrentProfile():getDifficultyConfig().scoreMultiplier
 	end
 	score = score * self.scoreMultiplier
-	_Vars:setC("event", "score", score)
+	_Vars:set("event.score", score)
 	self:grantScore(score, unmultipliedScore)
 
 	-- Display the score text (Floating Text) only if a position is provided.

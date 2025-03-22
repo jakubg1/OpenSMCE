@@ -1,24 +1,14 @@
 local class = require "com.class"
 
 ---A storage class which is holding variables for Expressions.
----Additionally, it caches all Expressions so they only have to be compiled once.
 ---@class ExpressionVariables
 ---@overload fun():ExpressionVariables
 local ExpressionVariables = class:derive("ExpressionVariables")
 
-local Expression = require("src.Expression")
-
-
-
 ---Constructor.
 function ExpressionVariables:new()
-	self.data = {}
-    self.expressionCache = {}
-
-    self:set("pi", math.pi)
+	self.data = {pi = math.pi}
 end
-
-
 
 ---Sets a variable to be used by Expressions.
 ---@param name string The variable name.
@@ -27,32 +17,15 @@ function ExpressionVariables:set(name, value)
     self.data[name] = value
 end
 
-
-
----Sets a context variable to be used by Expressions.
----Context variables can be set in a procedure, and when certain things which require them are done, they can be purged in one snap using `:unset()`.
----@param context string The context name.
----@param name string The variable name.
----@param value any The value to be stored.
-function ExpressionVariables:setC(context, name, value)
-    if self.data[context] and type(self.data[context]) ~= "table" then
-        error(string.format("[ExpressionVariables] Tried to create a context of the same name as an already existing variable: %s", context))
-    end
-    if not self.data[context] then
-        self.data[context] = {}
-    end
-    self.data[context][name] = value
-end
-
-
-
----Unsets a variable or a context with the given name.
+---Unsets a variable and/or a context with the given name.
 ---@param name string The variable/context name.
 function ExpressionVariables:unset(name)
-    self.data[name] = nil
+    for key, value in pairs(self.data) do
+        if key == name or _Utils.strStartsWith(key, name .. ".") then
+            self.data[key] = nil
+        end
+    end
 end
-
-
 
 ---Obtains a variable value.
 ---@param name string The variable name.
@@ -60,50 +33,44 @@ end
 ---@return any
 function ExpressionVariables:get(name, default)
     if self.data[name] == nil then
-        if default ~= nil then
-            return default
-        else
-            error(string.format("[ExpressionVariables] Tried to get a nonexistent variable: %s", name))
-        end
+        assert(default, "Tried to get a nonexistent variable: " .. name)
+        return default
     end
     return self.data[name]
 end
 
+---A debug function which returns a list of all the variables that are currently available for Expressions.
+---@param prefix string? Internal; for recursion.
+---@param data table? Internal; for recursion.
+---@return string
+function ExpressionVariables:getDebugText(prefix, data)
+    --[[
+    data = data or self.data
 
-
----Obtains a context variable value.
----@param context string The context name.
----@param name string The variable name.
----@param default any? A value to be returned if this variable doesn't exist. If not specified, this function will raise an error in that case instead.
----@return any
-function ExpressionVariables:getC(context, name, default)
-    if self.data[context] == nil or self.data[context][name] == nil then
-        if default ~= nil then
-            return default
-        else
-            error(string.format("[ExpressionVariables] Tried to get a nonexistent context variable: %s.%s", context, name))
-        end
+    local s = ""
+    local keys = {}
+    for key, value in pairs(data) do
+        table.insert(keys, key)
     end
-    return self.data[context][name]
-end
+    table.sort(keys)
 
-
-
----A debug function which prints all the variables that are currently available for Expressions.
-function ExpressionVariables:printContents()
-    print("")
-    for key, value in pairs(self.data) do
+    for i, key in ipairs(keys) do
+        local keyName = key
+        if prefix then
+            keyName = prefix .. "." .. key
+        end
+        print(keyName)
+        local value = data[key]
         if type(value) == "table" then
-            print(string.format("[%s]", key))
-            for subkey, subvalue in pairs(value) do
-                print(string.format("        %s.%s = %s", key, subkey, subvalue))
-            end
+            s = s .. string.format("%s:\n", keyName)
+            s = s .. _Utils.strIndent(self:getDebugText(keyName, value), 4)
         else
-            print(string.format("%s = %s", key, value))
+            s = s .. string.format("%s = %s\n", keyName, value)
         end
     end
+    return s
+    ]]
+    return "Variable debug unavailable for now!"
 end
-
-
 
 return ExpressionVariables

@@ -283,10 +283,6 @@ function Debug:getDebugInfo()
 
 	s = s .. "===== MAIN =====\n"
 	s = s .. self:getDebugMain()
-	s = s .. "\n===== PARTICLE =====\n"
-	if _Game.particleManager then
-		s = s .. self:getDebugParticle()
-	end
 	s = s .. "\n===== COLOR MANAGER =====\n"
 	if _Game.level then
 		s = s .. _Game.level.colorManager:getDebugText()
@@ -299,10 +295,8 @@ function Debug:getDebugInfo()
 	if _Game.level then
 		s = s .. self:getDebugLevel()
 	end
-	s = s .. "\n===== OPTIONS =====\n"
-	if _Game.runtimeManager then
-		s = s .. self:getDebugOptions()
-	end
+	s = s .. "\n===== VARIABLES =====\n"
+	s = s .. _Vars:getDebugText()
 
 	-- table.insert(s, "")
 	-- table.insert(s, "===== EXTRA =====")
@@ -324,6 +318,19 @@ function Debug:getDebugInfo()
 	return s
 end
 
+function Debug:getRightDebugInfo()
+	local s = ""
+	s = s .. "\n===== PARTICLE =====\n"
+	if _Game.particleManager then
+		s = s .. self:getDebugParticle()
+	end
+	s = s .. "\n===== OPTIONS =====\n"
+	if _Game.runtimeManager then
+		s = s .. self:getDebugOptions()
+	end
+	return s
+end
+
 
 
 ---Draws a text with a semitransparent background.
@@ -334,34 +341,40 @@ end
 ---@param alpha number? The semitransparency parameter.
 ---@param shadow boolean? If set, the text will have a shadow drawn for extra visibility.
 ---@param backgroundColor table? The background color, black by default.
-function Debug:drawVisibleText(text, pos, height, width, alpha, shadow, backgroundColor)
-	alpha = alpha or 1
-	backgroundColor = backgroundColor or _COLORS.black
-
+---@param rightAlign boolean? If set, the text will grow to the left.
+function Debug:drawVisibleText(text, pos, height, width, alpha, shadow, backgroundColor, rightAlign)
 	if text == "" then
 		return
 	end
 
-	love.graphics.setColor(backgroundColor[1], backgroundColor[2], backgroundColor[3], 0.7 * alpha)
-	if width then
-		love.graphics.rectangle("fill", pos.x - 3, pos.y, width - 3, height)
-	else
-		love.graphics.rectangle("fill", pos.x - 3, pos.y, love.graphics.getFont():getWidth(_Utils.strUnformat(text)) + 6, height)
+	width = width or love.graphics.getFont():getWidth(_Utils.strUnformat(text))
+	alpha = alpha or 1
+	backgroundColor = backgroundColor or _COLORS.black
+	local x = pos.x
+	if rightAlign then
+		x = x - width
 	end
+
+	love.graphics.setColor(backgroundColor[1], backgroundColor[2], backgroundColor[3], 0.7 * alpha)
+	love.graphics.rectangle("fill", x - 3, pos.y, width + 6, height)
 	if shadow then
 		love.graphics.setColor(0, 0, 0, alpha)
-		love.graphics.print(text, pos.x + 2, pos.y + 2)
+		love.graphics.print(text, x + 2, pos.y + 2)
 	end
 	love.graphics.setColor(1, 1, 1, alpha)
-	love.graphics.print(text, pos.x, pos.y)
+	love.graphics.print(text, x, pos.y)
 end
 
 function Debug:drawDebugInfo()
 	-- Debug screen
-	local spl = _Utils.strSplit(self:getDebugInfo(), "\n")
-
-	for i, l in ipairs(spl) do
+	local leftLines = _Utils.strSplit(self:getDebugInfo(), "\n")
+	for i, l in ipairs(leftLines) do
 		self:drawVisibleText(l, Vec2(0, 15 * (i - 1)), 15)
+	end
+
+	local rightLines = _Utils.strSplit(self:getRightDebugInfo(), "\n")
+	for i, l in ipairs(rightLines) do
+		self:drawVisibleText(l, Vec2(_Display.size.x, 15 * (i - 1)), 15, nil, nil, nil, nil, true)
 	end
 end
 

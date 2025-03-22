@@ -212,7 +212,7 @@ function ShotSphere:moveStep()
 			if shotCancelled then
 				self.hitSphere = nil -- avoid deleting this time
 			else
-				_Vars:setC("shot", "bad", badShot)
+				_Vars:set("shot.bad", badShot)
 				if self.config.hitSound then
 					_Game:playSound(self.config.hitSound, self.pos)
 				end

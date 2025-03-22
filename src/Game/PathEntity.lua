@@ -186,9 +186,9 @@ function PathEntity:explode()
 	end
 
 	self.path:setOffsetVars("entity", self.offset)
-	_Vars:setC("entity", "traveledPixels", self.traveledDistance)
-	_Vars:setC("entity", "destroyedSpheres", self.destroyedSpheres)
-	_Vars:setC("entity", "destroyedChains", self.destroyedChains)
+	_Vars:set("entity.traveledPixels", self.traveledDistance)
+	_Vars:set("entity.destroyedSpheres", self.destroyedSpheres)
+	_Vars:set("entity.destroyedChains", self.destroyedChains)
 
 	local pos = self:getPos()
 	if self.config.destroyScoreEvent then

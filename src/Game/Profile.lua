@@ -502,10 +502,10 @@ end
 ---If the player does not have a game session active, the variables are removed.
 function Profile:dumpVariables()
 	if self.session then
-		_Vars:setC("session", "lives", self.session.lives)
-		_Vars:setC("session", "coins", self.session.coins)
-		_Vars:setC("session", "score", self.session.score)
-		_Vars:setC("session", "lifeScore", self.session.lifeScore)
+		_Vars:set("session.lives", self.session.lives)
+		_Vars:set("session.coins", self.session.coins)
+		_Vars:set("session.score", self.session.score)
+		_Vars:set("session.lifeScore", self.session.lifeScore)
 	else
 		_Vars:unset("session")
 	end

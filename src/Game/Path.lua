@@ -325,9 +325,9 @@ end
 ---@param context string The Expression Context inside which these values will be located.
 ---@param offset number The path offset to be used in calculation, in pixels.
 function Path:setOffsetVars(context, offset)
-	_Vars:setC(context, "offset", offset)
-	_Vars:setC(context, "offsetE", self.length - offset)
-	_Vars:setC(context, "distance", offset / self.length)
+	_Vars:set(context .. ".offset", offset)
+	_Vars:set(context .. ".offsetE", self.length - offset)
+	_Vars:set(context .. ".distance", offset / self.length)
 end
 
 

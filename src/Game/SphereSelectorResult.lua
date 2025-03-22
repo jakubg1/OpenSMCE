@@ -77,7 +77,7 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, forceEven
 			end
 			eventPos = minPos and ((minPos + maxPos) / 2) or Vec2()
 		end
-		_Vars:setC("selector", "sphereCount", #self.spheres)
+		_Vars:set("selector.sphereCount", #self.spheres)
 		_Game.level:executeScoreEvent(scoreEvent, eventPos)
 		_Vars:unset("selector")
 	end

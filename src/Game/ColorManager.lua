@@ -123,10 +123,10 @@ end
 --- - `color.mostFrequent` - The most frequently appearing color on the board, excluding the scarab (ID = 0). If there's a tie, selects a random color from this tie.
 function ColorManager:dumpVariables()
 	for i, v in pairs(self.sphereColorCounts) do
-		_Vars:setC("color", i, v)
+		_Vars:set("color." .. i, v)
 	end
-	_Vars:setC("color", "totalSpheres", self:getTotalSphereCount())
-	_Vars:setC("color", "mostFrequent", self:getMostFrequentColor())
+	_Vars:set("color.totalSpheres", self:getTotalSphereCount())
+	_Vars:set("color.mostFrequent", self:getMostFrequentColor())
 end
 
 
