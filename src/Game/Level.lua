@@ -630,6 +630,11 @@ end
 
 
 
+---Adds one to the shot counter, which is used to calculate accuracy and to display in the UI.
+function Level:markSphereShot()
+	self.spheresShot = self.spheresShot + 1
+end
+
 ---Adds one to the successful shot counter, which is used to calculate accuracy.
 function Level:markSuccessfulShot()
 	self.successfulShots = self.successfulShots + 1

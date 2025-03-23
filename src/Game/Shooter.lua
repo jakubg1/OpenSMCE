@@ -489,6 +489,7 @@ function Shooter:shoot()
                 local angle = self.angle + angleStart + angleStep * (j - 1)
                 local entity = j == 1 and self.sphereEntities[i] or self.sphereEntities[i]:copy()
                 _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity, self.homingBugsTime > 0)
+                _Game.level:markSphereShot()
             end
             self.sphereEntities[i] = nil
             if shotBehavior.gameEvent then
@@ -500,9 +501,9 @@ function Shooter:shoot()
                 _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
             end
             _Game.level:destroySelector(shotBehavior.selector, self:getSpherePos(i), shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
+            _Game.level:markSphereShot()
             self:destroySphereEntities()
         end
-        _Game.level.spheresShot = _Game.level.spheresShot + 1
     end
 
     -- Apply any effects to the sphere if it has one.

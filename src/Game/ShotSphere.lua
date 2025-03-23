@@ -40,6 +40,7 @@ function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, 
 
 		self.gapsTraversed = {}
 		self.destroyedFragileSpheres = false
+		self.markedAsSuccessfulShot = false
 
 		self.hitTime = 0
 		self.hitTimeMax = 0
@@ -218,8 +219,9 @@ function ShotSphere:moveStep()
 				_Game:playSound(self.config.hitSound, self.pos)
 			end
 			_Vars:unset("shot")
-			if not badShot then
+			if not badShot and not self.markedAsSuccessfulShot then
 				_Game.level:markSuccessfulShot()
+				self.markedAsSuccessfulShot = true
 			end
 			_Vars:unset("hitSphere")
 			_Vars:unset("redirectedHitSphere")
@@ -340,6 +342,7 @@ function ShotSphere:serialize()
 		steps = self.steps,
 		homingTowards = self.homingTowards and self.homingTowards:getIDs(),
 		destroyedFragileSpheres = self.destroyedFragileSpheres,
+		markedAsSuccessfulShot = self.markedAsSuccessfulShot,
 		hitSphere = self.hitSphere and self.hitSphere.sphere:getIDs(),
 		hitTime = self.hitTime,
 		hitTimeMax = self.hitTimeMax
@@ -382,6 +385,7 @@ function ShotSphere:deserialize(t)
 		end
 	end
 	self.destroyedFragileSpheres = t.destroyedFragileSpheres
+	self.markedAsSuccessfulShot = t.markedAsSuccessfulShot
 
 	self.hitSphere = nil
 	self.sphereEntity = nil
