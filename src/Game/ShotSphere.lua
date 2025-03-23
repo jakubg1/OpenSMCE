@@ -118,15 +118,17 @@ function ShotSphere:moveStep()
 	-- add if there's a sphere nearby
 	local nearestSphere = _Game.level:getNearestSphere(self.pos)
 	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.size) / 2 and (not self.homingTowards or self.homingTowards == nearestSphere.sphere) then
-		-- If hit sphere is fragile, destroy the fragile spheres instead of hitting.
+		-- Execute this only if we are close enough to the nearest sphere and have ANY collision (we are not homing towards something different).
 		if nearestSphere.sphere:isFragile() then
+			-- If we've hit a fragile sphere, destroy the fragile spheres instead of hitting.
 			nearestSphere.sphere:matchEffectFragile()
 			self.destroyedFragileSpheres = true
-		else
+		elseif not self.config.doesNotCollideWith or not _Utils.isValueInTable(self.config.doesNotCollideWith, nearestSphere.sphere.color) then
+			-- We've hit a sphere and have collision with it.
 			self.hitSphere = nearestSphere
-			-- TODO: Move this logic to Sphere.lua and dehardcode it.
-			local hitSphere = self.hitSphere.sphereGroup.spheres[self.hitSphere.sphereID]
+			local hitSphere = nearestSphere.sphere
 			-- Redirect the hit sphere if it's a scarab or a stone sphere.
+			-- TODO: Move this logic to Sphere.lua and dehardcode it?
 			local redirectedHitSphere = hitSphere
 			if hitSphere.color == 0 or hitSphere:isStone() then
 				-- The sphere can be redirected to the front or to the back. Both searches stop when either something that matches the requirements is found (valid result) or not (invalid result).
@@ -151,78 +153,73 @@ function ShotSphere:moveStep()
 				end
 			end
 			local badShot = false
-			local shotCancelled = false
 			hitSphere:dumpVariables("hitSphere")
 			redirectedHitSphere:dumpVariables("redirectedHitSphere")
-			if not self.config.doesNotCollideWith or not _Utils.isValueInTable(self.config.doesNotCollideWith, hitSphere.color) then
-				local hitBehavior = self.config.hitBehavior
-				if hitBehavior.type == "destroySpheres" then
-					_Game.level:destroySelector(hitBehavior.selector, self.pos, hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
-					if not hitBehavior.pierce then
-						self:destroy()
-					else
-						self.hitSphere = nil
-					end
-				elseif hitBehavior.type == "recolorSpheres" then
-					_Game.level:replaceColorSelector(hitBehavior, self.pos)
-					if not hitBehavior.pierce then
-						self:destroy()
-					else
-						self.hitSphere = nil
-					end
-				elseif hitBehavior.type == "applyEffect" then
-					_Game.level:applyEffectSelector(hitBehavior, self.pos)
-					if not hitBehavior.pierce then
-						self:destroy()
-					else
-						self.hitSphere = nil
-					end
-				elseif hitBehavior.type == "splitAndPushBack" then
-					if hitSphere.nextSphere then
-						hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
-					end
-					hitSphere.sphereGroup.speed = -hitBehavior.speed
-					if not hitBehavior.pierce then
-						self:destroy()
-					else
-						self.hitSphere = nil
-					end
+			local hitBehavior = self.config.hitBehavior
+			-- Instead of having different hit behavior types, make a field which states what happens to the shot sphere:
+			-- - "append" - The sphere is appended
+			-- - "pierce" - The sphere keeps on flying
+			-- - "vanish" - The sphere vanishes
+			if hitBehavior.type == "destroySpheres" then
+				_Game.level:destroySelector(hitBehavior.selector, self.pos, hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
+				if not hitBehavior.pierce then
+					self:destroy()
 				else
-					if self.hitSphere.half then
-						self.hitSphere.sphereID = self.hitSphere.sphereID + 1
-					end
-					self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
-					-- get the desired sphere position
-					local p
-					if self.hitSphere.sphereID <= #self.hitSphere.sphereGroup.spheres then
-						-- the inserted ball is NOT at the end of the group
-						p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
-					else
-						-- the inserted ball IS at the end of the group
-						local o = self.hitSphere.sphereGroup:getLastSphereOffset() + (self.size + self.hitSphere.sphere.size) / 2
-						p = self.hitSphere.path:getPos(o)
-					end
-					-- calculate length from the current position
-					local d = (self.pos - p):len()
-					-- calculate time
-					self.hitTimeMax = d / self.speed * 5
-					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.configManager.gameplay.sphereBehavior.instantMatches)
-					badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
+					self.hitSphere = nil
+				end
+			elseif hitBehavior.type == "recolorSpheres" then
+				_Game.level:replaceColorSelector(hitBehavior, self.pos)
+				if not hitBehavior.pierce then
+					self:destroy()
+				else
+					self.hitSphere = nil
+				end
+			elseif hitBehavior.type == "applyEffect" then
+				_Game.level:applyEffectSelector(hitBehavior, self.pos)
+				if not hitBehavior.pierce then
+					self:destroy()
+				else
+					self.hitSphere = nil
+				end
+			elseif hitBehavior.type == "splitAndPushBack" then
+				if hitSphere.nextSphere then
+					hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
+				end
+				hitSphere.sphereGroup.speed = -hitBehavior.speed
+				if not hitBehavior.pierce then
+					self:destroy()
+				else
+					self.hitSphere = nil
 				end
 			else
-				shotCancelled = true
+				if self.hitSphere.half then
+					self.hitSphere.sphereID = self.hitSphere.sphereID + 1
+				end
+				self.hitSphere.sphereID = self.hitSphere.sphereGroup:getAddSpherePos(self.hitSphere.sphereID)
+				-- get the desired sphere position
+				local p
+				if self.hitSphere.sphereID <= #self.hitSphere.sphereGroup.spheres then
+					-- the inserted ball is NOT at the end of the group
+					p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
+				else
+					-- the inserted ball IS at the end of the group
+					local o = self.hitSphere.sphereGroup:getLastSphereOffset() + (self.size + self.hitSphere.sphere.size) / 2
+					p = self.hitSphere.path:getPos(o)
+				end
+				-- calculate length from the current position
+				local d = (self.pos - p):len()
+				-- calculate time
+				self.hitTimeMax = d / self.speed * 5
+				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.configManager.gameplay.sphereBehavior.instantMatches)
+				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 			end
-			if shotCancelled then
-				self.hitSphere = nil -- avoid deleting this time
-			else
-				_Vars:set("shot.bad", badShot)
-				if self.config.hitSound then
-					_Game:playSound(self.config.hitSound, self.pos)
-				end
-				_Vars:unset("shot")
-				if not badShot then
-					_Game.level:markSuccessfulShot()
-				end
+			_Vars:set("shot.bad", badShot)
+			if self.config.hitSound then
+				_Game:playSound(self.config.hitSound, self.pos)
+			end
+			_Vars:unset("shot")
+			if not badShot then
+				_Game.level:markSuccessfulShot()
 			end
 			_Vars:unset("hitSphere")
 			_Vars:unset("redirectedHitSphere")
