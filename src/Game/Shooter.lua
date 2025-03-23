@@ -313,13 +313,17 @@ end
 ---Generates a new sphere color ID for this shooter.
 ---@return integer
 function Shooter:getNextColor()
-    if not self.multiColorColor then
+    local multiColorColor = self.multiColorColor
+    if not multiColorColor then
         return self:getNewShooterColor()
     else
         if self.multiColorCount then
             self.multiColorCount = self.multiColorCount - 1
+            if self.multiColorCount == 0 then
+                self:removeMultiSphere()
+            end
         end
-        return self.multiColorColor
+        return multiColorColor
     end
 end
 
@@ -569,7 +573,7 @@ end
 
 
 ---Deactivates the multi-sphere mode and removes all already existing spheres of that type from the shooter.
----@param removeSpheres boolean If set, removes all instances of the multi-color from the shooter.
+---@param removeSpheres boolean? If set, removes all instances of the multi-color from the shooter.
 function Shooter:removeMultiSphere(removeSpheres)
     if removeSpheres then
         if self.color == self.multiColorColor then
