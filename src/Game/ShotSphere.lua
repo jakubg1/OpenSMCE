@@ -39,6 +39,7 @@ function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, 
 		end
 
 		self.gapsTraversed = {}
+		self.destroyedFragileSpheres = false
 
 		self.hitTime = 0
 		self.hitTimeMax = 0
@@ -120,6 +121,7 @@ function ShotSphere:moveStep()
 		-- If hit sphere is fragile, destroy the fragile spheres instead of hitting.
 		if nearestSphere.sphere:isFragile() then
 			nearestSphere.sphere:matchEffectFragile()
+			self.destroyedFragileSpheres = true
 		else
 			self.hitSphere = nearestSphere
 			-- TODO: Move this logic to Sphere.lua and dehardcode it.
@@ -204,7 +206,7 @@ function ShotSphere:moveStep()
 					local d = (self.pos - p):len()
 					-- calculate time
 					self.hitTimeMax = d / self.speed * 5
-					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior.effects, self:getGapSizeList(), _Game.configManager.gameplay.sphereBehavior.instantMatches)
+					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.configManager.gameplay.sphereBehavior.instantMatches)
 					badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 				end
 			else
@@ -340,6 +342,7 @@ function ShotSphere:serialize()
 		speed = self.speed,
 		steps = self.steps,
 		homingTowards = self.homingTowards and self.homingTowards:getIDs(),
+		destroyedFragileSpheres = self.destroyedFragileSpheres,
 		hitSphere = self.hitSphere and self.hitSphere.sphere:getIDs(),
 		hitTime = self.hitTime,
 		hitTimeMax = self.hitTimeMax
@@ -381,6 +384,7 @@ function ShotSphere:deserialize(t)
 			table.insert(self.gapsTraversed, {group = group, size = gap.size})
 		end
 	end
+	self.destroyedFragileSpheres = t.destroyedFragileSpheres
 
 	self.hitSphere = nil
 	self.sphereEntity = nil

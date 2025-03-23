@@ -216,9 +216,10 @@ end
 ---@param position integer The new sphere will gain this ID, which means it will be created BEHIND a sphere of this ID in this group.
 ---@param effects table? A list of Sphere Effects to be applied to the added sphere.
 ---@param gaps table? A list of gaps through which this sphere has traversed.
+---@param destroyedFragileSpheres boolean? If set, this Sphere will be marked as a sphere which has destroyed at least one fragile sphere during its lifetime as a shot sphere.
 ---@param canStopGrowing boolean? If set, the new sphere will not grow if it constitutes a match.
-function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps, canStopGrowing)
-	local sphere = Sphere(self, nil, color, pos, time, sphereEntity, gaps)
+function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps, destroyedFragileSpheres, canStopGrowing)
+	local sphere = Sphere(self, nil, color, pos, time, sphereEntity, gaps, destroyedFragileSpheres)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
 	sphere.prevSphere = prevSphere
@@ -709,6 +710,15 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	-- Retrieve and simplify a list of gaps. Only the cause sphere is checked.
 	local gaps = self.spheres[position].gaps
 
+	-- Check if the match contains a sphere which has destroyed a frozen segment.
+	local destroyedFragileSpheres = false
+	for i, sphere in ipairs(spheres) do
+		if sphere.destroyedFragileSpheres then
+			destroyedFragileSpheres = true
+			break
+		end
+	end
+
 
 
 	-- Determine the center position and destroy spheres.
@@ -754,6 +764,7 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	_Vars:set("match.cascade", self.sphereChain.combo)
 	_Vars:set("match.gapCount", #gaps)
 	_Vars:set("match.color", color)
+	_Vars:set("match.destroyedFragileSpheres", destroyedFragileSpheres)
 	-- Execute the "before" game events.
 	if effectConfig.eventsBefore then
 		for i, event in ipairs(effectConfig.eventsBefore) do

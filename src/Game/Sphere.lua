@@ -4,7 +4,7 @@ local class = require "com.class"
 
 ---Represents a single Sphere which is inside of a Sphere Group on the board. Can have a lot of properties.
 ---@class Sphere
----@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps):Sphere
+---@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres):Sphere
 local Sphere = class:derive("Sphere")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -21,7 +21,8 @@ local SphereEntity = require("src.Game.SphereEntity")
 ---@param shootTime number? The duration of the sphere insertion animation.
 ---@param sphereEntity SphereEntity? If set, this will be the Sphere Entity used to draw this Sphere. Else, a new one will be created.
 ---@param gaps table? If set, this Sphere will have a list of numbers (traversed gap distances) stored so it can be used later when calculating gap shots.
-function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps)
+---@param destroyedFragileSpheres boolean? If set, this Sphere will be marked as a sphere which has destroyed at least one fragile sphere during its lifetime as a shot sphere.
+function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres)
 	self.sphereGroup = sphereGroup
 	self.path = sphereGroup.sphereChain.path
 	self.map = sphereGroup.map
@@ -41,6 +42,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.shootTime = nil
 		self.effects = {}
 		self.gaps = gaps or {}
+		self.destroyedFragileSpheres = destroyedFragileSpheres
 		self.ghostTime = nil
 		self.growStopped = false
 		self.attachedSphere = nil -- The sphere this sphere is attached to, if its growth has been stopped.
@@ -122,12 +124,12 @@ function Sphere:update(dt)
 		end
 	end
 
-	-- if the sphere was flagged as it was a part of a combo but got obstructed then it's unflagged
-	if self.boostCombo then
+	-- if the sphere was flagged as it was a part of a combo but got obstructed, then it's unflagged. We also erase any shot sphere information.
+	if self.boostCombo or self.gaps or self.destroyedFragileSpheres then
 		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) and not self:canKeepCombo() then
 			self.boostCombo = false
-			-- we also erase any gap information
 			self.gaps = {}
+			self.destroyedFragileSpheres = false
 		end
 	end
 
@@ -814,12 +816,15 @@ function Sphere:serialize()
 	if #self.gaps > 0 then
 		t.gaps = self.gaps
 	end
+	if self.destroyedFragileSpheres then
+		t.destroyedFragileSpheres = self.destroyedFragileSpheres
+	end
 	if self.growStopped then
 		t.growStopped = self.growStopped
 	end
 
 	-- If the only data to be saved is the sphere's color, serialize to an integer value.
-	if not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostCombo and not t.effects and not t.gaps and not t.growStopped then
+	if not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostCombo and not t.effects and not t.gaps and not t.destroyedFragileSpheres and not t.growStopped then
 		return t.color
 	end
 
@@ -863,6 +868,7 @@ function Sphere:deserialize(t)
 	end
 
 	self.gaps = t.gaps or {}
+	self.destroyedFragileSpheres = t.destroyedFragileSpheres or false
 	self.growStopped = t.growStopped or false
 end
 
