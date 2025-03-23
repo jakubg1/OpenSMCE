@@ -298,41 +298,6 @@
             ],
             "additionalProperties": false
         },
-        "lightningStorm": {
-            "type": "object",
-            "description": "Defines the Lightning Storm.",
-            "properties": {
-                "delay": {
-                    "$ref": "../_structures/ExprNumber.json",
-                    "description": "The delay between strikes. Can be formed as an Expression, which will be evaluated after each strike.",
-                    "exclusiveMinimum": 0.0
-                },
-                "particle": {
-                    "$ref": "../_structures/Particle.json",
-                    "description": "A one-time particle effect which will be spawned on the sphere that's been destroyed."
-                },
-                "sound": {
-                    "$ref": "../_structures/SoundEvent.json",
-                    "description": "A sound event to be played when a sphere is destroyed."
-                },
-                "scoreEvent": {
-                    "$ref": "../_structures/ScoreEvent.json",
-                    "description": "A Score Event executed on the sphere that's been destroyed."
-                },
-                "cancelWhenNoSpheresToDestroy": {
-                    "type": "boolean",
-                    "description": "If true, the entire Lightning Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted.",
-                    "markdownDescription": "If `true`, the entire Lightning Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted."
-                }
-            },
-            "required": [
-                "delay",
-                "particle",
-                "sound",
-                "scoreEvent"
-            ],
-            "additionalProperties": false
-        },
         "levelVariables": {
             "type": "object",
             "description": "Defines the starting values for the Level Variables. Keys are variable names, values must be numbers. Level variables will be reset every time the level is retried or a new level is started.",

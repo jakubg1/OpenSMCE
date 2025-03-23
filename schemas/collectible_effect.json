@@ -13,7 +13,6 @@
                 "speedOverride",
                 "destroySpheres",
                 "spawnPathEntity",
-                "lightningStorm",
                 "activateNet",
                 "changeGameSpeed",
                 "setCombo",
@@ -315,34 +314,6 @@
             "if": {
                 "properties": {
                     "type": {
-                        "const": "lightningStorm",
-                        "description": "Starts a lightning storm, spawning a given amount of strikes which destroy single spheres."
-                    }
-                },
-                "required": [
-                    "type"
-                ]
-            },
-            "then": {
-                "properties": {
-                    "$schema": true,
-                    "type": true,
-                    "count": {
-                        "$ref": "_structures/ExprInteger.json",
-                        "description": "The amount of strikes.",
-                        "minimum": 1
-                    }
-                },
-                "required": [
-                    "count"
-                ],
-                "additionalProperties": false
-            }
-        },
-        {
-            "if": {
-                "properties": {
-                    "type": {
                         "const": "activateNet",
                         "description": "Activates a net which collects collectibles for a given amount of time."
                     }
@@ -585,6 +556,11 @@
                         "$ref": "_structures/ExprNumber.json",
                         "description": "The delay between consecutive projectile spawns, in seconds.",
                         "exclusiveMinimum": 0.0
+                    },
+                    "cancelWhenNoTargetsRemaining": {
+                        "type": "boolean",
+                        "description": "If true, the entire Projectile Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted.",
+                        "markdownDescription": "If `true`, the entire Projectile Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted."
                     }
                 },
                 "required": [

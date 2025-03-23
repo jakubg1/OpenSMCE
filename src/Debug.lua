@@ -25,7 +25,6 @@ function Debug:new()
 		e = {description = "Toggles the Background Cheat Mode. Spheres render over tunnels.", parameters = {}},
 		n = {description = "Destroys all spheres on the board.", parameters = {}},
 		ppp = {description = "Spawns a Scorpion.", parameters = {}},
-		ls = {description = "Spawns a Lightning Storm.", parameters = {}},
 		net = {description = "Spawns a Net.", parameters = {}},
 		test = {description = "Spawns a test particle.", parameters = {}},
 		crash = {description = "Crashes the game.", parameters = {}},
@@ -598,8 +597,6 @@ function Debug:runCommand(command)
 		self.console:print("Nuked!")
 	elseif command == "ppp" then
 		_Game.level:applyEffect({type = "spawnPathEntity", pathEntity = "path_entities/scorpion.json"})
-	elseif command == "ls" then
-		_Game.level:applyEffect({type = "lightningStorm", count = 10})
 	elseif command == "net" then
 		_Game.level:applyEffect({type = "activateNet", time = 20})
 	elseif command == "test" then

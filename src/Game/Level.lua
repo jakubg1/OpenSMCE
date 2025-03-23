@@ -54,9 +54,6 @@ function Level:new(data)
 	self.failSoundName = data.failSound or "sound_events/foul.json"
 	self.failLoopName = data.failLoopSound or "sound_events/spheres_roll.json"
 
-	self.lightningStormConfig = _Game.configManager.gameplay.lightningStorm
-	self.lightningStormDelay = self.lightningStormConfig and Expression(self.lightningStormConfig.delay)
-
 	self.levelSequence = _Game.resourceManager:getLevelSequenceConfig(data.sequence).sequence
 	self.startingVariables = _Game.configManager.gameplay.levelVariables
 	self.startingTimers = _Game.configManager.gameplay.levelTimers
@@ -133,29 +130,6 @@ function Level:updateLogic(dt)
 		floatingText:update(dt)
 	end
 	_Utils.removeDeadObjects(self.floatingTexts)
-
-
-
-	-- Lightning storm
-	for i, storm in ipairs(self.lightningStorms) do
-		if storm.count > 0 then
-			storm.time = storm.time - dt
-			if storm.time <= 0 then
-				self:spawnLightningStormPiece()
-				storm.count = storm.count - 1
-				if storm.count > 0 then
-					storm.time = storm.time + self.lightningStormDelay:evaluate()
-				end
-			end
-		end
-	end
-
-	-- Remove finished lightning storms.
-	for i = #self.lightningStorms, 1, -1 do
-		if self.lightningStorms[i].count == 0 then
-			table.remove(self.lightningStorms, i)
-		end
-	end
 
 
 
@@ -729,8 +703,6 @@ function Level:applyEffect(effect, pos)
 		if path then
 			path:spawnPathEntity(effect.pathEntity)
 		end
-	elseif effect.type == "lightningStorm" then
-		table.insert(self.lightningStorms, {count = effect.count:evaluate(), time = 0})
 	elseif effect.type == "activateNet" then
 		self.netTime = effect.time
 		self:spawnNet()
@@ -1132,7 +1104,6 @@ function Level:reset()
 	self.gameSpeedTime = 0
 	self.scoreMultiplier = 1
 	self.scoreMultiplierTime = 0
-	self.lightningStorms = {}
 	self.collectibleRains = {}
 	self.projectileStorms = {}
 	self.netTime = 0
@@ -1259,7 +1230,7 @@ end
 
 ---Returns the lowest length out of all sphere groups of a single color on the screen.
 ---This function ignores spheres that are offscreen.
----@return integer
+---@return integer?
 function Level:getLowestMatchLength()
 	local lowest = nil
 	for i, path in ipairs(self.map.paths) do
@@ -1360,33 +1331,6 @@ function Level:getLightningStormSphere()
 	end
 	-- if none, return nothing
 	return nil
-end
-
-
-
----Strikes a single time during a lightning storm.
-function Level:spawnLightningStormPiece()
-	assert(self.lightningStormConfig, "The `lightningStorm` section in your `config/gameplay.json` file is missing. Please refer to game documentation.")
-	-- get a sphere candidate to be destroyed
-	local sphere = self:getLightningStormSphere()
-	-- if no candidate, the attempt is over.
-	if not sphere then
-		-- End the entire lightning storm if configured to do so.
-		if self.lightningStormConfig.cancelWhenNoSpheresToDestroy ~= false then
-			self.lightningStorms = {}
-		end
-		return
-	end
-
-	-- spawn a particle, add points etc
-	local pos = sphere:getPos()
-	sphere:dumpVariables("sphere")
-	self:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(self.lightningStormConfig.scoreEvent), pos)
-	_Game:spawnParticle(self.lightningStormConfig.particle, pos)
-	_Game:playSound(self.lightningStormConfig.sound, pos)
-	_Vars:unset("sphere")
-	-- destroy it
-	sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
 end
 
 
@@ -1700,7 +1644,6 @@ function Level:serialize()
 		collectibles = {},
 		projectiles = {},
 		combo = self.combo,
-		lightningStorms = self.lightningStorms,
 		collectibleRains = {},
 		projectileStorms = {},
 		netTime = self.netTime,
@@ -1802,7 +1745,6 @@ function Level:deserialize(t)
 		table.insert(self.projectiles, Projectile(tProjectile))
 	end
 	-- Effects
-	self.lightningStorms = t.lightningStorms
 	self.collectibleRains = {}
 	for i, tCollectibleRain in ipairs(t.collectibleRains) do
 		table.insert(self.collectibleRains, {

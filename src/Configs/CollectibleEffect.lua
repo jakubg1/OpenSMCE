@@ -48,8 +48,6 @@ function CollectibleEffectConfig:new(data, path)
         self.gameEventPerSphere = u.parseGameEventConfigOpt(data.gameEventPerSphere, path, "gameEventPerSphere")
     elseif self.type == "spawnPathEntity" then
         self.pathEntity = u.parsePathEntityConfig(data.pathEntity, path, "pathEntity")
-    elseif self.type == "lightningStorm" then
-        self.count = u.parseExprInteger(data.count, path, "count")
     elseif self.type == "activateNet" then
         self.time = u.parseNumber(data.time, path, "time")
     elseif self.type == "changeGameSpeed" then
@@ -72,6 +70,7 @@ function CollectibleEffectConfig:new(data, path)
         self.projectile = u.parseProjectileConfig(data.projectile, path, "projectile")
         self.count = u.parseExprInteger(data.count, path, "count")
         self.delay = u.parseExprNumber(data.delay, path, "delay")
+        self.cancelWhenNoTargetsRemaining = u.parseBooleanOpt(data.cancelWhenNoTargetsRemaining, path, "cancelWhenNoTargetsRemaining") == true
     elseif self.type == "colorSort" then
         self.sortType = u.parseString(data.sortType, path, "sortType")
         self.delay = u.parseNumberOpt(data.delay, path, "delay") or 0
@@ -81,7 +80,7 @@ function CollectibleEffectConfig:new(data, path)
     elseif self.type == "incrementGemStat" then
         -- No fields
     else
-        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"homingBugs\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"lightningStorm\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"executeGameEvent\", \"setScoreMultiplier\", \"collectibleRain\", \"projectileStorm\", \"colorSort\", \"grantCoin\", \"incrementGemStat\")", self.type))
+        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"homingBugs\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"executeGameEvent\", \"setScoreMultiplier\", \"collectibleRain\", \"projectileStorm\", \"colorSort\", \"grantCoin\", \"incrementGemStat\")", self.type))
     end
 end
 
