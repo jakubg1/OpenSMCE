@@ -398,6 +398,7 @@ function Profile:grantCoin()
 		end
 	end
 	_Game.uiManager:executeCallback("newCoin")
+	_Vars:set("session.coins", self.session.coins)
 end
 
 
