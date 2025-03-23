@@ -433,7 +433,7 @@ function SphereGroup:move(offset)
 		self.map.level:lose()
 	end
 	-- Update Distance Events.
-	if not self.map.level.lost then
+	if not self.map.level.lost and not self.map.isDummy then
 		self:updateDistanceEvents()
 	end
 	-- Check collisions.
