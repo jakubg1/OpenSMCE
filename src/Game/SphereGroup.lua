@@ -242,10 +242,17 @@ function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects
 	end
 	sphere:updateOffset()
 	-- If the new sphere can stop growing, we must check if it actually will.
+	local stopGrowing = false
 	if canStopGrowing then
 		if self:getMatchLength(position) >= 3 then
-			sphere:stopGrowing()
+			stopGrowing = true
 		end
+	end
+	if stopGrowing then
+		sphere:stopGrowing()
+	else
+		-- Destroy all frozen spheres at the front of the sphere in this group.
+		self:destroyFragileSpheres(position + 1)
 	end
 end
 
@@ -437,6 +444,10 @@ function SphereGroup:move(offset)
 	if not self.map.level.lost and not self.map.isDummy then
 		self:updateDistanceEvents()
 	end
+	-- Check frozen spheres.
+	if offset ~= 0 then
+		--self:destroyFragileSpheres()
+	end
 	-- Check collisions.
 	if offset <= 0 then
 		-- if it's gonna crash into the previous group, move only what is needed
@@ -557,9 +568,11 @@ end
 
 
 
-function SphereGroup:destroyFragileSpheres()
+---Checks this Sphere Group for spheres with a Sphere Effect which is configured as `fragile`, and if so, destroys them.
+---@param startFrom integer? If set, checks only spheres starting with the provided index and to the front of the group.
+function SphereGroup:destroyFragileSpheres(startFrom)
 	-- Ultra-Safe Loop (TM)
-	local i = 1
+	local i = startFrom or 1
 	while self.spheres[i] do
 		local sphere = self.spheres[i]
 		if not sphere.delQueue and sphere:isFragile() then
