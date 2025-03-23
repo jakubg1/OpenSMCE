@@ -46,11 +46,12 @@
     - "collectibleRain" - Collectibles will spawn at the top of the screen.
         - collectibleGenerator (CollectibleGenerator) - The Collectible Generator which will be used to pick the collectibles to spawn.
         - count ($integer) [>=1] - The amount of collectibles to be generated.
-        - delay (number) [>0] - The delay between consecutive collectible spawns, in seconds.
+        - delay ($number) [>0] - The delay between consecutive collectible spawns, in seconds.
     - "projectileStorm" - Starts a rain/storm, spawning a given amount of projectiles which can destroy spheres.
         - projectile (Projectile) - The Projectile which will be spawning.
         - count ($integer) [>=1] - The amount of projectiles to be spawned.
-        - delay (number) [>0] - The delay between consecutive projectile spawns, in seconds.
+        - delay ($number) [>0] - The delay between consecutive projectile spawns, in seconds.
+        - cancelWhenNoTargetsRemaining* = false (boolean) - If `true`, the entire Projectile Storm will be cancelled when there are no spheres to be destroyed when a strike is to happen. Otherwise, only that particular strike will be wasted.
     - "colorSort" - Starts a color sorting process on the current sphere trains.
         - sortType (string) - How will the colors be sorted.
             - "instant" - The entire train will be sorted instantly.

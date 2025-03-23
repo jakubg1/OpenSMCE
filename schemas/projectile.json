@@ -15,7 +15,7 @@
         },
         "spawnDistance": {
             "$ref": "_structures/ExprNumber.json",
-            "description": "The distance from the target sphere around which the projectile will be spawned, in pixels.",
+            "description": "The distance from the target sphere around which the projectile will be spawned, in pixels. If not set, the projectile will explode immediately at its target.",
             "minimum": 0.0
         },
         "spawnSound": {
@@ -71,7 +71,6 @@
     },
     "required": [
         "speed",
-        "spawnDistance",
         "sphereAlgorithm",
         "destroyParticle",
         "destroySphereSelector"

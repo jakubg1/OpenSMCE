@@ -67,11 +67,11 @@ function CollectibleEffectConfig:new(data, path)
     elseif self.type == "collectibleRain" then
         self.collectibleGenerator = u.parseCollectibleGeneratorConfig(data.collectibleGenerator, path, "collectibleGenerator")
         self.count = u.parseExprInteger(data.count, path, "count")
-        self.delay = u.parseNumber(data.delay, path, "delay")
+        self.delay = u.parseExprNumber(data.delay, path, "delay")
     elseif self.type == "projectileStorm" then
         self.projectile = u.parseProjectileConfig(data.projectile, path, "projectile")
         self.count = u.parseExprInteger(data.count, path, "count")
-        self.delay = u.parseNumber(data.delay, path, "delay")
+        self.delay = u.parseExprNumber(data.delay, path, "delay")
     elseif self.type == "colorSort" then
         self.sortType = u.parseString(data.sortType, path, "sortType")
         self.delay = u.parseNumberOpt(data.delay, path, "delay") or 0

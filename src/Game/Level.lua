@@ -167,7 +167,7 @@ function Level:updateLogic(dt)
 				self:spawnCollectiblesFromEntry(Vec2(math.random() * _Game:getNativeResolution().x, -32), rain.generator)
 				rain.count = rain.count - 1
 				if rain.count > 0 then
-					rain.time = rain.time + rain.delay
+					rain.time = rain.time + rain.delay:evaluate()
 				end
 			end
 		end
@@ -187,10 +187,14 @@ function Level:updateLogic(dt)
 		if storm.count > 0 then
 			storm.time = storm.time - dt
 			if storm.time <= 0 then
-				self:spawnProjectile(storm.projectile)
-				storm.count = storm.count - 1
+				local result = self:spawnProjectile(storm.projectile)
+				if not result and storm.cancelWhenNoTargetsRemaining then
+					storm.count = 0
+				else
+					storm.count = storm.count - 1
+				end
 				if storm.count > 0 then
-					storm.time = storm.time + storm.delay
+					storm.time = storm.time + storm.delay:evaluate()
 				end
 			end
 		end
@@ -745,7 +749,7 @@ function Level:applyEffect(effect, pos)
 	elseif effect.type == "collectibleRain" then
 		table.insert(self.collectibleRains, {count = effect.count:evaluate(), time = 0, delay = effect.delay, generator = effect.collectibleGenerator})
 	elseif effect.type == "projectileStorm" then
-		table.insert(self.projectileStorms, {count = effect.count:evaluate(), time = 0, delay = effect.delay, projectile = effect.projectile})
+		table.insert(self.projectileStorms, {count = effect.count:evaluate(), time = 0, delay = effect.delay, projectile = effect.projectile, cancelWhenNoTargetsRemaining = effect.cancelWhenNoTargetsRemaining})
 	elseif effect.type == "colorSort" then
 		for i, path in ipairs(self.map.paths) do
 			for j, sphereChain in ipairs(path.sphereChains) do
@@ -1559,7 +1563,9 @@ end
 
 
 ---Spawns a new Projectile into the Level.
+---Returns `true` if a Projectile has been successfully spawned, `false` if there were no target spheres to pick from and the projectile did not spawn.
 ---@param projectile ProjectileConfig The projectile which should be spawned.
+---@return boolean
 function Level:spawnProjectile(projectile)
 	local targetSphere
 	if projectile.sphereAlgorithm == "homingBugs" then
@@ -1570,6 +1576,7 @@ function Level:spawnProjectile(projectile)
 	if targetSphere then
 		table.insert(self.projectiles, Projectile(nil, projectile, targetSphere))
 	end
+	return targetSphere ~= nil
 end
 
 
@@ -1720,7 +1727,7 @@ function Level:serialize()
 		table.insert(t.collectibleRains, {
 			count = collectibleRain.count,
 			time = collectibleRain.time,
-			delay = collectibleRain.delay,
+			delay = collectibleRain.delay.str,
 			generator = collectibleRain.generator._path
 		})
 	end
@@ -1728,8 +1735,9 @@ function Level:serialize()
 		table.insert(t.projectileStorms, {
 			count = projectileStorm.count,
 			time = projectileStorm.time,
-			delay = projectileStorm.delay,
-			projectile = projectileStorm.projectile._path
+			delay = projectileStorm.delay.str,
+			projectile = projectileStorm.projectile._path,
+			cancelWhenNoTargetsRemaining = projectileStorm.cancelWhenNoTargetsRemaining
 		})
 	end
 	return t
@@ -1800,7 +1808,7 @@ function Level:deserialize(t)
 		table.insert(self.collectibleRains, {
 			count = tCollectibleRain.count,
 			time = tCollectibleRain.time,
-			delay = tCollectibleRain.delay,
+			delay = Expression(tCollectibleRain.delay),
 			generator = _Game.resourceManager:getCollectibleGeneratorConfig(tCollectibleRain.generator)
 		})
 	end
@@ -1809,8 +1817,9 @@ function Level:deserialize(t)
 		table.insert(self.projectileStorms, {
 			count = tProjectileStorm.count,
 			time = tProjectileStorm.time,
-			delay = tProjectileStorm.delay,
-			projectile = _Game.resourceManager:getProjectileConfig(tProjectileStorm.projectile)
+			delay = Expression(tProjectileStorm.delay),
+			projectile = _Game.resourceManager:getProjectileConfig(tProjectileStorm.projectile),
+			cancelWhenNoTargetsRemaining = tProjectileStorm.cancelWhenNoTargetsRemaining
 		})
 	end
 	self.netTime = t.netTime

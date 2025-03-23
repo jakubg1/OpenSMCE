@@ -543,7 +543,7 @@
                         "minimum": 1
                     },
                     "delay": {
-                        "type": "number",
+                        "$ref": "_structures/ExprNumber.json",
                         "description": "The delay between consecutive collectible spawns, in seconds.",
                         "exclusiveMinimum": 0.0
                     }
@@ -582,7 +582,7 @@
                         "minimum": 1
                     },
                     "delay": {
-                        "type": "number",
+                        "$ref": "_structures/ExprNumber.json",
                         "description": "The delay between consecutive projectile spawns, in seconds.",
                         "exclusiveMinimum": 0.0
                     }

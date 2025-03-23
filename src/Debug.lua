@@ -227,36 +227,33 @@ function Debug:getDebugLevel()
 	s = s .. "LevelSequenceStep = " .. tostring(level.levelSequenceStep) .. "\n"
 	s = s .. "Objectives:\n"
 	for i, objective in ipairs(level.objectives) do
-		s = s .. string.format("  %s: %s %s/%s\n", i, objective.type, objective.progress, objective.target)
+		s = s .. string.format("  %s: %s %s/%s", i, objective.type, objective.progress, objective.target) .. "\n"
 	end
-	s = s .. "\n"
 	s = s .. "Variables:\n"
 	for name, variable in pairs(level.variables) do
-		s = s .. string.format("  - %s = %s", name, variable)
+		s = s .. string.format("  - %s = %s", name, variable) .. "\n"
 	end
-	s = s .. "\n"
 	s = s .. "Timers:\n"
 	for name, timer in pairs(level.timers) do
-		s = s .. string.format("  - %s = %.2f", name, timer)
+		s = s .. string.format("  - %s = %.2f", name, timer) .. "\n"
 	end
-	s = s .. "\n"
 	s = s .. "Timer Series:\n"
 	for name, timerSeries in pairs(level.timerSeries) do
 		s = s .. string.format("  - %s = ", name)
 		if #timerSeries == 0 then
-			s = s .. "(empty)"
+			s = s .. "(empty)\n"
 		else
 			for i, time in ipairs(timerSeries) do
 				if i > 1 then
 					s = s .. ", "
 				end
-				s = s .. string.format("%.2f", time)
+				s = s .. string.format("%.2f", time) .. "\n"
 			end
 		end
 	end
 	s = s .. "\n"
-	s = s .. "\n"
-	s = s .. "Collectible# = " .. tostring(#level.collectibles) .. "\n"
+	s = s .. string.format("Collectible# = %s (rains=%s)", #level.collectibles, #level.collectibleRains) .. "\n"
+	s = s .. string.format("Projectile# = %s (storms=%s)", #level.projectiles, #level.projectileStorms) .. "\n"
 	s = s .. "FloatingText# = " .. tostring(#level.floatingTexts) .. "\n"
 	s = s .. "ShotSphere# = " .. tostring(#level.shotSpheres) .. "\n"
 

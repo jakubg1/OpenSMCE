@@ -1,7 +1,7 @@
 - (object) - The root object.
     - particle* (Particle) - A persistent particle packet which will follow the projectile entity.
     - speed (number) [>=0] - The projectile speed, in pixels per second.
-    - spawnDistance ($number) [>=0] - The distance from the target sphere around which the projectile will be spawned, in pixels.
+    - spawnDistance* ($number) [>=0] - The distance from the target sphere around which the projectile will be spawned, in pixels. If not set, the projectile will explode immediately at its target.
     - spawnSound* (SoundEvent) - A sound event which will play when the projectile is spawned.
     - sphereAlgorithm (string) - Which algorithm should be used to determine the target sphere.
         - "homingBugs" - The projectile will use the homing bugs algorithm, preferring the largest groups first.

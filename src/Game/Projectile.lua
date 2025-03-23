@@ -20,14 +20,24 @@ function Projectile:new(deserializationTable, config, targetSphere)
 
         self.config = config
         self.targetPos = targetSphere:getPos()
-        self.pos = self.targetPos + Vec2(config.spawnDistance:evaluate(), 0):rotate(math.random() * math.pi * 2)
-        -- If `targetSphere` is `nil`, then `targetPos` will not be updated, that's why we are only setting it if this Projectile is homing.
-        self.targetSphere = config.homing and targetSphere
+        if config.spawnDistance then
+            self.pos = self.targetPos + Vec2(config.spawnDistance:evaluate(), 0):rotate(math.random() * math.pi * 2)
+            -- If `targetSphere` is `nil`, then `targetPos` will not be updated, that's why we are only setting it if this Projectile is homing.
+            self.targetSphere = config.homing and targetSphere
+        else
+            -- Insta-exploding projectile (for example: lightning storm strike).
+            self.pos = self.targetPos
+            self.targetSphere = targetSphere
+        end
 
-        _Game:playSound(config.spawnSound)
+        if config.spawnSound then
+            _Game:playSound(config.spawnSound)
+        end
     end
 
-    self.particle = _Game:spawnParticle(self.config.particle, self.pos)
+    if self.config.particle then
+        self.particle = _Game:spawnParticle(self.config.particle, self.pos)
+    end
 
     self.delQueue = false
 end
@@ -35,6 +45,12 @@ end
 ---Updates this Projectile.
 ---@param dt number Time delta in seconds.
 function Projectile:update(dt)
+    -- If we are destined to instantly explode, do it. No ors, ifs, or buts.
+    if not self.config.spawnDistance then
+        self:explode()
+        return
+    end
+
     if self.targetSphere then
         if not self.targetSphere.delQueue then
             -- If we are homing towards a sphere, update the target position.
@@ -57,14 +73,20 @@ function Projectile:update(dt)
     end
 
     -- Update the particle position.
-	self.particle.pos = self.pos
+    if self.particle then
+    	self.particle.pos = self.pos
+    end
 end
 
 ---Explodes this Projectile. This triggers the destruction particles, sphere selectors, score events, etc.
 function Projectile:explode()
     self:destroy()
 
+    if self.targetSphere then
+        self.targetSphere:dumpVariables("hitSphere")
+    end
     _Game.level:destroySelector(self.config.destroySphereSelector, self.pos, self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere, self.config.destroyGameEvent, self.config.destroyGameEventPerSphere)
+    _Vars:unset("hitSphere")
 
     if self.config.destroySound then
         _Game:playSound(self.config.destroySound, self.pos)
@@ -78,7 +100,9 @@ function Projectile:destroy()
 		return
 	end
 	self.delQueue = true
-	self.particle:destroy()
+    if self.particle then
+    	self.particle:destroy()
+    end
 end
 
 ---Draws this Projectile on the screen.

@@ -21,7 +21,7 @@ function ProjectileConfig:new(data, path)
 
     self.particle = u.parseParticleOpt(data.particle, path, "particle")
     self.speed = u.parseNumber(data.speed, path, "speed")
-    self.spawnDistance = u.parseExprNumber(data.spawnDistance, path, "spawnDistance")
+    self.spawnDistance = u.parseExprNumberOpt(data.spawnDistance, path, "spawnDistance")
     self.spawnSound = u.parseSoundEventOpt(data.spawnSound, path, "spawnSound")
     self.sphereAlgorithm = u.parseString(data.sphereAlgorithm, path, "sphereAlgorithm")
     self.homing = u.parseBooleanOpt(data.homing, path, "homing")
