@@ -61,10 +61,13 @@ end
 
 
 ---Destroys all of the spheres contained in this Result.
----@param scoreEvent ScoreEventConfig? The score event to be executed for all spheres together.
----@param scoreEventPerSphere ScoreEventConfig? The score event to be executed for each sphere separately.
+---@param scoreEvent ScoreEventConfig? The Score Event that will be executed once on the whole batch.
+---@param scoreEventPerSphere ScoreEventConfig? The Score Event that will be executed separately for each sphere.
+---@param gameEvent GameEventConfig? The Game Event which will be executed once on the whole batch.
+---@param gameEventPerSphere GameEventConfig? The Game Event which will be executed separately for each sphere.
 ---@param forceEventPosCalculation boolean? If set, even if this Sphere Selector Result has a position, the Score Event position will be calculated by averaging all the spheres' positions.
-function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, forceEventPosCalculation)
+function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
+	_Vars:set("selector.sphereCount", #self.spheres)
 	if scoreEvent then
 		local eventPos = self.pos
 		if not eventPos or forceEventPosCalculation then
@@ -77,18 +80,23 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, forceEven
 			end
 			eventPos = minPos and ((minPos + maxPos) / 2) or Vec2()
 		end
-		_Vars:set("selector.sphereCount", #self.spheres)
 		_Game.level:executeScoreEvent(scoreEvent, eventPos)
-		_Vars:unset("selector")
+	end
+	if gameEvent then
+		_Game:executeGameEvent(gameEvent)
 	end
 	for i, sphere in ipairs(self.spheres) do
+		sphere.sphere:dumpVariables("sphere", self.pos)
 		if scoreEventPerSphere then
-			sphere.sphere:dumpVariables("sphere", self.pos)
 			_Game.level:executeScoreEvent(scoreEventPerSphere, sphere.sphere:getPos())
-			_Vars:unset("sphere")
 		end
+		if gameEventPerSphere then
+			_Game:executeGameEvent(gameEventPerSphere)
+		end
+		_Vars:unset("sphere")
 		sphere.sphereGroup:destroySphere(sphere.sphereIndex)
 	end
+	_Vars:unset("selector")
 end
 
 

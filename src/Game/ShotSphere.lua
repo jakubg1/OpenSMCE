@@ -153,33 +153,34 @@ function ShotSphere:moveStep()
 			hitSphere:dumpVariables("hitSphere")
 			redirectedHitSphere:dumpVariables("redirectedHitSphere")
 			if not self.config.doesNotCollideWith or not _Utils.isValueInTable(self.config.doesNotCollideWith, hitSphere.color) then
-				if self.config.hitBehavior.type == "destroySpheres" then
-					_Game.level:destroySelector(self.config.hitBehavior.selector, self.pos, self.config.hitBehavior.scoreEvent, self.config.hitBehavior.scoreEventPerSphere)
-					if not self.config.hitBehavior.pierce then
+				local hitBehavior = self.config.hitBehavior
+				if hitBehavior.type == "destroySpheres" then
+					_Game.level:destroySelector(hitBehavior.selector, self.pos, hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
+					if not hitBehavior.pierce then
 						self:destroy()
 					else
 						self.hitSphere = nil
 					end
-				elseif self.config.hitBehavior.type == "recolorSpheres" then
-					_Game.level:replaceColorSelector(self.config.hitBehavior, self.pos)
-					if not self.config.hitBehavior.pierce then
+				elseif hitBehavior.type == "recolorSpheres" then
+					_Game.level:replaceColorSelector(hitBehavior, self.pos)
+					if not hitBehavior.pierce then
 						self:destroy()
 					else
 						self.hitSphere = nil
 					end
-				elseif self.config.hitBehavior.type == "applyEffect" then
-					_Game.level:applyEffectSelector(self.config.hitBehavior, self.pos)
-					if not self.config.hitBehavior.pierce then
+				elseif hitBehavior.type == "applyEffect" then
+					_Game.level:applyEffectSelector(hitBehavior, self.pos)
+					if not hitBehavior.pierce then
 						self:destroy()
 					else
 						self.hitSphere = nil
 					end
-				elseif self.config.hitBehavior.type == "splitAndPushBack" then
+				elseif hitBehavior.type == "splitAndPushBack" then
 					if hitSphere.nextSphere then
 						hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
 					end
-					hitSphere.sphereGroup.speed = -self.config.hitBehavior.speed
-					if not self.config.hitBehavior.pierce then
+					hitSphere.sphereGroup.speed = -hitBehavior.speed
+					if not hitBehavior.pierce then
 						self:destroy()
 					else
 						self.hitSphere = nil
@@ -203,7 +204,7 @@ function ShotSphere:moveStep()
 					local d = (self.pos - p):len()
 					-- calculate time
 					self.hitTimeMax = d / self.speed * 5
-					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, self.config.hitBehavior.effects, self:getGapSizeList(), _Game.configManager.gameplay.sphereBehavior.instantMatches)
+					self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior.effects, self:getGapSizeList(), _Game.configManager.gameplay.sphereBehavior.instantMatches)
 					badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 				end
 			else

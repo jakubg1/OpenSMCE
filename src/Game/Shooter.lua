@@ -477,11 +477,12 @@ function Shooter:shoot()
     -- Spawn the Shot Sphere or deploy the sphere, depending on its config.
     local sphereConfig = self:getSphereConfig()
     for i = 1, self:getSphereCount() do
-        if sphereConfig.shotBehavior.type == "normal" then
+        local shotBehavior = sphereConfig.shotBehavior
+        if shotBehavior.type == "normal" then
             -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
             self.sphereEntities[i]:setAlpha(self:getSphereAlpha())
-            local amount = sphereConfig.shotBehavior.amount or 1
-            local angleTotal = sphereConfig.shotBehavior.spreadAngle or 0
+            local amount = shotBehavior.amount or 1
+            local angleTotal = shotBehavior.spreadAngle or 0
             local angleStart = amount == 1 and 0 or -angleTotal / 2
             local angleStep = amount == 1 and 0 or angleTotal / (amount - 1)
             for j = 1, amount do
@@ -490,12 +491,15 @@ function Shooter:shoot()
                 _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity, self.homingBugsTime > 0)
             end
             self.sphereEntities[i] = nil
-        elseif sphereConfig.shotBehavior.type == "destroySpheres" then
+            if shotBehavior.gameEvent then
+                _Game:executeGameEvent(shotBehavior.gameEvent)
+            end
+        elseif shotBehavior.type == "destroySpheres" then
             -- lightning spheres are not shot, they're deployed instantly
             if sphereConfig.destroyParticle then
                 _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
             end
-            _Game.level:destroySelector(sphereConfig.shotBehavior.selector, self:getSpherePos(i), sphereConfig.shotBehavior.scoreEvent, sphereConfig.shotBehavior.scoreEventPerSphere, true)
+            _Game.level:destroySelector(shotBehavior.selector, self:getSpherePos(i), shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
             self:destroySphereEntities()
         end
         _Game.level.spheresShot = _Game.level.spheresShot + 1

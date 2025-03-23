@@ -12,3 +12,5 @@
     - destroySphereSelector (SphereSelector) - A sphere selector which will select spheres to be destroyed, positioned on the projectile's position.
     - destroyScoreEvent* (ScoreEvent) - A Score Event which will be executed once for the whole batch of spheres when this projectile is destroyed.
     - destroyScoreEventPerSphere* (ScoreEvent) - A Score Event which will be executed separately for each Sphere that is destroyed.
+    - destroyGameEvent* (GameEvent) - A Game Event which will be executed once for the whole batch of spheres when this projectile is destroyed.
+    - destroyGameEventPerSphere* (GameEvent) - A Game Event which will be executed separately for each Sphere that is destroyed.

@@ -44,6 +44,8 @@ function CollectibleEffectConfig:new(data, path)
         self.selector = u.parseSphereSelectorConfig(data.selector, path, "selector")
         self.scoreEvent = u.parseScoreEventConfigOpt(data.scoreEvent, path, "scoreEvent")
         self.scoreEventPerSphere = u.parseScoreEventConfigOpt(data.scoreEventPerSphere, path, "scoreEventPerSphere")
+        self.gameEvent = u.parseGameEventConfigOpt(data.gameEvent, path, "gameEvent")
+        self.gameEventPerSphere = u.parseGameEventConfigOpt(data.gameEventPerSphere, path, "gameEventPerSphere")
     elseif self.type == "spawnPathEntity" then
         self.pathEntity = u.parsePathEntityConfig(data.pathEntity, path, "pathEntity")
     elseif self.type == "lightningStorm" then

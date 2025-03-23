@@ -30,6 +30,8 @@ function ProjectileConfig:new(data, path)
     self.destroySphereSelector = u.parseSphereSelectorConfig(data.destroySphereSelector, path, "destroySphereSelector")
     self.destroyScoreEvent = u.parseScoreEventConfigOpt(data.destroyScoreEvent, path, "destroyScoreEvent")
     self.destroyScoreEventPerSphere = u.parseScoreEventConfigOpt(data.destroyScoreEventPerSphere, path, "destroyScoreEventPerSphere")
+    self.destroyGameEvent = u.parseGameEventConfigOpt(data.destroyGameEvent, path, "destroyGameEvent")
+    self.destroyGameEventPerSphere = u.parseGameEventConfigOpt(data.destroyGameEventPerSphere, path, "destroyGameEventPerSphere")
 end
 
 

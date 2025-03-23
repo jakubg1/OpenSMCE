@@ -5,6 +5,7 @@
     "properties": {
         "type": {
             "enum": [
+                "single",
                 "sequence",
                 "random",
                 "setCoins",
@@ -24,6 +25,41 @@
                 "type": {
                     "description": "Type of the game event."
                 }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "single",
+                        "description": "Executes a single Game Event."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "event": {
+                        "$ref": "_structures/GameEvent.json",
+                        "description": "A Game Event to be executed."
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "A list of conditions. All of the conditions listed in this array must pass, otherwise the event will not be executed.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
+                    }
+                },
+                "required": [
+                    "event"
+                ],
+                "additionalProperties": false
             }
         },
         {

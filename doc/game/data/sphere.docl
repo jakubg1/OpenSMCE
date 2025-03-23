@@ -20,10 +20,13 @@
         - "normal" - The sphere gets launched and flies upwards with a speed defined by the shooter and whether the speed shot is active.
             - amount* = 1 (integer) [>=1] - The amount of spheres that will be launched.
             - spreadAngle* = 0 (number) [>=0] - The total spreadout angle in radians between all launched spheres.
+            - gameEvent* (GameEvent) - A Game Event which will be executed after the sphere has been launched.
         - "destroySpheres" - The sphere does not get launched and instead is destroyed immediately, destroying the spheres selected by the provided sphere selector.
             - selector (SphereSelector) - The Sphere Selector which will select the spheres to be destroyed.
             - scoreEvent* (ScoreEvent) - A Score Event which will be executed once for the whole batch of spheres.
             - scoreEventPerSphere* (ScoreEvent) - A Score Event which will be executed separately for each Sphere that is destroyed.
+            - gameEvent* (GameEvent) - A Game Event which will be executed once for the whole batch of spheres.
+            - gameEventPerSphere* (GameEvent) - A Game Event which will be executed separately for each Sphere that is destroyed.
     - shotEffects* (array) - A list of collectible effects to be executed when this sphere is shot.
         - (CollectibleEffect) - A single collectible effect.
     - shotSpeed* (number) [>0] - If specified, overrides the speed of this sphere when shot. By default, the shot sphere will use the current shooter speed.
@@ -37,6 +40,8 @@
             - selector (SphereSelector) - The Sphere Selector which will select the spheres to be destroyed.
             - scoreEvent* (ScoreEvent) - A Score Event which will be executed once for the whole batch of spheres.
             - scoreEventPerSphere* (ScoreEvent) - A Score Event which will be executed separately for each Sphere that is destroyed.
+            - gameEvent* (GameEvent) - A Game Event which will be executed once for the whole batch of spheres.
+            - gameEventPerSphere* (GameEvent) - A Game Event which will be executed separately for each Sphere that is destroyed.
             - pierce* (boolean) - If set, the sphere will not be destroyed upon hitting the sphere train.
         - "recolorSpheres" - The sphere gets destroyed and changes the color of the spheres selected by the provided sphere selector.
             - selector (SphereSelector) - The Sphere Selector which will select the spheres of which the color will be changed.

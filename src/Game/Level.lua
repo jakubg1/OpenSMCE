@@ -719,7 +719,7 @@ function Level:applyEffect(effect, pos)
 			end
 		end
 	elseif effect.type == "destroySpheres" then
-		self:destroySelector(effect.selector, pos, effect.scoreEvent, effect.scoreEventPerSphere, true)
+		self:destroySelector(effect.selector, pos, effect.scoreEvent, effect.scoreEventPerSphere, effect.gameEvent, effect.gameEventPerSphere, true)
 	elseif effect.type == "spawnPathEntity" then
 		local path = self:getMostDangerousPath()
 		if path then
@@ -1203,9 +1203,11 @@ end
 ---@param pos Vector2? The position used to calculate distances to spheres, and used in Floating Text position, unless `forceEventPosCalculation` is set.
 ---@param scoreEvent ScoreEventConfig? The Score Event that will be executed once on the whole batch.
 ---@param scoreEventPerSphere ScoreEventConfig? The Score Event that will be executed separately for each sphere.
+---@param gameEvent GameEventConfig? The Game Event which will be executed once on the whole batch.
+---@param gameEventPerSphere GameEventConfig? The Game Event which will be executed separately for each sphere.
 ---@param forceEventPosCalculation boolean? If set, the `pos` argument will be ignored and a new position for the Score Event will be calculated anyways.
-function Level:destroySelector(sphereSelector, pos, scoreEvent, scoreEventPerSphere, forceEventPosCalculation)
-	SphereSelectorResult(sphereSelector, pos):destroy(scoreEvent, scoreEventPerSphere, forceEventPosCalculation)
+function Level:destroySelector(sphereSelector, pos, scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
+	SphereSelectorResult(sphereSelector, pos):destroy(scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
 end
 
 

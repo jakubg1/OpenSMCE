@@ -64,7 +64,7 @@ end
 function Projectile:explode()
     self:destroy()
 
-    _Game.level:destroySelector(self.config.destroySphereSelector, self.pos, self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere)
+    _Game.level:destroySelector(self.config.destroySphereSelector, self.pos, self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere, self.config.destroyGameEvent, self.config.destroyGameEventPerSphere)
 
     if self.config.destroySound then
         _Game:playSound(self.config.destroySound, self.pos)

@@ -1,4 +1,6 @@
 - (object) {type: Type of the game event.} - The root object.
+    - "single" - Executes a single Game Event.
+        - event (GameEvent) - A Game Event to be executed.
     - "sequence" - Executes a list of Game Events.
         - events (array) - The list of Game Events. The events will be executed in the specified order.
             - (GameEvent) - A Game Event to be executed.

@@ -20,7 +20,9 @@ function GameEventConfig:new(data, path)
     self._path = path
 
     self.type = u.parseString(data.type, path, "type")
-    if self.type == "sequence" then
+    if self.type == "single" then
+        self.event = u.parseGameEventConfig(data.event, path, "event")
+    elseif self.type == "sequence" then
         self.events = {}
         for i = 1, #data.events do
             self.events[i] = u.parseGameEventConfig(data.events[i], path, "events[" .. tostring(i) .. "]")
@@ -50,7 +52,7 @@ function GameEventConfig:new(data, path)
     elseif self.type == "playSound" then
         self.soundEvent = u.parseSoundEvent(data.soundEvent, path, "soundEvent")
     else
-        error(string.format("Unknown GameEventConfig type: %s (expected \"sequence\", \"random\", \"setCoins\", \"setLevelVariable\", \"setLevelTimer\", \"addToTimerSeries\", \"clearTimerSeries\", \"collectibleEffect\", \"scoreEvent\", \"playSound\")", self.type))
+        error(string.format("Unknown GameEventConfig type: %s (expected \"single\", \"sequence\", \"random\", \"setCoins\", \"setLevelVariable\", \"setLevelTimer\", \"addToTimerSeries\", \"clearTimerSeries\", \"collectibleEffect\", \"scoreEvent\", \"playSound\")", self.type))
     end
 
     self.conditions = {}

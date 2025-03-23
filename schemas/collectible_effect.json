@@ -268,6 +268,14 @@
                     "scoreEventPerSphere": {
                         "$ref": "_structures/ScoreEvent.json",
                         "description": "The score event that will be executed per every sphere that is destroyed."
+                    },
+                    "gameEvent": {
+                        "$ref": "_structures/GameEvent.json",
+                        "description": "The game event which will be executed for the entire batch."
+                    },
+                    "gameEventPerSphere": {
+                        "$ref": "_structures/GameEvent.json",
+                        "description": "The game event that will be executed per every sphere that is destroyed."
                     }
                 },
                 "required": [

@@ -218,7 +218,9 @@ function Game:executeGameEvent(event)
 		end
 	end
 	-- Execute the event.
-	if event.type == "sequence" then
+	if event.type == "single" then
+		self:executeGameEvent(event.event)
+	elseif event.type == "sequence" then
 		for i, subevent in ipairs(event.events) do
 			self:executeGameEvent(subevent)
 		end

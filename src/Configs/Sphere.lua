@@ -43,10 +43,13 @@ function SphereConfig:new(data, path)
     if self.shotBehavior.type == "normal" then
         self.shotBehavior.amount = u.parseIntegerOpt(data.shotBehavior.amount, path, "shotBehavior.amount") or 1
         self.shotBehavior.spreadAngle = u.parseNumberOpt(data.shotBehavior.spreadAngle, path, "shotBehavior.spreadAngle") or 0
+        self.shotBehavior.gameEvent = u.parseGameEventConfigOpt(data.shotBehavior.gameEvent, path, "shotBehavior.gameEvent")
     elseif self.shotBehavior.type == "destroySpheres" then
         self.shotBehavior.selector = u.parseSphereSelectorConfig(data.shotBehavior.selector, path, "shotBehavior.selector")
         self.shotBehavior.scoreEvent = u.parseScoreEventConfigOpt(data.shotBehavior.scoreEvent, path, "shotBehavior.scoreEvent")
         self.shotBehavior.scoreEventPerSphere = u.parseScoreEventConfigOpt(data.shotBehavior.scoreEventPerSphere, path, "shotBehavior.scoreEventPerSphere")
+        self.shotBehavior.gameEvent = u.parseGameEventConfigOpt(data.shotBehavior.gameEvent, path, "shotBehavior.gameEvent")
+        self.shotBehavior.gameEventPerSphere = u.parseGameEventConfigOpt(data.shotBehavior.gameEventPerSphere, path, "shotBehavior.gameEventPerSphere")
     else
         error(string.format("Unknown shotBehavior type: %s (expected \"normal\", \"destroySpheres\")", self.shotBehavior.type))
     end
@@ -75,6 +78,8 @@ function SphereConfig:new(data, path)
         self.hitBehavior.selector = u.parseSphereSelectorConfig(data.hitBehavior.selector, path, "hitBehavior.selector")
         self.hitBehavior.scoreEvent = u.parseScoreEventConfigOpt(data.hitBehavior.scoreEvent, path, "hitBehavior.scoreEvent")
         self.hitBehavior.scoreEventPerSphere = u.parseScoreEventConfigOpt(data.hitBehavior.scoreEventPerSphere, path, "hitBehavior.scoreEventPerSphere")
+        self.hitBehavior.gameEvent = u.parseGameEventConfigOpt(data.hitBehavior.gameEvent, path, "hitBehavior.gameEvent")
+        self.hitBehavior.gameEventPerSphere = u.parseGameEventConfigOpt(data.hitBehavior.gameEventPerSphere, path, "hitBehavior.gameEventPerSphere")
         self.hitBehavior.pierce = u.parseBooleanOpt(data.hitBehavior.pierce, path, "hitBehavior.pierce")
     elseif self.hitBehavior.type == "recolorSpheres" then
         self.hitBehavior.selector = u.parseSphereSelectorConfig(data.hitBehavior.selector, path, "hitBehavior.selector")
