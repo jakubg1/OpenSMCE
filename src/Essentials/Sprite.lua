@@ -59,29 +59,33 @@ end
 
 
 ---Draws this Sprite onto the screen.
----@param pos Vector2 The sprite position.
----@param align Vector2? The sprite alignment. `(0, 0)` is the top left corner. `(1, 1)` is the bottom right corner. `(0.5, 0.5)` is in the middle.
+---@param posX number The sprite's horizontal position.
+---@param posY number The sprite's vertical position.
+---@param alignX number? The horizontal sprite alignment. `0` (default) is left. `1` is right. `0.5` is in the middle.
+---@param alignY number? The vertical sprite alignment. `0` (default) is top. `1` is bottom. `0.5` is in the middle.
 ---@param state integer? The state ID to be drawn.
 ---@param frame integer? The state's frame to be drawn.
 ---@param rot number? The sprite rotation in radians.
 ---@param color Color? The sprite color.
 ---@param alpha number? Sprite transparency. `0` is fully transparent. `1` is fully opaque.
----@param scale Vector2? The scale of this sprite.
-function Sprite:draw(pos, align, state, frame, rot, color, alpha, scale)
+---@param scaleX number? The horizontal scale of this sprite.
+---@param scaleY number? The horizontal scale of this sprite.
+function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha, scaleX, scaleY)
 	--_Debug:deprecationNotice("Test deprecation notice/Sprites will need layers soon!", 2)
 
-	align = align or Vec2()
+	alignX, alignY = alignX or 0, alignY or 0
 	state = state or 1
 	frame = frame or 1
 	rot = rot or 0
 	color = color or Color()
 	alpha = alpha or 1
-	scale = scale or Vec2(1)
+	scaleX, scaleY = scaleX or 1, scaleY or 1
 
-	pos = pos - (align * scale * self.config.frameSize):rotate(rot)
+	local x, y = _V.rotate(alignX * scaleX * self.config.frameSize.x, alignY * scaleY * self.config.frameSize.y, rot)
+	posX, posY = posX - x, posY - y
 
 	love.graphics.setColor(color.r, color.g, color.b, alpha)
-	self.config.image:draw(self:getFrame(state, frame), pos.x, pos.y, rot, scale.x, scale.y)
+	self.config.image:draw(self:getFrame(state, frame), posX, posY, rot, scaleX, scaleY)
 end
 
 

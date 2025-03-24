@@ -25,6 +25,7 @@ require("crash")
 
 -- global utility methods
 _Utils = require("com.utils")
+_V = require("com.vectorutils")
 _ConfigUtils = require("src.Configs.utils")
 
 -- performance profiler

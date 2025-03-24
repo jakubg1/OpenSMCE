@@ -81,7 +81,7 @@ function Map:draw()
 	-- Background
 	for i, sprite in ipairs(self.sprites) do
 		if sprite.background then
-			sprite.sprite:draw(sprite.pos)
+			sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
 		end
 	end
 
@@ -89,7 +89,7 @@ function Map:draw()
 	if _Debug.e then
 		for i, sprite in ipairs(self.sprites) do
 			if not sprite.background and not sprite.foreground then
-				sprite.sprite:draw(sprite.pos)
+				sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
 			end
 		end
 	end
@@ -115,7 +115,7 @@ function Map:draw()
 	if not _Debug.e then
 		for i, sprite in ipairs(self.sprites) do
 			if not sprite.background and not sprite.foreground then
-				sprite.sprite:draw(sprite.pos)
+				sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
 			end
 		end
 	end
@@ -139,7 +139,7 @@ function Map:drawSpheres()
 
 	for i, sprite in ipairs(self.sprites) do
 		if not sprite.background and sprite.foreground then
-			sprite.sprite:draw(sprite.pos)
+			sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
 		end
 	end
 end

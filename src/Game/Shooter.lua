@@ -598,9 +598,11 @@ end
 function Shooter:draw()
     local pos = self:getVisualPos()
     if self.config.shadowSprite then
-        self.config.shadowSprite:draw(pos + self.config.shadowSpriteOffset:rotate(self.angle), self.config.shadowSpriteAnchor, nil, nil, self.angle)
+        local x, y = _V.rotate(self.config.shadowSpriteOffset.x, self.config.shadowSpriteOffset.y, self.angle)
+        self.config.shadowSprite:draw(pos.x + x, pos.y + y, self.config.shadowSpriteAnchor.x, self.config.shadowSpriteAnchor.y, nil, nil, self.angle)
     end
-    self.config.sprite:draw(pos + self.config.spriteOffset:rotate(self.angle), self.config.spriteAnchor, nil, nil, self.angle)
+    local x, y = _V.rotate(self.config.spriteOffset.x, self.config.spriteOffset.y, self.angle)
+    self.config.sprite:draw(pos.x + x, pos.y + y, self.config.spriteAnchor.x, self.config.spriteAnchor.y, nil, nil, self.angle)
 
     -- retical
     if _EngineSettings:getAimingRetical() then
@@ -621,7 +623,8 @@ function Shooter:draw()
     end
     -- next color
     local sprite = self.config.nextBallSprites[self.nextColor].sprite
-    sprite:draw(pos + self.config.nextBallOffset:rotate(self.angle), self.config.nextBallAnchor, nil, self:getNextSphereFrame(), self.angle)
+    local nx, ny = _V.rotate(self.config.nextBallOffset.x, self.config.nextBallOffset.y, self.angle)
+    sprite:draw(pos.x + nx, pos.y + ny, self.config.nextBallAnchor.x, self.config.nextBallAnchor.y, nil, self:getNextSphereFrame(), self.angle)
 
 	if _Debug.gameDebugVisible then
 		self:drawDebug()
@@ -668,7 +671,8 @@ function Shooter:drawSpeedShotBeam()
         -- apply color if wanted
         local color = self.config.speedShotBeam.colored and self:getReticleColor() or Color()
         -- draw the beam
-        self.config.speedShotBeam.sprite:draw(startPos + Vec2(0, 16):rotate(self.angle), Vec2(0.5, 1), nil, nil, self.angle, color, self.speedShotAnim, scale)
+        local x, y = _V.rotate(0, 16, self.angle)
+        self.config.speedShotBeam.sprite:draw(startPos.x + x, startPos.y + y, 0.5, 1, nil, nil, self.angle, color, self.speedShotAnim, scale.x, scale.y)
         -- reset the scissor
         if self.config.speedShotBeam.renderingType == "cut" then
             love.graphics.setStencilTest()
@@ -683,14 +687,17 @@ function Shooter:drawReticle()
     local targetPos = self:getTargetPos()
     local color = self:getReticleColor()
     local sphereConfig = self:getSphereConfig()
+    local retConfig = self.config.reticle
     if targetPos and sphereConfig.shotBehavior.type == "normal" then
-        if self.config.reticle.sprite then
-            local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2()):rotate(self.angle)
-            self.config.reticle.sprite:draw(location, Vec2(0.5, 0), nil, nil, self.angle, color)
-            if self.config.reticle.nextBallSprite then
+        if retConfig.sprite then
+            local x, y = _V.rotate(retConfig.offset.x or 0, retConfig.offset.y or 0, self.angle)
+            local locationX, locationY = targetPos.x + x, targetPos.y + y
+            retConfig.sprite:draw(locationX, locationY, 0.5, 0, nil, nil, self.angle, color)
+            if retConfig.nextBallSprite then
                 local nextColor = self:getNextReticleColor()
-                local nextLocation = location + (_ParseVec2(self.config.reticle.nextBallOffset) or Vec2()):rotate(self.angle)
-                self.config.reticle.nextBallSprite:draw(nextLocation, Vec2(0.5, 0), nil, nil, self.angle, nextColor)
+                local nx, ny = _V.rotate(retConfig.nextBallOffset.x or 0, retConfig.nextBallOffset.y or 0, self.angle)
+                local nextLocationX, nextLocationY = locationX + nx, locationY + ny
+                retConfig.nextBallSprite:draw(nextLocationX, nextLocationY, 0.5, 0, nil, nil, self.angle, nextColor)
             end
         else
             love.graphics.setLineWidth(3)
@@ -703,11 +710,12 @@ function Shooter:drawReticle()
         end
 
         -- Fireball range highlight
+        -- TODO: There is no `range` parameter, since we are using Sphere Selectors. Now what?
         if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
-            if self.config.reticle.radiusSprite then
-                local location = targetPos + (_ParseVec2(self.config.reticle.offset) or Vec2())
-                local scale = Vec2(sphereConfig.hitBehavior.range * 2) / self.config.reticle.radiusSprite.size
-                self.config.reticle.radiusSprite:draw(location, Vec2(0.5), nil, nil, nil, color, nil, scale)
+            if retConfig.radiusSprite then
+                local locationX, locationY = targetPos.x + (retConfig.offset.x or 0), targetPos.y + (retConfig.offset.y or 0)
+                local scaleX, scaleY = sphereConfig.hitBehavior.range * 2 / retConfig.radiusSprite.size.x, sphereConfig.hitBehavior.range * 2 / retConfig.radiusSprite.size.y
+                retConfig.radiusSprite:draw(locationX, locationY, 0.5, 0.5, nil, nil, nil, color, nil, scaleX, scaleY)
             else
                 --love.graphics.setColor(1, 0, 0)
                 local dotCount = math.ceil(sphereConfig.hitBehavior.range / 12) * 4

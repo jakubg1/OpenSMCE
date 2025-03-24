@@ -168,7 +168,9 @@ end
 
 function ParticlePiece:draw(layer)
 	if self.layer == layer then
-		self.sprite:draw(self:getPos(), Vec2(0.5), nil, math.min(math.floor(self.animationFrame), self.animationFrameCount), nil, self:getColor(), self:getAlpha())
+		local pos = self:getPos()
+		local frame = math.min(math.floor(self.animationFrame), self.animationFrameCount)
+		self.sprite:draw(pos.x, pos.y, 0.5, 0.5, nil, frame, nil, self:getColor(), self:getAlpha())
 	end
 end
 

@@ -229,13 +229,14 @@ end
 ---@param shadow boolean Whether to draw the actual entity or its shadow.
 function PathEntity:draw(hidden, shadow)
 	if self:getHidden() == hidden then
+		local pos = self:getPos()
 		if shadow then
 			if self.config.shadowSprite then
-				self.config.shadowSprite:draw(self:getPos() + Vec2(4), Vec2(0.5))
+				self.config.shadowSprite:draw(pos.x + 4, pos.y + 4, 0.5, 0.5)
 			end
 		else
 			if self.config.sprite then
-				self.config.sprite:draw(self:getPos(), Vec2(0.5), nil, nil, self:getAngle() + math.pi, Color(self:getBrightness()))
+				self.config.sprite:draw(pos.x, pos.y, 0.5, 0.5, nil, nil, self:getAngle() + math.pi, Color(self:getBrightness()))
 			end
 		end
 	end

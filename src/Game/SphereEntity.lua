@@ -154,10 +154,10 @@ end
 function SphereEntity:draw(shadow)
 	if shadow then
 		if self.config.shadowSprite then
-			self.config.shadowSprite:draw(self.pos + self.config.shadowOffset, Vec2(0.5), nil, nil, self.angle, nil, self.alpha, self.scale)
+			self.config.shadowSprite:draw(self.pos.x + self.config.shadowOffset.x, self.pos.y + self.config.shadowOffset.y, 0.5, 0.5, nil, nil, self.angle, nil, self.alpha, self.scale.x, self.scale.y)
 		end
 	else
-		self.config.sprite:draw(self.pos, Vec2(0.5), nil, self.frame, self.angle, self.colorM, self.alpha, self.scale)
+		self.config.sprite:draw(self.pos.x, self.pos.y, 0.5, 0.5, nil, self.frame, self.angle, self.colorM, self.alpha, self.scale.x, self.scale.y)
 	end
 end
 

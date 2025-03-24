@@ -18,7 +18,8 @@ end
 
 
 function UIWidgetSprite:draw()
-	self.sprite:draw(self.parent:getPos(), nil, nil, nil, nil, nil, self.parent:getAlpha())
+	local pos = self.parent:getPos()
+	self.sprite:draw(pos.x, pos.y, nil, nil, nil, nil, nil, nil, self.parent:getAlpha())
 end
 
 function UIWidgetSprite:getSize()

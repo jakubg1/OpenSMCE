@@ -93,7 +93,7 @@ function UIWidgetSpriteButton:draw()
 		end
 	end
 
-	self.sprite:draw(pos, nil, self:getState(), nil, nil, nil, alpha, Vec2(scale))
+	self.sprite:draw(pos.x, pos.y, nil, nil, self:getState(), nil, nil, nil, alpha, scale, scale)
 end
 
 function UIWidgetSpriteButton:getState()
