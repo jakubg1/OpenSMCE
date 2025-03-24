@@ -255,7 +255,19 @@ end
 ---@return integer?
 function Path:getCurrentTrainLength()
 	if self.trainRules.type == "waves" then
-		return self.trainRules.waves[self.currentWave]:len()
+		local preset = self.trainRules.waves[self.currentWave]
+		if not tonumber(preset:sub(1, 1)) then
+			return preset:len()
+		else
+			local length = 0
+			-- Count the length of each block.
+			for i, strBlock in ipairs(_Utils.strSplit(preset, ",")) do
+				local spl = _Utils.strSplit(strBlock, ":")
+				spl = _Utils.strSplit(spl[1], "*")
+				length = length + tonumber(spl[1]) * tonumber(spl[2])
+			end
+			return length
+		end
 	else
 		return self.trainRules.length
 	end
