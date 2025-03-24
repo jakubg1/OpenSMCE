@@ -207,7 +207,7 @@ function Path:getSpawnableColors()
 		return _Utils.tableRemoveDuplicates(self.trainRules.pattern)
 	elseif self.trainRules.type == "waves" then
 		local colors = {}
-		for i, key in self.trainRules.key do
+		for i, key in ipairs(self.trainRules.key) do
 			colors = _Utils.tableUnion(colors, key.colors)
 		end
 		return colors

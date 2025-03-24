@@ -300,12 +300,23 @@ end
 
 ---Creates and returns a shallow copy of the given table.
 ---@param t table The table to be copied.
+---@return table
 function utils.copyTable(t)
 	local new = {}
 	for k, v in pairs(t) do
 		new[k] = v
 	end
 	return new
+end
+
+
+
+---Removes all elements from the given table. Useful for reducing the table footprint.
+---@param t table The table to be emptied.
+function utils.emptyTable(t)
+	for k, v in pairs(t) do
+		t[k] = nil
+	end
 end
 
 

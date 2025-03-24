@@ -14,6 +14,7 @@ local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 local SphereConfig = require("src.Configs.Sphere")
 local SphereEffectConfig = require("src.Configs.SphereEffect")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
+local VariableProvidersConfig = require("src.Configs.VariableProviders")
 
 local utils = {}
 
@@ -397,6 +398,16 @@ end
 ---@return SphereSelectorConfig?
 function utils.parseSphereSelectorConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Sphere Selector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
+end
+
+---@return VariableProvidersConfig
+function utils.parseVariableProvidersConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Variable Provider List", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
+end
+
+---@return VariableProvidersConfig?
+function utils.parseVariableProvidersConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Variable Provider List", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
 end
 
 

@@ -1,0 +1,219 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "providers": {
+            "type": "object",
+            "description": "A list of providers, keyed by their names.",
+            "propertyNames": {
+                "pattern": "^.*$"
+            },
+            "patternProperties": {
+                "^.*$": {
+                    "type": "object",
+                    "description": "A single Provider. This provider will be evaluated when an Expression Variable of that particular name is embedded in the Expression, like [key] or [key.subkey]. Context Variables are allowed.",
+                    "markdownDescription": "A single Provider. This provider will be evaluated when an Expression Variable of that particular name is embedded in the Expression, like `[key]` or `[key.subkey]`. Context Variables are allowed.",
+                    "properties": {
+                        "type": {
+                            "enum": [
+                                "value",
+                                "mostFrequentColor",
+                                "randomSpawnableColor",
+                                "redirectSphere",
+                                "redirectSphereColor"
+                            ]
+                        }
+                    },
+                    "allOf": [
+                        {
+                            "properties": {
+                                "type": {
+                                    "description": "A provider type."
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "value",
+                                        "description": "This Provider will return a constant value. You should only use this for testing."
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            },
+                            "then": {
+                                "properties": {
+                                    "type": true,
+                                    "value": {
+                                        "type": "integer",
+                                        "description": "The integer value to be returned."
+                                    },
+                                    "framePersistence": {
+                                        "type": "boolean",
+                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
+                                    }
+                                },
+                                "required": [
+                                    "value"
+                                ],
+                                "additionalProperties": false
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "mostFrequentColor",
+                                        "description": "This Provider will provide the most prominent sphere color on the board."
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            },
+                            "then": {
+                                "properties": {
+                                    "type": true,
+                                    "sphereSelector": {
+                                        "$ref": "../_structures/SphereSelector.json",
+                                        "description": "A Sphere Selector which will select all eligible spheres. The most prominent sphere color will be picked out of all selected spheres."
+                                    },
+                                    "fallback": {
+                                        "$ref": "../_structures/ExprInteger.json",
+                                        "description": "The fallback color to resort to if no eligible spheres are found."
+                                    },
+                                    "framePersistence": {
+                                        "type": "boolean",
+                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
+                                    }
+                                },
+                                "required": [
+                                    "sphereSelector",
+                                    "fallback"
+                                ],
+                                "additionalProperties": false
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "randomSpawnableColor",
+                                        "description": "This Provider will return one of the colors which can spawn in the current level."
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            },
+                            "then": {
+                                "properties": {
+                                    "type": true,
+                                    "excludedColors": {
+                                        "type": "array",
+                                        "description": "A list of colors which will never be returned by this provider.",
+                                        "items": {
+                                            "type": "integer",
+                                            "description": "A single Sphere Color."
+                                        }
+                                    },
+                                    "framePersistence": {
+                                        "type": "boolean",
+                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "redirectSphere",
+                                        "description": "This Provider will take a Sphere and find another one in its train if this Sphere does not satisfy the provided requirements. In such case, the train will be scanned in both directions starting from the provided sphere, and will randomly choose between two found spheres."
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            },
+                            "then": {
+                                "properties": {
+                                    "type": true,
+                                    "sphere": {
+                                        "$ref": "../_structures/ExprString.json",
+                                        "description": "An Expression which must return a Sphere object which will be the search origin, e.g. \"${[hitSphere.sphere]}\".",
+                                        "markdownDescription": "An Expression which must return a Sphere object which will be the search origin, e.g. `\"${[hitSphere.sphere]}\"`."
+                                    },
+                                    "sphereSelector": {
+                                        "$ref": "../_structures/SphereSelector.json",
+                                        "description": "A Sphere Selector which will select all eligible spheres."
+                                    },
+                                    "framePersistence": {
+                                        "type": "boolean",
+                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
+                                    }
+                                },
+                                "required": [
+                                    "sphere",
+                                    "sphereSelector"
+                                ],
+                                "additionalProperties": false
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "redirectSphereColor",
+                                        "description": "Similar to `redirectSphere`, but returns the redirected sphere's color. Has an advantage: if no eligible spheres to redirect to are found, the fallback color can be provided."
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            },
+                            "then": {
+                                "properties": {
+                                    "type": true,
+                                    "sphere": {
+                                        "$ref": "../_structures/ExprString.json",
+                                        "description": "An Expression which must return a Sphere object which will be the search origin, e.g. \"${[hitSphere.sphere]}\".",
+                                        "markdownDescription": "An Expression which must return a Sphere object which will be the search origin, e.g. `\"${[hitSphere.sphere]}\"`."
+                                    },
+                                    "sphereSelector": {
+                                        "$ref": "../_structures/SphereSelector.json",
+                                        "description": "A Sphere Selector which will select all eligible spheres."
+                                    },
+                                    "fallback": {
+                                        "$ref": "../_structures/ExprInteger.json",
+                                        "description": "The fallback color to resort to if no eligible spheres are found."
+                                    },
+                                    "framePersistence": {
+                                        "type": "boolean",
+                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
+                                    }
+                                },
+                                "required": [
+                                    "sphere",
+                                    "sphereSelector",
+                                    "fallback"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    ],
+                    "required": [
+                        "type"
+                    ]
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}

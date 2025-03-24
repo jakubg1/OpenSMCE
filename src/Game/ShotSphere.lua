@@ -128,34 +128,8 @@ function ShotSphere:moveStep()
 			-- We've hit a sphere and have collision with it.
 			self.hitSphere = nearestSphere
 			local hitSphere = nearestSphere.sphere
-			-- Redirect the hit sphere if it's a scarab or a stone sphere.
-			-- TODO: Move this logic to Sphere.lua and dehardcode it?
-			local redirectedHitSphere = hitSphere
-			if hitSphere.color == 0 or hitSphere:isStone() then
-				-- The sphere can be redirected to the front or to the back. Both searches stop when either something that matches the requirements is found (valid result) or not (invalid result).
-				local redirectedHitSpherePrev = redirectedHitSphere
-				local redirectedHitSphereNext = redirectedHitSphere
-				while redirectedHitSpherePrev and (redirectedHitSpherePrev.color == 0 or redirectedHitSpherePrev:isStone()) do
-					redirectedHitSpherePrev = redirectedHitSpherePrev:getPrevSphereInChain()
-				end
-				while redirectedHitSphereNext and (redirectedHitSphereNext.color == 0 or redirectedHitSphereNext:isStone()) do
-					redirectedHitSphereNext = redirectedHitSphereNext:getNextSphereInChain()
-				end
-				if redirectedHitSpherePrev and redirectedHitSphereNext then
-					-- We found both. Choose randomly.
-					redirectedHitSphere = math.random() < 0.5 and redirectedHitSpherePrev or redirectedHitSphereNext
-				elseif redirectedHitSpherePrev then
-					redirectedHitSphere = redirectedHitSpherePrev
-				elseif redirectedHitSphereNext then
-					redirectedHitSphere = redirectedHitSphereNext
-				else
-					-- We found nothing...?
-					error("Congratulations! You found an error because the lazy developer doesn't even bother to write code for edge cases like this! Yay!")
-				end
-			end
 			local badShot = false
 			hitSphere:dumpVariables("hitSphere")
-			redirectedHitSphere:dumpVariables("redirectedHitSphere")
 			local hitBehavior = self.config.hitBehavior
 			-- Instead of having different hit behavior types, make a field which states what happens to the shot sphere:
 			-- - "append" - The sphere is appended
@@ -224,7 +198,6 @@ function ShotSphere:moveStep()
 				self.markedAsSuccessfulShot = true
 			end
 			_Vars:unset("hitSphere")
-			_Vars:unset("redirectedHitSphere")
 		end
 	end
 

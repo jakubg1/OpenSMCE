@@ -1,0 +1,21 @@
+- (object) - The root object.
+    - providers* (object) <<^.*$>> - A list of providers, keyed by their names.
+        - (object) {type: A provider type.} - A single Provider. This provider will be evaluated when an Expression Variable of that particular name is embedded in the Expression, like `[key]` or `[key.subkey]`. Context Variables are allowed.
+            - "value" - This Provider will return a constant value. You should only use this for testing.
+                - value (integer) - The integer value to be returned.
+            - "countSpheres" - The Provider will return the amount of spheres selected by the given Sphere Selector.
+                - sphereSelector (SphereSelector) - A Sphere Selector which will select all eligible spheres.
+            - "mostFrequentColor" - This Provider will provide the most prominent sphere color on the board. If there is a tie, this provider will return a random color out of all tied colors.
+                - sphereSelector (SphereSelector) - A Sphere Selector which will select all eligible spheres. The most prominent sphere color will be picked out of all selected spheres.
+                - fallback ($integer) - The fallback color to resort to if no eligible spheres are found.
+            - "randomSpawnableColor" - This Provider will return one of the colors which can spawn in the current level.
+                - excludedColors* (array) - A list of colors which will never be returned by this provider.
+                    - (integer) - A single Sphere Color.
+            - "redirectSphere" - This Provider will take a Sphere and find another one in its train if this Sphere does not satisfy the provided requirements. In such case, the train will be scanned in both directions starting from the provided sphere, and will randomly choose between two found spheres.
+                - sphere ($string) - An Expression which must return a Sphere object which will be the search origin, e.g. `"${[hitSphere.sphere]}"`.
+                - sphereSelector (SphereSelector) - A Sphere Selector which will select all eligible spheres.
+            - "redirectSphereColor" - Similar to `redirectSphere`, but returns the redirected sphere's color. Has an advantage: if no eligible spheres to redirect to are found, the fallback color can be provided.
+                - sphere ($string) - An Expression which must return a Sphere object which will be the search origin, e.g. `"${[hitSphere.sphere]}"`.
+                - sphereSelector (SphereSelector) - A Sphere Selector which will select all eligible spheres.
+                - fallback ($integer) - The fallback color to resort to if no eligible spheres are found.
+            - framePersistence* (boolean) - If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value.

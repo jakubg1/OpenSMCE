@@ -88,35 +88,6 @@ end
 
 
 
----Returns the color ID which is the most frequent on the board, excluding ID = 0 (scarab) and stone spheres.
----If there is a tie, this function returns a random color out of all tied colors.
----@return integer
-function ColorManager:getMostFrequentColor()
-	local maxAmount = 0
-	local maxColors = {}
-	for i, v in pairs(self.sphereColorCounts) do
-		-- TODO: Omitting scarabs and stone spheres should be dehardcoded (Variable Providers).
-		local sphereConfig = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. i .. ".json")
-		if i ~= 0 and sphereConfig.type ~= "stone" then
-			if v > maxAmount then
-				-- New leader found! Reset the list.
-				maxAmount = v
-				maxColors = {i}
-			elseif v == maxAmount then
-				-- A tie! Add the color to the list.
-				table.insert(maxColors, i)
-			end
-		end
-	end
-	-- Failsafe if there's absolutely NOTHING on the board.
-	if #maxColors == 0 then
-		return 1
-	end
-	return maxColors[math.random(#maxColors)]
-end
-
-
-
 ---Sets the Expression Variables in the `color` context.
 --- - `color.#` - For each registered sphere color (`#`), the amount of spheres of that color currently on the board.
 --- - `color.totalSpheres` - The total amount of spheres on the board, excluding scarabs.
@@ -126,7 +97,6 @@ function ColorManager:dumpVariables()
 		_Vars:set("color." .. i, v)
 	end
 	_Vars:set("color.totalSpheres", self:getTotalSphereCount())
-	_Vars:set("color.mostFrequent", self:getMostFrequentColor())
 end
 
 

@@ -178,6 +178,7 @@ function love.update(dt)
 	_Debug:update(dt)
 	_DiscordRPC:update(dt)
 	_ThreadManager:update(dt)
+	_Vars:clearVariableProviderCache()
 
 	-- rainbow effect for the shooter and console cursor blink; to be phased out soon
 	_TotalTime = _TotalTime + dt

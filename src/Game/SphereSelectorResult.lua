@@ -122,4 +122,43 @@ end
 
 
 
+---Returns the amount of spheres contained in this Result.
+---@return integer
+function SphereSelectorResult:countSpheres()
+	return #self.spheres
+end
+
+
+
+---Returns a table, where keys are the sphere colors, and the values are the amounts of spheres of corresponding color contained in this Result.
+---@return table
+function SphereSelectorResult:countColors()
+	local result = {}
+	for i, sphere in ipairs(self.spheres) do
+		local color = sphere.sphere.color
+		if not result[color] then
+			result[color] = 1
+		else
+			result[color] = result[color] + 1
+		end
+	end
+	return result
+end
+
+
+
+---Returns whether the provided Sphere is contained in this Result.
+---@param sphere Sphere The sphere to be searched for.
+---@return boolean
+function SphereSelectorResult:hasSphere(sphere)
+	for i, s in ipairs(self.spheres) do
+		if s.sphere == sphere then
+			return true
+		end
+	end
+	return false
+end
+
+
+
 return SphereSelectorResult

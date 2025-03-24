@@ -28,6 +28,7 @@ local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 local SphereConfig = require("src.Configs.Sphere")
 local SphereEffectConfig = require("src.Configs.SphereEffect")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
+local VariableProvidersConfig = require("src.Configs.VariableProviders")
 
 
 
@@ -51,31 +52,32 @@ function ResourceManager:new()
 	self.currentBatches = nil
 
 	self.RESOURCE_TYPES = {
-		image = {extension = "png", constructor = Image, paramSet = 2},
-		sprite = {extension = "json", constructor = Sprite, paramSet = 2},
-		sound = {extension = "ogg", constructor = Sound, paramSet = 2},
-		soundEvent = {extension = "json", constructor = SoundEvent, paramSet = 2},
-		music = {extension = "json", constructor = Music, paramSet = 2},
+		image = {extension = "png", constructor = Image},
+		sprite = {extension = "json", constructor = Sprite},
+		sound = {extension = "ogg", constructor = Sound},
+		soundEvent = {extension = "json", constructor = SoundEvent},
+		music = {extension = "json", constructor = Music},
 		particle = {extension = "json", constructor = _Utils.loadJson},
-		font = {extension = "json", constructor = Font, paramSet = 2},
+		font = {extension = "json", constructor = Font},
 		fontFile = {extension = "ttf"},
-		colorPalette = {extension = "json", constructor = ColorPalette, paramSet = 2},
-		collectible = {extension = "json", constructor = CollectibleConfig, paramSet = 2},
+		colorPalette = {extension = "json", constructor = ColorPalette},
+		collectible = {extension = "json", constructor = CollectibleConfig},
 		colorGenerator = {extension = "json"},
-		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig, paramSet = 2},
-		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig, paramSet = 2},
-		difficulty = {extension = "json", constructor = DifficultyConfig, paramSet = 2},
-		gameEvent = {extension = "json", constructor = GameEventConfig, paramSet = 2},
-		levelSequence = {extension = "json", constructor = LevelSequenceConfig, paramSet = 2},
-		levelSet = {extension = "json", constructor = LevelSetConfig, paramSet = 2},
-		pathEntity = {extension = "json", constructor = PathEntityConfig, paramSet = 2},
-		projectile = {extension = "json", constructor = ProjectileConfig, paramSet = 2},
-		scoreEvent = {extension = "json", constructor = ScoreEventConfig, paramSet = 2},
-		shooter = {extension = "json", constructor = ShooterConfig, paramSet = 2},
-		shooterMovement = {extension = "json", constructor = ShooterMovementConfig, paramSet = 2},
-		sphere = {extension = "json", constructor = SphereConfig, paramSet = 2},
-		sphereEffect = {extension = "json", constructor = SphereEffectConfig, paramSet = 2},
-		sphereSelector = {extension = "json", constructor = SphereSelectorConfig, paramSet = 2},
+		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig},
+		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig},
+		difficulty = {extension = "json", constructor = DifficultyConfig},
+		gameEvent = {extension = "json", constructor = GameEventConfig},
+		levelSequence = {extension = "json", constructor = LevelSequenceConfig},
+		levelSet = {extension = "json", constructor = LevelSetConfig},
+		pathEntity = {extension = "json", constructor = PathEntityConfig},
+		projectile = {extension = "json", constructor = ProjectileConfig},
+		scoreEvent = {extension = "json", constructor = ScoreEventConfig},
+		shooter = {extension = "json", constructor = ShooterConfig},
+		shooterMovement = {extension = "json", constructor = ShooterMovementConfig},
+		sphere = {extension = "json", constructor = SphereConfig},
+		sphereEffect = {extension = "json", constructor = SphereEffectConfig},
+		sphereSelector = {extension = "json", constructor = SphereSelectorConfig},
+		variableProviders = {extension = "json", constructor = VariableProvidersConfig},
 		map = {extension = "/"},
 		level = {extension = "json"}
 	}
@@ -96,6 +98,7 @@ function ResourceManager:new()
 		["config/shooter.json"] = "shooter",
 		["config/shooter_movement.json"] = "shooterMovement",
 		["config/sphere.json"] = "sphere",
+		["config/variable_providers.json"] = "variableProviders",
 		["collectible.json"] = "collectible",
 		["collectible_effect.json"] = "collectibleEffect",
 		["collectible_generator.json"] = "collectibleGenerator",
@@ -303,6 +306,13 @@ function ResourceManager:getSphereSelectorConfig(path)
 	return self:getAsset(path, "sphere selector")
 end
 
+---Retrieves a Variable Providers Config by a given path.
+---@param path string The resource path.
+---@return VariableProvidersConfig
+function ResourceManager:getVariableProvidersConfig(path)
+	return self:getAsset(path, "variable provider list")
+end
+
 
 
 ---Destructor function.
@@ -450,7 +460,7 @@ function ResourceManager:loadAsset(key, batches)
 	end
 
 	-- TODO: Condensate the parameter set to the one used by Config Classes.
-	if self.RESOURCE_TYPES[type].paramSet == 2 then
+	if self.RESOURCE_TYPES[type].constructor ~= _Utils.loadJson then
 		-- Construct the resource and check for errors.
 		local success, result = xpcall(function() return constructor(contents, key) end, debug.traceback)
 		assert(success, string.format("Failed to load file %s: %s", key, result))
