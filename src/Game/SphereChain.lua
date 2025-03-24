@@ -41,7 +41,45 @@ function SphereChain:new(path, deserializationTable)
 			self.generationIndex = 1
 		elseif self.path.trainRules.type == "waves" then
 			self.generationIndex = 1
-			self.generationPreset = self.path:getCurrentTrainPreset()
+			self.generationPreset = ""
+			-- Generate a preset if the provided value is a preset generator.
+			local preset = self.path:getCurrentTrainPreset()
+			if not tonumber(preset:sub(1, 1)) then
+				self.generationPreset = preset
+			else
+				local blocks = {}
+				local blockIDs = {}
+				-- Parse the preset generator into blocks.
+				local strBlocks = _Utils.strSplit(preset, ",")
+				for i, strBlock in ipairs(strBlocks) do
+					local block = {pool = {}, size = 0} -- ex: {pool = {"X", "Y", "Z"}, size = 3}
+					local spl = _Utils.strSplit(strBlock, ":")
+					for j = 1, spl[2]:len() do
+						table.insert(block.pool, spl[2]:sub(j, j))
+					end
+					spl = _Utils.strSplit(spl[1], "*")
+					block.size = tonumber(spl[2])
+					table.insert(blocks, block)
+					for j = 1, tonumber(spl[1]) do
+						table.insert(blockIDs, #blocks)
+					end
+				end
+				-- Generate the preset from blocks.
+				_Utils.tableShuffle(blockIDs)
+				local lastKey = nil
+				for i, blockID in ipairs(blockIDs) do
+					local block = blocks[blockID]
+					local pool = _Utils.copyTable(block.pool)
+					if lastKey then
+						_Utils.iTableRemoveValue(pool, lastKey)
+					end
+					assert(#pool > 0, "Level error: Could not generate the train because there are insufficient colors to ensure duplicates don't happen!")
+					local key = pool[math.random(#pool)]
+					self.generationPreset = self.generationPreset .. key:rep(block.size)
+					lastKey = key
+				end
+			end
+			-- Generate the set of colors for each key.
 			self.generationKeys = {}
 			for i, key in ipairs(self.path.trainRules.key) do
 				if key.key then

@@ -12,16 +12,16 @@
     - "waves" - Spheres will come as predefined trains, with color pools defined inside.
         - key (array) - A list of keys to be used as building blocks for train presets.
             - (object) - A single key.
-                - key* (string) - A single key. Must be a single character. Use either this or `keys`.
+                - key* (string) - A single key. Must be a single character. Numbers and punctuation characters are disallowed. Use either this or `keys`.
                 - keys* (array) - If specified, this entry will define multiple keys.
-                    - (string) - A single key. Must be a single character.
+                    - (string) - A single key. Must be a single character. Numbers and punctuation characters are disallowed.
                 - colors (array) - A list of colors this entry's key(s) will be assigned to.
                     - (integer) - A single color ID.
                 - homogenous* (boolean) - If set, this key will spawn the same color across the entire train (but not between different trains).
                 - noColorRepeats* (boolean) - Only if multiple `keys` are specified. If set, each of the keys will be assigned a different color from the `colors` list, without any repeats.
                 - colorStreak* (number) [>=0,<=1] - Only if `homogenous` is not set. Specifies how likely will the next color from this key be the same color as the previous one (from the same key).
                 - forceDifferentColor* (boolean) - Only if `homogenous` is not set. If set, two like-colored clumps cannot have the same color if next to each other.
-        - waves (array) - A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the `key` field.
+        - waves (array) - A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the `key` field.\nPresets can be also preset generators. Example: `"2*3:ABC,5*2:ABC"` will create 2 groups of either AAA, BBB or CCC and 5 groups of either AA, BB or CC and mix them around so that no color repeats in two groups next to each other. You cannot mix this syntax with the regular wave build.
             - (string) - A single sphere train preset.
         - behavior (string) - How should the waves be picked from the list.
             - "random" - Each spawned train will pick a train preset randomly from the list.

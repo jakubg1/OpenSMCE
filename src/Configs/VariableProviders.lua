@@ -26,6 +26,8 @@ function VariableProvidersConfig:new(data, path)
             self.providers[n].type = u.parseString(data.providers[n].type, path, "providers." .. tostring(n) .. ".type")
             if self.providers[n].type == "value" then
                 self.providers[n].value = u.parseInteger(data.providers[n].value, path, "providers." .. tostring(n) .. ".value")
+            elseif self.providers[n].type == "countSpheres" then
+                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data.providers[n].sphereSelector, path, "providers." .. tostring(n) .. ".sphereSelector")
             elseif self.providers[n].type == "mostFrequentColor" then
                 self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data.providers[n].sphereSelector, path, "providers." .. tostring(n) .. ".sphereSelector")
                 self.providers[n].fallback = u.parseExprInteger(data.providers[n].fallback, path, "providers." .. tostring(n) .. ".fallback")
@@ -44,7 +46,7 @@ function VariableProvidersConfig:new(data, path)
                 self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data.providers[n].sphereSelector, path, "providers." .. tostring(n) .. ".sphereSelector")
                 self.providers[n].fallback = u.parseExprInteger(data.providers[n].fallback, path, "providers." .. tostring(n) .. ".fallback")
             else
-                error(string.format("Unknown VariableProvidersConfig type: %s (expected \"value\", \"mostFrequentColor\", \"randomSpawnableColor\", \"redirectSphere\", \"redirectSphereColor\")", self.providers[n].type))
+                error(string.format("Unknown VariableProvidersConfig type: %s (expected \"value\", \"countSpheres\", \"mostFrequentColor\", \"randomSpawnableColor\", \"redirectSphere\", \"redirectSphereColor\")", self.providers[n].type))
             end
             self.providers[n].framePersistence = u.parseBooleanOpt(data.providers[n].framePersistence, path, "providers." .. tostring(n) .. ".framePersistence")
         end

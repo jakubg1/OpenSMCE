@@ -19,6 +19,7 @@
                         "type": {
                             "enum": [
                                 "value",
+                                "countSpheres",
                                 "mostFrequentColor",
                                 "randomSpawnableColor",
                                 "redirectSphere",
@@ -68,8 +69,38 @@
                             "if": {
                                 "properties": {
                                     "type": {
+                                        "const": "countSpheres",
+                                        "description": "The Provider will return the amount of spheres selected by the given Sphere Selector."
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            },
+                            "then": {
+                                "properties": {
+                                    "type": true,
+                                    "sphereSelector": {
+                                        "$ref": "../_structures/SphereSelector.json",
+                                        "description": "A Sphere Selector which will select all eligible spheres."
+                                    },
+                                    "framePersistence": {
+                                        "type": "boolean",
+                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
+                                    }
+                                },
+                                "required": [
+                                    "sphereSelector"
+                                ],
+                                "additionalProperties": false
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
                                         "const": "mostFrequentColor",
-                                        "description": "This Provider will provide the most prominent sphere color on the board."
+                                        "description": "This Provider will provide the most prominent sphere color on the board. If there is a tie, this provider will return a random color out of all tied colors."
                                     }
                                 },
                                 "required": [

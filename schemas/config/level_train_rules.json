@@ -127,15 +127,15 @@
                             "properties": {
                                 "key": {
                                     "type": "string",
-                                    "description": "A single key. Must be a single character. Use either this or keys.",
-                                    "markdownDescription": "A single key. Must be a single character. Use either this or `keys`."
+                                    "description": "A single key. Must be a single character. Numbers and punctuation characters are disallowed. Use either this or keys.",
+                                    "markdownDescription": "A single key. Must be a single character. Numbers and punctuation characters are disallowed. Use either this or `keys`."
                                 },
                                 "keys": {
                                     "type": "array",
                                     "description": "If specified, this entry will define multiple keys.",
                                     "items": {
                                         "type": "string",
-                                        "description": "A single key. Must be a single character."
+                                        "description": "A single key. Must be a single character. Numbers and punctuation characters are disallowed."
                                     }
                                 },
                                 "colors": {
@@ -176,8 +176,8 @@
                     },
                     "waves": {
                         "type": "array",
-                        "description": "A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the key field.",
-                        "markdownDescription": "A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the `key` field.",
+                        "description": "A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the key field.\nPresets can be also preset generators. Example: \"2*3:ABC,5*2:ABC\" will create 2 groups of either AAA, BBB or CCC and 5 groups of either AA, BB or CC and mix them around so that no color repeats in two groups next to each other. You cannot mix this syntax with the regular wave build.",
+                        "markdownDescription": "A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the `key` field.\nPresets can be also preset generators. Example: `\"2*3:ABC,5*2:ABC\"` will create 2 groups of either AAA, BBB or CCC and 5 groups of either AA, BB or CC and mix them around so that no color repeats in two groups next to each other. You cannot mix this syntax with the regular wave build.",
                         "items": {
                             "type": "string",
                             "description": "A single sphere train preset."

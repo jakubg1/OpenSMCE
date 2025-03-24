@@ -232,6 +232,32 @@ end
 
 
 
+---Removes all occurences of the value `v` from the table `t`. Don't use this on itables!
+---@param t table The table to be checked.
+---@param v any The value to be removed from the table `t`.
+function utils.tableRemoveValue(t, v)
+	for i, n in pairs(t) do
+		if n == v then
+			t[i] = nil
+		end
+	end
+end
+
+
+
+---Removes all occurences of the value `v` from the table `t`. Don't use this on keyed tables!
+---@param t table The table to be checked.
+---@param v any The value to be removed from the table `t`.
+function utils.iTableRemoveValue(t, v)
+	for i = #t, 1, -1 do
+		if t[i] == v then
+			table.remove(t, i)
+		end
+	end
+end
+
+
+
 ---Returns a table with duplicate values from table `t` removed.
 ---@param t table The table to have duplicate values removed.
 ---@return table
@@ -316,6 +342,17 @@ end
 function utils.emptyTable(t)
 	for k, v in pairs(t) do
 		t[k] = nil
+	end
+end
+
+
+
+---Shuffles the elements in the table `t`.
+---@param t table The table to be shuffled.
+function utils.tableShuffle(t)
+	for i = #t, 2, -1 do
+		local j = math.random(1, i)
+		t[i], t[j] = t[j], t[i]
 	end
 end
 
