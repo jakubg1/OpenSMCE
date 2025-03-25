@@ -395,6 +395,8 @@ function Level:updateObjectives()
 			objective.progress = self.time
 		elseif objective.type == "score" then
 			objective.progress = self.score
+		elseif objective.type == "sphereChainsSpawned" then
+			objective.progress = self.sphereChainsSpawned
 		end
 		objective.reached = objective.progress >= objective.target
 	end

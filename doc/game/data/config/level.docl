@@ -21,6 +21,7 @@
                 - "destroyedSpheres" - The target describes how many spheres have to be removed from the board.
                 - "timeElapsed" - The target describes how many seconds the level has to be survived for.
                 - "score" - The target describes how much score in that level needs to be gained.
+                - "sphereChainsSpawned" - The target describes how many sphere chains need to be spawned.
             - target (number) [>0] - How many spheres destroyed, time survived or score gained is needed in order to fulfill this objective.
     - pathsBehavior (array) - Defines the behavior of paths. The n-th entry of this list corresponds to the n-th path. If this list is shorter than the number of paths, this list will wrap around during the behavior assignment process. If this list is longer than the number of paths, all subsequent entries are discarded.
         - (object) - A single path behavior.

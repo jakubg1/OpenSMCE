@@ -98,6 +98,10 @@
                             {
                                 "const": "score",
                                 "description": "The target describes how much score in that level needs to be gained."
+                            },
+                            {
+                                "const": "sphereChainsSpawned",
+                                "description": "The target describes how many sphere chains need to be spawned."
                             }
                         ]
                     },
