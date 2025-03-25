@@ -258,6 +258,20 @@ end
 
 
 
+---Removes the first occurence of the value `v` from the table `t`. Don't use this on keyed tables!
+---@param t table The table to be checked.
+---@param v any The value to be removed from the table `t`.
+function utils.iTableRemoveFirstValue(t, v)
+	for i = #t, 1, -1 do
+		if t[i] == v then
+			table.remove(t, i)
+			return
+		end
+	end
+end
+
+
+
 ---Returns a table with duplicate values from table `t` removed.
 ---@param t table The table to have duplicate values removed.
 ---@return table

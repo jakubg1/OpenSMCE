@@ -48,7 +48,6 @@ function SphereChain:new(path, deserializationTable)
 				self.generationPreset = preset
 			else
 				local blocks = {}
-				local blockIDs = {}
 				-- Parse the preset generator into blocks.
 				local strBlocks = _Utils.strSplit(preset, ",")
 				for i, strBlock in ipairs(strBlocks) do
@@ -59,27 +58,93 @@ function SphereChain:new(path, deserializationTable)
 					end
 					spl = _Utils.strSplit(spl[1], "*")
 					block.size = tonumber(spl[2])
-					table.insert(blocks, block)
 					for j = 1, tonumber(spl[1]) do
-						table.insert(blockIDs, #blocks)
+						table.insert(blocks, block)
 					end
 				end
 				-- Generate the preset from blocks.
-				_Utils.tableShuffle(blockIDs)
-				local lastKey = nil
-				for i, blockID in ipairs(blockIDs) do
-					local block = blocks[blockID]
-					local pool = _Utils.copyTable(block.pool)
-					if lastKey then
-						_Utils.iTableRemoveValue(pool, lastKey)
+				-- We need to make sure the same color (letter/key, colors are dispatched later) is not appearing in any two neighboring groups.
+				--
+				-- Key insights: (note that whenever "color" is said that actually means "key" in this context)
+				-- - Group sizes can be disregarded altogether, because their neighborhood doesn't change at all no matter how big or small
+				--    the groups are (we assume n>0).
+				-- - All generators with only groups of colors>=3 are possible, because at any possible insertion point inside the built train
+				--    there are at most 2 blocked colors, so for 3 or more colors there's always at least one good color which can be used.
+				-- - All generators with groups of colors>=2 are possible, because at the beginning and end of the built train
+				--    there's always exactly one blocked color, so the group can always pick the other one.
+				-- - If there is at least one single color group, all generators are possible as long as there is no color for which the amount of
+				--    single color groups is greater than N/2 rounded up, where N is the total number of groups.
+				-- - If so, you could always place them next to each other and fill the gaps inside with a different color; this is also an exclusive
+				--    condition for impossibility if we disregard blatant errors like groups of size = 0 or amount of colors = 0.
+				-- - Because the groups which have 2 or more colors are always going to have at least two valid places (the edges) to be inserted,
+				--    the generation should always start by picking a random single color group and only if none of them can be inserted at any
+				--    position, then place one group of the next smallest number of colors.
+				-- - Placing any of these groups will automatically enable at least one of the single color groups to be placed next to the previously
+				--    inserted group regardless of that group's position, and if we run out of everything while still having single color groups left
+				--    which cannot be dispatched, we've basically hit the impossibility condition.
+				--    (we've started with a single, then we've dispatched all X multi-color groups, and as such another X single color groups,
+				--    hence we've dispatched 2X+1 groups out of which X+1 were single color and only single color groups are left,
+				--    and as such we've proven no valid combination is possible).
+				local genBlocks = {} -- ex: {{key = "X", size = 3}, {key = "Y", size = 1}, ...}
+				while #blocks > 0 do
+					-- Each iteration = one inserted block (or crash if no valid combination is possible).
+					-- Compose the block order and iterate through it here.
+					-- #pool=1 blocks in random order, then #pool=2 blocks in random order, then #pool=3 blocks in random order, and so on.
+					local blockPools = {} -- ex: {[1] = {<block>, <block>}, [3] = {<block>}, [7] = {<block>}}, where <block> is ex: {pool = {"X", "Y", "Z"}, size = 3}
+					local blockPoolSizes = {}
+					for i, block in ipairs(blocks) do
+						if not blockPools[#block.pool] then
+							blockPools[#block.pool] = {}
+							table.insert(blockPoolSizes, #block.pool)
+						end
+						table.insert(blockPools[#block.pool], block)
 					end
-					local key = #pool > 0 and pool[math.random(#pool)] or lastKey
-					assert(key, "Level error: Pool is empty!")
-					-- For #pool == 0:
-					-- This shouldn't happen, but we will not allow the game to crash and we will let duplicate colors slip in.
-					-- This is actually a hard problem to solve!
-					self.generationPreset = self.generationPreset .. key:rep(block.size)
-					lastKey = key
+					-- Flatten the pools by shuffling all blocks within their pools and combining them together into one table with increasing pool size.
+					local blocksIter = {} -- ex: {<block #pool=1>, <block #pool=1>, <block #pool=3>, <block #pool=7>, <block #pool=7>}
+					for i, index in ipairs(blockPoolSizes) do
+						local pool = blockPools[index]
+						_Utils.tableShuffle(pool)
+						for j, block in ipairs(pool) do
+							table.insert(blocksIter, block)
+						end
+					end
+					local success = false
+					for i, block in ipairs(blocksIter) do
+						local gapInfo = {}
+						local validGaps = {}
+						for j = 1, #genBlocks + 1 do
+							-- For each position we can insert this group to, check which keys it can have.
+							local prevBlock = genBlocks[j - 1]
+							local nextBlock = genBlocks[j]
+							local validKeys = _Utils.copyTable(block.pool)
+							if prevBlock then
+								_Utils.iTableRemoveValue(validKeys, prevBlock.key)
+							end
+							if nextBlock then
+								_Utils.iTableRemoveValue(validKeys, nextBlock.key)
+							end
+							gapInfo[j] = validKeys
+							if #validKeys > 0 then
+								table.insert(validGaps, j)
+							end
+						end
+						if #validGaps > 0 then
+							-- Success! Roll the key out of valid ones, and add the block to the list.
+							local index = validGaps[math.random(#validGaps)]
+							local keys = gapInfo[index]
+							local key = keys[math.random(#keys)]
+							table.insert(genBlocks, index, {key = key, size = block.size})
+							_Utils.iTableRemoveFirstValue(blocks, block)
+							success = true
+							break
+						end
+					end
+					-- If `success` is `false`, we've exhausted all possibilities.
+					assert(success, string.format("Level error: Impossible combination of blocks for the wave `%s`! If there is at least one possible combination without repeat keys next to each other, let me know!", preset))
+				end
+				-- Generate the string from blocks.
+				for i, block in ipairs(genBlocks) do
+					self.generationPreset = self.generationPreset .. block.key:rep(block.size)
 				end
 			end
 			-- Generate the set of colors for each key.
