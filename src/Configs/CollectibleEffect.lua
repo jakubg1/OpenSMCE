@@ -53,8 +53,8 @@ function CollectibleEffectConfig:new(data, path)
     elseif self.type == "changeGameSpeed" then
         self.speed = u.parseNumber(data.speed, path, "speed")
         self.time = u.parseNumber(data.time, path, "time")
-    elseif self.type == "setCombo" then
-        self.combo = u.parseInteger(data.combo, path, "combo")
+    elseif self.type == "setStreak" then
+        self.streak = u.parseInteger(data.streak, path, "streak")
     elseif self.type == "executeScoreEvent" then
         self.scoreEvent = u.parseScoreEventConfig(data.scoreEvent, path, "scoreEvent")
     elseif self.type == "executeGameEvent" then
@@ -80,7 +80,7 @@ function CollectibleEffectConfig:new(data, path)
     elseif self.type == "incrementGemStat" then
         -- No fields
     else
-        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"homingBugs\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"activateNet\", \"changeGameSpeed\", \"setCombo\", \"executeScoreEvent\", \"executeGameEvent\", \"setScoreMultiplier\", \"collectibleRain\", \"projectileStorm\", \"colorSort\", \"grantCoin\", \"incrementGemStat\")", self.type))
+        error(string.format("Unknown CollectibleEffectConfig type: %s (expected \"replaceSphere\", \"multiSphere\", \"removeMultiSphere\", \"speedShot\", \"homingBugs\", \"speedOverride\", \"destroySpheres\", \"spawnPathEntity\", \"activateNet\", \"changeGameSpeed\", \"setStreak\", \"executeScoreEvent\", \"executeGameEvent\", \"setScoreMultiplier\", \"collectibleRain\", \"projectileStorm\", \"colorSort\", \"grantCoin\", \"incrementGemStat\")", self.type))
     end
 end
 

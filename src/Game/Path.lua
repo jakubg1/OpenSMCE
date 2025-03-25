@@ -53,6 +53,8 @@ function Path:new(map, pathData, pathBehavior)
 	self:prepareNodes(nodes)
 
 	self.sphereChains = {}
+	self.cascade = 0
+	self.cascadeScore = 0
 	self.clearOffset = 0
 	self.pathEntities = {}
 	self.sphereEffectGroups = {}
@@ -135,6 +137,11 @@ function Path:update(dt)
 			table.remove(self.pathEntities, i)
 		end
 	end
+
+	-- Reset the cascade combo if necessary.
+	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "path" and not self:isMatchPredicted() then
+		self:endCascade()
+	end
 end
 
 
@@ -176,6 +183,35 @@ function Path:spawnChain()
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
 		_Game:playSound(_Game.configManager.gameplay.sphereBehavior.newGroupSound, self:getPos(0))
 	end
+end
+
+
+
+---Returns `true` if at least one of the Sphere Chains on this Path has a predicted match.
+---@return boolean
+function Path:isMatchPredicted()
+	for i, sphereChain in ipairs(self.sphereChains) do
+		if sphereChain:isMatchPredicted() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+---Resets the cascade combo value for this Path to 0 and emits a `cascadeEnded` UI callback if the values were greater than 0.
+function Path:endCascade()
+	if self.cascade == 0 and self.cascadeScore == 0 then
+		return
+	end
+	--_Debug.console:print("path " .. self.cascadeScore)
+	_Game.uiManager:executeCallback({
+		name = "cascadeEnded",
+		parameters = {self.cascade, self.cascadeScore}
+	})
+	self.cascade = 0
+	self.cascadeScore = 0
 end
 
 
@@ -771,6 +807,8 @@ function Path:serialize()
 		sphereChains = {},
 		currentWave = self.currentWave,
 		reachedFinalWave = self.reachedFinalWave,
+		cascade = self.cascade,
+		cascadeScore = self.cascadeScore,
 		clearOffset = self.clearOffset,
 		pathEntities = {},
 		sphereEffectGroups = {}
@@ -801,6 +839,8 @@ function Path:deserialize(t)
 	end
 	self.currentWave = t.currentWave
 	self.reachedFinalWave = t.reachedFinalWave
+	self.cascade = t.cascade
+	self.cascadeScore = t.cascadeScore
 	self.clearOffset = t.clearOffset
 	self.pathEntities = {}
 	for i, pathEntity in ipairs(t.pathEntities) do

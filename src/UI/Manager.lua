@@ -37,10 +37,10 @@ function UIManager:new()
     levelGetCoins = function() return _Game.level.coins end,
     levelGetGems = function() return _Game.level.gems end,
     levelGetChains = function() return _Game.level.sphereChainsSpawned end,
-    levelGetMaxCombo = function() return _Game.level.maxCombo end,
-    levelGetMaxChain = function() return _Game.level.maxChain end,
+    levelGetStreak = function() return _Game.level.streak end,
+    levelGetMaxStreak = function() return _Game.level.maxStreak end,
+    levelGetMaxCascade = function() return _Game.level.maxCascade end,
     levelGetNewRecord = function() return _Game.level:hasNewScoreRecord() end,
-    levelGetCombo = function() return _Game.level.combo end,
     levelGetAccuracy = function() return _Game.level:getShotAccuracy() end,
 
     levelExecuteScoreEvent = function(event, pos) _Game.level:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(event), pos) end,

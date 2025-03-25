@@ -204,7 +204,7 @@ function ShotSphere:moveStep()
 	-- delete if outside of the board
 	if self:isOutsideBoard() then
 		self:destroy(true)
-		_Game.level.combo = 0
+		_Game.level.streak = 0
 	end
 end
 

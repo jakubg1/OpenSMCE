@@ -11,10 +11,9 @@
     - levelLossProtection (boolean) - If set to `true`, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
     - immobile (boolean) - If `true`, the spheres affected with this effect will stop.
     - fragile (boolean) - If `true`, the spheres affected with this effect can be destroyed by shooting through them.
-    - canBoostCombo (boolean) - If `true`, the level combo value may rise after destroying a group with this effect.
-    - canBoostChain (boolean) - If `true`, the chain combo value may rise after destroying a group with this effect.
-    - applyChainMultiplier (boolean) - If `true`, the score value obtained from destroying the affected spheres will be multiplied by the current chain combo value.
-    - canKeepCombo (boolean) - Whether shot spheres with this effect should not be counted towards combo reset.
+    - canBoostStreak (boolean) - If `true`, the streak combo value may rise after destroying a group with this effect.
+    - canBoostCascade (boolean) - If `true`, the cascade combo value may rise after destroying a group with this effect.
+    - canKeepCascade (boolean) - Whether shot spheres with this effect should prevent the cascade combo from dropping back to 0.
     - causeCheck (boolean) - When set to `false`, two groups of spheres of the same sphere effect which happen to collide will behave as one, ignoring the "cause" sphere.
     - ghostTime* (number) [>0] - Optional. If defined, the spheres will not be destroyed, but instead will transform into ghosts. This means they will appear as destroyed, but will still physically exist for the given time. It is highly recommended to not set this, as ghost spheres are designed for Zuma sphere physics recreation.
     - eventsBefore* (array) - The list of Game Events to be executed before the `destroySound`, `destroyScoreEvent` and `destroyCollectible` values are evaluated.

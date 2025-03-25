@@ -15,7 +15,7 @@
                 "spawnPathEntity",
                 "activateNet",
                 "changeGameSpeed",
-                "setCombo",
+                "setStreak",
                 "executeScoreEvent",
                 "executeGameEvent",
                 "setScoreMultiplier",
@@ -376,8 +376,8 @@
             "if": {
                 "properties": {
                     "type": {
-                        "const": "setCombo",
-                        "description": "Sets the current level combo to a specified value."
+                        "const": "setStreak",
+                        "description": "Sets the current streak combo to a specified value."
                     }
                 },
                 "required": [
@@ -388,14 +388,14 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "combo": {
+                    "streak": {
                         "type": "integer",
-                        "description": "The combo value to be set.",
+                        "description": "The streak value to be set.",
                         "minimum": 0
                     }
                 },
                 "required": [
-                    "combo"
+                    "streak"
                 ],
                 "additionalProperties": false
             }

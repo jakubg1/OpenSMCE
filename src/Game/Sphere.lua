@@ -37,7 +37,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 	else
 		self.color = color
 		self.appendSize = 1
-		self.boostCombo = false
+		self.boostStreak = false
 		self.shootOrigin = nil
 		self.shootTime = nil
 		self.effects = {}
@@ -125,9 +125,9 @@ function Sphere:update(dt)
 	end
 
 	-- if the sphere was flagged as it was a part of a combo but got obstructed, then it's unflagged. We also erase any shot sphere information.
-	if self.boostCombo or self.gaps or self.destroyedFragileSpheres then
-		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) and not self:canKeepCombo() then
-			self.boostCombo = false
+	if self.boostStreak or self.gaps or self.destroyedFragileSpheres then
+		if not self.sphereGroup:isMagnetizing() and not (self.sphereGroup.nextGroup and self.sphereGroup.nextGroup:isMagnetizing()) and not self:canKeepCascade() then
+			self.boostStreak = false
 			self.gaps = {}
 			self.destroyedFragileSpheres = false
 		end
@@ -168,10 +168,10 @@ end
 ---Checks the matches, combos, etc.
 function Sphere:finishShot()
 	local index = self.sphereGroup:getSphereID(self)
-	if self.sphereGroup:shouldBoostCombo(index) then
-		self.boostCombo = true
+	if self.sphereGroup:shouldBoostStreak(index) then
+		self.boostStreak = true
 	else
-		self.map.level.combo = 0
+		self.map.level.streak = 0
 	end
 	if self.sphereGroup:shouldMatch(index) then
 		self.sphereGroup:matchAndDelete(index)
@@ -473,11 +473,11 @@ end
 
 
 
----Returns `true` if this sphere has an effect which makes it able to keep combo.
+---Returns `true` if this Sphere has an effect which makes its sphere train/path able to keep the current cascade combo.
 ---@return boolean
-function Sphere:canKeepCombo()
+function Sphere:canKeepCascade()
 	for i, effect in ipairs(self.effects) do
-		if effect.config.canKeepCombo then
+		if effect.config.canKeepCascade then
 			return true
 		end
 	end
@@ -795,8 +795,8 @@ function Sphere:serialize()
 	if self.appendSize ~= 1 then
 		t.appendSize = self.appendSize
 	end
-	if self.boostCombo then
-		t.boostCombo = self.boostCombo
+	if self.boostStreak then
+		t.boostStreak = self.boostStreak
 	end
 
 	if #self.effects > 0 then
@@ -824,7 +824,7 @@ function Sphere:serialize()
 	end
 
 	-- If the only data to be saved is the sphere's color, serialize to an integer value.
-	if not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostCombo and not t.effects and not t.gaps and not t.destroyedFragileSpheres and not t.growStopped then
+	if not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostStreak and not t.effects and not t.gaps and not t.destroyedFragileSpheres and not t.growStopped then
 		return t.color
 	end
 
@@ -843,7 +843,7 @@ function Sphere:deserialize(t)
 	self.color = t.color
 	--self.animationFrame = t.animationFrame
 	self.appendSize = t.appendSize or 1
-	self.boostCombo = t.boostCombo or false
+	self.boostStreak = t.boostStreak or false
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
 	self.shootTime = t.shootTime
 	self.ghostTime = t.ghostTime

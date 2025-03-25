@@ -17,8 +17,8 @@ function SphereChain:new(path, deserializationTable)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
-		self.combo = 0
-		self.comboScore = 0
+		self.cascade = 0
+		self.cascadeScore = 0
 
 		self.speedOverrideBase = 0
 		self.speedOverrideMult = 1
@@ -262,9 +262,9 @@ function SphereChain:update(dt)
 		self.maxOffset = self.sphereGroups[1]:getLastSphereOffset()
 	end
 
-	-- Reset combo if necessary.
-	if not self:isMatchPredicted() then
-		self:endCombo()
+	-- Reset the cascade combo if necessary.
+	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "chain" and not self:isMatchPredicted() then
+		self:endCascade()
 	end
 
 	-- Destroy itself if holds only non-generatable spheres.
@@ -319,7 +319,7 @@ function SphereChain:isMatchPredicted()
 		if not sphereGroup.delQueue and (
 			sphereGroup:isMagnetizing() or
 			sphereGroup:hasShotSpheres() or
-			sphereGroup:hasKeepComboSpheres() or
+			sphereGroup:hasKeepCascadeSpheres() or
 			sphereGroup:hasGhostSpheres() or
 			(_Game.configManager.gameplay.sphereBehavior.luxorized and sphereGroup.speed < 0)
 		) then
@@ -353,17 +353,18 @@ function SphereChain:isPushingFrontTrain()
 	end
 end
 
-function SphereChain:endCombo()
-	if self.combo == 0 and self.comboScore == 0 then
+---Resets the cascade combo value for this Sphere Chain to 0 and emits a `cascadeEnded` UI callback if the values were greater than 0.
+function SphereChain:endCascade()
+	if self.cascade == 0 and self.cascadeScore == 0 then
 		return
 	end
-	--_Debug.console:print(self.comboScore)
+	--_Debug.console:print("chain " .. self.cascadeScore)
 	_Game.uiManager:executeCallback({
-		name = "comboEnded",
-		parameters = {self.combo, self.comboScore}
+		name = "cascadeEnded",
+		parameters = {self.cascade, self.cascadeScore}
 	})
-	self.combo = 0
-	self.comboScore = 0
+	self.cascade = 0
+	self.cascadeScore = 0
 end
 
 function SphereChain:join()
@@ -383,7 +384,8 @@ function SphereChain:join()
 	end
 	if self.sphereGroups[joinIndex]:getMatchLengthInChain(1) >= 3 then self.sphereGroups[joinIndex].matchCheck = false end
 	-- combine combos
-	prevChain.combo = prevChain.combo + self.combo
+	prevChain.cascade = prevChain.cascade + self.cascade
+	prevChain.cascadeScore = prevChain.cascadeScore + self.cascadeScore
 	self:delete(true)
 end
 
@@ -597,8 +599,8 @@ end
 
 function SphereChain:serialize()
 	local t = {
-		combo = self.combo,
-		comboScore = self.comboScore,
+		cascade = self.cascade,
+		cascadeScore = self.cascadeScore,
 		speedOverrideBase = self.speedOverrideBase,
 		speedOverrideMult = self.speedOverrideMult,
 		speedOverrideDecc = self.speedOverrideDecc,
@@ -623,8 +625,8 @@ function SphereChain:serialize()
 end
 
 function SphereChain:deserialize(t)
-	self.combo = t.combo
-	self.comboScore = t.comboScore
+	self.cascade = t.cascade
+	self.cascadeScore = t.cascadeScore
 	self.speedOverrideBase = t.speedOverrideBase
 	self.speedOverrideMult = t.speedOverrideMult
 	self.speedOverrideDecc = t.speedOverrideDecc

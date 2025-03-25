@@ -435,12 +435,12 @@ function Level:clearTimerSeries(name)
 end
 
 ---Exposes the current state of the level to Expression Variables:
---- - Level combo: `[level.combo]`
+--- - Level streak: `[level.streak]`
 --- - Level variables: `[level.<variable>]`
 --- - Level timers: `[level.<timer>]`
 --- - Level timer series: `[level.<timerSeries>.length]`
 function Level:updateVariables()
-	_Vars:set("level.combo", self.combo)
+	_Vars:set("level.streak", self.streak)
 	for name, variable in pairs(self.variables) do
 		_Vars:set("level." .. name, variable)
 	end
@@ -716,8 +716,8 @@ function Level:applyEffect(effect, pos)
 	elseif effect.type == "changeGameSpeed" then
 		self.gameSpeed = effect.speed
 		self.gameSpeedTime = effect.time
-	elseif effect.type == "setCombo" then
-		self.combo = effect.combo
+	elseif effect.type == "setStreak" then
+		self.streak = effect.streak
 	elseif effect.type == "executeScoreEvent" then
 		self:executeScoreEvent(effect.scoreEvent, pos)
 	elseif effect.type == "executeGameEvent" then
@@ -1081,15 +1081,15 @@ function Level:reset()
 	self.score = 0
 	self.coins = 0
 	self.gems = 0
-	self.combo = 0
+	self.streak = 0
 	self.destroyedSpheres = 0
 	self.time = 0
 
 	self.spheresShot = 0
 	self.successfulShots = 0
 	self.sphereChainsSpawned = 0
-	self.maxChain = 0
-	self.maxCombo = 0
+	self.maxCascade = 0
+	self.maxStreak = 0
 
 	self.shotSpheres = {}
 	self.collectibles = {}
@@ -1643,14 +1643,14 @@ function Level:serialize()
 		spheresShot = self.spheresShot,
 		successfulShots = self.successfulShots,
 		sphereChainsSpawned = self.sphereChainsSpawned,
-		maxChain = self.maxChain,
-		maxCombo = self.maxCombo,
+		maxCascade = self.maxCascade,
+		maxStreak = self.maxStreak,
 		time = self.time,
 		shooter = self.shooter:serialize(),
 		shotSpheres = {},
 		collectibles = {},
 		projectiles = {},
-		combo = self.combo,
+		streak = self.streak,
 		collectibleRains = {},
 		projectileStorms = {},
 		netTime = self.netTime,
@@ -1708,9 +1708,9 @@ function Level:deserialize(t)
 	self.spheresShot = t.spheresShot
 	self.successfulShots = t.successfulShots
 	self.sphereChainsSpawned = t.sphereChainsSpawned
-	self.maxChain = t.maxChain
-	self.maxCombo = t.maxCombo
-	self.combo = t.combo
+	self.maxCascade = t.maxCascade
+	self.maxStreak = t.maxStreak
+	self.streak = t.streak
 	self.destroyedSpheres = t.destroyedSpheres
 	self.time = t.time
 	self.lost = t.lost

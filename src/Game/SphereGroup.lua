@@ -51,7 +51,7 @@ function SphereGroup:update(dt)
 
 	self.speedDesired = self.sphereChain.speedOverrideBase + speedBound * self.sphereChain.speedOverrideMult
 	if self:isMagnetizing() and not self:hasImmobileSpheres() then
-		self.maxSpeed = self.config.attractionSpeedBase + self.config.attractionSpeedMult * math.max(self.sphereChain.combo, 1)
+		self.maxSpeed = self.config.attractionSpeedBase + self.config.attractionSpeedMult * math.max(self:getCascade(), 1)
 	else
 		self.maxSpeed = 0
 		self.matchCheck = true
@@ -488,7 +488,7 @@ function SphereGroup:join()
 			-- Reverse powerup in OG Luxor works a bit wonky.
 			self.prevGroup.speed = self.speed
 		else
-			self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self.sphereChain.combo, 1)
+			self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self:getCascade(), 1)
 		end
 		self.prevGroup.speedTime = self.config.knockbackTime
 	end
@@ -608,7 +608,10 @@ end
 
 
 
-function SphereGroup:shouldBoostCombo(position)
+---Returns `true` if the sphere at the given position in this group will match - the streak combo should not be reset and the sphere should be marked as streak-boosting.
+---@param position integer The sphere index in this sphere group.
+---@return boolean
+function SphereGroup:shouldBoostStreak(position)
 	return self:getMatchLengthInChain(position) >= 3
 end
 
@@ -642,13 +645,13 @@ end
 function SphereGroup:matchAndDelete(position)
 	local position1, position2 = self:getMatchBounds(position)
 
-	local boostCombo = false
+	local boostStreak = false
 	-- abort if any sphere from the given ones has not joined yet and see if we have to boost the combo
 	for i = position1, position2 do
 		if not self.spheres[i]:isReadyForMatching() then
 			return
 		end
-		boostCombo = boostCombo or self.spheres[i].boostCombo
+		boostStreak = boostStreak or self.spheres[i].boostStreak
 	end
 
 	-- First, check if any of the matched spheres do have the match effect already.
@@ -710,15 +713,15 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	local prevSphere = self.spheres[position1 - 1]
 	local nextSphere = self.spheres[position2 + 1]
 
-	local boostCombo = false
+	local boostStreak = false
 	-- Abort if any sphere from the given ones has not joined yet and see if we have to boost the combo.
 	for i, sphere in ipairs(spheres) do
 		if not sphere:isReadyForMatching() then
 			return
 		end
-		boostCombo = boostCombo or sphere.boostCombo
+		boostStreak = boostStreak or sphere.boostStreak
 	end
-	boostCombo = boostCombo and effectConfig.canBoostCombo
+	boostStreak = boostStreak and effectConfig.canBoostStreak
 
 	-- Retrieve and simplify a list of gaps. Only the cause sphere is checked.
 	local gaps = self.spheres[position].gaps
@@ -763,18 +766,18 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	end
 
 	-- Boost chain and combo values.
-	if effectConfig.canBoostChain then
-		self.sphereChain.combo = self.sphereChain.combo + 1
+	if effectConfig.canBoostCascade then
+		self:incrementCascade()
 	end
-	if boostCombo then
-		self.map.level.combo = self.map.level.combo + 1
+	if boostStreak then
+		self:incrementStreak()
 	end
 
 	-- Spawn collectibles, play sounds, add score, etc.
 	_Vars:set("match.length", length)
-	_Vars:set("match.streak", self.map.level.combo)
-	_Vars:set("match.streakBoost", boostCombo)
-	_Vars:set("match.cascade", self.sphereChain.combo)
+	_Vars:set("match.streak", self:getStreak())
+	_Vars:set("match.streakBoost", boostStreak)
+	_Vars:set("match.cascade", self:getCascade())
 	_Vars:set("match.gapCount", #gaps)
 	_Vars:set("match.color", color)
 	_Vars:set("match.destroyedFragileSpheres", destroyedFragileSpheres)
@@ -791,7 +794,7 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	-- Execute a score event.
 	if effectConfig.destroyScoreEvent then
 		local score = self.map.level:executeScoreEvent(effectConfig.destroyScoreEvent, pos)
-		self.sphereChain.comboScore = self.sphereChain.comboScore + score
+		self:addToCascadeScore(score)
 	end
 	-- Spawn any collectibles if applicable.
 	if effectConfig.destroyCollectible then
@@ -804,10 +807,6 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 		end
 	end
 	_Vars:unset("match")
-
-	-- Update max combo and max chain stats.
-	self.map.level.maxCombo = math.max(self.map.level.combo, self.map.level.maxCombo)
-	self.map.level.maxChain = math.max(self.sphereChain.combo, self.map.level.maxChain)
 end
 
 
@@ -853,6 +852,56 @@ function SphereGroup:isMagnetizing()
 
 
 	return byColor or byScarab
+end
+
+
+
+---Increments the cascade combo value of either this group's Sphere Train or Path, depending on the behavior.
+---Also, updates the cascade combo record for this level if appropriate.
+function SphereGroup:incrementCascade()
+	if self.config.cascadeScope == "chain" then
+		self.sphereChain.cascade = self.sphereChain.cascade + 1
+		self.map.level.maxCascade = math.max(self.sphereChain.cascade, self.map.level.maxCascade)
+	elseif self.config.cascadeScope == "path" then
+		self.sphereChain.path.cascade = self.sphereChain.path.cascade + 1
+		self.map.level.maxCascade = math.max(self.sphereChain.path.cascade, self.map.level.maxCascade)
+	end
+end
+
+---Returns the cascade combo value of either this group's Sphere Train or Path, depending on the behavior.
+---@return integer
+function SphereGroup:getCascade()
+	if self.config.cascadeScope == "chain" then
+		return self.sphereChain.cascade
+	elseif self.config.cascadeScope == "path" then
+		return self.sphereChain.path.cascade
+	end
+	return 1
+end
+
+---Adds the provided amount of points to the currently ongoing cascade combo's score.
+---@param score integer The score to be added.
+function SphereGroup:addToCascadeScore(score)
+	if self.config.cascadeScope == "chain" then
+		self.sphereChain.cascadeScore = self.sphereChain.cascadeScore + score
+	elseif self.config.cascadeScope == "path" then
+		self.sphereChain.path.cascadeScore = self.sphereChain.path.cascadeScore + score
+	end
+end
+
+
+
+---Increments the streak combo value for this group's level.
+---Also, updates the streak combo record for this level if appropriate.
+function SphereGroup:incrementStreak()
+	self.map.level.streak = self.map.level.streak + 1
+	self.map.level.maxStreak = math.max(self.map.level.streak, self.map.level.maxStreak)
+end
+
+---Returns the streak combo value for this group's level.
+---@return integer
+function SphereGroup:getStreak()
+	return self.map.level.streak
 end
 
 
@@ -1024,7 +1073,7 @@ end
 
 
 function SphereGroup:getMatchLengthInChain(position)
-	-- special seek for a shouldBoostCombo function
+	-- special seek for a shouldBoostStreak function
 	local position1 = position
 	local position2 = position
 	-- seek backwards
@@ -1268,9 +1317,9 @@ end
 
 
 
-function SphereGroup:hasKeepComboSpheres()
+function SphereGroup:hasKeepCascadeSpheres()
 	for i, sphere in ipairs(self.spheres) do
-		if sphere:canKeepCombo() then
+		if sphere:canKeepCascade() then
 			return true
 		end
 	end

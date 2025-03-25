@@ -211,6 +211,20 @@
                     "description": "If true, the spheres will match instantly when they can match. If the match effect has a delay, the sphere will be attached to the nearest sphere and will match after the specified period of time.",
                     "markdownDescription": "If `true`, the spheres will match instantly when they can match. If the match effect has a delay, the sphere will be attached to the nearest sphere and will match after the specified period of time."
                 },
+                "cascadeScope": {
+                    "type": "string",
+                    "description": "Defines the scope of cascade combos.",
+                    "oneOf": [
+                        {
+                            "const": "chain",
+                            "description": "Each Sphere Chain has its own cascade combo value, shared across all of their Sphere Groups."
+                        },
+                        {
+                            "const": "path",
+                            "description": "Each Path has its own cascade combo value, shared across all of their Sphere Chains and Sphere Groups."
+                        }
+                    ]
+                },
                 "distanceEvents": {
                     "type": "array",
                     "description": "Specifies any number of Distance Events (Game Events which will happen whenever any Sphere Group moves through a certain point).",
