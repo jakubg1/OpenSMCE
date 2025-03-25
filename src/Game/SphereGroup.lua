@@ -861,10 +861,13 @@ end
 function SphereGroup:incrementCascade()
 	if self.config.cascadeScope == "chain" then
 		self.sphereChain.cascade = self.sphereChain.cascade + 1
-		self.map.level.maxCascade = math.max(self.sphereChain.cascade, self.map.level.maxCascade)
+		self.map.level.maxCascade = math.max(self.map.level.maxCascade, self.sphereChain.cascade)
 	elseif self.config.cascadeScope == "path" then
 		self.sphereChain.path.cascade = self.sphereChain.path.cascade + 1
-		self.map.level.maxCascade = math.max(self.sphereChain.path.cascade, self.map.level.maxCascade)
+		self.map.level.maxCascade = math.max(self.map.level.maxCascade, self.sphereChain.path.cascade)
+	elseif self.config.cascadeScope == "level" then
+		self.map.level.cascade = self.map.level.cascade + 1
+		self.map.level.maxCascade = math.max(self.map.level.maxCascade, self.map.level.cascade)
 	end
 end
 
@@ -875,6 +878,8 @@ function SphereGroup:getCascade()
 		return self.sphereChain.cascade
 	elseif self.config.cascadeScope == "path" then
 		return self.sphereChain.path.cascade
+	elseif self.config.cascadeScope == "level" then
+		return self.map.level.cascade
 	end
 	return 1
 end
@@ -886,6 +891,8 @@ function SphereGroup:addToCascadeScore(score)
 		self.sphereChain.cascadeScore = self.sphereChain.cascadeScore + score
 	elseif self.config.cascadeScope == "path" then
 		self.sphereChain.path.cascadeScore = self.sphereChain.path.cascadeScore + score
+	elseif self.config.cascadeScope == "level" then
+		self.map.level.cascadeScore = self.map.level.cascadeScore + score
 	end
 end
 

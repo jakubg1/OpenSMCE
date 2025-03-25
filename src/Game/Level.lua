@@ -327,6 +327,11 @@ function Level:updateLogic(dt)
 		end
 	end
 
+	-- Reset the cascade combo if necessary.
+	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "level" and not self:isMatchPredicted() then
+		self:endCascade()
+	end
+
 	-- Objectives
 	self:updateObjectives()
 end
@@ -862,6 +867,35 @@ end
 
 
 
+---Returns `true` if at least one of the Paths in this Level has a predicted match.
+---@return boolean
+function Level:isMatchPredicted()
+	for i, path in ipairs(self.map.paths) do
+		if path:isMatchPredicted() then
+			return true
+		end
+	end
+	return false
+end
+
+
+
+---Resets the cascade combo value for this Level to 0 and emits a `cascadeEnded` UI callback if the values were greater than 0.
+function Level:endCascade()
+	if self.cascade == 0 and self.cascadeScore == 0 then
+		return
+	end
+	--_Debug.console:print("level " .. self.cascadeScore)
+	_Game.uiManager:executeCallback({
+		name = "cascadeEnded",
+		parameters = {self.cascade, self.cascadeScore}
+	})
+	self.cascade = 0
+	self.cascadeScore = 0
+end
+
+
+
 ---Returns `true` if there are any shot spheres in this level, `false` otherwise.
 ---@return boolean
 function Level:hasShotSpheres()
@@ -1082,6 +1116,8 @@ function Level:reset()
 	self.coins = 0
 	self.gems = 0
 	self.streak = 0
+	self.cascade = 0
+	self.cascadeScore = 0
 	self.destroyedSpheres = 0
 	self.time = 0
 
@@ -1643,14 +1679,16 @@ function Level:serialize()
 		spheresShot = self.spheresShot,
 		successfulShots = self.successfulShots,
 		sphereChainsSpawned = self.sphereChainsSpawned,
-		maxCascade = self.maxCascade,
-		maxStreak = self.maxStreak,
 		time = self.time,
 		shooter = self.shooter:serialize(),
 		shotSpheres = {},
 		collectibles = {},
 		projectiles = {},
 		streak = self.streak,
+		maxStreak = self.maxStreak,
+		cascade = self.cascade,
+		cascadeScore = self.cascadeScore,
+		maxCascade = self.maxCascade,
 		collectibleRains = {},
 		projectileStorms = {},
 		netTime = self.netTime,
@@ -1708,9 +1746,11 @@ function Level:deserialize(t)
 	self.spheresShot = t.spheresShot
 	self.successfulShots = t.successfulShots
 	self.sphereChainsSpawned = t.sphereChainsSpawned
-	self.maxCascade = t.maxCascade
-	self.maxStreak = t.maxStreak
 	self.streak = t.streak
+	self.maxStreak = t.maxStreak
+	self.cascade = t.cascade
+	self.cascadeScore = t.cascadeScore
+	self.maxCascade = t.maxCascade
 	self.destroyedSpheres = t.destroyedSpheres
 	self.time = t.time
 	self.lost = t.lost

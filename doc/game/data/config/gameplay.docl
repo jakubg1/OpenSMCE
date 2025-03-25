@@ -36,6 +36,7 @@
         - cascadeScope* = "chain" (string) - Defines the scope of cascade combos.
             - "chain" - Each Sphere Chain has its own cascade combo value, shared across all of their Sphere Groups.
             - "path" - Each Path has its own cascade combo value, shared across all of their Sphere Chains and Sphere Groups.
+            - "level" - The cascade combo value is globalized and there is one counter for the entire level.
         - distanceEvents* (array) - Specifies any number of Distance Events (Game Events which will happen whenever any Sphere Group moves through a certain point).
             - (object) - A single Distance Event.
                 - reference (string) - The reference point of the Sphere Group to be checked.

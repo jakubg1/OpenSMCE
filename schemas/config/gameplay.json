@@ -222,6 +222,10 @@
                         {
                             "const": "path",
                             "description": "Each Path has its own cascade combo value, shared across all of their Sphere Chains and Sphere Groups."
+                        },
+                        {
+                            "const": "level",
+                            "description": "The cascade combo value is globalized and there is one counter for the entire level."
                         }
                     ]
                 },
