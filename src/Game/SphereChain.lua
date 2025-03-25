@@ -73,8 +73,11 @@ function SphereChain:new(path, deserializationTable)
 					if lastKey then
 						_Utils.iTableRemoveValue(pool, lastKey)
 					end
-					assert(#pool > 0, "Level error: Could not generate the train because there are insufficient colors to ensure duplicates don't happen!")
-					local key = pool[math.random(#pool)]
+					local key = #pool > 0 and pool[math.random(#pool)] or lastKey
+					assert(key, "Level error: Pool is empty!")
+					-- For #pool == 0:
+					-- This shouldn't happen, but we will not allow the game to crash and we will let duplicate colors slip in.
+					-- This is actually a hard problem to solve!
 					self.generationPreset = self.generationPreset .. key:rep(block.size)
 					lastKey = key
 				end
