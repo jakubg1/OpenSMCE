@@ -42,8 +42,11 @@ function ExpressionVariables:get(name, default)
     if self.variableProviderCacheIndices[name] then
         return self.variableProviderCache[name]
     end
-    local providers = _Game.resourceManager:getVariableProvidersConfig("config/variable_providers.json").providers
-    if providers[name] then
+    local providers = nil
+    pcall(function()
+        providers = _Game.resourceManager:getVariableProvidersConfig("config/variable_providers.json").providers
+    end)
+    if providers and providers[name] then
         local value = self:evaluateVariableProvider(providers[name])
         if providers[name].framePersistence then
             self.variableProviderCache[name] = value
