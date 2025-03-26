@@ -10,10 +10,6 @@ If otherwise, [feel free to submit a bug report](https://github.com/jakubg1/Open
 ### Plans
 The ongoing plan is to keep releasing Beta 4.x versions, which will contain new functionalities.
 
-Some of the features planned for Beta 4.9.0 include:
-- Life system config (https://github.com/jakubg1/OpenSMCE/issues/105)
-- ...?
-
 Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished (https://github.com/jakubg1/OpenSMCE/issues/70, https://github.com/jakubg1/OpenSMCE/issues/112). This includes both a reference manual and JSON schemas.
 
 For more information on how the documentation works, you can look at the [article on how the generation pipeline works and the syntax of .docl files.](https://github.com/jakubg1/OpenSMCE/wiki/The-Doc-Language)
