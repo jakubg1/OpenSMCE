@@ -3,6 +3,8 @@
         - (object) {type: The operation type.} - A single operation.
             - "add" - Adds all spheres which match the condition to the list.
                 - condition ($boolean) - The condition expression, which is evaluated for each sphere separately. Must evaluate to `true` in order for a sphere to be added to the list.
+            - "addOne" - Adds the provided sphere from an Expression.
+                - sphere ($string) - The sphere which should be added. Variable Providers can provide values which can be accepted by this field.
             - "select" - Selects some spheres out of the list of spheres currently selected.
                 - percentage (number) [>=0,<=1] - The percentage of spheres which will be selected at random. This is not a chance per sphere!
                 - round* (string) = "down" - The rounding method.

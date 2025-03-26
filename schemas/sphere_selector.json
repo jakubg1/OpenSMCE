@@ -14,6 +14,7 @@
                     "type": {
                         "enum": [
                             "add",
+                            "addOne",
                             "select"
                         ]
                     }
@@ -49,6 +50,32 @@
                             },
                             "required": [
                                 "condition"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "addOne",
+                                    "description": "Adds the provided sphere from an Expression."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "sphere": {
+                                    "$ref": "_structures/ExprString.json",
+                                    "description": "The sphere which should be added. Variable Providers can provide values which can be accepted by this field."
+                                }
+                            },
+                            "required": [
+                                "sphere"
                             ],
                             "additionalProperties": false
                         }

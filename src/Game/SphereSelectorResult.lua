@@ -23,6 +23,7 @@ function SphereSelectorResult:new(config, pos)
 	self.pos = pos
 
 	self.spheres = {}
+	-- TODO: Trigger evaluation for all spheres only when necessary. The `:hasSphere()` function does not need full information.
 	for i, operation in ipairs(config.operations) do
 		if operation.type == "add" then
 			for j, path in ipairs(_Game.level.map.paths) do
@@ -41,6 +42,9 @@ function SphereSelectorResult:new(config, pos)
 					end
 				end
 			end
+		elseif operation.type == "addOne" then
+			local sphere = operation.sphere:evaluate()
+			table.insert(self.spheres, {sphere = sphere, sphereGroup = sphere.sphereGroup, sphereIndex = sphere.sphereGroup:getSphereID(sphere)})
 		elseif operation.type == "select" then
 			local amount = #self.spheres * operation.percentage
 			if operation.round == "down" then
