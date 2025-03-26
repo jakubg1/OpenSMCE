@@ -35,7 +35,7 @@ function SphereSelectorResult:new(config, pos)
 							local sphere = sphereGroup.spheres[m]
 							sphere:dumpVariables("sphere", self.pos)
 							if sphere.color ~= 0 and operation.condition:evaluate() then
-								table.insert(self.spheres, {sphere = sphere, sphereGroup = sphereGroup, sphereIndex = m})
+								table.insert(self.spheres, sphere)
 							end
 							_Vars:unset("sphere")
 						end
@@ -44,7 +44,7 @@ function SphereSelectorResult:new(config, pos)
 			end
 		elseif operation.type == "addOne" then
 			local sphere = operation.sphere:evaluate()
-			table.insert(self.spheres, {sphere = sphere, sphereGroup = sphere.sphereGroup, sphereIndex = sphere.sphereGroup:getSphereID(sphere)})
+			table.insert(self.spheres, sphere)
 		elseif operation.type == "select" then
 			local amount = #self.spheres * operation.percentage
 			if operation.round == "down" then
@@ -78,7 +78,7 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 			local minPos, maxPos
 			-- The event position will be calculated by taking the center of the smallest box surrounding all spheres.
 			for i, sphere in ipairs(self.spheres) do
-				local spherePos = sphere.sphere:getPos()
+				local spherePos = sphere:getPos()
 				minPos = minPos and minPos:min(spherePos) or spherePos
 				maxPos = maxPos and maxPos:max(spherePos) or spherePos
 			end
@@ -90,15 +90,15 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 		_Game:executeGameEvent(gameEvent)
 	end
 	for i, sphere in ipairs(self.spheres) do
-		sphere.sphere:dumpVariables("sphere", self.pos)
+		sphere:dumpVariables("sphere", self.pos)
 		if scoreEventPerSphere then
-			_Game.level:executeScoreEvent(scoreEventPerSphere, sphere.sphere:getPos())
+			_Game.level:executeScoreEvent(scoreEventPerSphere, sphere:getPos())
 		end
 		if gameEventPerSphere then
 			_Game:executeGameEvent(gameEventPerSphere)
 		end
 		_Vars:unset("sphere")
-		sphere.sphereGroup:destroySphere(sphere.sphereIndex)
+		sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
 	end
 	_Vars:unset("selector")
 end
@@ -110,7 +110,7 @@ end
 ---@param particle table? The particle effect to be used for each affected sphere.
 function SphereSelectorResult:changeColor(color, particle)
 	for i, sphere in ipairs(self.spheres) do
-		sphere.sphere:changeColor(color, particle)
+		sphere:changeColor(color, particle)
 	end
 end
 
@@ -120,7 +120,7 @@ end
 ---@param effect string The path to the Sphere Effect to be applied.
 function SphereSelectorResult:applyEffect(effect)
 	for i, sphere in ipairs(self.spheres) do
-		sphere.sphere:applyEffect(effect)
+		sphere:applyEffect(effect)
 	end
 end
 
@@ -139,7 +139,7 @@ end
 function SphereSelectorResult:countColors()
 	local result = {}
 	for i, sphere in ipairs(self.spheres) do
-		local color = sphere.sphere.color
+		local color = sphere.color
 		if not result[color] then
 			result[color] = 1
 		else
@@ -155,12 +155,7 @@ end
 ---@param sphere Sphere The sphere to be searched for.
 ---@return boolean
 function SphereSelectorResult:hasSphere(sphere)
-	for i, s in ipairs(self.spheres) do
-		if s.sphere == sphere then
-			return true
-		end
-	end
-	return false
+	return _Utils.isValueInTable(self.spheres, sphere)
 end
 
 
