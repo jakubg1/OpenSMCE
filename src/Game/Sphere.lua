@@ -646,11 +646,10 @@ end
 
 
 ---Draws this Sphere.
----@param color integer Only if this sphere has this given color, the sphere will be drawn.
 ---@param hidden boolean Filter the drawing routine only to hidden or not hidden spheres.
 ---@param shadow boolean If `true`, the shadow sprite will be rendered, else, the main entity.
-function Sphere:draw(color, hidden, shadow)
-	if not self.entity or self.color ~= color or self:getHidden() ~= hidden then
+function Sphere:draw(hidden, shadow)
+	if not self.entity or self:getHidden() ~= hidden then
 		return
 	end
 

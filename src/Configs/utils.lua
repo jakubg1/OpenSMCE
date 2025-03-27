@@ -14,6 +14,7 @@ local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 local SphereConfig = require("src.Configs.Sphere")
 local SphereEffectConfig = require("src.Configs.SphereEffect")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
+local SpriteAtlasConfig = require("src.Configs.SpriteAtlas")
 local VariableProvidersConfig = require("src.Configs.VariableProviders")
 
 local utils = {}
@@ -398,6 +399,16 @@ end
 ---@return SphereSelectorConfig?
 function utils.parseSphereSelectorConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Sphere Selector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
+end
+
+---@return SpriteAtlasConfig
+function utils.parseSpriteAtlasConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Sprite Atlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
+end
+
+---@return SpriteAtlasConfig?
+function utils.parseSpriteAtlasConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Sprite Atlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
 end
 
 ---@return VariableProvidersConfig

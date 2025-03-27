@@ -915,13 +915,12 @@ end
 
 
 
-function SphereGroup:draw(color, hidden, shadow)
-	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
+function SphereGroup:draw(hidden, shadow)
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	-- shadow: to make all shadows rendered before spheres
 	--love.graphics.print(self:getDebugText2(), 10, 10 * #self.spheres)
 	for i, sphere in ipairs(self.spheres) do
-		sphere:draw(color, hidden, shadow)
+		sphere:draw(hidden, shadow)
 	end
 	if _Debug.gameDebugVisible then
 		self:drawDebug()

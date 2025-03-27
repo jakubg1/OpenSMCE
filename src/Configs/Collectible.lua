@@ -45,7 +45,7 @@ function CollectibleConfig.inject(ResourceManager)
     ---@param path string The resource path.
     ---@return CollectibleConfig
     function ResourceManager:getCollectibleConfig(path)
-        return self:getAsset(path, "collectible")
+        return self:getResourceConfig(path, "collectible")
     end
 end
 

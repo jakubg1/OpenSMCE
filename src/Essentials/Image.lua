@@ -1,14 +1,14 @@
 local class = require "com.class"
 
 ---@class Image
----@overload fun(data, path, namespace, batches):Image
+---@overload fun(data, path):Image
 local Image = class:derive("Image")
 
 local Vec2 = require("src.Essentials.Vector2")
 
 
 
-function Image:new(data, path, namespace, batches)
+function Image:new(data, path)
 	self.path = path
 
 	self.img = _Utils.loadImage(_ParsePath(path))

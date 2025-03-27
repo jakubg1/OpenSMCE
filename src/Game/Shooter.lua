@@ -646,7 +646,7 @@ function Shooter:drawSpeedShotBeam()
     for i = 1, self:getSphereCount() do
         local startPos = self:getSpherePos(i)
         local targetPos = self:getTargetPosForSphere(i)
-        local maxDistance = self.config.speedShotBeam.sprite.size.y
+        local maxDistance = self.config.speedShotBeam.sprite.imageSize.y
         local distance = math.min(targetPos and (startPos - targetPos):len() or maxDistance, maxDistance)
         local distanceUnit = distance / maxDistance
         local scale = Vec2(1)
@@ -656,10 +656,10 @@ function Shooter:drawSpeedShotBeam()
         elseif self.config.speedShotBeam.renderingType == "cut" then
             -- if we need to cut the beam
             -- make a polygon: determine all four corners first
-            local p1 = startPos + Vec2(-self.config.speedShotBeam.sprite.size.x / 2, -distance):rotate(self.angle)
-            local p2 = startPos + Vec2(self.config.speedShotBeam.sprite.size.x / 2, -distance):rotate(self.angle)
-            local p3 = startPos + Vec2(self.config.speedShotBeam.sprite.size.x / 2, 16):rotate(self.angle)
-            local p4 = startPos + Vec2(-self.config.speedShotBeam.sprite.size.x / 2, 16):rotate(self.angle)
+            local p1 = startPos + Vec2(-self.config.speedShotBeam.sprite.imageSize.x / 2, -distance):rotate(self.angle)
+            local p2 = startPos + Vec2(self.config.speedShotBeam.sprite.imageSize.x / 2, -distance):rotate(self.angle)
+            local p3 = startPos + Vec2(self.config.speedShotBeam.sprite.imageSize.x / 2, 16):rotate(self.angle)
+            local p4 = startPos + Vec2(-self.config.speedShotBeam.sprite.imageSize.x / 2, 16):rotate(self.angle)
             -- mark all pixels within the polygon with value of 1
             love.graphics.stencil(function()
                 love.graphics.setColor(1, 1, 1)
@@ -714,7 +714,7 @@ function Shooter:drawReticle()
         if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
             if retConfig.radiusSprite then
                 local locationX, locationY = targetPos.x + (retConfig.offset.x or 0), targetPos.y + (retConfig.offset.y or 0)
-                local scaleX, scaleY = sphereConfig.hitBehavior.range * 2 / retConfig.radiusSprite.size.x, sphereConfig.hitBehavior.range * 2 / retConfig.radiusSprite.size.y
+                local scaleX, scaleY = sphereConfig.hitBehavior.range * 2 / retConfig.radiusSprite.imageSize.x, sphereConfig.hitBehavior.range * 2 / retConfig.radiusSprite.imageSize.y
                 retConfig.radiusSprite:draw(locationX, locationY, 0.5, 0.5, nil, nil, nil, color, nil, scaleX, scaleY)
             else
                 --love.graphics.setColor(1, 0, 0)

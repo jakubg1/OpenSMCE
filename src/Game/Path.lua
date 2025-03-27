@@ -393,14 +393,12 @@ end
 
 
 ---Draws spheres on this Path.
----@param color integer Only spheres with this ID will be drawn.
 ---@param hidden boolean Whether to draw spheres in the hidden pass.
 ---@param shadow boolean If `true`, the shadows will be drawn. Else, the actual sprites.
-function Path:drawSpheres(color, hidden, shadow)
-	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
+function Path:drawSpheres(hidden, shadow)
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	for i, sphereChain in pairs(self.sphereChains) do
-		sphereChain:draw(color, hidden, shadow)
+		sphereChain:draw(hidden, shadow)
 	end
 end
 
@@ -422,7 +420,7 @@ end
 
 
 
----Debug stuff.
+---Draws a light blue line of the path, with highlighted nodes.
 function Path:drawDebug()
 	-- todo: make the mouse position global
 	--local mx, my = love.mouse.getPosition()
@@ -434,7 +432,9 @@ function Path:drawDebug()
 		--if mx > node.pos.x - 4 and mx < node.pos.x + 4 and my > node.pos.y - 4 and my < node.pos.y + 4 then
 		--	love.graphics.print(tostring(node.angle), node.pos.x + 8, node.pos.y)
 		--end
-		if i > 1 then love.graphics.line(self.nodes[i - 1].pos.x, self.nodes[i - 1].pos.y, node.pos.x, node.pos.y) end
+		if i > 1 then
+			love.graphics.line(self.nodes[i - 1].pos.x, self.nodes[i - 1].pos.y, node.pos.x, node.pos.y)
+		end
 	end
 end
 

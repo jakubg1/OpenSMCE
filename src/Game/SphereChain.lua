@@ -506,13 +506,14 @@ end
 
 
 
-function SphereChain:draw(color, hidden, shadow)
-	-- color: draw only spheres with a given color - this will enable batching and will reduce drawing time significantly
+function SphereChain:draw(hidden, shadow)
 	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
 	-- shadow: to make all shadows rendered before spheres
 	--love.graphics.print(self:getDebugText(), 10, 10)
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue then sphereGroup:draw(color, hidden, shadow) end
+		if not sphereGroup.delQueue then
+			sphereGroup:draw(hidden, shadow)
+		end
 	end
 	--local pos = self.path:getPos(self.sphereGroups[1]:getLastSphereOffset())
 	--love.graphics.circle("fill", pos.x, pos.y, 8)
@@ -521,7 +522,11 @@ function SphereChain:draw(color, hidden, shadow)
 end
 
 function SphereChain:getSphereGroupID(sphereGroup)
-	for i, sphereGroupT in pairs(self.sphereGroups) do if sphereGroupT == sphereGroup then return i end end
+	for i, sphereGroupT in pairs(self.sphereGroups) do
+		if sphereGroupT == sphereGroup then
+			return i
+		end
+	end
 	return "ERROR"
 end
 

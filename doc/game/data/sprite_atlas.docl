@@ -1,0 +1,3 @@
+- (object) - The root object.
+    - sprites (array) - The list of Sprites which should be included in this Sprite Atlas.
+        - (Sprite) - A single sprite.

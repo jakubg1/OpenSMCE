@@ -7,6 +7,7 @@ local ResourceManager = class:derive("ResourceManager")
 
 local Image = require("src.Essentials.Image")
 local Sprite = require("src.Essentials.Sprite")
+local SpriteAtlas = require("src.Essentials.SpriteAtlas")
 local Sound = require("src.Essentials.Sound")
 local SoundEvent = require("src.Essentials.SoundEvent")
 local Music = require("src.Essentials.Music")
@@ -28,6 +29,8 @@ local ShooterMovementConfig = require("src.Configs.ShooterMovement")
 local SphereConfig = require("src.Configs.Sphere")
 local SphereEffectConfig = require("src.Configs.SphereEffect")
 local SphereSelectorConfig = require("src.Configs.SphereSelector")
+local SpriteConfig = require("src.Configs.Sprite")
+local SpriteAtlasConfig = require("src.Configs.SpriteAtlas")
 local VariableProvidersConfig = require("src.Configs.VariableProviders")
 
 
@@ -35,12 +38,13 @@ local VariableProvidersConfig = require("src.Configs.VariableProviders")
 ---Constructs a Resource Manager.
 function ResourceManager:new()
 	-- Resources are stored as the following objects:
-	-- `{type = "image", asset = <love2d image>, batches = {"map2"}}`
+	-- `{type = "sprite", config = <SpriteConfig instance>, asset = <Sprite instance>, batches = {"map2"}}`
 	-- - `type` is one of the `RESOURCE_TYPES` below.
-	-- - `asset` holds the resource itself, if it's `nil` then the resource is just queued for loading and it's not loaded yet
+	-- - `config` holds the resource config. Optional.
+	-- - `asset` holds the resource itself. Optional, only if the resources are singletons and are not creatable from elsewhere (like Sprites, Sprite Atlases, Music etc.).
 	-- - `batches` is a list of resource batches this resource was loaded as, once all of them are unloaded, this entry is deleted; can be `nil` to omit that feature for global resources
 	--
-	-- Keys are absolute paths starting from the root game directory. Use `ResourceManager:resolvePath()` to obtain a key to this table from stuff like `":flame.json"`.
+	-- Keys are absolute paths starting from the root game directory. Use `:resolvePath()` to obtain a key to this table from stuff like `":flame.json"`.
 	-- If a resource is queued but not loaded, its entry will not exist at all.
 	self.resources = {}
 	-- A list of keys of the queued resources alongside their batches. Used to preserve the loading order.
@@ -52,15 +56,16 @@ function ResourceManager:new()
 	self.currentBatches = nil
 
 	self.RESOURCE_TYPES = {
-		image = {extension = "png", constructor = Image},
-		sprite = {extension = "json", constructor = Sprite},
-		sound = {extension = "ogg", constructor = Sound},
-		soundEvent = {extension = "json", constructor = SoundEvent},
-		music = {extension = "json", constructor = Music},
-		particle = {extension = "json", constructor = _Utils.loadJson},
-		font = {extension = "json", constructor = Font},
+		image = {extension = "png", assetConstructor = Image},
+		sprite = {extension = "json", constructor = SpriteConfig, assetConstructor = Sprite},
+		spriteAtlas = {extension = "json", constructor = SpriteAtlasConfig, assetConstructor = SpriteAtlas},
+		sound = {extension = "ogg", assetConstructor = Sound},
+		soundEvent = {extension = "json", assetConstructor = SoundEvent},
+		music = {extension = "json", assetConstructor = Music},
+		particle = {extension = "json", assetConstructor = _Utils.loadJson},
+		font = {extension = "json", assetConstructor = Font},
 		fontFile = {extension = "ttf"},
-		colorPalette = {extension = "json", constructor = ColorPalette},
+		colorPalette = {extension = "json", assetConstructor = ColorPalette},
 		collectible = {extension = "json", constructor = CollectibleConfig},
 		colorGenerator = {extension = "json"},
 		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig},
@@ -97,7 +102,6 @@ function ResourceManager:new()
 		["config/level_set.json"] = "levelSet",
 		["config/shooter.json"] = "shooter",
 		["config/shooter_movement.json"] = "shooterMovement",
-		["config/sphere.json"] = "sphere",
 		["config/variable_providers.json"] = "variableProviders",
 		["collectible.json"] = "collectible",
 		["collectible_effect.json"] = "collectibleEffect",
@@ -110,6 +114,7 @@ function ResourceManager:new()
 		["score_event.json"] = "scoreEvent",
 		["sphere.json"] = "sphere",
 		["sphere_effect.json"] = "sphereEffect",
+		["sprite_atlas.json"] = "spriteAtlas",
 		["sphere_selector.json"] = "sphereSelector"
 	}
 	self.EXTENSION_TO_RESOURCE_MAP = {
@@ -132,18 +137,18 @@ function ResourceManager:update(dt)
 	-- Update volumes globally.
 	-- TODO: This is not the place to do it!
 	for key, resource in pairs(self.resources) do
-		if resource.asset.update then
+		if resource.asset and resource.asset.update then
 			resource.asset:update(dt)
 		end
 	end
 
-	-- Load as many assets as we can within the span of a few frames
+	-- Load as many resources as we can within the span of a few frames
 	local stepLoadStart = love.timer.getTime()
 	local stepLoadEnd = 0
 	while #self.queuedResources > 0 and stepLoadEnd < 0.05 do
 		-- Load the next resource from the queue.
 		local data = self.queuedResources[1]
-		self:loadAsset(data.key, data.batches)
+		self:loadResource(data.key, data.batches)
 		table.remove(self.queuedResources, 1)
 		-- Update the timer. This will allow the loop to exit.
 		stepLoadEnd = stepLoadEnd + (love.timer.getTime() - stepLoadStart)
@@ -156,161 +161,182 @@ end
 ---@param path string The resource path.
 ---@return Image
 function ResourceManager:getImage(path)
-	return self:getAsset(path, "image")
+	return self:getResourceAsset(path, "image")
 end
 
 ---Retrieves a Sprite by a given path.
 ---@param path string The resource path.
 ---@return Sprite
 function ResourceManager:getSprite(path)
-	return self:getAsset(path, "sprite")
+	return self:getResourceAsset(path, "sprite")
+end
+
+---Retrieves a Sprite Atlas by a given path.
+---@param path string The resource path.
+---@return SpriteAtlas
+function ResourceManager:getSpriteAtlas(path)
+	return self:getResourceAsset(path, "sprite atlas")
 end
 
 ---Retrieves a Sound by a given path.
 ---@param path string The resource path.
 ---@return Sound
 function ResourceManager:getSound(path)
-	return self:getAsset(path, "sound")
+	return self:getResourceAsset(path, "sound")
 end
 
 ---Retrieves a Sound Event by a given path.
 ---@param path string The resource path.
 ---@return SoundEvent
 function ResourceManager:getSoundEvent(path)
-	return self:getAsset(path, "sound event")
+	return self:getResourceAsset(path, "sound event")
 end
 
 ---Retrieves a piece of Music by a given path.
 ---@param path string The resource path.
 ---@return Music
 function ResourceManager:getMusic(path)
-	return self:getAsset(path, "music track")
+	return self:getResourceAsset(path, "music track")
 end
 
 ---Retrieves a Particle by a given path.
 ---@param path string The resource path.
 ---@return table
 function ResourceManager:getParticle(path)
-	return self:getAsset(path, "particle")
+	return self:getResourceAsset(path, "particle")
 end
 
 ---Retrieves a Font by a given path.
 ---@param path string The resource path.
 ---@return Font
 function ResourceManager:getFont(path)
-	return self:getAsset(path, "font")
+	return self:getResourceAsset(path, "font")
 end
 
 ---Retrieves a Color Palette by a given path.
 ---@param path string The resource path.
 ---@return ColorPalette
 function ResourceManager:getColorPalette(path)
-	return self:getAsset(path, "color palette")
+	return self:getResourceAsset(path, "color palette")
 end
 
 ---Retrieves a Collectible Effect Config by a given path.
 ---@param path string The resource path.
 ---@return CollectibleEffectConfig
 function ResourceManager:getCollectibleEffectConfig(path)
-	return self:getAsset(path, "collectible effect")
+	return self:getResourceConfig(path, "collectible effect")
 end
 
 ---Retrieves a Collectible Generator Config by a given path.
 ---@param path string The resource path.
 ---@return CollectibleGeneratorConfig
 function ResourceManager:getCollectibleGeneratorConfig(path)
-	return self:getAsset(path, "collectible generator")
+	return self:getResourceConfig(path, "collectible generator")
 end
 
 ---Retrieves a Difficulty Config by a given path.
 ---@param path string The resource path.
 ---@return DifficultyConfig
 function ResourceManager:getDifficultyConfig(path)
-	return self:getAsset(path, "difficulty")
+	return self:getResourceConfig(path, "difficulty")
 end
 
 ---Retrieves a Game Event Config by a given path.
 ---@param path string The resource path.
 ---@return GameEventConfig
 function ResourceManager:getGameEventConfig(path)
-	return self:getAsset(path, "game event")
+	return self:getResourceConfig(path, "game event")
 end
 
 ---Retrieves a Level Sequence Config by a given path.
 ---@param path string The resource path.
 ---@return LevelSequenceConfig
 function ResourceManager:getLevelSequenceConfig(path)
-	return self:getAsset(path, "level sequence")
+	return self:getResourceConfig(path, "level sequence")
 end
 
 ---Retrieves a Level Set Config by a given path.
 ---@param path string The resource path.
 ---@return LevelSetConfig
 function ResourceManager:getLevelSetConfig(path)
-	return self:getAsset(path, "level set")
+	return self:getResourceConfig(path, "level set")
 end
 
 ---Retrieves a Path Entity Config by a given path.
 ---@param path string The resource path.
 ---@return PathEntityConfig
 function ResourceManager:getPathEntityConfig(path)
-	return self:getAsset(path, "path entity")
+	return self:getResourceConfig(path, "path entity")
 end
 
 ---Retrieves a Projectile Config by a given path.
 ---@param path string The resource path.
 ---@return ProjectileConfig
 function ResourceManager:getProjectileConfig(path)
-	return self:getAsset(path, "projectile")
+	return self:getResourceConfig(path, "projectile")
 end
 
 ---Retrieves a Score Event Config by a given path.
 ---@param path string The resource path.
 ---@return ScoreEventConfig
 function ResourceManager:getScoreEventConfig(path)
-	return self:getAsset(path, "score event")
+	return self:getResourceConfig(path, "score event")
 end
 
 ---Retrieves a Shooter Config by a given path.
 ---@param path string The resource path.
 ---@return ShooterConfig
 function ResourceManager:getShooterConfig(path)
-	return self:getAsset(path, "shooter")
+	return self:getResourceConfig(path, "shooter")
 end
 
 ---Retrieves a Shooter Movement Config by a given path.
 ---@param path string The resource path.
 ---@return ShooterMovementConfig
 function ResourceManager:getShooterMovementConfig(path)
-	return self:getAsset(path, "shooter movement")
+	return self:getResourceConfig(path, "shooter movement")
 end
 
 ---Retrieves a Sphere Config by a given path.
 ---@param path string The resource path.
 ---@return SphereConfig
 function ResourceManager:getSphereConfig(path)
-	return self:getAsset(path, "sphere")
+	return self:getResourceConfig(path, "sphere")
 end
 
 ---Retrieves a Sphere Effect Config by a given path.
 ---@param path string The resource path.
 ---@return SphereEffectConfig
 function ResourceManager:getSphereEffectConfig(path)
-	return self:getAsset(path, "sphere effect")
+	return self:getResourceConfig(path, "sphere effect")
 end
 
 ---Retrieves a Sphere Selector Config by a given path.
 ---@param path string The resource path.
 ---@return SphereSelectorConfig
 function ResourceManager:getSphereSelectorConfig(path)
-	return self:getAsset(path, "sphere selector")
+	return self:getResourceConfig(path, "sphere selector")
+end
+
+---Retrieves a Sprite Config by a given path.
+---@param path string The resource path.
+---@return SpriteConfig
+function ResourceManager:getSpriteConfig(path)
+	return self:getResourceConfig(path, "sprite")
+end
+
+---Retrieves a Sprite Atlas Config by a given path.
+---@param path string The resource path.
+---@return SpriteAtlasConfig
+function ResourceManager:getSpriteAtlasConfig(path)
+	return self:getResourceConfig(path, "sprite atlas")
 end
 
 ---Retrieves a Variable Providers Config by a given path.
 ---@param path string The resource path.
 ---@return VariableProvidersConfig
 function ResourceManager:getVariableProvidersConfig(path)
-	return self:getAsset(path, "variable provider list")
+	return self:getResourceConfig(path, "variable provider list")
 end
 
 
@@ -319,7 +345,7 @@ end
 ---TODO: Stop all sounds and music elsewhere. This is not the place to do it!
 function ResourceManager:unload()
 	for key, resource in pairs(self.resources) do
-		if resource.asset.stop then
+		if resource.asset and resource.asset.stop then
 			resource.asset:stop()
 		end
 	end
@@ -327,7 +353,7 @@ end
 
 
 
----Resolves and returns the entire asset path starting from the root game folder, based on the asset type.
+---Resolves and returns the entire resource path starting from the root game folder, based on the resource type.
 ---This is the key under which that resource would be stored.
 --- - For example, providing `sprites/balls/2.json` as path will return `sprites/balls/2.json`.
 --- - The colon `:` references a namespace - currently, a map folder, but this behavior may be extended in the future.
@@ -338,7 +364,7 @@ end
 ---@param path string The path to be resolved.
 ---@param namespace string? The default map namespace to be prepended when referenced.
 ---@return string
-function ResourceManager:resolveAssetPath(path, namespace)
+function ResourceManager:resolveResourcePath(path, namespace)
 	local splitPath = _Utils.strSplit(path, ":")
 	if #splitPath == 1 then
 		return path
@@ -352,13 +378,14 @@ end
 
 
 
----Queues a resource to be loaded soon, if not loaded yet. If many calls to this function are done in a quick succession, the load order will be preserved.
+---Queues a resource to be loaded soon, if not loaded yet.
+---If many calls to this function are done in a quick succession, the load order will be preserved.
 ---@param path string The path to the resource.
-function ResourceManager:queueAsset(path)
-	local key = self:resolveAssetPath(path, self.currentNamespace)
+function ResourceManager:queueResource(path)
+	local key = self:resolveResourcePath(path, self.currentNamespace)
 
 	if self.resources[key] then
-		self:updateAssetBatches(key, self.currentBatches)
+		self:updateResourceBatches(key, self.currentBatches)
 	else
 		-- Queue the resource to be loaded. Include batches if it has to be loaded with them.
 		table.insert(self.queuedResources, {key = key, batches = self.currentBatches})
@@ -374,39 +401,61 @@ end
 
 
 
----Retrieves an asset by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
+---Retrieves the resource entry by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
 ---@param path string The path to the resource.
 ---@param type string? If specified, this will be the resource type in an error message if this resource is not found.
----@return any
-function ResourceManager:getAsset(path, type)
-	local key = self:resolveAssetPath(path, self.currentNamespace)
+---@return table
+function ResourceManager:getResource(path, type)
+	local key = self:resolveResourcePath(path, self.currentNamespace)
 
 	if self.resources[key] then
-		self:updateAssetBatches(key, self.currentBatches)
+		self:updateResourceBatches(key, self.currentBatches)
 	else
-		-- Remove the asset from the queue if already queued - we're doing it for the queue.
+		-- Remove the resource from the queue if already queued - we're doing it for the queue.
 		for i, k in ipairs(self.queuedResources) do
 			if k.key == key then
 				table.remove(self.queuedResources, i)
 				break
 			end
 		end
-		self:loadAsset(key, self.currentBatches)
+		self:loadResource(key, self.currentBatches)
 	end
 	if not self.resources[key] then
 		error(string.format("[ResourceManager] Attempt to get a nonexistent %s: %s", type or "resource", path))
 	end
-	return self.resources[key].asset
+	return self.resources[key]
 end
 
 
 
----Loads the asset: opens the file, deduces its type, and if applicable, constructs a resource and registers it in the resource table.
+---Retrieves the resource asset by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
+---Internal use only; use other `get*` functions for type support.
+---@param path string The path to the resource.
+---@param type string? If specified, this will be the resource type in an error message if this resource is not found.
+---@return any
+function ResourceManager:getResourceAsset(path, type)
+	return self:getResource(path, type).asset
+end
+
+
+
+---Retrieves the resource config by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
+---Internal use only; use other `get*` functions for type support.
+---@param path string The path to the resource.
+---@param type string? If specified, this will be the resource type in an error message if this resource is not found.
+---@return any
+function ResourceManager:getResourceConfig(path, type)
+	return self:getResource(path, type).config
+end
+
+
+
+---Loads the resource (config and/or asset): opens the file, deduces its type, and if applicable, constructs a resource and registers it in the resource table.
 ---Internal use only; don't call from outside of the class!
 ---@param key string The key to the resource: a full path starting from the root game folder.
 ---@param batches table? If present, this will be the list of resource batches this resource is going to be a part of. Otherwise, this resource will stay loaded permanently.
-function ResourceManager:loadAsset(key, batches)
+function ResourceManager:loadResource(key, batches)
 	-- Mark the resource as loaded by load counters. We are doing it here so everything counts.
 	for name, loadCounter in pairs(self.loadCounters) do
 		if loadCounter.queueKeys[key] then
@@ -438,9 +487,10 @@ function ResourceManager:loadAsset(key, batches)
 		return
 	end
 
-	-- Get the constructor and construct the asset.
+	-- Get the constructor and construct the resources.
 	local constructor = self.RESOURCE_TYPES[type].constructor
-	if not constructor then
+	local assetConstructor = self.RESOURCE_TYPES[type].assetConstructor
+	if not constructor and not assetConstructor then
 		_Log:printt("ResourceManager2", "File " .. key .. " not loaded: type " .. type .. " not implemented")
 		return
 	end
@@ -459,25 +509,36 @@ function ResourceManager:loadAsset(key, batches)
 		error(string.format("Tried to load a resource twice: %s", key))
 	end
 
-	-- TODO: Condensate the parameter set to the one used by Config Classes.
-	if self.RESOURCE_TYPES[type].constructor ~= _Utils.loadJson then
+	self.resources[key] = {type = type, batches = newBatches}
+
+	if constructor then
 		-- Construct the resource and check for errors.
 		local success, result = xpcall(function() return constructor(contents, key) end, debug.traceback)
 		assert(success, string.format("Failed to load file %s: %s", key, result))
-		self.resources[key] = {asset = result, type = type, batches = newBatches}
-	else
-		self.resources[key] = {asset = constructor(_ParsePath(key)), type = type, batches = newBatches}
+		self.resources[key].config = result
+	end
+
+	if assetConstructor then
+		-- TODO: Condensate the parameter set to the one used by Config Classes.
+		if assetConstructor ~= _Utils.loadJson then
+			-- Construct the resource and check for errors.
+			local success, result = xpcall(function() return assetConstructor(self.resources[key].config or contents, key) end, debug.traceback)
+			assert(success, string.format("Failed to load file %s: %s", key, result))
+			self.resources[key].asset = result
+		else
+			self.resources[key].asset = assetConstructor(_ParsePath(key))
+		end
 	end
 	_Log:printt("ResourceManager2", key .. (newBatches and (" {" .. table.concat(newBatches, ", ") .. "}") or "") .. " OK!")
 end
 
 
 
----Updates the assigned asset batches for a given resource by adding a list of batches.
+---Updates the assigned resource batches for a given resource by adding a list of batches.
 ---Internal use only; don't call from outside of the class!
 ---@param key string The resource to be updated.
 ---@param batches table? A list of batches to be added. If not specified, the resource will be marked as permanently loaded.
-function ResourceManager:updateAssetBatches(key, batches)
+function ResourceManager:updateResourceBatches(key, batches)
 	local resource = self.resources[key]
 
 	-- If either the resource is already permanently loaded, or we call it to be permanently loaded, let it be permanently loaded.
@@ -498,7 +559,7 @@ end
 
 
 ---Sets the current namespace for the Resource Manager.
----When called, all subsequent resources loaded by `:getAsset*()` and `:queueAsset()` will use this namespace as default
+---When called, all subsequent resources loaded by `:getResource*()` and `:queueResource()` will use this namespace as default
 ---when the path specified starts with a colon, e.g. `":flame1.json"`.
 ---If `nil` is specified (or called without arguments), the current namespace is reset, and any attempt to load a resource with a path
 ---starting with a colon will crash the game.
@@ -511,8 +572,8 @@ end
 
 ---Sets the current batches for the Resource Manager.
 --- - If a table of strings is passed as an argument, these strings will be batch names under which all the subsequently loaded
----   and queued resources (by `:getAsset*()` and `:queueAsset()`) will be loaded as a part of. Unloading *all* of these
----   batches by calling `:unloadAssetBatch()` will cause the resource to be unloaded from memory.
+---   and queued resources (by `:getResource*()` and `:queueResource()`) will be loaded as a part of. Unloading *all* of these
+---   batches by calling `:unloadResourceBatch()` will cause the resource to be unloaded from memory.
 --- - If `nil` is specified (or the function is called without arguments), all subsequently loaded resources will be loaded permanently.
 ---@param batches table? A table of strings, each of which is a resource batch identifier.
 function ResourceManager:setBatches(batches)
@@ -521,10 +582,10 @@ end
 
 
 
----Unloads an asset batch by removing it from all loaded resources, if applicable.
+---Unloads a resource batch by removing it from all loaded resources, if applicable.
 ---For any Resource, if it had only that batch assigned, the resource is removed from memory.
----@param name string The asset batch name to be unloaded.
-function ResourceManager:unloadAssetBatch(name)
+---@param name string The resource batch name to be unloaded.
+function ResourceManager:unloadResourceBatch(name)
 	for key, resource in pairs(self.resources) do
 		if resource.batches then
 			for i, batch in ipairs(resource.batches) do
@@ -551,7 +612,7 @@ function ResourceManager:scanResources()
 	-- Sift through the files, save the files we're interested with in the table.
 	for i, file in ipairs(files) do
 		if not _Utils.strStartsWith(file, "maps/") and not _Utils.strStartsWith(file, "config/") and #_Utils.strSplit(file, "/") > 1 then
-			self:queueAsset(file)
+			self:queueResource(file)
 		end
 	end
 end
@@ -561,12 +622,12 @@ end
 ---Returns a list of paths to all loaded resources of a given type.
 ---@param type string One of `RESOURCE_TYPES`, of which all loaded resource paths will be returned.
 ---@return table
-function ResourceManager:getAssetList(type)
+function ResourceManager:getResourceList(type)
 	local pathList = {}
 
-	-- Iterate through all known resources. If it has an asset (is loaded) and the type matches, add it to the returned list.
+	-- Iterate through all known resources. If the type matches, add it to the returned list.
 	for key, resource in pairs(self.resources) do
-		if resource.type == type and resource.asset then
+		if resource.type == type then
 			table.insert(pathList, key)
 		end
 	end

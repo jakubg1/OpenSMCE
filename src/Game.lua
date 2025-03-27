@@ -354,8 +354,10 @@ function Game:draw()
 	--love.graphics.rectangle("fill", 0, 0, _Display:getDisplayOffsetX(), _Display.size.y)
 	--love.graphics.rectangle("fill", _Display.size.x - _Display:getDisplayOffsetX(), 0, _Display:getDisplayOffsetX(), _Display.size.y)
 
-	love.graphics.setColor(1, 1, 1)
-	--self.resourceManager:getSprite("sprites/game/ball_1.json").img:draw(0, 0)
+	-- Debug sprite atlas preview
+	--love.graphics.setColor(1, 1, 1)
+	--love.graphics.draw(self.resourceManager:getSpriteAtlas("sprite_atlases/spheres.json").canvas, 0, 0)
+
 	_Debug:profDraw2Stop()
 end
 

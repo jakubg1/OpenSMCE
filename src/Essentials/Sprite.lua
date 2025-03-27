@@ -1,24 +1,41 @@
 local class = require "com.class"
 
 ---@class Sprite
----@overload fun(data, path):Sprite
+---@overload fun(config, path):Sprite
 local Sprite = class:derive("Sprite")
 
-local SpriteConfig = require("src.Configs.Sprite")
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 
-
-
 ---Constructs a new Sprite.
----@param data table The parsed JSON data of the sprite.
+---@param config SpriteConfig The Sprite Config of this Sprite.
 ---@param path string A path to the sprite file.
-function Sprite:new(data, path)
+function Sprite:new(config, path)
+	self.config = config
 	self.path = path
-	self.config = SpriteConfig(data, path)
 
-	self.size = self.config.image.size
+	self.image = config.image.img
+	self.imageSize = config.image.size
 	---@type [{frameCount: integer, frames: [love.Quad]}]
+	self.states = {}
+	self:generateFrames(0, 0)
+end
+
+---Permanently attaches this Sprite as part of the provided Sprite Atlas.
+---This function offsets all sprite Quads to match the position of this Sprite's position on the atlas.
+---@param atlas SpriteAtlas The Sprite Atlas this Sprite will be a part of.
+---@param offsetX integer The horizontal offset of this Sprite on the Atlas texture, in pixels.
+---@param offsetY integer The vertical offset of this Sprite on the Atlas texture, in pixels.
+function Sprite:attachToAtlas(atlas, offsetX, offsetY)
+	self.image = atlas.canvas
+	self.imageSize = Vec2(atlas.canvas:getDimensions())
+	self:generateFrames(offsetX, offsetY)
+end
+
+---Generates the frame positions and sizes (`love.Quad` objects) based on this Sprite's config.
+---@param offsetX integer The horizontal offset of this Sprite if it is using an Atlas texture, in pixels.
+---@param offsetY integer The vertical offset of this Sprite if it is using an Atlas texture, in pixels.
+function Sprite:generateFrames(offsetX, offsetY)
 	self.states = {}
 	for i, state in ipairs(self.config.states) do
 		local s = {}
@@ -27,14 +44,13 @@ function Sprite:new(data, path)
 		for j = 1, state.frames.x do
 			for k = 1, state.frames.y do
 				local p = self.config.frameSize * (Vec2(j, k) - 1) + state.pos
-				s.frames[(k - 1) * state.frames.x + j] = love.graphics.newQuad(p.x, p.y, self.config.frameSize.x, self.config.frameSize.y, self.size.x, self.size.y)
+				local n = (k - 1) * state.frames.x + j
+				s.frames[n] = love.graphics.newQuad(p.x + offsetX, p.y + offsetY, self.config.frameSize.x, self.config.frameSize.y, self.imageSize.x, self.imageSize.y)
 			end
 		end
 		self.states[i] = s
 	end
 end
-
-
 
 ---Returns a `love.Quad` object for use in drawing functions.
 ---@param state integer The state ID of this sprite.
@@ -45,8 +61,6 @@ function Sprite:getFrame(state, frame)
 	return s.frames[(frame - 1) % s.frameCount + 1]
 end
 
-
-
 ---Returns the top left position of the given frame on this Sprite's image.
 ---@param state integer The state ID of this sprite.
 ---@param frame integer The frame of which the top left position will be returned.
@@ -55,8 +69,6 @@ function Sprite:getFramePos(state, frame)
 	local s = self.config.states[state]
 	return s.pos + Vec2((frame - 1) % s.frames.x, math.floor((frame - 1) / s.frames.x)) * self.config.frameSize
 end
-
-
 
 ---Draws this Sprite onto the screen.
 ---@param posX number The sprite's horizontal position.
@@ -85,9 +97,7 @@ function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha
 	posX, posY = posX - x, posY - y
 
 	love.graphics.setColor(color.r, color.g, color.b, alpha)
-	self.config.image:draw(self:getFrame(state, frame), posX, posY, rot, scaleX, scaleY)
+	love.graphics.draw(self.image, self:getFrame(state, frame), posX, posY, rot, scaleX, scaleY)
 end
-
-
 
 return Sprite

@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class ColorPalette
----@overload fun(data, path, namespace, batches):ColorPalette
+---@overload fun(data, path):ColorPalette
 local ColorPalette = class:derive("ColorPalette")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -9,7 +9,7 @@ local Color = require("src.Essentials.Color")
 
 
 
-function ColorPalette:new(data, path, namespace, batches)
+function ColorPalette:new(data, path)
 	self.path = path
 
 	self.image = _Utils.loadImageData(_ParsePath(data.image))

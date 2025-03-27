@@ -466,7 +466,7 @@ function Debug:getCommandCompletionSuggestions(command)
 			if parameter then
 				if parameter.type == "Collectible" then
 					if _Game.resourceManager then
-						suggestions = _Game.resourceManager:getAssetList("collectible")
+						suggestions = _Game.resourceManager:getResourceList("collectible")
 					end
 				end
 			end
