@@ -27,6 +27,8 @@
             - "collectibleEffect" - Activates a list of Collectible Effects without a position set.
                 - effects (array) - A list of Collectible Effects.
                     - (CollectibleEffect) - A single Collectible Effect.
+            - "executeGameEvent" - Executes a Game Event.
+                - gameEvent (GameEvent) - The Game Event to be executed.
             - "end" - The end of a level.
                 - status (string) - Can be one of the following:
                     - "win" - The level will be registered as won and a `levelComplete` UI callback will be executed.

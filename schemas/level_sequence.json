@@ -21,6 +21,7 @@
                             "fail",
                             "clearBoard",
                             "collectibleEffect",
+                            "executeGameEvent",
                             "end"
                         ]
                     }
@@ -314,6 +315,36 @@
                             },
                             "required": [
                                 "effects"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "executeGameEvent",
+                                    "description": "Executes a Game Event."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "gameEvent": {
+                                    "$ref": "_structures/GameEvent.json",
+                                    "description": "The Game Event to be executed."
+                                },
+                                "muteMusic": {
+                                    "type": "boolean",
+                                    "description": "If set, the level and danger music will not be playing while this level sequence entry is active."
+                                }
+                            },
+                            "required": [
+                                "gameEvent"
                             ],
                             "additionalProperties": false
                         }

@@ -440,12 +440,14 @@ function Level:clearTimerSeries(name)
 end
 
 ---Exposes the current state of the level to Expression Variables:
---- - Level streak: `[level.streak]`
+--- - Streak (Luxor: Combo, Zuma: Chain): `[level.streak]`
+--- - Shot accuracy: `[level.accuracy]`
 --- - Level variables: `[level.<variable>]`
 --- - Level timers: `[level.<timer>]`
 --- - Level timer series: `[level.<timerSeries>.length]`
 function Level:updateVariables()
 	_Vars:set("level.streak", self.streak)
+	_Vars:set("level.accuracy", self:getShotAccuracy())
 	for name, variable in pairs(self.variables) do
 		_Vars:set("level." .. name, variable)
 	end
@@ -982,6 +984,9 @@ function Level:jumpToSequenceStep(stepN)
 		for i, effect in ipairs(step.effects) do
 			self:applyEffect(effect)
 		end
+		self:advanceSequenceStep()
+	elseif step.type == "executeGameEvent" then
+		_Game:executeGameEvent(step.gameEvent)
 		self:advanceSequenceStep()
 	end
 end

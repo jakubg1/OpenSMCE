@@ -53,10 +53,12 @@ function LevelSequenceConfig:new(data, path)
             for j = 1, #data.sequence[i].effects do
                 self.sequence[i].effects[j] = u.parseCollectibleEffectConfig(data.sequence[i].effects[j], path, "sequence[" .. tostring(i) .. "].effects[" .. tostring(j) .. "]")
             end
+        elseif self.sequence[i].type == "executeGameEvent" then
+            self.sequence[i].gameEvent = u.parseGameEventConfig(data.sequence[i].gameEvent, path, "sequence[" .. tostring(i) .. "].gameEvent")
         elseif self.sequence[i].type == "end" then
             self.sequence[i].status = u.parseString(data.sequence[i].status, path, "sequence[" .. tostring(i) .. "].status")
         else
-            error(string.format("Unknown LevelSequenceConfig type: %s (expected \"wait\", \"waitForCollectibles\", \"uiCallback\", \"pathEntity\", \"gameplay\", \"fail\", \"clearBoard\", \"collectibleEffect\", \"end\")", self.sequence[i].type))
+            error(string.format("Unknown LevelSequenceConfig type: %s (expected \"wait\", \"waitForCollectibles\", \"uiCallback\", \"pathEntity\", \"gameplay\", \"fail\", \"clearBoard\", \"collectibleEffect\", \"executeGameEvent\", \"end\")", self.sequence[i].type))
         end
         self.sequence[i].muteMusic = u.parseBooleanOpt(data.sequence[i].muteMusic, path, "sequence[" .. tostring(i) .. "].muteMusic")
     end
