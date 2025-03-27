@@ -1490,7 +1490,7 @@ function Level:getNearestSphereOnLine(posX, posY, angle)
 
 					local x, y = _V.rotate(spherePos.x - posX, spherePos.y - posY, -angle)
 					local sphereTargetCPosX, sphereTargetCPosY = posX + x, posY + y
-					local sphereTargetY = sphereTargetCPosY + math.sqrt((sphereSize / 2) ^ 2 - (posX - sphereTargetCPosY) ^ 2)
+					local sphereTargetY = sphereTargetCPosY + math.sqrt((sphereSize / 2) ^ 2 - (posX - sphereTargetCPosX) ^ 2)
 					local x, y = _V.rotate(0, sphereTargetY - posY, angle)
 					local sphereTargetPosX, sphereTargetPosY = posX + x, posY + y
 					local sphereDistX, sphereDistY = posX - sphereTargetCPosX, posY - sphereTargetY
