@@ -27,7 +27,7 @@ function SphereEntity:new(posX, posY, color, layer)
 	self.layer = layer
 
 	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color .. ".json")
-	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, pos, layer)
+	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, Vec2(posX, posY), layer)
 end
 
 
