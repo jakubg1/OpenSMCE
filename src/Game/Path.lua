@@ -741,12 +741,14 @@ end
 
 
 ---Returns the path offset(s) at which the given line intersects this path. Only crossings with a single distinct point count.
----@param p1 Vector2 The start point of the line.
----@param p2 Vector2 The end point of the line.
+---@param p1x number The X coordinate of the start point of the line.
+---@param p1y number The Y coordinate of the start point of the line.
+---@param p2x number The X coordinate of the end point of the line.
+---@param p2y number The Y coordinate of the end point of the line.
 ---@return table
-function Path:getIntersectionPoints(p1, p2)
-	local pmin = p1:min(p2)
-	local pmax = p1:max(p2)
+function Path:getIntersectionPoints(p1x, p1y, p2x, p2y)
+	local pminX, pminY = math.min(p1x, p2x), math.min(p1y, p2y)
+	local pmaxX, pmaxY = math.max(p1x, p2x), math.max(p1y, p2y)
 	local distance = 0
 	local intersections = {}
 
@@ -756,19 +758,20 @@ function Path:getIntersectionPoints(p1, p2)
 			break
 		end
 		-- Eliminate all impossible cases for optimization.
-		local p3 = node.pos
-		local p4 = node2.pos
-		if not (math.max(p3.x, p4.x) < pmin.x or math.min(p3.x, p4.x) > pmax.x or math.max(p3.y, p4.y) < pmin.y or math.min(p3.y, p4.y) > pmax.y) then
+		local p3x, p3y = node.pos.x, node.pos.y
+		local p4x, p4y = node2.pos.x, node2.pos.y
+		if not (math.max(p3x, p4x) < pminX or math.min(p3x, p4x) > pmaxX or math.max(p3y, p4y) < pminY or math.min(p3y, p4y) > pmaxY) then
 			-- We're going to use the algorithm from https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 			-- For convenience, we will arrange and name the variables so that they match the ones described in the website above.
-			local p = p1
-			local q = p3
-			local r = p2 - p1
-			local s = p4 - p3
-			local t = (q - p):cross(s / r:cross(s))
-			local u = (q - p):cross(r / r:cross(s))
+			local px, py = p1x, p1y
+			local qx, qy = p3x, p3y
+			local rx, ry = p2x - p1x, p2y - p1y
+			local sx, sy = p4x - p3x, p4y - p3y
+			local rcs = _V.cross(rx, ry, sx, sy)
+			local t = _V.cross(qx - px, qy - py, sx / rcs, sy / rcs)
+			local u = _V.cross(qx - px, qy - py, rx / rcs, ry / rcs)
 			-- t/u < 1 instead of t/u <= 1 is intentional - this way if the line crosses a node perfectly it won't count as two intersections.
-			if r:cross(s) ~= 0 and t >= 0 and t < 1 and u >= 0 and u < 1 then
+			if rcs ~= 0 and t >= 0 and t < 1 and u >= 0 and u < 1 then
 				table.insert(intersections, distance + node.length * u)
 			end
 		end

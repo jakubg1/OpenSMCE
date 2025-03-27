@@ -1423,9 +1423,10 @@ end
 --- - `pos` (Vector2) - the position of this sphere,
 --- - `dist` (number) - the distance to this sphere,
 --- - `half` (boolean) - if `true`, this is a half pointing to the end of the path, `false` if to the beginning of said path.
----@param pos Vector2 The position to be checked against.
+---@param posX number The X coordinate of the position to be checked against.
+---@param posY number The Y coordinate of the position to be checked against.
 ---@return table
-function Level:getNearestSphere(pos)
+function Level:getNearestSphere(posX, posY)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, half = nil}
 	for i, path in ipairs(self.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
@@ -1435,9 +1436,9 @@ function Level:getNearestSphere(pos)
 					local sphereAngle = sphereGroup:getSphereAngle(l)
 					local sphereHidden = sphereGroup:getSphereHidden(l)
 
-					local sphereDist = (pos - spherePos):len()
+					local sphereDist = _V.length(posX - spherePos.x, posY - spherePos.y)
 
-					local sphereDistAngle = (pos - spherePos):angle()
+					local sphereDistAngle = _V.angle(posX - spherePos.x, posY - spherePos.y)
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
 					-- if closer than the closest for now, save it
@@ -1472,10 +1473,11 @@ end
 --- - `dist` (number) - the distance to this sphere,
 --- - `targetPos` (Vector2) - the collision position (used for i.e. drawing the reticle),
 --- - `half` (boolean) - if `true`, this is a half pointing to the end of the path, `false` if to the beginning of said path.
----@param pos Vector2 The starting position of the line of sight.
+---@param posX number The X coordinate of the starting position of the line of sight.
+---@param posY number The Y coordinate of the starting position of the line of sight.
 ---@param angle number The angle of the line. 0 is up.
 ---@return table
-function Level:getNearestSphereOnLine(pos, angle)
+function Level:getNearestSphereOnLine(posX, posY, angle)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, targetPos = nil, half = nil}
 	for i, path in ipairs(self.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
@@ -1486,24 +1488,26 @@ function Level:getNearestSphereOnLine(pos, angle)
 					local sphereAngle = sphereGroup:getSphereAngle(l)
 					local sphereHidden = sphereGroup:getSphereHidden(l)
 
-					local sphereTargetCPos = (spherePos - pos):rotate(-angle) + pos
-					local sphereTargetY = sphereTargetCPos.y + math.sqrt(math.pow(sphereSize / 2, 2) - math.pow(pos.x - sphereTargetCPos.x, 2))
-					local sphereTargetPos = (Vec2(pos.x, sphereTargetY) - pos):rotate(angle) + pos
-					local sphereDist = Vec2(pos.x - sphereTargetCPos.x, pos.y - sphereTargetY)
+					local x, y = _V.rotate(spherePos.x - posX, spherePos.y - posY, -angle)
+					local sphereTargetCPosX, sphereTargetCPosY = posX + x, posY + y
+					local sphereTargetY = sphereTargetCPosY + math.sqrt((sphereSize / 2) ^ 2 - (posX - sphereTargetCPosY) ^ 2)
+					local x, y = _V.rotate(0, sphereTargetY - posY, angle)
+					local sphereTargetPosX, sphereTargetPosY = posX + x, posY + y
+					local sphereDistX, sphereDistY = posX - sphereTargetCPosX, posY - sphereTargetY
 
-					local sphereDistAngle = (pos - spherePos):angle()
+					local sphereDistAngle = _V.angle(posX - spherePos.x, posY - spherePos.y)
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
 					-- if closer than the closest for now, save it
-					if not sphere:isGhost() and not sphereHidden and math.abs(sphereDist.x) <= sphereSize / 2 and sphereDist.y >= 0 and (not nearestData.dist or sphereDist.y < nearestData.dist.y) then
+					if not sphere:isGhost() and not sphereHidden and math.abs(sphereDistX) <= sphereSize / 2 and sphereDistY >= 0 and (not nearestData.dist or sphereDistY < nearestData.dist.y) then
 						nearestData.path = path
 						nearestData.sphereChain = sphereChain
 						nearestData.sphereGroup = sphereGroup
 						nearestData.sphereID = l
 						nearestData.sphere = sphere
 						nearestData.pos = spherePos
-						nearestData.dist = sphereDist
-						nearestData.targetPos = sphereTargetPos
+						nearestData.dist = Vec2(sphereDistX, sphereDistY)
+						nearestData.targetPos = Vec2(sphereTargetPosX, sphereTargetPosY)
 						nearestData.half = sphereHalf
 					end
 				end
@@ -1527,15 +1531,16 @@ end
 
 ---Spawns a new Shot Sphere into the level.
 ---@param shooter Shooter The shooter which has shot the sphere.
----@param pos Vector2 Where the Shot Sphere should be spawned at.
+---@param posX number The starting X coordinate of the Shot Sphere.
+---@param posY number The starting Y coordinate of the Shot Sphere.
 ---@param angle number Which direction the Shot Sphere should be moving, in radians. 0 is up.
 ---@param size number The diameter of the Shot Sphere, in pixels.
 ---@param color integer The sphere ID to be shot.
 ---@param speed number The sphere speed.
 ---@param sphereEntity SphereEntity The Sphere Entity that was attached to the Shooter from which this entity is created.
 ---@param isHoming boolean? If set, the sphere will be homing towards a specific sphere determined by `:getHomingBugsSphere()`.
-function Level:spawnShotSphere(shooter, pos, angle, size, color, speed, sphereEntity, isHoming)
-	table.insert(self.shotSpheres, ShotSphere(nil, shooter, pos, angle, size, color, speed, sphereEntity, isHoming))
+function Level:spawnShotSphere(shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming)
+	table.insert(self.shotSpheres, ShotSphere(nil, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming))
 end
 
 

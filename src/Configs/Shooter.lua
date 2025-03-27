@@ -68,12 +68,12 @@ function ShooterConfig:new(data, path)
     self.speedShotBeam.colored = u.parseBoolean(data.speedShotBeam.colored, path, "speedShotBeam.colored")
 
     self.speedShotParticle = u.parseParticle(data.speedShotParticle, path, "speedShotParticle")
+    self.shotSpeed = u.parseNumber(data.shotSpeed, path, "shotSpeed")
     self.shotCooldown = u.parseNumberOpt(data.shotCooldown, path, "shotCooldown") or 0
     self.shotCooldownFade = u.parseNumberOpt(data.shotCooldownFade, path, "shotCooldownFade") or 0
     self.multishot = u.parseBooleanOpt(data.multishot, path, "multishot") == true
     self.autofire = u.parseBooleanOpt(data.autofire, path, "autofire") == true
     self.destroySphereOnFail = u.parseBooleanOpt(data.destroySphereOnFail, path, "destroySphereOnFail") == true
-    self.shootSpeed = u.parseNumber(data.shootSpeed, path, "shootSpeed")
 
     if data.knockback then
         self.knockback = {}

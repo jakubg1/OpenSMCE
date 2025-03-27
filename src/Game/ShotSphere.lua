@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Sphere which has been shot from the Shooter and is flying on the screen until it finds a Sphere Group on its way.
 ---@class ShotSphere
----@overload fun(deserializationTable, shooter, pos, angle, size, color, speed, sphereEntity, isHoming):ShotSphere
+---@overload fun(deserializationTable, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming):ShotSphere
 local ShotSphere = class:derive("ShotSphere")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -14,19 +14,20 @@ local SphereEntity = require("src.Game.SphereEntity")
 ---Constructs a new Shot Sphere.
 ---@param deserializationTable table? The deserialization data to be used instead of the fields below if loading a previously saved game.
 ---@param shooter Shooter The shooter which this sphere has been shot from.
----@param pos Vector2 The inital position of this Shot Sphere.
+---@param posX number The inital X coordinate of this Shot Sphere.
+---@param posY number The inital Y coordinate of this Shot Sphere.
 ---@param angle number The initial movement direction of this Shot Sphere, in radians. 0 is up.
 ---@param size number The diameter of this Shot Sphere in pixels.
 ---@param color integer The color of this Shot Sphere.
 ---@param speed number The initial speed of this Shot Sphere.
 ---@param sphereEntity SphereEntity The Sphere Entity that was attached to the Shooter from which this entity is created.
 ---@param isHoming boolean? If set, the sphere will be homing towards a specific sphere determined by `Level:getHomingBugsSphere()`.
-function ShotSphere:new(deserializationTable, shooter, pos, angle, size, color, speed, sphereEntity, isHoming)
+function ShotSphere:new(deserializationTable, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
 		self.shooter = shooter
-		self.pos = pos
+		self.posX, self.posY = posX, posY
 		self.angle = angle
 		self.size = size
 		self.steps = 0
@@ -75,7 +76,9 @@ function ShotSphere:update(dt)
 			end
 			-- If there is no new homing target, do not proceed.
 			if self.homingTowards then
-				local targetAngle = (self.homingTowards:getPos() - self.pos):angle() + math.pi / 2
+				--local targetAngle = (self.homingTowards:getPos() - Vec2(self.posX, self.posY)):angle() + math.pi / 2
+				local homingPos = self.homingTowards:getPos()
+				local targetAngle = _V.angle(homingPos.x - self.posX, homingPos.y - self.posY) + math.pi / 2
 				self.angle = targetAngle
 			else
 				self:destroy()
@@ -96,12 +99,13 @@ end
 function ShotSphere:moveStep()
 	-- you can do more pixels if it's not efficient (laggy), but that will decrease the accuracy
 	self.steps = self.steps - 1
-	local oldPos = self.pos
-	self.pos = self.pos + Vec2(0, -self.PIXELS_PER_STEP):rotate(self.angle)
+	local oldPosX, oldPosY = self.posX, self.posY
+	local x, y = _V.rotate(0, -self.PIXELS_PER_STEP, self.angle)
+	self.posX, self.posY = self.posX + x, self.posY + y
 
 	-- count the gaps
 	for i, path in ipairs(_Game.level.map.paths) do
-		local offsets = path:getIntersectionPoints(oldPos, self.pos)
+		local offsets = path:getIntersectionPoints(oldPosX, oldPosY, self.posX, self.posY)
 		for j, offset in ipairs(offsets) do
 			local size, group = path:getGapSize(offset)
 			if group then
@@ -117,7 +121,7 @@ function ShotSphere:moveStep()
 	end
 
 	-- add if there's a sphere nearby
-	local nearestSphere = _Game.level:getNearestSphere(self.pos)
+	local nearestSphere = _Game.level:getNearestSphere(self.posX, self.posY)
 	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.size) / 2 and (not self.homingTowards or self.homingTowards == nearestSphere.sphere) then
 		-- Execute this only if we are close enough to the nearest sphere and have ANY collision (we are not homing towards something different).
 		if nearestSphere.sphere:isFragile() then
@@ -136,21 +140,21 @@ function ShotSphere:moveStep()
 			-- - "pierce" - The sphere keeps on flying
 			-- - "vanish" - The sphere vanishes
 			if hitBehavior.type == "destroySpheres" then
-				_Game.level:destroySelector(hitBehavior.selector, self.pos, hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
+				_Game.level:destroySelector(hitBehavior.selector, Vec2(self.posX, self.posY), hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
 				if not hitBehavior.pierce then
 					self:destroy()
 				else
 					self.hitSphere = nil
 				end
 			elseif hitBehavior.type == "recolorSpheres" then
-				_Game.level:replaceColorSelector(hitBehavior, self.pos)
+				_Game.level:replaceColorSelector(hitBehavior, Vec2(self.posX, self.posY))
 				if not hitBehavior.pierce then
 					self:destroy()
 				else
 					self.hitSphere = nil
 				end
 			elseif hitBehavior.type == "applyEffect" then
-				_Game.level:applyEffectSelector(hitBehavior, self.pos)
+				_Game.level:applyEffectSelector(hitBehavior, Vec2(self.posX, self.posY))
 				if not hitBehavior.pierce then
 					self:destroy()
 				else
@@ -182,15 +186,15 @@ function ShotSphere:moveStep()
 					p = self.hitSphere.path:getPos(o)
 				end
 				-- calculate length from the current position
-				local d = (self.pos - p):len()
+				local d = _V.length(self.posX - p.x, self.posY - p.y)
 				-- calculate time
 				self.hitTimeMax = d / self.speed * 5
-				self.hitSphere.sphereGroup:addSphere(self.color, self.pos, self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.configManager.gameplay.sphereBehavior.instantMatches)
+				self.hitSphere.sphereGroup:addSphere(self.color, Vec2(self.posX, self.posY), self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.configManager.gameplay.sphereBehavior.instantMatches)
 				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 			end
 			_Vars:set("shot.bad", badShot)
 			if self.config.hitSound then
-				_Game:playSound(self.config.hitSound, self.pos)
+				_Game:playSound(self.config.hitSound, Vec2(self.posX, self.posY))
 			end
 			_Vars:unset("shot")
 			if not badShot and not self.markedAsSuccessfulShot then
@@ -213,8 +217,9 @@ end
 ---Returns whether this Shot Sphere is outside of the board.
 ---@return boolean
 function ShotSphere:isOutsideBoard()
-	local s = self.size / 2
-	return self.pos.x < -s or self.pos.x > _Game:getNativeResolution().x + s or self.pos.y < -s or self.pos.y > _Game:getNativeResolution().y + s
+	local margin = self.size / 2
+	local nativeResolution = _Game:getNativeResolution()
+	return self.posX < -margin or self.posX > nativeResolution.x + margin or self.posY < -margin or self.posY > nativeResolution.y + margin
 end
 
 
@@ -282,9 +287,9 @@ end
 ---Draws something which is meant to debug.
 function ShotSphere:drawDebug()
 	love.graphics.setColor(0, 1, 1)
-	for i = self.pos.y, 0, -self.PIXELS_PER_STEP do
-		love.graphics.circle("fill", self.pos.x, i, 2)
-		local nearestSphere = _Game.level:getNearestSphere(Vec2(self.pos.x, i))
+	for i = self.posY, 0, -self.PIXELS_PER_STEP do
+		love.graphics.circle("fill", self.posX, i, 2)
+		local nearestSphere = _Game.level:getNearestSphere(self.posX, i)
 		if nearestSphere.dist and nearestSphere.dist < 32 then
 			love.graphics.setLineWidth(3)
 			love.graphics.circle("line", nearestSphere.pos.x, nearestSphere.pos.y, self.size / 2)
@@ -300,7 +305,7 @@ end
 ---@return number
 function ShotSphere:getDrawPos()
 	local x, y = _V.rotate(0, self.steps * -self.PIXELS_PER_STEP, self.angle)
-	return self.pos.x + x, self.pos.y + y
+	return self.posX + x, self.posY + y
 end
 
 
@@ -309,7 +314,7 @@ end
 ---@return table
 function ShotSphere:serialize()
 	local t = {
-		pos = {x = self.pos.x, y = self.pos.y},
+		pos = {x = self.posX, y = self.posY},
 		angle = self.angle,
 		size = self.size,
 		color = self.color,
@@ -340,7 +345,7 @@ end
 ---Loads previously saved entity data.
 ---@param t table Deserialization data.
 function ShotSphere:deserialize(t)
-	self.pos = Vec2(t.pos.x, t.pos.y)
+	self.posX, self.posY = t.pos.x, t.pos.y
 	self.angle = t.angle
 	self.size = t.size
 	self.color = t.color
@@ -371,7 +376,7 @@ function ShotSphere:deserialize(t)
 			sphereGroup = _Game.level:getSphere(t.hitSphere).sphereGroup
 		}
 	else
-		self.sphereEntity = SphereEntity(self.pos.x, self.pos.y, self.color)
+		self.sphereEntity = SphereEntity(self.posX, self.posY, self.color)
 		self.sphereEntity:setAngle(self.angle)
 	end
 

@@ -491,9 +491,10 @@ function Shooter:shoot()
             local angleStart = amount == 1 and 0 or -angleTotal / 2
             local angleStep = amount == 1 and 0 or angleTotal / (amount - 1)
             for j = 1, amount do
+                local pos = self:getSphereShotPos(i)
                 local angle = self.angle + angleStart + angleStep * (j - 1)
                 local entity = j == 1 and self.sphereEntities[i] or self.sphereEntities[i]:copy()
-                _Game.level:spawnShotSphere(self, self:getSphereShotPos(i), angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity, self.homingBugsTime > 0)
+                _Game.level:spawnShotSphere(self, pos.x, pos.y, angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity, self.homingBugsTime > 0)
                 _Game.level:markSphereShot()
             end
             self.sphereEntities[i] = nil
@@ -930,7 +931,7 @@ end
 ---Returns the reticle position.
 ---@return Vector2
 function Shooter:getTargetPos()
-    return _Game.level:getNearestSphereOnLine(self.pos, self.angle).targetPos
+    return _Game.level:getNearestSphereOnLine(self.pos.x, self.pos.y, self.angle).targetPos
 end
 
 
@@ -939,7 +940,8 @@ end
 ---@param n integer The main slot number for the sphere to be checked for.
 ---@return Vector2
 function Shooter:getTargetPosForSphere(n)
-    return _Game.level:getNearestSphereOnLine(self:getSpherePos(n), self.angle).targetPos
+    local spherePos = self:getSpherePos(n)
+    return _Game.level:getNearestSphereOnLine(spherePos.x, spherePos.y, self.angle).targetPos
 end
 
 
@@ -947,13 +949,13 @@ end
 ---Returns the current effective shooting speed.
 ---@return number
 function Shooter:getShootingSpeed()
-    local sphereSpeed = self:getSphereConfig().shootSpeed
+    local sphereSpeed = self:getSphereConfig().shotSpeed
     if sphereSpeed then
         return sphereSpeed
     elseif self.speedShotTime > 0 then
         return self.speedShotSpeed
     end
-    return self.config.shootSpeed
+    return self.config.shotSpeed
 end
 
 

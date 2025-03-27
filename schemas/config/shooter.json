@@ -201,6 +201,11 @@
             "$ref": "../_structures/Particle.json",
             "description": "Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes."
         },
+        "shotSpeed": {
+            "type": "number",
+            "description": "The default speed of how fast the shot spheres will be, in pixels per second.",
+            "exclusiveMinimum": 0.0
+        },
         "shotCooldown": {
             "type": "number",
             "description": "The minimum time between the shots, in seconds. If multishot is set to false, this time will be counted since the previous shot sphere has been appended/disappeared.",
@@ -224,11 +229,6 @@
         "destroySphereOnFail": {
             "type": "boolean",
             "description": "If set, when the level is lost, the sphere held by the shooter will show its destruction particles. Otherwise, the ball will just disappear."
-        },
-        "shootSpeed": {
-            "type": "number",
-            "description": "The default speed of how fast the shot spheres will be, in pixels per second.",
-            "exclusiveMinimum": 0.0
         },
         "knockback": {
             "type": "object",
@@ -278,7 +278,7 @@
         "sounds",
         "speedShotBeam",
         "speedShotParticle",
-        "shootSpeed",
+        "shotSpeed",
         "hitboxSize"
     ],
     "additionalProperties": false
