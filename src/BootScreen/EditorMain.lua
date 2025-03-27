@@ -115,7 +115,7 @@ function EditorMain:draw()
 	if self.resourceManager:getLoadProgress("main") < 1 then
 		love.graphics.print("Loading...", 15, 35)
 	end
-	self.resourceList = self.resourceManager:getAssetList("sprite")
+	self.resourceList = self.resourceManager:getResourceList("sprite")
 	table.sort(self.resourceList, function(a, b) return a < b end)
 	for i, key in ipairs(self.resourceList) do
 		local y = 50 + (i - 1) * 15 - self.resourceListOffset
