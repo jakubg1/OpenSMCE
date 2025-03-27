@@ -51,7 +51,8 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 
 	self:loadConfig()
 
-	self.entity = sphereEntity or SphereEntity(self:getPos(), self.color)
+	local pos = self:getPos()
+	self.entity = sphereEntity or SphereEntity(pos.x, pos.y, self.color)
 
 	if shootOrigin then
 		self.shootOrigin = shootOrigin
@@ -677,7 +678,7 @@ function Sphere:draw(hidden, shadow)
 	self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or (2 / math.pi))) % self.frameCount
 
 	-- Update the entity position, rotation, scale, frame, etc.
-	self.entity:setPos(pos)
+	self.entity:setPos(pos.x, pos.y)
 	self.entity:setAngle(angle)
 	self.entity:setScale(scale)
 	self.entity:setFrame(frame)

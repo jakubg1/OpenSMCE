@@ -296,9 +296,11 @@ end
 
 
 ---Returns the position at which the entity should be drawn. This is different to the real position so the ball movement is smooth visually.
----@return Vector2
+---@return number
+---@return number
 function ShotSphere:getDrawPos()
-	return self.pos + Vec2(0, self.steps * -self.PIXELS_PER_STEP):rotate(self.angle)
+	local x, y = _V.rotate(0, self.steps * -self.PIXELS_PER_STEP, self.angle)
+	return self.pos.x + x, self.pos.y + y
 end
 
 
@@ -369,7 +371,7 @@ function ShotSphere:deserialize(t)
 			sphereGroup = _Game.level:getSphere(t.hitSphere).sphereGroup
 		}
 	else
-		self.sphereEntity = SphereEntity(self.pos, self.color)
+		self.sphereEntity = SphereEntity(self.pos.x, self.pos.y, self.color)
 		self.sphereEntity:setAngle(self.angle)
 	end
 

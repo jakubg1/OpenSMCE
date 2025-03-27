@@ -232,7 +232,8 @@ function Shooter:update(dt)
     -- Update the sphere entity position.
     for i = 1, self:getSphereCount() do
         if self.sphereEntities[i] then
-            self.sphereEntities[i]:setPos(self:getSpherePos(i))
+            local pos = self:getSpherePos(i)
+            self.sphereEntities[i]:setPos(pos.x, pos.y)
         end
     end
 end
@@ -613,7 +614,8 @@ function Shooter:draw()
     for i = 1, self:getSphereCount() do
         local entity = self.sphereEntities[i]
         if entity then
-            entity:setPos(self:getSpherePos(i))
+            local entityPos = self:getSpherePos(i)
+            entity:setPos(entityPos.x, entityPos.y)
             entity:setAngle(self.angle)
             entity:setScale(self:getSphereSize() / 32)
             entity:setFrame(self:getSphereFrame())
@@ -751,7 +753,8 @@ function Shooter:spawnSphereEntities()
         if self.sphereEntities[i] then
             self.sphereEntities[i]:setColor(self.color)
         else
-            self.sphereEntities[i] = SphereEntity(self:getSpherePos(i), self.color)
+            local pos = self:getSpherePos(i)
+            self.sphereEntities[i] = SphereEntity(pos.x, pos.y, self.color)
         end
     end
 end
