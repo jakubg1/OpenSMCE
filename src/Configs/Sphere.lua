@@ -28,6 +28,13 @@ function SphereConfig:new(data, path)
         self.sprites[i].rotate = u.parseBooleanOpt(data.sprites[i].rotate, path, "sprites[" .. tostring(i) .. "].rotate") ~= false
         self.sprites[i].animationSpeed = u.parseNumberOpt(data.sprites[i].animationSpeed, path, "sprites[" .. tostring(i) .. "].animationSpeed")
         self.sprites[i].rollingSpeed = u.parseNumberOpt(data.sprites[i].rollingSpeed, path, "sprites[" .. tostring(i) .. "].rollingSpeed") or 0.63662
+
+        self.sprites[i].conditions = {}
+        if data.sprites[i].conditions then
+            for j = 1, #data.sprites[i].conditions do
+                self.sprites[i].conditions[j] = u.parseExprBoolean(data.sprites[i].conditions[j], path, "sprites[" .. tostring(i) .. "].conditions[" .. tostring(j) .. "]")
+            end
+        end
     end
 
     self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
@@ -39,6 +46,8 @@ function SphereConfig:new(data, path)
     self.destroyCollectible = u.parseCollectibleGeneratorConfigOpt(data.destroyCollectible, path, "destroyCollectible")
     self.destroySound = u.parseSoundEventOpt(data.destroySound, path, "destroySound")
     self.destroyEvent = u.parseGameEventConfigOpt(data.destroyEvent, path, "destroyEvent")
+    self.chainDestroyParticle = u.parseParticleOpt(data.chainDestroyParticle, path, "chainDestroyParticle")
+    self.chainDestroySound = u.parseSoundEventOpt(data.chainDestroySound, path, "chainDestroySound")
     self.color = u.parseColorOpt(data.color, path, "color")
     self.colorPalette = u.parseColorPaletteOpt(data.colorPalette, path, "colorPalette")
     self.colorPaletteSpeed = u.parseNumberOpt(data.colorPaletteSpeed, path, "colorPaletteSpeed")

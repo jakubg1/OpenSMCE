@@ -158,6 +158,7 @@ function SphereChain:new(path, deserializationTable)
 						keyData.streak = key.colorStreak
 						keyData.colors = key.colors
 					end
+					keyData.chainChances = key.chainChances
 					self.generationKeys[key.key] = keyData
 				elseif key.keys then
 					-- Multiple keys.
@@ -177,6 +178,7 @@ function SphereChain:new(path, deserializationTable)
 							keyData.colors = key.colors
 							keyData.forceDifferentColor = key.forceDifferentColor
 						end
+						keyData.chainChances = key.chainChances
 						self.generationKeys[keyName] = keyData
 					end
 				end
@@ -389,12 +391,12 @@ function SphereChain:join()
 	self:delete(true)
 end
 
----Returns the next color to spawn in this Sphere Chain. Alters the generator's state.
----@return integer
-function SphereChain:newSphereColor()
+---Returns the next sphere data (`{color = <integer>, chainLevel = <integer>}`) to spawn in this Sphere Chain. Alters the generator's state.
+---@return table
+function SphereChain:newSphereData()
 	local rules = self.path.trainRules
 	if rules.type == "random" then
-		local result = self.generationColor
+		local color = self.generationColor
 		-- `1 - colorStreak` chance to change the currently generated color.
 		if math.random() < 1 - rules.colorStreak then
 			local oldColor = self.generationColor
@@ -403,15 +405,36 @@ function SphereChain:newSphereColor()
 				self.generationColor = rules.colors[math.random(#rules.colors)]
 			until oldColor ~= self.generationColor or not rules.forceDifferentColor
 		end
-		return result
+		-- Generate the chain level.
+		local chainLevel = 0
+		if rules.chainChances then
+			for i, chance in ipairs(rules.chainChances) do
+				if math.random() < chance then
+					chainLevel = i
+					break
+				end
+			end
+		end
+		return {color = color, chainLevel = chainLevel}
 	elseif rules.type == "pattern" then
-		local result = rules.pattern[self.generationIndex]
+		local color = rules.pattern[self.generationIndex]
+		-- Generate the chain level.
+		local chainLevel = 0
+		if rules.chainChances then
+			for i, chance in ipairs(rules.chainChances) do
+				if math.random() < chance then
+					chainLevel = i
+					break
+				end
+			end
+		end
 		self.generationIndex = self.generationIndex % #rules.pattern + 1
-		return result
+		return {color = color, chainLevel = chainLevel}
 	elseif rules.type == "waves" then
 		local key = self.generationPreset:sub(self.generationIndex, self.generationIndex)
 		local keyData = self.generationKeys[key]
-		local result = keyData.color
+		-- Generate the color.
+		local color = keyData.color
 		if keyData.streak then
 			-- `1 - colorStreak` chance to change the currently generated color.
 			if math.random() < 1 - keyData.streak then
@@ -422,8 +445,18 @@ function SphereChain:newSphereColor()
 				until oldColor ~= keyData.color or not keyData.forceDifferentColor
 			end
 		end
+		-- Generate the chain level.
+		local chainLevel = 0
+		if keyData.chainChances then
+			for i, chance in ipairs(keyData.chainChances) do
+				if math.random() < chance then
+					chainLevel = i
+					break
+				end
+			end
+		end
 		self.generationIndex = self.generationIndex + 1
-		return result
+		return {color = color, chainLevel = chainLevel}
 	end
 	-- This shouldn't happen.
 	error(string.format("Invalid train rule type: %s", rules.type))
@@ -431,7 +464,8 @@ end
 
 function SphereChain:generateSphere()
 	-- Add a new sphere.
-	self:getLastSphereGroup():pushSphereBack(self:newSphereColor())
+	local data = self:newSphereData()
+	self:getLastSphereGroup():pushSphereBack(data.color, data.chainLevel)
 end
 
 function SphereChain:concludeGeneration()

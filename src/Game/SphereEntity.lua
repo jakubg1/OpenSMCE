@@ -167,6 +167,33 @@ end
 
 
 
+---Returns the currently displayed frame for this Sphere Entity's `i`-th sprite.
+---@param i integer The sprite index.
+---@return integer
+function SphereEntity:getFrame(i)
+	local sprite = self.config.sprites[i]
+	local frame = 1
+	local frameCount = sprite.sprite.states[1].frameCount
+	if sprite.animationSpeed then
+		frame = sprite.animationSpeed * _TotalTime
+	elseif self.roll then
+		frame = sprite.rollingSpeed * -self.roll + self.rollOffsets[i]
+	end
+	return math.floor(frame) % frameCount
+end
+
+
+
+---Returns the angle at which this Sphere Entity's `i`-th sprite should be currently displayed 
+---@param i integer The sprite index.
+---@return number
+function SphereEntity:getAngle(i)
+	local sprite = self.config.sprites[i]
+	return sprite.rotate and self.angle or 0
+end
+
+
+
 ---Draws this Sphere Entity on the screen.
 ---@param shadow boolean? If set to `true`, the shadow of this entity will be drawn instead of the sphere itself.
 function SphereEntity:draw(shadow)
@@ -176,17 +203,18 @@ function SphereEntity:draw(shadow)
 		end
 	else
 		for i, sprite in ipairs(self.config.sprites) do
-			local frame = 1
-			local frameCount = sprite.sprite.states[1].frameCount
-			if sprite.animationSpeed then
-				frame = sprite.animationSpeed * _TotalTime
-			elseif self.roll then
-				frame = sprite.rollingSpeed * -self.roll + self.rollOffsets[i]
+			local conditionsPassed = true
+			if sprite.conditions then
+				for j, condition in ipairs(sprite.conditions) do
+					if not condition:evaluate() then
+						conditionsPassed = false
+						break
+					end
+				end
 			end
-			frame = math.floor(frame) % frameCount
-
-			local angle = sprite.rotate and self.angle or 0
-			sprite.sprite:draw(self.posX, self.posY, 0.5, 0.5, nil, frame, angle, self.colorM, self.alpha, self.scaleX, self.scaleY)
+			if conditionsPassed then
+				sprite.sprite:draw(self.posX, self.posY, 0.5, 0.5, nil, self:getFrame(i), self:getAngle(i), self.colorM, self.alpha, self.scaleX, self.scaleY)
+			end
 		end
 	end
 end

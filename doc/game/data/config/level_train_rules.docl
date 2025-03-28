@@ -4,10 +4,14 @@
             - (integer) - A single sphere color.
         - colorStreak (number) [>=0,<=1] - The probability of the next color being the same as the previous one in sequence.
         - forceDifferentColor* (boolean) - If set, two like-colored clumps cannot have the same color if next to each other. This reduces likelihood of apparent big clumps of a single color.
+        - chainChances* (array) - A list of chances for chained spheres to be generated. N-th entry is a chance for a sphere with N chain layers, if the previous chances did not succeed.
+            - (number) [>=0,<=1] - The chance for a chained sphere with N chain layers.
         - length* (integer) [>0] - The train length. If not set, the spheres will spawn continously until all objectives have been reached.
     - "pattern" - The sphere order will be chosen from a predefined list. The list will wrap around.
         - pattern (array) - A list of integers. Colors will be drawn in order from this list and will wrap around.
             - (integer) - A single sphere color.
+        - chainChances* (array) - A list of chances for chained spheres to be generated. N-th entry is a chance for a sphere with N chain layers, if the previous chances did not succeed.
+            - (number) [>=0,<=1] - The chance for a chained sphere with N chain layers.
         - length* (integer) [>0] - The train length. If not set, the spheres will spawn continously until all objectives have been reached.
     - "waves" - Spheres will come as predefined trains, with color pools defined inside.
         - key (array) - A list of keys to be used as building blocks for train presets.
@@ -21,6 +25,8 @@
                 - noColorRepeats* (boolean) - Only if multiple `keys` are specified. If set, each of the keys will be assigned a different color from the `colors` list, without any repeats.
                 - colorStreak* (number) [>=0,<=1] - Only if `homogenous` is not set. Specifies how likely will the next color from this key be the same color as the previous one (from the same key).
                 - forceDifferentColor* (boolean) - Only if `homogenous` is not set. If set, two like-colored clumps cannot have the same color if next to each other.
+                - chainChances* (array) - A list of chances for chained spheres to be generated. N-th entry is a chance for a sphere with N chain layers, if the previous chances did not succeed.
+                    - (number) [>=0,<=1] - The chance for a chained sphere with N chain layers.
         - waves (array) - A list of strings, which are sphere train presets. Each character in the string must correspond to one of the keys specified in the `key` field.\nPresets can be also preset generators. Example: `"2*3:ABC,5*2:ABC"` will create 2 groups of either AAA, BBB or CCC and 5 groups of either AA, BB or CC and mix them around so that no color repeats in two groups next to each other. You cannot mix this syntax with the regular wave build.
             - (string) - A single sphere train preset.
         - behavior (string) - How should the waves be picked from the list.

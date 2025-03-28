@@ -192,18 +192,18 @@ end
 
 
 
-function SphereGroup:pushSphereBack(color)
-	-- color - the color of sphere.
-	-- This GENERATES a sphere without any animation.
-	self:addSphere(color, nil, nil, nil, 1)
+---Generates a Sphere at the back of this Sphere Group without any animation.
+---@param color integer The sphere color.
+---@param chainLevel integer? If set, the sphere will have that many chain layers on it.
+function SphereGroup:pushSphereBack(color, chainLevel)
+	self:addSphere(color, nil, nil, nil, 1, nil, nil, nil, nil, chainLevel)
 end
 
-
-
-function SphereGroup:pushSphereFront(color)
-	-- color - the color of sphere.
-	-- This GENERATES a sphere without any animation.
-	self:addSphere(color, nil, nil, nil, #self.spheres + 1)
+---Generates a Sphere at the front of this Sphere Group without any animation.
+---@param color integer The sphere color.
+---@param chainLevel integer? If set, the sphere will have that many chain layers on it.
+function SphereGroup:pushSphereFront(color, chainLevel)
+	self:addSphere(color, nil, nil, nil, #self.spheres + 1, nil, nil, nil, nil, chainLevel)
 end
 
 
@@ -218,8 +218,9 @@ end
 ---@param gaps table? A list of gaps through which this sphere has traversed.
 ---@param destroyedFragileSpheres boolean? If set, this Sphere will be marked as a sphere which has destroyed at least one fragile sphere during its lifetime as a shot sphere.
 ---@param canStopGrowing boolean? If set, the new sphere will not grow if it constitutes a match.
-function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps, destroyedFragileSpheres, canStopGrowing)
-	local sphere = Sphere(self, nil, color, pos, time, sphereEntity, gaps, destroyedFragileSpheres)
+---@param chainLevel integer? If set, the sphere will have that many chain layers on it.
+function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects, gaps, destroyedFragileSpheres, canStopGrowing, chainLevel)
+	local sphere = Sphere(self, nil, color, pos, time, sphereEntity, gaps, destroyedFragileSpheres, chainLevel)
 	local prevSphere = self.spheres[position - 1]
 	local nextSphere = self.spheres[position]
 	sphere.prevSphere = prevSphere
@@ -741,8 +742,12 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
 	local color = self.sphereChain.path:getSphereEffectGroup(effectGroupID).cause.color
 	for i = #spheres, 1, -1 do
-		local n = self:getSphereID(spheres[i])
-		if effectConfig.ghostTime then
+		local sphere = spheres[i]
+		local n = self:getSphereID(sphere)
+		if sphere:isChained() then
+			sphere:breakChainLevel()
+			sphere:removeAllEffects()
+		elseif effectConfig.ghostTime then
 			self:destroySphereVisually(n, effectConfig.ghostTime)
 		else
 			self:destroySphere(n)

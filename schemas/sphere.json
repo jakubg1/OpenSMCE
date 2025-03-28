@@ -29,6 +29,14 @@
                         "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 0.63662, which is a close approximation of 2/pi, to ensure a smooth rolling effect.",
                         "markdownDescription": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to `0.63662`, which is a close approximation of `2/pi`, to ensure a smooth rolling effect.",
                         "minimum": 0.0
+                    },
+                    "conditions": {
+                        "type": "array",
+                        "description": "If specified, a list of boolean Expressions. If any of them is not passed, this sprite entry will not be displayed on the screen.",
+                        "items": {
+                            "$ref": "_structures/ExprBoolean.json",
+                            "description": "A single condition."
+                        }
                     }
                 },
                 "required": [
@@ -79,6 +87,14 @@
             "$ref": "_structures/GameEvent.json",
             "description": "A game event to be executed when a sphere of this type is destroyed. Note: This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' game events instead.",
             "markdownDescription": "A game event to be executed when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' game events instead."
+        },
+        "chainDestroyParticle": {
+            "$ref": "_structures/Particle.json",
+            "description": "A one-time particle packet used when the sphere's chain is destroyed."
+        },
+        "chainDestroySound": {
+            "$ref": "_structures/SoundEvent.json",
+            "description": "A sound event to be played when the sphere's chain is destroyed."
         },
         "color": {
             "$ref": "_structures/Color.json",

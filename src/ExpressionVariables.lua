@@ -56,7 +56,7 @@ function ExpressionVariables:get(name, default)
             return value
         end
     end
-    assert(default, "Tried to get a nonexistent variable: " .. name)
+    assert(default ~= nil, "Tried to get a nonexistent variable: " .. name)
     return default
 end
 

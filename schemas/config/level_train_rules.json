@@ -53,6 +53,16 @@
                         "type": "boolean",
                         "description": "If set, two like-colored clumps cannot have the same color if next to each other. This reduces likelihood of apparent big clumps of a single color."
                     },
+                    "chainChances": {
+                        "type": "array",
+                        "description": "A list of chances for chained spheres to be generated. N-th entry is a chance for a sphere with N chain layers, if the previous chances did not succeed.",
+                        "items": {
+                            "type": "number",
+                            "description": "The chance for a chained sphere with N chain layers.",
+                            "minimum": 0.0,
+                            "maximum": 1.0
+                        }
+                    },
                     "length": {
                         "type": "integer",
                         "description": "The train length. If not set, the spheres will spawn continously until all objectives have been reached.",
@@ -88,6 +98,16 @@
                         "items": {
                             "type": "integer",
                             "description": "A single sphere color."
+                        }
+                    },
+                    "chainChances": {
+                        "type": "array",
+                        "description": "A list of chances for chained spheres to be generated. N-th entry is a chance for a sphere with N chain layers, if the previous chances did not succeed.",
+                        "items": {
+                            "type": "number",
+                            "description": "The chance for a chained sphere with N chain layers.",
+                            "minimum": 0.0,
+                            "maximum": 1.0
                         }
                     },
                     "length": {
@@ -166,6 +186,16 @@
                                     "type": "boolean",
                                     "description": "Only if homogenous is not set. If set, two like-colored clumps cannot have the same color if next to each other.",
                                     "markdownDescription": "Only if `homogenous` is not set. If set, two like-colored clumps cannot have the same color if next to each other."
+                                },
+                                "chainChances": {
+                                    "type": "array",
+                                    "description": "A list of chances for chained spheres to be generated. N-th entry is a chance for a sphere with N chain layers, if the previous chances did not succeed.",
+                                    "items": {
+                                        "type": "number",
+                                        "description": "The chance for a chained sphere with N chain layers.",
+                                        "minimum": 0.0,
+                                        "maximum": 1.0
+                                    }
                                 }
                             },
                             "required": [

@@ -4,7 +4,7 @@ local class = require "com.class"
 
 ---Represents a single Sphere which is inside of a Sphere Group on the board. Can have a lot of properties.
 ---@class Sphere
----@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres):Sphere
+---@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres, chainLevel):Sphere
 local Sphere = class:derive("Sphere")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -22,7 +22,8 @@ local SphereEntity = require("src.Game.SphereEntity")
 ---@param sphereEntity SphereEntity? If set, this will be the Sphere Entity used to draw this Sphere. Else, a new one will be created.
 ---@param gaps table? If set, this Sphere will have a list of numbers (traversed gap distances) stored so it can be used later when calculating gap shots.
 ---@param destroyedFragileSpheres boolean? If set, this Sphere will be marked as a sphere which has destroyed at least one fragile sphere during its lifetime as a shot sphere.
-function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres)
+---@param chainLevel integer? If set, this Sphere will be chained and will require an extra hit to be removed completely. Currently, only Sphere Effects don't destroy chained spheres completely. This behavior is hardcoded and at some point hopefully will be made more flexible :>
+function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres, chainLevel)
 	self.sphereGroup = sphereGroup
 	self.path = sphereGroup.sphereChain.path
 	self.map = sphereGroup.map
@@ -36,6 +37,7 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self:deserialize(deserializationTable)
 	else
 		self.color = color
+		self.chainLevel = chainLevel or 0
 		self.appendSize = 1
 		self.boostStreak = false
 		self.shootOrigin = nil
@@ -261,22 +263,33 @@ function Sphere:deleteVisually(ghostTime, crushed)
 	self.entity = nil
 
 	-- Remove all effects.
-	for i, effect in ipairs(self.effects) do
-		-- Remove particles.
-		if effect.particle then
-			effect.particle:destroy()
-		end
-		-- Emit destroy particles.
-		if effect.config.destroyParticle then
-			_Game:spawnParticle(effect.config.destroyParticle, self:getPos())
-		end
-		-- Decrement the sphere effect group counter.
-		self.path:decrementSphereEffectGroup(effect.effectGroupID)
-	end
-	self.effects = {}
+	self:removeAllEffects()
 
 	-- Mark as ghosted if the SphereGroup actually does not remove this Sphere.
 	self.ghostTime = ghostTime
+end
+
+
+
+---Returns whether this Sphere is chained.
+---@return boolean
+function Sphere:isChained()
+	return self.chainLevel > 0
+end
+
+---Breaks one chain level from this Sphere, if it's a chained sphere.
+function Sphere:breakChainLevel()
+	if self.chainLevel == 0 then
+		return
+	end
+
+	self.chainLevel = self.chainLevel - 1
+	if self.config.chainDestroySound then
+		_Game:playSound(self.config.chainDestroySound, self:getPos())
+	end
+	if self.config.chainDestroyParticle then
+		_Game:spawnParticle(self.config.chainDestroyParticle, self:getPos())
+	end
 end
 
 
@@ -334,46 +347,21 @@ end
 
 
 
----Returns the previous Sphere in this Sphere Chain, or `nil` if this is the first (backmost) sphere in the chain.
----@return Sphere?
-function Sphere:getPrevSphereInChain()
-	if self.prevSphere then
-		return self.prevSphere
+---Removes all Sphere Effects from this Sphere.
+function Sphere:removeAllEffects()
+	for i, effect in ipairs(self.effects) do
+		-- Remove particles.
+		if effect.particle then
+			effect.particle:destroy()
+		end
+		-- Emit destroy particles.
+		if effect.config.destroyParticle then
+			_Game:spawnParticle(effect.config.destroyParticle, self:getPos())
+		end
+		-- Decrement the sphere effect group counter.
+		self.path:decrementSphereEffectGroup(effect.effectGroupID)
 	end
-	-- The previous sphere might be in the previous group.
-	if self.sphereGroup.prevGroup then
-		return self.sphereGroup.prevGroup:getLastSphere()
-	end
-end
-
-
-
----Returns the next Sphere in this Sphere Chain, or `nil` if this is the last (frontmost) sphere in the chain.
----@return Sphere?
-function Sphere:getNextSphereInChain()
-	if self.nextSphere then
-		return self.nextSphere
-	end
-	-- The next sphere might be in the next group.
-	if self.sphereGroup.nextGroup then
-		return self.sphereGroup.nextGroup:getFirstSphere()
-	end
-end
-
-
-
----Returns `true` if this sphere is a stone sphere.
----@return boolean
-function Sphere:isStone()
-	return self.config.type == "stone"
-end
-
-
-
----Returns `true` if this sphere is either mature or its growth has been stopped (it will never be mature).
----@return boolean
-function Sphere:isReadyForMatching()
-	return self.appendSize == 1 or self.growStopped
+	self.effects = {}
 end
 
 
@@ -425,6 +413,50 @@ function Sphere:hasEffect(effectConfig, effectGroupID)
 	end
 
 	return false
+end
+
+
+
+---Returns the previous Sphere in this Sphere Chain, or `nil` if this is the first (backmost) sphere in the chain.
+---@return Sphere?
+function Sphere:getPrevSphereInChain()
+	if self.prevSphere then
+		return self.prevSphere
+	end
+	-- The previous sphere might be in the previous group.
+	if self.sphereGroup.prevGroup then
+		return self.sphereGroup.prevGroup:getLastSphere()
+	end
+end
+
+
+
+---Returns the next Sphere in this Sphere Chain, or `nil` if this is the last (frontmost) sphere in the chain.
+---@return Sphere?
+function Sphere:getNextSphereInChain()
+	if self.nextSphere then
+		return self.nextSphere
+	end
+	-- The next sphere might be in the next group.
+	if self.sphereGroup.nextGroup then
+		return self.sphereGroup.nextGroup:getFirstSphere()
+	end
+end
+
+
+
+---Returns `true` if this sphere is a stone sphere.
+---@return boolean
+function Sphere:isStone()
+	return self.config.type == "stone"
+end
+
+
+
+---Returns `true` if this sphere is either mature or its growth has been stopped (it will never be mature).
+---@return boolean
+function Sphere:isReadyForMatching()
+	return self.appendSize == 1 or self.growStopped
 end
 
 
@@ -634,6 +666,7 @@ function Sphere:dumpVariables(context, pos)
 	context = context or "sphere"
 	_Vars:set(context .. ".object", self)
 	_Vars:set(context .. ".color", self.color)
+	_Vars:set(context .. ".chainLevel", self.chainLevel)
 	_Vars:set(context .. ".isOffscreen", self:isOffscreen())
 	if pos then
 		_Vars:set(context .. ".distance", (self:getPos() - pos):len())
@@ -674,7 +707,9 @@ function Sphere:draw(hidden, shadow)
 		self.entity:setLayer(self.map.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
 	end
 
+	self:dumpVariables("sphere")
 	self.entity:draw(shadow)
+	_Vars:unset("sphere")
 
 	-- Update particle positions.
 	for i, effect in ipairs(self.effects) do
@@ -765,7 +800,6 @@ end
 function Sphere:serialize()
 	local t = {
 		color = self.color,
-		--animationFrame = self.animationFrame, -- who cares about that, you can uncomment this if you do
 		shootOrigin = self.shootOrigin and {x = self.shootOrigin.x, y = self.shootOrigin.y} or nil,
 		shootTime = self.shootTime,
 		ghostTime = self.ghostTime,
@@ -773,6 +807,9 @@ function Sphere:serialize()
 		attachedAngle = self.attachedAngle
 	}
 
+	if self.chainLevel ~= 0 then
+		t.chainLevel = self.chainLevel
+	end
 	if self.appendSize ~= 1 then
 		t.appendSize = self.appendSize
 	end
@@ -805,7 +842,7 @@ function Sphere:serialize()
 	end
 
 	-- If the only data to be saved is the sphere's color, serialize to an integer value.
-	if not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostStreak and not t.effects and not t.gaps and not t.destroyedFragileSpheres and not t.growStopped then
+	if not t.chainLevel and not t.shootOrigin and not t.shootTime and not t.ghostTime and not t.appendSize and not t.boostStreak and not t.effects and not t.gaps and not t.destroyedFragileSpheres and not t.growStopped then
 		return t.color
 	end
 
@@ -822,7 +859,7 @@ function Sphere:deserialize(t)
 	end
 
 	self.color = t.color
-	--self.animationFrame = t.animationFrame
+	self.chainLevel = t.chainLevel or 0
 	self.appendSize = t.appendSize or 1
 	self.boostStreak = t.boostStreak or false
 	self.shootOrigin = t.shootOrigin and Vec2(t.shootOrigin.x, t.shootOrigin.y) or nil
