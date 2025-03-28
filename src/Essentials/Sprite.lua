@@ -58,7 +58,11 @@ end
 ---@return love.Quad
 function Sprite:getFrame(state, frame)
 	local s = self.states[state]
-	return s.frames[(frame - 1) % s.frameCount + 1]
+	assert(s, string.format("Tried to get state %s, but the sprite %s only has %s states!", state, self.path, #self.states))
+	local n = (frame - 1) % s.frameCount + 1
+	local f = s.frames[n]
+	assert(f, string.format("Tried to get frame %s (%s), but the sprite %s has only %s frames in state %s!", frame, n, self.path, #s.frames, state))
+	return f
 end
 
 ---Returns the top left position of the given frame on this Sprite's image.

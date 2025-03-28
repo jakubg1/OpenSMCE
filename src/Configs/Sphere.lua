@@ -21,11 +21,17 @@ function SphereConfig:new(data, path)
     local u = _ConfigUtils
     self._path = path
 
-    self.sprite = u.parseSprite(data.sprite, path, "sprite")
+    self.sprites = {}
+    for i = 1, #data.sprites do
+        self.sprites[i] = {}
+        self.sprites[i].sprite = u.parseSprite(data.sprites[i].sprite, path, "sprites[" .. tostring(i) .. "].sprite")
+        self.sprites[i].rotate = u.parseBooleanOpt(data.sprites[i].rotate, path, "sprites[" .. tostring(i) .. "].rotate") ~= false
+        self.sprites[i].animationSpeed = u.parseNumberOpt(data.sprites[i].animationSpeed, path, "sprites[" .. tostring(i) .. "].animationSpeed")
+        self.sprites[i].rollingSpeed = u.parseNumberOpt(data.sprites[i].rollingSpeed, path, "sprites[" .. tostring(i) .. "].rollingSpeed") or 0.63662
+    end
+
     self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
     self.shadowOffset = u.parseVec2Opt(data.shadowOffset, path, "shadowOffset") or Vec2(4, 4)
-    self.spriteAnimationSpeed = u.parseNumberOpt(data.spriteAnimationSpeed, path, "spriteAnimationSpeed")
-    self.spriteRollingSpeed = u.parseNumberOpt(data.spriteRollingSpeed, path, "spriteRollingSpeed") or 0.63662
     self.size = u.parseNumberOpt(data.size, path, "size") or 32
     self.idleParticle = u.parseParticleOpt(data.idleParticle, path, "idleParticle")
     self.holdParticle = u.parseParticleOpt(data.holdParticle, path, "holdParticle")

@@ -619,7 +619,6 @@ function Shooter:draw()
             entity:setPos(entityPos.x, entityPos.y)
             entity:setAngle(self.angle)
             entity:setScale(self:getSphereSize() / 32)
-            entity:setFrame(self:getSphereFrame())
             entity:setAlpha(self:getSphereAlpha())
             entity:draw()
         end
@@ -972,18 +971,6 @@ end
 ---@return SphereConfig
 function Shooter:getNextSphereConfig()
     return _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.nextColor .. ".json")
-end
-
-
-
----Returns the current sphere's animation frame.
----@return integer
-function Shooter:getSphereFrame()
-    local animationSpeed = self:getSphereConfig().spriteAnimationSpeed
-    if animationSpeed then
-        return math.floor(animationSpeed * _TotalTime)
-    end
-    return 1
 end
 
 

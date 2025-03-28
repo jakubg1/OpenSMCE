@@ -4,9 +4,38 @@
     "description": "The root object.",
     "properties": {
         "$schema": true,
-        "sprite": {
-            "$ref": "_structures/Sprite.json",
-            "description": "A sprite to be drawn when the sphere is on the screen."
+        "sprites": {
+            "type": "array",
+            "description": "A list of sprites which should be drawn as a part of this sphere.",
+            "items": {
+                "type": "object",
+                "description": "A single sprite entry.",
+                "properties": {
+                    "sprite": {
+                        "$ref": "_structures/Sprite.json",
+                        "description": "A sprite to be drawn when the sphere is on the screen."
+                    },
+                    "rotate": {
+                        "type": "boolean",
+                        "description": "Whether this sprite should rotate based on the path curvature."
+                    },
+                    "animationSpeed": {
+                        "type": "number",
+                        "description": "If specified, this sprite will animate with that speed in frames per second. This disables the rolling animation.",
+                        "minimum": 0.0
+                    },
+                    "rollingSpeed": {
+                        "type": "number",
+                        "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 0.63662, which is a close approximation of 2/pi, to ensure a smooth rolling effect.",
+                        "markdownDescription": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to `0.63662`, which is a close approximation of `2/pi`, to ensure a smooth rolling effect.",
+                        "minimum": 0.0
+                    }
+                },
+                "required": [
+                    "sprite"
+                ],
+                "additionalProperties": false
+            }
         },
         "shadowSprite": {
             "$ref": "_structures/Sprite.json",
@@ -16,17 +45,6 @@
             "$ref": "_structures/Vector2.json",
             "description": "The offset of the shadow sprite, compared to the base sprite. Defaults to (4, 4).",
             "markdownDescription": "The offset of the shadow sprite, compared to the base sprite. Defaults to `(4, 4)`."
-        },
-        "spriteAnimationSpeed": {
-            "type": "number",
-            "description": "When defined, the sphere sprite will animate with that speed in frames per second. This disables rolling animation and rotation. When left out, the sphere will have their usual rolling animation and will rotate based on the path curvature.",
-            "minimum": 0.0
-        },
-        "spriteRollingSpeed": {
-            "type": "number",
-            "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 0.63662, which is a close approximation of 2/pi, to ensure a smooth rolling effect.",
-            "markdownDescription": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to `0.63662`, which is a close approximation of `2/pi`, to ensure a smooth rolling effect.",
-            "minimum": 0.0
         },
         "size": {
             "type": "number",
@@ -450,7 +468,7 @@
         }
     },
     "required": [
-        "sprite",
+        "sprites",
         "shotBehavior",
         "hitBehavior",
         "matches"

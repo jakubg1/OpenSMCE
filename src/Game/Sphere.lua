@@ -60,9 +60,6 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 		self.appendSize = 0
 	end
 
-	self.animationPrevOffset = self:getOffset()
-	self.animationFrame = math.random() * self.frameCount
-
 	if not self.map.isDummy then
 		self.map.level.colorManager:increment(self.color)
 	end
@@ -658,30 +655,16 @@ function Sphere:draw(hidden, shadow)
 	if self.attachedSphere and self.attachedAngle then
 		pos = self.attachedSphere:getPos() - Vec2(self:getSize() + self.attachedSphere:getSize(), 0):rotate(self.attachedAngle + self.attachedSphere:getAngle())
 	end
-
-	local angle = self.config.spriteAnimationSpeed and 0 or self:getAngle()
-
+	local angle = self:getAngle()
 	local scale = self:getScale() * self.size / 32
-
-	local frame = 1
-	if self.config.spriteAnimationSpeed then
-		frame = math.floor(self.config.spriteAnimationSpeed * _TotalTime)
-	elseif self.appendSize == 1 then
-		frame = math.ceil(self.frameCount - self.animationFrame)
-	end
-
 	local colorM = self:getColor()
-
-	-- Rolling animation
-	local dist = self:getOffset() - self.animationPrevOffset
-	self.animationPrevOffset = self:getOffset()
-	self.animationFrame = (self.animationFrame + dist * (self.config.spriteRollingSpeed or (2 / math.pi))) % self.frameCount
+	local roll = self.appendSize == 1 and self:getOffset() or nil
 
 	-- Update the entity position, rotation, scale, frame, etc.
 	self.entity:setPos(pos.x, pos.y)
 	self.entity:setAngle(angle)
 	self.entity:setScale(scale)
-	self.entity:setFrame(frame)
+	self.entity:setRoll(roll)
 	self.entity:setColorM(colorM)
 
 	-- Move the particles to the appropriate layer.
@@ -739,9 +722,7 @@ end
 ---Reloads the configuration variables of the current sphere color.
 function Sphere:loadConfig()
 	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
-	self.sprite = self.config.sprite
 	-- TODO/DEPRECATED: Remove default value
-	self.frameCount = self.sprite.states[1].frameCount
 	self.size = self.config.size or 32
 end
 

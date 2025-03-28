@@ -20,13 +20,14 @@ function SphereEntity:new(posX, posY, color, layer)
 	self.angle = 0
 	self.scaleX = 1
 	self.scaleY = 1
-	self.frame = 1
+	self.roll = nil
 	self.colorM = Color()
 	self.color = color
 	self.alpha = 1
 	self.layer = layer
 
 	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color .. ".json")
+	self.rollOffsets = self:generateSpriteRollOffsets()
 	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, Vec2(posX, posY), layer)
 end
 
@@ -60,10 +61,10 @@ end
 
 
 
----Sets the frame of this sphere entity to be displayed.
----@param frame integer The animation frame of this Sphere Entity's sprite.
-function SphereEntity:setFrame(frame)
-	self.frame = frame
+---Sets the roll offset for this Sphere Entity. This affects the displayed frame for the sprites which have a rolling speed set.
+---@param roll number? The roll offset of this Sphere Entity. If `nil`, the roll offset will be reset, which means that the random frame offset for the roll animation will not be applied.
+function SphereEntity:setRoll(roll)
+	self.roll = roll
 end
 
 
@@ -81,6 +82,7 @@ end
 function SphereEntity:setColor(color)
 	self.color = color
 	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color .. ".json")
+	self.rollOffsets = self:generateSpriteRollOffsets()
 
 	-- Particle stuff
 	if self.particle then
@@ -113,6 +115,20 @@ end
 
 
 
+---Randomizes the frame offsets for the rolling animation, for each sprite separately.
+---The result should be stored in the `self.rollOffsets` field.
+---@return table
+function SphereEntity:generateSpriteRollOffsets()
+	local offsets = {}
+	for i, sprite in ipairs(self.config.sprites) do
+		local frameCount = sprite.sprite.states[1].frameCount
+		offsets[i] = math.random() * frameCount
+	end
+	return offsets
+end
+
+
+
 ---Returns the config of this Sphere Entity.
 ---@return table
 function SphereEntity:getConfig()
@@ -127,7 +143,6 @@ function SphereEntity:copy()
 	local entity = SphereEntity(self.posX, self.posY, self.color, self.layer)
 	entity.angle = self.angle
 	entity.scaleX, entity.scaleY = self.scaleX, self.scaleY
-	entity.frame = self.frame
 	entity.colorM = self.colorM
 	entity.alpha = self.alpha
 	return entity
@@ -160,7 +175,19 @@ function SphereEntity:draw(shadow)
 			self.config.shadowSprite:draw(self.posX + self.config.shadowOffset.x, self.posY + self.config.shadowOffset.y, 0.5, 0.5, nil, nil, self.angle, nil, self.alpha, self.scaleX, self.scaleY)
 		end
 	else
-		self.config.sprite:draw(self.posX, self.posY, 0.5, 0.5, nil, self.frame, self.angle, self.colorM, self.alpha, self.scaleX, self.scaleY)
+		for i, sprite in ipairs(self.config.sprites) do
+			local frame = 1
+			local frameCount = sprite.sprite.states[1].frameCount
+			if sprite.animationSpeed then
+				frame = sprite.animationSpeed * _TotalTime
+			elseif self.roll then
+				frame = sprite.rollingSpeed * -self.roll + self.rollOffsets[i]
+			end
+			frame = math.floor(frame) % frameCount
+
+			local angle = sprite.rotate and self.angle or 0
+			sprite.sprite:draw(self.posX, self.posY, 0.5, 0.5, nil, frame, angle, self.colorM, self.alpha, self.scaleX, self.scaleY)
+		end
 	end
 end
 
