@@ -58,6 +58,11 @@
             "description": "If true, the spheres affected with this effect can be destroyed by shooting through them.",
             "markdownDescription": "If `true`, the spheres affected with this effect can be destroyed by shooting through them."
         },
+        "destroyChainedSpheres": {
+            "type": "boolean",
+            "description": "If true, the spheres affected with this effect will be destroyed completely regardless of whether they are chained or not. Otherwise, if the affected spheres are chained, one chain layer will be removed instead.",
+            "markdownDescription": "If `true`, the spheres affected with this effect will be destroyed completely regardless of whether they are chained or not. Otherwise, if the affected spheres are chained, one chain layer will be removed instead."
+        },
         "canBoostStreak": {
             "type": "boolean",
             "description": "If true, the streak combo value may rise after destroying a group with this effect.",
@@ -108,6 +113,7 @@
         "levelLossProtection",
         "immobile",
         "fragile",
+        "destroyChainedSpheres",
         "canBoostStreak",
         "canBoostCascade",
         "canKeepCascade",

@@ -11,6 +11,7 @@
     - levelLossProtection (boolean) - If set to `true`, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
     - immobile (boolean) - If `true`, the spheres affected with this effect will stop.
     - fragile (boolean) - If `true`, the spheres affected with this effect can be destroyed by shooting through them.
+    - destroyChainedSpheres (boolean) - If `true`, the spheres affected with this effect will be destroyed completely regardless of whether they are chained or not. Otherwise, if the affected spheres are chained, one chain layer will be removed instead.
     - canBoostStreak (boolean) - If `true`, the streak combo value may rise after destroying a group with this effect.
     - canBoostCascade (boolean) - If `true`, the cascade combo value may rise after destroying a group with this effect.
     - canKeepCascade (boolean) - Whether shot spheres with this effect should prevent the cascade combo from dropping back to 0.

@@ -744,7 +744,7 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	for i = #spheres, 1, -1 do
 		local sphere = spheres[i]
 		local n = self:getSphereID(sphere)
-		if sphere:isChained() then
+		if not effectConfig.destroyChainedSpheres and sphere:isChained() then
 			sphere:breakChainLevel()
 			sphere:removeAllEffects()
 		elseif effectConfig.ghostTime then
