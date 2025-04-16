@@ -1,5 +1,5 @@
 {
-	// Place your OpenSMCE workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// Place your workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
 	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
 	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
 	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
@@ -27,13 +27,9 @@
 			"",
 			"-- Place your imports here",
 			"",
-			"",
-			"",
 			"function ${TM_FILENAME_BASE}:new(${1:params})",
 			"\t$0",
 			"end",
-			"",
-			"",
 			"",
 			"return ${TM_FILENAME_BASE}"
 		],
@@ -51,16 +47,22 @@
 			"",
 			"-- Place your imports here",
 			"",
-			"",
-			"",
 			"function ${1:${TM_FILENAME_BASE}}:new(${2:params})",
 			"\t$0",
 			"end",
 			"",
-			"",
-			"",
 			"return ${1:${TM_FILENAME_BASE}}"
 		],
 		"description": "Generate a class stub with a custom name."
+	},
+	"Code section": {
+		"scope": "lua",
+		"prefix": "!section",
+		"body": [
+			"--##########################################--",
+			"---------------- ${1:S E C T I O N} ---------------",
+			"--##########################################--"
+		],
+		"description": "Generate a formatted section separator."
 	}
 }
