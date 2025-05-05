@@ -32,7 +32,8 @@ function Debug:new()
 		exprt = {description = "Breaks down an Expression and shows the list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
 		ex = {description = "Debugs an Expression: shows detailed tokenization and list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
 		help = {description = "Displays this list.", parameters = {}},
-		collectible = {description = "Spawns a Collectible in the middle of the screen.", parameters = {{name = "collectible", type = "Collectible", optional = false}}}
+		collectible = {description = "Spawns a Collectible in the middle of the screen.", parameters = {{name = "collectible", type = "Collectible", optional = false}}},
+		train = {description = "Evaluates a train preset generator.", parameters = {{name = "preset", type = "string", optional = false, greedy = true}}}
 		-- Add commands to tinker with Expression Variables
 		-- Add a list of Expression Variables in a debug screen
 	}
@@ -160,11 +161,11 @@ end
 ---@param message string The message to be printed.
 ---@param depth integer? The message will contain one line in the traceback. This parameter determines how many jumps back in the traceback should be made. The function will never print more than one instance of the same line.
 function Debug:deprecationNotice(message, depth)
-	if not _EngineSettings:getPrintDeprecationNotices() then
+	if not _EngineSettings or not _EngineSettings:getPrintDeprecationNotices() then
 		return
 	end
-    depth = depth or 1
-	local trace = _Utils.strTrim(_Utils.strSplit(debug.traceback(), "\n")[depth + 2])
+	depth = depth or 1
+	local trace = _Utils.isolateTracebackLine(debug.traceback(), depth + 1)
 	if _Utils.isValueInTable(self.displayedDeprecationTraces, trace) then
 		return
 	end
@@ -172,7 +173,6 @@ function Debug:deprecationNotice(message, depth)
 	self.console:print({_COLORS.aqua, "[Debug] ", _COLORS.red, "Deprecation Notice: ", _COLORS.purple, message})
 	self.console:print({_COLORS.yellow, "        " .. trace})
 end
-
 
 function Debug:getDebugMain()
 	local s = ""
@@ -629,6 +629,112 @@ function Debug:runCommand(command)
 		self.console:print(string.format("ex(%s): %s", parameters[1], e:evaluate()))
 	elseif command == "collectible" then
 		_Game.level:spawnCollectible(_Game:getNativeResolution() / 2, parameters[1].id)
+	elseif command == "train" then
+		local preset = parameters[1]
+		local result = preset
+		if tonumber(preset:sub(1, 1)) then
+			local blocks = {}
+			-- Parse the preset generator into blocks.
+			local strBlocks = _Utils.strSplit(preset, ",")
+			for i, strBlock in ipairs(strBlocks) do
+				local block = {pool = {}, size = 0} -- ex: {pool = {"X", "Y", "Z"}, size = 3}
+				local spl = _Utils.strSplit(strBlock, ":")
+				for j = 1, spl[2]:len() do
+					table.insert(block.pool, spl[2]:sub(j, j))
+				end
+				spl = _Utils.strSplit(spl[1], "*")
+				block.size = tonumber(spl[2])
+				for j = 1, tonumber(spl[1]) do
+					table.insert(blocks, block)
+				end
+			end
+			-- Generate the preset from blocks.
+			-- We need to make sure the same color (letter/key, colors are dispatched later) is not appearing in any two neighboring groups.
+			--
+			-- Key insights: (note that whenever "color" is said that actually means "key" in this context)
+			-- - Group sizes can be disregarded altogether, because their neighborhood doesn't change at all no matter how big or small
+			--    the groups are (we assume n>0).
+			-- - All generators with only groups of colors>=3 are possible, because at any possible insertion point inside the built train
+			--    there are at most 2 blocked colors, so for 3 or more colors there's always at least one good color which can be used.
+			-- - All generators with groups of colors>=2 are possible, because at the beginning and end of the built train
+			--    there's always exactly one blocked color, so the group can always pick the other one.
+			-- - If there is at least one single color group, all generators are possible as long as there is no color for which the amount of
+			--    single color groups is greater than N/2 rounded up, where N is the total number of groups.
+			-- - If so, you could always place them next to each other and fill the gaps inside with a different color; this is also an exclusive
+			--    condition for impossibility if we disregard blatant errors like groups of size = 0 or amount of colors = 0.
+			-- - Because the groups which have 2 or more colors are always going to have at least two valid places (the edges) to be inserted,
+			--    the generation should always start by picking a random single color group and only if none of them can be inserted at any
+			--    position, then place one group of the next smallest number of colors.
+			-- - Placing any of these groups will automatically enable at least one of the single color groups to be placed next to the previously
+			--    inserted group regardless of that group's position, and if we run out of everything while still having single color groups left
+			--    which cannot be dispatched, we've basically hit the impossibility condition.
+			--    (we've started with a single, then we've dispatched all X multi-color groups, and as such another X single color groups,
+			--    hence we've dispatched 2X+1 groups out of which X+1 were single color and only single color groups are left,
+			--    and as such we've proven no valid combination is possible).
+			local genBlocks = {} -- ex: {{key = "X", size = 3}, {key = "Y", size = 1}, ...}
+			while #blocks > 0 do
+				-- Each iteration = one inserted block (or crash if no valid combination is possible).
+				-- Compose the block order and iterate through it here.
+				-- #pool=1 blocks in random order, then #pool=2 blocks in random order, then #pool=3 blocks in random order, and so on.
+				local blockPools = {} -- ex: {[1] = {<block>, <block>}, [3] = {<block>}, [7] = {<block>}}, where <block> is ex: {pool = {"X", "Y", "Z"}, size = 3}
+				local blockPoolSizes = {}
+				for i, block in ipairs(blocks) do
+					if not blockPools[#block.pool] then
+						blockPools[#block.pool] = {}
+						table.insert(blockPoolSizes, #block.pool)
+					end
+					table.insert(blockPools[#block.pool], block)
+				end
+				-- Flatten the pools by shuffling all blocks within their pools and combining them together into one table with increasing pool size.
+				local blocksIter = {} -- ex: {<block #pool=1>, <block #pool=1>, <block #pool=3>, <block #pool=7>, <block #pool=7>}
+				for i, index in ipairs(blockPoolSizes) do
+					local pool = blockPools[index]
+					_Utils.tableShuffle(pool)
+					for j, block in ipairs(pool) do
+						table.insert(blocksIter, block)
+					end
+				end
+				local success = false
+				for i, block in ipairs(blocksIter) do
+					local gapInfo = {}
+					local validGaps = {}
+					for j = 1, #genBlocks + 1 do
+						-- For each position we can insert this group to, check which keys it can have.
+						local prevBlock = genBlocks[j - 1]
+						local nextBlock = genBlocks[j]
+						local validKeys = _Utils.copyTable(block.pool)
+						if prevBlock then
+							_Utils.iTableRemoveValue(validKeys, prevBlock.key)
+						end
+						if nextBlock then
+							_Utils.iTableRemoveValue(validKeys, nextBlock.key)
+						end
+						gapInfo[j] = validKeys
+						if #validKeys > 0 then
+							table.insert(validGaps, j)
+						end
+					end
+					if #validGaps > 0 then
+						-- Success! Roll the key out of valid ones, and add the block to the list.
+						local index = validGaps[math.random(#validGaps)]
+						local keys = gapInfo[index]
+						local key = keys[math.random(#keys)]
+						table.insert(genBlocks, index, {key = key, size = block.size})
+						_Utils.iTableRemoveFirstValue(blocks, block)
+						success = true
+						break
+					end
+				end
+				-- If `success` is `false`, we've exhausted all possibilities.
+				assert(success, string.format("Level error: Impossible combination of blocks for the wave `%s`! If there is at least one possible combination without repeat keys next to each other, let me know!", preset))
+			end
+			-- Generate the string from blocks.
+			result = ""
+			for i, block in ipairs(genBlocks) do
+				result = result .. block.key:rep(block.size)
+			end
+		end
+		self.console:print(result)
 	end
 end
 
@@ -674,9 +780,15 @@ end
 
 
 
+---Returns a random line from the file `assets/eggs_crash.txt`, or a hardcoded message if the file does not exist.
+---@return string
 function Debug:getWitty()
-	local witties = _Utils.strSplit(_Utils.loadFile("assets/eggs_crash.txt"), "\n")
-	return witties[math.random(1, #witties)]
+	local witties = _Utils.loadFile("assets/eggs_crash.txt")
+	if not witties then
+		return "No witty message available :( ...Maybe that's for the better good?"
+	end
+	local wittiesSpl = _Utils.strSplit(witties, "\n")
+	return wittiesSpl[math.random(#wittiesSpl)]
 end
 
 

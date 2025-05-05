@@ -455,7 +455,8 @@ function Shooter:isActive()
         return false
     end
     -- Same for shooting delay.
-    if self.shotCooldown or self.shotCooldownFade or self.shotCooldownSphere then
+    -- `self.shotCooldownFade` is excluded, because during that timeout the sphere is already spawned.
+    if self.shotCooldown or self.shotCooldownSphere then
         return false
     end
     -- Otherwise, allow.
@@ -475,7 +476,7 @@ end
 ---Launches the current sphere, if possible.
 function Shooter:shoot()
     -- if nothing to shoot, it's pointless
-    if _Game.level.pause or not self:isActive() or self.color == 0 then
+    if _Game.level.pause or not self:isActive() or self.shotCooldownFade or self.color == 0 then
         return
     end
 

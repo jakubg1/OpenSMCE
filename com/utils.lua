@@ -258,15 +258,53 @@ end
 
 
 
+---Returns the index of the first occurence of the provided value in the given table.
+---Returns `nil` if the value is not found.
+---Don't use this on keyed tables!
+---@param t table The table to be checked.
+---@param v any The value to be found in the table `t`.
+---@return integer?
+function utils.iTableGetValueIndex(t, v)
+	for i = 1, #t do
+		if t[i] == v then
+			return i
+		end
+	end
+end
+
+---Returns the index of the last occurence of the provided value in the given table.
+---Returns `nil` if the value is not found.
+---Don't use this on keyed tables!
+---@param t table The table to be checked.
+---@param v any The value to be found in the table `t`.
+---@return integer?
+function utils.iTableGetLastValueIndex(t, v)
+	for i = #t, 1, -1 do
+		if t[i] == v then
+			return i
+		end
+	end
+end
+
+
+
 ---Removes the first occurence of the value `v` from the table `t`. Don't use this on keyed tables!
 ---@param t table The table to be checked.
 ---@param v any The value to be removed from the table `t`.
 function utils.iTableRemoveFirstValue(t, v)
-	for i = #t, 1, -1 do
-		if t[i] == v then
-			table.remove(t, i)
-			return
-		end
+	local i = utils.iTableGetValueIndex(t, v)
+	if i then
+		table.remove(t, i)
+	end
+end
+
+---Removes the last occurence of the value `v` from the table `t`. Don't use this on keyed tables!
+---@param t table The table to be checked.
+---@param v any The value to be removed from the table `t`.
+function utils.iTableRemoveLastValue(t, v)
+	local i = utils.iTableGetLastValueIndex(t, v)
+	if i then
+		table.remove(t, i)
 	end
 end
 
@@ -673,6 +711,31 @@ function utils.removeDeadObjects(t)
 			table.remove(t, i)
 		end
 	end
+end
+
+
+
+---Strips the extension from a path to a file.
+---@param path string The path to have its extension stripped.
+---@return string
+function utils.pathStripExtension(path)
+	local spl = utils.strSplit(path, ".")
+	spl[#spl] = nil
+	return utils.strJoin(spl, ".")
+end
+
+
+
+---Returns a single isolated line from the traceback at the given depth.
+---The input string must contain the `"stack traceback:"` line. Lines are counted starting at that line.
+---@param traceback string The raw traceback string.
+---@param depth integer? The line index to get. Defaults to 1.
+---@return string
+function utils.isolateTracebackLine(traceback, depth)
+	depth = depth or 1
+	local lines = utils.strSplit(traceback, "\n")
+	local stIndex = assert(utils.iTableGetValueIndex(lines, "stack traceback:"), "Provided traceback does not contain the \"stack traceback:\" line!")
+	return utils.strTrim(lines[stIndex + depth])
 end
 
 

@@ -44,6 +44,7 @@ local Display = require("src.Display")
 local Game = require("src.Game")
 local EditorMain = require("src.BootScreen.EditorMain")
 local BootScreen = require("src.BootScreen.BootScreen")
+local TestMain = require("src.BootScreen.TestMain")
 
 local ExpressionVariables = require("src.ExpressionVariables")
 local Settings = require("src.Settings")
@@ -139,32 +140,30 @@ function love.load(args)
 	_EngineSettings = Settings("settings.json")
 	_DiscordRPC = DiscordRichPresence()
 
-	-- Parse commandline arguments.
-	local parsedArgs = {}
-	local currentArg = nil
-	for i, arg in ipairs(args) do
-		if _Utils.strStartsWith(arg, "-") then
-			currentArg = arg:sub(2)
-			parsedArgs[currentArg] = true
-		elseif currentArg then
-			parsedArgs[currentArg] = arg
-			currentArg = nil
+	-- Optional: Print system limits.
+	if false then
+		for k, v in pairs(love.graphics.getSystemLimits()) do
+			print(k, v)
 		end
 	end
-	
-    -- If autoload.txt exists, load the game name from there
-    local autoload = _Utils.loadFile("autoload.txt") or nil
-	-- Overwrite autoload if a -g command is used.
-	if parsedArgs.g then
-		autoload = parsedArgs.g
+
+	-- Parse commandline arguments.
+	local parsedArgs = _ParseCommandLineArguments(args)
+
+	-- If the `-t` argument is provided, load the test suite.
+	if parsedArgs.t then
+		_LoadTestSuite()
+	else
+		-- If the `-g` argument is provided, that game will be immediately loaded and Boot Screen will be skipped.
+		-- Otherwise, if the `autoload.txt` exists in the main directory, read the game name from it and load that game.
+		local autoload = parsedArgs.g or _Utils.loadFile("autoload.txt")
+		if autoload then
+			_LoadGame(autoload)
+		else
+			_LoadBootScreen()
+		end
+		_Profiler.connect()
 	end
-	if autoload then
-        _LoadGame(autoload)
-    else
-		_LoadBootScreen()
-	end
-	--for k, v in pairs(love.graphics.getSystemLimits()) do print(k, v) end
-	_Profiler.connect()
 end
 
 function love.update(dt)
@@ -271,6 +270,29 @@ end
 
 
 -- FUNCTION ZONE
+
+---Parses command-line arguments and returns a table.
+---The arguments are parsed as follows:
+--- - `-param` will set the corresponding `param` field to `true`.
+--- - `-param value` will set the corresponding `param` field to `"value"`.
+---@param args [string] The raw list of strings containing all parameters.
+---@return table
+function _ParseCommandLineArguments(args)
+	local parsedArgs = {}
+	local currentArg = nil
+	for i, arg in ipairs(args) do
+		if _Utils.strStartsWith(arg, "-") then
+			currentArg = arg:sub(2)
+			parsedArgs[currentArg] = true
+		elseif currentArg then
+			parsedArgs[currentArg] = arg
+			currentArg = nil
+		end
+	end
+
+	return parsedArgs
+end
+
 function _LoadGame(gameName)
 	_Game = Game(gameName)
 	_Game:init()
@@ -283,6 +305,11 @@ end
 
 function _LoadBootScreen()
 	_Game = BootScreen()
+	_Game:init()
+end
+
+function _LoadTestSuite()
+	_Game = TestMain()
 	_Game:init()
 end
 
