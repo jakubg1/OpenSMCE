@@ -327,11 +327,11 @@ end
 
 
 
----Returns a table with combined entries of both tables. All values are unique; duplicates are removed.
+---Returns a table with combined entries of both tables. Duplicates are not removed.
 ---@param t1 table The first table.
 ---@param t2 table The second table.
 ---@return table
-function utils.tableUnion(t1, t2)
+function utils.tableAdd(t1, t2)
 	local t = {}
 	for i, v in ipairs(t1) do
 		table.insert(t, v)
@@ -339,7 +339,17 @@ function utils.tableUnion(t1, t2)
 	for i, v in ipairs(t2) do
 		table.insert(t, v)
 	end
-	return utils.tableRemoveDuplicates(t)
+	return t
+end
+
+
+
+---Returns a table with combined entries of both tables. All values are unique; duplicates are removed.
+---@param t1 table The first table.
+---@param t2 table The second table.
+---@return table
+function utils.tableUnion(t1, t2)
+	return utils.tableRemoveDuplicates(utils.tableAdd(t1, t2))
 end
 
 

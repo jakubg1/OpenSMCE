@@ -625,7 +625,8 @@ function Shooter:draw()
         end
     end
     -- next color
-    local sprite = self.config.nextBallSprites[self.nextColor].sprite
+    local nextSpriteConfig = self.config.nextBallSprites[self.nextColor] or self.config.nextBallSprites[0]
+    local sprite = nextSpriteConfig.sprite
     local nx, ny = _V.rotate(self.config.nextBallOffset.x, self.config.nextBallOffset.y, self.angle)
     sprite:draw(pos.x + nx, pos.y + ny, self.config.nextBallAnchor.x, self.config.nextBallAnchor.y, nil, self:getNextSphereFrame(), self.angle)
 
