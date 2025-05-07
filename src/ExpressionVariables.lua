@@ -9,6 +9,8 @@ local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 
 ---Constructor.
 function ExpressionVariables:new()
+    self.VARIABLE_PROVIDER_PATH = "config/variable_providers.json"
+
 	self.data = {pi = math.pi}
     self.variableProviderCache = {}
     self.variableProviderCacheIndices = {} -- Used for tracking `nil` values.
@@ -43,9 +45,9 @@ function ExpressionVariables:get(name, default)
         return self.variableProviderCache[name]
     end
     local providers = nil
-    pcall(function()
-        providers = _Game.resourceManager:getVariableProvidersConfig("config/variable_providers.json").providers
-    end)
+    if _Game.resourceManager:doesResourceExist(self.VARIABLE_PROVIDER_PATH) then
+        providers = _Game.resourceManager:getVariableProvidersConfig(self.VARIABLE_PROVIDER_PATH).providers
+    end
     if providers and providers[name] then
         local value = self:evaluateVariableProvider(providers[name])
         if providers[name].framePersistence then

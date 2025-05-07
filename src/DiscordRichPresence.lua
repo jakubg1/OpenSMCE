@@ -99,6 +99,7 @@ end
 
 ---Actual update function for Discord Rich Presence.
 ---Internal function; use `:update()` instead.
+---@private
 ---@param dt number Delta time in seconds.
 function DiscordRichPresence:updateRun(dt)
 	if not self.rpcMain then

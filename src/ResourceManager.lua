@@ -43,12 +43,14 @@ function ResourceManager:new()
 	-- - `config` holds the resource config. Optional.
 	-- - `asset` holds the resource itself. Optional, only if the resources are singletons and are not creatable from elsewhere (like Sprites, Sprite Atlases, Music etc.).
 	-- - `batches` is a list of resource batches this resource was loaded as, once all of them are unloaded, this entry is deleted; can be `nil` to omit that feature for global resources
+	---@alias Resource {type: string, config: any?, asset: any?, batches: string[]?}
 	--
 	-- Keys are absolute paths starting from the root game directory. Use `:resolvePath()` to obtain a key to this table from stuff like `":flame.json"`.
 	-- If a resource is queued but not loaded, its entry will not exist at all.
+	---@type Resource[]
 	self.resources = {}
 	-- A list of keys of the queued resources alongside their batches. Used to preserve the loading order.
-	---@type [{key: string, batches: [string]}]
+	---@type {key: string, batches: string[]}[]
 	self.queuedResources = {}
 
 	-- Values below are used only for newly queued/loaded resources.
@@ -149,7 +151,6 @@ function ResourceManager:update(dt)
 		-- Load the next resource from the queue.
 		local data = self.queuedResources[1]
 		self:loadResource(data.key, data.batches)
-		table.remove(self.queuedResources, 1)
 		-- Update the timer. This will allow the loop to exit.
 		stepLoadEnd = stepLoadEnd + (love.timer.getTime() - stepLoadStart)
 	end
@@ -401,24 +402,32 @@ end
 
 
 
+---Returns `true` if any resource at the provided path exists, `false` otherwise.
+---This function attempts to load the resource, so it will be loaded if the resource exists but was not loaded yet.
+---@param path string The path to the resource.
+---@return boolean
+function ResourceManager:doesResourceExist(path)
+	local key = self:resolveResourcePath(path, self.currentNamespace)
+	if self.resources[key] then
+		return true
+	end
+	pcall(function() self:loadResource(key, self.currentBatches) end)
+	return self.resources[key] ~= nil
+end
+
+
+
 ---Retrieves the resource entry by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
+---@private
 ---@param path string The path to the resource.
 ---@param type string? If specified, this will be the resource type in an error message if this resource is not found.
----@return table
+---@return Resource
 function ResourceManager:getResource(path, type)
 	local key = self:resolveResourcePath(path, self.currentNamespace)
-
 	if self.resources[key] then
 		self:updateResourceBatches(key, self.currentBatches)
 	else
-		-- Remove the resource from the queue if already queued - we're doing it for the queue.
-		for i, k in ipairs(self.queuedResources) do
-			if k.key == key then
-				table.remove(self.queuedResources, i)
-				break
-			end
-		end
 		self:loadResource(key, self.currentBatches)
 	end
 	if not self.resources[key] then
@@ -431,6 +440,7 @@ end
 
 ---Retrieves the resource asset by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
+---@private
 ---@param path string The path to the resource.
 ---@param type string? If specified, this will be the resource type in an error message if this resource is not found.
 ---@return any
@@ -442,6 +452,7 @@ end
 
 ---Retrieves the resource config by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
+---@private
 ---@param path string The path to the resource.
 ---@param type string? If specified, this will be the resource type in an error message if this resource is not found.
 ---@return any
@@ -452,10 +463,19 @@ end
 
 
 ---Loads the resource (config and/or asset): opens the file, deduces its type, and if applicable, constructs a resource and registers it in the resource table.
----Internal use only; don't call from outside of the class!
+---If the resource cannot be loaded or has been already loaded, this function throws an error.
+---@private
 ---@param key string The key to the resource: a full path starting from the root game folder.
----@param batches table? If present, this will be the list of resource batches this resource is going to be a part of. Otherwise, this resource will stay loaded permanently.
+---@param batches string[]? If present, this will be the list of resource batches this resource is going to be a part of. Otherwise, this resource will stay loaded permanently.
 function ResourceManager:loadResource(key, batches)
+	-- Remove the resource from the queue if this resource was queued.
+	for i, k in ipairs(self.queuedResources) do
+		if k.key == key then
+			table.remove(self.queuedResources, i)
+			break
+		end
+	end
+
 	-- Mark the resource as loaded by load counters. We are doing it here so everything counts.
 	for name, loadCounter in pairs(self.loadCounters) do
 		if loadCounter.queueKeys[key] then
@@ -535,9 +555,9 @@ end
 
 
 ---Updates the assigned resource batches for a given resource by adding a list of batches.
----Internal use only; don't call from outside of the class!
+---@private
 ---@param key string The resource to be updated.
----@param batches table? A list of batches to be added. If not specified, the resource will be marked as permanently loaded.
+---@param batches string[]? A list of batches to be added. If not specified, the resource will be marked as permanently loaded.
 function ResourceManager:updateResourceBatches(key, batches)
 	local resource = self.resources[key]
 
@@ -575,7 +595,7 @@ end
 ---   and queued resources (by `:getResource*()` and `:queueResource()`) will be loaded as a part of. Unloading *all* of these
 ---   batches by calling `:unloadResourceBatch()` will cause the resource to be unloaded from memory.
 --- - If `nil` is specified (or the function is called without arguments), all subsequently loaded resources will be loaded permanently.
----@param batches table? A table of strings, each of which is a resource batch identifier.
+---@param batches string[]? A table of strings, each of which is a resource batch identifier.
 function ResourceManager:setBatches(batches)
 	self.currentBatches = batches
 end
@@ -621,7 +641,7 @@ end
 
 ---Returns a list of paths to all loaded resources of a given type.
 ---@param type string One of `RESOURCE_TYPES`, of which all loaded resource paths will be returned.
----@return table
+---@return string[]
 function ResourceManager:getResourceList(type)
 	local pathList = {}
 

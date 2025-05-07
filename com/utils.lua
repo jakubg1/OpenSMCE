@@ -13,7 +13,6 @@ local utils = {}
 function utils.loadFile(path)
 	local file, err = io.open(path, "r")
 	if not file then
-		print(string.format("WARNING: Error during loading: \"%s\" (%s): expect errors!", path, err))
 		return
 	end
 	io.input(file)

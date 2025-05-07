@@ -16,7 +16,7 @@ function Sprite:new(config, path)
 
 	self.image = config.image.img
 	self.imageSize = config.image.size
-	---@type [{frameCount: integer, frames: [love.Quad]}]
+	---@type {frameCount: integer, frames: love.Quad[]}[]
 	self.states = {}
 	self:generateFrames(0, 0)
 end
