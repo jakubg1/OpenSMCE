@@ -104,4 +104,18 @@ function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha
 	love.graphics.draw(self.image, self:getFrame(state, frame), posX, posY, rot, scaleX, scaleY)
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function Sprite.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
+
+    ---Retrieves a Sprite by a given path.
+    ---@param path string The resource path.
+    ---@return Sprite
+    function ResourceManager:getSprite(path)
+        return self:getResourceAsset(path, "Sprite")
+    end
+end
+
 return Sprite

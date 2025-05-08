@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):CollectibleGeneratorConfig
 local CollectibleGeneratorConfig = class:derive("CollectibleGeneratorConfig")
 
-
+CollectibleGeneratorConfig.metadata = {
+    schemaPath = "collectible_generator.json"
+}
 
 ---Constructs an instance of CollectibleGeneratorConfig.
 ---@param data table Raw data from a file.
@@ -51,6 +53,18 @@ function CollectibleGeneratorConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function CollectibleGeneratorConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a CollectibleGeneratorConfig by a given path.
+    ---@param path string The resource path.
+    ---@return CollectibleGeneratorConfig
+    function ResourceManager:getCollectibleGeneratorConfig(path)
+        return self:getResourceConfig(path, "CollectibleGeneratorConfig")
+    end
+end
 
 return CollectibleGeneratorConfig

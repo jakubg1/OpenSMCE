@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):ShooterMovementConfig
 local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 
-
+ShooterMovementConfig.metadata = {
+    schemaPath = "config/shooter_movement.json"
+}
 
 ---Constructs an instance of ShooterMovementConfig.
 ---@param data table Raw data from a file.
@@ -33,6 +35,18 @@ function ShooterMovementConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function ShooterMovementConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a ShooterMovementConfig by a given path.
+    ---@param path string The resource path.
+    ---@return ShooterMovementConfig
+    function ResourceManager:getShooterMovementConfig(path)
+        return self:getResourceConfig(path, "ShooterMovementConfig")
+    end
+end
 
 return ShooterMovementConfig

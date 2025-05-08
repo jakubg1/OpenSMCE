@@ -12,7 +12,9 @@ local ShooterConfig = class:derive("ShooterConfig")
 
 local Vec2 = require("src.Essentials.Vector2")
 
-
+ShooterConfig.metadata = {
+    schemaPath = "config/shooter.json"
+}
 
 ---Constructs an instance of ShooterConfig.
 ---@param data table Raw data from a file.
@@ -87,6 +89,18 @@ function ShooterConfig:new(data, path)
     self.hitboxSize = u.parseVec2(data.hitboxSize, path, "hitboxSize")
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function ShooterConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a ShooterConfig by a given path.
+    ---@param path string The resource path.
+    ---@return ShooterConfig
+    function ResourceManager:getShooterConfig(path)
+        return self:getResourceConfig(path, "ShooterConfig")
+    end
+end
 
 return ShooterConfig

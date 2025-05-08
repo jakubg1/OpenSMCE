@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):LevelSetConfig
 local LevelSetConfig = class:derive("LevelSetConfig")
 
-
+LevelSetConfig.metadata = {
+    schemaPath = "config/level_set.json"
+}
 
 ---Constructs an instance of LevelSetConfig.
 ---@param data table Raw data from a file.
@@ -59,6 +61,18 @@ function LevelSetConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function LevelSetConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a LevelSetConfig by a given path.
+    ---@param path string The resource path.
+    ---@return LevelSetConfig
+    function ResourceManager:getLevelSetConfig(path)
+        return self:getResourceConfig(path, "LevelSetConfig")
+    end
+end
 
 return LevelSetConfig

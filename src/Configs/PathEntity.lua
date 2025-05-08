@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):PathEntityConfig
 local PathEntityConfig = class:derive("PathEntityConfig")
 
-
+PathEntityConfig.metadata = {
+    schemaPath = "path_entity.json"
+}
 
 ---Constructs an instance of PathEntityConfig.
 ---@param data table Raw data from a file.
@@ -48,6 +50,18 @@ function PathEntityConfig:new(data, path)
     self.maxSphereChainsDestroyed = u.parseIntegerOpt(data.maxSphereChainsDestroyed, path, "maxSphereChainsDestroyed")
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function PathEntityConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a PathEntityConfig by a given path.
+    ---@param path string The resource path.
+    ---@return PathEntityConfig
+    function ResourceManager:getPathEntityConfig(path)
+        return self:getResourceConfig(path, "PathEntityConfig")
+    end
+end
 
 return PathEntityConfig

@@ -970,7 +970,7 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 # context is for example: "", "fonts.", "operations[i].", "nextBallSprites[tonumber(n)]".
 # data_context is analogically: None, None, None, "nextBallSprites[n]".
 # error_context is analogically: None, None, "operations[\" .. tostring(i) .. \"].", "nextBallSprites.\" .. tostring(n) .. \".".
-def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, context = "", data_context = None, error_context = None, iterators_used = 0):
+def docld_to_lua(entry, class_name, schema_path, is_root = True, omit_packing = False, context = "", data_context = None, error_context = None, iterators_used = 0):
 	out = []
 
 	if is_root and not omit_packing:
@@ -990,7 +990,11 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 			out.append("")
 			out.append("local Vec2 = require(\"src.Essentials.Vector2\")")
 		out.append("")
-		out.append("")
+		out.append(class_name + ".metadata = {")
+		out.append(1)
+		out.append("schemaPath = \"" + schema_path + "\"")
+		out.append(-1)
+		out.append("}")
 		out.append("")
 		out.append("---Constructs an instance of " + class_name + ".")
 		out.append("---@param data table Raw data from a file.")
@@ -1039,7 +1043,7 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 				new_context = context + name + "[" + key + "]."
 				new_data_context = data_context + name + "[n]."
 				new_error_context = error_context + name + ".\" .. tostring(n) .. \"."
-				out += docld_to_lua(child, class_name, False, omit_packing, new_context, new_data_context, new_error_context, iterators_used)
+				out += docld_to_lua(child, class_name, schema_path, False, omit_packing, new_context, new_data_context, new_error_context, iterators_used)
 				out.append(-1)
 				out.append("end")
 			elif "keyconst" in entry:
@@ -1058,7 +1062,7 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 								new_context = context + name + "." if "name" in entry else context
 								new_data_context = data_context + name + "." if "name" in entry else data_context
 								new_error_context = error_context + name + "." if "name" in entry else error_context
-								out += docld_to_lua(subchild, class_name, False, omit_packing, new_context, new_data_context, new_error_context, iterators_used)
+								out += docld_to_lua(subchild, class_name, schema_path, False, omit_packing, new_context, new_data_context, new_error_context, iterators_used)
 						else:
 							out.append("-- No fields")
 						out.append(-1)
@@ -1085,7 +1089,7 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 						distinguish_block = (not "type" in child or child["type"] != "string") and "children" in child
 						if distinguish_block and (len(out) > 0 and out[-1] != ""):
 							out.append("")
-						out += docld_to_lua(child, class_name, False, omit_packing, new_context, new_data_context, new_error_context, iterators_used)
+						out += docld_to_lua(child, class_name, schema_path, False, omit_packing, new_context, new_data_context, new_error_context, iterators_used)
 						if distinguish_block:
 							out.append("")
 			if not is_root:
@@ -1111,7 +1115,7 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 				out.append(1)
 			out.append("for " + iterator + " = 1, #data." + table_id + " do")
 			out.append(1)
-			out += docld_to_lua(child, class_name, False, omit_packing, table_id + "[" + iterator + "].", table_data_id + "[" + iterator + "].", table_error_id + "[\" .. tostring(" + iterator + ") .. \"].", iterators_used + 1)
+			out += docld_to_lua(child, class_name, schema_path, False, omit_packing, table_id + "[" + iterator + "].", table_data_id + "[" + iterator + "].", table_error_id + "[\" .. tostring(" + iterator + ") .. \"].", iterators_used + 1)
 			out.append(-1)
 			out.append("end")
 			if optional:
@@ -1141,7 +1145,23 @@ def docld_to_lua(entry, class_name, is_root = True, omit_packing = False, contex
 		out.append(-1)
 		out.append("end")
 		out.append("")
+		out.append("---Injects functions to Resource Manager regarding this resource type.")
+		out.append("---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.")
+		out.append("function " + class_name + ".inject(ResourceManager)")
+		out.append(1)
+		out.append("---@class ResourceManager")
+		out.append("ResourceManager = ResourceManager")
 		out.append("")
+		out.append("---Retrieves a " + class_name + " by a given path.")
+		out.append("---@param path string The resource path.")
+		out.append("---@return " + class_name)
+		out.append("function ResourceManager:get" + class_name + "(path)")
+		out.append(1)
+		out.append("return self:getResourceConfig(path, \"" + class_name + "\")")
+		out.append(-1)
+		out.append("end")
+		out.append(-1)
+		out.append("end")
 		out.append("")
 		out.append("return " + class_name)
 	
@@ -1181,9 +1201,9 @@ def docl_to_schema(data, structures_path):
 	return docld_to_schema(data, True, structures_path)
 
 # Converts DocLang to a Lua config class.
-def docl_to_lua(data, class_name, omit_packing = False):
+def docl_to_lua(data, class_name, schema_path, omit_packing = False):
 	data = docl_to_docld(data)
-	return docld_to_lua(data, class_name, True, omit_packing)
+	return docld_to_lua(data, class_name, schema_path, True, omit_packing)
 
 
 
@@ -1198,7 +1218,7 @@ def docl_convert_file(path_in, path_out):
 def docl_convert_file_lua(path_in, path_out):
 	contents = load_file(path_in)
 	class_name = ("UI2" if "ui2" in path_in else "") + case_snake_to_pascal(path_in.split("/")[-1][:-5]) + "Config"
-	new_contents = docl_to_lua(contents, class_name)
+	new_contents = docl_to_lua(contents, class_name, path_in[5:-5] + ".json")
 	save_file(path_out, new_contents)
 
 # Converts a DocLang (.docl) file to a config class, and then matches its contents with what's in the specified Config Class file (.lua).
@@ -1208,7 +1228,7 @@ def docl_test_file_lua(path_test, path_against):
 		contents_against = load_file(path_against)
 	except IOError:
 		contents_against = None
-	contents_tested = docl_to_lua(contents_test, "ExampleObject", True)
+	contents_tested = docl_to_lua(contents_test, "ExampleObject", "example_object.json", True)
 	if contents_against == None:
 		print(path_test + " -> " + path_against + ": " + C_YELLOW + "NO LUA FILE FOUND" + C_RESET)
 		print(indent_text(C_YELLOW + C_BOLD + "Should be:" + C_RESET, 4))
@@ -1301,9 +1321,9 @@ def docl_print_schema(path):
 	print(json.dumps(docl_to_schema(contents, "structures/"), indent = 4))
 
 # Generates and prints a Lua Config Class from DocL in a given file.
-def docl_print_lua(path, class_name, omit_packing = False):
+def docl_print_lua(path, class_name, schema_path, omit_packing = False):
 	contents = load_file(path)
-	print(docl_to_lua(contents, class_name, omit_packing))
+	print(docl_to_lua(contents, class_name, schema_path, omit_packing))
 
 
 
@@ -1329,7 +1349,7 @@ def main():
 				docl_print_schema(sys.argv[2])
 				print_usage = False
 
-	#docl_print_lua(path, "CollectibleGeneratorConfig")
+	#docl_print_lua(path, "CollectibleGeneratorConfig", "collectible_generator.json")
 
 	#html_process_data()
 

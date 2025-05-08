@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):SphereSelectorConfig
 local SphereSelectorConfig = class:derive("SphereSelectorConfig")
 
-
+SphereSelectorConfig.metadata = {
+    schemaPath = "sphere_selector.json"
+}
 
 ---Constructs an instance of SphereSelectorConfig.
 ---@param data table Raw data from a file.
@@ -36,6 +38,18 @@ function SphereSelectorConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function SphereSelectorConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a SphereSelectorConfig by a given path.
+    ---@param path string The resource path.
+    ---@return SphereSelectorConfig
+    function ResourceManager:getSphereSelectorConfig(path)
+        return self:getResourceConfig(path, "SphereSelectorConfig")
+    end
+end
 
 return SphereSelectorConfig

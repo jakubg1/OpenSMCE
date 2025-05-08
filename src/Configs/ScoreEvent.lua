@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):ScoreEventConfig
 local ScoreEventConfig = class:derive("ScoreEventConfig")
 
-
+ScoreEventConfig.metadata = {
+    schemaPath = "score_event.json"
+}
 
 ---Constructs an instance of ScoreEventConfig.
 ---@param data table Raw data from a file.
@@ -37,6 +39,18 @@ function ScoreEventConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function ScoreEventConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a ScoreEventConfig by a given path.
+    ---@param path string The resource path.
+    ---@return ScoreEventConfig
+    function ResourceManager:getScoreEventConfig(path)
+        return self:getResourceConfig(path, "ScoreEventConfig")
+    end
+end
 
 return ScoreEventConfig

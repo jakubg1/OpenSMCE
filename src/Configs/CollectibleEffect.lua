@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):CollectibleEffectConfig
 local CollectibleEffectConfig = class:derive("CollectibleEffectConfig")
 
-
+CollectibleEffectConfig.metadata = {
+    schemaPath = "collectible_effect.json"
+}
 
 ---Constructs an instance of CollectibleEffectConfig.
 ---@param data table Raw data from a file.
@@ -84,6 +86,18 @@ function CollectibleEffectConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function CollectibleEffectConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a CollectibleEffectConfig by a given path.
+    ---@param path string The resource path.
+    ---@return CollectibleEffectConfig
+    function ResourceManager:getCollectibleEffectConfig(path)
+        return self:getResourceConfig(path, "CollectibleEffectConfig")
+    end
+end
 
 return CollectibleEffectConfig

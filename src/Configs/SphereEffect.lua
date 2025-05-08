@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):SphereEffectConfig
 local SphereEffectConfig = class:derive("SphereEffectConfig")
 
-
+SphereEffectConfig.metadata = {
+    schemaPath = "sphere_effect.json"
+}
 
 ---Constructs an instance of SphereEffectConfig.
 ---@param data table Raw data from a file.
@@ -53,6 +55,18 @@ function SphereEffectConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function SphereEffectConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a SphereEffectConfig by a given path.
+    ---@param path string The resource path.
+    ---@return SphereEffectConfig
+    function ResourceManager:getSphereEffectConfig(path)
+        return self:getResourceConfig(path, "SphereEffectConfig")
+    end
+end
 
 return SphereEffectConfig

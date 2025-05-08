@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):VariableProvidersConfig
 local VariableProvidersConfig = class:derive("VariableProvidersConfig")
 
-
+VariableProvidersConfig.metadata = {
+    schemaPath = "config/variable_providers.json"
+}
 
 ---Constructs an instance of VariableProvidersConfig.
 ---@param data table Raw data from a file.
@@ -53,6 +55,18 @@ function VariableProvidersConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function VariableProvidersConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a VariableProvidersConfig by a given path.
+    ---@param path string The resource path.
+    ---@return VariableProvidersConfig
+    function ResourceManager:getVariableProvidersConfig(path)
+        return self:getResourceConfig(path, "VariableProvidersConfig")
+    end
+end
 
 return VariableProvidersConfig

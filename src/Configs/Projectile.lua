@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):ProjectileConfig
 local ProjectileConfig = class:derive("ProjectileConfig")
 
-
+ProjectileConfig.metadata = {
+    schemaPath = "projectile.json"
+}
 
 ---Constructs an instance of ProjectileConfig.
 ---@param data table Raw data from a file.
@@ -34,6 +36,18 @@ function ProjectileConfig:new(data, path)
     self.destroyGameEventPerSphere = u.parseGameEventConfigOpt(data.destroyGameEventPerSphere, path, "destroyGameEventPerSphere")
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function ProjectileConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a ProjectileConfig by a given path.
+    ---@param path string The resource path.
+    ---@return ProjectileConfig
+    function ResourceManager:getProjectileConfig(path)
+        return self:getResourceConfig(path, "ProjectileConfig")
+    end
+end
 
 return ProjectileConfig

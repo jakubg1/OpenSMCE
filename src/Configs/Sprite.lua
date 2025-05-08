@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):SpriteConfig
 local SpriteConfig = class:derive("SpriteConfig")
 
-
+SpriteConfig.metadata = {
+    schemaPath = "sprite.json"
+}
 
 ---Constructs an instance of SpriteConfig.
 ---@param data table Raw data from a file.
@@ -40,6 +42,18 @@ function SpriteConfig:new(data, path)
     self.batched = u.parseBooleanOpt(data.batched, path, "batched")
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function SpriteConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a SpriteConfig by a given path.
+    ---@param path string The resource path.
+    ---@return SpriteConfig
+    function ResourceManager:getSpriteConfig(path)
+        return self:getResourceConfig(path, "SpriteConfig")
+    end
+end
 
 return SpriteConfig

@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):GameEventConfig
 local GameEventConfig = class:derive("GameEventConfig")
 
-
+GameEventConfig.metadata = {
+    schemaPath = "game_event.json"
+}
 
 ---Constructs an instance of GameEventConfig.
 ---@param data table Raw data from a file.
@@ -63,6 +65,18 @@ function GameEventConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function GameEventConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a GameEventConfig by a given path.
+    ---@param path string The resource path.
+    ---@return GameEventConfig
+    function ResourceManager:getGameEventConfig(path)
+        return self:getResourceConfig(path, "GameEventConfig")
+    end
+end
 
 return GameEventConfig

@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):DifficultyConfig
 local DifficultyConfig = class:derive("DifficultyConfig")
 
-
+DifficultyConfig.metadata = {
+    schemaPath = "difficulty.json"
+}
 
 ---Constructs an instance of DifficultyConfig.
 ---@param data table Raw data from a file.
@@ -40,6 +42,18 @@ function DifficultyConfig:new(data, path)
     self.lifeConfig.rollbackCoinsAfterFailure = u.parseBooleanOpt(data.lifeConfig.rollbackCoinsAfterFailure, path, "lifeConfig.rollbackCoinsAfterFailure") == true
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function DifficultyConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a DifficultyConfig by a given path.
+    ---@param path string The resource path.
+    ---@return DifficultyConfig
+    function ResourceManager:getDifficultyConfig(path)
+        return self:getResourceConfig(path, "DifficultyConfig")
+    end
+end
 
 return DifficultyConfig

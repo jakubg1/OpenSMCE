@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):LevelSequenceConfig
 local LevelSequenceConfig = class:derive("LevelSequenceConfig")
 
-
+LevelSequenceConfig.metadata = {
+    schemaPath = "level_sequence.json"
+}
 
 ---Constructs an instance of LevelSequenceConfig.
 ---@param data table Raw data from a file.
@@ -64,6 +66,18 @@ function LevelSequenceConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function LevelSequenceConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a LevelSequenceConfig by a given path.
+    ---@param path string The resource path.
+    ---@return LevelSequenceConfig
+    function ResourceManager:getLevelSequenceConfig(path)
+        return self:getResourceConfig(path, "LevelSequenceConfig")
+    end
+end
 
 return LevelSequenceConfig

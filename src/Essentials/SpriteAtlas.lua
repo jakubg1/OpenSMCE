@@ -56,4 +56,18 @@ function SpriteAtlas:testSave()
     self.canvas:newImageData():encode("png", "test.png")
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function SpriteAtlas.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
+
+    ---Retrieves a SpriteAtlas by a given path.
+    ---@param path string The resource path.
+    ---@return SpriteAtlas
+    function ResourceManager:getSpriteAtlas(path)
+        return self:getResourceAsset(path, "SpriteAtlas")
+    end
+end
+
 return SpriteAtlas

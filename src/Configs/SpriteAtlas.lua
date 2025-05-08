@@ -10,7 +10,9 @@ local class = require "com.class"
 ---@overload fun(data, path):SpriteAtlasConfig
 local SpriteAtlasConfig = class:derive("SpriteAtlasConfig")
 
-
+SpriteAtlasConfig.metadata = {
+    schemaPath = "sprite_atlas.json"
+}
 
 ---Constructs an instance of SpriteAtlasConfig.
 ---@param data table Raw data from a file.
@@ -25,6 +27,18 @@ function SpriteAtlasConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function SpriteAtlasConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a SpriteAtlasConfig by a given path.
+    ---@param path string The resource path.
+    ---@return SpriteAtlasConfig
+    function ResourceManager:getSpriteAtlasConfig(path)
+        return self:getResourceConfig(path, "SpriteAtlasConfig")
+    end
+end
 
 return SpriteAtlasConfig

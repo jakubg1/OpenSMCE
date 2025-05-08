@@ -14,25 +14,6 @@ local Music = require("src.Essentials.Music")
 local Font = require("src.Essentials.Font")
 local ColorPalette = require("src.Essentials.ColorPalette")
 
-local CollectibleConfig = require("src.Configs.Collectible")
-local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
-local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
-local DifficultyConfig = require("src.Configs.Difficulty")
-local GameEventConfig = require("src.Configs.GameEvent")
-local LevelSequenceConfig = require("src.Configs.LevelSequence")
-local LevelSetConfig = require("src.Configs.LevelSet")
-local PathEntityConfig = require("src.Configs.PathEntity")
-local ProjectileConfig = require("src.Configs.Projectile")
-local ScoreEventConfig = require("src.Configs.ScoreEvent")
-local ShooterConfig = require("src.Configs.Shooter")
-local ShooterMovementConfig = require("src.Configs.ShooterMovement")
-local SphereConfig = require("src.Configs.Sphere")
-local SphereEffectConfig = require("src.Configs.SphereEffect")
-local SphereSelectorConfig = require("src.Configs.SphereSelector")
-local SpriteConfig = require("src.Configs.Sprite")
-local SpriteAtlasConfig = require("src.Configs.SpriteAtlas")
-local VariableProvidersConfig = require("src.Configs.VariableProviders")
-
 
 
 ---Constructs a Resource Manager.
@@ -57,67 +38,33 @@ function ResourceManager:new()
 	self.currentNamespace = nil
 	self.currentBatches = nil
 
+	self.RESOURCE_TYPE_LOCATION = "src/Configs"
+
 	self.RESOURCE_TYPES = {
-		image = {extension = "png", assetConstructor = Image},
-		sprite = {extension = "json", constructor = SpriteConfig, assetConstructor = Sprite},
-		spriteAtlas = {extension = "json", constructor = SpriteAtlasConfig, assetConstructor = SpriteAtlas},
-		sound = {extension = "ogg", assetConstructor = Sound},
-		soundEvent = {extension = "json", assetConstructor = SoundEvent},
-		music = {extension = "json", assetConstructor = Music},
-		particle = {extension = "json", assetConstructor = _Utils.loadJson},
-		font = {extension = "json", assetConstructor = Font},
-		fontFile = {extension = "ttf"},
-		colorPalette = {extension = "json", assetConstructor = ColorPalette},
-		collectible = {extension = "json", constructor = CollectibleConfig},
-		colorGenerator = {extension = "json"},
-		collectibleEffect = {extension = "json", constructor = CollectibleEffectConfig},
-		collectibleGenerator = {extension = "json", constructor = CollectibleGeneratorConfig},
-		difficulty = {extension = "json", constructor = DifficultyConfig},
-		gameEvent = {extension = "json", constructor = GameEventConfig},
-		levelSequence = {extension = "json", constructor = LevelSequenceConfig},
-		levelSet = {extension = "json", constructor = LevelSetConfig},
-		pathEntity = {extension = "json", constructor = PathEntityConfig},
-		projectile = {extension = "json", constructor = ProjectileConfig},
-		scoreEvent = {extension = "json", constructor = ScoreEventConfig},
-		shooter = {extension = "json", constructor = ShooterConfig},
-		shooterMovement = {extension = "json", constructor = ShooterMovementConfig},
-		sphere = {extension = "json", constructor = SphereConfig},
-		sphereEffect = {extension = "json", constructor = SphereEffectConfig},
-		sphereSelector = {extension = "json", constructor = SphereSelectorConfig},
-		variableProviders = {extension = "json", constructor = VariableProvidersConfig},
-		map = {extension = "/"},
-		level = {extension = "json"}
+		image = {assetConstructor = Image},
+		sound = {assetConstructor = Sound},
+		fontFile = {},
+
+		soundEvent = {assetConstructor = SoundEvent},
+		music = {assetConstructor = Music},
+		particle = {assetConstructor = _Utils.loadJson},
+		font = {assetConstructor = Font},
+		colorPalette = {assetConstructor = ColorPalette},
+		colorGenerator = {},
+		level = {}
 	}
-	CollectibleConfig.inject(ResourceManager)
+
 	-- TODO: Auto-generate these two below.
 	-- Maybe consider registering the resource types dynamically?
 	-- Alongside this, update the table in Resource Management section in the wiki!
 	self.SCHEMA_TO_RESOURCE_MAP = {
-		["sprite.json"] = "sprite",
 		["sound_event.json"] = "soundEvent",
 		["music_track.json"] = "music",
 		["particle.json"] = "particle",
 		["font.json"] = "font",
 		["color_palette.json"] = "colorPalette",
 		["config/color_generator.json"] = "colorGenerator",
-		["config/level.json"] = "level",
-		["config/level_set.json"] = "levelSet",
-		["config/shooter.json"] = "shooter",
-		["config/shooter_movement.json"] = "shooterMovement",
-		["config/variable_providers.json"] = "variableProviders",
-		["collectible.json"] = "collectible",
-		["collectible_effect.json"] = "collectibleEffect",
-		["collectible_generator.json"] = "collectibleGenerator",
-		["difficulty.json"] = "difficulty",
-		["game_event.json"] = "gameEvent",
-		["level_sequence.json"] = "levelSequence",
-		["path_entity.json"] = "pathEntity",
-		["projectile.json"] = "projectile",
-		["score_event.json"] = "scoreEvent",
-		["sphere.json"] = "sphere",
-		["sphere_effect.json"] = "sphereEffect",
-		["sprite_atlas.json"] = "spriteAtlas",
-		["sphere_selector.json"] = "sphereSelector"
+		["config/level.json"] = "level"
 	}
 	self.EXTENSION_TO_RESOURCE_MAP = {
 		png = "image",
@@ -126,6 +73,16 @@ function ResourceManager:new()
 		wav = "sound",
 		ttf = "fontFile"
 	}
+
+	-- Register the resource types and config constructors.
+	self:registerResourceTypes(self.RESOURCE_TYPE_LOCATION)
+
+	-- Register the singleton/asset constructors.
+	self.SINGLETON_LIST = {
+		Sprite = Sprite,
+		SpriteAtlas = SpriteAtlas
+	}
+	self:registerResourceSingletons(self.SINGLETON_LIST)
 
 	-- Load counters allow tracking the progress of loading a chosen set of resources.
 	self.loadCounters = {}
@@ -158,25 +115,47 @@ end
 
 
 
+---Goes through all `.lua` files in the provided source code directory and for each eligible one:
+--- - Registers a resource type by adding an entry to `self.RESOURCE_TYPES` with a Config Class constructor.
+--- - Registers a schema association, which is used to determine what kind of any resource file is.
+---   - This association is based on the metadata included in the config class file.
+--- - Injects a `:get*Config()` function to the ResourceManager class using the Config Class' `.inject()` function.
+---@param dir string The base directory to look for resource types.
+function ResourceManager:registerResourceTypes(dir)
+	local names = _Utils.getDirListing(dir, "file", ".lua")
+	for i, name in ipairs(names) do
+		name = _Utils.pathStripExtension(name)
+		local resourceClass = require(dir .. "/" .. name)
+		if resourceClass.metadata and resourceClass.inject then
+			print("Valid resource class: " .. name)
+			self.SCHEMA_TO_RESOURCE_MAP[resourceClass.metadata.schemaPath] = name
+			resourceClass.inject(ResourceManager)
+			self.RESOURCE_TYPES[name] = {constructor = resourceClass}
+		end
+	end
+end
+
+
+
+---For each provided resource type in the list:
+--- - Registers a singleton constructor and stores it in the `self.RESOURCE_TYPES[].assetConstructor` field.
+--- - Injects a `:get*()` function to the ResourceManager using the singleton class' `.inject()` function.
+---Provided resource types must be already registered with `:registerResourceTypes()`.
+---@param singletons {string: any} Keys are resource names, values are classes corresponding to that resource's singleton class.
+function ResourceManager:registerResourceSingletons(singletons)
+	for name, singletonClass in pairs(singletons) do
+		singletonClass.inject(ResourceManager)
+		self.RESOURCE_TYPES[name].assetConstructor = singletonClass
+	end
+end
+
+
+
 ---Retrieves an Image by a given path.
 ---@param path string The resource path.
 ---@return Image
 function ResourceManager:getImage(path)
 	return self:getResourceAsset(path, "image")
-end
-
----Retrieves a Sprite by a given path.
----@param path string The resource path.
----@return Sprite
-function ResourceManager:getSprite(path)
-	return self:getResourceAsset(path, "sprite")
-end
-
----Retrieves a Sprite Atlas by a given path.
----@param path string The resource path.
----@return SpriteAtlas
-function ResourceManager:getSpriteAtlas(path)
-	return self:getResourceAsset(path, "sprite atlas")
 end
 
 ---Retrieves a Sound by a given path.
@@ -219,125 +198,6 @@ end
 ---@return ColorPalette
 function ResourceManager:getColorPalette(path)
 	return self:getResourceAsset(path, "color palette")
-end
-
----Retrieves a Collectible Effect Config by a given path.
----@param path string The resource path.
----@return CollectibleEffectConfig
-function ResourceManager:getCollectibleEffectConfig(path)
-	return self:getResourceConfig(path, "collectible effect")
-end
-
----Retrieves a Collectible Generator Config by a given path.
----@param path string The resource path.
----@return CollectibleGeneratorConfig
-function ResourceManager:getCollectibleGeneratorConfig(path)
-	return self:getResourceConfig(path, "collectible generator")
-end
-
----Retrieves a Difficulty Config by a given path.
----@param path string The resource path.
----@return DifficultyConfig
-function ResourceManager:getDifficultyConfig(path)
-	return self:getResourceConfig(path, "difficulty")
-end
-
----Retrieves a Game Event Config by a given path.
----@param path string The resource path.
----@return GameEventConfig
-function ResourceManager:getGameEventConfig(path)
-	return self:getResourceConfig(path, "game event")
-end
-
----Retrieves a Level Sequence Config by a given path.
----@param path string The resource path.
----@return LevelSequenceConfig
-function ResourceManager:getLevelSequenceConfig(path)
-	return self:getResourceConfig(path, "level sequence")
-end
-
----Retrieves a Level Set Config by a given path.
----@param path string The resource path.
----@return LevelSetConfig
-function ResourceManager:getLevelSetConfig(path)
-	return self:getResourceConfig(path, "level set")
-end
-
----Retrieves a Path Entity Config by a given path.
----@param path string The resource path.
----@return PathEntityConfig
-function ResourceManager:getPathEntityConfig(path)
-	return self:getResourceConfig(path, "path entity")
-end
-
----Retrieves a Projectile Config by a given path.
----@param path string The resource path.
----@return ProjectileConfig
-function ResourceManager:getProjectileConfig(path)
-	return self:getResourceConfig(path, "projectile")
-end
-
----Retrieves a Score Event Config by a given path.
----@param path string The resource path.
----@return ScoreEventConfig
-function ResourceManager:getScoreEventConfig(path)
-	return self:getResourceConfig(path, "score event")
-end
-
----Retrieves a Shooter Config by a given path.
----@param path string The resource path.
----@return ShooterConfig
-function ResourceManager:getShooterConfig(path)
-	return self:getResourceConfig(path, "shooter")
-end
-
----Retrieves a Shooter Movement Config by a given path.
----@param path string The resource path.
----@return ShooterMovementConfig
-function ResourceManager:getShooterMovementConfig(path)
-	return self:getResourceConfig(path, "shooter movement")
-end
-
----Retrieves a Sphere Config by a given path.
----@param path string The resource path.
----@return SphereConfig
-function ResourceManager:getSphereConfig(path)
-	return self:getResourceConfig(path, "sphere")
-end
-
----Retrieves a Sphere Effect Config by a given path.
----@param path string The resource path.
----@return SphereEffectConfig
-function ResourceManager:getSphereEffectConfig(path)
-	return self:getResourceConfig(path, "sphere effect")
-end
-
----Retrieves a Sphere Selector Config by a given path.
----@param path string The resource path.
----@return SphereSelectorConfig
-function ResourceManager:getSphereSelectorConfig(path)
-	return self:getResourceConfig(path, "sphere selector")
-end
-
----Retrieves a Sprite Config by a given path.
----@param path string The resource path.
----@return SpriteConfig
-function ResourceManager:getSpriteConfig(path)
-	return self:getResourceConfig(path, "sprite")
-end
-
----Retrieves a Sprite Atlas Config by a given path.
----@param path string The resource path.
----@return SpriteAtlasConfig
-function ResourceManager:getSpriteAtlasConfig(path)
-	return self:getResourceConfig(path, "sprite atlas")
-end
-
----Retrieves a Variable Providers Config by a given path.
----@param path string The resource path.
----@return VariableProvidersConfig
-function ResourceManager:getVariableProvidersConfig(path)
-	return self:getResourceConfig(path, "variable provider list")
 end
 
 
@@ -549,7 +409,7 @@ function ResourceManager:loadResource(key, batches)
 			self.resources[key].asset = assetConstructor(_ParsePath(key))
 		end
 	end
-	_Log:printt("ResourceManager2", key .. (newBatches and (" {" .. table.concat(newBatches, ", ") .. "}") or "") .. " OK!")
+	_Log:printt("ResourceManager2", key .. " (" .. type .. ")" .. (newBatches and (" {" .. table.concat(newBatches, ", ") .. "}") or "") .. " OK!")
 end
 
 
@@ -612,8 +472,9 @@ function ResourceManager:unloadResourceBatch(name)
 				if batch == name then
 					table.remove(resource.batches, i)
 					if #resource.batches == 0 then
+						local type = self.resources[key].type
 						self.resources[key] = nil
-						_Log:printt("ResourceManager2", key .. " unloaded!")
+						_Log:printt("ResourceManager2", key .. " (" .. type .. ") unloaded!")
 					end
 					break
 				end

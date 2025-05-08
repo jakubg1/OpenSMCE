@@ -12,7 +12,9 @@ local SphereConfig = class:derive("SphereConfig")
 
 local Vec2 = require("src.Essentials.Vector2")
 
-
+SphereConfig.metadata = {
+    schemaPath = "sphere.json"
+}
 
 ---Constructs an instance of SphereConfig.
 ---@param data table Raw data from a file.
@@ -129,6 +131,18 @@ function SphereConfig:new(data, path)
     end
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function SphereConfig.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
 
+    ---Retrieves a SphereConfig by a given path.
+    ---@param path string The resource path.
+    ---@return SphereConfig
+    function ResourceManager:getSphereConfig(path)
+        return self:getResourceConfig(path, "SphereConfig")
+    end
+end
 
 return SphereConfig
