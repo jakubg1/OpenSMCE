@@ -23,7 +23,7 @@ function CollectibleGeneratorConfig:new(data, path)
 
     self.type = u.parseString(data.type, path, "type")
     if self.type == "collectible" then
-        self.name = u.parseString(data.name, path, "name")
+        self.collectible = u.parseCollectibleConfig(data.collectible, path, "collectible")
     elseif self.type == "collectibleGenerator" then
         self.generator = u.parseCollectibleGeneratorConfig(data.generator, path, "generator")
     elseif self.type == "combine" then

@@ -13,7 +13,7 @@ local ShooterConfig = class:derive("ShooterConfig")
 local Vec2 = require("src.Essentials.Vector2")
 
 ShooterConfig.metadata = {
-    schemaPath = "config/shooter.json"
+    schemaPath = "shooter.json"
 }
 
 ---Constructs an instance of ShooterConfig.

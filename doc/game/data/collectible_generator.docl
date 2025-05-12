@@ -1,6 +1,6 @@
 - (object) {type: Type of the Collectible Generator Entry.} - A collectible generator entry.
     - "collectible" - Evaluates to a single collectible.
-        - name (string) - A collectible ID to be evaluated to.
+        - collectible (Collectible) - A single collectible to be evaluated to.
     - "collectibleGenerator" - Evaluates to another collectible generator result.
         - generator (CollectibleGenerator) - Path to another Collectible Generator which will be evaluated.
     - "combine" - Evaluates a list of given entries and returns a list of all collectibles generated.

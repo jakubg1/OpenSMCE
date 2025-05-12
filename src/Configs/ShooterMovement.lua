@@ -11,7 +11,7 @@ local class = require "com.class"
 local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 
 ShooterMovementConfig.metadata = {
-    schemaPath = "config/shooter_movement.json"
+    schemaPath = "shooter_movement.json"
 }
 
 ---Constructs an instance of ShooterMovementConfig.

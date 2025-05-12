@@ -58,7 +58,7 @@
             "description": "Defines the Shooter. If not present, the shooter named default will be used along with its default movement.",
             "markdownDescription": "Defines the Shooter. If not present, the shooter named `default` will be used along with its default movement.",
             "properties": {
-                "name": {
+                "shooter": {
                     "$ref": "../_structures/Shooter.json",
                     "description": "Which Shooter will be used for this level."
                 },
@@ -68,7 +68,7 @@
                 }
             },
             "required": [
-                "name"
+                "shooter"
             ],
             "additionalProperties": false
         },
@@ -140,6 +140,11 @@
                         "description": "How far into the path the spheres have to be in order for the player to be in danger.",
                         "minimum": 0.0,
                         "maximum": 1.0
+                    },
+                    "dangerParticle": {
+                        "$ref": "../_structures/Particle.json",
+                        "description": "The particle which will periodically spawn at the end of the path when the path is in danger. By default, \"particles/warning.json\" is used.",
+                        "markdownDescription": "The particle which will periodically spawn at the end of the path when the path is in danger. By default, `\"particles/warning.json\"` is used."
                     },
                     "speeds": {
                         "type": "array",

@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents an item which can be collected by the Shooter, such as coins, powerups or gems.
 ---@class Collectible
----@overload fun(deserializationTable, pos, name):Collectible
+---@overload fun(deserializationTable, config, pos):Collectible
 local Collectible = class:derive("Collectible")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -11,18 +11,14 @@ local Vec2 = require("src.Essentials.Vector2")
 
 ---Constructs a new Collectible.
 ---@param deserializationTable table? If specified, data from this table will be used to load the entity state.
+---@param config CollectibleConfig The config of this Collectible.
 ---@param pos Vector2 The starting position of this Collectible.
----@param name string The collectible ID.
-function Collectible:new(deserializationTable, pos, name)
+function Collectible:new(deserializationTable, config, pos)
 	if deserializationTable then
 		self:deserialize(deserializationTable)
 	else
-		self.name = name
+		self.config = config
 		self.pos = pos
-
-		-- TODO: Replace name with actual ID
-		self.config = _Game.resourceManager:getCollectibleConfig("collectibles/" .. name .. ".json")
-		assert(self.config, string.format("Unknown powerup: \"%s\"", self.name))
 
 		-- Read the speed and acceleration fields only when we're creating a brand new powerup.
 		self.speed = self.config.speed:evaluate()

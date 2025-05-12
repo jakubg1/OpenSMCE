@@ -5,34 +5,34 @@
     "properties": {
         "$schema": true,
         "movement": {
-            "$ref": "../_structures/ShooterMovement.json",
+            "$ref": "_structures/ShooterMovement.json",
             "description": "Describes the positioning and movement of the shooter."
         },
         "sprite": {
-            "$ref": "../_structures/Sprite.json",
+            "$ref": "_structures/Sprite.json",
             "description": "The sprite for the shooter to be used."
         },
         "spriteOffset": {
-            "$ref": "../_structures/Vector2.json",
+            "$ref": "_structures/Vector2.json",
             "description": "The offset of the shooter sprite. Defaults to (0, 0).",
             "markdownDescription": "The offset of the shooter sprite. Defaults to `(0, 0)`."
         },
         "spriteAnchor": {
-            "$ref": "../_structures/Vector2.json",
+            "$ref": "_structures/Vector2.json",
             "description": "The anchor point of the shooter sprite. Defaults to (0.5, 0).",
             "markdownDescription": "The anchor point of the shooter sprite. Defaults to `(0.5, 0)`."
         },
         "shadowSprite": {
-            "$ref": "../_structures/Sprite.json",
+            "$ref": "_structures/Sprite.json",
             "description": "The shadow sprite for the shooter to be used."
         },
         "shadowSpriteOffset": {
-            "$ref": "../_structures/Vector2.json",
+            "$ref": "_structures/Vector2.json",
             "description": "The offset of the shooter shadow sprite. Defaults to (8, 8).",
             "markdownDescription": "The offset of the shooter shadow sprite. Defaults to `(8, 8)`."
         },
         "shadowSpriteAnchor": {
-            "$ref": "../_structures/Vector2.json",
+            "$ref": "_structures/Vector2.json",
             "description": "The anchor point of the shooter shadow sprite. Defaults to (0.5, 0).",
             "markdownDescription": "The anchor point of the shooter shadow sprite. Defaults to `(0.5, 0)`."
         },
@@ -44,11 +44,11 @@
                 "description": "A single primary sphere.",
                 "properties": {
                     "pos": {
-                        "$ref": "../_structures/Vector2.json",
+                        "$ref": "_structures/Vector2.json",
                         "description": "The position of the sphere, relative to the shooter."
                     },
                     "shotPos": {
-                        "$ref": "../_structures/Vector2.json",
+                        "$ref": "_structures/Vector2.json",
                         "description": "If present, this is the position - relative to the shooter - that the sphere will warp to when shot and will start moving from that position. If absent, the sphere will start flying from its current position without any modifications."
                     }
                 },
@@ -70,7 +70,7 @@
                     "description": "Contains next sphere sprite data for that particular sphere color.",
                     "properties": {
                         "sprite": {
-                            "$ref": "../_structures/Sprite.json",
+                            "$ref": "_structures/Sprite.json",
                             "description": "A sprite used to draw the shooter's next color indicator."
                         },
                         "spriteAnimationSpeed": {
@@ -87,12 +87,12 @@
             }
         },
         "nextBallOffset": {
-            "$ref": "../_structures/Vector2.json",
+            "$ref": "_structures/Vector2.json",
             "description": "The offset of the shooter's next ball sprite. Defaults to (0, 21).",
             "markdownDescription": "The offset of the shooter's next ball sprite. Defaults to `(0, 21)`."
         },
         "nextBallAnchor": {
-            "$ref": "../_structures/Vector2.json",
+            "$ref": "_structures/Vector2.json",
             "description": "The anchor point of the shooter's next ball sprite. Defaults to (0.5, 0).",
             "markdownDescription": "The anchor point of the shooter's next ball sprite. Defaults to `(0.5, 0)`."
         },
@@ -101,24 +101,24 @@
             "description": "Describes the appearance of a shooting reticle.",
             "properties": {
                 "sprite": {
-                    "$ref": "../_structures/Sprite.json",
+                    "$ref": "_structures/Sprite.json",
                     "description": "The aiming reticle sprite to use when Aiming Retical is on. Will fallback to the default drawn caret if not defined."
                 },
                 "offset": {
-                    "$ref": "../_structures/Vector2.json",
+                    "$ref": "_structures/Vector2.json",
                     "description": "The aiming reticle's offset, relative to the position the cursor is aiming at."
                 },
                 "nextBallSprite": {
-                    "$ref": "../_structures/Sprite.json",
+                    "$ref": "_structures/Sprite.json",
                     "description": "The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if sprite is defined.",
                     "markdownDescription": "The aiming reticle's next ball sprite to use when Aiming Retical is on. Will only be drawn if `sprite` is defined."
                 },
                 "nextBallOffset": {
-                    "$ref": "../_structures/Vector2.json",
+                    "$ref": "_structures/Vector2.json",
                     "description": "The aiming reticle's offset, relative to the top-left of the aiming retical."
                 },
                 "radiusSprite": {
-                    "$ref": "../_structures/Sprite.json",
+                    "$ref": "_structures/Sprite.json",
                     "description": "The aiming reticle's sprite for spheres with ranged effects, like Fireballs or Color Clouds."
                 },
                 "colorFadeTime": {
@@ -139,11 +139,11 @@
             "description": "Defines the sounds the shooter makes.",
             "properties": {
                 "sphereSwap": {
-                    "$ref": "../_structures/SoundEvent.json",
+                    "$ref": "_structures/SoundEvent.json",
                     "description": "A sound event played when the shooter's spheres are swapped."
                 },
                 "sphereFill": {
-                    "$ref": "../_structures/SoundEvent.json",
+                    "$ref": "_structures/SoundEvent.json",
                     "description": "A sound event played when the shooter is filled with newly generated spheres."
                 }
             },
@@ -158,7 +158,7 @@
             "description": "Describes the appearance of a speed shot beam.",
             "properties": {
                 "sprite": {
-                    "$ref": "../_structures/Sprite.json",
+                    "$ref": "_structures/Sprite.json",
                     "description": "The sprite to be used by the Speed Shot beam."
                 },
                 "fadeTime": {
@@ -198,7 +198,7 @@
             "additionalProperties": false
         },
         "speedShotParticle": {
-            "$ref": "../_structures/Particle.json",
+            "$ref": "_structures/Particle.json",
             "description": "Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes."
         },
         "shotSpeed": {
@@ -262,11 +262,11 @@
             "additionalProperties": false
         },
         "hitboxOffset": {
-            "$ref": "../_structures/Vector2.json",
+            "$ref": "_structures/Vector2.json",
             "description": "The offset of the Shooter's hitbox in pixels."
         },
         "hitboxSize": {
-            "$ref": "../_structures/Vector2.json",
+            "$ref": "_structures/Vector2.json",
             "description": "The size of the Shooter's hitbox in pixels."
         }
     },

@@ -3,6 +3,7 @@
 local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 local Expression = require("src.Expression")
+local CollectibleConfig = require("src.Configs.Collectible")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local GameEventConfig = require("src.Configs.GameEvent")
@@ -290,6 +291,16 @@ local function parseClassConfigOpt(data, path, field, name, getter, constructor)
 end
 
 
+
+---@return CollectibleConfig
+function utils.parseCollectibleConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
+end
+
+---@return CollectibleConfig?
+function utils.parseCollectibleConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
+end
 
 ---@return CollectibleEffectConfig
 function utils.parseCollectibleEffectConfig(data, path, field)

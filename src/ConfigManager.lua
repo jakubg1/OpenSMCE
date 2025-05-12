@@ -5,8 +5,6 @@ local class = require "com.class"
 ---@overload fun():ConfigManager
 local ConfigManager = class:derive("ConfigManager")
 
-local ShooterConfig = require("src.Configs.Shooter")
-
 
 
 ---Constructs a new ConfigManager and initializes all lists.

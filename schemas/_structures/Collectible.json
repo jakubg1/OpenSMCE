@@ -5,7 +5,7 @@
             "type": "string"
         },
         {
-            "$ref": "../shooter_movement.json"
+            "$ref": "../collectible.json"
         }
     ]
 }

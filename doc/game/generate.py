@@ -899,6 +899,7 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"SoundEvent": "parseSoundEvent",
 		"Sound": "parseSound",
 		"Music": "parseMusic",
+		"Collectible": "parseCollectibleConfig",
 		"CollectibleEffect": "parseCollectibleEffectConfig",
 		"CollectibleGenerator": "parseCollectibleGeneratorConfig",
 		"ColorGenerator": "parseColorGeneratorConfig",

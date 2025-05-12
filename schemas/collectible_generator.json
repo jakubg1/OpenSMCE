@@ -37,9 +37,9 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "name": {
-                        "type": "string",
-                        "description": "A collectible ID to be evaluated to."
+                    "collectible": {
+                        "$ref": "_structures/Collectible.json",
+                        "description": "A single collectible to be evaluated to."
                     },
                     "conditions": {
                         "type": "array",
@@ -51,7 +51,7 @@
                     }
                 },
                 "required": [
-                    "name"
+                    "collectible"
                 ],
                 "additionalProperties": false
             }

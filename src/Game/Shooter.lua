@@ -13,10 +13,10 @@ local SphereEntity = require("src.Game.SphereEntity")
 
 
 ---Constructs a new Shooter.
----@param data? table Data for the shooter.
+---@param data {shooter: string, movement: ShooterMovementConfig?}? Data for the shooter.
 function Shooter:new(data)
     self.levelMovement = data and data.movement
-    self:changeTo(data and data.name or "default")
+    self:setConfig(_Game.resourceManager:getShooterConfig(data and data.shooter or "shooters/default.json"))
 
     self.pos = self:getInitialPos()
     self.angle = self:getInitialAngle()
@@ -64,10 +64,9 @@ end
 
 
 ---Changes this Shooter's configuration to the given one.
----TODO: Replace shooter names with resource paths.
----@param name string The new shooter config to be obeyed.
-function Shooter:changeTo(name)
-    self.config = _Game.resourceManager:getShooterConfig("config/shooters/" .. name .. ".json")
+---@param config ShooterConfig The new shooter config.
+function Shooter:setConfig(config)
+    self.config = config
     self.movement = self.levelMovement or self.config.movement
 end
 
