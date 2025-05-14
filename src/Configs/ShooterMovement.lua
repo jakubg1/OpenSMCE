@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class ShooterMovementConfig
----@overload fun(data, path):ShooterMovementConfig
+---@overload fun(data, path, isAnonymous):ShooterMovementConfig
 local ShooterMovementConfig = class:derive("ShooterMovementConfig")
 
 ShooterMovementConfig.metadata = {
@@ -16,10 +16,13 @@ ShooterMovementConfig.metadata = {
 
 ---Constructs an instance of ShooterMovementConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function ShooterMovementConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function ShooterMovementConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.type = u.parseString(data.type, path, "type")
     if self.type == "linear" then
@@ -41,11 +44,12 @@ function ShooterMovementConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a ShooterMovementConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a ShooterMovementConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return ShooterMovementConfig
-    function ResourceManager:getShooterMovementConfig(path)
-        return self:getResourceConfig(path, "ShooterMovementConfig")
+    function ResourceManager:getShooterMovementConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "ShooterMovementConfig", skipAliasResolutionCheck)
     end
 end
 

@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class DifficultyConfig
----@overload fun(data, path):DifficultyConfig
+---@overload fun(data, path, isAnonymous):DifficultyConfig
 local DifficultyConfig = class:derive("DifficultyConfig")
 
 DifficultyConfig.metadata = {
@@ -16,10 +16,13 @@ DifficultyConfig.metadata = {
 
 ---Constructs an instance of DifficultyConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function DifficultyConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function DifficultyConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.speedMultiplier = u.parseNumber(data.speedMultiplier, path, "speedMultiplier")
     self.scoreMultiplier = u.parseNumber(data.scoreMultiplier, path, "scoreMultiplier")
@@ -48,11 +51,12 @@ function DifficultyConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a DifficultyConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a DifficultyConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return DifficultyConfig
-    function ResourceManager:getDifficultyConfig(path)
-        return self:getResourceConfig(path, "DifficultyConfig")
+    function ResourceManager:getDifficultyConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "DifficultyConfig", skipAliasResolutionCheck)
     end
 end
 

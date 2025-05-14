@@ -1726,7 +1726,7 @@ function Level:serialize()
 			count = collectibleRain.count,
 			time = collectibleRain.time,
 			delay = collectibleRain.delay.str,
-			generator = collectibleRain.generator._path
+			generator = _Game.resourceManager:getResourceReference(collectibleRain.generator)
 		})
 	end
 	for i, projectileStorm in ipairs(self.projectileStorms) do
@@ -1734,7 +1734,7 @@ function Level:serialize()
 			count = projectileStorm.count,
 			time = projectileStorm.time,
 			delay = projectileStorm.delay.str,
-			projectile = projectileStorm.projectile._path,
+			projectile = _Game.resourceManager:getResourceReference(projectileStorm.projectile),
 			cancelWhenNoTargetsRemaining = projectileStorm.cancelWhenNoTargetsRemaining
 		})
 	end

@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class SphereConfig
----@overload fun(data, path):SphereConfig
+---@overload fun(data, path, isAnonymous):SphereConfig
 local SphereConfig = class:derive("SphereConfig")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -18,10 +18,13 @@ SphereConfig.metadata = {
 
 ---Constructs an instance of SphereConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function SphereConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function SphereConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.sprites = {}
     for i = 1, #data.sprites do
@@ -137,11 +140,12 @@ function SphereConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a SphereConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a SphereConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return SphereConfig
-    function ResourceManager:getSphereConfig(path)
-        return self:getResourceConfig(path, "SphereConfig")
+    function ResourceManager:getSphereConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "SphereConfig", skipAliasResolutionCheck)
     end
 end
 

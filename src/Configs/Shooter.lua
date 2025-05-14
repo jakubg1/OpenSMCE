@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class ShooterConfig
----@overload fun(data, path):ShooterConfig
+---@overload fun(data, path, isAnonymous):ShooterConfig
 local ShooterConfig = class:derive("ShooterConfig")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -18,10 +18,13 @@ ShooterConfig.metadata = {
 
 ---Constructs an instance of ShooterConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function ShooterConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function ShooterConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.movement = u.parseShooterMovementConfig(data.movement, path, "movement")
     self.sprite = u.parseSprite(data.sprite, path, "sprite")
@@ -95,11 +98,12 @@ function ShooterConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a ShooterConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a ShooterConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return ShooterConfig
-    function ResourceManager:getShooterConfig(path)
-        return self:getResourceConfig(path, "ShooterConfig")
+    function ResourceManager:getShooterConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "ShooterConfig", skipAliasResolutionCheck)
     end
 end
 

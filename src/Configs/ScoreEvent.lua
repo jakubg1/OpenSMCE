@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class ScoreEventConfig
----@overload fun(data, path):ScoreEventConfig
+---@overload fun(data, path, isAnonymous):ScoreEventConfig
 local ScoreEventConfig = class:derive("ScoreEventConfig")
 
 ScoreEventConfig.metadata = {
@@ -16,10 +16,13 @@ ScoreEventConfig.metadata = {
 
 ---Constructs an instance of ScoreEventConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function ScoreEventConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function ScoreEventConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.score = u.parseExprInteger(data.score, path, "score")
     self.ignoreDifficultyMultiplier = u.parseBooleanOpt(data.ignoreDifficultyMultiplier, path, "ignoreDifficultyMultiplier")
@@ -45,11 +48,12 @@ function ScoreEventConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a ScoreEventConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a ScoreEventConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return ScoreEventConfig
-    function ResourceManager:getScoreEventConfig(path)
-        return self:getResourceConfig(path, "ScoreEventConfig")
+    function ResourceManager:getScoreEventConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "ScoreEventConfig", skipAliasResolutionCheck)
     end
 end
 

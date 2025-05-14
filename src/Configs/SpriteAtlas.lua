@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class SpriteAtlasConfig
----@overload fun(data, path):SpriteAtlasConfig
+---@overload fun(data, path, isAnonymous):SpriteAtlasConfig
 local SpriteAtlasConfig = class:derive("SpriteAtlasConfig")
 
 SpriteAtlasConfig.metadata = {
@@ -16,10 +16,13 @@ SpriteAtlasConfig.metadata = {
 
 ---Constructs an instance of SpriteAtlasConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function SpriteAtlasConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function SpriteAtlasConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.sprites = {}
     for i = 1, #data.sprites do
@@ -33,11 +36,12 @@ function SpriteAtlasConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a SpriteAtlasConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a SpriteAtlasConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return SpriteAtlasConfig
-    function ResourceManager:getSpriteAtlasConfig(path)
-        return self:getResourceConfig(path, "SpriteAtlasConfig")
+    function ResourceManager:getSpriteAtlasConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "SpriteAtlasConfig", skipAliasResolutionCheck)
     end
 end
 

@@ -268,24 +268,41 @@ end
 
 
 
--- Internal function for class parsing logic.
+---Internal function for class parsing logic.
+---Returns an instance of Config Class based on provided data.
+---@param data string|table Either a string which is a resource path, or any raw resource data which will be used to construct an anonymous resource.
+---@param path string Resource path which will be passed to the potentially created anonymous resource.
+---@param field string Name of the field which containes the provided data. Used for error messages.
+---@param name string The human-readable name of the provided resource type. Used for error messages.
+---@param getter function Resource getter which will return a resource if the resource path is provided. Intended to be `ResourceManager:get*Config()`.
+---@param constructor any Resource constructor which will construct the anonymous resource if resource data is provided.
+---@return table
 local function parseClassConfig(data, path, field, name, getter, constructor)
-	assert(data, string.format("field %s is missing (%s Config expected)", field, name))
+	assert(data, string.format("%s: field %s is missing (%s Config expected)", path, field, name))
 	if type(data) == "string" then
 		return getter(_Game.resourceManager, data)
 	elseif type(data) == "table" then
-		return constructor(data, path)
+		return constructor(data, path, true)
 	end
-	error(string.format("field %s has incorrect data (%s Config or a reference to it expected)", field, name))
+	error(string.format("%s: field %s has incorrect data (%s Config or a reference to it expected)", path, field, name))
 end
 
--- Internal function for class parsing logic.
+---Internal function for class parsing logic.
+---Returns an optional instance of Config Class based on provided data.
+---Does not return anything if no data is provided.
+---@param data string|table Either a string which is a resource path, or any raw resource data which will be used to construct an anonymous resource.
+---@param path string Resource path which will be passed to the potentially created anonymous resource.
+---@param field string Name of the field which containes the provided data. Used for error messages.
+---@param name string The human-readable name of the provided resource type. Used for error messages.
+---@param getter function Resource getter which will return a resource if the resource path is provided. Intended to be `ResourceManager:get*Config()`.
+---@param constructor any Resource constructor which will construct the anonymous resource if resource data is provided.
+---@return table?
 local function parseClassConfigOpt(data, path, field, name, getter, constructor)
 	if data then
 		if type(data) == "string" then
 			return getter(_Game.resourceManager, data)
 		elseif type(data) == "table" then
-			return constructor(data, path)
+			return constructor(data, path, true)
 		end
 	end
 end

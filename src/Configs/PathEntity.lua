@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class PathEntityConfig
----@overload fun(data, path):PathEntityConfig
+---@overload fun(data, path, isAnonymous):PathEntityConfig
 local PathEntityConfig = class:derive("PathEntityConfig")
 
 PathEntityConfig.metadata = {
@@ -16,10 +16,13 @@ PathEntityConfig.metadata = {
 
 ---Constructs an instance of PathEntityConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function PathEntityConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function PathEntityConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.sprite = u.parseSpriteOpt(data.sprite, path, "sprite")
     self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
@@ -56,11 +59,12 @@ function PathEntityConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a PathEntityConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a PathEntityConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return PathEntityConfig
-    function ResourceManager:getPathEntityConfig(path)
-        return self:getResourceConfig(path, "PathEntityConfig")
+    function ResourceManager:getPathEntityConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "PathEntityConfig", skipAliasResolutionCheck)
     end
 end
 

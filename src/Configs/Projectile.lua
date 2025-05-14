@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class ProjectileConfig
----@overload fun(data, path):ProjectileConfig
+---@overload fun(data, path, isAnonymous):ProjectileConfig
 local ProjectileConfig = class:derive("ProjectileConfig")
 
 ProjectileConfig.metadata = {
@@ -16,10 +16,13 @@ ProjectileConfig.metadata = {
 
 ---Constructs an instance of ProjectileConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function ProjectileConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function ProjectileConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.particle = u.parseParticleOpt(data.particle, path, "particle")
     self.speed = u.parseNumber(data.speed, path, "speed")
@@ -42,11 +45,12 @@ function ProjectileConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a ProjectileConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a ProjectileConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return ProjectileConfig
-    function ResourceManager:getProjectileConfig(path)
-        return self:getResourceConfig(path, "ProjectileConfig")
+    function ResourceManager:getProjectileConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "ProjectileConfig", skipAliasResolutionCheck)
     end
 end
 

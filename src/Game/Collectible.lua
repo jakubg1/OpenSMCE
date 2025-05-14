@@ -111,7 +111,7 @@ end
 ---@return table
 function Collectible:serialize()
 	return {
-		id = self.config._path,
+		id = _Game.resourceManager:getResourceReference(self.config),
 		pos = {x = self.pos.x, y = self.pos.y},
 		speed = {x = self.speed.x, y = self.speed.y},
 		acceleration = {x = self.acceleration.x, y = self.acceleration.y}

@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class SpriteConfig
----@overload fun(data, path):SpriteConfig
+---@overload fun(data, path, isAnonymous):SpriteConfig
 local SpriteConfig = class:derive("SpriteConfig")
 
 SpriteConfig.metadata = {
@@ -16,10 +16,13 @@ SpriteConfig.metadata = {
 
 ---Constructs an instance of SpriteConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function SpriteConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function SpriteConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.image = u.parseImage(data.image, path, "image")
     self.frameSize = u.parseVec2(data.frameSize, path, "frameSize")
@@ -48,11 +51,12 @@ function SpriteConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a SpriteConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a SpriteConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return SpriteConfig
-    function ResourceManager:getSpriteConfig(path)
-        return self:getResourceConfig(path, "SpriteConfig")
+    function ResourceManager:getSpriteConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "SpriteConfig", skipAliasResolutionCheck)
     end
 end
 

@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class SphereEffectConfig
----@overload fun(data, path):SphereEffectConfig
+---@overload fun(data, path, isAnonymous):SphereEffectConfig
 local SphereEffectConfig = class:derive("SphereEffectConfig")
 
 SphereEffectConfig.metadata = {
@@ -16,10 +16,13 @@ SphereEffectConfig.metadata = {
 
 ---Constructs an instance of SphereEffectConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function SphereEffectConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function SphereEffectConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.particle = u.parseParticleOpt(data.particle, path, "particle")
     self.time = u.parseNumber(data.time, path, "time")
@@ -61,11 +64,12 @@ function SphereEffectConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a SphereEffectConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a SphereEffectConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return SphereEffectConfig
-    function ResourceManager:getSphereEffectConfig(path)
-        return self:getResourceConfig(path, "SphereEffectConfig")
+    function ResourceManager:getSphereEffectConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "SphereEffectConfig", skipAliasResolutionCheck)
     end
 end
 

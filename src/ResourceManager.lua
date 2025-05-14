@@ -28,11 +28,14 @@ function ResourceManager:new()
 	--
 	-- Keys are absolute paths starting from the root game directory. Use `:resolvePath()` to obtain a key to this table from stuff like `":flame.json"`.
 	-- If a resource is queued but not loaded, its entry will not exist at all.
-	---@type Resource[]
+	---@type table<string, Resource>
 	self.resources = {}
 	-- A list of keys of the queued resources alongside their batches. Used to preserve the loading order.
 	---@type {key: string, batches: string[]}[]
 	self.queuedResources = {}
+	-- A keyed list of resource aliases (alias -> resource path) grouped by resource types.
+	---@type table<string, table<string|integer, string>>
+	self.aliases = {}
 
 	-- Values below are used only for newly queued/loaded resources.
 	self.currentNamespace = nil
@@ -41,37 +44,37 @@ function ResourceManager:new()
 	self.RESOURCE_TYPE_LOCATION = "src/Configs"
 
 	self.RESOURCE_TYPES = {
-		image = {assetConstructor = Image},
-		sound = {assetConstructor = Sound},
-		fontFile = {},
+		Image = {assetConstructor = Image},
+		Sound = {assetConstructor = Sound},
+		FontFile = {},
 
-		soundEvent = {assetConstructor = SoundEvent},
-		music = {assetConstructor = Music},
-		particle = {assetConstructor = _Utils.loadJson},
-		font = {assetConstructor = Font},
-		colorPalette = {assetConstructor = ColorPalette},
-		colorGenerator = {},
-		level = {}
+		SoundEvent = {assetConstructor = SoundEvent},
+		Music = {assetConstructor = Music},
+		Particle = {assetConstructor = _Utils.loadJson},
+		Font = {assetConstructor = Font},
+		ColorPalette = {assetConstructor = ColorPalette},
+		ColorGenerator = {},
+		Level = {}
 	}
 
 	-- TODO: Auto-generate these two below.
 	-- Maybe consider registering the resource types dynamically?
 	-- Alongside this, update the table in Resource Management section in the wiki!
 	self.SCHEMA_TO_RESOURCE_MAP = {
-		["sound_event.json"] = "soundEvent",
-		["music_track.json"] = "music",
-		["particle.json"] = "particle",
-		["font.json"] = "font",
-		["color_palette.json"] = "colorPalette",
-		["config/color_generator.json"] = "colorGenerator",
-		["config/level.json"] = "level"
+		["sound_event.json"] = "SoundEvent",
+		["music_track.json"] = "Music",
+		["particle.json"] = "Particle",
+		["font.json"] = "Font",
+		["color_palette.json"] = "ColorPalette",
+		["config/color_generator.json"] = "ColorGenerator",
+		["config/level.json"] = "Level"
 	}
 	self.EXTENSION_TO_RESOURCE_MAP = {
-		png = "image",
-		ogg = "sound",
-		mp3 = "sound",
-		wav = "sound",
-		ttf = "fontFile"
+		png = "Image",
+		ogg = "Sound",
+		mp3 = "Sound",
+		wav = "Sound",
+		ttf = "FontFile"
 	}
 
 	-- Register the resource types and config constructors.
@@ -85,6 +88,8 @@ function ResourceManager:new()
 	self:registerResourceSingletons(self.SINGLETON_LIST)
 
 	-- Load counters allow tracking the progress of loading a chosen set of resources.
+	---@alias LoadCounter {queued: integer, loaded: integer, active: boolean, queueKeys: table<string, boolean>}
+	---@type table<string, LoadCounter>
 	self.loadCounters = {}
 end
 
@@ -214,7 +219,7 @@ end
 
 
 
----Resolves and returns the entire resource path starting from the root game folder, based on the resource type.
+---Resolves and returns the entire resource path starting from the root game folder, based on the given shorthand path.
 ---This is the key under which that resource would be stored.
 --- - For example, providing `sprites/balls/2.json` as path will return `sprites/balls/2.json`.
 --- - The colon `:` references a namespace - currently, a map folder, but this behavior may be extended in the future.
@@ -222,8 +227,9 @@ end
 --- - Starting the path with a colon (without referencing a namespace) will use the `namespace` parameter as the namespace name.
 ---   - For example, providing `:flame.json` as path and `Map3` as namespace will return `maps/Map3/flame.json`.
 ---   - This is used to shorten paths referenced from within the current namespace.
----@param path string The path to be resolved.
----@param namespace string? The default map namespace to be prepended when referenced.
+---@private
+---@param path string The shorthand path to the resource.
+---@param namespace string The default map namespace to be prepended when referenced.
 ---@return string
 function ResourceManager:resolveResourcePath(path, namespace)
 	local splitPath = _Utils.strSplit(path, ":")
@@ -239,12 +245,46 @@ end
 
 
 
+---Returns a full path to the resource by its alias or shorthand path if that resource exists, or `nil` if it does not exist.
+---@private
+---@param reference string|integer The path or an alias to the resource.
+---@param resType string The resource type.
+---@param namespace string The default map namespace to be prepended when referenced.
+---@return string?
+function ResourceManager:resolveResourceReference(reference, resType, namespace)
+	-- Check the alias first.
+	if self.aliases[resType] and self.aliases[resType][reference] then
+		return self.aliases[resType][reference]
+	end
+	-- If the alias is not found and we were trying to resolve something that could only be an alias, this is the end.
+	if type(reference) ~= "string" then
+		return nil
+	end
+	-- Resolve the path if a shorthand path with a namespace has been provided.
+	local key = self:resolveResourcePath(reference, namespace)
+	if not self.resources[key] then
+		return nil
+	end
+	return key
+end
+
+
+
+---Returns `true` if a resource at the provided path or alias is loaded, `false` otherwise.
+---@param reference string|integer The path or alias to the resource.
+---@param type string The resource type.
+---@return boolean
+function ResourceManager:isResourceLoaded(reference, type)
+	return self:resolveResourceReference(reference, type, self.currentNamespace) ~= nil
+end
+
+
+
 ---Queues a resource to be loaded soon, if not loaded yet.
 ---If many calls to this function are done in a quick succession, the load order will be preserved.
 ---@param path string The path to the resource.
 function ResourceManager:queueResource(path)
 	local key = self:resolveResourcePath(path, self.currentNamespace)
-
 	if self.resources[key] then
 		self:updateResourceBatches(key, self.currentBatches)
 	else
@@ -262,38 +302,30 @@ end
 
 
 
----Returns `true` if any resource at the provided path exists, `false` otherwise.
----This function attempts to load the resource, so it will be loaded if the resource exists but was not loaded yet.
----@param path string The path to the resource.
----@return boolean
-function ResourceManager:doesResourceExist(path)
-	local key = self:resolveResourcePath(path, self.currentNamespace)
-	if self.resources[key] then
-		return true
-	end
-	pcall(function() self:loadResource(key, self.currentBatches) end)
-	return self.resources[key] ~= nil
-end
-
-
-
 ---Retrieves the resource entry by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
+---
+---Any unresolved resource references will be resolved before returning this resource.
+---If the referenced resource is not found, this function will throw an error.
+---
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param path string The path to the resource.
----@param type string? If specified, this will be the resource type in an error message if this resource is not found.
+---@param reference string|integer The path or an alias to the resource.
+---@param resType string The type of the resource.
+---@param skipAliasResolutionCheck boolean? If set, this function will not throw an error even if it will not be able to resolve resource references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return Resource
-function ResourceManager:getResource(path, type)
-	local key = self:resolveResourcePath(path, self.currentNamespace)
-	if self.resources[key] then
+function ResourceManager:getResource(reference, resType, skipAliasResolutionCheck)
+	local key = self:resolveResourceReference(reference, resType, self.currentNamespace)
+	if key and self.resources[key] then
+		-- We've found a resource by alias or path.
 		self:updateResourceBatches(key, self.currentBatches)
-	else
-		self:loadResource(key, self.currentBatches)
+		return self.resources[key]
+	elseif type(reference) == "string" then
+		-- If resource is not found and reference is a string path, try loading the resource.
+		local path = self:resolveResourcePath(reference, self.currentNamespace)
+		self:loadResource(path, self.currentBatches)
+		return self.resources[path]
 	end
-	if not self.resources[key] then
-		error(string.format("[ResourceManager] Attempt to get a nonexistent %s: %s", type or "resource", path))
-	end
-	return self.resources[key]
+	error(string.format("Attempt to get a nonexistent %s: %s", resType, reference))
 end
 
 
@@ -301,11 +333,12 @@ end
 ---Retrieves the resource asset by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param path string The path to the resource.
----@param type string? If specified, this will be the resource type in an error message if this resource is not found.
+---@param reference string|integer The path or an alias to the resource.
+---@param resType string The type of the resource.
+---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return any
-function ResourceManager:getResourceAsset(path, type)
-	return self:getResource(path, type).asset
+function ResourceManager:getResourceAsset(reference, resType, skipAliasResolutionCheck)
+	return self:getResource(reference, resType, skipAliasResolutionCheck).asset
 end
 
 
@@ -313,11 +346,23 @@ end
 ---Retrieves the resource config by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param path string The path to the resource.
----@param type string? If specified, this will be the resource type in an error message if this resource is not found.
+---@param reference string|integer The path or an alias to the resource.
+---@param resType string The type of the resource.
+---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return any
-function ResourceManager:getResourceConfig(path, type)
-	return self:getResource(path, type).config
+function ResourceManager:getResourceConfig(reference, resType, skipAliasResolutionCheck)
+	return self:getResource(reference, resType, skipAliasResolutionCheck).config
+end
+
+
+
+---Retrieves the provided resource's path or alias which can be used to refer to this resource back again.
+---Throws an error if the provided resource is an anonymous resource.
+---@param resource any The resource config.
+---@return string|integer
+function ResourceManager:getResourceReference(resource)
+	assert(not resource._isAnonymous, string.format("Attempt to get a reference to an anonymous resource located in file: %s", resource._path))
+	return resource._alias or resource._path
 end
 
 
@@ -345,33 +390,44 @@ function ResourceManager:loadResource(key, batches)
 	end
 
 	-- Treat the file differently depending on whether it's a JSON file or not, and check the type.
-	local type = nil
+	local resType = nil
 	local contents = nil
 	if _Utils.strEndsWith(key, ".json") then
 		contents = _Utils.loadJson(_ParsePath(key))
+		-- Determine the resource type based on schema.
 		local schema = contents["$schema"]
 		if schema then
 			schema = _Utils.strSplit(schema, "/schemas/")
 			schema = schema[2] or schema[1]
 		end
-		type = schema and self.SCHEMA_TO_RESOURCE_MAP[schema]
+		resType = schema and self.SCHEMA_TO_RESOURCE_MAP[schema]
+		-- Register a resource alias if it is defined.
+		local alias = contents["_alias"]
+		if alias then
+			if not self.aliases[resType] then
+				self.aliases[resType] = {}
+			end
+			assert(not self.aliases[resType][alias], string.format("Duplicate resource alias: %s for type %s", alias, resType))
+			self.aliases[resType][alias] = key
+			_Log:printt("ResourceManager2", string.format("Registered resource alias: %s:%s -> %s", resType, alias, key))
+		end
 	else
 		local extension = _Utils.strSplit(key, ".")
 		extension = extension[#extension]
-		type = extension and self.EXTENSION_TO_RESOURCE_MAP[extension]
+		resType = extension and self.EXTENSION_TO_RESOURCE_MAP[extension]
 	end
 
 	-- If no valid resource type has been found, discard the resource.
-	if not type then
+	if not resType then
 		_Log:printt("ResourceManager2", "LOUD WARNING: File " .. key .. " ignored")
 		return
 	end
 
 	-- Get the constructor and construct the resources.
-	local constructor = self.RESOURCE_TYPES[type].constructor
-	local assetConstructor = self.RESOURCE_TYPES[type].assetConstructor
+	local constructor = self.RESOURCE_TYPES[resType].constructor
+	local assetConstructor = self.RESOURCE_TYPES[resType].assetConstructor
 	if not constructor and not assetConstructor then
-		_Log:printt("ResourceManager2", "File " .. key .. " not loaded: type " .. type .. " not implemented")
+		_Log:printt("ResourceManager2", "File " .. key .. " not loaded: type " .. resType .. " not implemented")
 		return
 	end
 
@@ -389,7 +445,7 @@ function ResourceManager:loadResource(key, batches)
 		error(string.format("Tried to load a resource twice: %s", key))
 	end
 
-	self.resources[key] = {type = type, batches = newBatches}
+	self.resources[key] = {type = resType, batches = newBatches}
 
 	if constructor then
 		-- Construct the resource and check for errors.
@@ -406,10 +462,10 @@ function ResourceManager:loadResource(key, batches)
 			assert(success, string.format("Failed to load file %s: %s", key, result))
 			self.resources[key].asset = result
 		else
-			self.resources[key].asset = assetConstructor(_ParsePath(key))
+			self.resources[key].asset = contents
 		end
 	end
-	_Log:printt("ResourceManager2", key .. " (" .. type .. ")" .. (newBatches and (" {" .. table.concat(newBatches, ", ") .. "}") or "") .. " OK!")
+	_Log:printt("ResourceManager2", key .. " (" .. resType .. ")" .. (newBatches and (" {" .. table.concat(newBatches, ", ") .. "}") or "") .. " OK!")
 end
 
 
@@ -472,9 +528,9 @@ function ResourceManager:unloadResourceBatch(name)
 				if batch == name then
 					table.remove(resource.batches, i)
 					if #resource.batches == 0 then
-						local type = self.resources[key].type
+						local resType = self.resources[key].type
 						self.resources[key] = nil
-						_Log:printt("ResourceManager2", key .. " (" .. type .. ") unloaded!")
+						_Log:printt("ResourceManager2", key .. " (" .. resType .. ") unloaded!")
 					end
 					break
 				end
@@ -501,14 +557,14 @@ end
 
 
 ---Returns a list of paths to all loaded resources of a given type.
----@param type string One of `RESOURCE_TYPES`, of which all loaded resource paths will be returned.
+---@param resType string One of `RESOURCE_TYPES`, of which all loaded resource paths will be returned.
 ---@return string[]
-function ResourceManager:getResourceList(type)
+function ResourceManager:getResourceList(resType)
 	local pathList = {}
 
 	-- Iterate through all known resources. If the type matches, add it to the returned list.
 	for key, resource in pairs(self.resources) do
-		if resource.type == type then
+		if resource.type == resType then
 			table.insert(pathList, key)
 		end
 	end

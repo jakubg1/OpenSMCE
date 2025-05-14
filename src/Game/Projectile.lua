@@ -118,7 +118,7 @@ end
 ---@return table
 function Projectile:serialize()
     return {
-        id = self.config._path,
+        id = _Game.resourceManager:getResourceReference(self.config),
         pos = {x = self.pos.x, y = self.pos.y},
         targetPos = {x = self.targetPos.x, y = self.targetPos.y},
         targetSphere = self.targetSphere and self.targetSphere:getIDs()

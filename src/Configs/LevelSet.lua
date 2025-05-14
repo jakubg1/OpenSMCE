@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class LevelSetConfig
----@overload fun(data, path):LevelSetConfig
+---@overload fun(data, path, isAnonymous):LevelSetConfig
 local LevelSetConfig = class:derive("LevelSetConfig")
 
 LevelSetConfig.metadata = {
@@ -16,10 +16,13 @@ LevelSetConfig.metadata = {
 
 ---Constructs an instance of LevelSetConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function LevelSetConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function LevelSetConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.levelOrder = {}
     for i = 1, #data.levelOrder do
@@ -67,11 +70,12 @@ function LevelSetConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a LevelSetConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a LevelSetConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return LevelSetConfig
-    function ResourceManager:getLevelSetConfig(path)
-        return self:getResourceConfig(path, "LevelSetConfig")
+    function ResourceManager:getLevelSetConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "LevelSetConfig", skipAliasResolutionCheck)
     end
 end
 

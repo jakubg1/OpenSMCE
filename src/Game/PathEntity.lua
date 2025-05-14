@@ -280,7 +280,7 @@ end
 ---@return table
 function PathEntity:serialize()
 	local t = {
-		id = self.config._path,
+		id = _Game.resourceManager:getResourceReference(self.config),
 		offset = self.offset,
 		backwards = self.backwards,
 		offsetBound = self.offsetBound,

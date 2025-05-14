@@ -7,7 +7,7 @@
 local class = require "com.class"
 
 ---@class CollectibleConfig
----@overload fun(data, path):CollectibleConfig
+---@overload fun(data, path, isAnonymous):CollectibleConfig
 local CollectibleConfig = class:derive("CollectibleConfig")
 
 CollectibleConfig.metadata = {
@@ -16,10 +16,13 @@ CollectibleConfig.metadata = {
 
 ---Constructs an instance of CollectibleConfig.
 ---@param data table Raw data from a file.
----@param path string Path to the file. The file is not loaded here, and it is not used in error messages, but some classes use it for saving data. TODO: Find an alternative.
-function CollectibleConfig:new(data, path)
+---@param path string? Path to the file. Used for error messages and saving data.
+---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
+function CollectibleConfig:new(data, path, isAnonymous)
     local u = _ConfigUtils
     self._path = path
+    self._alias = data._alias
+    self._isAnonymous = isAnonymous
 
     self.speed = u.parseExprVec2(data.speed, path, "speed")
     self.acceleration = u.parseExprVec2(data.acceleration, path, "acceleration")
@@ -51,11 +54,12 @@ function CollectibleConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a CollectibleConfig by a given path.
-    ---@param path string The resource path.
+    ---Retrieves a CollectibleConfig by a given path or alias.
+    ---@param reference string|integer The path or an alias to the resource.
+    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return CollectibleConfig
-    function ResourceManager:getCollectibleConfig(path)
-        return self:getResourceConfig(path, "CollectibleConfig")
+    function ResourceManager:getCollectibleConfig(reference, skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "CollectibleConfig", skipAliasResolutionCheck)
     end
 end
 
