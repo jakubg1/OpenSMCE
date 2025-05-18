@@ -34,16 +34,6 @@ function ResourceManager:new()
 	-- A list of keys of the queued resources alongside their batches. Used to preserve the loading order.
 	---@type {key: string, batches: string[]}[]
 	self.queuedResources = {}
-	-- A keyed list of resource aliases (alias -> resource path) grouped by resource types.
-	---@type table<string, table<string|integer, string>>
-	self.aliases = {}
-	-- In some cases, resources which contain references to aliases can be loaded before the aliased resources.
-	-- Because these aliases do not contain any information Resource Manager could use to track them back to the alias owner,
-	-- it has to trust itself that the alias owner will be loaded before the resource that references it is used.
-	-- This list tracks the deferred unresolved aliases and resolves them whenever the resource is obtained with `:getResource()`.
-	-- The list is grouped by resource keys and maps their fields to the aliases.
-	---@type table<string, table<string, {type: string, alias: string|integer}>>
-	self.unresolvedAliases = {}
 
 	-- Values below are used only for newly queued/loaded resources.
 	self.currentNamespace = nil
@@ -193,58 +183,51 @@ end
 
 ---Retrieves an Image by a given path.
 ---@param path string The resource path.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return Image
-function ResourceManager:getImage(path, skipAliasResolutionCheck)
-	return self:getResourceAsset(path, "image", skipAliasResolutionCheck)
+function ResourceManager:getImage(path)
+	return self:getResourceAsset(path, "image")
 end
 
 ---Retrieves a Sound by a given path.
 ---@param path string The resource path.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return Sound
-function ResourceManager:getSound(path, skipAliasResolutionCheck)
-	return self:getResourceAsset(path, "sound", skipAliasResolutionCheck)
+function ResourceManager:getSound(path)
+	return self:getResourceAsset(path, "sound")
 end
 
 ---Retrieves a Sound Event by a given path.
 ---@param path string The resource path.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return SoundEvent
-function ResourceManager:getSoundEvent(path, skipAliasResolutionCheck)
-	return self:getResourceAsset(path, "sound event", skipAliasResolutionCheck)
+function ResourceManager:getSoundEvent(path)
+	return self:getResourceAsset(path, "sound event")
 end
 
 ---Retrieves a piece of Music by a given path.
 ---@param path string The resource path.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return Music
-function ResourceManager:getMusic(path, skipAliasResolutionCheck)
-	return self:getResourceAsset(path, "music track", skipAliasResolutionCheck)
+function ResourceManager:getMusic(path)
+	return self:getResourceAsset(path, "music track")
 end
 
 ---Retrieves a Particle by a given path.
 ---@param path string The resource path.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return table
-function ResourceManager:getParticle(path, skipAliasResolutionCheck)
-	return self:getResourceAsset(path, "particle", skipAliasResolutionCheck)
+function ResourceManager:getParticle(path)
+	return self:getResourceAsset(path, "particle")
 end
 
 ---Retrieves a Font by a given path.
 ---@param path string The resource path.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return Font
-function ResourceManager:getFont(path, skipAliasResolutionCheck)
-	return self:getResourceAsset(path, "font", skipAliasResolutionCheck)
+function ResourceManager:getFont(path)
+	return self:getResourceAsset(path, "font")
 end
 
 ---Retrieves a Color Palette by a given path.
 ---@param path string The resource path.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return ColorPalette
-function ResourceManager:getColorPalette(path, skipAliasResolutionCheck)
-	return self:getResourceAsset(path, "color palette", skipAliasResolutionCheck)
+function ResourceManager:getColorPalette(path)
+	return self:getResourceAsset(path, "color palette")
 end
 
 
@@ -275,21 +258,12 @@ end
 
 
 
----Returns a full path to the resource by its alias or shorthand path if that resource exists, or `nil` if it does not exist.
+---Returns a full path to the resource by shorthand path if that resource exists, or `nil` if it does not exist.
 ---@private
----@param reference string|integer The path or an alias to the resource.
----@param resType string The resource type.
+---@param reference string The path to the resource.
 ---@param namespace string The default map namespace to be prepended when referenced.
 ---@return string?
-function ResourceManager:resolveResourceReference(reference, resType, namespace)
-	-- Check the alias first.
-	if self.aliases[resType] and self.aliases[resType][reference] then
-		return self.aliases[resType][reference]
-	end
-	-- If the alias is not found and we were trying to resolve something that could only be an alias, this is the end.
-	if type(reference) ~= "string" then
-		return nil
-	end
+function ResourceManager:resolveResourceReference(reference, namespace)
 	-- Resolve the path if a shorthand path with a namespace has been provided.
 	local key = self:resolveResourcePath(reference, namespace)
 	if not self.resources[key] then
@@ -300,56 +274,11 @@ end
 
 
 
----Reports an unresolved Resource Alias for a resource config.
----@param key string Full path to the resource which failed to resolve an alias.
----@param field string Name of the field in the Resource Config instance which is supposed to contain the aliased resource.
----@param entryType string The type of the aliased resource.
----@param entryAlias string|integer Alias to the resource which should have been resolved but is currently unavailable.
-function ResourceManager:reportUnresolvedResourceAlias(key, field, entryType, entryAlias)
-	if not self.unresolvedAliases[key] then
-		self.unresolvedAliases[key] = {}
-	end
-	self.unresolvedAliases[key][field] = {type = entryType, alias = entryAlias}
-	print(string.format("Reported unresolved alias: %s, %s, %s, %s", key, field, entryType, entryAlias))
-end
-
-
-
----Resolves all unresolved resource aliases for the provided resource by its key.
----If one or more aliases cannot be resolved, leaves that alias unresolved and optionally throws an error.
----@private
----@param key string The full resource path. Must be a valid key in the `self.resources` table.
----@param errorOnFailure boolean If set to `true`, this function will throw an error if any alias reference cannot be resolved.
-function ResourceManager:resolveResourceAliases(key, errorOnFailure)
-	print(key, json.encode(self.unresolvedAliases))
-	if not self.unresolvedAliases[key] then
-		-- No unresolved aliases exist for this resource.
-		return
-	end
-	for field, entry in pairs(self.unresolvedAliases[key]) do
-		local config = self:getResourceConfig(entry.alias, entry.type, not errorOnFailure)
-		if config then
-			print(string.format("Resolved alias: %s, %s, %s, %s", key, field, entry.type, entry.alias))
-			self.resources[key].config[field] = config
-			self.unresolvedAliases[key][field] = nil
-		else
-			print(string.format("Failed to resolve alias: %s, %s, %s, %s", key, field, entry.type, entry.alias))
-		end
-	end
-	-- Remove the entry if all aliases for this resource have been resolved.
-	if _Utils.tableIsEmpty(self.unresolvedAliases[key]) then
-		self.unresolvedAliases[key] = nil
-	end
-end
-
-
-
----Returns `true` if a resource at the provided path or alias is loaded, `false` otherwise.
----@param reference string|integer The path or alias to the resource.
----@param type string The resource type.
+---Returns `true` if a resource at the provided path is loaded, `false` otherwise.
+---@param reference string The path to the resource.
 ---@return boolean
-function ResourceManager:isResourceLoaded(reference, type)
-	return self:resolveResourceReference(reference, type, self.currentNamespace) ~= nil
+function ResourceManager:isResourceLoaded(reference)
+	return self:resolveResourceReference(reference, self.currentNamespace) ~= nil
 end
 
 
@@ -376,44 +305,25 @@ end
 
 
 
----Retrieves the resource entry by its reference (path or alias) and type. If the resource is not yet loaded, it is immediately loaded.
+---Retrieves the resource entry by its path. If the resource is not yet loaded, it is immediately loaded.
 ---Returns `nil` if the resource cannot be found.
----
----Any unresolved resource references will be resolved before returning this resource.
----If the referenced resource is not found, this function will throw an error.
 ---
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param pathOrAlias string|integer The path or alias (reference) to the resource.
+---@param path string The path to the resource.
 ---@param resType string The type of the resource.
----@param skipAliasResolutionCheck boolean? If set, this function will not throw an error even if it will not be able to resolve resource references. You should only set this to `true` if you do not intend to interact with the config's contents.
----@return Resource?
-function ResourceManager:getResource(pathOrAlias, resType, skipAliasResolutionCheck)
-	local key = self:resolveResourceReference(pathOrAlias, resType, self.currentNamespace)
-	if key then
-		-- We found a resource by alias or path.
-		self:updateResourceBatches(key, self.currentBatches)
-		self:resolveResourceAliases(key, not skipAliasResolutionCheck)
-		return self.resources[key]
-	end
-	if type(pathOrAlias) == "string" then
-		-- If the resource is not found and reference is a string path, try loading the resource.
-		key = self:resolveResourcePath(pathOrAlias, self.currentNamespace)
-		self:loadResource(key, self.currentBatches)
-		return self.resources[key]
-	end
-end
-
-
-
----Same as `:getResource()`, but is guaranteed to return a Resource or throw an error.
----@private
----@param pathOrAlias string|integer The path or alias (reference) to the resource.
----@param resType string The type of the resource.
----@param skipAliasResolutionCheck boolean? If set, this function will not throw an error even if it will not be able to resolve resource references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return Resource
-function ResourceManager:assertGetResource(pathOrAlias, resType, skipAliasResolutionCheck)
-	return assert(self:getResource(pathOrAlias, resType, skipAliasResolutionCheck), string.format("Could not find %s: \"%s\"", resType, pathOrAlias))
+function ResourceManager:getResource(path, resType)
+	local key = self:resolveResourceReference(path, self.currentNamespace)
+	if key then
+		-- We found a resource by path.
+		self:updateResourceBatches(key, self.currentBatches)
+		return self.resources[key]
+	end
+	-- If the resource is not found, try loading the resource.
+	key = self:resolveResourcePath(path, self.currentNamespace)
+	self:loadResource(key, self.currentBatches)
+	return assert(self.resources[key], string.format("Could not find %s: \"%s\"", resType, path))
 end
 
 
@@ -421,25 +331,11 @@ end
 ---Retrieves the resource asset by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param reference string|integer The path or an alias to the resource.
+---@param path string The path to the resource.
 ---@param resType string The type of the resource.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
----@return any?
-function ResourceManager:getResourceAsset(reference, resType, skipAliasResolutionCheck)
-	local resource = self:getResource(reference, resType, skipAliasResolutionCheck)
-	return resource and resource.asset
-end
-
-
-
----Same as `:getResourceAsset()`, but is guaranteed to return an Asset or throw an error.
----@private
----@param reference string|integer The path or an alias to the resource.
----@param resType string The type of the resource.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return any
-function ResourceManager:assertGetResourceAsset(reference, resType, skipAliasResolutionCheck)
-	return self:assertGetResource(reference, resType, skipAliasResolutionCheck).asset
+function ResourceManager:getResourceAsset(path, resType)
+	return self:getResource(path, resType).asset
 end
 
 
@@ -447,36 +343,22 @@ end
 ---Retrieves the resource config by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param reference string|integer The path or an alias to the resource.
+---@param path string The path to the resource.
 ---@param resType string The type of the resource.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
----@return any?
-function ResourceManager:getResourceConfig(reference, resType, skipAliasResolutionCheck)
-	local resource = self:getResource(reference, resType, skipAliasResolutionCheck)
-	return resource and resource.config
-end
-
-
-
----Same as `:getResourceConfig()`, but is guaranteed to return a Config or throw an error.
----@private
----@param reference string|integer The path or an alias to the resource.
----@param resType string The type of the resource.
----@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
 ---@return any
-function ResourceManager:assertGetResourceConfig(reference, resType, skipAliasResolutionCheck)
-	return self:assertGetResource(reference, resType, skipAliasResolutionCheck).config
+function ResourceManager:getResourceConfig(path, resType)
+	return self:getResource(path, resType).config
 end
 
 
 
----Retrieves the provided resource's path or alias which can be used to refer to this resource back again.
+---Retrieves the provided resource's path which can be used to refer to this resource back again.
 ---Throws an error if the provided resource is an anonymous resource.
 ---@param resource any The resource config.
----@return string|integer
+---@return string
 function ResourceManager:getResourceReference(resource)
 	assert(not resource._isAnonymous, string.format("Attempt to get a reference to an anonymous resource located in file: %s", resource._path))
-	return resource._alias or resource._path
+	return resource._path
 end
 
 
@@ -515,16 +397,6 @@ function ResourceManager:loadResource(key, batches)
 			schema = schema[2] or schema[1]
 		end
 		resType = schema and self.SCHEMA_TO_RESOURCE_MAP[schema]
-		-- Register a resource alias if it is defined.
-		local alias = contents["_alias"]
-		if alias then
-			if not self.aliases[resType] then
-				self.aliases[resType] = {}
-			end
-			assert(not self.aliases[resType][alias], string.format("Duplicate resource alias: %s for type %s", alias, resType))
-			self.aliases[resType][alias] = key
-			_Log:printt("ResourceManager2", string.format("Registered resource alias: %s:%s -> %s", resType, alias, key))
-		end
 	else
 		local extension = _Utils.strSplit(key, ".")
 		extension = extension[#extension]

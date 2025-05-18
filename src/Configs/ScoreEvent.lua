@@ -48,12 +48,11 @@ function ScoreEventConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a ScoreEventConfig by a given path or alias.
-    ---@param reference string|integer The path or an alias to the resource.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
+    ---Retrieves a ScoreEventConfig by given path.
+    ---@param reference string The path to the resource.
     ---@return ScoreEventConfig
-    function ResourceManager:getScoreEventConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "ScoreEvent", skipAliasResolutionCheck)
+    function ResourceManager:getScoreEventConfig(reference)
+        return self:getResourceConfig(reference, "ScoreEvent")
     end
 end
 

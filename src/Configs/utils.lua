@@ -181,96 +181,89 @@ end
 ---@return Image
 function utils.parseImage(data, path, field)
 	assert(data, string.format("field %s is missing (Image expected)", field))
-	return _Game.resourceManager:getImage(data, true)
+	return _Game.resourceManager:getImage(data)
 end
 
 ---@return Image?
 function utils.parseImageOpt(data, path, field)
-	return data and _Game.resourceManager:getImage(data, true)
+	return data and _Game.resourceManager:getImage(data)
 end
 
 ---@return Sprite?
 function utils.parseSprite(data, path, field)
 	assert(data, string.format("field %s is missing (Sprite expected)", field))
-	local sprite = _Game.resourceManager:getSprite(data, true)
-	if not sprite then
-		_Game.resourceManager:reportUnresolvedResourceAlias(path, field, "Sprite", data)
-	end
-	return sprite
+	return _Game.resourceManager:getSprite(data)
 end
 
 ---@return Sprite?
 function utils.parseSpriteOpt(data, path, field)
-	if not data then
-		return nil
-	end
-	return utils.parseSprite(data, path, field)
+	return data and _Game.resourceManager:getSprite(data)
 end
 
 ---@return Sound
 function utils.parseSound(data, path, field)
 	assert(data, string.format("field %s is missing (Sound expected)", field))
-	return _Game.resourceManager:getSound(data, true)
+	return _Game.resourceManager:getSound(data)
 end
 
 ---@return Sound?
 function utils.parseSoundOpt(data, path, field)
-	return data and _Game.resourceManager:getSound(data, true)
+	return data and _Game.resourceManager:getSound(data)
 end
 
 ---@return SoundEvent
 function utils.parseSoundEvent(data, path, field)
 	assert(data, string.format("field %s is missing (Sound Event expected)", field))
-	return _Game.resourceManager:getSoundEvent(data, true)
+	return _Game.resourceManager:getSoundEvent(data)
 end
 
 ---@return SoundEvent?
 function utils.parseSoundEventOpt(data, path, field)
-	return data and _Game.resourceManager:getSoundEvent(data, true)
+	return data and _Game.resourceManager:getSoundEvent(data)
 end
 
 ---@return Music
 function utils.parseMusic(data, path, field)
 	assert(data, string.format("field %s is missing (Music expected)", field))
-	return _Game.resourceManager:getMusic(data, true)
+	return _Game.resourceManager:getMusic(data)
 end
 
 ---@return Music?
 function utils.parseMusicOpt(data, path, field)
-	return data and _Game.resourceManager:getMusic(data, true)
+	return data and _Game.resourceManager:getMusic(data)
 end
 
 ---@return table
 function utils.parseParticle(data, path, field)
 	assert(data, string.format("field %s is missing (Particle expected)", field))
-	return _Game.resourceManager:getParticle(data, true)
+	return _Game.resourceManager:getParticle(data)
 end
 
 ---@return table?
 function utils.parseParticleOpt(data, path, field)
-	return data and _Game.resourceManager:getParticle(data, true)
+	return data and _Game.resourceManager:getParticle(data)
 end
 
 ---@return Font
 function utils.parseFont(data, path, field)
 	assert(data, string.format("field %s is missing (Font expected)", field))
-	return _Game.resourceManager:getFont(data, true)
+	return _Game.resourceManager:getFont(data)
 end
 
 ---@return Font?
 function utils.parseFontOpt(data, path, field)
-	return data and _Game.resourceManager:getFont(data, true)
+	return data and _Game.resourceManager:getFont(data)
 end
 
 ---@return ColorPalette
 function utils.parseColorPalette(data, path, field)
 	assert(data, string.format("field %s is missing (Color Palette expected)", field))
-	return _Game.resourceManager:getColorPalette(data, true)
+	return _Game.resourceManager:getColorPalette(data)
 end
 
 ---@return ColorPalette?
 function utils.parseColorPaletteOpt(data, path, field)
-	return data and _Game.resourceManager:getColorPalette(data, true)
+	return data and _Game.resourceManager:getColorPalette(data)
 end
 
 
@@ -291,11 +284,7 @@ local function parseClassConfig(data, path, field, resType, getter, constructor)
 	if type(data) == "table" then
 		return constructor(data, path, true)
 	else
-		local config = getter(_Game.resourceManager, data, true)
-		if not config then
-			_Game.resourceManager:reportUnresolvedResourceAlias(path, field, resType, data)
-		end
-		return config
+		return getter(_Game.resourceManager, data)
 	end
 end
 

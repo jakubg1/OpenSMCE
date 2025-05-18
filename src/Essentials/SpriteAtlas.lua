@@ -63,11 +63,10 @@ function SpriteAtlas.inject(ResourceManager)
     ResourceManager = ResourceManager
 
     ---Retrieves a SpriteAtlas by a given path.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
-	---@param path string The resource path.
+    ---@param path string The resource path.
     ---@return SpriteAtlas
-    function ResourceManager:getSpriteAtlas(path, skipAliasResolutionCheck)
-        return self:getResourceAsset(path, "SpriteAtlas", skipAliasResolutionCheck)
+    function ResourceManager:getSpriteAtlas(path)
+        return self:getResourceAsset(path, "SpriteAtlas")
     end
 end
 

@@ -64,12 +64,11 @@ function SphereEffectConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a SphereEffectConfig by a given path or alias.
-    ---@param reference string|integer The path or an alias to the resource.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
+    ---Retrieves a SphereEffectConfig by given path.
+    ---@param reference string The path to the resource.
     ---@return SphereEffectConfig
-    function ResourceManager:getSphereEffectConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "SphereEffect", skipAliasResolutionCheck)
+    function ResourceManager:getSphereEffectConfig(reference)
+        return self:getResourceConfig(reference, "SphereEffect")
     end
 end
 

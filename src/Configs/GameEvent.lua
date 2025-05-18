@@ -74,12 +74,11 @@ function GameEventConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a GameEventConfig by a given path or alias.
-    ---@param reference string|integer The path or an alias to the resource.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
+    ---Retrieves a GameEventConfig by given path.
+    ---@param reference string The path to the resource.
     ---@return GameEventConfig
-    function ResourceManager:getGameEventConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "GameEvent", skipAliasResolutionCheck)
+    function ResourceManager:getGameEventConfig(reference)
+        return self:getResourceConfig(reference, "GameEvent")
     end
 end
 

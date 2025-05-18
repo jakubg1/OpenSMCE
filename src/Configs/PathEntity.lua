@@ -59,12 +59,11 @@ function PathEntityConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a PathEntityConfig by a given path or alias.
-    ---@param reference string|integer The path or an alias to the resource.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
+    ---Retrieves a PathEntityConfig by given path.
+    ---@param reference string The path to the resource.
     ---@return PathEntityConfig
-    function ResourceManager:getPathEntityConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "PathEntity", skipAliasResolutionCheck)
+    function ResourceManager:getPathEntityConfig(reference)
+        return self:getResourceConfig(reference, "PathEntity")
     end
 end
 

@@ -112,10 +112,9 @@ function Sprite.inject(ResourceManager)
 
     ---Retrieves a Sprite by a given path.
     ---@param path string The resource path.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
-	---@return Sprite?
-    function ResourceManager:getSprite(path, skipAliasResolutionCheck)
-        return self:getResourceAsset(path, "Sprite", skipAliasResolutionCheck)
+    ---@return Sprite?
+    function ResourceManager:getSprite(path)
+        return self:getResourceAsset(path, "Sprite")
     end
 end
 

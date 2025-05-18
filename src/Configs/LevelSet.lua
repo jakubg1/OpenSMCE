@@ -70,12 +70,11 @@ function LevelSetConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a LevelSetConfig by a given path or alias.
-    ---@param reference string|integer The path or an alias to the resource.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
+    ---Retrieves a LevelSetConfig by given path.
+    ---@param reference string The path to the resource.
     ---@return LevelSetConfig
-    function ResourceManager:getLevelSetConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "LevelSet", skipAliasResolutionCheck)
+    function ResourceManager:getLevelSetConfig(reference)
+        return self:getResourceConfig(reference, "LevelSet")
     end
 end
 

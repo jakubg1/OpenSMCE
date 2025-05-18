@@ -47,12 +47,11 @@ function SphereSelectorConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a SphereSelectorConfig by a given path or alias.
-    ---@param reference string|integer The path or an alias to the resource.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
+    ---Retrieves a SphereSelectorConfig by given path.
+    ---@param reference string The path to the resource.
     ---@return SphereSelectorConfig
-    function ResourceManager:getSphereSelectorConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "SphereSelector", skipAliasResolutionCheck)
+    function ResourceManager:getSphereSelectorConfig(reference)
+        return self:getResourceConfig(reference, "SphereSelector")
     end
 end
 

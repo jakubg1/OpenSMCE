@@ -44,12 +44,11 @@ function ShooterMovementConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a ShooterMovementConfig by a given path or alias.
-    ---@param reference string|integer The path or an alias to the resource.
-    ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
+    ---Retrieves a ShooterMovementConfig by given path.
+    ---@param reference string The path to the resource.
     ---@return ShooterMovementConfig
-    function ResourceManager:getShooterMovementConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "ShooterMovement", skipAliasResolutionCheck)
+    function ResourceManager:getShooterMovementConfig(reference)
+        return self:getResourceConfig(reference, "ShooterMovement")
     end
 end
 
