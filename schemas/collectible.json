@@ -13,11 +13,11 @@
             "description": "The acceleration rate of this collectible."
         },
         "particle": {
-            "$ref": "_structures/Particle.json",
+            "$ref": "_structures/ParticleEffect.json",
             "description": "A persistent particle packet which will follow the collectible entity."
         },
         "pickupParticle": {
-            "$ref": "_structures/Particle.json",
+            "$ref": "_structures/ParticleEffect.json",
             "description": "A one-time particle packet which will be launched when the collectible is catched."
         },
         "spawnSound": {

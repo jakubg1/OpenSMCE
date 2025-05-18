@@ -1,0 +1,3 @@
+- (object) - The root object.
+    - emitters (array) - A list of Emitters this particle file defines. In the game code, Emitters are called Particle Spawners.
+        - (ParticleEmitter) - A single emitter.

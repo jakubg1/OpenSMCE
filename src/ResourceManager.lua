@@ -5,7 +5,6 @@ local class = require "com.class"
 ---@overload fun():ResourceManager
 local ResourceManager = class:derive("ResourceManager")
 
-local json = require("com.json")
 local Image = require("src.Essentials.Image")
 local Sprite = require("src.Essentials.Sprite")
 local SpriteAtlas = require("src.Essentials.SpriteAtlas")
@@ -48,7 +47,6 @@ function ResourceManager:new()
 
 		SoundEvent = {assetConstructor = SoundEvent},
 		Music = {assetConstructor = Music},
-		Particle = {assetConstructor = _Utils.loadJson},
 		Font = {assetConstructor = Font},
 		ColorPalette = {assetConstructor = ColorPalette},
 		ColorGenerator = {},
@@ -61,7 +59,6 @@ function ResourceManager:new()
 	self.SCHEMA_TO_RESOURCE_MAP = {
 		["sound_event.json"] = "SoundEvent",
 		["music_track.json"] = "Music",
-		["particle.json"] = "Particle",
 		["font.json"] = "Font",
 		["color_palette.json"] = "ColorPalette",
 		["config/color_generator.json"] = "ColorGenerator",
@@ -207,13 +204,6 @@ end
 ---@return Music
 function ResourceManager:getMusic(path)
 	return self:getResourceAsset(path, "music track")
-end
-
----Retrieves a Particle by a given path.
----@param path string The resource path.
----@return table
-function ResourceManager:getParticle(path)
-	return self:getResourceAsset(path, "particle")
 end
 
 ---Retrieves a Font by a given path.

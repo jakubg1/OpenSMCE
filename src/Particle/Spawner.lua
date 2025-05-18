@@ -4,19 +4,19 @@ local class = require "com.class"
 ---@overload fun(manager, packet, data):ParticleSpawner
 local ParticleSpawner = class:derive("ParticleSpawner")
 
-local Vec2 = require("src.Essentials.Vector2")
-
-
-
+---Constructs a new particle spawner.
+---@param manager ParticleManager The owner of this spawner.
+---@param packet ParticlePacket The particle packet which spawned this spawner.
+---@param data ParticleEmitterConfig Particle spawner data.
 function ParticleSpawner:new(manager, packet, data)
 	self.manager = manager
 	self.packet = packet
 	self.packet.spawnerCount = self.packet.spawnerCount + 1
 	self.layer = self.packet.layer
 
-	self.pos = _ParseVec2(data.pos)
-	self.speed = _ParseVec2(data.speed)
-	self.acceleration = _ParseVec2(data.acceleration)
+	self.x, self.y = data.pos.x, data.pos.y
+	self.speedX, self.speedY = data.speed.x, data.speed.y
+	self.accelerationX, self.accelerationY = data.acceleration.x, data.acceleration.y
 	self.lifespan = data.lifespan -- nil if it lives indefinitely
 	self.lifetime = self.lifespan
 	self.spawnMax = data.spawnMax
@@ -26,23 +26,29 @@ function ParticleSpawner:new(manager, packet, data)
 
 	self.spawnNext = self.spawnDelay
 
-	for i = 1, data.spawnCount do self:spawnPiece() end
+	for i = 1, data.spawnCount do
+		self:spawnPiece()
+	end
 
 	self.delQueue = false
 end
 
+---Updates this particle spawner.
+---@param dt number Time delta in seconds.
 function ParticleSpawner:update(dt)
-	-- speed and position stuff
-	self.speed = self.speed + self.acceleration * dt
-	self.pos = self.pos + self.speed * dt
+	-- Update speed and position.
+	self.speedX, self.speedY = self.speedX + self.accelerationX * dt, self.speedY + self.accelerationY * dt
+	self.x, self.y = self.x + self.speedX * dt, self.y + self.speedY * dt
 
-	-- lifespan
+	-- Update the lifespan.
 	if self.lifetime then
 		self.lifetime = self.lifetime - dt
-		if self.lifetime <= 0 then self:destroy() end
+		if self.lifetime <= 0 then
+			self:destroy()
+		end
 	end
 
-	-- piece spawning
+	-- Spawn particle pieces.
 	if self.spawnNext then
 		self.spawnNext = self.spawnNext - dt
 		while self.spawnNext <= 0 and self.pieceCount < self.spawnMax do
@@ -51,37 +57,46 @@ function ParticleSpawner:update(dt)
 		end
 	end
 
-	-- destroy when packet is gone
+	-- Destroy when this spawner's owner is gone.
 	if self.packet.delQueue then
 		self:destroy()
 	end
 end
 
-
-
+---Returns the current spawner's position.
+---@return number, number
 function ParticleSpawner:getPos()
-	return self.pos + self.packet.pos
+	return self.x + self.packet.x, self.y + self.packet.y
 end
 
+---Returns the current spawner's position relative to its packet.
+---@return number, number
+function ParticleSpawner:getRelativePos()
+	return self.x, self.y
+end
+
+---Draws the spawner's debug widgets.
 function ParticleSpawner:draw()
-	local pos = self:getPos()
+	local x, y = self:getPos()
 	love.graphics.setColor(1, 0, 0)
 	love.graphics.setLineWidth(2)
-	love.graphics.rectangle("line", pos.x - 10, pos.y - 10, 20, 20)
+	love.graphics.rectangle("line", x - 10, y - 10, 20, 20)
 end
 
+---Spawns a new particle piece unless there is a maximum number of particles spawned by this spawner on the screen.
 function ParticleSpawner:spawnPiece()
-	if self.pieceCount == self.spawnMax then return end
-
+	if self.pieceCount >= self.spawnMax then
+		return
+	end
 	self.manager:spawnParticlePiece(self, self.particleData)
 end
 
-
-
+---Flags this spawner as ready to be removed.
 function ParticleSpawner:destroy()
-	if self.delQueue then return end
+	if self.delQueue then
+		return
+	end
 	self.delQueue = true
-
 	self.packet.spawnerCount = self.packet.spawnerCount - 1
 end
 

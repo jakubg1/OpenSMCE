@@ -72,7 +72,7 @@ function ShooterConfig:new(data, path, isAnonymous)
     self.speedShotBeam.renderingType = u.parseString(data.speedShotBeam.renderingType, path, "speedShotBeam.renderingType")
     self.speedShotBeam.colored = u.parseBoolean(data.speedShotBeam.colored, path, "speedShotBeam.colored")
 
-    self.speedShotParticle = u.parseParticle(data.speedShotParticle, path, "speedShotParticle")
+    self.speedShotParticle = u.parseParticleEffectConfig(data.speedShotParticle, path, "speedShotParticle")
     self.shotSpeed = u.parseNumber(data.shotSpeed, path, "shotSpeed")
     self.shotCooldown = u.parseNumberOpt(data.shotCooldown, path, "shotCooldown") or 0
     self.shotCooldownFade = u.parseNumberOpt(data.shotCooldownFade, path, "shotCooldownFade") or 0

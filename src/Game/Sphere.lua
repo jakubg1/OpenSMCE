@@ -714,7 +714,7 @@ function Sphere:draw(hidden, shadow)
 	-- Update particle positions.
 	for i, effect in ipairs(self.effects) do
 		if effect.particle then
-			effect.particle.pos = self:getPos()
+			effect.particle:setPos(pos.x, pos.y)
 		end
 	end
 

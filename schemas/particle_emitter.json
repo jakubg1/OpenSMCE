@@ -1,0 +1,53 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "pos": {
+            "$ref": "_structures/Vector2.json",
+            "description": "The initial position of the Emitter, relative to wherever the packet has been spawned."
+        },
+        "speed": {
+            "$ref": "_structures/Vector2.json",
+            "description": "The initial acceleration of the Emitter."
+        },
+        "acceleration": {
+            "$ref": "_structures/Vector2.json",
+            "description": "The acceleration of the Emitter."
+        },
+        "lifespan": {
+            "type": "number",
+            "description": "How many seconds the Emitter should exist. If left out, this Emitter will never despawn and the entire Particle Packet will be a persistent packet.",
+            "minimum": 0.0
+        },
+        "spawnCount": {
+            "type": "integer",
+            "description": "How many Particles will this Emitter spawn at start.",
+            "minimum": 0
+        },
+        "spawnMax": {
+            "type": "integer",
+            "description": "How many Particles spawned by this Emitter can be on the screen at once.",
+            "minimum": 1
+        },
+        "spawnDelay": {
+            "type": "number",
+            "description": "Time between the consecutive particle spawns, in seconds. If not specified, this Emitter will never spawn any particles after its initial burst.",
+            "minimum": 0.0
+        },
+        "particleData": {
+            "$ref": "_structures/Particle.json",
+            "description": "Data applied to every single particle spawned by this Emitter."
+        }
+    },
+    "required": [
+        "pos",
+        "speed",
+        "acceleration",
+        "spawnCount",
+        "spawnMax",
+        "particleData"
+    ],
+    "additionalProperties": false
+}

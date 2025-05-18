@@ -5,7 +5,7 @@
             "type": "string"
         },
         {
-            "$ref": "../particle.json"
+            "$ref": "../particle_effect.json"
         }
     ]
 }

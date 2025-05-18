@@ -162,7 +162,8 @@ function Shooter:update(dt)
     if self.shotPressed and self:getSphereConfig().holdParticle then
         for i = 1, self:getSphereCount() do
             if self.sphereHoldParticles[i] then
-                self.sphereHoldParticles[i].pos = self:getSpherePos(i)
+                local pos = self:getSpherePos(i)
+                self.sphereHoldParticles[i]:setPos(pos.x, pos.y)
             else
                 self.sphereHoldParticles[i] = _Game:spawnParticle(self:getSphereConfig().holdParticle, self:getSpherePos(i))
             end
@@ -177,7 +178,8 @@ function Shooter:update(dt)
         self.speedShotAnim = math.min(self.speedShotAnim + dt / self.config.speedShotBeam.fadeTime, 1)
         for i = 1, self:getSphereCount() do
             if self.speedShotParticles[i] then
-                self.speedShotParticles[i].pos = self:getSpherePos(i)
+                local pos = self:getSpherePos(i)
+                self.speedShotParticles[i]:setPos(pos.x, pos.y)
             else
                 self.speedShotParticles[i] = _Game:spawnParticle(self.config.speedShotParticle, self:getSpherePos(i))
             end

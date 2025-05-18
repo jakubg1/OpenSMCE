@@ -38,11 +38,11 @@ function ParticleManager:spawnParticlePacket(path, pos, layer)
 	local data
 	if type(path) == "string" then
 		_Debug:deprecationNotice("ParticleManager:spawnParticlePacket(): String argument will be phased out soon!", 2)
-		data = _Game.resourceManager:getParticle(path)
+		data = _Game.resourceManager:getParticleEffectConfig(path)
 	else
 		data = path
 	end
-	local packet = ParticlePacket(self, data, pos, layer)
+	local packet = ParticlePacket(self, data, pos.x, pos.y, layer)
 	table.insert(self.particlePackets, packet)
 	return packet
 end
@@ -79,19 +79,25 @@ end
 
 function ParticleManager:getParticlePacketID(particlePacket)
 	for i, particlePacketT in ipairs(self.particlePackets) do
-		if particlePacket == particlePacketT then return i end
+		if particlePacket == particlePacketT then
+			return i
+		end
 	end
 end
 
 function ParticleManager:getParticleSpawnerID(particleSpawner)
 	for i, particleSpawnerT in ipairs(self.particleSpawners) do
-		if particleSpawner == particleSpawnerT then return i end
+		if particleSpawner == particleSpawnerT then
+			return i
+		end
 	end
 end
 
 function ParticleManager:getParticlePieceID(particlePiece)
 	for i, particlePieceT in ipairs(self.particlePieces) do
-		if particlePiece == particlePieceT then return i end
+		if particlePiece == particlePieceT then
+			return i
+		end
 	end
 end
 

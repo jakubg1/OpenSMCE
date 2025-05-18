@@ -297,7 +297,7 @@
             "description": "Defines the Net.",
             "properties": {
                 "particle": {
-                    "$ref": "../_structures/Particle.json",
+                    "$ref": "../_structures/ParticleEffect.json",
                     "description": "A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires."
                 },
                 "sound": {

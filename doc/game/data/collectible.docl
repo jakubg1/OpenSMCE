@@ -1,8 +1,8 @@
 - (object) - The root object.
     - speed ($Vector2) - The starting speed of this collectible.
     - acceleration ($Vector2) - The acceleration rate of this collectible.
-    - particle (Particle) - A persistent particle packet which will follow the collectible entity.
-    - pickupParticle (Particle) - A one-time particle packet which will be launched when the collectible is catched.
+    - particle (ParticleEffect) - A persistent particle packet which will follow the collectible entity.
+    - pickupParticle (ParticleEffect) - A one-time particle packet which will be launched when the collectible is catched.
     - spawnSound (SoundEvent) - A sound event which will play when the collectible is spawned.
     - pickupSound (SoundEvent) - A sound event which will play when the collectible is collected.
     - pickupName* (string) - A label which will appear above the shooter when the powerup is collected.

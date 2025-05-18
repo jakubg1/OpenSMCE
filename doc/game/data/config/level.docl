@@ -28,7 +28,7 @@
             - trainRules (LevelTrainRules) - How trains should be spawned, including their length and color distribution.
             - spawnDistance (number) [>=0,<=1] - How far the path must be clear for a new Sphere Chain to spawn.
             - dangerDistance (number) [>=0,<=1] - How far into the path the spheres have to be in order for the player to be in danger.
-            - dangerParticle* (Particle) - The particle which will periodically spawn at the end of the path when the path is in danger. By default, `"particles/warning.json"` is used.
+            - dangerParticle* (ParticleEffect) - The particle which will periodically spawn at the end of the path when the path is in danger. By default, `"particles/warning.json"` is used.
             - speeds (array) - A list of speeds which will translate to the actual speed on any point of the path.
                 - (object) - A single speed graph node.
                     - distance* (number) - How far into the path as a percentage of the path the given speed should be applied. Either this, `offset` or `offsetFromEnd` must exist.

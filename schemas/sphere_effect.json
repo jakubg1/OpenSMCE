@@ -5,7 +5,7 @@
     "properties": {
         "$schema": true,
         "particle": {
-            "$ref": "_structures/Particle.json",
+            "$ref": "_structures/ParticleEffect.json",
             "description": "A persistent particle packet which will be applied to any affected sphere."
         },
         "time": {
@@ -36,7 +36,7 @@
             "description": "A score event to be executed when spheres affected with this effect are destroyed."
         },
         "destroyParticle": {
-            "$ref": "_structures/Particle.json",
+            "$ref": "_structures/ParticleEffect.json",
             "description": "A one-time particle packet used when a sphere with this effect is destroyed."
         },
         "destroyCollectible": {

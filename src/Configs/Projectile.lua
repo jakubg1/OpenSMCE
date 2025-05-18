@@ -24,13 +24,13 @@ function ProjectileConfig:new(data, path, isAnonymous)
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.particle = u.parseParticleOpt(data.particle, path, "particle")
+    self.particle = u.parseParticleEffectConfigOpt(data.particle, path, "particle")
     self.speed = u.parseNumber(data.speed, path, "speed")
     self.spawnDistance = u.parseExprNumberOpt(data.spawnDistance, path, "spawnDistance")
     self.spawnSound = u.parseSoundEventOpt(data.spawnSound, path, "spawnSound")
     self.sphereAlgorithm = u.parseString(data.sphereAlgorithm, path, "sphereAlgorithm")
     self.homing = u.parseBooleanOpt(data.homing, path, "homing")
-    self.destroyParticle = u.parseParticle(data.destroyParticle, path, "destroyParticle")
+    self.destroyParticle = u.parseParticleEffectConfig(data.destroyParticle, path, "destroyParticle")
     self.destroySound = u.parseSoundEventOpt(data.destroySound, path, "destroySound")
     self.destroySphereSelector = u.parseSphereSelectorConfig(data.destroySphereSelector, path, "destroySphereSelector")
     self.destroyScoreEvent = u.parseScoreEventConfigOpt(data.destroyScoreEvent, path, "destroyScoreEvent")

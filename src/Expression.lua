@@ -175,6 +175,11 @@ local OPERATOR_FUNCTIONS = {
 		local a = table.remove(stack)
 		table.insert(stack, a + math.random() * (b - a))
 	end,
+	["randomi"] = function(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, math.random(a, b))
+	end,
 	["vec2"] = function(stack)
 		local b = table.remove(stack)
 		local a = table.remove(stack)

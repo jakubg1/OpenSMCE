@@ -64,7 +64,7 @@ function Collectible:update(dt)
 	end
 
 	-- sprite
-	self.particle.pos = self.pos
+	self.particle:setPos(self.pos.x, self.pos.y)
 end
 
 

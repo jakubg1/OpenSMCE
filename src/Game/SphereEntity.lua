@@ -39,7 +39,7 @@ end
 function SphereEntity:setPos(posX, posY)
 	self.posX, self.posY = posX, posY
 	if self.particle then
-		self.particle.pos = Vec2(posX, posY)
+		self.particle:setPos(posX, posY)
 	end
 end
 

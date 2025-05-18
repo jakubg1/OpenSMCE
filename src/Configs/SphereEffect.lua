@@ -24,14 +24,14 @@ function SphereEffectConfig:new(data, path, isAnonymous)
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.particle = u.parseParticleOpt(data.particle, path, "particle")
+    self.particle = u.parseParticleEffectConfigOpt(data.particle, path, "particle")
     self.time = u.parseNumber(data.time, path, "time")
     self.infectionSize = u.parseInteger(data.infectionSize, path, "infectionSize")
     self.infectionTime = u.parseNumber(data.infectionTime, path, "infectionTime")
     self.applySound = u.parseSoundEventOpt(data.applySound, path, "applySound")
     self.destroySound = u.parseSoundEventOpt(data.destroySound, path, "destroySound")
     self.destroyScoreEvent = u.parseScoreEventConfigOpt(data.destroyScoreEvent, path, "destroyScoreEvent")
-    self.destroyParticle = u.parseParticleOpt(data.destroyParticle, path, "destroyParticle")
+    self.destroyParticle = u.parseParticleEffectConfigOpt(data.destroyParticle, path, "destroyParticle")
     self.destroyCollectible = u.parseCollectibleGeneratorConfigOpt(data.destroyCollectible, path, "destroyCollectible")
     self.levelLossProtection = u.parseBoolean(data.levelLossProtection, path, "levelLossProtection")
     self.immobile = u.parseBoolean(data.immobile, path, "immobile")

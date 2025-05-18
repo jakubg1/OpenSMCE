@@ -11,13 +11,13 @@
     - shadowSprite* (Sprite) - A shadow sprite to be drawn along the sphere.
     - shadowOffset* = (4, 4) (Vector2) - The offset of the shadow sprite, compared to the base sprite. Defaults to `(4, 4)`.
     - size* = 32 (number) [>0] - The diameter of this sphere, in pixels. The sprite will be resized if needed. Defaults to `32`.
-    - idleParticle* (Particle) - A persistent particle packet used when the sphere is on the board.
-    - holdParticle* (Particle) - A persistent particle packet used whenever the left mouse button is held. Works best with `autofire` enabled.
-    - destroyParticle* (Particle) - A one-time particle packet used when the sphere is destroyed.
+    - idleParticle* (ParticleEffect) - A persistent particle packet used when the sphere is on the board.
+    - holdParticle* (ParticleEffect) - A persistent particle packet used whenever the left mouse button is held. Works best with `autofire` enabled.
+    - destroyParticle* (ParticleEffect) - A one-time particle packet used when the sphere is destroyed.
     - destroyCollectible* (CollectibleGenerator) - A collectible generator used when the sphere is destroyed. **Note:** The generator will be evaluated for each single sphere of this type removed from the board. You may want to check out Sphere Effects' collectible generators instead.
     - destroySound* (SoundEvent) - A sound event to be played when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' sound events instead.
     - destroyEvent* (GameEvent) - A game event to be executed when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' game events instead.
-    - chainDestroyParticle* (Particle) - A one-time particle packet used when the sphere's chain is destroyed.
+    - chainDestroyParticle* (ParticleEffect) - A one-time particle packet used when the sphere's chain is destroyed.
     - chainDestroySound* (SoundEvent) - A sound event to be played when the sphere's chain is destroyed.
     - color* (Color) - The color used by the shooting reticle. Either this or `colorPalette` must exist.
     - colorPalette* (ColorPalette) - The color palette used by the shooting reticle. Either this or `color` must exist.
@@ -53,7 +53,7 @@
         - "recolorSpheres" - The sphere gets destroyed and changes the color of the spheres selected by the provided sphere selector.
             - selector (SphereSelector) - The Sphere Selector which will select the spheres of which the color will be changed.
             - color ($integer) - Which color the spheres will be changed to.
-            - particle* (Particle) - A one-time particle packet launched for all affected spheres.
+            - particle* (ParticleEffect) - A one-time particle packet launched for all affected spheres.
             - pierce* (boolean) - If set, the sphere will not be destroyed upon hitting the sphere train.
         - "splitAndPushBack" - The sphere gets destroyed, splits the sphere group in front of the hit sphere and applies negative speed to the back part of it.
             - speed (number) [>=0] - The knockback speed, in pixels per second.

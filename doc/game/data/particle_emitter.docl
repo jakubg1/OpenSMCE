@@ -1,0 +1,9 @@
+- (object) - The root object.
+    - pos (Vector2) - The initial position of the Emitter, relative to wherever the packet has been spawned.
+    - speed (Vector2) - The initial acceleration of the Emitter.
+    - acceleration (Vector2) - The acceleration of the Emitter.
+    - lifespan* (number) [>=0] - How many seconds the Emitter should exist. If left out, this Emitter will never despawn and the entire Particle Packet will be a persistent packet.
+    - spawnCount (integer) [>=0] - How many Particles will this Emitter spawn at start.
+    - spawnMax (integer) [>=1] - How many Particles spawned by this Emitter can be on the screen at once.
+    - spawnDelay* (number) [>=0] - Time between the consecutive particle spawns, in seconds. If not specified, this Emitter will never spawn any particles after its initial burst.
+    - particleData (Particle) - Data applied to every single particle spawned by this Emitter.

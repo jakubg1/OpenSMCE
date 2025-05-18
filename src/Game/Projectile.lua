@@ -74,7 +74,7 @@ function Projectile:update(dt)
 
     -- Update the particle position.
     if self.particle then
-    	self.particle.pos = self.pos
+    	self.particle:setPos(self.pos.x, self.pos.y)
     end
 end
 

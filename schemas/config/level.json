@@ -142,7 +142,7 @@
                         "maximum": 1.0
                     },
                     "dangerParticle": {
-                        "$ref": "../_structures/Particle.json",
+                        "$ref": "../_structures/ParticleEffect.json",
                         "description": "The particle which will periodically spawn at the end of the path when the path is in danger. By default, \"particles/warning.json\" is used.",
                         "markdownDescription": "The particle which will periodically spawn at the end of the path when the path is in danger. By default, `\"particles/warning.json\"` is used."
                     },

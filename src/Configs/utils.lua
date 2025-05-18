@@ -8,6 +8,9 @@ local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local GameEventConfig = require("src.Configs.GameEvent")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
+local ParticleConfig = require("src.Configs.Particle")
+local ParticleEffectConfig = require("src.Configs.ParticleEffect")
+local ParticleEmitterConfig = require("src.Configs.ParticleEmitter")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ProjectileConfig = require("src.Configs.Projectile")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
@@ -233,17 +236,6 @@ function utils.parseMusicOpt(data, path, field)
 	return data and _Game.resourceManager:getMusic(data)
 end
 
----@return table
-function utils.parseParticle(data, path, field)
-	assert(data, string.format("field %s is missing (Particle expected)", field))
-	return _Game.resourceManager:getParticle(data)
-end
-
----@return table?
-function utils.parseParticleOpt(data, path, field)
-	return data and _Game.resourceManager:getParticle(data)
-end
-
 ---@return Font
 function utils.parseFont(data, path, field)
 	assert(data, string.format("field %s is missing (Font expected)", field))
@@ -270,15 +262,13 @@ end
 
 ---Internal function for class parsing logic.
 ---Returns an instance of Config Class based on provided data.
----If the provided alias is unreachable, returns `nil` and reports an unresolved alias to Resource Manager.
----The alias will be resolved whenever the getter function is executed for this resource.
----@param data string|integer|table Either a string which is a resource path, a string or integer which is a resource alias, or any raw resource data which will be used to construct an anonymous resource.
+---@param data string|table Either a string which is a resource path or any raw resource data which will be used to construct an anonymous resource.
 ---@param path string Resource path which will be passed to the potentially created anonymous resource.
 ---@param field string Name of the field which containes the provided data. Used for error messages.
 ---@param resType string The type of the provided resource.
 ---@param getter function Resource getter which will return a resource if the resource path is provided. Intended to be `ResourceManager:get*Config()`.
 ---@param constructor any Resource constructor which will construct the anonymous resource if resource data is provided.
----@return table?
+---@return table
 local function parseClassConfig(data, path, field, resType, getter, constructor)
 	assert(data, string.format("%s: field %s is missing (%s Config expected)", path, field, resType))
 	if type(data) == "table" then
@@ -291,7 +281,7 @@ end
 ---Internal function for class parsing logic.
 ---Returns an optional instance of Config Class based on provided data.
 ---Does not return anything if no data is provided.
----@param data string|integer|table Either a string which is a resource path, a string or integer which is a resource alias, or any raw resource data which will be used to construct an anonymous resource.
+---@param data string|table Either a string which is a resource path or any raw resource data which will be used to construct an anonymous resource.
 ---@param path string Resource path which will be passed to the potentially created anonymous resource.
 ---@param field string Name of the field which containes the provided data. Used for error messages.
 ---@param resType string The type of the provided resource.
@@ -307,7 +297,7 @@ end
 
 
 
----@return CollectibleConfig?
+---@return CollectibleConfig
 function utils.parseCollectibleConfig(data, path, field)
 	return parseClassConfig(data, path, field, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
 end
@@ -317,7 +307,7 @@ function utils.parseCollectibleConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
 end
 
----@return CollectibleEffectConfig?
+---@return CollectibleEffectConfig
 function utils.parseCollectibleEffectConfig(data, path, field)
 	return parseClassConfig(data, path, field, "CollectibleEffect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
 end
@@ -327,7 +317,7 @@ function utils.parseCollectibleEffectConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "CollectibleEffect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
 end
 
----@return CollectibleGeneratorConfig?
+---@return CollectibleGeneratorConfig
 function utils.parseCollectibleGeneratorConfig(data, path, field)
 	return parseClassConfig(data, path, field, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
@@ -337,7 +327,7 @@ function utils.parseCollectibleGeneratorConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
 
----@return GameEventConfig?
+---@return GameEventConfig
 function utils.parseGameEventConfig(data, path, field)
 	return parseClassConfig(data, path, field, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
 end
@@ -347,7 +337,7 @@ function utils.parseGameEventConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
 end
 
----@return LevelSequenceConfig?
+---@return LevelSequenceConfig
 function utils.parseLevelSequenceConfig(data, path, field)
 	return parseClassConfig(data, path, field, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
 end
@@ -357,7 +347,37 @@ function utils.parseLevelSequenceConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
 end
 
----@return PathEntityConfig?
+---@return ParticleConfig
+function utils.parseParticleConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
+end
+
+---@return ParticleConfig?
+function utils.parseParticleConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
+end
+
+---@return ParticleConfig
+function utils.parseParticleEffectConfig(data, path, field)
+	return parseClassConfig(data, path, field, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
+end
+
+---@return ParticleConfig?
+function utils.parseParticleEffectConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
+end
+
+---@return ParticleConfig
+function utils.parseParticleEmitterConfig(data, path, field)
+	return parseClassConfig(data, path, field, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
+end
+
+---@return ParticleConfig?
+function utils.parseParticleEmitterConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
+end
+
+---@return PathEntityConfig
 function utils.parsePathEntityConfig(data, path, field)
 	return parseClassConfig(data, path, field, "PathEntity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
 end
@@ -367,7 +387,7 @@ function utils.parsePathEntityConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "PathEntity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
 end
 
----@return ProjectileConfig?
+---@return ProjectileConfig
 function utils.parseProjectileConfig(data, path, field)
 	return parseClassConfig(data, path, field, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
 end
@@ -377,7 +397,7 @@ function utils.parseProjectileConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
 end
 
----@return ScoreEventConfig?
+---@return ScoreEventConfig
 function utils.parseScoreEventConfig(data, path, field)
 	return parseClassConfig(data, path, field, "ScoreEvent", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
 end
@@ -387,7 +407,7 @@ function utils.parseScoreEventConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "ScoreEvent", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
 end
 
----@return ShooterMovementConfig?
+---@return ShooterMovementConfig
 function utils.parseShooterMovementConfig(data, path, field)
 	return parseClassConfig(data, path, field, "ShooterMovement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
 end
@@ -397,7 +417,7 @@ function utils.parseShooterMovementConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "ShooterMovement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
 end
 
----@return SphereConfig?
+---@return SphereConfig
 function utils.parseSphereConfig(data, path, field)
 	return parseClassConfig(data, path, field, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
 end
@@ -407,7 +427,7 @@ function utils.parseSphereConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
 end
 
----@return SphereEffectConfig?
+---@return SphereEffectConfig
 function utils.parseSphereEffectConfig(data, path, field)
 	return parseClassConfig(data, path, field, "SphereEffect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
 end
@@ -417,7 +437,7 @@ function utils.parseSphereEffectConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "SphereEffect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
 end
 
----@return SphereSelectorConfig?
+---@return SphereSelectorConfig
 function utils.parseSphereSelectorConfig(data, path, field)
 	return parseClassConfig(data, path, field, "SphereSelector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
 end
@@ -427,7 +447,7 @@ function utils.parseSphereSelectorConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "SphereSelector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
 end
 
----@return SpriteAtlasConfig?
+---@return SpriteAtlasConfig
 function utils.parseSpriteAtlasConfig(data, path, field)
 	return parseClassConfig(data, path, field, "SpriteAtlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
 end
@@ -437,7 +457,7 @@ function utils.parseSpriteAtlasConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "SpriteAtlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
 end
 
----@return VariableProvidersConfig?
+---@return VariableProvidersConfig
 function utils.parseVariableProvidersConfig(data, path, field)
 	return parseClassConfig(data, path, field, "VariableProviders", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
 end

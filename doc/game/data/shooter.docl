@@ -35,7 +35,7 @@
             - "cut" - The beam is cut where it intersects a sphere train.
             - "scale" - The beam is shrunk so its top is touching a sphere train.
         - colored (boolean) - Whether the beam should be colored with the current sphere color.
-    - speedShotParticle (Particle) - Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes.
+    - speedShotParticle (ParticleEffect) - Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes.
     - shotSpeed (number) [>0] - The default speed of how fast the shot spheres will be, in pixels per second.
     - shotCooldown* = 0 (number) [>=0] - The minimum time between the shots, in seconds. If `multishot` is set to `false`, this time will be counted since the previous shot sphere has been appended/disappeared.
     - shotCooldownFade* = 0 (number) [>=0] - The duration of the ball appearing animation, in seconds. During this time you can't shoot balls yet. This time is counted after `shotCooldown`, so the effective cooldown is this plus that value.

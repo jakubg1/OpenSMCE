@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "emitters": {
+            "type": "array",
+            "description": "A list of Emitters this particle file defines. In the game code, Emitters are called Particle Spawners.",
+            "items": {
+                "$ref": "_structures/ParticleEmitter.json",
+                "description": "A single emitter."
+            }
+        }
+    },
+    "required": [
+        "emitters"
+    ],
+    "additionalProperties": false
+}

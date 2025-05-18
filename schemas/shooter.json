@@ -198,7 +198,7 @@
             "additionalProperties": false
         },
         "speedShotParticle": {
-            "$ref": "_structures/Particle.json",
+            "$ref": "_structures/ParticleEffect.json",
             "description": "Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes."
         },
         "shotSpeed": {

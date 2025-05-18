@@ -73,7 +73,7 @@
             "description": "If set, this path entity will be destroyed once it reaches the path's clear offset (i.e. Bonus Scarabs)."
         },
         "particle": {
-            "$ref": "_structures/Particle.json",
+            "$ref": "_structures/ParticleEffect.json",
             "description": "The one-time particle that this path entity will be spawning every set amount of pixels."
         },
         "particleSeparation": {
@@ -99,7 +99,7 @@
             "exclusiveMinimum": 0.0
         },
         "destroyParticle": {
-            "$ref": "_structures/Particle.json",
+            "$ref": "_structures/ParticleEffect.json",
             "description": "The one-time particle that this path entity will spawn upon destruction/despawning."
         },
         "destroySound": {
