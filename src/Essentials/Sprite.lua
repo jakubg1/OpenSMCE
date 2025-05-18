@@ -112,7 +112,7 @@ function Sprite.inject(ResourceManager)
 
     ---Retrieves a Sprite by a given path.
     ---@param path string The resource path.
-    ---@return Sprite?
+    ---@return Sprite
     function ResourceManager:getSprite(path)
         return self:getResourceAsset(path, "Sprite")
     end

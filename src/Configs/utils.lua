@@ -189,7 +189,7 @@ function utils.parseImageOpt(data, path, field)
 	return data and _Game.resourceManager:getImage(data)
 end
 
----@return Sprite?
+---@return Sprite
 function utils.parseSprite(data, path, field)
 	assert(data, string.format("field %s is missing (Sprite expected)", field))
 	return _Game.resourceManager:getSprite(data)
