@@ -56,7 +56,7 @@ function DifficultyConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return DifficultyConfig
     function ResourceManager:getDifficultyConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "DifficultyConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "Difficulty", skipAliasResolutionCheck)
     end
 end
 

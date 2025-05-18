@@ -1162,7 +1162,7 @@ def docld_to_lua(entry, class_name, schema_path, is_root = True, omit_packing = 
 		out.append("---@return " + class_name)
 		out.append("function ResourceManager:get" + class_name + "(reference, skipAliasResolutionCheck)")
 		out.append(1)
-		out.append("return self:getResourceConfig(reference, \"" + class_name + "\", skipAliasResolutionCheck)")
+		out.append("return self:getResourceConfig(reference, \"" + class_name[:-6] + "\", skipAliasResolutionCheck)")
 		out.append(-1)
 		out.append("end")
 		out.append(-1)

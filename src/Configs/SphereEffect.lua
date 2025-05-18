@@ -69,7 +69,7 @@ function SphereEffectConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return SphereEffectConfig
     function ResourceManager:getSphereEffectConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "SphereEffectConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "SphereEffect", skipAliasResolutionCheck)
     end
 end
 

@@ -80,7 +80,7 @@ function LevelSequenceConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return LevelSequenceConfig
     function ResourceManager:getLevelSequenceConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "LevelSequenceConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "LevelSequence", skipAliasResolutionCheck)
     end
 end
 

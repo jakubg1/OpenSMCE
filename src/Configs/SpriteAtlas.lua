@@ -41,7 +41,7 @@ function SpriteAtlasConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return SpriteAtlasConfig
     function ResourceManager:getSpriteAtlasConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "SpriteAtlasConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "SpriteAtlas", skipAliasResolutionCheck)
     end
 end
 

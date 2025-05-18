@@ -100,7 +100,7 @@ function CollectibleEffectConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return CollectibleEffectConfig
     function ResourceManager:getCollectibleEffectConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "CollectibleEffectConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "CollectibleEffect", skipAliasResolutionCheck)
     end
 end
 

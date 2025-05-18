@@ -64,7 +64,7 @@ function PathEntityConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return PathEntityConfig
     function ResourceManager:getPathEntityConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "PathEntityConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "PathEntity", skipAliasResolutionCheck)
     end
 end
 

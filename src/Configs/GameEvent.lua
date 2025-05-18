@@ -79,7 +79,7 @@ function GameEventConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return GameEventConfig
     function ResourceManager:getGameEventConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "GameEventConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "GameEvent", skipAliasResolutionCheck)
     end
 end
 

@@ -408,6 +408,18 @@ end
 
 
 
+---Returns `true` if the table does not contain any keys.
+---@param t table The potentially empty table.
+---@return boolean
+function utils.tableIsEmpty(t)
+	for k, v in pairs(t) do
+		return false
+	end
+	return true
+end
+
+
+
 ---Shuffles the elements in the table `t`.
 ---@param t table The table to be shuffled.
 function utils.tableShuffle(t)

@@ -56,7 +56,7 @@ function SpriteConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return SpriteConfig
     function ResourceManager:getSpriteConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "SpriteConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "Sprite", skipAliasResolutionCheck)
     end
 end
 

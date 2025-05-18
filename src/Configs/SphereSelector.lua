@@ -52,7 +52,7 @@ function SphereSelectorConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return SphereSelectorConfig
     function ResourceManager:getSphereSelectorConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "SphereSelectorConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "SphereSelector", skipAliasResolutionCheck)
     end
 end
 

@@ -53,7 +53,7 @@ function ScoreEventConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return ScoreEventConfig
     function ResourceManager:getScoreEventConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "ScoreEventConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "ScoreEvent", skipAliasResolutionCheck)
     end
 end
 

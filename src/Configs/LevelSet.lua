@@ -75,7 +75,7 @@ function LevelSetConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return LevelSetConfig
     function ResourceManager:getLevelSetConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "LevelSetConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "LevelSet", skipAliasResolutionCheck)
     end
 end
 

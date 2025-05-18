@@ -103,7 +103,7 @@ function ShooterConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return ShooterConfig
     function ResourceManager:getShooterConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "ShooterConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "Shooter", skipAliasResolutionCheck)
     end
 end
 

@@ -69,7 +69,7 @@ function VariableProvidersConfig.inject(ResourceManager)
     ---@param skipAliasResolutionCheck boolean? If set, the resource will be returned even if it has unresolved alias references. You should only set this to `true` if you do not intend to interact with the config's contents.
     ---@return VariableProvidersConfig
     function ResourceManager:getVariableProvidersConfig(reference, skipAliasResolutionCheck)
-        return self:getResourceConfig(reference, "VariableProvidersConfig", skipAliasResolutionCheck)
+        return self:getResourceConfig(reference, "VariableProviders", skipAliasResolutionCheck)
     end
 end
 
