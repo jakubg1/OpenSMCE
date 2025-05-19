@@ -16,8 +16,9 @@ function Console:new()
 	self.command = ""
 	self.commandBuffer = nil -- Stores the newest non-submitted command if the history is being browsed.
 	self.tabCompletionList = nil
-	self.tabCompletionOffset = nil
+	self.tabCompletionOffset = 0
 	self.tabCompletionSelection = 0
+	self.MAX_TAB_COMPLETION_SUGGESTIONS = 10
 
 	self.open = false
 	self.active = false
@@ -41,6 +42,12 @@ function Console:update(dt)
 				self:inputUp()
 			elseif self.keyRepeat == "down" then
 				self:inputDown()
+			elseif self.keyRepeat == "pageup" then
+				self:inputPageUp()
+			elseif self.keyRepeat == "pagedown" then
+				self:inputPageDown()
+			elseif self.keyRepeat == "tab" then
+				self:inputTab()
 			end
 		end
 	else
@@ -88,9 +95,42 @@ function Console:scrollToHistoryEntry(n)
 end
 
 ---Updates the list of completion suggestions.
+---If no suggestions are available, the suggestions are disabled.
 function Console:updateTabCompletionList()
 	self.tabCompletionList = _Debug:getCommandCompletionSuggestions(self.command)
-	self.tabCompletionSelection = 0
+	if #self.tabCompletionList == 0 then
+		-- No suggestions.
+		self.tabCompletionList = nil
+		return
+	end
+	self.tabCompletionSelection = 1
+	self:updateTabCompletionScroll()
+end
+
+---Updates the scroll offset of the completion suggestion list.
+function Console:updateTabCompletionScroll()
+	-- We treat no selection as 1.
+	local virtualSelection = math.max(self.tabCompletionSelection, 1)
+	if virtualSelection < self.tabCompletionOffset + 1 then
+		-- If the current selection is above the viewable area, bring the viewable area up.
+		self.tabCompletionOffset = virtualSelection - 1
+	elseif virtualSelection > self.tabCompletionOffset + self.MAX_TAB_COMPLETION_SUGGESTIONS then
+		-- If the current selection is below the viewable area, bring the viewable area down.
+		self.tabCompletionOffset = virtualSelection - self.MAX_TAB_COMPLETION_SUGGESTIONS
+	end
+end
+
+---Returns the currently being typed-in command without the last word.
+---If at least one word remains, a space character will be appended at the end of the string.
+---@return string
+function Console:getCommandWithoutLastWord()
+	local words = _Utils.strSplit(self.command, " ")
+	table.remove(words, #words)
+	local command = _Utils.strJoin(words, " ")
+	if command ~= "" then
+		command = command .. " "
+	end
+	return command
 end
 
 function Console:draw()
@@ -124,12 +164,19 @@ function Console:draw()
 
 	-- Tab completion
 	if self.open and self.tabCompletionList then
-		local x = pos.x + (utf8.len(self.command) + 2) * 8
-		local y = pos.y - 25 - #self.tabCompletionList * 20
+		local a = self.tabCompletionOffset + 1
+		local b = math.min(a + self.MAX_TAB_COMPLETION_SUGGESTIONS - 1, #self.tabCompletionList)
+		local x = pos.x + (utf8.len(self:getCommandWithoutLastWord()) + 2) * 8
+		local y = pos.y - 25 - (b - a + 1) * 20
+		local width = 150
 		for i, completion in ipairs(self.tabCompletionList) do
-			local color = self.tabCompletionSelection == i and _COLORS.yellow or _COLORS.white
-			local backgroundColor = self.tabCompletionSelection == i and _COLORS.gray or _COLORS.black
-			_Debug:drawVisibleText({color, completion}, Vec2(x, y + (i - 1) * 20), 20, 150, nil, true, backgroundColor)
+			width = math.max(width, _FONT_CONSOLE:getWidth(completion))
+		end
+		for i = a, b do
+			local completion = self.tabCompletionList[i]
+			local color = self.tabCompletionSelection == i and _COLORS.white or _COLORS.white
+			local backgroundColor = self.tabCompletionSelection == i and _COLORS.darkAqua or _COLORS.black
+			_Debug:drawVisibleText({color, completion}, Vec2(x, y + (i - a) * 20), 20, width, nil, true, backgroundColor)
 		end
 	end
 
@@ -149,23 +196,23 @@ function Console:keypressed(key)
 		end
 		if key == "backspace" then
 			self:inputBackspace()
-			self.keyRepeat = "backspace"
-			self.keyRepeatTime = self.KEY_FIRST_REPEAT_TIME
 		elseif key == "tab" then
 			self:inputTab()
 		elseif key == "up" then
 			self:inputUp()
-			self.keyRepeat = "up"
-			self.keyRepeatTime = self.KEY_FIRST_REPEAT_TIME
 		elseif key == "down" then
 			self:inputDown()
-			self.keyRepeat = "down"
-			self.keyRepeatTime = self.KEY_FIRST_REPEAT_TIME
+		elseif key == "pageup" then
+			self:inputPageUp()
+		elseif key == "pagedown" then
+			self:inputPageDown()
 		elseif key == "escape" then
 			self.tabCompletionList = nil
 		elseif key == "return" then
 			self:inputEnter()
 		end
+		self.keyRepeat = key
+		self.keyRepeatTime = self.KEY_FIRST_REPEAT_TIME
 	end
 end
 
@@ -182,13 +229,17 @@ end
 
 
 function Console:inputCharacter(t)
-	if not self.active then return end
+	if not self.active then
+		return
+	end
 	self.command = self.command .. t
 	self:updateTabCompletionList()
 end
 
 function Console:inputBackspace()
-	if not self.active then return end
+	if not self.active then
+		return
+	end
 	local offset = utf8.offset(self.command, -1)
 	if offset then
 		self.command = self.command:sub(1, offset - 1)
@@ -198,7 +249,8 @@ end
 
 function Console:inputUp()
 	if self.tabCompletionList then
-		self.tabCompletionSelection = math.max(1, self.tabCompletionSelection - 1)
+		self.tabCompletionSelection = (self.tabCompletionSelection - 2) % #self.tabCompletionList + 1
+		self:updateTabCompletionScroll()
 	else
 		if self.historyOffset then
 			self:scrollToHistoryEntry(math.max(1, self.historyOffset - 1))
@@ -210,7 +262,8 @@ end
 
 function Console:inputDown()
 	if self.tabCompletionList then
-		self.tabCompletionSelection = math.min(#self.tabCompletionList, self.tabCompletionSelection + 1)
+		self.tabCompletionSelection = self.tabCompletionSelection % #self.tabCompletionList + 1
+		self:updateTabCompletionScroll()
 	else
 		if self.historyOffset then
 			if self.historyOffset < #self.history then
@@ -222,22 +275,34 @@ function Console:inputDown()
 	end
 end
 
+function Console:inputPageUp()
+	if self.tabCompletionList then
+		self.tabCompletionSelection = math.max(1, self.tabCompletionSelection - self.MAX_TAB_COMPLETION_SUGGESTIONS)
+		self:updateTabCompletionScroll()
+	end
+end
+
+function Console:inputPageDown()
+	if self.tabCompletionList then
+		self.tabCompletionSelection = math.min(#self.tabCompletionList, self.tabCompletionSelection + self.MAX_TAB_COMPLETION_SUGGESTIONS)
+		self:updateTabCompletionScroll()
+	end
+end
+
 function Console:inputTab()
 	if not self.tabCompletionList then
 		self:updateTabCompletionList()
 	elseif #self.tabCompletionList == 0 then
 		return
-	elseif self.tabCompletionSelection == 0 then
-		self.tabCompletionSelection = 1
 	else
-		-- Autofill the suggestion.
-		local words = _Utils.strSplit(self.command, " ")
-		table.remove(words, #words)
-		self.command = _Utils.strJoin(words, " ")
-		if self.command ~= "" then
-			self.command = self.command .. " "
+		local commandStripped = self:getCommandWithoutLastWord()
+		if self.tabCompletionSelection == 0 or self.command == commandStripped .. self.tabCompletionList[self.tabCompletionSelection] then
+			-- Move through the suggestions.
+			self.tabCompletionSelection = self.tabCompletionSelection % #self.tabCompletionList + 1
+			self:updateTabCompletionScroll()
 		end
-		self.command = self.command .. self.tabCompletionList[self.tabCompletionSelection]
+		-- Autofill the suggestion.
+		self.command = commandStripped .. self.tabCompletionList[self.tabCompletionSelection]
 	end
 end
 
@@ -270,7 +335,7 @@ function Console:inputEnter()
 	self.historyOffset = nil
 	self.command = ""
 	self.commandBuffer = nil
-	self.tabCompletionList = {}
+	self.tabCompletionList = nil
 end
 
 return Console

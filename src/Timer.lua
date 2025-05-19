@@ -17,7 +17,7 @@ function Timer:new()
 	-- Used to mitigate the problem of frame skipping (the internal timer rapidly overflowing and underflowing),
 	-- which causes the game to alternate between performing 0 and 2 frames each real frame.
 	-- This means visible stuttering.
-	self.MAX_FRAME_ADJUSTMENT = 0.003
+	self.MAX_FRAME_ADJUSTMENT = 0.016
 	-- The internal timer, being accumulated time to in seconds.
 	self.time = 0
 end

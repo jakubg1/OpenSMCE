@@ -32,7 +32,7 @@ function Debug:new()
 		exprt = {description = "Breaks down an Expression and shows the list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
 		ex = {description = "Debugs an Expression: shows detailed tokenization and list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
 		help = {description = "Displays this list.", parameters = {}},
-		collectible = {description = "Spawns a Collectible in the middle of the screen.", parameters = {{name = "collectible", type = "Collectible", optional = false}}},
+		collectible = {description = "Spawns a Collectible in the middle of the screen.", parameters = {{name = "collectible", type = "Collectible", optional = false}, {name = "amount", type = "integer", optional = true}}},
 		train = {description = "Evaluates a train preset generator.", parameters = {{name = "preset", type = "string", optional = false, greedy = true}}}
 		-- Add commands to tinker with Expression Variables
 		-- Add a list of Expression Variables in a debug screen
@@ -654,7 +654,9 @@ function Debug:runCommand(command)
 		end
 		self.console:print(string.format("ex(%s): %s", parameters[1], e:evaluate()))
 	elseif command == "collectible" then
-		_Game.level:spawnCollectible(parameters[1], _Game:getNativeResolution() / 2)
+		for i = 1, parameters[2] or 1 do
+			_Game.level:spawnCollectible(parameters[1], _Game:getNativeResolution() / 2)
+		end
 	elseif command == "train" then
 		local preset = parameters[1]
 		local result = preset
