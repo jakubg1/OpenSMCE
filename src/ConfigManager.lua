@@ -100,10 +100,10 @@ function ConfigManager:getCanvasRenderingMode()
 	return self.config.canvasRenderingMode or "filtered"
 end
 
----Returns the game's tick rate. Defaults to `120`.
+---Returns the game's tick rate. Defaults to `60`.
 ---@return integer
 function ConfigManager:getTickRate()
-	return self.config.tickRate or 120
+	return self.config.tickRate or 60
 end
 
 

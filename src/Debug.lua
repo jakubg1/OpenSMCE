@@ -45,10 +45,19 @@ function Debug:new()
 
 	self.profUpdate = Profiler("Update")
 	self.profDraw = Profiler("Draw")
-	self.profDraw2 = Profiler("Draw")
 	self.profDrawLevel = Profiler("Draw: Level")
 	self.prof3 = Profiler("Draw: Level2")
 	self.profMusic = Profiler("Music volume")
+
+	self.profTimer = Profiler("Timer cache")
+	self.profTimer.w = 80
+	self.profTimer.maxValue = 1/60
+	self.profTimer.bars = {}
+	for i = 0.000, 0.017, 0.002 do
+		table.insert(self.profTimer.bars, {value = i, label = string.format("%.3f", i), color = {1, 1, 1}})
+	end
+	self.profTimer.recordCount = 100
+	self.profTimer.showMinMaxAvg = false
 
 	self.profVisible = false
 	self.profPage = 1
@@ -77,6 +86,10 @@ function Debug:update(dt)
 	self.console:update(dt)
 	self.lastVec2PerFrame = self.vec2PerFrame
 	self.vec2PerFrame = 0
+
+	if _Game.timer then
+		self.profTimer:putValue(_Game.timer.time)
+	end
 end
 
 ---Draws the debug class, which includes the help overlay, profiler, console, UI debugging and all elements controlled with F* keys.
@@ -85,9 +98,17 @@ function Debug:draw()
 	if self.profVisible then
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.setFont(_FONT)
-		self.profPages[self.profPage]:draw(Vec2(0, _Display.size.y))
-		self.profDraw:draw(Vec2(400, _Display.size.y))
-		self.profDraw2:draw(Vec2(400, _Display.size.y))
+		local p1 = self.profPages[self.profPage]
+		p1.x, p1.y = 0, _Display.size.y
+		p1:draw()
+
+		local pt = self.profTimer
+		pt.x, pt.y = 310, _Display.size.y
+		pt:draw()
+
+		local p2 = self.profDraw
+		p2.x, p2.y = 400, _Display.size.y
+		p2:draw()
 
 		self:drawVisibleText("Debug Keys:", Vec2(10, 10), 15)
 		self:drawVisibleText("[F1] Performance", Vec2(10, 25), 15)
@@ -127,8 +148,13 @@ function Debug:keypressed(key)
 		elseif key == "f10" then
 			self:deprecationNotice("test")
 		end
-		if key == "kp-" and self.profPage > 1 then self.profPage = self.profPage - 1 end
-		if key == "kp+" and self.profPage < #self.profPages then self.profPage = self.profPage + 1 end
+		-- Change profiler page
+		if key == "kp-" and self.profPage > 1 then
+			self.profPage = self.profPage - 1
+		end
+		if key == "kp+" and self.profPage < #self.profPages then
+			self.profPage = self.profPage + 1
+		end
 		self.uiDebug:keypressed(key)
 	end
 
@@ -466,7 +492,7 @@ function Debug:getCommandCompletionSuggestions(command)
 			if parameter then
 				if parameter.type == "Collectible" then
 					if _Game.resourceManager then
-						suggestions = _Game.resourceManager:getResourceList("collectible")
+						suggestions = _Game.resourceManager:getResourceList("Collectible")
 					end
 				end
 			end
@@ -532,7 +558,7 @@ function Debug:runCommand(command)
 		for i, name in ipairs(self.commandNames) do
 			local commandData = self.commands[name]
 			local msg = {_COLORS.yellow, name}
-			for i, parameter in ipairs(commandData.parameters) do
+			for j, parameter in ipairs(commandData.parameters) do
 				local name = parameter.name
 				if parameter.greedy then
 					name = name .. "..."
@@ -628,7 +654,7 @@ function Debug:runCommand(command)
 		end
 		self.console:print(string.format("ex(%s): %s", parameters[1], e:evaluate()))
 	elseif command == "collectible" then
-		_Game.level:spawnCollectible(_Game:getNativeResolution() / 2, parameters[1].id)
+		_Game.level:spawnCollectible(parameters[1], _Game:getNativeResolution() / 2)
 	elseif command == "train" then
 		local preset = parameters[1]
 		local result = preset
@@ -750,20 +776,12 @@ function Debug:profDrawStart()
 	self.profDraw:start()
 end
 
+function Debug:profDrawCheckpoint()
+	self.profDraw:checkpoint()
+end
+
 function Debug:profDrawStop()
 	self.profDraw:stop()
-end
-
-function Debug:profDraw2Start()
-	self.profDraw2:start()
-end
-
-function Debug:profDraw2Checkpoint(n)
-	self.profDraw2:checkpoint(n)
-end
-
-function Debug:profDraw2Stop()
-	self.profDraw2:stop()
 end
 
 function Debug:profDrawLevelStart()

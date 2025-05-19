@@ -23,53 +23,92 @@ function Profiler:new(name)
 		{1, 0, 1},
 		{1, 0, 0.5}
 	}
-
 	self.name = name
-	self.times = {}
-	self.tc = {}
-	self.t = nil
-	self.totalLags = 0
-
-
+	self.x, self.y = 0, 0
+	self.w, self.h = 300, 240
+	self.minValue = 0
+	self.maxValue = 1/15
+	self.lagThreshold = 1/15
+	self.bars = {
+		{value = 1/60, label = "0.017 (1/60)", color = {0, 1, 0}},
+		{value = 1/30, label = "0.033 (1/30)", color = {1, 1, 0}},
+		{value = 1/20, label = "0.050 (1/20)", color = {1, 0.5, 0}},
+		{value = 1/15, label = "0.067 (1/15)", color = {1, 0, 0}}
+	}
+	self.recordCount = 300
+	self.showMinMaxAvg = true
 	self.showPercentage = false
 	self.percentageMode = false
+
+	self.times = {}
+	self.currentCheckpoints = {}
+	self.currentTime = nil
+	self.lagCount = 0
 end
 
 function Profiler:start()
-	self.tc = {}
-	self.t = love.timer.getTime()
+	self.currentCheckpoints = {}
+	self.currentTime = love.timer.getTime()
 end
 
 function Profiler:checkpoint(n)
-	if not self.t then return end
-
-	local t = love.timer.getTime()
-	local td = t - self.t
-	if n and self.tc[n] then
-		self.tc[n] = self.tc[n] + td
-	else
-		table.insert(self.tc, td)
+	if not self.currentTime then
+		return
 	end
-	self.t = t
+	local t = love.timer.getTime()
+	local td = t - self.currentTime
+	if n and self.currentCheckpoints[n] then
+		self.currentCheckpoints[n] = self.currentCheckpoints[n] + td
+	else
+		table.insert(self.currentCheckpoints, td)
+	end
+	self.currentTime = t
 end
 
 function Profiler:stop()
-	if not self.t then return end
-
-	if #self.times == 300 then table.remove(self.times, 1) end
+	if not self.currentTime then
+		return
+	end
 	self:checkpoint()
+	-- Sum all checkpoints' times.
 	local ttot = 0
-	for i, t in ipairs(self.tc) do
+	for i, t in ipairs(self.currentCheckpoints) do
 		ttot = ttot + t
 	end
-	if ttot > 1 / 15 then self.totalLags = self.totalLags + 1 end
-	table.insert(self.times, self.tc)
-
-	self.tc = {}
-	self.t = nil
+	-- If total frame time exceeds 1/15th of a second, increment the lag frame counter.
+	if ttot > self.lagThreshold then
+		self.lagCount = self.lagCount + 1
+	end
+	-- Remove oldest entries.
+	if #self.times == self.recordCount then
+		table.remove(self.times, 1)
+	end
+	-- Add a new list of checkpoints.
+	table.insert(self.times, self.currentCheckpoints)
+	-- Reset checkpoints.
+	self.currentCheckpoints = {}
+	self.currentTime = nil
 end
 
-function Profiler:draw(pos)
+function Profiler:putValue(value)
+	-- Remove oldest entries.
+	if #self.times == self.recordCount then
+		table.remove(self.times, 1)
+	end
+	-- Add a new value.
+	table.insert(self.times, {value})
+end
+
+function Profiler:getYForValue(value)
+	local p = (value - self.minValue) / (self.maxValue - self.minValue)
+	return self.y - (self.h - 40) * math.min(math.max(p, 0), 1)
+end
+
+function Profiler:getColor(n)
+	return self.COLORS[(n - 1) % #self.COLORS + 1]
+end
+
+function Profiler:draw()
 	-- Counting
 	local total = 0
 	local max = nil
@@ -77,9 +116,10 @@ function Profiler:draw(pos)
 
 	-- Background
 	love.graphics.setColor(0, 0, 0, 0.5)
-	love.graphics.rectangle("fill", pos.x, pos.y - 240, 300, 240)
+	love.graphics.rectangle("fill", self.x, self.y - self.h, self.w, self.h)
 
 	-- Graph
+	local recordWidth = self.w / self.recordCount
 	for i, tc in ipairs(self.times) do
 		local ttot = 0
 		if self.percentageMode then
@@ -89,82 +129,51 @@ function Profiler:draw(pos)
 
 			local htot = 0
 			for j, t in ipairs(tc) do
-				local h = t / ttot * 200
+				local h = t / ttot * self.h - 40
 				htot = htot + h
-				love.graphics.setColor(unpack(self.COLORS[(j - 1) % 12 + 1]))
-				local p = pos + Vec2(i, -htot)
-				love.graphics.rectangle("fill", p.x, p.y, 1, h)
+				love.graphics.setColor(self:getColor(j))
+				love.graphics.rectangle("fill", self.x + (i - 1) * recordWidth, self.y - htot, recordWidth, h)
 			end
 		else
 			for j, t in ipairs(tc) do
-				local h1 = ttot * 30 * 100
+				local y1 = self:getYForValue(ttot)
 				ttot = ttot + t
-				local h2 = ttot * 30 * 100
-				if h2 > 200 then
-					h2 = 200
-				end
-				love.graphics.setColor(unpack(self.COLORS[(j - 1) % 12 + 1]))
-				local p = pos + Vec2(i, -h2)
-				love.graphics.rectangle("fill", p.x, p.y, 1, h2 - h1)
+				local y2 = self:getYForValue(ttot)
+				love.graphics.setColor(self:getColor(j))
+				love.graphics.rectangle("fill", self.x + (i - 1) * recordWidth, y1, recordWidth, y2 - y1)
 			end
 		end
 
 		total = total + ttot
-		if not max or max < ttot then max = ttot end
-		if not min or min > ttot then min = ttot end
-
+		max = math.max(max or ttot, ttot)
+		min = math.min(min or ttot, ttot)
 	end
 
 	-- Text
-	local p = pos + Vec2(0, -232)
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.print(self.name .. " [" .. tostring(self.totalLags) .. "]", p.x, p.y)
-	if #self.times > 0 then
-		local p = pos + Vec2(0, -216)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.print("average: " .. tostring(math.floor(total / #self.times * 1000)) .. " ms", p.x, p.y)
-	end
-	if min then
-		local p = pos + Vec2(100, -216)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.print("min: " .. tostring(math.floor(min * 1000)) .. " ms", p.x, p.y)
-	end
-	if max then
-		local p = pos + Vec2(200, -216)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.print("max: " .. tostring(math.floor(max * 1000)) .. " ms", p.x, p.y)
+	love.graphics.print(string.format("%s [%s]", self.name, self.lagCount), self.x, self.y - self.h + 8)
+	if self.showMinMaxAvg then
+		if #self.times > 0 then
+			love.graphics.print(string.format("average: %.0f ms", total / #self.times * 1000), self.x, self.y - self.h + 24)
+		end
+		if min then
+			love.graphics.print(string.format("min: %.0f ms", min * 1000), self.x + 100, self.y - self.h + 24)
+		end
+		if max then
+			love.graphics.print(string.format("max: %.0f ms", max * 1000), self.x + 200, self.y - self.h + 24)
+		end
 	end
 
 	-- Lines
 	if not self.percentageMode then
 		love.graphics.setLineWidth(1)
-		local p1 = pos + Vec2(0, -200)
-		local p2 = pos + Vec2(300, -200)
-		love.graphics.setColor(1, 0, 0)
-		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-		love.graphics.print("0.067 (1/15)", p1.x, p1.y - 16)
-		local p1 = pos + Vec2(0, -150)
-		local p2 = pos + Vec2(300, -150)
-		love.graphics.setColor(1, 0.5, 0)
-		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-		love.graphics.print("0.050 (1/20)", p1.x, p1.y - 16)
-		local p1 = pos + Vec2(0, -100)
-		local p2 = pos + Vec2(300, -100)
-		love.graphics.setColor(1, 1, 0)
-		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-		love.graphics.print("0.033 (1/30)", p1.x, p1.y - 16)
-		local p1 = pos + Vec2(0, -50)
-		local p2 = pos + Vec2(300, -50)
-		love.graphics.setColor(0, 1, 0)
-		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
-		love.graphics.print("0.016 (1/60)", p1.x, p1.y - 16)
-		local p1 = pos + Vec2(0, 0)
-		local p2 = pos + Vec2(300, 0)
-		love.graphics.setColor(1, 1, 1)
-		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+		for i, bar in ipairs(self.bars) do
+			local y = self:getYForValue(bar.value)
+			love.graphics.setColor(bar.color)
+			love.graphics.line(self.x, y, self.x + self.w, y)
+			love.graphics.print(bar.label, self.x, y - 16)
+		end
 	end
-
-
 
 	-- Percentage
 	if self.showPercentage and #self.times > 0 then
@@ -178,9 +187,8 @@ function Profiler:draw(pos)
 		for i, t in ipairs(tc) do
 			local h = t / ttot * 200
 			htot = htot + h
-			love.graphics.setColor(unpack(self.COLORS[(i - 1) % 12 + 1]))
-			local p = pos + Vec2(0, -htot)
-			love.graphics.rectangle("fill", p.x, p.y, 10, h)
+			love.graphics.setColor(self:getColor(i))
+			love.graphics.rectangle("fill", self.x, self.y - htot, 10, h)
 		end
 	end
 end

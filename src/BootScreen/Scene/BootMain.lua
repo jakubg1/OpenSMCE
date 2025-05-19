@@ -23,6 +23,9 @@ function BootMain:new(bootScreen)
     self.gameButtonsOffset = 0
     self.selectedGame = nil
 
+    -- joke!
+    self.joke = false
+
     -- buttons
     self.buttons = {
         pagePrev = Button("<", _FONT_BIG, Vec2(404, 266), Vec2(24, 28), function() self:prevPage() end),
@@ -30,8 +33,14 @@ function BootMain:new(bootScreen)
         loadGame = Button("Start!", _FONT_BIG, Vec2(544, 448), Vec2(222, 24), function() self:loadSelectedGame() end),
         editGame = Button("Edit Game", _FONT_BIG, Vec2(544, 472), Vec2(222, 24), function() self:editSelectedGame() end),
         settings = Button("Engine Settings", _FONT_BIG, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end),
-        quit = Button("Exit", _FONT_BIG, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end)
+        quit = Button("Exit", _FONT_BIG, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end),
     }
+
+    if self.joke then
+        self.buttons.fun = Button("Buy Now", _FONT_BIG, Vec2(45, 180), Vec2(200, 24), function() end)
+        self.buttons.fun2 = Button("Already Paid", _FONT_BIG, Vec2(255, 180), Vec2(200, 24), function() end)
+        self.buttons.fun3 = Button("More Engines", _FONT_BIG, Vec2(465, 180), Vec2(200, 24), function() end)
+    end
 end
 
 
@@ -160,25 +169,54 @@ function BootMain:draw()
     -----------------------------
     -- NOTES
     -----------------------------
-    -- Warning text
-    love.graphics.setColor(1, 0.2, 0.2)
-    love.graphics.setFont(_FONT_BIG)
-    love.graphics.print("WARNING", 45, 75)
-    -- Warning contents
-    love.graphics.setColor(1, 1, 0.2)
-    love.graphics.setFont(_FONT)
-    love.graphics.print("This engine is in BETA DEVELOPMENT.\nThis version is dedicated to people who want to test the engine and examine it.\nThis version should not be treated like a full version yet, as the inner workings still may change heavily!\nRemember to post issues and feature suggestions at the following Github repository link.\nThank you for your support!", 45, 100)
-    -- Github link
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.setFont(_FONT_BIG)
-    love.graphics.print(self.url, 45, 175)
     -- Frame
     love.graphics.setLineWidth(4)
     love.graphics.rectangle("line", 30, 60, 740, 150)
+    if not self.joke then
+        -- Warning text
+        love.graphics.setColor(1, 0.2, 0.2)
+        love.graphics.setFont(_FONT_BIG)
+        love.graphics.print("WARNING", 45, 75)
+        -- Warning contents
+        love.graphics.setColor(1, 1, 0.2)
+        love.graphics.setFont(_FONT)
+        love.graphics.print("This engine is in BETA DEVELOPMENT.\nThis version is dedicated to people who want to test the engine and examine it.\nThis version should not be treated like a full version yet, as the inner workings still may change heavily!\nRemember to post issues and feature suggestions at the following Github repository link.\nThank you for your support!", 45, 100)
+        -- Github link
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.setFont(_FONT_BIG)
+        love.graphics.print(self.url, 45, 175)
+        -- Hover
+        if self.urlHovered then
+            love.graphics.setColor(1, 1, 0)
+        else
+            love.graphics.setColor(0.4, 0.4, 0)
+        end
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", self.urlHoverPos.x, self.urlHoverPos.y, self.urlHoverSize.x, self.urlHoverSize.y)
+    else
+        -- Trial version (JOKE! THIS ENGINE WILL NEVER BE PAID)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.setFont(_FONT_BIG)
+        love.graphics.print("Trial Version", 45, 75)
+        love.graphics.setFont(_FONT)
+        love.graphics.print("Welcome to the trial version of OpenSMCE!\nYou can test the engine as you like. However, when the time runs out, you will not be able to run the games anymore\nand you will have to purchase a license key for unlimited access.", 45, 100)
+    
+        love.graphics.setColor(0.2, 0.2, 0.2)
+        love.graphics.rectangle("fill", 45, 150, 710, 25)
+        love.graphics.setColor(0.2, 0.8, 0.2)
+        love.graphics.rectangle("fill", 45, 150, 710*58.5/60, 25)
+        love.graphics.setColor(0.4, 0.4, 0.4)
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", 45, 150, 710, 25)
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.setFont(_FONT_BIG)
+        love.graphics.print("59 minutes remaining.", 300, 152)
+    end
 
     -----------------------------
     -- GAME LIST
     -----------------------------
+    love.graphics.setColor(1, 1, 1)
     love.graphics.print("Game List", 30, 270)
     for i, gameButton in ipairs(self.gameButtons) do
         gameButton:draw()
@@ -250,17 +288,6 @@ function BootMain:draw()
     for i, button in pairs(self.buttons) do
         button:draw()
     end
-
-    -----------------------------
-    -- URL HOVERING
-    -----------------------------
-    if self.urlHovered then
-        love.graphics.setColor(1, 1, 0)
-    else
-        love.graphics.setColor(0.4, 0.4, 0)
-    end
-    love.graphics.setLineWidth(2)
-    love.graphics.rectangle("line", self.urlHoverPos.x, self.urlHoverPos.y, self.urlHoverSize.x, self.urlHoverSize.y)
 
     -----------------------------
     -- DISCORD RICH PRESENCE STATUS

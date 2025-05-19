@@ -13,6 +13,11 @@ function Timer:new()
 	self.FRAME_LENGTH = 1 / _Game.configManager:getTickRate()
 	-- The maximum number of frames to be returned by `getFrameCount()`.
 	self.MAX_FRAMES = 6
+	-- Maximum deviation from the target frame length.
+	-- Used to mitigate the problem of frame skipping (the internal timer rapidly overflowing and underflowing),
+	-- which causes the game to alternate between performing 0 and 2 frames each real frame.
+	-- This means visible stuttering.
+	self.MAX_FRAME_ADJUSTMENT = 0.003
 	-- The internal timer, being accumulated time to in seconds.
 	self.time = 0
 end
@@ -27,19 +32,31 @@ end
 
 
 
----Returns the number of frames that should be performed since last call of this function.
+---Returns the number of frames that should be performed since the last call of this function.
+---The second returned value is the frame length. It might slightly deviate from the target frame length.
 ---The internal counter is then decremented by the time equivalent.
 ---
 ---The maximum value which can be returned is `MAX_FRAMES`. This means the game will not process more than `MAX_FRAMES` frames at once.
 ---In that case, the time counter is still capped to an equivalent of one frame.
----@return number frames The number of frames to be processed.
+---@return number
+---@return number
 function Timer:getFrameCount()
 	local t = 0
 	while self.time >= self.FRAME_LENGTH do
 		self.time = self.time - self.FRAME_LENGTH
 		t = t + 1
 	end
-	return math.min(t, self.MAX_FRAMES)
+	local frames = math.min(t, self.MAX_FRAMES)
+	local dt = self.FRAME_LENGTH
+	-- If this is just one frame, correct the frame length if it deviates just slightly to avoid stuttering.
+	if t == 1 then
+		local deviation = self.time - self.FRAME_LENGTH / 2
+		if deviation > -self.MAX_FRAME_ADJUSTMENT and deviation < self.MAX_FRAME_ADJUSTMENT then
+			dt = dt + deviation
+			self.time = self.time - deviation
+		end
+	end
+	return frames, dt
 end
 
 

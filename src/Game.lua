@@ -92,8 +92,9 @@ end
 ---@param dt number Delta time in seconds.
 function Game:update(dt) -- callback from main.lua
 	self.timer:update(dt)
-	for i = 1, self.timer:getFrameCount() do
-		self:tick(self.timer.FRAME_LENGTH)
+	local frames, delta = self.timer:getFrameCount()
+	for i = 1, frames do
+		self:tick(delta)
 	end
 end
 
@@ -327,7 +328,7 @@ end
 
 ---Draws the game contents.
 function Game:draw()
-	_Debug:profDraw2Start()
+	_Debug:profDrawStart()
 
 	-- Start drawing on canvas
 	_Display:canvasStart()
@@ -336,14 +337,14 @@ function Game:draw()
 	if self.level then
 		self.level:draw()
 	end
-	_Debug:profDraw2Checkpoint()
+	_Debug:profDrawCheckpoint()
 
 	-- Particles and UI
 	if self.particleManager then
 		self.particleManager:draw()
 	end
 	self.uiManager:draw()
-	_Debug:profDraw2Checkpoint()
+	_Debug:profDrawCheckpoint()
 
 	-- Finish drawing on canvas
 	_Display:canvasStop()
@@ -358,7 +359,7 @@ function Game:draw()
 	--love.graphics.setColor(1, 1, 1)
 	--love.graphics.draw(self.resourceManager:getSpriteAtlas("sprite_atlases/spheres.json").canvas, 0, 0)
 
-	_Debug:profDraw2Stop()
+	_Debug:profDrawStop()
 end
 
 

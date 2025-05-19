@@ -189,7 +189,6 @@ end
 
 function love.draw()
 	_Profiler.push("frame")
-	--dbg:profDrawStart()
 
 	-- Main
 	if _Game then
@@ -199,7 +198,6 @@ function love.draw()
 	-- Tests
 	_Debug:draw()
 
-	--dbg:profDrawStop()
 	_Profiler.pop("frame")
 end
 
