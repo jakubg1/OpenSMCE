@@ -500,13 +500,22 @@ function Debug:getCommandCompletionSuggestions(command)
 	end
 
 	-- Remove irrelevant suggestions and sort them alphabetically.
-	for i = #suggestions, 1, -1 do
-		if not _Utils.strStartsWith(suggestions[i], words[#words]) then
-			table.remove(suggestions, i)
+	local result = {}
+	for i = 1, #suggestions do
+		if _Utils.strStartsWith(suggestions[i], words[#words]) then
+			table.insert(result, suggestions[i])
 		end
 	end
-	table.sort(suggestions)
-	return suggestions
+	-- If no suggestions are found, loosen the criteria and try finding the string anywhere.
+	if #result == 0 then
+		for i = 1, #suggestions do
+			if _Utils.strContains(suggestions[i], words[#words]) then
+				table.insert(result, suggestions[i])
+			end
+		end
+	end
+	table.sort(result)
+	return result
 end
 
 

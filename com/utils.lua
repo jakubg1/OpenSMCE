@@ -506,6 +506,16 @@ end
 
 
 
+---Returns `true` if the string `s` contains the clause `c`.
+---@param s string The string to be searched.
+---@param c string The expected string to be found in `s`.
+---@return boolean
+function utils.strContains(s, c)
+	return s:find(c) ~= nil
+end
+
+
+
 ---Returns `true` if the string `s` starts with the clause `c`.
 ---@param s string The string to be searched.
 ---@param c string The expected beginning of the string `s`.
