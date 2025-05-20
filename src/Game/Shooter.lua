@@ -365,17 +365,17 @@ end
 
 
 ---Returns currently used color generator data for the Shooter.
----@return table
+---@return ColorGeneratorConfig
 function Shooter:getCurrentColorGenerator()
 	if _Game.level.danger then
-		return _Game.configManager.colorGenerators[_Game.level.colorGeneratorDanger]
+		return _Game.level.colorGeneratorDanger
 	else
-		return _Game.configManager.colorGenerators[_Game.level.colorGeneratorNormal]
+		return _Game.level.colorGeneratorNormal
 	end
 end
 
 ---Generates a color based on the provided Color Generator.
----@param data table Shooter color generator data.
+---@param data ColorGeneratorConfig Shooter color generator data.
 ---@return integer
 function Shooter:generateColor(data)
 	if data.type == "random" then
@@ -430,10 +430,10 @@ function Shooter:generateColor(data)
 	end
 
 	-- Else, return a fallback value.
-	if type(data.fallback) == "table" then
+	if data.fallback then
 		return self:generateColor(data.fallback)
 	end
-	return data.fallback
+	return 0
 end
 
 ---Generates a new color for the Shooter.

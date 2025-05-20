@@ -53,10 +53,10 @@ end
 
 
 
----Returns the player's current level data. This is the raw level data which is written in `config/levels/level_*.json`.
----@return table
+---Returns the player's current level's configuration.
+---@return LevelConfig
 function Profile:getLevelData()
-	return _Game.configManager.levels[self:getLevelID()]
+	return _Game.resourceManager:getLevelConfig("levels/level_" .. self:getLevelID() .. ".json")
 end
 
 

@@ -19,47 +19,16 @@ function ConfigManager:new()
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
 	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
 
-	self.colorGenerators = self:loadFolder("config/color_generators", "color generator")
-
-	-- Load level and map data.
-	self.levels = {}
+	-- Load map data.
 	self.maps = {}
-	local levelList = _Utils.getDirListing(_ParsePath("config/levels"), "file", "json")
-	for i, path in ipairs(levelList) do
-		local id = tonumber(string.sub(path, 7, -6))
-		_Log:printt("ConfigManager", "Loading level " .. tostring(id) .. ", " .. tostring(path))
-		if not id then
-			_Log:printt("ConfigManager", "WARNING: Skipped - illegal name!")
-		else
-			local level = _Utils.loadJson(_ParsePath("config/levels/" .. path))
-			self.levels[id] = level
-			-- Load map data only if it hasn't been loaded yet.
-			if not self.maps[level.map] then
-				_Log:printt("ConfigManager", "Loading map " .. level.map)
-				self.maps[level.map] = _Utils.loadJson(_ParsePath("maps/" .. level.map .. "/config.json"))
-			end
+	local mapList = _Utils.getDirListing(_ParsePath("maps"), "dir")
+	for i, mapName in ipairs(mapList) do
+		local mapConfig = _Utils.loadJson(_ParsePath("maps/" .. mapName .. "/config.json"))
+		if mapConfig then
+			_Log:printt("ConfigManager", "Loading map " .. mapName)
+			self.maps[mapName] = mapConfig
 		end
 	end
-end
-
-
-
----Loads and returns multiple items from a folder.
----@param folderPath string The path to a folder where the files are stored.
----@param name string The name to be used when logging; also a file prefix if `isNumbers` is set to `true`.
----@return table
-function ConfigManager:loadFolder(folderPath, name)
-	local t = {}
-
-	local fileList = _Utils.getDirListing(_ParsePath(folderPath), "file", "json")
-	for i, path in ipairs(fileList) do
-		local id = string.sub(path, 1, -6)
-		_Log:printt("ConfigManager", string.format("Loading %s %s, %s", name, id, path))
-		local item = _Utils.loadJson(_ParsePath(folderPath .. "/" .. path))
-		t[id] = item
-	end
-
-	return t
 end
 
 

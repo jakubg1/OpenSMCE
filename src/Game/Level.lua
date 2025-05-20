@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Level. Houses the Map, Shooters, Shot Spheres, Collectibles and Floating Texts. Handles elements such as level objectives and general level event order.
 ---@class Level
----@overload fun(data):Level
+---@overload fun(config):Level
 local Level = class:derive("Level")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -21,18 +21,15 @@ local Expression = require("src.Expression")
 
 
 ---Constructs a new Level.
----@param data table The level data, specified in a level config file.
-function Level:new(data)
-	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior)
-	self.shooter = Shooter(data.shooter)
+---@param config LevelConfig The level config.
+function Level:new(config)
+	self.map = Map(self, "maps/" .. config.map, config.pathsBehavior)
+	self.shooter = Shooter(config.shooter)
 	self.colorManager = ColorManager()
 
-	self.matchEffect = data.matchEffect
+	self.matchEffect = config.matchEffect
 
-	local objectives = data.objectives
-	if data.target then
-		objectives = {{type = "destroyedSpheres", target = data.target}}
-	end
+	local objectives = config.objectives
 	if _Game.satMode then
 		objectives = {{type = "destroyedSpheres", target = _Game:getCurrentProfile():getUSMNumber() * 10}}
 	end
@@ -41,20 +38,20 @@ function Level:new(data)
 		table.insert(self.objectives, {type = objective.type, target = objective.target, progress = 0, reached = false})
 	end
 
-	self.colorGeneratorNormal = data.colorGeneratorNormal
-	self.colorGeneratorDanger = data.colorGeneratorDanger
+	self.colorGeneratorNormal = config.colorGeneratorNormal
+	self.colorGeneratorDanger = config.colorGeneratorDanger
 
-	self.music = data.music and _Game.resourceManager:getMusic(data.music)
-	self.dangerMusic = data.dangerMusic and _Game.resourceManager:getMusic(data.dangerMusic)
-	self.ambientMusic = data.ambientMusic and _Game.resourceManager:getMusic(data.ambientMusic)
+	self.music = config.music
+	self.dangerMusic = config.dangerMusic
+	self.ambientMusic = config.ambientMusic
 
-	self.dangerSoundName = data.dangerSound or "sound_events/warning.json"
-	self.dangerLoopSoundName = data.dangerLoopSound
-	self.warmupLoopName = data.warmupLoopSound or "sound_events/spheres_roll.json"
-	self.failSoundName = data.failSound or "sound_events/foul.json"
-	self.failLoopName = data.failLoopSound or "sound_events/spheres_roll.json"
+	self.dangerSoundName = config.dangerSound or "sound_events/warning.json"
+	self.dangerLoopSoundName = config.dangerLoopSound
+	self.warmupLoopName = config.warmupLoopSound or "sound_events/spheres_roll.json"
+	self.failSoundName = config.failSound or "sound_events/foul.json"
+	self.failLoopName = config.failLoopSound or "sound_events/spheres_roll.json"
 
-	self.levelSequence = _Game.resourceManager:getLevelSequenceConfig(data.sequence).sequence
+	self.levelSequence = config.sequence.sequence
 	self.startingVariables = _Game.configManager.gameplay.levelVariables
 	self.startingTimers = _Game.configManager.gameplay.levelTimers
 	self.startingTimerSeries = _Game.configManager.gameplay.levelTimerSeries
@@ -805,7 +802,8 @@ end
 
 
 ---Returns the Path which has the maximum percentage distance which is occupied by spheres on all paths.
----@return Path
+---Returns `nil` if none of the paths are in danger.
+---@return Path?
 function Level:getMostDangerousPath()
 	local distance = nil
 	local mostDangerousPath = nil

@@ -656,7 +656,7 @@ function SphereGroup:matchAndDelete(position)
 	end
 
 	-- First, check if any of the matched spheres do have the match effect already.
-	local effectConfig = _Game.resourceManager:getSphereEffectConfig(self.map.level.matchEffect)
+	local effectConfig = self.map.level.matchEffect
 	local effectGroupID = nil
 	for i = position1, position2 do
 		if self.spheres[i]:hasEffect(effectConfig) then

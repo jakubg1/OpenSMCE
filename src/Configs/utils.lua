@@ -6,8 +6,12 @@ local Expression = require("src.Expression")
 local CollectibleConfig = require("src.Configs.Collectible")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
+local ColorGeneratorConfig = require("src.Configs.ColorGenerator")
 local GameEventConfig = require("src.Configs.GameEvent")
+local LevelConfig = require("src.Configs.Level")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
+local LevelSetConfig = require("src.Configs.LevelSet")
+local LevelTrainRulesConfig = require("src.Configs.LevelTrainRules")
 local ParticleConfig = require("src.Configs.Particle")
 local ParticleEffectConfig = require("src.Configs.ParticleEffect")
 local ParticleEmitterConfig = require("src.Configs.ParticleEmitter")
@@ -327,6 +331,16 @@ function utils.parseCollectibleGeneratorConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
 
+---@return ColorGeneratorConfig
+function utils.parseColorGeneratorConfig(data, path, field)
+	return parseClassConfig(data, path, field, "ColorGenerator", _Game.resourceManager.getColorGeneratorConfig, ColorGeneratorConfig)
+end
+
+---@return ColorGeneratorConfig?
+function utils.parseColorGeneratorConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "ColorGenerator", _Game.resourceManager.getColorGeneratorConfig, ColorGeneratorConfig)
+end
+
 ---@return GameEventConfig
 function utils.parseGameEventConfig(data, path, field)
 	return parseClassConfig(data, path, field, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
@@ -337,6 +351,16 @@ function utils.parseGameEventConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
 end
 
+---@return LevelConfig
+function utils.parseLevelConfig(data, path, field)
+	return parseClassConfig(data, path, field, "Level", _Game.resourceManager.getLevelConfig, LevelConfig)
+end
+
+---@return LevelConfig?
+function utils.parseLevelConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "Level", _Game.resourceManager.getLevelConfig, LevelConfig)
+end
+
 ---@return LevelSequenceConfig
 function utils.parseLevelSequenceConfig(data, path, field)
 	return parseClassConfig(data, path, field, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
@@ -345,6 +369,26 @@ end
 ---@return LevelSequenceConfig?
 function utils.parseLevelSequenceConfigOpt(data, path, field)
 	return parseClassConfigOpt(data, path, field, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
+end
+
+---@return LevelSetConfig
+function utils.parseLevelSetConfig(data, path, field)
+	return parseClassConfig(data, path, field, "LevelSet", _Game.resourceManager.getLevelSetConfig, LevelSetConfig)
+end
+
+---@return LevelSetConfig?
+function utils.parseLevelSetConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "LevelSet", _Game.resourceManager.getLevelSetConfig, LevelSetConfig)
+end
+
+---@return LevelTrainRulesConfig
+function utils.parseLevelTrainRulesConfig(data, path, field)
+	return parseClassConfig(data, path, field, "LevelTrainRules", _Game.resourceManager.getLevelTrainRulesConfig, LevelTrainRulesConfig)
+end
+
+---@return LevelTrainRulesConfig?
+function utils.parseLevelTrainRulesConfigOpt(data, path, field)
+	return parseClassConfigOpt(data, path, field, "LevelTrainRules", _Game.resourceManager.getLevelTrainRulesConfig, LevelTrainRulesConfig)
 end
 
 ---@return ParticleConfig

@@ -5,7 +5,7 @@
             "type": "string"
         },
         {
-            "$ref": "../config/level_train_rules.json"
+            "$ref": "../level_train_rules.json"
         }
     ]
 }

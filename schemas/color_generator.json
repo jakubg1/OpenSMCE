@@ -56,23 +56,14 @@
                         }
                     },
                     "fallback": {
-                        "description": "What should be generated when this generator fails.",
-                        "oneOf": [
-                            {
-                                "type": "integer",
-                                "description": "The color to be generated when this generator fails."
-                            },
-                            {
-                                "$ref": "../_structures/ColorGenerator.json",
-                                "description": "Another Color Generator to be used when this generator fails."
-                            }
-                        ]
+                        "$ref": "_structures/ColorGenerator.json",
+                        "description": "Another Color Generator to be used when this generator fails. If not specified and this generator fails, the generator will return the color 0.",
+                        "markdownDescription": "Another Color Generator to be used when this generator fails. If not specified and this generator fails, the generator will return the color `0`."
                     }
                 },
                 "additionalProperties": false,
                 "required": [
-                    "colors",
-                    "fallback"
+                    "colors"
                 ]
             }
         },
@@ -120,24 +111,15 @@
                         }
                     },
                     "fallback": {
-                        "description": "What should be generated when this generator fails.",
-                        "oneOf": [
-                            {
-                                "type": "integer",
-                                "description": "The color to be generated when this generator fails."
-                            },
-                            {
-                                "$ref": "../_structures/ColorGenerator.json",
-                                "description": "Another Color Generator to be used when this generator fails."
-                            }
-                        ]
+                        "$ref": "_structures/ColorGenerator.json",
+                        "description": "Another Color Generator to be used when this generator fails. If not specified and this generator fails, the generator will return the color 0.",
+                        "markdownDescription": "Another Color Generator to be used when this generator fails. If not specified and this generator fails, the generator will return the color `0`."
                     }
                 },
                 "required": [
                     "selectChance",
                     "pathsInDangerOnly",
-                    "colors",
-                    "fallback"
+                    "colors"
                 ],
                 "additionalProperties": false
             }
@@ -171,23 +153,14 @@
                         }
                     },
                     "fallback": {
-                        "description": "What should be generated when this generator fails.",
-                        "oneOf": [
-                            {
-                                "type": "integer",
-                                "description": "The color to be generated when this generator fails."
-                            },
-                            {
-                                "$ref": "../_structures/ColorGenerator.json",
-                                "description": "Another Color Generator to be used when this generator fails."
-                            }
-                        ]
+                        "$ref": "_structures/ColorGenerator.json",
+                        "description": "Another Color Generator to be used when this generator fails. If not specified and this generator fails, the generator will return the color 0.",
+                        "markdownDescription": "Another Color Generator to be used when this generator fails. If not specified and this generator fails, the generator will return the color `0`."
                     }
                 },
                 "additionalProperties": false,
                 "required": [
-                    "colors",
-                    "fallback"
+                    "colors"
                 ]
             }
         }

@@ -10,47 +10,47 @@
             "markdownDescription": "The map name. Specifically, the name of the folder in the `maps` folder of the game."
         },
         "sequence": {
-            "$ref": "../_structures/LevelSequence.json",
+            "$ref": "_structures/LevelSequence.json",
             "description": "The level sequence which will be obeyed for this level."
         },
         "music": {
-            "$ref": "../_structures/Music.json",
+            "$ref": "_structures/Music.json",
             "description": "Which soundtrack should be played throughout the level."
         },
         "dangerMusic": {
-            "$ref": "../_structures/Music.json",
+            "$ref": "_structures/Music.json",
             "description": "Which soundtrack should be played during the danger phase."
         },
         "ambientMusic": {
-            "$ref": "../_structures/Music.json",
+            "$ref": "_structures/Music.json",
             "description": "Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks."
         },
         "dangerSound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A sound event which plays whenever the warning effect is spawned."
         },
         "dangerLoopSound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A looping sound event which plays during the danger phase."
         },
         "warmupLoopSound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A looping sound event which plays at the beginning of the level, while the spheres are rolling."
         },
         "failSound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A sound event which plays when the player loses the level."
         },
         "failLoopSound": {
-            "$ref": "../_structures/SoundEvent.json",
+            "$ref": "_structures/SoundEvent.json",
             "description": "A looping sound event which plays while the spheres are rolling into the exit node."
         },
         "colorGeneratorNormal": {
-            "$ref": "../_structures/ColorGenerator.json",
+            "$ref": "_structures/ColorGenerator.json",
             "description": "The Color Generator used to generate colors for the shooter throughout this level."
         },
         "colorGeneratorDanger": {
-            "$ref": "../_structures/ColorGenerator.json",
+            "$ref": "_structures/ColorGenerator.json",
             "description": "The Color Generator used to generate colors for the shooter when in danger."
         },
         "shooter": {
@@ -59,11 +59,11 @@
             "markdownDescription": "Defines the Shooter. If not present, the shooter named `default` will be used along with its default movement.",
             "properties": {
                 "shooter": {
-                    "$ref": "../_structures/Shooter.json",
+                    "$ref": "_structures/Shooter.json",
                     "description": "Which Shooter will be used for this level."
                 },
                 "movement": {
-                    "$ref": "../_structures/ShooterMovement.json",
+                    "$ref": "_structures/ShooterMovement.json",
                     "description": "If defined, overrides the default movement of this Shooter."
                 }
             },
@@ -73,7 +73,7 @@
             "additionalProperties": false
         },
         "matchEffect": {
-            "$ref": "../_structures/SphereEffect.json",
+            "$ref": "_structures/SphereEffect.json",
             "description": "The Sphere Effect to be used during normal matches for this level. Whenever a match is made, spheres are inflicted with this effect."
         },
         "objectives": {
@@ -126,7 +126,7 @@
                 "description": "A single path behavior.",
                 "properties": {
                     "trainRules": {
-                        "$ref": "../_structures/LevelTrainRules.json",
+                        "$ref": "_structures/LevelTrainRules.json",
                         "description": "How trains should be spawned, including their length and color distribution."
                     },
                     "spawnDistance": {
@@ -142,7 +142,7 @@
                         "maximum": 1.0
                     },
                     "dangerParticle": {
-                        "$ref": "../_structures/ParticleEffect.json",
+                        "$ref": "_structures/ParticleEffect.json",
                         "description": "The particle which will periodically spawn at the end of the path when the path is in danger. By default, \"particles/warning.json\" is used.",
                         "markdownDescription": "The particle which will periodically spawn at the end of the path when the path is in danger. By default, `\"particles/warning.json\"` is used."
                     },
