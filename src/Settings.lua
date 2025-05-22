@@ -13,6 +13,7 @@ end
 
 
 
+-- TODO: Name this function better.
 function Settings:reset()
 	if not self.data then
 		_Log:printt("Settings", "Resetting Engine Settings...")
@@ -111,14 +112,7 @@ function Settings:save()
 end
 
 function Settings:load()
-	local success, data = pcall(function() return _Utils.loadJson(self.path) end)
-
-	-- default options if not found
-	if success then
-		self.data = data
-	else
-		self.data = nil
-	end
+	self.data = _Utils.loadJson(self.path)
 	self:reset()
 end
 

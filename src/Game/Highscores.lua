@@ -8,13 +8,15 @@ local Highscores = class:derive("Highscores")
 
 
 ---Constructs a new Highscores object.
----@param data table? Data to be loaded.
+---@param data table? Data to be loaded. If not specified, a default leaderboard will be loaded.
 function Highscores:new(data)
 	self.data = data
 	self.config = _Game.configManager.highscores
 
 	-- default if not found
-	if not self.data then self:reset() end
+	if not self.data then
+		self:reset()
+	end
 end
 
 
@@ -47,9 +49,8 @@ end
 
 ---Returns a hypothetical position a player would get with given score, or `nil` if it does not qualify.
 ---@param score integer The score to be considered.
----@return integer|nil
+---@return integer?
 function Highscores:getPosition(score)
-	-- nil if it does not qualify
 	for i = self.config.size, 1, -1 do
 		local entry = self:getEntry(i)
 		if score <= entry.score then
@@ -68,15 +69,15 @@ end
 
 ---Stores a given Profile's progress into a specified position of the leaderboard.
 ---That position and all entries below it are moved down by one space.
----@param profile Profile The profile to be stored.
----@param pos integer The position to be changed.
----@return nil
-function Highscores:storeProfile(profile, pos)
-	for i = self.config.size - 1, pos, -1 do
-		-- everyone who is lower than the new highscore goes down
-		self.data.entries[i + 1] = self:getEntry(i)
+---@param position integer The place at which the entry will be created.
+---@param name string The name of the player who should be written on the scoreboard.
+---@param score integer How much score that player has scored.
+---@param level string The level name at which the game has ended.
+function Highscores:storeEntry(position, name, score, level)
+	for i = self.config.size - 1, position, -1 do
+		self.data.entries[i + 1] = self.data.entries[i]
 	end
-	self.data.entries[pos] = {name = profile.name, score = profile:getScore(), level = profile:getLevelName()}
+	self.data.entries[position] = {name = name, score = score, level = level}
 end
 
 

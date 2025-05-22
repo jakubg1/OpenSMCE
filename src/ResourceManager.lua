@@ -304,6 +304,7 @@ end
 ---@param resType string The type of the resource.
 ---@return Resource
 function ResourceManager:getResource(path, resType)
+	assert(type(path) == "string", string.format("Invalid resource key (%s) type: %s (must be string)", path, type(path)))
 	local key = self:resolveResourceReference(path, self.currentNamespace)
 	if key then
 		-- We found a resource by path.
@@ -379,7 +380,7 @@ function ResourceManager:loadResource(key, batches)
 	local resType = nil
 	local contents = nil
 	if _Utils.strEndsWith(key, ".json") then
-		contents = _Utils.loadJson(_ParsePath(key))
+		contents = assert(_Utils.loadJson(_ParsePath(key)), "File not found: " .. key)
 		-- Determine the resource type based on schema.
 		local schema = contents["$schema"]
 		if schema then
@@ -431,15 +432,10 @@ function ResourceManager:loadResource(key, batches)
 	end
 
 	if assetConstructor then
-		-- TODO: Condensate the parameter set to the one used by Config Classes.
-		if assetConstructor ~= _Utils.loadJson then
-			-- Construct the resource and check for errors.
-			local success, result = xpcall(function() return assetConstructor(self.resources[key].config or contents, key) end, debug.traceback)
-			assert(success, string.format("Failed to load file %s: %s", key, result))
-			self.resources[key].asset = result
-		else
-			self.resources[key].asset = contents
-		end
+		-- Construct the resource and check for errors.
+		local success, result = xpcall(function() return assetConstructor(self.resources[key].config or contents, key) end, debug.traceback)
+		assert(success, string.format("Failed to load file %s: %s", key, result))
+		self.resources[key].asset = result
 	end
 	_Log:printt("ResourceManager2", " * " .. key .. " (" .. resType .. ")" .. (newBatches and (" {" .. table.concat(newBatches, ", ") .. "}") or "") .. " OK!")
 end

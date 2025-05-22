@@ -4,7 +4,7 @@ local class = require "com.class"
 
 ---Represents a single Sphere which is inside of a Sphere Group on the board. Can have a lot of properties.
 ---@class Sphere
----@overload fun(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres, chainLevel):Sphere
+---@overload fun(sphereGroup, data, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres, chainLevel):Sphere
 local Sphere = class:derive("Sphere")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -15,7 +15,7 @@ local SphereEntity = require("src.Game.SphereEntity")
 
 ---Constructs a new Sphere.
 ---@param sphereGroup SphereGroup The sphere group this sphere belongs to.
----@param deserializationTable table? If set, internal data will be loaded from this table.
+---@param data table? If set, internal data will be loaded from this table.
 ---@param color integer The type/color ID of this Sphere.
 ---@param shootOrigin Vector2? If set, the position of Shot Sphere which has been transformed into this Sphere. It also implies that it will be inserted from that position.
 ---@param shootTime number? The duration of the sphere insertion animation.
@@ -23,7 +23,7 @@ local SphereEntity = require("src.Game.SphereEntity")
 ---@param gaps table? If set, this Sphere will have a list of numbers (traversed gap distances) stored so it can be used later when calculating gap shots.
 ---@param destroyedFragileSpheres boolean? If set, this Sphere will be marked as a sphere which has destroyed at least one fragile sphere during its lifetime as a shot sphere.
 ---@param chainLevel integer? If set, this Sphere will be chained and will require an extra hit to be removed completely. Currently, only Sphere Effects don't destroy chained spheres completely. This behavior is hardcoded and at some point hopefully will be made more flexible :>
-function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres, chainLevel)
+function Sphere:new(sphereGroup, data, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres, chainLevel)
 	self.sphereGroup = sphereGroup
 	self.path = sphereGroup.sphereChain.path
 	self.map = sphereGroup.map
@@ -33,8 +33,8 @@ function Sphere:new(sphereGroup, deserializationTable, color, shootOrigin, shoot
 	self.nextSphere = nil
 	self.offset = 0
 
-	if deserializationTable then
-		self:deserialize(deserializationTable)
+	if data then
+		self:deserialize(data)
 	else
 		self.color = color
 		self.chainLevel = chainLevel or 0

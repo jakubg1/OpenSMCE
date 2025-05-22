@@ -34,12 +34,14 @@ end
 
 
 
----Loads a file from a given path and interprets it as JSON data. Errors out if the file does not exist or does not contain valid JSON data.
+---Loads a file from a given path and interprets it as JSON data. Returns `nil` if the file doesn't exist. Errors out if the file does not contain valid JSON data.
 ---@param path string The path to the file.
----@return table
+---@return table?
 function utils.loadJson(path)
 	local contents = utils.loadFile(path)
-	assert(contents, string.format("Could not JSON-decode: %s, file does not exist", path))
+	if not contents then
+		return nil
+	end
 	local success, data = pcall(function() return json.decode(contents) end)
 	assert(success, string.format("JSON error: %s: %s", path, data))
 	assert(data, string.format("Could not JSON-decode: %s, error in file contents", path))

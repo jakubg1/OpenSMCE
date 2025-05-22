@@ -228,16 +228,16 @@ function Debug:getDebugProfile()
 	local profile = _Game:getCurrentProfile()
 	local s = ""
 
-	s = s .. "LevelNumber = " .. profile:getLevelStr() .. "\n"
-	s = s .. "LevelID = " .. profile:getLevelIDStr() .. "\n"
+	s = s .. string.format("Level: Level = %s, Sublevel = %s, Total = %s", profile:getLevel(), profile:getSublevel(), profile:getTotalLevel()) .. "\n"
+	s = s .. "LevelID = " .. profile:getLevelID() .. "\n"
 	s = s .. "LatestCheckpoint = " .. tostring(profile:getLatestCheckpoint()) .. "\n"
 	s = s .. "CheckpointUpcoming = " .. tostring(profile:isCheckpointUpcoming()) .. "\n"
 	s = s .. string.format("Rollback: Score = %s, Coins = %s", profile.session.rollbackScore, profile.session.rollbackCoins) .. "\n"
-	local levelData = profile:getCurrentLevelData()
-	if levelData then
-		s = s .. "LevelRecord = " .. tostring(levelData.score) .. "\n"
-		s = s .. "Won = " .. tostring(levelData.won) .. "\n"
-		s = s .. "Lost = " .. tostring(levelData.lost) .. "\n"
+	local levelStats = profile:getCurrentLevelStats()
+	if levelStats then
+		s = s .. "LevelRecord = " .. levelStats.score .. "\n"
+		s = s .. "Won = " .. levelStats.won .. "\n"
+		s = s .. "Lost = " .. levelStats.lost .. "\n"
 	end
 
 	return s

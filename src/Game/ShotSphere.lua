@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Sphere which has been shot from the Shooter and is flying on the screen until it finds a Sphere Group on its way.
 ---@class ShotSphere
----@overload fun(deserializationTable, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming):ShotSphere
+---@overload fun(data, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming):ShotSphere
 local ShotSphere = class:derive("ShotSphere")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -12,7 +12,7 @@ local SphereEntity = require("src.Game.SphereEntity")
 
 
 ---Constructs a new Shot Sphere.
----@param deserializationTable table? The deserialization data to be used instead of the fields below if loading a previously saved game.
+---@param data table? The deserialization data to be used instead of the fields below if loading a previously saved game.
 ---@param shooter Shooter The shooter which this sphere has been shot from.
 ---@param posX number The inital X coordinate of this Shot Sphere.
 ---@param posY number The inital Y coordinate of this Shot Sphere.
@@ -22,9 +22,9 @@ local SphereEntity = require("src.Game.SphereEntity")
 ---@param speed number The initial speed of this Shot Sphere.
 ---@param sphereEntity SphereEntity The Sphere Entity that was attached to the Shooter from which this entity is created.
 ---@param isHoming boolean? If set, the sphere will be homing towards a specific sphere determined by `Level:getHomingBugsSphere()`.
-function ShotSphere:new(deserializationTable, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming)
-	if deserializationTable then
-		self:deserialize(deserializationTable)
+function ShotSphere:new(data, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming)
+	if data then
+		self:deserialize(data)
 	else
 		self.shooter = shooter
 		self.posX, self.posY = posX, posY

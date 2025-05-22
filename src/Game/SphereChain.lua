@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Sphere Chain, which is a single train of spheres, usually with a pusher (Scarab) at the end.
 ---@class SphereChain
----@overload fun(path, deserializationTable):SphereChain
+---@overload fun(path, data):SphereChain
 local SphereChain = class:derive("SphereChain")
 
 local json = require("com.json")
@@ -10,12 +10,12 @@ local SphereGroup = require("src.Game.SphereGroup")
 
 
 
-function SphereChain:new(path, deserializationTable)
+function SphereChain:new(path, data)
 	self.path = path
 	self.map = path.map
 
-	if deserializationTable then
-		self:deserialize(deserializationTable)
+	if data then
+		self:deserialize(data)
 	else
 		self.cascade = 0
 		self.cascadeScore = 0

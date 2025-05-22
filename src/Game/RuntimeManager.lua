@@ -27,9 +27,8 @@ end
 ---Loads runtime data from `runtime.json`. If the file doesn't exist or is corrupted, generates a new runtime and prints a message to the log.
 function RuntimeManager:load()
 	-- if runtime.json exists, then load it
-	if pcall(function() _Utils.loadJson(_ParsePath("runtime.json")) end) then
-		local data = _Utils.loadJson(_ParsePath("runtime.json"))
-
+	local data = _Utils.loadJson(_ParsePath("runtime.json"))
+	if data then
 		self.profileManager = ProfileManager(data.profiles)
 		self.highscores = Highscores(data.highscores)
 		self.options = Options(data.options)
@@ -42,9 +41,9 @@ function RuntimeManager:load()
 		_Log:printt("RuntimeManager", "or send it to the development team!")
 		_Log:printt("RuntimeManager", "")
 		_Log:printt("RuntimeManager", "If you're launching the game for the first time, you can safely ignore the above message.")
-		self.profileManager = ProfileManager(nil)
-		self.highscores = Highscores(nil)
-		self.options = Options(nil)
+		self.profileManager = ProfileManager()
+		self.highscores = Highscores()
+		self.options = Options()
 	end
 end
 

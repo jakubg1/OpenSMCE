@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents an item which can be collected by the Shooter, such as coins, powerups or gems.
 ---@class Collectible
----@overload fun(deserializationTable, config, pos):Collectible
+---@overload fun(data, config, pos):Collectible
 local Collectible = class:derive("Collectible")
 
 local Vec2 = require("src.Essentials.Vector2")
@@ -10,12 +10,12 @@ local Vec2 = require("src.Essentials.Vector2")
 
 
 ---Constructs a new Collectible.
----@param deserializationTable table? If specified, data from this table will be used to load the entity state.
+---@param data table? If specified, data from this table will be used to load the entity state.
 ---@param config CollectibleConfig The config of this Collectible.
 ---@param pos Vector2 The starting position of this Collectible.
-function Collectible:new(deserializationTable, config, pos)
-	if deserializationTable then
-		self:deserialize(deserializationTable)
+function Collectible:new(data, config, pos)
+	if data then
+		self:deserialize(data)
 	else
 		self.config = config
 		self.pos = pos

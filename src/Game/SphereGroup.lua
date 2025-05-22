@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a Sphere Group, which is a single group of spheres connected to each other. Handles all sphere movement on the track.
 ---@class SphereGroup
----@overload fun(sphereChain, deserializationTable):SphereGroup
+---@overload fun(sphereChain, data):SphereGroup
 local SphereGroup = class:derive("SphereGroup")
 
 local Color = require("src.Essentials.Color")
@@ -11,7 +11,7 @@ local Sphere = require("src.Game.Sphere")
 
 
 
-function SphereGroup:new(sphereChain, deserializationTable)
+function SphereGroup:new(sphereChain, data)
 	self.sphereChain = sphereChain
 	self.map = sphereChain.map
 
@@ -19,8 +19,8 @@ function SphereGroup:new(sphereChain, deserializationTable)
 	self.prevGroup = nil
 	self.nextGroup = nil
 
-	if deserializationTable then
-		self:deserialize(deserializationTable)
+	if data then
+		self:deserialize(data)
 	else
 		self.offset = 0
 		self.speed = 0

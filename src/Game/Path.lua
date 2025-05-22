@@ -538,7 +538,7 @@ function Path:getSpeed(pixels)
 		if _Game.satMode then
 			speedMultiplier = 1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.05
 		end
-		speedMultiplier = speedMultiplier * _Game:getCurrentProfile():getDifficultyConfig().speedMultiplier
+		speedMultiplier = speedMultiplier * _Game:getCurrentProfile():getSession():getDifficultyConfig().speedMultiplier
 	end
 
 	for i, speed in ipairs(self.speeds) do

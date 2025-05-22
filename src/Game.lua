@@ -297,25 +297,28 @@ end
 ---Updates the game's Rich Presence information.
 function Game:updateRichPresence()
 	local profile = self:getCurrentProfile()
+	local session = profile and profile:getSession()
 	local line1 = "Playing: " .. self.configManager:getGameName()
 	local line2 = ""
 
-	if self.level then
-		line2 = string.format("Level %s (%s), Score: %s",
-			profile:getLevelName(),
-			string.format("%s%%", math.floor((self.level:getObjectiveProgress(1)) * 100)),
-			profile:getScore()
-		)
-		if profile:getLives() then
-			line2 = line2 .. string.format(", Lives: %s", profile:getLives())
-		end
-		if self.level.pause then
-			line1 = line1 .. " - Paused"
-		end
-	elseif profile and profile:getSession() then
-		line2 = string.format("In menus, Score: %s", profile:getScore())
-		if profile:getLives() then
-			line2 = line2 .. string.format(", Lives: %s", profile:getLives())
+	if profile and session then
+		if self.level then
+			line2 = string.format("Level %s (%s), Score: %s",
+				profile:getLevelName(),
+				string.format("%s%%", math.floor((self.level:getObjectiveProgress(1)) * 100)),
+				session:getScore()
+			)
+			if session:getLives() then
+				line2 = line2 .. string.format(", Lives: %s", session:getLives())
+			end
+			if self.level.pause then
+				line1 = line1 .. " - Paused"
+			end
+		else
+			line2 = string.format("In menus, Score: %s", session:getScore())
+			if session:getLives() then
+				line2 = line2 .. string.format(", Lives: %s", session:getLives())
+			end
 		end
 	else
 		line2 = string.format("In menus")

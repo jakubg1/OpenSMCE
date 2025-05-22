@@ -97,11 +97,12 @@ function TestMain:draw()
 
 	-- HEADER
 	love.graphics.setFont(_FONT_BIG)
-	love.graphics.print("Test Suite", 10, 4)
+	love.graphics.print("Test Suite Results", 10, 4)
 
-	local y = 40
+	local y = 30
 	for i, mod in ipairs(self.modules) do
 		-- Test file header
+		y = y + 10
 		love.graphics.setFont(_FONT_BIG)
 		love.graphics.print(mod.name, 15, y)
 		y = y + 25

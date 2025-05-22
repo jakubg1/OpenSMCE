@@ -904,6 +904,7 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"CollectibleGenerator": "parseCollectibleGeneratorConfig",
 		"ColorGenerator": "parseColorGeneratorConfig",
 		"GameEvent": "parseGameEventConfig",
+		"Level": "parseLevelConfig",
 		"LevelSequence": "parseLevelSequenceConfig",
 		"LevelTrainRules": "parseLevelTrainRulesConfig",
 		"Particle": "parseParticleConfig",

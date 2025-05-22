@@ -2,21 +2,21 @@ local class = require "com.class"
 
 ---Represents a Projectile which is moving towards its target, destroying spheres based on its Sphere Selector.
 ---@class Projectile
----@overload fun(deserializationTable, config, targetSphere):Projectile
+---@overload fun(data, config, targetSphere):Projectile
 local Projectile = class:derive("Projectile")
 
 local Vec2 = require("src.Essentials.Vector2")
 
 ---Constructs a new Projectile.
----@param deserializationTable table? If specified, data from this table will be used to load the entity state.
+---@param data table? If specified, data from this table will be used to load the entity state.
 ---@param config ProjectileConfig? The configuration of this Projectile.
 ---@param targetSphere Sphere? The target position of this Projectile.
-function Projectile:new(deserializationTable, config, targetSphere)
-    if deserializationTable then
-        self:deserialize(deserializationTable)
+function Projectile:new(data, config, targetSphere)
+    if data then
+        self:deserialize(data)
     else
-        assert(config, "deserializationTable is nil, config is nil. This shouldn't happen")
-        assert(targetSphere, "deserializationTable is nil, targetSphere is nil. This shouldn't happen")
+        assert(config, "data is nil, config is nil. This shouldn't happen")
+        assert(targetSphere, "data is nil, targetSphere is nil. This shouldn't happen")
 
         self.config = config
         self.targetPos = targetSphere:getPos()

@@ -2,16 +2,16 @@
     - levelOrder (array) - A list which contains level entries. Levels will be played in this order.
         - (object) {type: The type of the level entry.} - A single level entry.
             - "level" - A single level to be played.
-                - level (integer) - A single level ID to be loaded and played.
-                - name (string) - A level name.
+                - level (Level) - A single level to be loaded and played.
+                - name (string) - A level name, passed to the UI Script and displayed in Rich Text Presence.
             - "uiScript" - A UI Script callback will be executed. It's the UI Script's duty to advance to the next level, otherwise the game might softlock.
                 - callback (string) - The UI Script callback name to be executed, without any parameters.
-                - name (string) - A level name.
+                - name (string) - A level name, passed to the UI Script and displayed in Rich Text Presence.
             - "randomizer" - A group of levels to be played in random order.
-                - pool (array) - A list of level IDs to be chosen from.
-                    - (integer) - A single level ID.
+                - pool (array) - A list of levels to be chosen from.
+                    - (Level) - A single level.
                 - names (array) - A list of level names. It is not shuffled, and this list should have the same length as the `count` field.
-                    - (string) - A single level name.
+                    - (string) - A single level name, passed to the UI Script and displayed in Rich Text Presence.
                 - count (integer) [>=1] - How many levels are to be picked from the pool.
                 - mode (string) - How the levels will be randomized.
                     - "repeat" - Every next level is simply drawn at random from the list.

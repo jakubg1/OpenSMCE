@@ -562,7 +562,7 @@ end
 ---@param unmultipliedScore integer The unmultiplied score, for extra life calculation.
 function Level:grantScore(score, unmultipliedScore)
 	self.score = self.score + score
-	_Game:getCurrentProfile():grantScore(score, unmultipliedScore)
+	_Game:getCurrentProfile():getSession():grantScore(score, unmultipliedScore)
 end
 
 
@@ -570,7 +570,7 @@ end
 ---Adds one coin to the current Profile and to level's statistics.
 function Level:grantCoin()
 	self.coins = self.coins + 1
-	_Game:getCurrentProfile():grantCoin()
+	_Game:getCurrentProfile():getSession():grantCoin()
 end
 
 
@@ -593,7 +593,7 @@ function Level:executeScoreEvent(scoreEvent, pos)
 	end
 	local unmultipliedScore = score
 	if not scoreEvent.ignoreDifficultyMultiplier then
-		score = score * _Game:getCurrentProfile():getDifficultyConfig().scoreMultiplier
+		score = score * _Game:getCurrentProfile():getSession():getDifficultyConfig().scoreMultiplier
 	end
 	score = score * self.scoreMultiplier
 	_Vars:set("event.score", score)
@@ -907,7 +907,7 @@ end
 ---Returns `true` if the current level score is the highest in history for the current Profile.
 ---@return boolean
 function Level:hasNewScoreRecord()
-	return _Game:getCurrentProfile():getLevelHighscoreInfo(self.score)
+	return _Game:getCurrentProfile():getLevelHighscore(self.score)
 end
 
 

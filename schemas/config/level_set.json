@@ -43,12 +43,12 @@
                             "properties": {
                                 "type": true,
                                 "level": {
-                                    "type": "integer",
-                                    "description": "A single level ID to be loaded and played."
+                                    "$ref": "../_structures/Level.json",
+                                    "description": "A single level to be loaded and played."
                                 },
                                 "name": {
                                     "type": "string",
-                                    "description": "A level name."
+                                    "description": "A level name, passed to the UI Script and displayed in Rich Text Presence."
                                 },
                                 "checkpoint": {
                                     "type": "object",
@@ -105,7 +105,7 @@
                                 },
                                 "name": {
                                     "type": "string",
-                                    "description": "A level name."
+                                    "description": "A level name, passed to the UI Script and displayed in Rich Text Presence."
                                 },
                                 "checkpoint": {
                                     "type": "object",
@@ -158,10 +158,10 @@
                                 "type": true,
                                 "pool": {
                                     "type": "array",
-                                    "description": "A list of level IDs to be chosen from.",
+                                    "description": "A list of levels to be chosen from.",
                                     "items": {
-                                        "type": "integer",
-                                        "description": "A single level ID."
+                                        "$ref": "../_structures/Level.json",
+                                        "description": "A single level."
                                     }
                                 },
                                 "names": {
@@ -170,7 +170,7 @@
                                     "markdownDescription": "A list of level names. It is not shuffled, and this list should have the same length as the `count` field.",
                                     "items": {
                                         "type": "string",
-                                        "description": "A single level name."
+                                        "description": "A single level name, passed to the UI Script and displayed in Rich Text Presence."
                                     }
                                 },
                                 "count": {
