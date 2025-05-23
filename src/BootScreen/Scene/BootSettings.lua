@@ -14,7 +14,7 @@ function BootSettings:new(bootScreen)
   	self.bootScreen = bootScreen
 
 	self.SETTINGS = {
-		{name = "Enable Discord Rich Presence", f = function(state) _EngineSettings:setDiscordRPC(state) end, tooltip = "Shows your game progress in your Discord profile, if you have Discord running\non your computer."},
+		{name = "Enable Discord Rich Presence", f = function(state) _EngineSettings:setDiscordRPC(state) end, tooltip = "Shows your game progress in your Discord profile, if you have Discord running\non your computer.\n\nThis feature currently works only on Windows systems."},
 		{name = "Go back to the boot menu when exiting a game", f = function(state) _EngineSettings:setBackToBoot(state) end, tooltip = "If enabled, when quitting a game, the Boot Screen will show up again."},
 		{name = "  Even if the game window is closed by X", f = function(state) _EngineSettings:setBackToBootWithX(state) end, tooltip = "If enabled, when quitting a game by pressing X on the window, the Boot Screen\nwill show up again as well."},
 		{name = "Maximize On Start", f = function(state) _EngineSettings:setMaximizeOnStart(state) end, tooltip = "Some games have a large native resolution, which is bigger than the desktop size.\nThis setting makes sure that the window will be maximized to prevent overgrowing."},

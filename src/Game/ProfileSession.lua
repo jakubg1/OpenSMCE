@@ -19,20 +19,25 @@ function ProfileSession:new(profile, data, difficulty, checkpoint)
         self:deserialize(data)
     else
         self.difficulty = assert(difficulty, "No difficulty given; you need to specify a difficulty and a checkpoint if you're starting a new game!")
-        assert(checkpoint, "No checkpoint given; you need to specify a difficulty and a checkpoint if you're starting a new game!")
+        self.levelSet = self.difficulty.levelSet
+        self.lifeConfig = self.difficulty.lifeConfig
+        self.checkpointData = self:getCheckpointData()
+
         self.score = 0
-        if self:getLifeConfig().type ~= "none" then
-            self.lives = self:getLifeConfig().startingLives
+        if self.lifeConfig.type ~= "none" then
+            self.lives = self.lifeConfig.startingLives
         end
         self.coins = 0
-        if self:getLifeConfig().type == "score" then
+        if self.lifeConfig.type == "score" then
             self.lifeScore = 0
         end
 
-        self.level = self.profile.checkpoints[checkpoint].levelID
-        self.sublevel = 1
-        self.sublevelPool = {}
-        self.levelID = nil
+        assert(checkpoint, "No checkpoint given; you need to specify a difficulty and a checkpoint if you're starting a new game!")
+        self.level = self.checkpointData[checkpoint].levelID
+        self.sublevel = nil
+        self.sublevelPool = nil
+        self:setupSublevelPool()
+        self.levelID = self:generateLevelID()
         self.levelSaveData = nil
     end
 end
@@ -50,7 +55,7 @@ end
 ---Returns the current difficulty's life config.
 ---@return table
 function ProfileSession:getLifeConfig()
-	return self.difficulty.lifeConfig
+	return self.lifeConfig
 end
 
 --######################################--
@@ -68,11 +73,11 @@ end
 ---@param unmultipliedScore integer The unmultiplied score to be added. The Level class generates this value for use in the life system, since Score Events are evaluated there.
 function ProfileSession:grantScore(score, unmultipliedScore)
 	self.score = self.score + score
-	if self:getLifeConfig().type == "score" then
-		self.lifeScore = self.lifeScore + (self:getLifeConfig().countUnmultipliedScore and unmultipliedScore or score)
-		while self.lifeScore >= self:getLifeConfig().scorePerLife do
+	if self.lifeConfig.type == "score" then
+		self.lifeScore = self.lifeScore + (self.lifeConfig.countUnmultipliedScore and unmultipliedScore or score)
+		while self.lifeScore >= self.lifeConfig.scorePerLife do
 			self:grantLife()
-			self.lifeScore = self.lifeScore - self:getLifeConfig().scorePerLife
+			self.lifeScore = self.lifeScore - self.lifeConfig.scorePerLife
 		end
 	end
 end
@@ -98,10 +103,10 @@ end
 ---Executes a `newCoin` UI callback and immediately updates the `session.coins` variable.
 function ProfileSession:grantCoin()
 	self.coins = self.coins + 1
-	if self:getLifeConfig().type == "coins" then
-		while self.coins >= self:getLifeConfig().coinsPerLife do
+	if self.lifeConfig.type == "coins" then
+		while self.coins >= self.lifeConfig.coinsPerLife do
 			self:grantLife()
-			self.coins = self.coins - self:getLifeConfig().coinsPerLife
+			self.coins = self.coins - self.lifeConfig.coinsPerLife
 		end
 	end
 	_Game.uiManager:executeCallback("newCoin")
@@ -124,20 +129,274 @@ function ProfileSession:grantLife()
 	_Game.uiManager:executeCallback("newLife")
 end
 
----Takes one life away from the player and returns `true`, if the player has any. If not, returns `false`.
----@return boolean
+---Takes one life away from the player.
 function ProfileSession:takeLife()
 	-- You can always retry if there is no life system.
-	if self:getLifeConfig().type == "none" then
-		return true
-	end
-	-- Otherwise, check if there is a game over.
-	if self.lives == 0 then
-		return false
+	if self.lifeConfig.type == "none" then
+		return
 	end
 	self.lives = self.lives - 1
-	-- Return `true` if the player can retry the level.
-	return true
+end
+
+--######################################--
+---------------- L E V E L ---------------
+--######################################--
+
+---Advances the profile to the next level.
+---If beating the current level set entry causes a checkpoint to be unlocked, unlocks a checkpoint on this profile.
+function ProfileSession:advanceLevel()
+	-- Check if beating this level unlocks some checkpoints.
+	local checkpoints = self:getLevelEntry().unlockCheckpointsOnBeat
+	if checkpoints then
+		for i, checkpoint in ipairs(checkpoints) do
+			self.profile:unlockCheckpoint(checkpoint)
+		end
+	end
+
+	self:incrementLevel()
+end
+
+--##############################################--
+---------------- L E V E L   S E T ---------------
+--##############################################--
+
+---Returns the player's current level number, corresponding to an entry in the level set.
+---@return integer
+function ProfileSession:getLevel()
+	return self.level
+end
+
+---Returns the player's current sublevel number.
+---Returns `nil` if the current level is not a randomizer.
+---@return integer?
+function ProfileSession:getSublevel()
+	return self.sublevel
+end
+
+---Returns the player's current level number, including all previous sublevels.
+---@return integer
+function ProfileSession:getTotalLevel()
+	return self:getLevelCountFromEntries(self.level - 1) + (self.sublevel or 1)
+end
+
+---Returns the player's current level set entry.
+---@return table
+function ProfileSession:getLevelEntry()
+	return self.levelSet.levelOrder[self.level]
+end
+
+---Returns the player's next level set entry. If the current level set entry is the last one, returns `nil`.
+---@return table?
+function ProfileSession:getNextLevelEntry()
+	return self.levelSet.levelOrder[self.level + 1]
+end
+
+---Returns the player's current level's configuration.
+---@return LevelConfig
+function ProfileSession:getLevelData()
+	return self.levelID
+end
+
+---Returns a string reference to the player's current level config.
+---@return string
+function ProfileSession:getLevelID()
+	return _Game.resourceManager:getResourceReference(self.levelID)
+end
+
+---Returns the player's current level's map data. This is the raw map data which is written in `maps/*/config.json`.
+---Returns `nil` if the current level is a UI script entry.
+---@return table?
+function ProfileSession:getMapData()
+	return self.levelID and _Game.configManager.maps[self.levelID.map]
+end
+
+---Returns the player's current level set entry name.
+---@return string
+function ProfileSession:getLevelName()
+	local entry = self:getLevelEntry()
+	if entry.type == "level" then
+		return entry.name
+	elseif entry.type == "randomizer" then
+		return entry.names[self.sublevel]
+	end
+	error("Invalid level entry type")
+end
+
+---Returns how many sublevels the first N levels have in total.
+---@param levels integer The total number of levels to be considered.
+---@return integer
+function ProfileSession:getLevelCountFromEntries(levels)
+	local n = 0
+	-- If it's a single level, count 1.
+	-- If it's a randomizer, count that many levels as there are defined in the randomizer.
+	for i = 1, levels do
+		local entry = self.levelSet.levelOrder[i]
+		if entry.type == "level" then
+			n = n + 1
+		elseif entry.type == "randomizer" then
+			n = n + entry.count
+		end
+	end
+	return n
+end
+
+---Advances one level in the level entry list, or one sublevel, if the level has more sublevels.
+function ProfileSession:incrementLevel()
+	local entry = self:getLevelEntry()
+	-- Update the pointers.
+	if entry.type == "level" or entry.type == "uiScript" then
+		self.level = self.level + 1
+		self:setupSublevelPool()
+	elseif entry.type == "randomizer" then
+		-- Check whether it's the last sublevel.  If so, get outta there and move on.
+		if self.sublevel == entry.count then
+			self.level = self.level + 1
+			self:setupSublevelPool()
+		else
+			self.sublevel = self.sublevel + 1
+		end
+	end
+	-- Generate a new level ID.
+	self.levelID = self:generateLevelID()
+end
+
+---Generates a new level ID, based on the current level set entry type and data.
+---The returned level is removed from the pool if the current entry is configured so.
+---@return LevelConfig
+function ProfileSession:generateLevelID()
+	local entry = self:getLevelEntry()
+
+	-- Now we are going to generate the level ID from the pool, if this is a randomizer,
+	-- or just replace it if it's a normal level.
+	if entry.type == "level" then
+		return entry.level
+	elseif entry.type == "randomizer" then
+		-- Use local data to generate a level.
+		if entry.mode == "repeat" then
+			return self.sublevelPool[math.random(#self.sublevelPool)]
+		elseif entry.mode == "noRepeat" then
+			return table.remove(self.sublevelPool, math.random(#self.sublevelPool))
+		elseif entry.mode == "order" then
+			while true do
+				local chance = (entry.count - self.sublevel + 1) / #self.sublevelPool
+				local sublevel = self.sublevelPool[1]
+				table.remove(self.sublevelPool, 1)
+				if math.random() < chance then
+					return sublevel
+				end
+			end
+		end
+	end
+	error("Invalid level entry type")
+end
+
+---Sets up sublevel values for the current level set entry if this entry is a randomizer.
+---Otherwise, the sublevel values are cleared.
+---@private
+function ProfileSession:setupSublevelPool()
+	local entry = self:getLevelEntry()
+
+	-- If this entry is a randomizer, copy the pool to an internal profile field.
+	if entry.type == "randomizer" then
+		self.sublevel = 1
+		self.sublevelPool = {}
+		for i, levelID in ipairs(entry.pool) do
+			self.sublevelPool[i] = levelID
+		end
+	else
+		self.sublevel = nil
+		self.sublevelPool = nil
+	end
+end
+
+--##################################################--
+---------------- C H E C K P O I N T S ---------------
+--##################################################--
+
+---Returns a checkpoint ID which is assigned to the most recent level set entry which has one.
+---If none of the checkpoints have been beaten yet, returns `nil`.
+---@return integer?
+function ProfileSession:getLatestCheckpoint()
+	for i = self.level, 1, -1 do
+		local entry = self.levelSet.levelOrder[i]
+		if entry.checkpoint then
+			return entry.checkpoint.id
+		end
+	end
+end
+
+---Returns `true` if the player's next level set entry has a checkpoint (and the player is not in the middle of a list of sublevels).
+---@return boolean
+function ProfileSession:isCheckpointUpcoming()
+	-- A checkpoint can't be upcoming if we are in the middle of a randomizer section.
+	local entry = self:getLevelEntry()
+	if entry.type == "randomizer" and self.sublevel < entry.count then
+		return false
+	end
+
+	local nextEntry = self:getNextLevelEntry()
+	return nextEntry and nextEntry.checkpoint ~= nil or false
+end
+
+---Generates checkpoint data based on the current level set. Useful for lookup.
+---@return table<integer, {levelID: integer, unlockedOnStart: boolean}>
+function ProfileSession:getCheckpointData()
+    local checkpoints = {}
+	for i, entry in ipairs(self.levelSet.levelOrder) do
+		if entry.checkpoint then
+			checkpoints[entry.checkpoint.id] = {levelID = i, unlockedOnStart = entry.checkpoint.unlockedOnStart}
+		end
+	end
+    return checkpoints
+end
+
+---Returns the total level number corresponding to the provided checkpoint ID.
+---TODO: This should be parsed at the start and stored once.
+---@param checkpoint number The checkpoint ID.
+---@return integer
+function ProfileSession:getCheckpointLevelN(checkpoint)
+	local entryN = self.checkpointData[checkpoint].levelID
+	return self:getLevelCountFromEntries(entryN - 1) + 1
+end
+
+--############################################################--
+---------------- L E V E L   S T A T I S T I C S ---------------
+--############################################################--
+
+---Returns the player's current level statistics.
+---Returns `nil` if the player currently has no session in progress.
+---@return LevelStatistics?
+function ProfileSession:getCurrentLevelStats()
+	return self.profile.levelStats[self:getLevelID()]
+end
+
+---Overwrites the player's current level statistics with the provided statistics.
+---@param data LevelStatistics The statistics to be set for the level.
+function ProfileSession:setCurrentLevelStats(data)
+	self.profile.levelStats[self:getLevelID()] = data
+end
+
+---Updates the player's current level statistics by adding one to either win or loss count and updating the highscore if beaten.
+---If no entry is available for that level's statistics yet, a new one is made.
+---@param won boolean Whether the level has been won (`true`) or lost (`false`).
+---@param score integer The score result for this level. Ignored if the level was lost.
+function ProfileSession:updateCurrentLevelStats(won, score)
+	local stats = self:getCurrentLevelStats() or {score = 0, won = 0, lost = 0}
+	if won then
+		stats.won = stats.won + 1
+		stats.score = math.max(stats.score, score)
+	else
+		stats.lost = stats.lost + 1
+	end
+	self:setCurrentLevelStats(stats)
+end
+
+---Returns `true` if score given in parameter would yield a new record for the current level.
+---@param score integer The score value to be checked against.
+---@return boolean
+function ProfileSession:getLevelHighscore(score)
+	local levelData = self:getCurrentLevelStats()
+	return not levelData or score > levelData.score
 end
 
 --############################################--
@@ -146,10 +405,10 @@ end
 
 ---Saves the current score and/or coins as rollback values if rollback is enabled.
 function ProfileSession:saveRollback()
-	if self:getLifeConfig().rollbackScoreAfterFailure then
+	if self.lifeConfig.rollbackScoreAfterFailure then
 		self.rollbackScore = self.score
 	end
-	if self:getLifeConfig().rollbackCoinsAfterFailure then
+	if self.lifeConfig.rollbackCoinsAfterFailure then
 		self.rollbackCoins = self.coins
 	end
 end
@@ -162,6 +421,22 @@ function ProfileSession:doRollback()
     if self.rollbackCoins then
         self.coins = self.rollbackCoins
     end
+end
+
+--################################################--
+---------------- H I G H S C O R E S ---------------
+--################################################--
+
+---Writes this profile onto the highscore list using its current score.
+---If successful, returns the position on the leaderboard. If not, returns `nil`.
+---@return integer?
+function ProfileSession:writeHighscore()
+	local pos = _Game.runtimeManager.highscores:getPosition(self.score)
+	if not pos then
+		return
+	end
+	_Game.runtimeManager.highscores:storeEntry(pos, self.profile.name, self.score, self:getLevelName())
+	return pos
 end
 
 --##############################################--
@@ -179,6 +454,13 @@ function ProfileSession:dumpVariables()
     _Vars:set("session.score", self.score)
     _Vars:set("session.lifeScore", self.lifeScore)
 end
+
+---Temporary function for UltimatelySatisfyingMode.
+---@return integer
+function ProfileSession:getUSMNumber()
+	return self:getLevel() or 1
+end
+
 
 --##########################################################--
 ---------------- L E V E L   S A V E   D A T A ---------------
@@ -222,6 +504,9 @@ end
 ---@param t table The data to be deserialized.
 function ProfileSession:deserialize(t)
     self.difficulty = _Game.resourceManager:getDifficultyConfig(t.difficulty)
+    self.levelSet = self.difficulty.levelSet
+    self.lifeConfig = self.difficulty.lifeConfig
+    self.checkpointData = self:getCheckpointData()
     self.score = t.score
     self.lives = t.lives
     self.coins = t.coins

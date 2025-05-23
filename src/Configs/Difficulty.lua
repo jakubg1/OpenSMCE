@@ -26,6 +26,7 @@ function DifficultyConfig:new(data, path, isAnonymous)
 
     self.speedMultiplier = u.parseNumber(data.speedMultiplier, path, "speedMultiplier")
     self.scoreMultiplier = u.parseNumber(data.scoreMultiplier, path, "scoreMultiplier")
+    self.levelSet = u.parseLevelSetConfig(data.levelSet, path, "levelSet")
 
     self.lifeConfig = {}
     self.lifeConfig.type = u.parseString(data.lifeConfig.type, path, "lifeConfig.type")

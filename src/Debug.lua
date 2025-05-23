@@ -224,16 +224,16 @@ function Debug:getDebugParticle()
 	return s
 end
 
-function Debug:getDebugProfile()
-	local profile = _Game:getCurrentProfile()
+function Debug:getDebugSession()
+	local session = assert(_Game:getSession())
 	local s = ""
 
-	s = s .. string.format("Level: Level = %s, Sublevel = %s, Total = %s", profile:getLevel(), profile:getSublevel(), profile:getTotalLevel()) .. "\n"
-	s = s .. "LevelID = " .. profile:getLevelID() .. "\n"
-	s = s .. "LatestCheckpoint = " .. tostring(profile:getLatestCheckpoint()) .. "\n"
-	s = s .. "CheckpointUpcoming = " .. tostring(profile:isCheckpointUpcoming()) .. "\n"
-	s = s .. string.format("Rollback: Score = %s, Coins = %s", profile.session.rollbackScore, profile.session.rollbackCoins) .. "\n"
-	local levelStats = profile:getCurrentLevelStats()
+	s = s .. string.format("Level: Level = %s, Sublevel = %s, Total = %s", session:getLevel(), session:getSublevel(), session:getTotalLevel()) .. "\n"
+	s = s .. "LevelID = " .. session:getLevelID() .. "\n"
+	s = s .. "LatestCheckpoint = " .. tostring(session:getLatestCheckpoint()) .. "\n"
+	s = s .. "CheckpointUpcoming = " .. tostring(session:isCheckpointUpcoming()) .. "\n"
+	s = s .. string.format("Rollback: Score = %s, Coins = %s", session.rollbackScore, session.rollbackCoins) .. "\n"
+	local levelStats = session:getCurrentLevelStats()
 	if levelStats then
 		s = s .. "LevelRecord = " .. levelStats.score .. "\n"
 		s = s .. "Won = " .. levelStats.won .. "\n"
@@ -309,9 +309,9 @@ function Debug:getDebugInfo()
 	if _Game.level then
 		s = s .. _Game.level.colorManager:getDebugText()
 	end
-	s = s .. "\n===== PROFILE =====\n"
-	if _Game.getCurrentProfile and _Game:getCurrentProfile() and _Game:getCurrentProfile().session then
-		s = s .. self:getDebugProfile()
+	s = s .. "\n===== SESSION =====\n"
+	if _Game.getSession and _Game:getSession() then
+		s = s .. self:getDebugSession()
 	end
 	s = s .. "\n===== LEVEL =====\n"
 	if _Game.level then

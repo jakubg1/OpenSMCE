@@ -43,7 +43,7 @@
                             "properties": {
                                 "type": true,
                                 "level": {
-                                    "$ref": "../_structures/Level.json",
+                                    "$ref": "_structures/Level.json",
                                     "description": "A single level to be loaded and played."
                                 },
                                 "name": {
@@ -160,7 +160,7 @@
                                     "type": "array",
                                     "description": "A list of levels to be chosen from.",
                                     "items": {
-                                        "$ref": "../_structures/Level.json",
+                                        "$ref": "_structures/Level.json",
                                         "description": "A single level."
                                     }
                                 },

@@ -23,6 +23,8 @@ local Expression = require("src.Expression")
 ---Constructs a new Level.
 ---@param config LevelConfig The level config.
 function Level:new(config)
+	self.config = config
+
 	self.map = Map(self, "maps/" .. config.map, config.pathsBehavior)
 	self.shooter = Shooter(config.shooter)
 	self.colorManager = ColorManager()
@@ -31,25 +33,12 @@ function Level:new(config)
 
 	local objectives = config.objectives
 	if _Game.satMode then
-		objectives = {{type = "destroyedSpheres", target = _Game:getCurrentProfile():getUSMNumber() * 10}}
+		objectives = {{type = "destroyedSpheres", target = _Game:getSession():getUSMNumber() * 10}}
 	end
 	self.objectives = {}
 	for i, objective in ipairs(objectives) do
 		table.insert(self.objectives, {type = objective.type, target = objective.target, progress = 0, reached = false})
 	end
-
-	self.colorGeneratorNormal = config.colorGeneratorNormal
-	self.colorGeneratorDanger = config.colorGeneratorDanger
-
-	self.music = config.music
-	self.dangerMusic = config.dangerMusic
-	self.ambientMusic = config.ambientMusic
-
-	self.dangerSoundName = config.dangerSound or "sound_events/warning.json"
-	self.dangerLoopSoundName = config.dangerLoopSound
-	self.warmupLoopName = config.warmupLoopSound or "sound_events/spheres_roll.json"
-	self.failSoundName = config.failSound or "sound_events/foul.json"
-	self.failLoopName = config.failLoopSound or "sound_events/spheres_roll.json"
 
 	self.levelSequence = config.sequence.sequence
 	self.startingVariables = _Game.configManager.gameplay.levelVariables
@@ -95,14 +84,14 @@ function Level:updateLogic(dt)
 	self.colorManager:dumpVariables()
 
 	-- Danger sound
-	if self.dangerLoopSoundName then
+	if self.config.dangerLoopSound then
 		local d1 = self:getDanger() and not self.lost
 		local d2 = self.danger
 		if d1 and not d2 then
-			self.dangerSound = _Game:playSound(self.dangerLoopSoundName)
+			self.dangerLoopSound = _Game:playSound(self.config.dangerLoopSound)
 		elseif not d1 and d2 then
-			self.dangerSound:stop()
-			self.dangerSound = nil
+			self.dangerLoopSound:stop()
+			self.dangerLoopSound = nil
 		end
 	end
 
@@ -217,8 +206,10 @@ function Level:updateLogic(dt)
 					_Game:spawnParticle(path.dangerParticle, path:getPos(path.length))
 				end
 			end
-			--game:playSound(self.dangerSoundName, 1 + (4 - self.warningDelayMax) / 6)
-			_Game:playSound(self.dangerSoundName)
+			if self.config.dangerSound then
+				--game:playSound(self.config.dangerSound, 1 + (4 - self.warningDelayMax) / 6)
+				_Game:playSound(self.config.dangerSound)
+			end
 			self.warningDelay = 0
 		end
 	else
@@ -337,14 +328,17 @@ end
 
 ---Adjusts which music is playing based on the level's internal state.
 function Level:updateMusic()
+	local music = self.config.music
+	local dangerMusic = self.config.dangerMusic
+	local ambientMusic = self.config.ambientMusic
 	local mute = self:getCurrentSequenceStep().muteMusic or self.pause
 
-	if self.dangerMusic then
+	if dangerMusic then
 		-- If the level hasn't started yet, is lost, won or the game is paused,
 		-- mute the music.
 		if mute then
-			self.music:play(0, 1)
-			self.dangerMusic:play(0, 1)
+			music:play(0, 1)
+			dangerMusic:play(0, 1)
 		else
 			-- Play the music accordingly to the danger flag.
 			-- This "if" statement is an experimental feature where the music is sped up when in danger. Works with ASL only.
@@ -352,37 +346,37 @@ function Level:updateMusic()
 			if true then
 				if self.danger then
 					-- TODO: Make the danger music continue instead of starting over if the game has been unpaused.
-					if self.dangerMusic.volume == 0 then
-						self.dangerMusic:stop()
-						self.dangerMusic:play()
+					if dangerMusic.volume == 0 then
+						dangerMusic:stop()
+						dangerMusic:play()
 					end
-					self.music:play(0, 1)
-					self.dangerMusic:play(1, 1)
+					music:play(0, 1)
+					dangerMusic:play(1, 1)
 				else
-					self.music:play(1, 1)
-					self.dangerMusic:play(0, 1)
+					music:play(1, 1)
+					dangerMusic:play(0, 1)
 				end
 			else
 				if self.danger then
-					self.music.instance:setTimeStretch(3)
+					music.instance:setTimeStretch(3)
 				else
-					self.music:play(1, 1)
-					self.music.instance:setTimeStretch(1)
+					music:play(1, 1)
+					music.instance:setTimeStretch(1)
 				end
 			end
 		end
 	else
 		-- If there's no danger music, then mute it or unmute in a similar fashion.
 		if mute then
-			self.music:play(0, 1)
+			music:play(0, 1)
 		else
-			self.music:play(1, 1)
+			music:play(1, 1)
 		end
 	end
 
-	if self.ambientMusic then
+	if ambientMusic then
 		-- Ambient music plays all the time.
-		self.ambientMusic:play(1, 1)
+		ambientMusic:play(1, 1)
 	end
 end
 
@@ -488,7 +482,7 @@ end
 function Level:evaluateCollectibleGeneratorEntry(generator)
 	-- Run any present conditions and check them. If they aren't met, this entry returns an empty list.
 	if generator.conditions then
-		_Vars:set("generator.latestCheckpoint", _Game:getCurrentProfile():getLatestCheckpoint())
+		_Vars:set("generator.latestCheckpoint", _Game:getSession():getLatestCheckpoint())
 		for i, condition in ipairs(generator.conditions) do
 			if not condition:evaluate() then
 				_Vars:unset("generator")
@@ -513,7 +507,7 @@ function Level:evaluateCollectibleGeneratorEntry(generator)
 		return result
 	elseif generator.type == "repeat" then
 		local result = {}
-		_Vars:set("generator.latestCheckpoint", _Game:getCurrentProfile():getLatestCheckpoint())
+		_Vars:set("generator.latestCheckpoint", _Game:getSession():getLatestCheckpoint())
 		for i = 1, generator.count:evaluate() do
 			-- Append the results of each roll separately.
 			local subresult = self:evaluateCollectibleGeneratorEntry(generator.entry)
@@ -562,7 +556,7 @@ end
 ---@param unmultipliedScore integer The unmultiplied score, for extra life calculation.
 function Level:grantScore(score, unmultipliedScore)
 	self.score = self.score + score
-	_Game:getCurrentProfile():getSession():grantScore(score, unmultipliedScore)
+	_Game:getSession():grantScore(score, unmultipliedScore)
 end
 
 
@@ -570,7 +564,7 @@ end
 ---Adds one coin to the current Profile and to level's statistics.
 function Level:grantCoin()
 	self.coins = self.coins + 1
-	_Game:getCurrentProfile():getSession():grantCoin()
+	_Game:getSession():grantCoin()
 end
 
 
@@ -588,12 +582,12 @@ end
 ---@return integer
 function Level:executeScoreEvent(scoreEvent, pos)
 	local score = scoreEvent.score:evaluate()
-	if _Game:getCurrentProfile().ultimatelySatisfyingMode then
-		score = math.floor(score * (1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.2) + 0.5)
+	if _Game:getProfile().ultimatelySatisfyingMode then
+		score = math.floor(score * (1 + (_Game:getSession():getUSMNumber() - 1) * 0.2) + 0.5)
 	end
 	local unmultipliedScore = score
 	if not scoreEvent.ignoreDifficultyMultiplier then
-		score = score * _Game:getCurrentProfile():getSession():getDifficultyConfig().scoreMultiplier
+		score = score * _Game:getSession():getDifficultyConfig().scoreMultiplier
 	end
 	score = score * self.scoreMultiplier
 	_Vars:set("event.score", score)
@@ -859,6 +853,18 @@ end
 
 
 
+---Returns currently used color generator data for the Shooter.
+---@return ColorGeneratorConfig
+function Level:getCurrentColorGenerator()
+	if self.danger then
+		return self.config.colorGeneratorDanger
+	else
+		return self.config.colorGeneratorNormal
+	end
+end
+
+
+
 ---Returns `true` when there are no more spheres on the board and no more spheres can spawn, too.
 ---@return boolean
 function Level:hasNoMoreSpheres()
@@ -907,7 +913,7 @@ end
 ---Returns `true` if the current level score is the highest in history for the current Profile.
 ---@return boolean
 function Level:hasNewScoreRecord()
-	return _Game:getCurrentProfile():getLevelHighscore(self.score)
+	return _Game:getSession():getLevelHighscore(self.score)
 end
 
 
@@ -920,22 +926,10 @@ end
 
 
 
----Takes one life away from the current Profile, and either restarts this Level, or ends the game.
-function Level:tryAgain()
-	if _Game:getCurrentProfile():loseLevel() then
-		self:reset()
-		self:resetSequence()
-	else
-		_Game:gameOver()
-	end
-end
-
-
-
 ---Starts the level music from the beginning.
 function Level:restartMusic()
-	self.music:stop()
-	self.music:play()
+	self.config.music:stop()
+	self.config.music:play()
 end
 
 
@@ -966,8 +960,8 @@ function Level:jumpToSequenceStep(stepN)
 		self.levelSequenceVars = {pathID = 1, delay = 0}
 	elseif step.type == "gameplay" then
 		self.levelSequenceVars = {warmupTime = 0}
-		if self.warmupLoopName then
-			self.warmupLoop = _Game:playSound(self.warmupLoopName)
+		if self.config.warmupLoopSound then
+			self.warmupLoop = _Game:playSound(self.config.warmupLoopSound)
 		end
 	elseif step.type == "waitForCollectibles" then
 		self.levelSequenceVars = {}
@@ -1015,22 +1009,48 @@ end
 
 ---Saves the current progress on this Level.
 function Level:save()
-	_Game:getCurrentProfile():saveLevel(self:serialize())
+	local session = _Game:getSession()
+	if session then
+		session:setLevelSaveData(self:serialize())
+	end
 end
-
-
 
 ---Erases saved data from this Level.
 function Level:unsave()
-	_Game:getCurrentProfile():unsaveLevel()
+	local session = _Game:getSession()
+	if session then
+		session:setLevelSaveData()
+	end
 end
-
-
 
 ---Marks this level as completed and forgets its saved data.
 function Level:win()
-	_Game:getCurrentProfile():winLevel(self.score)
-	_Game:getCurrentProfile():unsaveLevel()
+	local session = _Game:getSession()
+	if session then
+		session:updateCurrentLevelStats(true, self.score)
+		session:setLevelSaveData()
+	end
+end
+
+---Marks this level as lost and restarts it if there are some lives left. Otherwise, ends the game.
+function Level:tryAgain()
+	local session = _Game:getSession()
+	if session then
+		session:updateCurrentLevelStats(false, self.score)
+		session:setLevelSaveData()
+		if session:getLives() > 0 then
+			session:takeLife()
+			session:doRollback()
+			self:reset()
+			self:resetSequence()
+		else
+			_Game:gameOver()
+		end
+	else
+		-- Just restart the level if the session does not exist.
+		self:reset()
+		self:resetSequence()
+	end
 end
 
 
@@ -1058,11 +1078,11 @@ function Level:lose()
 		self.warmupLoop:stop()
 	end
 	-- play loss sounds
-	if self.failSoundName then
-		_Game:playSound(self.failSoundName)
+	if self.config.failSound then
+		_Game:playSound(self.config.failSound)
 	end
-	if self.failLoopName then
-		self.failLoop = _Game:playSound(self.failLoopName)
+	if self.config.failLoopSound then
+		self.failLoop = _Game:playSound(self.config.failLoopSound)
 	end
 	-- update sequence step
 	local jumpTo = self.levelSequence[self.levelSequenceStep].onFail
@@ -1093,14 +1113,14 @@ function Level:destroy()
 	_Vars:unset("level")
 
 	-- Stop any music.
-	if self.music then
-		self.music:play(0, 1)
+	if self.config.music then
+		self.config.music:play(0, 1)
 	end
-	if self.dangerMusic then
-		self.dangerMusic:play(0, 1)
+	if self.config.dangerMusic then
+		self.config.dangerMusic:play(0, 1)
 	end
-	if self.ambientMusic then
-		self.ambientMusic:play(0, 1)
+	if self.config.ambientMusic then
+		self.config.ambientMusic:play(0, 1)
 	end
 
 	if self.warmupLoop then
@@ -1136,7 +1156,7 @@ function Level:reset()
 	self.floatingTexts = {}
 
 	self.danger = false
-	self.dangerSound = nil
+	self.dangerLoopSound = nil
 	self.warningDelay = 0
 	self.warningDelayMax = nil
 	self.failDestructionDelay = nil

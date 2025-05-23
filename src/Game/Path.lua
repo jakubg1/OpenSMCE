@@ -36,7 +36,7 @@ function Path:new(map, pathData, pathBehavior)
 	self.reachedFinalWave = false
 	--[[
 	if _Game.satMode then
-		local n = _Game:getCurrentProfile():getUSMNumber() * 10
+		local n = _Game:getSession():getUSMNumber() * 10
 		self.spawnRules = {
 			--type = "waves",
 			--amount = n
@@ -181,7 +181,7 @@ function Path:spawnChain()
 	table.insert(self.sphereChains, sphereChain)
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
-		_Game:playSound(_Game.configManager.gameplay.sphereBehavior.newGroupSound, self:getPos(0))
+		_Game:playSound(_Game.resourceManager:getSoundEvent(_Game.configManager.gameplay.sphereBehavior.newGroupSound), self:getPos(0))
 	end
 end
 
@@ -534,11 +534,11 @@ end
 ---@return number
 function Path:getSpeed(pixels)
 	local speedMultiplier = 1
-	if not self.map.isDummy and _Game:getCurrentProfile().session then
+	if not self.map.isDummy and _Game:getSession() then
 		if _Game.satMode then
-			speedMultiplier = 1 + (_Game:getCurrentProfile():getUSMNumber() - 1) * 0.05
+			speedMultiplier = 1 + (_Game:getSession():getUSMNumber() - 1) * 0.05
 		end
-		speedMultiplier = speedMultiplier * _Game:getCurrentProfile():getSession():getDifficultyConfig().speedMultiplier
+		speedMultiplier = speedMultiplier * _Game:getSession():getDifficultyConfig().speedMultiplier
 	end
 
 	for i, speed in ipairs(self.speeds) do

@@ -1,6 +1,7 @@
 - (object) - The root object.
     - speedMultiplier (number) [>0] - The speed multiplier which will be applied to all levels on this difficulty.
     - scoreMultiplier (number) [>0] - The score multiplier which will be applied to all Score Events on this difficulty. Certain Score Events can ignore this multiplier by setting their `ignoreDifficultyMultiplier` field to `true`.
+    - levelSet (LevelSet) - The level set which will be used for this difficulty.
     - lifeConfig (object) {type: The type of the life system.} - Defines the way lives should behave.
         - "score" - Lives will be earned every set amount of points.
             - startingLives (integer) [>=0] - How many lives the player will start the game with.

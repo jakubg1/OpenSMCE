@@ -11,7 +11,7 @@ local class = require "com.class"
 local LevelSetConfig = class:derive("LevelSetConfig")
 
 LevelSetConfig.metadata = {
-    schemaPath = "config/level_set.json"
+    schemaPath = "level_set.json"
 }
 
 ---Constructs an instance of LevelSetConfig.

@@ -906,6 +906,7 @@ def docld_to_lua_value(entry, class_name, context, error_context, name = None, e
 		"GameEvent": "parseGameEventConfig",
 		"Level": "parseLevelConfig",
 		"LevelSequence": "parseLevelSequenceConfig",
+		"LevelSet": "parseLevelSetConfig",
 		"LevelTrainRules": "parseLevelTrainRulesConfig",
 		"Particle": "parseParticleConfig",
 		"ParticleEffect": "parseParticleEffectConfig",

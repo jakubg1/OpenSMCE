@@ -140,7 +140,7 @@ function Shooter:update(dt)
     if self:isActive() then
         -- remove nonexistent colors, but only if the current color generator allows removing these colors
         if not self.suppressColorRemoval then
-            local remTable = self:getCurrentColorGenerator().discardableColors
+            local remTable = _Game.level:getCurrentColorGenerator().discardableColors
             if remTable then
                 if _Utils.isValueInTable(remTable, self.color) and not _Game.level.colorManager:isColorExistent(self.color) then
                     self:setColor(0)
@@ -364,16 +364,6 @@ end
 
 
 
----Returns currently used color generator data for the Shooter.
----@return ColorGeneratorConfig
-function Shooter:getCurrentColorGenerator()
-	if _Game.level.danger then
-		return _Game.level.colorGeneratorDanger
-	else
-		return _Game.level.colorGeneratorNormal
-	end
-end
-
 ---Generates a color based on the provided Color Generator.
 ---@param data ColorGeneratorConfig Shooter color generator data.
 ---@return integer
@@ -439,7 +429,7 @@ end
 ---Generates a new color for the Shooter.
 ---@return integer
 function Shooter:getNewShooterColor()
-	return self:generateColor(self:getCurrentColorGenerator())
+	return self:generateColor(_Game.level:getCurrentColorGenerator())
 end
 
 

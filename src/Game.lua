@@ -109,8 +109,8 @@ function Game:tick(dt) -- always with 1/60 seconds
 		self.level:update(dt)
 	end
 
-	if self:getCurrentProfile() then
-		self:getCurrentProfile():dumpVariables()
+	if self:getProfile() then
+		self:getProfile():dumpVariables()
 	end
 
 	self.uiManager:update(dt)
@@ -130,18 +130,20 @@ end
 ---This also executes an appropriate entry in the UI script if the current level set's entry is a UI Script one. Yep, it's a mess.
 ---This function is intended to be called ONLY from UI scripts, using the UI Manager as a proxy.
 function Game:startLevel()
-	local profile = self:getCurrentProfile()
-	if profile:getLevelEntry().type == "uiScript" then
-		_Game.uiManager:executeCallback(profile:getLevelEntry().callback)
+	local session = assert(self:getSession(), "Attempt to start a level when no game is ongoing!")
+	if session:getLevelEntry().type == "uiScript" then
+		_Game.uiManager:executeCallback(session:getLevelEntry().callback)
 	else
-		self.level = Level(profile:getLevelData())
-		local savedLevelData = profile:getSavedLevel()
+		self.level = Level(session:getLevelData())
+		local savedLevelData = session:getLevelSaveData()
 		if savedLevelData then
+			-- Load existing level.
 			self.level:deserialize(savedLevelData)
 			self.uiManager:executeCallback("levelLoaded")
 		else
+			-- Start a new level.
 			self.level:resetSequence()
-			profile:startLevel()
+			session:saveRollback()
 		end
 	end
 end
@@ -185,26 +187,20 @@ function Game:save()
 end
 
 ---Plays a sound and returns its instance for modification.
----@param name string|SoundEvent The name of the Sound Effect to be played.
----@param pos Vector2? The position of the sound.
+---@param soundEvent SoundEvent The name of the Sound Effect to be played.
+---@param pos Vector2? The position of the sound origin.
 ---@return SoundInstanceList
-function Game:playSound(name, pos)
-	-- TODO: Unmangle this code. Will the string representation be still necessary after we fully move to Config Classes?
-	if type(name) == "string" then
-		_Debug:deprecationNotice("Game:playSound(): String argument will be phased out soon!", 2)
-		return self.resourceManager:getSoundEvent(name):play(pos)
-	else
-		return name:play(pos)
-	end
+function Game:playSound(soundEvent, pos)
+	return soundEvent:play(pos)
 end
 
 ---Spawns and returns a particle packet.
----@param name string|table The name of a particle packet, or its definition as a table.
+---@param particleEffect ParticleEffectConfig The particle effect resource.
 ---@param pos Vector2 The position for the particle packet to be spawned.
----@param layer string? The layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game, and not UI.
+---@param layer string? The UI layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game instead.
 ---@return ParticlePacket
-function Game:spawnParticle(name, pos, layer)
-	return self.particleManager:spawnParticlePacket(name, pos, layer)
+function Game:spawnParticle(particleEffect, pos, layer)
+	return self.particleManager:spawnParticlePacket(particleEffect, pos, layer)
 end
 
 ---Executes a Game Event.
@@ -228,11 +224,11 @@ function Game:executeGameEvent(event)
 	elseif event.type == "random" then
 		self:executeGameEvent(event.events[math.random(#event.events)])
 	elseif event.type == "setCoins" then
-		local profile = self:getCurrentProfile()
-		if not profile then
+		local session = self:getSession()
+		if not session then
 			return
 		end
-		profile:setCoins(event.value:evaluate())
+		session:setCoins(event.value:evaluate())
 	elseif event.type == "setLevelVariable" then
 		if not self.level then
 			return
@@ -276,8 +272,14 @@ end
 
 ---Returns the currently selected Profile.
 ---@return Profile
-function Game:getCurrentProfile()
+function Game:getProfile()
 	return self.runtimeManager.profileManager:getCurrentProfile()
+end
+
+---Returns the ongoing Session for the currently selected Profile, if it exists.
+---@return ProfileSession?
+function Game:getSession()
+	return self:getProfile():getSession()
 end
 
 ---Returns the effective sound volume, dictated by the game options.
@@ -296,15 +298,14 @@ end
 
 ---Updates the game's Rich Presence information.
 function Game:updateRichPresence()
-	local profile = self:getCurrentProfile()
-	local session = profile and profile:getSession()
+	local session = self:getSession()
 	local line1 = "Playing: " .. self.configManager:getGameName()
 	local line2 = ""
 
-	if profile and session then
+	if session then
 		if self.level then
 			line2 = string.format("Level %s (%s), Score: %s",
-				profile:getLevelName(),
+				session:getLevelName(),
 				string.format("%s%%", math.floor((self.level:getObjectiveProgress(1)) * 100)),
 				session:getScore()
 			)
