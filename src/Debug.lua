@@ -272,8 +272,9 @@ function Debug:getDebugLevel()
 				if i > 1 then
 					s = s .. ", "
 				end
-				s = s .. string.format("%.2f", time) .. "\n"
+				s = s .. string.format("%.2f", time)
 			end
+			s = s .. "\n"
 		end
 	end
 	s = s .. "\n"
@@ -355,7 +356,7 @@ end
 
 
 
----Draws a text with a semitransparent background.
+---Draws a text with a semi-transparent background.
 ---@param text string|table The text to be drawn.
 ---@param pos Vector2 The text position.
 ---@param height number The box height, in pixels.
