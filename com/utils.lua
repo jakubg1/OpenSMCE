@@ -61,7 +61,8 @@ end
 -- This function allows to load images from external sources.
 -- This is an altered code from https://love2d.org/forums/viewtopic.php?t=85350#p221460
 
----Opens an image file and returns its data. Returns `nil` if the file has not been found.
+---Opens an image file and returns its data.
+---Returns `nil` if the file has not been found.
 ---@param path string The path to the file.
 ---@return love.ImageData?
 function utils.loadImageData(path)
@@ -79,14 +80,16 @@ end
 
 
 
----Opens an image file and constructs `love.Image` from it. Errors out if the file has not been found.
+---Opens an image file and constructs `love.Image` from it.
+---Returns `nil` if the file has not been found.
 ---@param path string The path to the file.
----@return love.Image
+---@return love.Image?
 function utils.loadImage(path)
 	local imageData = utils.loadImageData(path)
-	assert(imageData, string.format("LOAD IMAGE FAIL: %s", path))
-	local image = love.graphics.newImage(imageData)
-	return image
+	if not imageData then
+		return
+	end
+	return love.graphics.newImage(imageData)
 end
 
 

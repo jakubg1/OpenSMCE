@@ -47,10 +47,7 @@ function ResourceManager:new()
 
 		SoundEvent = {assetConstructor = SoundEvent},
 		Music = {assetConstructor = Music},
-		Font = {assetConstructor = Font},
-		ColorPalette = {assetConstructor = ColorPalette},
-		ColorGenerator = {},
-		Level = {}
+		Font = {assetConstructor = Font}
 	}
 
 	-- TODO: Auto-generate these two below.
@@ -59,10 +56,7 @@ function ResourceManager:new()
 	self.SCHEMA_TO_RESOURCE_MAP = {
 		["sound_event.json"] = "SoundEvent",
 		["music_track.json"] = "Music",
-		["font.json"] = "Font",
-		["color_palette.json"] = "ColorPalette",
-		["config/color_generator.json"] = "ColorGenerator",
-		["config/level.json"] = "Level"
+		["font.json"] = "Font"
 	}
 	self.EXTENSION_TO_RESOURCE_MAP = {
 		png = "Image",
@@ -77,6 +71,7 @@ function ResourceManager:new()
 
 	-- Register the singleton/asset constructors.
 	self.SINGLETON_LIST = {
+		ColorPalette = ColorPalette,
 		Sprite = Sprite,
 		SpriteAtlas = SpriteAtlas
 	}
@@ -211,13 +206,6 @@ end
 ---@return Font
 function ResourceManager:getFont(path)
 	return self:getResourceAsset(path, "font")
-end
-
----Retrieves a Color Palette by a given path.
----@param path string The resource path.
----@return ColorPalette
-function ResourceManager:getColorPalette(path)
-	return self:getResourceAsset(path, "color palette")
 end
 
 

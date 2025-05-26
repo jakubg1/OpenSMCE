@@ -7,6 +7,7 @@ local CollectibleConfig = require("src.Configs.Collectible")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local ColorGeneratorConfig = require("src.Configs.ColorGenerator")
+local ColorPaletteConfig = require("src.Configs.ColorPalette")
 local GameEventConfig = require("src.Configs.GameEvent")
 local LevelConfig = require("src.Configs.Level")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
@@ -196,17 +197,6 @@ function utils.parseImageOpt(data, path, field)
 	return data and _Game.resourceManager:getImage(data)
 end
 
----@return Sprite
-function utils.parseSprite(data, path, field)
-	assert(data, string.format("field %s is missing (Sprite expected)", field))
-	return _Game.resourceManager:getSprite(data)
-end
-
----@return Sprite?
-function utils.parseSpriteOpt(data, path, field)
-	return data and _Game.resourceManager:getSprite(data)
-end
-
 ---@return Sound
 function utils.parseSound(data, path, field)
 	assert(data, string.format("field %s is missing (Sound expected)", field))
@@ -249,6 +239,21 @@ end
 ---@return Font?
 function utils.parseFontOpt(data, path, field)
 	return data and _Game.resourceManager:getFont(data)
+end
+
+
+
+-- The following are moved to Config Classes, but use singleton getters instead:
+
+---@return Sprite
+function utils.parseSprite(data, path, field)
+	assert(data, string.format("field %s is missing (Sprite expected)", field))
+	return _Game.resourceManager:getSprite(data)
+end
+
+---@return Sprite?
+function utils.parseSpriteOpt(data, path, field)
+	return data and _Game.resourceManager:getSprite(data)
 end
 
 ---@return ColorPalette
