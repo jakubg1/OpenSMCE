@@ -19,6 +19,10 @@ function ConfigManager:new()
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
 	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
 
+	-- Add a default value for combo scope.
+	-- TODO: Config Classes for gameplay.json.
+	self.gameplay.sphereBehavior.cascadeScope = self.gameplay.sphereBehavior.cascadeScope or "chain"
+
 	-- Load map data.
 	self.maps = {}
 	local mapList = _Utils.getDirListing(_ParsePath("maps"), "dir")

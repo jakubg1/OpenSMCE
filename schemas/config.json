@@ -23,8 +23,8 @@
         },
         "tickRate": {
             "type": "integer",
-            "description": "The number of ticks to be performed per second. Defaults to 120.",
-            "markdownDescription": "The number of ticks to be performed per second. Defaults to `120`."
+            "description": "The number of ticks to be performed per second. Defaults to 60.",
+            "markdownDescription": "The number of ticks to be performed per second. Defaults to `60`."
         },
         "canvasRenderingMode": {
             "type": "string",
@@ -63,7 +63,6 @@
     "required": [
         "engineVersion",
         "nativeResolution",
-        "tickRate",
         "richPresence"
     ],
     "additionalProperties": false

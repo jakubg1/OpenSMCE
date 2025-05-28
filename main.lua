@@ -386,11 +386,9 @@ end
 ---Returns a path relative to the executable, based on currently loaded game's name.
 ---This is a variant which puts dots instead of slashes for the purposes of script loading.
 ---@param data string The path to be resolved. Note that any slashes will NOT be converted.
----@return string?
+---@return string
 function _ParsePathDots(data)
-	if not data then
-		return nil
-	end
+	assert(data, "Used _ParsePathDots with nil data - fix me!")
 	return _FSPrefix .. "games." .. _Game.name .. "." .. data
 end
 

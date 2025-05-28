@@ -9,7 +9,7 @@ local Vec2 = require("src.Essentials.Vector2")
 
 
 ---Constructs a new Image.
----@param data nil Dummy parameter.
+---@param data nil Unused, but required due to standardized resource constructors.
 ---@param path string Path to the image.
 function Image:new(data, path)
 	self.path = path

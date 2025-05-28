@@ -1614,7 +1614,7 @@ function Level:spawnNet()
 		self.netParticle = _Game:spawnParticle(netConfig.particle, pos)
 	end
 	if not self.netSound then
-		self.netSound = _Game:playSound(netConfig.sound, pos)
+		self.netSound = _Game:playSound(_Game.resourceManager:getSoundEvent(netConfig.sound), pos)
 	end
 end
 

@@ -34,16 +34,10 @@ function Path:new(map, pathData, pathBehavior)
 	self.trainRules = pathBehavior.trainRules
 	self.currentWave = 0
 	self.reachedFinalWave = false
-	--[[
 	if _Game.satMode then
-		local n = _Game:getSession():getUSMNumber() * 10
-		self.spawnRules = {
-			--type = "waves",
-			--amount = n
-			type = "continuous"
-		}
+		--local n = _Game:getSession():getUSMNumber() * 10
+		self.trainRules.length = nil
 	end
-	]]
 	self.spawnAmount = 0
 	self.spawnDistance = pathBehavior.spawnDistance
 	self.dangerDistance = pathBehavior.dangerDistance
