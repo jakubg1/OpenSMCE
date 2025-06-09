@@ -184,6 +184,9 @@ function love.update(dt)
 	-- rainbow effect for the shooter and console cursor blink; to be phased out soon
 	_TotalTime = _TotalTime + dt
 
+	-- Temporary HACK because Linux: Update window size every frame
+	love.resize(love.window.getMode())
+
 	_Debug:profUpdateStop()
 	_Profiler.netFlush()
 end

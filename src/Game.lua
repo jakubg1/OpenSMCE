@@ -41,20 +41,20 @@ end
 function Game:init()
 	_Log:printt("Game", "Selected game: " .. self.name)
 
-	-- Step 1. Load the config
+	-- Step 1. Create a resource manager
+	self.resourceManager = ResourceManager()
+
+	-- Step 2. Load the config
 	self.configManager = ConfigManager()
 
-	-- Step 2. Initialize the window and canvas
+	-- Step 3. Initialize the window and canvas
 	local res = self:getNativeResolution()
 	_Display:setResolution(res, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
 	_Display:setCanvas(res, self.configManager:getCanvasRenderingMode())
 
-	-- Step 3. Initialize RNG and timer
+	-- Step 4. Initialize RNG and timer
 	self.timer = Timer()
 	local _ = math.randomseed(os.time())
-
-	-- Step 4. Create a resource bank
-	self.resourceManager = ResourceManager()
 
 	-- Step 5. Create a runtime manager
 	self.runtimeManager = RuntimeManager()

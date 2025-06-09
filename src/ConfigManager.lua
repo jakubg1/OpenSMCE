@@ -9,7 +9,7 @@ local ConfigManager = class:derive("ConfigManager")
 
 ---Constructs a new ConfigManager and initializes all lists.
 function ConfigManager:new()
-	self.config = _Utils.loadJson(_ParsePath("config.json"))
+	self.config = _Game.resourceManager:getConfigConfig("config.json")
 
 	-- TODO: make a game config class
 	self.nativeResolution = _ParseVec2(self.config.nativeResolution)
@@ -70,13 +70,13 @@ end
 ---Returns the canvas rendering mode, `"filtered"` by default.
 ---@return string
 function ConfigManager:getCanvasRenderingMode()
-	return self.config.canvasRenderingMode or "filtered"
+	return self.config.canvasRenderingMode
 end
 
 ---Returns the game's tick rate. Defaults to `60`.
 ---@return integer
 function ConfigManager:getTickRate()
-	return self.config.tickRate or 60
+	return self.config.tickRate
 end
 
 

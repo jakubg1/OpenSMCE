@@ -272,12 +272,7 @@ function ResourceManager:queueResource(path)
 		-- Queue the resource to be loaded. Include batches if it has to be loaded with them.
 		table.insert(self.queuedResources, {key = key, batches = self.currentBatches})
 		-- Mark the resource as tracked by any load counters.
-		for name, loadCounter in pairs(self.loadCounters) do
-			if loadCounter.active then
-				loadCounter.queued = loadCounter.queued + 1
-				loadCounter.queueKeys[key] = true
-			end
-		end
+		self:queueLoadProgressResource(key)
 	end
 end
 
@@ -342,6 +337,23 @@ end
 
 
 
+---Returns the resource type based on provided schema path, which is the same as the string found in the `$schema` field in any recognized resource.
+---
+---For example, passing `"../../../../schemas/Level.json"` will return `"Level"` if the Level resource is registered to listen on `schemas/Level.json` schemas.
+---@private
+---@param schemaPath string? Schema path to be parsed. If `nil` is provided, `nil` will be returned.
+---@return string?
+function ResourceManager:getResourceTypeFromSchema(schemaPath)
+	if not schemaPath then
+		return
+	end
+	local schema = _Utils.strSplit(schemaPath, "/schemas/")
+	schema = schema[2] or schema[1]
+	return schema and self.SCHEMA_TO_RESOURCE_MAP[schema]
+end
+
+
+
 ---Loads the resource (config and/or asset): opens the file, deduces its type, and if applicable, constructs a resource and registers it in the resource table.
 ---If the resource cannot be loaded or has been already loaded, this function throws an error.
 ---@private
@@ -357,12 +369,7 @@ function ResourceManager:loadResource(key, batches)
 	end
 
 	-- Mark the resource as loaded by load counters. We are doing it here so everything counts.
-	for name, loadCounter in pairs(self.loadCounters) do
-		if loadCounter.queueKeys[key] then
-			loadCounter.loaded = loadCounter.loaded + 1
-			loadCounter.queueKeys[key] = nil
-		end
-	end
+	self:dequeueLoadProgressResource(key)
 
 	-- Treat the file differently depending on whether it's a JSON file or not, and check the type.
 	local resType = nil
@@ -370,12 +377,7 @@ function ResourceManager:loadResource(key, batches)
 	if _Utils.strEndsWith(key, ".json") then
 		contents = assert(_Utils.loadJson(_ParsePath(key)), "File not found: " .. key)
 		-- Determine the resource type based on schema.
-		local schema = contents["$schema"]
-		if schema then
-			schema = _Utils.strSplit(schema, "/schemas/")
-			schema = schema[2] or schema[1]
-		end
-		resType = schema and self.SCHEMA_TO_RESOURCE_MAP[schema]
+		resType = self:getResourceTypeFromSchema(contents["$schema"])
 	else
 		local extension = _Utils.strSplit(key, ".")
 		extension = extension[#extension]
@@ -384,7 +386,7 @@ function ResourceManager:loadResource(key, batches)
 
 	-- If no valid resource type has been found, discard the resource.
 	if not resType then
-		_Log:printt("ResourceManager2", "LOUD WARNING: File " .. key .. " ignored")
+		self:say("LOUD WARNING: File " .. key .. " ignored")
 		return
 	end
 
@@ -392,17 +394,8 @@ function ResourceManager:loadResource(key, batches)
 	local constructor = self.RESOURCE_TYPES[resType].constructor
 	local assetConstructor = self.RESOURCE_TYPES[resType].assetConstructor
 	if not constructor and not assetConstructor then
-		_Log:printt("ResourceManager2", "File " .. key .. " not loaded: type " .. resType .. " not implemented")
+		self:say("File " .. key .. " not loaded: type " .. resType .. " not implemented")
 		return
-	end
-
-	-- Copy the batch array so that no resource uses the same exact instance of a batch list.
-	local newBatches = nil
-	if batches then
-		newBatches = {}
-		for i, batch in ipairs(batches) do
-			table.insert(newBatches, batch)
-		end
 	end
 
 	-- Prevent overwriting the resource. That's a no.
@@ -410,7 +403,7 @@ function ResourceManager:loadResource(key, batches)
 		error(string.format("Tried to load a resource twice: %s", key))
 	end
 
-	self.resources[key] = {type = resType, batches = newBatches}
+	self.resources[key] = {type = resType, batches = batches and _Utils.copyTable(batches)}
 
 	if constructor then
 		-- Construct the resource and check for errors.
@@ -425,7 +418,9 @@ function ResourceManager:loadResource(key, batches)
 		assert(success, string.format("Failed to load file %s: %s", key, result))
 		self.resources[key].asset = result
 	end
-	_Log:printt("ResourceManager2", " * " .. key .. " (" .. resType .. ")" .. (newBatches and (" {" .. table.concat(newBatches, ", ") .. "}") or "") .. " OK!")
+
+	-- Print a message to the log.
+	self:say(" * " .. key .. " (" .. resType .. ")" .. (batches and (" {" .. table.concat(batches, ", ") .. "}") or "") .. " OK!")
 end
 
 
@@ -484,7 +479,7 @@ function ResourceManager:unloadResourceBatch(name)
 					if #resource.batches == 0 then
 						local resType = self.resources[key].type
 						self.resources[key] = nil
-						_Log:printt("ResourceManager2", key .. " (" .. resType .. ") unloaded!")
+						self:say(key .. " (" .. resType .. ") unloaded!")
 					end
 					break
 				end
@@ -545,6 +540,41 @@ function ResourceManager:getLoadProgress(name)
 		return 0
 	end
 	return self.loadCounters[name].loaded / self.loadCounters[name].queued
+end
+
+---Queues a new resource to be tracked by the currently active Load Counters.
+---@private
+---@param key string The resource key.
+function ResourceManager:queueLoadProgressResource(key)
+	for name, loadCounter in pairs(self.loadCounters) do
+		if loadCounter.active then
+			loadCounter.queued = loadCounter.queued + 1
+			loadCounter.queueKeys[key] = true
+		end
+	end
+end
+
+---Notifies all Load Counters that a resource has been loaded and increments the progress for counters tracking that resource.
+---@private
+---@param key string The resource key.
+function ResourceManager:dequeueLoadProgressResource(key)
+	for name, loadCounter in pairs(self.loadCounters) do
+		if loadCounter.queueKeys[key] then
+			loadCounter.loaded = loadCounter.loaded + 1
+			loadCounter.queueKeys[key] = nil
+		end
+	end
+end
+
+--######################################--
+---------------- D E B U G ---------------
+--######################################--
+
+---Prints a message to the log, coming specifically from this class.
+---@private
+---@param message string The message to be sent.
+function ResourceManager:say(message)
+	_Log:printt("ResourceManager", message)
 end
 
 return ResourceManager
