@@ -151,6 +151,19 @@ function utils.parseVec2Opt(data, base, path, fields)
 	return value and Vec2(value.x, value.y)
 end
 
+---@return Color
+function utils.parseColor(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Color expected)", getFieldPathStr(fields)))
+	return Color(value.r, value.g, value.b)
+end
+
+---@return Color?
+function utils.parseColorOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and Color(value.r, value.g, value.b)
+end
+
 
 
 ---@return Expression
@@ -236,82 +249,89 @@ end
 
 
 
----@return Color
-function utils.parseColor(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Color expected)", getFieldPathStr(fields)))
-	return Color(value.r, value.g, value.b)
+---Internal function for class parsing logic.
+---Returns a resource based on provided data.
+---@param data string Path to the resource.
+---@param path string Path to the config which will host the resource.
+---@param fields any[] A list of indexes specifying the path inside of the file.
+---@param resType string The type of the provided resource.
+---@param getter function Resource getter which will return a resource if the resource path is provided. Intended to be `ResourceManager:get*()`.
+---@return any
+local function parseResource(data, base, path, fields, resType, getter)
+	local value = getDataValue(data, fields)
+	if value then
+		return getter(_Game.resourceManager, value)
+	end
+	return assert(getDataValue(base, fields), string.format("%s: field %s is missing (%s expected)", path, getFieldPathStr(fields), resType))
 end
 
----@return Color?
-function utils.parseColorOpt(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and Color(value.r, value.g, value.b)
+---Internal function for class parsing logic.
+---Returns an optional resource based on provided data.
+---Returns `nil` if no data is provided.
+---@param data string Path to the resource.
+---@param path string Path to the config which will host the resource.
+---@param fields any[] A list of indexes specifying the path inside of the file.
+---@param resType string The type of the provided resource.
+---@param getter function Resource getter which will return a resource if the resource path is provided. Intended to be `ResourceManager:get*()`.
+---@return any?
+local function parseResourceOpt(data, base, path, fields, resType, getter)
+	local value = getDataValue(data, fields)
+	if value then
+		return getter(_Game.resourceManager, value)
+	end
+	return getDataValue(base, fields)
 end
+
+
 
 ---@return Image
 function utils.parseImage(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Image expected)", getFieldPathStr(fields)))
-	return _Game.resourceManager:getImage(value)
+	return parseResource(data, base, path, fields, "Image", _Game.resourceManager.getImage)
 end
 
 ---@return Image?
 function utils.parseImageOpt(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and _Game.resourceManager:getImage(value)
+	return parseResourceOpt(data, base, path, fields, "Image", _Game.resourceManager.getImage)
 end
 
 ---@return Sound
 function utils.parseSound(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Sound expected)", getFieldPathStr(fields)))
-	return _Game.resourceManager:getSound(value)
+	return parseResource(data, base, path, fields, "Sound", _Game.resourceManager.getSound)
 end
 
 ---@return Sound?
 function utils.parseSoundOpt(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and _Game.resourceManager:getSound(value)
+	return parseResourceOpt(data, base, path, fields, "Sound", _Game.resourceManager.getSound)
 end
 
 ---@return SoundEvent
 function utils.parseSoundEvent(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Sound Event expected)", getFieldPathStr(fields)))
-	return _Game.resourceManager:getSoundEvent(value)
+	return parseResource(data, base, path, fields, "SoundEvent", _Game.resourceManager.getSoundEvent)
 end
 
 ---@return SoundEvent?
 function utils.parseSoundEventOpt(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and _Game.resourceManager:getSoundEvent(value)
+	return parseResourceOpt(data, base, path, fields, "SoundEvent", _Game.resourceManager.getSoundEvent)
 end
 
 ---@return Music
 function utils.parseMusic(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Music expected)", getFieldPathStr(fields)))
-	return _Game.resourceManager:getMusic(value)
+	return parseResource(data, base, path, fields, "Music", _Game.resourceManager.getMusic)
 end
 
 ---@return Music?
 function utils.parseMusicOpt(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and _Game.resourceManager:getMusic(value)
+	return parseResourceOpt(data, base, path, fields, "Music", _Game.resourceManager.getMusic)
 end
 
 ---@return Font
 function utils.parseFont(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Font expected)", getFieldPathStr(fields)))
-	return _Game.resourceManager:getFont(value)
+	return parseResource(data, base, path, fields, "Font", _Game.resourceManager.getFont)
 end
 
 ---@return Font?
 function utils.parseFontOpt(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and _Game.resourceManager:getFont(value)
+	return parseResourceOpt(data, base, path, fields, "Font", _Game.resourceManager.getFont)
 end
 
 
@@ -320,28 +340,22 @@ end
 
 ---@return Sprite
 function utils.parseSprite(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Sprite expected)", getFieldPathStr(fields)))
-	return _Game.resourceManager:getSprite(value)
+	return parseResource(data, base, path, fields, "Sprite", _Game.resourceManager.getSprite)
 end
 
 ---@return Sprite?
 function utils.parseSpriteOpt(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and _Game.resourceManager:getSprite(value)
+	return parseResourceOpt(data, base, path, fields, "Sprite", _Game.resourceManager.getSprite)
 end
 
 ---@return ColorPalette
 function utils.parseColorPalette(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Color Palette expected)", getFieldPathStr(fields)))
-	return _Game.resourceManager:getColorPalette(value)
+	return parseResource(data, base, path, fields, "Color Palette", _Game.resourceManager.getColorPalette)
 end
 
 ---@return ColorPalette?
 function utils.parseColorPaletteOpt(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and _Game.resourceManager:getColorPalette(value)
+	return parseResourceOpt(data, base, path, fields, "Color Palette", _Game.resourceManager.getColorPalette)
 end
 
 
@@ -356,18 +370,20 @@ end
 ---@param constructor any Resource constructor which will construct the anonymous resource if resource data is provided.
 ---@return table
 local function parseClassConfig(data, base, path, fields, resType, getter, constructor)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("%s: field %s is missing (%s Config expected)", path, getFieldPathStr(fields), resType))
-	if type(value) == "table" then
-		return constructor(value, path, true)
-	else
-		return getter(_Game.resourceManager, value)
+	local value = getDataValue(data, fields)
+	if value then
+		if type(value) == "table" then
+			return constructor(value, path, true)
+		else
+			return getter(_Game.resourceManager, value)
+		end
 	end
+	return assert(getDataValue(base, fields), string.format("%s: field %s is missing (%s Config expected)", path, getFieldPathStr(fields), resType))
 end
 
 ---Internal function for class parsing logic.
 ---Returns an optional instance of Config Class based on provided data.
----Does not return anything if no data is provided.
+---Returns `nil` if no data is provided.
 ---@param data string|table Either a string which is a resource path or any raw resource data which will be used to construct an anonymous resource.
 ---@param path string Resource path which will be passed to the potentially created anonymous resource.
 ---@param fields any[] A list of indexes specifying the path inside of the file.
@@ -376,11 +392,11 @@ end
 ---@param constructor any Resource constructor which will construct the anonymous resource if resource data is provided.
 ---@return table?
 local function parseClassConfigOpt(data, base, path, fields, resType, getter, constructor)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	if not value then
-		return nil
+	local value = getDataValue(data, fields)
+	if value then
+		return parseClassConfig(data, base, path, fields, resType, getter, constructor)
 	end
-	return parseClassConfig(data, base, path, fields, resType, getter, constructor)
+	return getDataValue(base, fields)
 end
 
 

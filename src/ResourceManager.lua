@@ -137,7 +137,7 @@ function ResourceManager:registerResourceTypes(dir)
 		name = _Utils.pathStripExtension(name)
 		local resourceClass = require(dir .. "/" .. name)
 		if resourceClass.metadata and resourceClass.inject then
-			print("Valid resource class: " .. name)
+			self:say("Registered resource type: " .. name)
 			self.SCHEMA_TO_RESOURCE_MAP[resourceClass.metadata.schemaPath] = name
 			resourceClass.inject(ResourceManager)
 			self.RESOURCE_TYPES[name] = {constructor = resourceClass}
