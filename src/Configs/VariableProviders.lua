@@ -18,42 +18,45 @@ VariableProvidersConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function VariableProvidersConfig:new(data, path, isAnonymous)
+---@param base VariableProvidersConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function VariableProvidersConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
+    base = base or {}
+
     if data.providers then
         self.providers = {}
         for n, _ in pairs(data.providers) do
             self.providers[n] = {}
-            self.providers[n].type = u.parseString(data.providers[n].type, path, "providers." .. tostring(n) .. ".type")
+            self.providers[n].type = u.parseString(data, base, path, {"providers", n, "type"})
             if self.providers[n].type == "value" then
-                self.providers[n].value = u.parseInteger(data.providers[n].value, path, "providers." .. tostring(n) .. ".value")
+                self.providers[n].value = u.parseInteger(data, base, path, {"providers", n, "value"})
             elseif self.providers[n].type == "countSpheres" then
-                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data.providers[n].sphereSelector, path, "providers." .. tostring(n) .. ".sphereSelector")
+                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data, base, path, {"providers", n, "sphereSelector"})
             elseif self.providers[n].type == "mostFrequentColor" then
-                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data.providers[n].sphereSelector, path, "providers." .. tostring(n) .. ".sphereSelector")
-                self.providers[n].fallback = u.parseExprInteger(data.providers[n].fallback, path, "providers." .. tostring(n) .. ".fallback")
+                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data, base, path, {"providers", n, "sphereSelector"})
+                self.providers[n].fallback = u.parseExprInteger(data, base, path, {"providers", n, "fallback"})
             elseif self.providers[n].type == "randomSpawnableColor" then
                 self.providers[n].excludedColors = {}
                 if data.providers[n].excludedColors then
                     for i = 1, #data.providers[n].excludedColors do
-                        self.providers[n].excludedColors[i] = u.parseInteger(data.providers[n].excludedColors[i], path, "providers." .. tostring(n) .. ".excludedColors[" .. tostring(i) .. "]")
+                        self.providers[n].excludedColors[i] = u.parseInteger(data, base, path, {"providers", n, "excludedColors", i})
                     end
                 end
             elseif self.providers[n].type == "redirectSphere" then
-                self.providers[n].sphere = u.parseExprString(data.providers[n].sphere, path, "providers." .. tostring(n) .. ".sphere")
-                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data.providers[n].sphereSelector, path, "providers." .. tostring(n) .. ".sphereSelector")
+                self.providers[n].sphere = u.parseExprString(data, base, path, {"providers", n, "sphere"})
+                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data, base, path, {"providers", n, "sphereSelector"})
             elseif self.providers[n].type == "redirectSphereColor" then
-                self.providers[n].sphere = u.parseExprString(data.providers[n].sphere, path, "providers." .. tostring(n) .. ".sphere")
-                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data.providers[n].sphereSelector, path, "providers." .. tostring(n) .. ".sphereSelector")
-                self.providers[n].fallback = u.parseExprInteger(data.providers[n].fallback, path, "providers." .. tostring(n) .. ".fallback")
+                self.providers[n].sphere = u.parseExprString(data, base, path, {"providers", n, "sphere"})
+                self.providers[n].sphereSelector = u.parseSphereSelectorConfig(data, base, path, {"providers", n, "sphereSelector"})
+                self.providers[n].fallback = u.parseExprInteger(data, base, path, {"providers", n, "fallback"})
             else
                 error(string.format("Unknown VariableProvidersConfig type: %s (expected \"value\", \"countSpheres\", \"mostFrequentColor\", \"randomSpawnableColor\", \"redirectSphere\", \"redirectSphereColor\")", self.providers[n].type))
             end
-            self.providers[n].framePersistence = u.parseBooleanOpt(data.providers[n].framePersistence, path, "providers." .. tostring(n) .. ".framePersistence")
+            self.providers[n].framePersistence = u.parseBooleanOpt(data, base, path, {"providers", n, "framePersistence"})
         end
     end
 end

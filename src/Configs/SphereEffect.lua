@@ -18,42 +18,45 @@ SphereEffectConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function SphereEffectConfig:new(data, path, isAnonymous)
+---@param base SphereEffectConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function SphereEffectConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.particle = u.parseParticleEffectConfigOpt(data.particle, path, "particle")
-    self.time = u.parseNumber(data.time, path, "time")
-    self.infectionSize = u.parseInteger(data.infectionSize, path, "infectionSize")
-    self.infectionTime = u.parseNumber(data.infectionTime, path, "infectionTime")
-    self.applySound = u.parseSoundEventOpt(data.applySound, path, "applySound")
-    self.destroySound = u.parseSoundEventOpt(data.destroySound, path, "destroySound")
-    self.destroyScoreEvent = u.parseScoreEventConfigOpt(data.destroyScoreEvent, path, "destroyScoreEvent")
-    self.destroyParticle = u.parseParticleEffectConfigOpt(data.destroyParticle, path, "destroyParticle")
-    self.destroyCollectible = u.parseCollectibleGeneratorConfigOpt(data.destroyCollectible, path, "destroyCollectible")
-    self.levelLossProtection = u.parseBoolean(data.levelLossProtection, path, "levelLossProtection")
-    self.immobile = u.parseBoolean(data.immobile, path, "immobile")
-    self.fragile = u.parseBoolean(data.fragile, path, "fragile")
-    self.destroyChainedSpheres = u.parseBoolean(data.destroyChainedSpheres, path, "destroyChainedSpheres")
-    self.canBoostStreak = u.parseBoolean(data.canBoostStreak, path, "canBoostStreak")
-    self.canBoostCascade = u.parseBoolean(data.canBoostCascade, path, "canBoostCascade")
-    self.canKeepCascade = u.parseBoolean(data.canKeepCascade, path, "canKeepCascade")
-    self.causeCheck = u.parseBoolean(data.causeCheck, path, "causeCheck")
-    self.ghostTime = u.parseNumberOpt(data.ghostTime, path, "ghostTime")
+    base = base or {}
+
+    self.particle = u.parseParticleEffectConfigOpt(data, base, path, {"particle"})
+    self.time = u.parseNumber(data, base, path, {"time"})
+    self.infectionSize = u.parseInteger(data, base, path, {"infectionSize"})
+    self.infectionTime = u.parseNumber(data, base, path, {"infectionTime"})
+    self.applySound = u.parseSoundEventOpt(data, base, path, {"applySound"})
+    self.destroySound = u.parseSoundEventOpt(data, base, path, {"destroySound"})
+    self.destroyScoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"destroyScoreEvent"})
+    self.destroyParticle = u.parseParticleEffectConfigOpt(data, base, path, {"destroyParticle"})
+    self.destroyCollectible = u.parseCollectibleGeneratorConfigOpt(data, base, path, {"destroyCollectible"})
+    self.levelLossProtection = u.parseBoolean(data, base, path, {"levelLossProtection"})
+    self.immobile = u.parseBoolean(data, base, path, {"immobile"})
+    self.fragile = u.parseBoolean(data, base, path, {"fragile"})
+    self.destroyChainedSpheres = u.parseBoolean(data, base, path, {"destroyChainedSpheres"})
+    self.canBoostStreak = u.parseBoolean(data, base, path, {"canBoostStreak"})
+    self.canBoostCascade = u.parseBoolean(data, base, path, {"canBoostCascade"})
+    self.canKeepCascade = u.parseBoolean(data, base, path, {"canKeepCascade"})
+    self.causeCheck = u.parseBoolean(data, base, path, {"causeCheck"})
+    self.ghostTime = u.parseNumberOpt(data, base, path, {"ghostTime"})
 
     self.eventsBefore = {}
     if data.eventsBefore then
         for i = 1, #data.eventsBefore do
-            self.eventsBefore[i] = u.parseGameEventConfig(data.eventsBefore[i], path, "eventsBefore[" .. tostring(i) .. "]")
+            self.eventsBefore[i] = u.parseGameEventConfig(data, base, path, {"eventsBefore", i})
         end
     end
 
     self.eventsAfter = {}
     if data.eventsAfter then
         for i = 1, #data.eventsAfter do
-            self.eventsAfter[i] = u.parseGameEventConfig(data.eventsAfter[i], path, "eventsAfter[" .. tostring(i) .. "]")
+            self.eventsAfter[i] = u.parseGameEventConfig(data, base, path, {"eventsAfter", i})
         end
     end
 end

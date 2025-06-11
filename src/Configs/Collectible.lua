@@ -18,32 +18,35 @@ CollectibleConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function CollectibleConfig:new(data, path, isAnonymous)
+---@param base CollectibleConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function CollectibleConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.speed = u.parseExprVec2(data.speed, path, "speed")
-    self.acceleration = u.parseExprVec2(data.acceleration, path, "acceleration")
-    self.particle = u.parseParticleEffectConfig(data.particle, path, "particle")
-    self.pickupParticle = u.parseParticleEffectConfig(data.pickupParticle, path, "pickupParticle")
-    self.spawnSound = u.parseSoundEvent(data.spawnSound, path, "spawnSound")
-    self.pickupSound = u.parseSoundEvent(data.pickupSound, path, "pickupSound")
-    self.pickupName = u.parseStringOpt(data.pickupName, path, "pickupName")
-    self.pickupFont = u.parseFontOpt(data.pickupFont, path, "pickupFont")
+    base = base or {}
+
+    self.speed = u.parseExprVec2(data, base, path, {"speed"})
+    self.acceleration = u.parseExprVec2(data, base, path, {"acceleration"})
+    self.particle = u.parseParticleEffectConfig(data, base, path, {"particle"})
+    self.pickupParticle = u.parseParticleEffectConfig(data, base, path, {"pickupParticle"})
+    self.spawnSound = u.parseSoundEvent(data, base, path, {"spawnSound"})
+    self.pickupSound = u.parseSoundEvent(data, base, path, {"pickupSound"})
+    self.pickupName = u.parseStringOpt(data, base, path, {"pickupName"})
+    self.pickupFont = u.parseFontOpt(data, base, path, {"pickupFont"})
 
     self.effects = {}
     if data.effects then
         for i = 1, #data.effects do
-            self.effects[i] = u.parseCollectibleEffectConfig(data.effects[i], path, "effects[" .. tostring(i) .. "]")
+            self.effects[i] = u.parseCollectibleEffectConfig(data, base, path, {"effects", i})
         end
     end
 
     self.dropEffects = {}
     if data.dropEffects then
         for i = 1, #data.dropEffects do
-            self.dropEffects[i] = u.parseCollectibleEffectConfig(data.dropEffects[i], path, "dropEffects[" .. tostring(i) .. "]")
+            self.dropEffects[i] = u.parseCollectibleEffectConfig(data, base, path, {"dropEffects", i})
         end
     end
 end

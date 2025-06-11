@@ -18,25 +18,28 @@ ProjectileConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ProjectileConfig:new(data, path, isAnonymous)
+---@param base ProjectileConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ProjectileConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.particle = u.parseParticleEffectConfigOpt(data.particle, path, "particle")
-    self.speed = u.parseNumber(data.speed, path, "speed")
-    self.spawnDistance = u.parseExprNumberOpt(data.spawnDistance, path, "spawnDistance")
-    self.spawnSound = u.parseSoundEventOpt(data.spawnSound, path, "spawnSound")
-    self.sphereAlgorithm = u.parseString(data.sphereAlgorithm, path, "sphereAlgorithm")
-    self.homing = u.parseBooleanOpt(data.homing, path, "homing")
-    self.destroyParticle = u.parseParticleEffectConfig(data.destroyParticle, path, "destroyParticle")
-    self.destroySound = u.parseSoundEventOpt(data.destroySound, path, "destroySound")
-    self.destroySphereSelector = u.parseSphereSelectorConfig(data.destroySphereSelector, path, "destroySphereSelector")
-    self.destroyScoreEvent = u.parseScoreEventConfigOpt(data.destroyScoreEvent, path, "destroyScoreEvent")
-    self.destroyScoreEventPerSphere = u.parseScoreEventConfigOpt(data.destroyScoreEventPerSphere, path, "destroyScoreEventPerSphere")
-    self.destroyGameEvent = u.parseGameEventConfigOpt(data.destroyGameEvent, path, "destroyGameEvent")
-    self.destroyGameEventPerSphere = u.parseGameEventConfigOpt(data.destroyGameEventPerSphere, path, "destroyGameEventPerSphere")
+    base = base or {}
+
+    self.particle = u.parseParticleEffectConfigOpt(data, base, path, {"particle"})
+    self.speed = u.parseNumber(data, base, path, {"speed"})
+    self.spawnDistance = u.parseExprNumberOpt(data, base, path, {"spawnDistance"})
+    self.spawnSound = u.parseSoundEventOpt(data, base, path, {"spawnSound"})
+    self.sphereAlgorithm = u.parseString(data, base, path, {"sphereAlgorithm"})
+    self.homing = u.parseBooleanOpt(data, base, path, {"homing"})
+    self.destroyParticle = u.parseParticleEffectConfig(data, base, path, {"destroyParticle"})
+    self.destroySound = u.parseSoundEventOpt(data, base, path, {"destroySound"})
+    self.destroySphereSelector = u.parseSphereSelectorConfig(data, base, path, {"destroySphereSelector"})
+    self.destroyScoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"destroyScoreEvent"})
+    self.destroyScoreEventPerSphere = u.parseScoreEventConfigOpt(data, base, path, {"destroyScoreEventPerSphere"})
+    self.destroyGameEvent = u.parseGameEventConfigOpt(data, base, path, {"destroyGameEvent"})
+    self.destroyGameEventPerSphere = u.parseGameEventConfigOpt(data, base, path, {"destroyGameEventPerSphere"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

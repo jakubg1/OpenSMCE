@@ -1,15 +1,15 @@
 self.a = {}
-self.a.item = u.parseInteger(data.a.item, path, "a.item")
+self.a.item = u.parseInteger(data, base, path, {"a", "item"})
 
 self.b = {}
-self.b.item = u.parseInteger(data.b.item, path, "b.item")
+self.b.item = u.parseInteger(data, base, path, {"b", "item"})
 
 self.c = {}
-self.c.item = u.parseInteger(data.c.item, path, "c.item")
+self.c.item = u.parseInteger(data, base, path, {"c", "item"})
 
-self.d = u.parseInteger(data.d, path, "d")
-self.e = u.parseInteger(data.e, path, "e")
-self.f = u.parseInteger(data.f, path, "f")
+self.d = u.parseInteger(data, base, path, {"d"})
+self.e = u.parseInteger(data, base, path, {"e"})
+self.f = u.parseInteger(data, base, path, {"f"})
 
 self.g = {}
-self.g.item = u.parseInteger(data.g.item, path, "g.item")
+self.g.item = u.parseInteger(data, base, path, {"g", "item"})

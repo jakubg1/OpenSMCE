@@ -18,15 +18,18 @@ SpriteAtlasConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function SpriteAtlasConfig:new(data, path, isAnonymous)
+---@param base SpriteAtlasConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function SpriteAtlasConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
+    base = base or {}
+
     self.sprites = {}
     for i = 1, #data.sprites do
-        self.sprites[i] = u.parseSprite(data.sprites[i], path, "sprites[" .. tostring(i) .. "]")
+        self.sprites[i] = u.parseSprite(data, base, path, {"sprites", i})
     end
 end
 

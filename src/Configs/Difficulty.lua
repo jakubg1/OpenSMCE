@@ -18,32 +18,35 @@ DifficultyConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function DifficultyConfig:new(data, path, isAnonymous)
+---@param base DifficultyConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function DifficultyConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.speedMultiplier = u.parseNumber(data.speedMultiplier, path, "speedMultiplier")
-    self.scoreMultiplier = u.parseNumber(data.scoreMultiplier, path, "scoreMultiplier")
-    self.levelSet = u.parseLevelSetConfig(data.levelSet, path, "levelSet")
+    base = base or {}
+
+    self.speedMultiplier = u.parseNumber(data, base, path, {"speedMultiplier"})
+    self.scoreMultiplier = u.parseNumber(data, base, path, {"scoreMultiplier"})
+    self.levelSet = u.parseLevelSetConfig(data, base, path, {"levelSet"})
 
     self.lifeConfig = {}
-    self.lifeConfig.type = u.parseString(data.lifeConfig.type, path, "lifeConfig.type")
+    self.lifeConfig.type = u.parseString(data, base, path, {"lifeConfig", "type"})
     if self.lifeConfig.type == "score" then
-        self.lifeConfig.startingLives = u.parseInteger(data.lifeConfig.startingLives, path, "lifeConfig.startingLives")
-        self.lifeConfig.scorePerLife = u.parseInteger(data.lifeConfig.scorePerLife, path, "lifeConfig.scorePerLife")
-        self.lifeConfig.countUnmultipliedScore = u.parseBooleanOpt(data.lifeConfig.countUnmultipliedScore, path, "lifeConfig.countUnmultipliedScore") == true
+        self.lifeConfig.startingLives = u.parseInteger(data, base, path, {"lifeConfig", "startingLives"})
+        self.lifeConfig.scorePerLife = u.parseInteger(data, base, path, {"lifeConfig", "scorePerLife"})
+        self.lifeConfig.countUnmultipliedScore = u.parseBooleanOpt(data, base, path, {"lifeConfig", "countUnmultipliedScore"}) == true
     elseif self.lifeConfig.type == "coins" then
-        self.lifeConfig.startingLives = u.parseInteger(data.lifeConfig.startingLives, path, "lifeConfig.startingLives")
-        self.lifeConfig.coinsPerLife = u.parseInteger(data.lifeConfig.coinsPerLife, path, "lifeConfig.coinsPerLife")
+        self.lifeConfig.startingLives = u.parseInteger(data, base, path, {"lifeConfig", "startingLives"})
+        self.lifeConfig.coinsPerLife = u.parseInteger(data, base, path, {"lifeConfig", "coinsPerLife"})
     elseif self.lifeConfig.type == "none" then
         -- No fields
     else
         error(string.format("Unknown lifeConfig type: %s (expected \"score\", \"coins\", \"none\")", self.lifeConfig.type))
     end
-    self.lifeConfig.rollbackScoreAfterFailure = u.parseBooleanOpt(data.lifeConfig.rollbackScoreAfterFailure, path, "lifeConfig.rollbackScoreAfterFailure") == true
-    self.lifeConfig.rollbackCoinsAfterFailure = u.parseBooleanOpt(data.lifeConfig.rollbackCoinsAfterFailure, path, "lifeConfig.rollbackCoinsAfterFailure") == true
+    self.lifeConfig.rollbackScoreAfterFailure = u.parseBooleanOpt(data, base, path, {"lifeConfig", "rollbackScoreAfterFailure"}) == true
+    self.lifeConfig.rollbackCoinsAfterFailure = u.parseBooleanOpt(data, base, path, {"lifeConfig", "rollbackCoinsAfterFailure"}) == true
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

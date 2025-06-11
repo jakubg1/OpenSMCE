@@ -18,31 +18,34 @@ SpriteConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function SpriteConfig:new(data, path, isAnonymous)
+---@param base SpriteConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function SpriteConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.image = u.parseImage(data.image, path, "image")
-    self.frameSize = u.parseVec2(data.frameSize, path, "frameSize")
+    base = base or {}
+
+    self.image = u.parseImage(data, base, path, {"image"})
+    self.frameSize = u.parseVec2(data, base, path, {"frameSize"})
 
     if data.frameCuts then
         self.frameCuts = {}
-        self.frameCuts.x1 = u.parseInteger(data.frameCuts.x1, path, "frameCuts.x1")
-        self.frameCuts.x2 = u.parseInteger(data.frameCuts.x2, path, "frameCuts.x2")
-        self.frameCuts.y1 = u.parseInteger(data.frameCuts.y1, path, "frameCuts.y1")
-        self.frameCuts.y2 = u.parseInteger(data.frameCuts.y2, path, "frameCuts.y2")
+        self.frameCuts.x1 = u.parseInteger(data, base, path, {"frameCuts", "x1"})
+        self.frameCuts.x2 = u.parseInteger(data, base, path, {"frameCuts", "x2"})
+        self.frameCuts.y1 = u.parseInteger(data, base, path, {"frameCuts", "y1"})
+        self.frameCuts.y2 = u.parseInteger(data, base, path, {"frameCuts", "y2"})
     end
 
     self.states = {}
     for i = 1, #data.states do
         self.states[i] = {}
-        self.states[i].pos = u.parseVec2(data.states[i].pos, path, "states[" .. tostring(i) .. "].pos")
-        self.states[i].frames = u.parseVec2(data.states[i].frames, path, "states[" .. tostring(i) .. "].frames")
+        self.states[i].pos = u.parseVec2(data, base, path, {"states", i, "pos"})
+        self.states[i].frames = u.parseVec2(data, base, path, {"states", i, "frames"})
     end
 
-    self.batched = u.parseBooleanOpt(data.batched, path, "batched")
+    self.batched = u.parseBooleanOpt(data, base, path, {"batched"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

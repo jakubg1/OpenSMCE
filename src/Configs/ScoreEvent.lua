@@ -18,27 +18,30 @@ ScoreEventConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ScoreEventConfig:new(data, path, isAnonymous)
+---@param base ScoreEventConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ScoreEventConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.score = u.parseExprInteger(data.score, path, "score")
-    self.ignoreDifficultyMultiplier = u.parseBooleanOpt(data.ignoreDifficultyMultiplier, path, "ignoreDifficultyMultiplier")
-    self.text = u.parseExprStringOpt(data.text, path, "text")
-    self.font = u.parseFontOpt(data.font, path, "font")
+    base = base or {}
+
+    self.score = u.parseExprInteger(data, base, path, {"score"})
+    self.ignoreDifficultyMultiplier = u.parseBooleanOpt(data, base, path, {"ignoreDifficultyMultiplier"})
+    self.text = u.parseExprStringOpt(data, base, path, {"text"})
+    self.font = u.parseFontOpt(data, base, path, {"font"})
 
     if data.fonts then
         self.fonts = {}
 
         self.fonts.options = {}
         for i = 1, #data.fonts.options do
-            self.fonts.options[i] = u.parseFont(data.fonts.options[i], path, "fonts.options[" .. tostring(i) .. "]")
+            self.fonts.options[i] = u.parseFont(data, base, path, {"fonts", "options", i})
         end
 
-        self.fonts.default = u.parseFont(data.fonts.default, path, "fonts.default")
-        self.fonts.choice = u.parseExprInteger(data.fonts.choice, path, "fonts.choice")
+        self.fonts.default = u.parseFont(data, base, path, {"fonts", "default"})
+        self.fonts.choice = u.parseExprInteger(data, base, path, {"fonts", "choice"})
     end
 end
 

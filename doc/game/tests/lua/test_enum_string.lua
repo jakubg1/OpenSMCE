@@ -1,1 +1,1 @@
-self.flower = u.parseString(data.flower, path, "flower")
+self.flower = u.parseString(data, base, path, {"flower"})

@@ -18,21 +18,24 @@ ShooterMovementConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ShooterMovementConfig:new(data, path, isAnonymous)
+---@param base ShooterMovementConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ShooterMovementConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.type = u.parseString(data.type, path, "type")
+    base = base or {}
+
+    self.type = u.parseString(data, base, path, {"type"})
     if self.type == "linear" then
-        self.xMin = u.parseNumber(data.xMin, path, "xMin")
-        self.xMax = u.parseNumber(data.xMax, path, "xMax")
-        self.y = u.parseNumber(data.y, path, "y")
-        self.angle = u.parseNumber(data.angle, path, "angle")
+        self.xMin = u.parseNumber(data, base, path, {"xMin"})
+        self.xMax = u.parseNumber(data, base, path, {"xMax"})
+        self.y = u.parseNumber(data, base, path, {"y"})
+        self.angle = u.parseNumber(data, base, path, {"angle"})
     elseif self.type == "circular" then
-        self.x = u.parseNumber(data.x, path, "x")
-        self.y = u.parseNumber(data.y, path, "y")
+        self.x = u.parseNumber(data, base, path, {"x"})
+        self.y = u.parseNumber(data, base, path, {"y"})
     else
         error(string.format("Unknown ShooterMovementConfig type: %s (expected \"linear\", \"circular\")", self.type))
     end

@@ -18,66 +18,69 @@ LevelConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function LevelConfig:new(data, path, isAnonymous)
+---@param base LevelConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function LevelConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.map = u.parseString(data.map, path, "map")
-    self.sequence = u.parseLevelSequenceConfig(data.sequence, path, "sequence")
-    self.music = u.parseMusic(data.music, path, "music")
-    self.dangerMusic = u.parseMusicOpt(data.dangerMusic, path, "dangerMusic")
-    self.ambientMusic = u.parseMusicOpt(data.ambientMusic, path, "ambientMusic")
-    self.dangerSound = u.parseSoundEventOpt(data.dangerSound, path, "dangerSound")
-    self.dangerLoopSound = u.parseSoundEventOpt(data.dangerLoopSound, path, "dangerLoopSound")
-    self.warmupLoopSound = u.parseSoundEventOpt(data.warmupLoopSound, path, "warmupLoopSound")
-    self.failSound = u.parseSoundEventOpt(data.failSound, path, "failSound")
-    self.failLoopSound = u.parseSoundEventOpt(data.failLoopSound, path, "failLoopSound")
-    self.colorGeneratorNormal = u.parseColorGeneratorConfig(data.colorGeneratorNormal, path, "colorGeneratorNormal")
-    self.colorGeneratorDanger = u.parseColorGeneratorConfig(data.colorGeneratorDanger, path, "colorGeneratorDanger")
+    base = base or {}
+
+    self.map = u.parseString(data, base, path, {"map"})
+    self.sequence = u.parseLevelSequenceConfig(data, base, path, {"sequence"})
+    self.music = u.parseMusic(data, base, path, {"music"})
+    self.dangerMusic = u.parseMusicOpt(data, base, path, {"dangerMusic"})
+    self.ambientMusic = u.parseMusicOpt(data, base, path, {"ambientMusic"})
+    self.dangerSound = u.parseSoundEventOpt(data, base, path, {"dangerSound"})
+    self.dangerLoopSound = u.parseSoundEventOpt(data, base, path, {"dangerLoopSound"})
+    self.warmupLoopSound = u.parseSoundEventOpt(data, base, path, {"warmupLoopSound"})
+    self.failSound = u.parseSoundEventOpt(data, base, path, {"failSound"})
+    self.failLoopSound = u.parseSoundEventOpt(data, base, path, {"failLoopSound"})
+    self.colorGeneratorNormal = u.parseColorGeneratorConfig(data, base, path, {"colorGeneratorNormal"})
+    self.colorGeneratorDanger = u.parseColorGeneratorConfig(data, base, path, {"colorGeneratorDanger"})
 
     if data.shooter then
         self.shooter = {}
-        self.shooter.shooter = u.parseShooterConfig(data.shooter.shooter, path, "shooter.shooter")
-        self.shooter.movement = u.parseShooterMovementConfigOpt(data.shooter.movement, path, "shooter.movement")
+        self.shooter.shooter = u.parseShooterConfig(data, base, path, {"shooter", "shooter"})
+        self.shooter.movement = u.parseShooterMovementConfigOpt(data, base, path, {"shooter", "movement"})
     end
 
-    self.matchEffect = u.parseSphereEffectConfig(data.matchEffect, path, "matchEffect")
+    self.matchEffect = u.parseSphereEffectConfig(data, base, path, {"matchEffect"})
 
     self.objectives = {}
     for i = 1, #data.objectives do
         self.objectives[i] = {}
-        self.objectives[i].type = u.parseString(data.objectives[i].type, path, "objectives[" .. tostring(i) .. "].type")
-        self.objectives[i].target = u.parseNumber(data.objectives[i].target, path, "objectives[" .. tostring(i) .. "].target")
+        self.objectives[i].type = u.parseString(data, base, path, {"objectives", i, "type"})
+        self.objectives[i].target = u.parseNumber(data, base, path, {"objectives", i, "target"})
     end
 
     self.pathsBehavior = {}
     for i = 1, #data.pathsBehavior do
         self.pathsBehavior[i] = {}
-        self.pathsBehavior[i].trainRules = u.parseLevelTrainRulesConfig(data.pathsBehavior[i].trainRules, path, "pathsBehavior[" .. tostring(i) .. "].trainRules")
-        self.pathsBehavior[i].spawnDistance = u.parseNumber(data.pathsBehavior[i].spawnDistance, path, "pathsBehavior[" .. tostring(i) .. "].spawnDistance")
-        self.pathsBehavior[i].dangerDistance = u.parseNumber(data.pathsBehavior[i].dangerDistance, path, "pathsBehavior[" .. tostring(i) .. "].dangerDistance")
-        self.pathsBehavior[i].dangerParticle = u.parseParticleEffectConfigOpt(data.pathsBehavior[i].dangerParticle, path, "pathsBehavior[" .. tostring(i) .. "].dangerParticle")
+        self.pathsBehavior[i].trainRules = u.parseLevelTrainRulesConfig(data, base, path, {"pathsBehavior", i, "trainRules"})
+        self.pathsBehavior[i].spawnDistance = u.parseNumber(data, base, path, {"pathsBehavior", i, "spawnDistance"})
+        self.pathsBehavior[i].dangerDistance = u.parseNumber(data, base, path, {"pathsBehavior", i, "dangerDistance"})
+        self.pathsBehavior[i].dangerParticle = u.parseParticleEffectConfigOpt(data, base, path, {"pathsBehavior", i, "dangerParticle"})
 
         self.pathsBehavior[i].speeds = {}
         for j = 1, #data.pathsBehavior[i].speeds do
             self.pathsBehavior[i].speeds[j] = {}
-            self.pathsBehavior[i].speeds[j].distance = u.parseNumberOpt(data.pathsBehavior[i].speeds[j].distance, path, "pathsBehavior[" .. tostring(i) .. "].speeds[" .. tostring(j) .. "].distance")
-            self.pathsBehavior[i].speeds[j].offset = u.parseNumberOpt(data.pathsBehavior[i].speeds[j].offset, path, "pathsBehavior[" .. tostring(i) .. "].speeds[" .. tostring(j) .. "].offset")
-            self.pathsBehavior[i].speeds[j].offsetFromEnd = u.parseNumberOpt(data.pathsBehavior[i].speeds[j].offsetFromEnd, path, "pathsBehavior[" .. tostring(i) .. "].speeds[" .. tostring(j) .. "].offsetFromEnd")
-            self.pathsBehavior[i].speeds[j].speed = u.parseNumber(data.pathsBehavior[i].speeds[j].speed, path, "pathsBehavior[" .. tostring(i) .. "].speeds[" .. tostring(j) .. "].speed")
+            self.pathsBehavior[i].speeds[j].distance = u.parseNumberOpt(data, base, path, {"pathsBehavior", i, "speeds", j, "distance"})
+            self.pathsBehavior[i].speeds[j].offset = u.parseNumberOpt(data, base, path, {"pathsBehavior", i, "speeds", j, "offset"})
+            self.pathsBehavior[i].speeds[j].offsetFromEnd = u.parseNumberOpt(data, base, path, {"pathsBehavior", i, "speeds", j, "offsetFromEnd"})
+            self.pathsBehavior[i].speeds[j].speed = u.parseNumber(data, base, path, {"pathsBehavior", i, "speeds", j, "speed"})
 
             if data.pathsBehavior[i].speeds[j].transition then
                 self.pathsBehavior[i].speeds[j].transition = {}
-                self.pathsBehavior[i].speeds[j].transition.type = u.parseString(data.pathsBehavior[i].speeds[j].transition.type, path, "pathsBehavior[" .. tostring(i) .. "].speeds[" .. tostring(j) .. "].transition.type")
+                self.pathsBehavior[i].speeds[j].transition.type = u.parseString(data, base, path, {"pathsBehavior", i, "speeds", j, "transition", "type"})
                 if self.pathsBehavior[i].speeds[j].transition.type == "instant" then
                     -- No fields
                 elseif self.pathsBehavior[i].speeds[j].transition.type == "linear" then
                     -- No fields
                 elseif self.pathsBehavior[i].speeds[j].transition.type == "bezier" then
-                    self.pathsBehavior[i].speeds[j].transition.point1 = u.parseNumber(data.pathsBehavior[i].speeds[j].transition.point1, path, "pathsBehavior[" .. tostring(i) .. "].speeds[" .. tostring(j) .. "].transition.point1")
-                    self.pathsBehavior[i].speeds[j].transition.point2 = u.parseNumber(data.pathsBehavior[i].speeds[j].transition.point2, path, "pathsBehavior[" .. tostring(i) .. "].speeds[" .. tostring(j) .. "].transition.point2")
+                    self.pathsBehavior[i].speeds[j].transition.point1 = u.parseNumber(data, base, path, {"pathsBehavior", i, "speeds", j, "transition", "point1"})
+                    self.pathsBehavior[i].speeds[j].transition.point2 = u.parseNumber(data, base, path, {"pathsBehavior", i, "speeds", j, "transition", "point2"})
                 else
                     error(string.format("Unknown transition type: %s (expected \"instant\", \"linear\", \"bezier\")", self.pathsBehavior[i].speeds[j].transition.type))
                 end

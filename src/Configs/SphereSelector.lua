@@ -18,23 +18,26 @@ SphereSelectorConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function SphereSelectorConfig:new(data, path, isAnonymous)
+---@param base SphereSelectorConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function SphereSelectorConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
+    base = base or {}
+
     self.operations = {}
     for i = 1, #data.operations do
         self.operations[i] = {}
-        self.operations[i].type = u.parseString(data.operations[i].type, path, "operations[" .. tostring(i) .. "].type")
+        self.operations[i].type = u.parseString(data, base, path, {"operations", i, "type"})
         if self.operations[i].type == "add" then
-            self.operations[i].condition = u.parseExprBoolean(data.operations[i].condition, path, "operations[" .. tostring(i) .. "].condition")
+            self.operations[i].condition = u.parseExprBoolean(data, base, path, {"operations", i, "condition"})
         elseif self.operations[i].type == "addOne" then
-            self.operations[i].sphere = u.parseExprString(data.operations[i].sphere, path, "operations[" .. tostring(i) .. "].sphere")
+            self.operations[i].sphere = u.parseExprString(data, base, path, {"operations", i, "sphere"})
         elseif self.operations[i].type == "select" then
-            self.operations[i].percentage = u.parseNumber(data.operations[i].percentage, path, "operations[" .. tostring(i) .. "].percentage")
-            self.operations[i].round = u.parseStringOpt(data.operations[i].round, path, "operations[" .. tostring(i) .. "].round") or "down"
+            self.operations[i].percentage = u.parseNumber(data, base, path, {"operations", i, "percentage"})
+            self.operations[i].round = u.parseStringOpt(data, base, path, {"operations", i, "round"}) or "down"
         else
             error(string.format("Unknown SphereSelectorConfig type: %s (expected \"add\", \"addOne\", \"select\")", self.operations[i].type))
         end

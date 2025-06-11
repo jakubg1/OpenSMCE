@@ -18,20 +18,23 @@ ParticleEmitterConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ParticleEmitterConfig:new(data, path, isAnonymous)
+---@param base ParticleEmitterConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ParticleEmitterConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.pos = u.parseVec2(data.pos, path, "pos")
-    self.speed = u.parseVec2(data.speed, path, "speed")
-    self.acceleration = u.parseVec2(data.acceleration, path, "acceleration")
-    self.lifespan = u.parseNumberOpt(data.lifespan, path, "lifespan")
-    self.spawnCount = u.parseInteger(data.spawnCount, path, "spawnCount")
-    self.spawnMax = u.parseInteger(data.spawnMax, path, "spawnMax")
-    self.spawnDelay = u.parseNumberOpt(data.spawnDelay, path, "spawnDelay")
-    self.particleData = u.parseParticleConfig(data.particleData, path, "particleData")
+    base = base or {}
+
+    self.pos = u.parseVec2(data, base, path, {"pos"})
+    self.speed = u.parseVec2(data, base, path, {"speed"})
+    self.acceleration = u.parseVec2(data, base, path, {"acceleration"})
+    self.lifespan = u.parseNumberOpt(data, base, path, {"lifespan"})
+    self.spawnCount = u.parseInteger(data, base, path, {"spawnCount"})
+    self.spawnMax = u.parseInteger(data, base, path, {"spawnMax"})
+    self.spawnDelay = u.parseNumberOpt(data, base, path, {"spawnDelay"})
+    self.particleData = u.parseParticleConfig(data, base, path, {"particleData"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

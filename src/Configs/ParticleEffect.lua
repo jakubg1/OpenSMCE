@@ -18,15 +18,18 @@ ParticleEffectConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ParticleEffectConfig:new(data, path, isAnonymous)
+---@param base ParticleEffectConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ParticleEffectConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
+    base = base or {}
+
     self.emitters = {}
     for i = 1, #data.emitters do
-        self.emitters[i] = u.parseParticleEmitterConfig(data.emitters[i], path, "emitters[" .. tostring(i) .. "]")
+        self.emitters[i] = u.parseParticleEmitterConfig(data, base, path, {"emitters", i})
     end
 end
 

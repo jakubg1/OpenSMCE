@@ -374,10 +374,15 @@ function ResourceManager:loadResource(key, batches)
 	-- Treat the file differently depending on whether it's a JSON file or not, and check the type.
 	local resType = nil
 	local contents = nil
+	local baseResource = nil
 	if _Utils.strEndsWith(key, ".json") then
 		contents = assert(_Utils.loadJson(_ParsePath(key)), "File not found: " .. key)
 		-- Determine the resource type based on schema.
 		resType = self:getResourceTypeFromSchema(contents["$schema"])
+		-- Load the base resource if defined.
+		if resType and contents["_extends"] then
+			baseResource = self:getResourceConfig(contents["_extends"], resType)
+		end
 	else
 		local extension = _Utils.strSplit(key, ".")
 		extension = extension[#extension]
@@ -407,7 +412,7 @@ function ResourceManager:loadResource(key, batches)
 
 	if constructor then
 		-- Construct the resource and check for errors.
-		local success, result = xpcall(function() return constructor(contents, key) end, debug.traceback)
+		local success, result = xpcall(function() return constructor(contents, key, false, baseResource) end, debug.traceback)
 		assert(success, string.format("Failed to load file %s: %s", key, result))
 		self.resources[key].config = result
 	end

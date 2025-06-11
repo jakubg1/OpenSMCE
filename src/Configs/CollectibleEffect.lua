@@ -18,68 +18,71 @@ CollectibleEffectConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function CollectibleEffectConfig:new(data, path, isAnonymous)
+---@param base CollectibleEffectConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function CollectibleEffectConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.type = u.parseString(data.type, path, "type")
+    base = base or {}
+
+    self.type = u.parseString(data, base, path, {"type"})
     if self.type == "replaceSphere" then
-        self.color = u.parseInteger(data.color, path, "color")
+        self.color = u.parseInteger(data, base, path, {"color"})
     elseif self.type == "multiSphere" then
-        self.color = u.parseInteger(data.color, path, "color")
-        self.count = u.parseExprIntegerOpt(data.count, path, "count")
-        self.time = u.parseNumberOpt(data.time, path, "time")
-        self.removeWhenTimeOut = u.parseBooleanOpt(data.removeWhenTimeOut, path, "removeWhenTimeOut")
-        self.holdTimeRate = u.parseNumberOpt(data.holdTimeRate, path, "holdTimeRate")
+        self.color = u.parseInteger(data, base, path, {"color"})
+        self.count = u.parseExprIntegerOpt(data, base, path, {"count"})
+        self.time = u.parseNumberOpt(data, base, path, {"time"})
+        self.removeWhenTimeOut = u.parseBooleanOpt(data, base, path, {"removeWhenTimeOut"})
+        self.holdTimeRate = u.parseNumberOpt(data, base, path, {"holdTimeRate"})
     elseif self.type == "removeMultiSphere" then
-        self.removeSpheres = u.parseBooleanOpt(data.removeSpheres, path, "removeSpheres")
+        self.removeSpheres = u.parseBooleanOpt(data, base, path, {"removeSpheres"})
     elseif self.type == "speedShot" then
-        self.time = u.parseNumber(data.time, path, "time")
-        self.speed = u.parseNumber(data.speed, path, "speed")
+        self.time = u.parseNumber(data, base, path, {"time"})
+        self.speed = u.parseNumber(data, base, path, {"speed"})
     elseif self.type == "homingBugs" then
-        self.time = u.parseNumber(data.time, path, "time")
+        self.time = u.parseNumber(data, base, path, {"time"})
     elseif self.type == "speedOverride" then
-        self.speedBase = u.parseNumber(data.speedBase, path, "speedBase")
-        self.speedMultiplier = u.parseNumber(data.speedMultiplier, path, "speedMultiplier")
-        self.decceleration = u.parseNumber(data.decceleration, path, "decceleration")
-        self.time = u.parseNumber(data.time, path, "time")
+        self.speedBase = u.parseNumber(data, base, path, {"speedBase"})
+        self.speedMultiplier = u.parseNumber(data, base, path, {"speedMultiplier"})
+        self.decceleration = u.parseNumber(data, base, path, {"decceleration"})
+        self.time = u.parseNumber(data, base, path, {"time"})
     elseif self.type == "destroySpheres" then
-        self.selector = u.parseSphereSelectorConfig(data.selector, path, "selector")
-        self.scoreEvent = u.parseScoreEventConfigOpt(data.scoreEvent, path, "scoreEvent")
-        self.scoreEventPerSphere = u.parseScoreEventConfigOpt(data.scoreEventPerSphere, path, "scoreEventPerSphere")
-        self.gameEvent = u.parseGameEventConfigOpt(data.gameEvent, path, "gameEvent")
-        self.gameEventPerSphere = u.parseGameEventConfigOpt(data.gameEventPerSphere, path, "gameEventPerSphere")
+        self.selector = u.parseSphereSelectorConfig(data, base, path, {"selector"})
+        self.scoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"scoreEvent"})
+        self.scoreEventPerSphere = u.parseScoreEventConfigOpt(data, base, path, {"scoreEventPerSphere"})
+        self.gameEvent = u.parseGameEventConfigOpt(data, base, path, {"gameEvent"})
+        self.gameEventPerSphere = u.parseGameEventConfigOpt(data, base, path, {"gameEventPerSphere"})
     elseif self.type == "spawnPathEntity" then
-        self.pathEntity = u.parsePathEntityConfig(data.pathEntity, path, "pathEntity")
+        self.pathEntity = u.parsePathEntityConfig(data, base, path, {"pathEntity"})
     elseif self.type == "activateNet" then
-        self.time = u.parseNumber(data.time, path, "time")
+        self.time = u.parseNumber(data, base, path, {"time"})
     elseif self.type == "changeGameSpeed" then
-        self.speed = u.parseNumber(data.speed, path, "speed")
-        self.time = u.parseNumber(data.time, path, "time")
+        self.speed = u.parseNumber(data, base, path, {"speed"})
+        self.time = u.parseNumber(data, base, path, {"time"})
     elseif self.type == "setStreak" then
-        self.streak = u.parseInteger(data.streak, path, "streak")
+        self.streak = u.parseInteger(data, base, path, {"streak"})
     elseif self.type == "executeScoreEvent" then
-        self.scoreEvent = u.parseScoreEventConfig(data.scoreEvent, path, "scoreEvent")
+        self.scoreEvent = u.parseScoreEventConfig(data, base, path, {"scoreEvent"})
     elseif self.type == "executeGameEvent" then
-        self.gameEvent = u.parseGameEventConfig(data.gameEvent, path, "gameEvent")
+        self.gameEvent = u.parseGameEventConfig(data, base, path, {"gameEvent"})
     elseif self.type == "setScoreMultiplier" then
-        self.multiplier = u.parseNumber(data.multiplier, path, "multiplier")
-        self.time = u.parseNumber(data.time, path, "time")
+        self.multiplier = u.parseNumber(data, base, path, {"multiplier"})
+        self.time = u.parseNumber(data, base, path, {"time"})
     elseif self.type == "collectibleRain" then
-        self.collectibleGenerator = u.parseCollectibleGeneratorConfig(data.collectibleGenerator, path, "collectibleGenerator")
-        self.count = u.parseExprInteger(data.count, path, "count")
-        self.delay = u.parseExprNumber(data.delay, path, "delay")
+        self.collectibleGenerator = u.parseCollectibleGeneratorConfig(data, base, path, {"collectibleGenerator"})
+        self.count = u.parseExprInteger(data, base, path, {"count"})
+        self.delay = u.parseExprNumber(data, base, path, {"delay"})
     elseif self.type == "projectileStorm" then
-        self.projectile = u.parseProjectileConfig(data.projectile, path, "projectile")
-        self.count = u.parseExprInteger(data.count, path, "count")
-        self.delay = u.parseExprNumber(data.delay, path, "delay")
-        self.cancelWhenNoTargetsRemaining = u.parseBooleanOpt(data.cancelWhenNoTargetsRemaining, path, "cancelWhenNoTargetsRemaining") == true
+        self.projectile = u.parseProjectileConfig(data, base, path, {"projectile"})
+        self.count = u.parseExprInteger(data, base, path, {"count"})
+        self.delay = u.parseExprNumber(data, base, path, {"delay"})
+        self.cancelWhenNoTargetsRemaining = u.parseBooleanOpt(data, base, path, {"cancelWhenNoTargetsRemaining"}) == true
     elseif self.type == "colorSort" then
-        self.sortType = u.parseString(data.sortType, path, "sortType")
-        self.delay = u.parseNumberOpt(data.delay, path, "delay") or 0
-        self.stopWhenTampered = u.parseBooleanOpt(data.stopWhenTampered, path, "stopWhenTampered") == true
+        self.sortType = u.parseString(data, base, path, {"sortType"})
+        self.delay = u.parseNumberOpt(data, base, path, {"delay"}) or 0
+        self.stopWhenTampered = u.parseBooleanOpt(data, base, path, {"stopWhenTampered"}) == true
     elseif self.type == "grantCoin" then
         -- No fields
     elseif self.type == "incrementGemStat" then

@@ -18,74 +18,77 @@ LevelTrainRulesConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function LevelTrainRulesConfig:new(data, path, isAnonymous)
+---@param base LevelTrainRulesConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function LevelTrainRulesConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.type = u.parseString(data.type, path, "type")
+    base = base or {}
+
+    self.type = u.parseString(data, base, path, {"type"})
     if self.type == "random" then
         self.colors = {}
         for i = 1, #data.colors do
-            self.colors[i] = u.parseInteger(data.colors[i], path, "colors[" .. tostring(i) .. "]")
+            self.colors[i] = u.parseInteger(data, base, path, {"colors", i})
         end
-        self.colorStreak = u.parseNumber(data.colorStreak, path, "colorStreak")
-        self.forceDifferentColor = u.parseBooleanOpt(data.forceDifferentColor, path, "forceDifferentColor")
+        self.colorStreak = u.parseNumber(data, base, path, {"colorStreak"})
+        self.forceDifferentColor = u.parseBooleanOpt(data, base, path, {"forceDifferentColor"})
         self.chainChances = {}
         if data.chainChances then
             for i = 1, #data.chainChances do
-                self.chainChances[i] = u.parseNumber(data.chainChances[i], path, "chainChances[" .. tostring(i) .. "]")
+                self.chainChances[i] = u.parseNumber(data, base, path, {"chainChances", i})
             end
         end
-        self.length = u.parseIntegerOpt(data.length, path, "length")
+        self.length = u.parseIntegerOpt(data, base, path, {"length"})
     elseif self.type == "pattern" then
         self.pattern = {}
         for i = 1, #data.pattern do
-            self.pattern[i] = u.parseInteger(data.pattern[i], path, "pattern[" .. tostring(i) .. "]")
+            self.pattern[i] = u.parseInteger(data, base, path, {"pattern", i})
         end
         self.chainChances = {}
         if data.chainChances then
             for i = 1, #data.chainChances do
-                self.chainChances[i] = u.parseNumber(data.chainChances[i], path, "chainChances[" .. tostring(i) .. "]")
+                self.chainChances[i] = u.parseNumber(data, base, path, {"chainChances", i})
             end
         end
-        self.length = u.parseIntegerOpt(data.length, path, "length")
+        self.length = u.parseIntegerOpt(data, base, path, {"length"})
     elseif self.type == "waves" then
         self.key = {}
         for i = 1, #data.key do
             self.key[i] = {}
-            self.key[i].key = u.parseStringOpt(data.key[i].key, path, "key[" .. tostring(i) .. "].key")
+            self.key[i].key = u.parseStringOpt(data, base, path, {"key", i, "key"})
 
             self.key[i].keys = {}
             if data.key[i].keys then
                 for j = 1, #data.key[i].keys do
-                    self.key[i].keys[j] = u.parseString(data.key[i].keys[j], path, "key[" .. tostring(i) .. "].keys[" .. tostring(j) .. "]")
+                    self.key[i].keys[j] = u.parseString(data, base, path, {"key", i, "keys", j})
                 end
             end
 
             self.key[i].colors = {}
             for j = 1, #data.key[i].colors do
-                self.key[i].colors[j] = u.parseInteger(data.key[i].colors[j], path, "key[" .. tostring(i) .. "].colors[" .. tostring(j) .. "]")
+                self.key[i].colors[j] = u.parseInteger(data, base, path, {"key", i, "colors", j})
             end
 
-            self.key[i].homogenous = u.parseBooleanOpt(data.key[i].homogenous, path, "key[" .. tostring(i) .. "].homogenous")
-            self.key[i].noColorRepeats = u.parseBooleanOpt(data.key[i].noColorRepeats, path, "key[" .. tostring(i) .. "].noColorRepeats")
-            self.key[i].colorStreak = u.parseNumberOpt(data.key[i].colorStreak, path, "key[" .. tostring(i) .. "].colorStreak")
-            self.key[i].forceDifferentColor = u.parseBooleanOpt(data.key[i].forceDifferentColor, path, "key[" .. tostring(i) .. "].forceDifferentColor")
+            self.key[i].homogenous = u.parseBooleanOpt(data, base, path, {"key", i, "homogenous"})
+            self.key[i].noColorRepeats = u.parseBooleanOpt(data, base, path, {"key", i, "noColorRepeats"})
+            self.key[i].colorStreak = u.parseNumberOpt(data, base, path, {"key", i, "colorStreak"})
+            self.key[i].forceDifferentColor = u.parseBooleanOpt(data, base, path, {"key", i, "forceDifferentColor"})
 
             self.key[i].chainChances = {}
             if data.key[i].chainChances then
                 for j = 1, #data.key[i].chainChances do
-                    self.key[i].chainChances[j] = u.parseNumber(data.key[i].chainChances[j], path, "key[" .. tostring(i) .. "].chainChances[" .. tostring(j) .. "]")
+                    self.key[i].chainChances[j] = u.parseNumber(data, base, path, {"key", i, "chainChances", j})
                 end
             end
         end
         self.waves = {}
         for i = 1, #data.waves do
-            self.waves[i] = u.parseString(data.waves[i], path, "waves[" .. tostring(i) .. "]")
+            self.waves[i] = u.parseString(data, base, path, {"waves", i})
         end
-        self.behavior = u.parseString(data.behavior, path, "behavior")
+        self.behavior = u.parseString(data, base, path, {"behavior"})
     else
         error(string.format("Unknown LevelTrainRulesConfig type: %s (expected \"random\", \"pattern\", \"waves\")", self.type))
     end

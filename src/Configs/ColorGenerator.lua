@@ -18,42 +18,45 @@ ColorGeneratorConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ColorGeneratorConfig:new(data, path, isAnonymous)
+---@param base ColorGeneratorConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ColorGeneratorConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.type = u.parseString(data.type, path, "type")
+    base = base or {}
+
+    self.type = u.parseString(data, base, path, {"type"})
     if self.type == "random" then
-        self.hasToExist = u.parseBooleanOpt(data.hasToExist, path, "hasToExist")
+        self.hasToExist = u.parseBooleanOpt(data, base, path, {"hasToExist"})
         self.discardableColors = {}
         if data.discardableColors then
             for i = 1, #data.discardableColors do
-                self.discardableColors[i] = u.parseInteger(data.discardableColors[i], path, "discardableColors[" .. tostring(i) .. "]")
+                self.discardableColors[i] = u.parseInteger(data, base, path, {"discardableColors", i})
             end
         end
     elseif self.type == "nearEnd" then
-        self.selectChance = u.parseNumber(data.selectChance, path, "selectChance")
-        self.pathsInDangerOnly = u.parseBoolean(data.pathsInDangerOnly, path, "pathsInDangerOnly")
+        self.selectChance = u.parseNumber(data, base, path, {"selectChance"})
+        self.pathsInDangerOnly = u.parseBoolean(data, base, path, {"pathsInDangerOnly"})
         self.discardableColors = {}
         if data.discardableColors then
             for i = 1, #data.discardableColors do
-                self.discardableColors[i] = u.parseInteger(data.discardableColors[i], path, "discardableColors[" .. tostring(i) .. "]")
+                self.discardableColors[i] = u.parseInteger(data, base, path, {"discardableColors", i})
             end
         end
     elseif self.type == "giveUp" then
-        self.spawnableColorsOnly = u.parseBooleanOpt(data.spawnableColorsOnly, path, "spawnableColorsOnly")
+        self.spawnableColorsOnly = u.parseBooleanOpt(data, base, path, {"spawnableColorsOnly"})
     else
         error(string.format("Unknown ColorGeneratorConfig type: %s (expected \"random\", \"nearEnd\", \"giveUp\")", self.type))
     end
 
     self.colors = {}
     for i = 1, #data.colors do
-        self.colors[i] = u.parseInteger(data.colors[i], path, "colors[" .. tostring(i) .. "]")
+        self.colors[i] = u.parseInteger(data, base, path, {"colors", i})
     end
 
-    self.fallback = u.parseColorGeneratorConfigOpt(data.fallback, path, "fallback")
+    self.fallback = u.parseColorGeneratorConfigOpt(data, base, path, {"fallback"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

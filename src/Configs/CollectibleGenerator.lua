@@ -18,31 +18,34 @@ CollectibleGeneratorConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function CollectibleGeneratorConfig:new(data, path, isAnonymous)
+---@param base CollectibleGeneratorConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function CollectibleGeneratorConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.type = u.parseString(data.type, path, "type")
+    base = base or {}
+
+    self.type = u.parseString(data, base, path, {"type"})
     if self.type == "collectible" then
-        self.collectible = u.parseCollectibleConfig(data.collectible, path, "collectible")
+        self.collectible = u.parseCollectibleConfig(data, base, path, {"collectible"})
     elseif self.type == "collectibleGenerator" then
-        self.generator = u.parseCollectibleGeneratorConfig(data.generator, path, "generator")
+        self.generator = u.parseCollectibleGeneratorConfig(data, base, path, {"generator"})
     elseif self.type == "combine" then
         self.entries = {}
         for i = 1, #data.entries do
-            self.entries[i] = u.parseCollectibleGeneratorConfig(data.entries[i], path, "entries[" .. tostring(i) .. "]")
+            self.entries[i] = u.parseCollectibleGeneratorConfig(data, base, path, {"entries", i})
         end
     elseif self.type == "repeat" then
-        self.entry = u.parseCollectibleGeneratorConfig(data.entry, path, "entry")
-        self.count = u.parseExprInteger(data.count, path, "count")
+        self.entry = u.parseCollectibleGeneratorConfig(data, base, path, {"entry"})
+        self.count = u.parseExprInteger(data, base, path, {"count"})
     elseif self.type == "randomPick" then
         self.pool = {}
         for i = 1, #data.pool do
             self.pool[i] = {}
-            self.pool[i].entry = u.parseCollectibleGeneratorConfig(data.pool[i].entry, path, "pool[" .. tostring(i) .. "].entry")
-            self.pool[i].weight = u.parseNumberOpt(data.pool[i].weight, path, "pool[" .. tostring(i) .. "].weight")
+            self.pool[i].entry = u.parseCollectibleGeneratorConfig(data, base, path, {"pool", i, "entry"})
+            self.pool[i].weight = u.parseNumberOpt(data, base, path, {"pool", i, "weight"})
         end
     else
         error(string.format("Unknown CollectibleGeneratorConfig type: %s (expected \"collectible\", \"collectibleGenerator\", \"combine\", \"repeat\", \"randomPick\")", self.type))
@@ -51,7 +54,7 @@ function CollectibleGeneratorConfig:new(data, path, isAnonymous)
     self.conditions = {}
     if data.conditions then
         for i = 1, #data.conditions do
-            self.conditions[i] = u.parseExprBoolean(data.conditions[i], path, "conditions[" .. tostring(i) .. "]")
+            self.conditions[i] = u.parseExprBoolean(data, base, path, {"conditions", i})
         end
     end
 end

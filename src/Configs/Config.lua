@@ -18,22 +18,25 @@ ConfigConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ConfigConfig:new(data, path, isAnonymous)
+---@param base ConfigConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ConfigConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.name = u.parseStringOpt(data.name, path, "name")
-    self.windowTitle = u.parseStringOpt(data.windowTitle, path, "windowTitle")
-    self.engineVersion = u.parseString(data.engineVersion, path, "engineVersion")
-    self.nativeResolution = u.parseVec2(data.nativeResolution, path, "nativeResolution")
-    self.tickRate = u.parseIntegerOpt(data.tickRate, path, "tickRate") or 60
-    self.canvasRenderingMode = u.parseStringOpt(data.canvasRenderingMode, path, "canvasRenderingMode") or "filtered"
+    base = base or {}
+
+    self.name = u.parseStringOpt(data, base, path, {"name"})
+    self.windowTitle = u.parseStringOpt(data, base, path, {"windowTitle"})
+    self.engineVersion = u.parseString(data, base, path, {"engineVersion"})
+    self.nativeResolution = u.parseVec2(data, base, path, {"nativeResolution"})
+    self.tickRate = u.parseIntegerOpt(data, base, path, {"tickRate"}) or 60
+    self.canvasRenderingMode = u.parseStringOpt(data, base, path, {"canvasRenderingMode"}) or "filtered"
 
     self.richPresence = {}
-    self.richPresence.enabled = u.parseBoolean(data.richPresence.enabled, path, "richPresence.enabled")
-    self.richPresence.applicationID = u.parseStringOpt(data.richPresence.applicationID, path, "richPresence.applicationID")
+    self.richPresence.enabled = u.parseBoolean(data, base, path, {"richPresence", "enabled"})
+    self.richPresence.applicationID = u.parseStringOpt(data, base, path, {"richPresence", "applicationID"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

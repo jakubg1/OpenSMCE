@@ -18,44 +18,47 @@ GameEventConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function GameEventConfig:new(data, path, isAnonymous)
+---@param base GameEventConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function GameEventConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.type = u.parseString(data.type, path, "type")
+    base = base or {}
+
+    self.type = u.parseString(data, base, path, {"type"})
     if self.type == "single" then
-        self.event = u.parseGameEventConfig(data.event, path, "event")
+        self.event = u.parseGameEventConfig(data, base, path, {"event"})
     elseif self.type == "sequence" then
         self.events = {}
         for i = 1, #data.events do
-            self.events[i] = u.parseGameEventConfig(data.events[i], path, "events[" .. tostring(i) .. "]")
+            self.events[i] = u.parseGameEventConfig(data, base, path, {"events", i})
         end
     elseif self.type == "random" then
         self.events = {}
         for i = 1, #data.events do
-            self.events[i] = u.parseGameEventConfig(data.events[i], path, "events[" .. tostring(i) .. "]")
+            self.events[i] = u.parseGameEventConfig(data, base, path, {"events", i})
         end
     elseif self.type == "setCoins" then
-        self.value = u.parseExprInteger(data.value, path, "value")
+        self.value = u.parseExprInteger(data, base, path, {"value"})
     elseif self.type == "setLevelVariable" then
-        self.variable = u.parseString(data.variable, path, "variable")
-        self.value = u.parseExprNumber(data.value, path, "value")
+        self.variable = u.parseString(data, base, path, {"variable"})
+        self.value = u.parseExprNumber(data, base, path, {"value"})
     elseif self.type == "setLevelTimer" then
-        self.timer = u.parseString(data.timer, path, "timer")
-        self.time = u.parseExprNumberOpt(data.time, path, "time") or 0
+        self.timer = u.parseString(data, base, path, {"timer"})
+        self.time = u.parseExprNumberOpt(data, base, path, {"time"}) or 0
     elseif self.type == "addToTimerSeries" then
-        self.timerSeries = u.parseString(data.timerSeries, path, "timerSeries")
-        self.time = u.parseExprNumber(data.time, path, "time")
+        self.timerSeries = u.parseString(data, base, path, {"timerSeries"})
+        self.time = u.parseExprNumber(data, base, path, {"time"})
     elseif self.type == "clearTimerSeries" then
-        self.timerSeries = u.parseString(data.timerSeries, path, "timerSeries")
+        self.timerSeries = u.parseString(data, base, path, {"timerSeries"})
     elseif self.type == "collectibleEffect" then
-        self.collectibleEffect = u.parseCollectibleEffectConfig(data.collectibleEffect, path, "collectibleEffect")
+        self.collectibleEffect = u.parseCollectibleEffectConfig(data, base, path, {"collectibleEffect"})
     elseif self.type == "scoreEvent" then
-        self.scoreEvent = u.parseScoreEventConfig(data.scoreEvent, path, "scoreEvent")
+        self.scoreEvent = u.parseScoreEventConfig(data, base, path, {"scoreEvent"})
     elseif self.type == "playSound" then
-        self.soundEvent = u.parseSoundEvent(data.soundEvent, path, "soundEvent")
+        self.soundEvent = u.parseSoundEvent(data, base, path, {"soundEvent"})
     else
         error(string.format("Unknown GameEventConfig type: %s (expected \"single\", \"sequence\", \"random\", \"setCoins\", \"setLevelVariable\", \"setLevelTimer\", \"addToTimerSeries\", \"clearTimerSeries\", \"collectibleEffect\", \"scoreEvent\", \"playSound\")", self.type))
     end
@@ -63,7 +66,7 @@ function GameEventConfig:new(data, path, isAnonymous)
     self.conditions = {}
     if data.conditions then
         for i = 1, #data.conditions do
-            self.conditions[i] = u.parseExprBoolean(data.conditions[i], path, "conditions[" .. tostring(i) .. "]")
+            self.conditions[i] = u.parseExprBoolean(data, base, path, {"conditions", i})
         end
     end
 end

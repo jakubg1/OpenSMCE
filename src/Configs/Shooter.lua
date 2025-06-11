@@ -20,76 +20,79 @@ ShooterConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ShooterConfig:new(data, path, isAnonymous)
+---@param base ShooterConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ShooterConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.movement = u.parseShooterMovementConfig(data.movement, path, "movement")
-    self.sprite = u.parseSprite(data.sprite, path, "sprite")
-    self.spriteOffset = u.parseVec2Opt(data.spriteOffset, path, "spriteOffset") or Vec2()
-    self.spriteAnchor = u.parseVec2Opt(data.spriteAnchor, path, "spriteAnchor") or Vec2(0.5, 0)
-    self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
-    self.shadowSpriteOffset = u.parseVec2Opt(data.shadowSpriteOffset, path, "shadowSpriteOffset") or Vec2(8, 8)
-    self.shadowSpriteAnchor = u.parseVec2Opt(data.shadowSpriteAnchor, path, "shadowSpriteAnchor") or Vec2(0.5, 0)
+    base = base or {}
+
+    self.movement = u.parseShooterMovementConfig(data, base, path, {"movement"})
+    self.sprite = u.parseSprite(data, base, path, {"sprite"})
+    self.spriteOffset = u.parseVec2Opt(data, base, path, {"spriteOffset"}) or Vec2()
+    self.spriteAnchor = u.parseVec2Opt(data, base, path, {"spriteAnchor"}) or Vec2(0.5, 0)
+    self.shadowSprite = u.parseSpriteOpt(data, base, path, {"shadowSprite"})
+    self.shadowSpriteOffset = u.parseVec2Opt(data, base, path, {"shadowSpriteOffset"}) or Vec2(8, 8)
+    self.shadowSpriteAnchor = u.parseVec2Opt(data, base, path, {"shadowSpriteAnchor"}) or Vec2(0.5, 0)
 
     self.spheres = {}
     for i = 1, #data.spheres do
         self.spheres[i] = {}
-        self.spheres[i].pos = u.parseVec2(data.spheres[i].pos, path, "spheres[" .. tostring(i) .. "].pos")
-        self.spheres[i].shotPos = u.parseVec2Opt(data.spheres[i].shotPos, path, "spheres[" .. tostring(i) .. "].shotPos")
+        self.spheres[i].pos = u.parseVec2(data, base, path, {"spheres", i, "pos"})
+        self.spheres[i].shotPos = u.parseVec2Opt(data, base, path, {"spheres", i, "shotPos"})
     end
 
     self.nextBallSprites = {}
     for n, _ in pairs(data.nextBallSprites) do
         self.nextBallSprites[tonumber(n)] = {}
-        self.nextBallSprites[tonumber(n)].sprite = u.parseSprite(data.nextBallSprites[n].sprite, path, "nextBallSprites." .. tostring(n) .. ".sprite")
-        self.nextBallSprites[tonumber(n)].spriteAnimationSpeed = u.parseNumberOpt(data.nextBallSprites[n].spriteAnimationSpeed, path, "nextBallSprites." .. tostring(n) .. ".spriteAnimationSpeed")
+        self.nextBallSprites[tonumber(n)].sprite = u.parseSprite(data, base, path, {"nextBallSprites", n, "sprite"})
+        self.nextBallSprites[tonumber(n)].spriteAnimationSpeed = u.parseNumberOpt(data, base, path, {"nextBallSprites", n, "spriteAnimationSpeed"})
     end
 
-    self.nextBallOffset = u.parseVec2Opt(data.nextBallOffset, path, "nextBallOffset") or Vec2(0, 21)
-    self.nextBallAnchor = u.parseVec2Opt(data.nextBallAnchor, path, "nextBallAnchor") or Vec2(0.5, 0)
+    self.nextBallOffset = u.parseVec2Opt(data, base, path, {"nextBallOffset"}) or Vec2(0, 21)
+    self.nextBallAnchor = u.parseVec2Opt(data, base, path, {"nextBallAnchor"}) or Vec2(0.5, 0)
 
     self.reticle = {}
     if data.reticle then
-        self.reticle.sprite = u.parseSpriteOpt(data.reticle.sprite, path, "reticle.sprite")
-        self.reticle.offset = u.parseVec2Opt(data.reticle.offset, path, "reticle.offset")
-        self.reticle.nextBallSprite = u.parseSpriteOpt(data.reticle.nextBallSprite, path, "reticle.nextBallSprite")
-        self.reticle.nextBallOffset = u.parseVec2Opt(data.reticle.nextBallOffset, path, "reticle.nextBallOffset")
-        self.reticle.radiusSprite = u.parseSpriteOpt(data.reticle.radiusSprite, path, "reticle.radiusSprite")
-        self.reticle.colorFadeTime = u.parseNumberOpt(data.reticle.colorFadeTime, path, "reticle.colorFadeTime")
-        self.reticle.nextColorFadeTime = u.parseNumberOpt(data.reticle.nextColorFadeTime, path, "reticle.nextColorFadeTime")
+        self.reticle.sprite = u.parseSpriteOpt(data, base, path, {"reticle", "sprite"})
+        self.reticle.offset = u.parseVec2Opt(data, base, path, {"reticle", "offset"})
+        self.reticle.nextBallSprite = u.parseSpriteOpt(data, base, path, {"reticle", "nextBallSprite"})
+        self.reticle.nextBallOffset = u.parseVec2Opt(data, base, path, {"reticle", "nextBallOffset"})
+        self.reticle.radiusSprite = u.parseSpriteOpt(data, base, path, {"reticle", "radiusSprite"})
+        self.reticle.colorFadeTime = u.parseNumberOpt(data, base, path, {"reticle", "colorFadeTime"})
+        self.reticle.nextColorFadeTime = u.parseNumberOpt(data, base, path, {"reticle", "nextColorFadeTime"})
     end
 
     self.sounds = {}
-    self.sounds.sphereSwap = u.parseSoundEvent(data.sounds.sphereSwap, path, "sounds.sphereSwap")
-    self.sounds.sphereFill = u.parseSoundEvent(data.sounds.sphereFill, path, "sounds.sphereFill")
+    self.sounds.sphereSwap = u.parseSoundEvent(data, base, path, {"sounds", "sphereSwap"})
+    self.sounds.sphereFill = u.parseSoundEvent(data, base, path, {"sounds", "sphereFill"})
 
     self.speedShotBeam = {}
-    self.speedShotBeam.sprite = u.parseSprite(data.speedShotBeam.sprite, path, "speedShotBeam.sprite")
-    self.speedShotBeam.fadeTime = u.parseNumber(data.speedShotBeam.fadeTime, path, "speedShotBeam.fadeTime")
-    self.speedShotBeam.renderingType = u.parseString(data.speedShotBeam.renderingType, path, "speedShotBeam.renderingType")
-    self.speedShotBeam.colored = u.parseBoolean(data.speedShotBeam.colored, path, "speedShotBeam.colored")
+    self.speedShotBeam.sprite = u.parseSprite(data, base, path, {"speedShotBeam", "sprite"})
+    self.speedShotBeam.fadeTime = u.parseNumber(data, base, path, {"speedShotBeam", "fadeTime"})
+    self.speedShotBeam.renderingType = u.parseString(data, base, path, {"speedShotBeam", "renderingType"})
+    self.speedShotBeam.colored = u.parseBoolean(data, base, path, {"speedShotBeam", "colored"})
 
-    self.speedShotParticle = u.parseParticleEffectConfig(data.speedShotParticle, path, "speedShotParticle")
-    self.shotSpeed = u.parseNumber(data.shotSpeed, path, "shotSpeed")
-    self.shotCooldown = u.parseNumberOpt(data.shotCooldown, path, "shotCooldown") or 0
-    self.shotCooldownFade = u.parseNumberOpt(data.shotCooldownFade, path, "shotCooldownFade") or 0
-    self.multishot = u.parseBooleanOpt(data.multishot, path, "multishot") == true
-    self.autofire = u.parseBooleanOpt(data.autofire, path, "autofire") == true
-    self.destroySphereOnFail = u.parseBooleanOpt(data.destroySphereOnFail, path, "destroySphereOnFail") == true
+    self.speedShotParticle = u.parseParticleEffectConfig(data, base, path, {"speedShotParticle"})
+    self.shotSpeed = u.parseNumber(data, base, path, {"shotSpeed"})
+    self.shotCooldown = u.parseNumberOpt(data, base, path, {"shotCooldown"}) or 0
+    self.shotCooldownFade = u.parseNumberOpt(data, base, path, {"shotCooldownFade"}) or 0
+    self.multishot = u.parseBooleanOpt(data, base, path, {"multishot"}) == true
+    self.autofire = u.parseBooleanOpt(data, base, path, {"autofire"}) == true
+    self.destroySphereOnFail = u.parseBooleanOpt(data, base, path, {"destroySphereOnFail"}) == true
 
     if data.knockback then
         self.knockback = {}
-        self.knockback.duration = u.parseNumber(data.knockback.duration, path, "knockback.duration")
-        self.knockback.strength = u.parseNumber(data.knockback.strength, path, "knockback.strength")
-        self.knockback.speedShotDuration = u.parseNumberOpt(data.knockback.speedShotDuration, path, "knockback.speedShotDuration")
-        self.knockback.speedShotStrength = u.parseNumberOpt(data.knockback.speedShotStrength, path, "knockback.speedShotStrength")
+        self.knockback.duration = u.parseNumber(data, base, path, {"knockback", "duration"})
+        self.knockback.strength = u.parseNumber(data, base, path, {"knockback", "strength"})
+        self.knockback.speedShotDuration = u.parseNumberOpt(data, base, path, {"knockback", "speedShotDuration"})
+        self.knockback.speedShotStrength = u.parseNumberOpt(data, base, path, {"knockback", "speedShotStrength"})
     end
 
-    self.hitboxOffset = u.parseVec2Opt(data.hitboxOffset, path, "hitboxOffset") or Vec2()
-    self.hitboxSize = u.parseVec2(data.hitboxSize, path, "hitboxSize")
+    self.hitboxOffset = u.parseVec2Opt(data, base, path, {"hitboxOffset"}) or Vec2()
+    self.hitboxSize = u.parseVec2(data, base, path, {"hitboxSize"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

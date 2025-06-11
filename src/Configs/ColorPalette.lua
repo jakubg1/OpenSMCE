@@ -18,13 +18,16 @@ ColorPaletteConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ColorPaletteConfig:new(data, path, isAnonymous)
+---@param base ColorPaletteConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ColorPaletteConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.image = u.parseImage(data.image, path, "image")
+    base = base or {}
+
+    self.image = u.parseImage(data, base, path, {"image"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

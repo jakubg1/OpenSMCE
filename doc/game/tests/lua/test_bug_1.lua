@@ -1,5 +1,5 @@
 self.obj = {}
-self.obj.type = u.parseString(data.obj.type, path, "obj.type")
+self.obj.type = u.parseString(data, base, path, {"obj", "type"})
 if self.obj.type == "test" then
     -- No fields
 else
@@ -8,5 +8,5 @@ end
 
 if data.obj.a then
     self.obj.a = {}
-    self.obj.a.field = u.parseInteger(data.obj.a.field, path, "obj.a.field")
+    self.obj.a.field = u.parseInteger(data, base, path, {"obj", "a", "field"})
 end

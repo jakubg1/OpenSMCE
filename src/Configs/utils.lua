@@ -35,210 +35,283 @@ local function isValidExpression(data)
 	return type(data) ~= "string" or (data:sub(1, 2) == "${" and data:sub(data:len(), data:len()) == "}")
 end
 
+---Returns `data` indexed by the provided path of fields.
+---For example, providing `{"test", 1}` will return `data.test[1]`.
+---Returns `nil` if at any point the value at the provided index doesn't exist.
+---@param data any Data to be indexed.
+---@param fields any[]? A list of indexes. If not specified, `data` itself is returned.
+---@return any?
+local function getDataValue(data, fields)
+	if not fields then
+		return data
+	end
+	for i, index in ipairs(fields) do
+		data = data[index]
+		if not data then
+			return nil
+		end
+	end
+	return data
+end
+
+---Turns the provided path of fields into a string representation.
+---For example, providing `{"test", 1}` will return `"test[1]"`.
+---@param fields any[]? A list of indexes. If not specified, the function will return `""`.
+---@return string
+local function getFieldPathStr(fields)
+	if not fields then
+		return ""
+	end
+	local str = ""
+	for i, index in ipairs(fields) do
+		if type(index) == "string" then
+			if i > 1 then
+				str = str .. "."
+			end
+			str = str .. index
+		else
+			str = str .. "[" .. tostring(index) .. "]"
+		end
+	end
+	return str
+end
+
 
 
 ---@return integer
-function utils.parseInteger(data, path, field)
-	assert(data, string.format("field %s is missing (integer expected)", field))
-	return data
+function utils.parseInteger(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (integer expected)", getFieldPathStr(fields)))
+	return value
 end
 
 ---@return integer?
-function utils.parseIntegerOpt(data, path, field)
-	return data
+function utils.parseIntegerOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value
 end
 
 ---@return number
-function utils.parseNumber(data, path, field)
-	assert(data, string.format("field %s is missing (number expected)", field))
-	return data
+function utils.parseNumber(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (number expected)", getFieldPathStr(fields)))
+	return value
 end
 
 ---@return number?
-function utils.parseNumberOpt(data, path, field)
-	return data
+function utils.parseNumberOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value
 end
 
 ---@return boolean
-function utils.parseBoolean(data, path, field)
-	assert(data ~= nil, string.format("field %s is missing (boolean expected)", field))
-	return data
+function utils.parseBoolean(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(data ~= nil, string.format("field %s is missing (boolean expected)", getFieldPathStr(fields)))
+	return value
 end
 
 ---@return boolean?
-function utils.parseBooleanOpt(data, path, field)
-	return data
+function utils.parseBooleanOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value
 end
 
 ---@return string
-function utils.parseString(data, path, field)
-	assert(data, string.format("field %s is missing (string expected)", field))
-	return data
+function utils.parseString(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (string expected)", getFieldPathStr(fields)))
+	return value
 end
 
 ---@return string?
-function utils.parseStringOpt(data, path, field)
-	return data
+function utils.parseStringOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value
 end
 
 
 
 ---Parses a required Vector2 field for a config file.
 ---@param data table The data to be parsed.
----@param field string The field name inside of the file.
+---@param fields any[] A list of indexes specifying the path inside of the file.
 ---@return Vector2
-function utils.parseVec2(data, path, field)
-	assert(data, string.format("field %s is missing (Vector2 expected)", field))
-	return Vec2(data.x, data.y)
+function utils.parseVec2(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Vector2 expected)", getFieldPathStr(fields)))
+	return Vec2(value.x, value.y)
 end
 
 ---Parses an optional Vector2 field for a config file.
 ---@param data table The data to be parsed.
----@param field string The field name inside of the file.
+---@param fields any[] A list of indexes specifying the path inside of the file.
 ---@return Vector2?
-function utils.parseVec2Opt(data, path, field)
-	return data and Vec2(data.x, data.y)
+function utils.parseVec2Opt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and Vec2(value.x, value.y)
 end
 
 
 
 ---@return Expression
-function utils.parseExprNumber(data, path, field)
-	assert(data, string.format("field %s is missing (number expression expected)", field))
-	assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
-	return Expression(data)
+function utils.parseExprNumber(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (number expression expected)", getFieldPathStr(fields)))
+	assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
+	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprNumberOpt(data, path, field)
-	if data then
-		assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+function utils.parseExprNumberOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	if value then
+		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
 	end
-	return data and Expression(data)
+	return value and Expression(value)
 end
 
 ---@return Expression
-function utils.parseExprInteger(data, path, field)
-	assert(data, string.format("field %s is missing (integer expression expected)", field))
-	assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
-	return Expression(data)
+function utils.parseExprInteger(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (integer expression expected)", getFieldPathStr(fields)))
+	assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
+	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprIntegerOpt(data, path, field)
-	if data then
-		assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+function utils.parseExprIntegerOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	if value then
+		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
 	end
-	return data and Expression(data)
+	return value and Expression(value)
 end
 
 ---@return Expression
-function utils.parseExprBoolean(data, path, field)
-	assert(data, string.format("field %s is missing (boolean expression expected)", field))
-	assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
-	return Expression(data)
+function utils.parseExprBoolean(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (boolean expression expected)", getFieldPathStr(fields)))
+	assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
+	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprBooleanOpt(data, path, field)
-	if data then
-		assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+function utils.parseExprBooleanOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	if value then
+		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
 	end
-	return data and Expression(data)
+	return value and Expression(value)
 end
 
 ---@return Expression
-function utils.parseExprString(data, path, field)
-	assert(data, string.format("field %s is missing (string expression expected)", field))
-	return Expression(data)
+function utils.parseExprString(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (string expression expected)", getFieldPathStr(fields)))
+	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprStringOpt(data, path, field)
-	return data and Expression(data)
+function utils.parseExprStringOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and Expression(value)
 end
 
 ---@return Expression
-function utils.parseExprVec2(data, path, field)
-	assert(data, string.format("field %s is missing (Vector2 expression expected)", field))
-	assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
-	return Expression(data)
+function utils.parseExprVec2(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Vector2 expression expected)", getFieldPathStr(fields)))
+	assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
+	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprVec2Opt(data, path, field)
-	if data then
-		assert(isValidExpression(data), string.format("%s is not a vaild expression (format is ${<expression>})", data))
+function utils.parseExprVec2Opt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	if value then
+		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
 	end
-	return data and Expression(data)
+	return value and Expression(value)
 end
 
 
 
 ---@return Color
-function utils.parseColor(data, path, field)
-	assert(data, string.format("field %s is missing (Color expected)", field))
-	return Color(data.r, data.g, data.b)
+function utils.parseColor(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Color expected)", getFieldPathStr(fields)))
+	return Color(value.r, value.g, value.b)
 end
 
 ---@return Color?
-function utils.parseColorOpt(data, path, field)
-	return data and Color(data.r, data.g, data.b)
+function utils.parseColorOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and Color(value.r, value.g, value.b)
 end
 
 ---@return Image
-function utils.parseImage(data, path, field)
-	assert(data, string.format("field %s is missing (Image expected)", field))
-	return _Game.resourceManager:getImage(data)
+function utils.parseImage(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Image expected)", getFieldPathStr(fields)))
+	return _Game.resourceManager:getImage(value)
 end
 
 ---@return Image?
-function utils.parseImageOpt(data, path, field)
-	return data and _Game.resourceManager:getImage(data)
+function utils.parseImageOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and _Game.resourceManager:getImage(value)
 end
 
 ---@return Sound
-function utils.parseSound(data, path, field)
-	assert(data, string.format("field %s is missing (Sound expected)", field))
-	return _Game.resourceManager:getSound(data)
+function utils.parseSound(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Sound expected)", getFieldPathStr(fields)))
+	return _Game.resourceManager:getSound(value)
 end
 
 ---@return Sound?
-function utils.parseSoundOpt(data, path, field)
-	return data and _Game.resourceManager:getSound(data)
+function utils.parseSoundOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and _Game.resourceManager:getSound(value)
 end
 
 ---@return SoundEvent
-function utils.parseSoundEvent(data, path, field)
-	assert(data, string.format("field %s is missing (Sound Event expected)", field))
-	return _Game.resourceManager:getSoundEvent(data)
+function utils.parseSoundEvent(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Sound Event expected)", getFieldPathStr(fields)))
+	return _Game.resourceManager:getSoundEvent(value)
 end
 
 ---@return SoundEvent?
-function utils.parseSoundEventOpt(data, path, field)
-	return data and _Game.resourceManager:getSoundEvent(data)
+function utils.parseSoundEventOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and _Game.resourceManager:getSoundEvent(value)
 end
 
 ---@return Music
-function utils.parseMusic(data, path, field)
-	assert(data, string.format("field %s is missing (Music expected)", field))
-	return _Game.resourceManager:getMusic(data)
+function utils.parseMusic(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Music expected)", getFieldPathStr(fields)))
+	return _Game.resourceManager:getMusic(value)
 end
 
 ---@return Music?
-function utils.parseMusicOpt(data, path, field)
-	return data and _Game.resourceManager:getMusic(data)
+function utils.parseMusicOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and _Game.resourceManager:getMusic(value)
 end
 
 ---@return Font
-function utils.parseFont(data, path, field)
-	assert(data, string.format("field %s is missing (Font expected)", field))
-	return _Game.resourceManager:getFont(data)
+function utils.parseFont(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Font expected)", getFieldPathStr(fields)))
+	return _Game.resourceManager:getFont(value)
 end
 
 ---@return Font?
-function utils.parseFontOpt(data, path, field)
-	return data and _Game.resourceManager:getFont(data)
+function utils.parseFontOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and _Game.resourceManager:getFont(value)
 end
 
 
@@ -246,25 +319,29 @@ end
 -- The following are moved to Config Classes, but use singleton getters instead:
 
 ---@return Sprite
-function utils.parseSprite(data, path, field)
-	assert(data, string.format("field %s is missing (Sprite expected)", field))
-	return _Game.resourceManager:getSprite(data)
+function utils.parseSprite(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Sprite expected)", getFieldPathStr(fields)))
+	return _Game.resourceManager:getSprite(value)
 end
 
 ---@return Sprite?
-function utils.parseSpriteOpt(data, path, field)
-	return data and _Game.resourceManager:getSprite(data)
+function utils.parseSpriteOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and _Game.resourceManager:getSprite(value)
 end
 
 ---@return ColorPalette
-function utils.parseColorPalette(data, path, field)
-	assert(data, string.format("field %s is missing (Color Palette expected)", field))
-	return _Game.resourceManager:getColorPalette(data)
+function utils.parseColorPalette(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("field %s is missing (Color Palette expected)", getFieldPathStr(fields)))
+	return _Game.resourceManager:getColorPalette(value)
 end
 
 ---@return ColorPalette?
-function utils.parseColorPaletteOpt(data, path, field)
-	return data and _Game.resourceManager:getColorPalette(data)
+function utils.parseColorPaletteOpt(data, base, path, fields)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	return value and _Game.resourceManager:getColorPalette(value)
 end
 
 
@@ -273,17 +350,18 @@ end
 ---Returns an instance of Config Class based on provided data.
 ---@param data string|table Either a string which is a resource path or any raw resource data which will be used to construct an anonymous resource.
 ---@param path string Resource path which will be passed to the potentially created anonymous resource.
----@param field string Name of the field which containes the provided data. Used for error messages.
+---@param fields any[] A list of indexes specifying the path inside of the file.
 ---@param resType string The type of the provided resource.
 ---@param getter function Resource getter which will return a resource if the resource path is provided. Intended to be `ResourceManager:get*Config()`.
 ---@param constructor any Resource constructor which will construct the anonymous resource if resource data is provided.
 ---@return table
-local function parseClassConfig(data, path, field, resType, getter, constructor)
-	assert(data, string.format("%s: field %s is missing (%s Config expected)", path, field, resType))
-	if type(data) == "table" then
-		return constructor(data, path, true)
+local function parseClassConfig(data, base, path, fields, resType, getter, constructor)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	assert(value, string.format("%s: field %s is missing (%s Config expected)", path, getFieldPathStr(fields), resType))
+	if type(value) == "table" then
+		return constructor(value, path, true)
 	else
-		return getter(_Game.resourceManager, data)
+		return getter(_Game.resourceManager, value)
 	end
 end
 
@@ -292,228 +370,229 @@ end
 ---Does not return anything if no data is provided.
 ---@param data string|table Either a string which is a resource path or any raw resource data which will be used to construct an anonymous resource.
 ---@param path string Resource path which will be passed to the potentially created anonymous resource.
----@param field string Name of the field which containes the provided data. Used for error messages.
+---@param fields any[] A list of indexes specifying the path inside of the file.
 ---@param resType string The type of the provided resource.
 ---@param getter function Resource getter which will return a resource if the resource path is provided. Intended to be `ResourceManager:get*Config()`.
 ---@param constructor any Resource constructor which will construct the anonymous resource if resource data is provided.
 ---@return table?
-local function parseClassConfigOpt(data, path, field, resType, getter, constructor)
-	if not data then
+local function parseClassConfigOpt(data, base, path, fields, resType, getter, constructor)
+	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	if not value then
 		return nil
 	end
-	return parseClassConfig(data, path, field, resType, getter, constructor)
+	return parseClassConfig(data, base, path, fields, resType, getter, constructor)
 end
 
 
 
 ---@return CollectibleConfig
-function utils.parseCollectibleConfig(data, path, field)
-	return parseClassConfig(data, path, field, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
+function utils.parseCollectibleConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
 end
 
 ---@return CollectibleConfig?
-function utils.parseCollectibleConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
+function utils.parseCollectibleConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
 end
 
 ---@return CollectibleEffectConfig
-function utils.parseCollectibleEffectConfig(data, path, field)
-	return parseClassConfig(data, path, field, "CollectibleEffect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
+function utils.parseCollectibleEffectConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "CollectibleEffect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
 end
 
 ---@return CollectibleEffectConfig?
-function utils.parseCollectibleEffectConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "CollectibleEffect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
+function utils.parseCollectibleEffectConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "CollectibleEffect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
 end
 
 ---@return CollectibleGeneratorConfig
-function utils.parseCollectibleGeneratorConfig(data, path, field)
-	return parseClassConfig(data, path, field, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
+function utils.parseCollectibleGeneratorConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
 
 ---@return CollectibleGeneratorConfig?
-function utils.parseCollectibleGeneratorConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
+function utils.parseCollectibleGeneratorConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
 
 ---@return ColorGeneratorConfig
-function utils.parseColorGeneratorConfig(data, path, field)
-	return parseClassConfig(data, path, field, "ColorGenerator", _Game.resourceManager.getColorGeneratorConfig, ColorGeneratorConfig)
+function utils.parseColorGeneratorConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "ColorGenerator", _Game.resourceManager.getColorGeneratorConfig, ColorGeneratorConfig)
 end
 
 ---@return ColorGeneratorConfig?
-function utils.parseColorGeneratorConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "ColorGenerator", _Game.resourceManager.getColorGeneratorConfig, ColorGeneratorConfig)
+function utils.parseColorGeneratorConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "ColorGenerator", _Game.resourceManager.getColorGeneratorConfig, ColorGeneratorConfig)
 end
 
 ---@return GameEventConfig
-function utils.parseGameEventConfig(data, path, field)
-	return parseClassConfig(data, path, field, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
+function utils.parseGameEventConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
 end
 
 ---@return GameEventConfig?
-function utils.parseGameEventConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
+function utils.parseGameEventConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
 end
 
 ---@return LevelConfig
-function utils.parseLevelConfig(data, path, field)
-	return parseClassConfig(data, path, field, "Level", _Game.resourceManager.getLevelConfig, LevelConfig)
+function utils.parseLevelConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "Level", _Game.resourceManager.getLevelConfig, LevelConfig)
 end
 
 ---@return LevelConfig?
-function utils.parseLevelConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "Level", _Game.resourceManager.getLevelConfig, LevelConfig)
+function utils.parseLevelConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "Level", _Game.resourceManager.getLevelConfig, LevelConfig)
 end
 
 ---@return LevelSequenceConfig
-function utils.parseLevelSequenceConfig(data, path, field)
-	return parseClassConfig(data, path, field, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
+function utils.parseLevelSequenceConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
 end
 
 ---@return LevelSequenceConfig?
-function utils.parseLevelSequenceConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
+function utils.parseLevelSequenceConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
 end
 
 ---@return LevelSetConfig
-function utils.parseLevelSetConfig(data, path, field)
-	return parseClassConfig(data, path, field, "LevelSet", _Game.resourceManager.getLevelSetConfig, LevelSetConfig)
+function utils.parseLevelSetConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "LevelSet", _Game.resourceManager.getLevelSetConfig, LevelSetConfig)
 end
 
 ---@return LevelSetConfig?
-function utils.parseLevelSetConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "LevelSet", _Game.resourceManager.getLevelSetConfig, LevelSetConfig)
+function utils.parseLevelSetConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "LevelSet", _Game.resourceManager.getLevelSetConfig, LevelSetConfig)
 end
 
 ---@return LevelTrainRulesConfig
-function utils.parseLevelTrainRulesConfig(data, path, field)
-	return parseClassConfig(data, path, field, "LevelTrainRules", _Game.resourceManager.getLevelTrainRulesConfig, LevelTrainRulesConfig)
+function utils.parseLevelTrainRulesConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "LevelTrainRules", _Game.resourceManager.getLevelTrainRulesConfig, LevelTrainRulesConfig)
 end
 
 ---@return LevelTrainRulesConfig?
-function utils.parseLevelTrainRulesConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "LevelTrainRules", _Game.resourceManager.getLevelTrainRulesConfig, LevelTrainRulesConfig)
+function utils.parseLevelTrainRulesConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "LevelTrainRules", _Game.resourceManager.getLevelTrainRulesConfig, LevelTrainRulesConfig)
 end
 
 ---@return ParticleConfig
-function utils.parseParticleConfig(data, path, field)
-	return parseClassConfig(data, path, field, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
+function utils.parseParticleConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
 end
 
 ---@return ParticleConfig?
-function utils.parseParticleConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
+function utils.parseParticleConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
 end
 
 ---@return ParticleConfig
-function utils.parseParticleEffectConfig(data, path, field)
-	return parseClassConfig(data, path, field, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
+function utils.parseParticleEffectConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
 end
 
 ---@return ParticleConfig?
-function utils.parseParticleEffectConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
+function utils.parseParticleEffectConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
 end
 
 ---@return ParticleConfig
-function utils.parseParticleEmitterConfig(data, path, field)
-	return parseClassConfig(data, path, field, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
+function utils.parseParticleEmitterConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
 end
 
 ---@return ParticleConfig?
-function utils.parseParticleEmitterConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
+function utils.parseParticleEmitterConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
 end
 
 ---@return PathEntityConfig
-function utils.parsePathEntityConfig(data, path, field)
-	return parseClassConfig(data, path, field, "PathEntity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
+function utils.parsePathEntityConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "PathEntity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
 end
 
 ---@return PathEntityConfig?
-function utils.parsePathEntityConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "PathEntity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
+function utils.parsePathEntityConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "PathEntity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
 end
 
 ---@return ProjectileConfig
-function utils.parseProjectileConfig(data, path, field)
-	return parseClassConfig(data, path, field, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
+function utils.parseProjectileConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
 end
 
 ---@return ProjectileConfig?
-function utils.parseProjectileConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
+function utils.parseProjectileConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
 end
 
 ---@return ScoreEventConfig
-function utils.parseScoreEventConfig(data, path, field)
-	return parseClassConfig(data, path, field, "ScoreEvent", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
+function utils.parseScoreEventConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "ScoreEvent", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
 end
 
 ---@return ScoreEventConfig?
-function utils.parseScoreEventConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "ScoreEvent", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
+function utils.parseScoreEventConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "ScoreEvent", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
 end
 
 ---@return ShooterMovementConfig
-function utils.parseShooterMovementConfig(data, path, field)
-	return parseClassConfig(data, path, field, "ShooterMovement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
+function utils.parseShooterMovementConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "ShooterMovement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
 end
 
 ---@return ShooterMovementConfig?
-function utils.parseShooterMovementConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "ShooterMovement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
+function utils.parseShooterMovementConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "ShooterMovement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
 end
 
 ---@return SphereConfig
-function utils.parseSphereConfig(data, path, field)
-	return parseClassConfig(data, path, field, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
+function utils.parseSphereConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
 end
 
 ---@return SphereConfig?
-function utils.parseSphereConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
+function utils.parseSphereConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
 end
 
 ---@return SphereEffectConfig
-function utils.parseSphereEffectConfig(data, path, field)
-	return parseClassConfig(data, path, field, "SphereEffect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
+function utils.parseSphereEffectConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "SphereEffect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
 end
 
 ---@return SphereEffectConfig?
-function utils.parseSphereEffectConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "SphereEffect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
+function utils.parseSphereEffectConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "SphereEffect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
 end
 
 ---@return SphereSelectorConfig
-function utils.parseSphereSelectorConfig(data, path, field)
-	return parseClassConfig(data, path, field, "SphereSelector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
+function utils.parseSphereSelectorConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "SphereSelector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
 end
 
 ---@return SphereSelectorConfig?
-function utils.parseSphereSelectorConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "SphereSelector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
+function utils.parseSphereSelectorConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "SphereSelector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
 end
 
 ---@return SpriteAtlasConfig
-function utils.parseSpriteAtlasConfig(data, path, field)
-	return parseClassConfig(data, path, field, "SpriteAtlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
+function utils.parseSpriteAtlasConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "SpriteAtlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
 end
 
 ---@return SpriteAtlasConfig?
-function utils.parseSpriteAtlasConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "SpriteAtlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
+function utils.parseSpriteAtlasConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "SpriteAtlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
 end
 
 ---@return VariableProvidersConfig
-function utils.parseVariableProvidersConfig(data, path, field)
-	return parseClassConfig(data, path, field, "VariableProviders", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
+function utils.parseVariableProvidersConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "VariableProviders", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
 end
 
 ---@return VariableProvidersConfig?
-function utils.parseVariableProvidersConfigOpt(data, path, field)
-	return parseClassConfigOpt(data, path, field, "VariableProviders", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
+function utils.parseVariableProvidersConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "VariableProviders", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
 end
 
 

@@ -18,47 +18,50 @@ LevelSetConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function LevelSetConfig:new(data, path, isAnonymous)
+---@param base LevelSetConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function LevelSetConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
+    base = base or {}
+
     self.levelOrder = {}
     for i = 1, #data.levelOrder do
         self.levelOrder[i] = {}
-        self.levelOrder[i].type = u.parseString(data.levelOrder[i].type, path, "levelOrder[" .. tostring(i) .. "].type")
+        self.levelOrder[i].type = u.parseString(data, base, path, {"levelOrder", i, "type"})
         if self.levelOrder[i].type == "level" then
-            self.levelOrder[i].level = u.parseLevelConfig(data.levelOrder[i].level, path, "levelOrder[" .. tostring(i) .. "].level")
-            self.levelOrder[i].name = u.parseString(data.levelOrder[i].name, path, "levelOrder[" .. tostring(i) .. "].name")
+            self.levelOrder[i].level = u.parseLevelConfig(data, base, path, {"levelOrder", i, "level"})
+            self.levelOrder[i].name = u.parseString(data, base, path, {"levelOrder", i, "name"})
         elseif self.levelOrder[i].type == "uiScript" then
-            self.levelOrder[i].callback = u.parseString(data.levelOrder[i].callback, path, "levelOrder[" .. tostring(i) .. "].callback")
-            self.levelOrder[i].name = u.parseString(data.levelOrder[i].name, path, "levelOrder[" .. tostring(i) .. "].name")
+            self.levelOrder[i].callback = u.parseString(data, base, path, {"levelOrder", i, "callback"})
+            self.levelOrder[i].name = u.parseString(data, base, path, {"levelOrder", i, "name"})
         elseif self.levelOrder[i].type == "randomizer" then
             self.levelOrder[i].pool = {}
             for j = 1, #data.levelOrder[i].pool do
-                self.levelOrder[i].pool[j] = u.parseLevelConfig(data.levelOrder[i].pool[j], path, "levelOrder[" .. tostring(i) .. "].pool[" .. tostring(j) .. "]")
+                self.levelOrder[i].pool[j] = u.parseLevelConfig(data, base, path, {"levelOrder", i, "pool", j})
             end
             self.levelOrder[i].names = {}
             for j = 1, #data.levelOrder[i].names do
-                self.levelOrder[i].names[j] = u.parseString(data.levelOrder[i].names[j], path, "levelOrder[" .. tostring(i) .. "].names[" .. tostring(j) .. "]")
+                self.levelOrder[i].names[j] = u.parseString(data, base, path, {"levelOrder", i, "names", j})
             end
-            self.levelOrder[i].count = u.parseInteger(data.levelOrder[i].count, path, "levelOrder[" .. tostring(i) .. "].count")
-            self.levelOrder[i].mode = u.parseString(data.levelOrder[i].mode, path, "levelOrder[" .. tostring(i) .. "].mode")
+            self.levelOrder[i].count = u.parseInteger(data, base, path, {"levelOrder", i, "count"})
+            self.levelOrder[i].mode = u.parseString(data, base, path, {"levelOrder", i, "mode"})
         else
             error(string.format("Unknown LevelSetConfig type: %s (expected \"level\", \"uiScript\", \"randomizer\")", self.levelOrder[i].type))
         end
 
         if data.levelOrder[i].checkpoint then
             self.levelOrder[i].checkpoint = {}
-            self.levelOrder[i].checkpoint.id = u.parseInteger(data.levelOrder[i].checkpoint.id, path, "levelOrder[" .. tostring(i) .. "].checkpoint.id")
-            self.levelOrder[i].checkpoint.unlockedOnStart = u.parseBooleanOpt(data.levelOrder[i].checkpoint.unlockedOnStart, path, "levelOrder[" .. tostring(i) .. "].checkpoint.unlockedOnStart")
+            self.levelOrder[i].checkpoint.id = u.parseInteger(data, base, path, {"levelOrder", i, "checkpoint", "id"})
+            self.levelOrder[i].checkpoint.unlockedOnStart = u.parseBooleanOpt(data, base, path, {"levelOrder", i, "checkpoint", "unlockedOnStart"})
         end
 
         self.levelOrder[i].unlockCheckpointsOnBeat = {}
         if data.levelOrder[i].unlockCheckpointsOnBeat then
             for j = 1, #data.levelOrder[i].unlockCheckpointsOnBeat do
-                self.levelOrder[i].unlockCheckpointsOnBeat[j] = u.parseInteger(data.levelOrder[i].unlockCheckpointsOnBeat[j], path, "levelOrder[" .. tostring(i) .. "].unlockCheckpointsOnBeat[" .. tostring(j) .. "]")
+                self.levelOrder[i].unlockCheckpointsOnBeat[j] = u.parseInteger(data, base, path, {"levelOrder", i, "unlockCheckpointsOnBeat", j})
             end
         end
     end

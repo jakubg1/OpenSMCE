@@ -18,39 +18,42 @@ PathEntityConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function PathEntityConfig:new(data, path, isAnonymous)
+---@param base PathEntityConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function PathEntityConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
-    self.sprite = u.parseSpriteOpt(data.sprite, path, "sprite")
-    self.shadowSprite = u.parseSpriteOpt(data.shadowSprite, path, "shadowSprite")
-    self.spawnPlacement = u.parseString(data.spawnPlacement, path, "spawnPlacement")
-    self.spawnOffset = u.parseNumberOpt(data.spawnOffset, path, "spawnOffset") or 0
-    self.speed = u.parseNumber(data.speed, path, "speed")
-    self.acceleration = u.parseNumberOpt(data.acceleration, path, "acceleration") or 0
-    self.maxSpeed = u.parseNumberOpt(data.maxSpeed, path, "maxSpeed")
-    self.maxOffset = u.parseNumberOpt(data.maxOffset, path, "maxOffset")
-    self.destroyOffset = u.parseNumberOpt(data.destroyOffset, path, "destroyOffset")
-    self.destroyTime = u.parseNumberOpt(data.destroyTime, path, "destroyTime")
-    self.destroyWhenPathEmpty = u.parseBooleanOpt(data.destroyWhenPathEmpty, path, "destroyWhenPathEmpty")
-    self.destroyAtClearOffset = u.parseBooleanOpt(data.destroyAtClearOffset, path, "destroyAtClearOffset")
-    self.particle = u.parseParticleEffectConfigOpt(data.particle, path, "particle")
-    self.particleSeparation = u.parseNumberOpt(data.particleSeparation, path, "particleSeparation")
-    self.renderParticlesInTunnels = u.parseBooleanOpt(data.renderParticlesInTunnels, path, "renderParticlesInTunnels")
-    self.loopSound = u.parseSoundEventOpt(data.loopSound, path, "loopSound")
-    self.collectibleGenerator = u.parseCollectibleGeneratorConfigOpt(data.collectibleGenerator, path, "collectibleGenerator")
-    self.collectibleGeneratorSeparation = u.parseNumberOpt(data.collectibleGeneratorSeparation, path, "collectibleGeneratorSeparation")
-    self.destroyParticle = u.parseParticleEffectConfigOpt(data.destroyParticle, path, "destroyParticle")
-    self.destroySound = u.parseSoundEventOpt(data.destroySound, path, "destroySound")
-    self.destroyScoreEvent = u.parseScoreEventConfigOpt(data.destroyScoreEvent, path, "destroyScoreEvent")
-    self.destroyCollectibleGenerator = u.parseCollectibleGeneratorConfigOpt(data.destroyCollectibleGenerator, path, "destroyCollectibleGenerator")
-    self.canDestroySpheres = u.parseBooleanOpt(data.canDestroySpheres, path, "canDestroySpheres")
-    self.sphereDestroySound = u.parseSoundEventOpt(data.sphereDestroySound, path, "sphereDestroySound")
-    self.sphereDestroyScoreEvent = u.parseScoreEventConfigOpt(data.sphereDestroyScoreEvent, path, "sphereDestroyScoreEvent")
-    self.maxSpheresDestroyed = u.parseIntegerOpt(data.maxSpheresDestroyed, path, "maxSpheresDestroyed")
-    self.maxSphereChainsDestroyed = u.parseIntegerOpt(data.maxSphereChainsDestroyed, path, "maxSphereChainsDestroyed")
+    base = base or {}
+
+    self.sprite = u.parseSpriteOpt(data, base, path, {"sprite"})
+    self.shadowSprite = u.parseSpriteOpt(data, base, path, {"shadowSprite"})
+    self.spawnPlacement = u.parseString(data, base, path, {"spawnPlacement"})
+    self.spawnOffset = u.parseNumberOpt(data, base, path, {"spawnOffset"}) or 0
+    self.speed = u.parseNumber(data, base, path, {"speed"})
+    self.acceleration = u.parseNumberOpt(data, base, path, {"acceleration"}) or 0
+    self.maxSpeed = u.parseNumberOpt(data, base, path, {"maxSpeed"})
+    self.maxOffset = u.parseNumberOpt(data, base, path, {"maxOffset"})
+    self.destroyOffset = u.parseNumberOpt(data, base, path, {"destroyOffset"})
+    self.destroyTime = u.parseNumberOpt(data, base, path, {"destroyTime"})
+    self.destroyWhenPathEmpty = u.parseBooleanOpt(data, base, path, {"destroyWhenPathEmpty"})
+    self.destroyAtClearOffset = u.parseBooleanOpt(data, base, path, {"destroyAtClearOffset"})
+    self.particle = u.parseParticleEffectConfigOpt(data, base, path, {"particle"})
+    self.particleSeparation = u.parseNumberOpt(data, base, path, {"particleSeparation"})
+    self.renderParticlesInTunnels = u.parseBooleanOpt(data, base, path, {"renderParticlesInTunnels"})
+    self.loopSound = u.parseSoundEventOpt(data, base, path, {"loopSound"})
+    self.collectibleGenerator = u.parseCollectibleGeneratorConfigOpt(data, base, path, {"collectibleGenerator"})
+    self.collectibleGeneratorSeparation = u.parseNumberOpt(data, base, path, {"collectibleGeneratorSeparation"})
+    self.destroyParticle = u.parseParticleEffectConfigOpt(data, base, path, {"destroyParticle"})
+    self.destroySound = u.parseSoundEventOpt(data, base, path, {"destroySound"})
+    self.destroyScoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"destroyScoreEvent"})
+    self.destroyCollectibleGenerator = u.parseCollectibleGeneratorConfigOpt(data, base, path, {"destroyCollectibleGenerator"})
+    self.canDestroySpheres = u.parseBooleanOpt(data, base, path, {"canDestroySpheres"})
+    self.sphereDestroySound = u.parseSoundEventOpt(data, base, path, {"sphereDestroySound"})
+    self.sphereDestroyScoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"sphereDestroyScoreEvent"})
+    self.maxSpheresDestroyed = u.parseIntegerOpt(data, base, path, {"maxSpheresDestroyed"})
+    self.maxSphereChainsDestroyed = u.parseIntegerOpt(data, base, path, {"maxSphereChainsDestroyed"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

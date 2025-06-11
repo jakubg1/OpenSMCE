@@ -18,41 +18,44 @@ ParticleConfig.metadata = {
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
-function ParticleConfig:new(data, path, isAnonymous)
+---@param base ParticleConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function ParticleConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
     self._isAnonymous = isAnonymous
 
+    base = base or {}
+
     self.movement = {}
-    self.movement.type = u.parseString(data.movement.type, path, "movement.type")
+    self.movement.type = u.parseString(data, base, path, {"movement", "type"})
     if self.movement.type == "loose" then
-        self.movement.speed = u.parseExprVec2(data.movement.speed, path, "movement.speed")
-        self.movement.acceleration = u.parseVec2(data.movement.acceleration, path, "movement.acceleration")
+        self.movement.speed = u.parseExprVec2(data, base, path, {"movement", "speed"})
+        self.movement.acceleration = u.parseVec2(data, base, path, {"movement", "acceleration"})
     elseif self.movement.type == "radius" then
-        self.movement.speed = u.parseExprVec2(data.movement.speed, path, "movement.speed")
-        self.movement.acceleration = u.parseVec2(data.movement.acceleration, path, "movement.acceleration")
+        self.movement.speed = u.parseExprVec2(data, base, path, {"movement", "speed"})
+        self.movement.acceleration = u.parseVec2(data, base, path, {"movement", "acceleration"})
     elseif self.movement.type == "circle" then
-        self.movement.speed = u.parseExprNumber(data.movement.speed, path, "movement.speed")
-        self.movement.acceleration = u.parseNumber(data.movement.acceleration, path, "movement.acceleration")
+        self.movement.speed = u.parseExprNumber(data, base, path, {"movement", "speed"})
+        self.movement.acceleration = u.parseNumber(data, base, path, {"movement", "acceleration"})
     else
         error(string.format("Unknown movement type: %s (expected \"loose\", \"radius\", \"circle\")", self.movement.type))
     end
 
-    self.spawnScale = u.parseExprVec2(data.spawnScale, path, "spawnScale")
-    self.lifespan = u.parseExprNumberOpt(data.lifespan, path, "lifespan")
-    self.sprite = u.parseSprite(data.sprite, path, "sprite")
-    self.animationFrameCount = u.parseInteger(data.animationFrameCount, path, "animationFrameCount")
-    self.animationSpeed = u.parseNumber(data.animationSpeed, path, "animationSpeed")
-    self.animationLoop = u.parseBoolean(data.animationLoop, path, "animationLoop")
-    self.animationFrameRandom = u.parseBoolean(data.animationFrameRandom, path, "animationFrameRandom")
-    self.fadeInPoint = u.parseNumber(data.fadeInPoint, path, "fadeInPoint")
-    self.fadeOutPoint = u.parseNumber(data.fadeOutPoint, path, "fadeOutPoint")
-    self.posRelative = u.parseBooleanOpt(data.posRelative, path, "posRelative") == true
-    self.colorPalette = u.parseColorPaletteOpt(data.colorPalette, path, "colorPalette")
-    self.colorPaletteSpeed = u.parseNumberOpt(data.colorPaletteSpeed, path, "colorPaletteSpeed")
-    self.directionDeviationTime = u.parseNumberOpt(data.directionDeviationTime, path, "directionDeviationTime")
-    self.directionDeviationSpeed = u.parseExprVec2Opt(data.directionDeviationSpeed, path, "directionDeviationSpeed")
+    self.spawnScale = u.parseExprVec2(data, base, path, {"spawnScale"})
+    self.lifespan = u.parseExprNumberOpt(data, base, path, {"lifespan"})
+    self.sprite = u.parseSprite(data, base, path, {"sprite"})
+    self.animationFrameCount = u.parseInteger(data, base, path, {"animationFrameCount"})
+    self.animationSpeed = u.parseNumber(data, base, path, {"animationSpeed"})
+    self.animationLoop = u.parseBoolean(data, base, path, {"animationLoop"})
+    self.animationFrameRandom = u.parseBoolean(data, base, path, {"animationFrameRandom"})
+    self.fadeInPoint = u.parseNumber(data, base, path, {"fadeInPoint"})
+    self.fadeOutPoint = u.parseNumber(data, base, path, {"fadeOutPoint"})
+    self.posRelative = u.parseBooleanOpt(data, base, path, {"posRelative"}) == true
+    self.colorPalette = u.parseColorPaletteOpt(data, base, path, {"colorPalette"})
+    self.colorPaletteSpeed = u.parseNumberOpt(data, base, path, {"colorPaletteSpeed"})
+    self.directionDeviationTime = u.parseNumberOpt(data, base, path, {"directionDeviationTime"})
+    self.directionDeviationSpeed = u.parseExprVec2Opt(data, base, path, {"directionDeviationSpeed"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.
