@@ -21,21 +21,57 @@ function Debug:new()
 	self.uiDebug = UIDebug()
 
 	self.commands = {
-		t = {description = "Adjusts the speed scale of the game. 1 = default.", parameters = {{name = "scale", type = "number", optional = false}}},
-		e = {description = "Toggles the Background Cheat Mode. Spheres render over tunnels.", parameters = {}},
-		n = {description = "Destroys all spheres on the board.", parameters = {}},
-		ppp = {description = "Spawns a Scorpion.", parameters = {}},
-		net = {description = "Spawns a Net.", parameters = {}},
-		test = {description = "Spawns a test particle.", parameters = {}},
-		crash = {description = "Crashes the game.", parameters = {}},
-		expr = {description = "Evaluates an Expression.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
-		exprt = {description = "Breaks down an Expression and shows the list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
-		ex = {description = "Debugs an Expression: shows detailed tokenization and list of RPN steps.", parameters = {{name = "expression", type = "string", optional = false, greedy = true}}},
-		help = {description = "Displays this list.", parameters = {}},
-		collectible = {description = "Spawns a Collectible in the middle of the screen.", parameters = {{name = "collectible", type = "Collectible", optional = false}, {name = "amount", type = "integer", optional = true}}},
-		train = {description = "Evaluates a train preset generator.", parameters = {{name = "preset", type = "string", optional = false, greedy = true}}}
+		t = {
+			description = "Adjusts the speed scale of the game. 1 = default.",
+			parameters = {{name = "scale", type = "number", optional = false}},
+			fn = function(scale)
+
+			end
+		},
+		e = {
+			description = "Toggles the Background Cheat Mode. Spheres render over tunnels.",
+			parameters = {}
+		},
+		n = {
+			description = "Destroys all spheres on the board.",
+			parameters = {}
+		},
+		test = {
+			description = "Spawns a test particle.",
+			parameters = {{name = "particle", type = "ParticleEffect", optional = false}}
+		},
+		crash = {
+			description = "Crashes the game.",
+			parameters = {}
+		},
+		expr = {
+			description = "Evaluates an Expression.",
+			parameters = {{name = "expression", type = "string", optional = false, greedy = true}}
+		},
+		exprt = {
+			description = "Breaks down an Expression and shows the list of RPN steps.",
+			parameters = {{name = "expression", type = "string", optional = false, greedy = true}}
+		},
+		ex = {
+			description = "Debugs an Expression: shows detailed tokenization and list of RPN steps.",
+			parameters = {{name = "expression", type = "string", optional = false, greedy = true}}
+		},
+		help = {
+			description = "Displays this list.",
+			parameters = {}
+		},
+		collectible = {
+			description = "Spawns a Collectible in the middle of the screen.",
+			parameters = {{name = "collectible", type = "Collectible", optional = false}, {name = "amount", type = "integer", optional = true}}
+		},
+		train = {
+			description = "Evaluates a train preset generator.",
+			parameters = {{name = "preset", type = "string", optional = false, greedy = true}}
+		}
 		-- Add commands to tinker with Expression Variables
 		-- Add a list of Expression Variables in a debug screen
+		-- Add a command to play any level
+		-- Add a command to set objective values
 	}
 	self.commandNames = {}
 	for commandName, commandData in pairs(self.commands) do
@@ -495,6 +531,10 @@ function Debug:getCommandCompletionSuggestions(command)
 					if _Game.resourceManager then
 						suggestions = _Game.resourceManager:getResourceList("Collectible")
 					end
+				elseif parameter.type == "ParticleEffect" then
+					if _Game.resourceManager then
+						suggestions = _Game.resourceManager:getResourceList("ParticleEffect")
+					end
 				end
 			end
 		end
@@ -585,43 +625,6 @@ function Debug:runCommand(command)
 			table.insert(msg, " - " .. commandData.description)
 			self.console:print(msg)
 		end
-	elseif command == "p" then
-		-- REMOVED: kept for reference in the future
-		local t = {fire = "bomb", ligh = "lightning", wild = "wild", bomb = "colorbomb", slow = "slow", stop = "stop", rev = "reverse", shot = "shotspeed"}
-		for word, name in pairs(t) do
-			if parameters[1] == word then
-				if word == "bomb" then
-					if not parameters[2] or parameters[2] < 1 or parameters[2] > 7 then
-						self.console:print({_COLORS.red, "Missing parameter (expected an integer from 1 to 7)."})
-						return
-					end
-					--_Game.session:usePowerup({name = name, color = parameters[2]})
-				else
-					--_Game.session:usePowerup({name = name})
-				end
-				self.console:print("Powerup applied")
-			end
-		end
-	elseif command == "sp" then
-		-- REMOVED: kept for reference in the future
-		_Game.level.destroyedSpheres = parameters[1]
-		self.console:print("Spheres destroyed set to " .. tostring(parameters[1]))
-	elseif command == "b" then
-		-- REMOVED: kept for reference in the future
-		for i, path in ipairs(_Game.level.map.paths) do
-			for j, sphereChain in ipairs(path.sphereChains) do
-				for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
-					sphereGroup.offset = sphereGroup.offset + 1000
-				end
-			end
-		end
-		self.console:print("Boosted!")
-	elseif command == "s" then
-		-- REMOVED: kept for reference in the future
-		for i, path in ipairs(_Game.level.map.paths) do
-			path:spawnChain()
-		end
-		self.console:print("Spawned new chains!")
 	elseif command == "t" then
 		_TimeScale = parameters[1]
 		self.console:print("Time scale set to " .. tostring(parameters[1]))
@@ -631,12 +634,8 @@ function Debug:runCommand(command)
 	elseif command == "n" then
 		SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
 		self.console:print("Nuked!")
-	elseif command == "ppp" then
-		_Game.level:applyEffect({type = "spawnPathEntity", pathEntity = "path_entities/scorpion.json"})
-	elseif command == "net" then
-		_Game.level:applyEffect({type = "activateNet", time = 20})
 	elseif command == "test" then
-		_Game:spawnParticle("particles/collapse_vise.json", Vec2(100, 400))
+		_Game:spawnParticle(parameters[1], Vec2(100, 400))
 	elseif command == "crash" then
 		return "crash"
 	elseif command == "expr" then

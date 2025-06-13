@@ -32,7 +32,10 @@ end
 
 function BootScreen:init()
 	-- window title and size
-	_Display:setResolution(self:getNativeResolution(), false, "OpenSMCE [" .. _VERSION .. "] - Boot Menu")
+	local res = self:getNativeResolution()
+	_Display:setResolution(res, false, "OpenSMCE [" .. _VERSION .. "] - Boot Menu")
+	-- Despite the canvas is not used to draw any Boot Screen UI, the size is used to calculate the mouse position.
+	_Display:setCanvas(res, "filtered")
 
 	-- game list
 	self:fetchGameList()

@@ -19,8 +19,8 @@ function EditorMain:new(name)
 
 	self.nativeResolution = Vec2(1280, 720)
 
-	self.configManager = nil
 	self.resourceManager = nil
+	self.configManager = nil
 
 	-- buttons
 	self.menuBtn = Button("Quit", _FONT_BIG, Vec2(1170, 4), Vec2(100, 24), function() _LoadBootScreen() end)
@@ -43,17 +43,20 @@ end
 function EditorMain:init()
 	_Log:printt("EditorMain", "Editing game: " .. self.name)
 
-	-- Step 1. Load the config
-	self.configManager = ConfigManager()
-
-	-- Step 2. Initialize the window
-	_Display:setResolution(self:getNativeResolution(), false, "OpenSMCE [" .. _VERSION .. "] - Game Editor - " .. self.name)
-
-	-- Step 3. Create a resource bank
+	-- Step 1. Create a resource bank
 	self.resourceManager = ResourceManager()
 	self.resourceManager:startLoadCounter("main")
 	self.resourceManager:scanResources()
 	self.resourceManager:stopLoadCounter("main")
+
+	-- Step 2. Load the config
+	self.configManager = ConfigManager()
+
+	-- Step 3. Initialize the window
+	local res = self:getNativeResolution()
+	_Display:setResolution(res, false, "OpenSMCE [" .. _VERSION .. "] - Game Editor - " .. self.name)
+	-- Despite the canvas is not used to draw any editor UI, the size is used to calculate the mouse position.
+	_Display:setCanvas(res, "filtered")
 end
 
 
@@ -115,7 +118,7 @@ function EditorMain:draw()
 	if self.resourceManager:getLoadProgress("main") < 1 then
 		love.graphics.print("Loading...", 15, 35)
 	end
-	self.resourceList = self.resourceManager:getResourceList("sprite")
+	self.resourceList = self.resourceManager:getResourceList("Sprite")
 	table.sort(self.resourceList, function(a, b) return a < b end)
 	for i, key in ipairs(self.resourceList) do
 		local y = 50 + (i - 1) * 15 - self.resourceListOffset
@@ -253,7 +256,7 @@ end
 
 
 
----Returns the native resolution of the Game Editor, which is always 800 by 600.
+---Returns the native resolution of the Game Editor, which is always 1280 by 720.
 ---@return Vector2
 function EditorMain:getNativeResolution()
 	return self.nativeResolution

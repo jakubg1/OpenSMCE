@@ -22,8 +22,8 @@ function Game:new(name)
 
 	self.hasFocus = false
 
-	self.configManager = nil
 	self.resourceManager = nil
+	self.configManager = nil
 	self.runtimeManager = nil
 	self.level = nil
 

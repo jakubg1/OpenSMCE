@@ -66,6 +66,9 @@ end
 function Console:setOpen(open)
 	self.open = open
 	self.active = open
+	if not open then
+		self.tabCompletionList = nil
+	end
 end
 
 function Console:toggleOpen()
@@ -175,7 +178,7 @@ function Console:draw()
 		for i = a, b do
 			local completion = self.tabCompletionList[i]
 			local color = self.tabCompletionSelection == i and _COLORS.white or _COLORS.white
-			local backgroundColor = self.tabCompletionSelection == i and _COLORS.darkAqua or _COLORS.black
+			local backgroundColor = self.tabCompletionSelection == i and _COLORS.sky or _COLORS.black
 			_Debug:drawVisibleText({color, completion}, Vec2(x, y + (i - a) * 20), 20, width, nil, true, backgroundColor)
 		end
 	end
