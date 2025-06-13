@@ -15,8 +15,8 @@ function BootMain:new(bootScreen)
     -- github url link
     self.url = "https://github.com/jakubg1/OpenSMCE"
     self.urlHovered = false
-    self.urlHoverPos = Vec2(35, 174)
-    self.urlHoverSize = Vec2(365, 25)
+    self.urlHoverPos = Vec2(45, 174)
+    self.urlHoverSize = Vec2(345, 25)
 
     -- game list
     self.gameButtons = {}
@@ -170,29 +170,28 @@ function BootMain:draw()
     -- NOTES
     -----------------------------
     -- Frame
+    love.graphics.setColor(0.5, 0.5, 0.5)
     love.graphics.setLineWidth(4)
     love.graphics.rectangle("line", 30, 60, 740, 150)
     if not self.joke then
         -- Warning text
         love.graphics.setColor(1, 0.2, 0.2)
         love.graphics.setFont(_FONT_BIG)
-        love.graphics.print("WARNING", 45, 75)
+        love.graphics.print("WARNING - BETA VERSION !!!", 45, 75)
         -- Warning contents
         love.graphics.setColor(1, 1, 0.2)
         love.graphics.setFont(_FONT)
-        love.graphics.print("This engine is in BETA DEVELOPMENT.\nThis version is dedicated to people who want to test the engine and examine it.\nThis version should not be treated like a full version yet, as the inner workings still may change heavily!\nRemember to post issues and feature suggestions at the following Github repository link.\nThank you for your support!", 45, 100)
+        love.graphics.print("This version is not guaranteed to work properly.\nBreaking changes may occur at any time.\n\nThank you for your support!", 45, 100)
         -- Github link
-        love.graphics.setColor(1, 1, 1)
+        if self.urlHovered then
+            love.graphics.setColor(0.2, 1, 1)
+        else
+            love.graphics.setColor(1, 1, 0.2)
+        end
         love.graphics.setFont(_FONT_BIG)
         love.graphics.print(self.url, 45, 175)
-        -- Hover
-        if self.urlHovered then
-            love.graphics.setColor(1, 1, 0)
-        else
-            love.graphics.setColor(0.4, 0.4, 0)
-        end
         love.graphics.setLineWidth(2)
-        love.graphics.rectangle("line", self.urlHoverPos.x, self.urlHoverPos.y, self.urlHoverSize.x, self.urlHoverSize.y)
+        love.graphics.line(self.urlHoverPos.x, self.urlHoverPos.y + self.urlHoverSize.y, self.urlHoverPos.x + self.urlHoverSize.x, self.urlHoverPos.y + self.urlHoverSize.y)
     else
         -- Trial version (JOKE! THIS ENGINE WILL NEVER BE PAID)
         love.graphics.setColor(1, 1, 1)
