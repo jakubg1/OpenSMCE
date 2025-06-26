@@ -168,6 +168,11 @@ function Debug:draw()
 	if self.sphereDebugVisible then self:drawSphereInfo() end
 end
 
+function Debug:wheelmoved(x, y)
+	self.console:wheelmoved(x, y)
+	self.uiDebug:wheelmoved(x, y)
+end
+
 function Debug:keypressed(key)
 	if not self.console.active then
 		if key == "f1" then
@@ -211,10 +216,6 @@ end
 
 function Debug:mousereleased(x, y, button)
 	self.uiDebug:mousereleased(x, y, button)
-end
-
-function Debug:wheelmoved(x, y)
-	self.uiDebug:wheelmoved(x, y)
 end
 
 

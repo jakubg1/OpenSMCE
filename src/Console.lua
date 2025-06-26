@@ -10,10 +10,13 @@ local utf8 = require("utf8")
 ---Constructs the Console.
 function Console:new()
 	-- NOTE: Y position is recalculated each frame in `:draw()` because the console is brought down to the bottom of the window.
-	self.x, self.y = 5, 5
+	self.x, self.y = 0, 0
 	self.w, self.h = 600, 200
 
+	---@type {text: string, time: number}[]
 	self.output = {}
+	self.outputOffset = 0
+	---@type string[]
 	self.history = {}
 	self.historyOffset = nil
 	self.command = ""
@@ -67,6 +70,10 @@ function Console:print(message)
 		message = tostring(message)
 	end
 	table.insert(self.output, {text = message, time = _TotalTime})
+	-- When browsing the command history, don't drag previous messages from under our feet.
+	if self.outputOffset > 0 then
+		self:scrollOutputHistory(self.outputOffset + 1)
+	end
 	_Log:printt("CONSOLE", _Utils.strUnformat(message))
 end
 
@@ -83,6 +90,13 @@ end
 ---Toggles whether the console is currently open.
 function Console:toggleOpen()
 	self:setOpen(not self.open)
+end
+
+---Scrolls the console output to the provided amount of lines back.
+---Makes sure that the output is not scrolled out of bounds.
+---@param offset integer The amount of lines back from the most recent line to be scrolled to.
+function Console:scrollOutputHistory(offset)
+	self.outputOffset = math.max(math.min(offset, #self.output - self.MAX_MESSAGES), 0)
 end
 
 ---Scrolls the console input to the given history entry.
@@ -152,49 +166,67 @@ function Console:draw()
 	local w, h = love.window.getMode()
 	self.y = h
 
-	-- History
+	-- Output
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(_FONT_CONSOLE)
-	for i = 1, self.MAX_MESSAGES do
-		local message = self.output[#self.output - i + 1]
-		if message then
-			local t = _TotalTime - message.time
-			if self.open or t < 10 then
-				local a = 1
-				if not self.open then
-					a = math.min(10 - t, 1)
-				end
-				_Debug:drawVisibleText(message.text, self.x, self.y - 30 - 20 * i, 20, nil, a, true)
+	local a = math.max(#self.output - self.MAX_MESSAGES - self.outputOffset + 1, 1)
+	local b = math.min(a + self.MAX_MESSAGES - 1, #self.output)
+	local y = self.y - 25 - (b - a + 1) * 20
+	for i = a, b do
+		local message = self.output[i]
+		local t = _TotalTime - message.time
+		if self.open or t < 10 then
+			local alpha = 1
+			if not self.open then
+				alpha = math.min(10 - t, 1)
+			end
+			_Debug:drawVisibleText(message.text, self.x + 5, y + (i - a) * 20, 20, nil, alpha, true)
+		end
+	end
+
+	if self.open then
+		-- Output scrollbar
+		local totalH = self.MAX_MESSAGES * 20
+		local scrollH = totalH * math.min(self.MAX_MESSAGES / #self.output, 1)
+		local scrollY = totalH * (1 - (self.outputOffset / #self.output)) - scrollH
+		love.graphics.setColor(0.8, 0.8, 0.8)
+		love.graphics.rectangle("fill", self.x, self.y - 25 - totalH + scrollY, 2, scrollH)
+
+		-- Input box
+		local text = "> " .. self.command
+		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
+		_Debug:drawVisibleText(text, self.x + 5, self.y - 25, 20, self.w, 1, true)
+
+		-- Tab completion
+		if self.tabCompletionList then
+			local a = self.tabCompletionOffset + 1
+			local b = math.min(a + self.MAX_TAB_COMPLETION_SUGGESTIONS - 1, #self.tabCompletionList)
+			local x = self.x + 5 + (utf8.len(self:getCommandWithoutLastWord()) + 2) * 8
+			local y = self.y - 25 - (b - a + 1) * 20
+			local width = 150
+			for i, completion in ipairs(self.tabCompletionList) do
+				width = math.max(width, _FONT_CONSOLE:getWidth(completion))
+			end
+			for i = a, b do
+				local completion = self.tabCompletionList[i]
+				local color = self.tabCompletionSelection == i and _COLORS.white or _COLORS.white
+				local backgroundColor = self.tabCompletionSelection == i and _COLORS.sky or _COLORS.black
+				_Debug:drawVisibleText({color, completion}, x, y + (i - a) * 20, 20, width, nil, true, backgroundColor)
 			end
 		end
 	end
 
-	-- Input box
-	if self.open then
-		local text = "> " .. self.command
-		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
-		_Debug:drawVisibleText(text, self.x, self.y - 25, 20, self.w, 1, true)
-	end
-
-	-- Tab completion
-	if self.open and self.tabCompletionList then
-		local a = self.tabCompletionOffset + 1
-		local b = math.min(a + self.MAX_TAB_COMPLETION_SUGGESTIONS - 1, #self.tabCompletionList)
-		local x = self.x + (utf8.len(self:getCommandWithoutLastWord()) + 2) * 8
-		local y = self.y - 25 - (b - a + 1) * 20
-		local width = 150
-		for i, completion in ipairs(self.tabCompletionList) do
-			width = math.max(width, _FONT_CONSOLE:getWidth(completion))
-		end
-		for i = a, b do
-			local completion = self.tabCompletionList[i]
-			local color = self.tabCompletionSelection == i and _COLORS.white or _COLORS.white
-			local backgroundColor = self.tabCompletionSelection == i and _COLORS.sky or _COLORS.black
-			_Debug:drawVisibleText({color, completion}, x, y + (i - a) * 20, 20, width, nil, true, backgroundColor)
-		end
-	end
-
 	love.graphics.setFont(_FONT)
+end
+
+---LOVE2D callback for when the mouse wheel is scrolled.
+---@param x integer Scroll distance on X axis.
+---@param y integer Scroll distance on Y axis.
+function Console:wheelmoved(x, y)
+	if not self.active then
+		return
+	end
+	self:scrollOutputHistory(self.outputOffset + y * 3)
 end
 
 ---LOVE2D callback for when a key is pressed.
@@ -204,29 +236,30 @@ function Console:keypressed(key)
 	if key == "`" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
 		self:toggleOpen()
 	end
-	if self.active then
-		if key == "v" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
-			self:inputText(love.system.getClipboardText())
-		elseif key == "backspace" then
-			self:inputBackspace()
-		elseif key == "tab" then
-			self:inputTab()
-		elseif key == "up" then
-			self:inputUp()
-		elseif key == "down" then
-			self:inputDown()
-		elseif key == "pageup" then
-			self:inputPageUp()
-		elseif key == "pagedown" then
-			self:inputPageDown()
-		elseif key == "escape" then
-			self.tabCompletionList = nil
-		elseif key == "return" then
-			self:inputEnter()
-		end
-		self.keyRepeat = key
-		self.keyRepeatTime = self.KEY_FIRST_REPEAT_TIME
+	if not self.active then
+		return
 	end
+	if key == "v" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
+		self:inputText(love.system.getClipboardText())
+	elseif key == "backspace" then
+		self:inputBackspace()
+	elseif key == "tab" then
+		self:inputTab()
+	elseif key == "up" then
+		self:inputUp()
+	elseif key == "down" then
+		self:inputDown()
+	elseif key == "pageup" then
+		self:inputPageUp()
+	elseif key == "pagedown" then
+		self:inputPageDown()
+	elseif key == "escape" then
+		self.tabCompletionList = nil
+	elseif key == "return" then
+		self:inputEnter()
+	end
+	self.keyRepeat = key
+	self.keyRepeatTime = self.KEY_FIRST_REPEAT_TIME
 end
 
 ---LOVE2D callback for when a key was released.
