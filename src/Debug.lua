@@ -146,14 +146,14 @@ function Debug:draw()
 		p2.x, p2.y = 400, _Display.size.y
 		p2:draw()
 
-		self:drawVisibleText("Debug Keys:", Vec2(10, 10), 15)
-		self:drawVisibleText("[F1] Performance", Vec2(10, 25), 15)
-		self:drawVisibleText("[F2] UI Tree", Vec2(10, 40), 15)
-		self:drawVisibleText("    [Ctrl+F2] Collapse all invisible UI Nodes", Vec2(10, 55), 15)
-		self:drawVisibleText("[F3] Gameplay debug display", Vec2(10, 70), 15)
-		self:drawVisibleText("[F4] Debug text (FPS, level data, etc.)", Vec2(10, 85), 15)
-		self:drawVisibleText("[F5] FPS Counter", Vec2(10, 100), 15)
-		self:drawVisibleText("[F6] Sphere trains path overlay", Vec2(10, 115), 15)
+		self:drawVisibleText("Debug Keys:", 10, 10, 15)
+		self:drawVisibleText("[F1] Performance", 10, 25, 15)
+		self:drawVisibleText("[F2] UI Tree", 10, 40, 15)
+		self:drawVisibleText("    [Ctrl+F2] Collapse all invisible UI Nodes", 10, 55, 15)
+		self:drawVisibleText("[F3] Gameplay debug display", 10, 70, 15)
+		self:drawVisibleText("[F4] Debug text (FPS, level data, etc.)", 10, 85, 15)
+		self:drawVisibleText("[F5] FPS Counter", 10, 100, 15)
+		self:drawVisibleText("[F6] Sphere trains path overlay", 10, 115, 15)
 	end
 
 	-- Console
@@ -394,14 +394,15 @@ end
 
 ---Draws a text with a semi-transparent background.
 ---@param text string|table The text to be drawn.
----@param pos Vector2 The text position.
+---@param x number The X position of the text.
+---@param y number The Y position of the text.
 ---@param height number The box height, in pixels.
 ---@param width number? The box width, in pixels. Defaults to the text width.
 ---@param alpha number? The semitransparency parameter.
 ---@param shadow boolean? If set, the text will have a shadow drawn for extra visibility.
 ---@param backgroundColor table? The background color, black by default.
 ---@param rightAlign boolean? If set, the text will grow to the left.
-function Debug:drawVisibleText(text, pos, height, width, alpha, shadow, backgroundColor, rightAlign)
+function Debug:drawVisibleText(text, x, y, height, width, alpha, shadow, backgroundColor, rightAlign)
 	if text == "" then
 		return
 	end
@@ -409,38 +410,37 @@ function Debug:drawVisibleText(text, pos, height, width, alpha, shadow, backgrou
 	width = width or love.graphics.getFont():getWidth(_Utils.strUnformat(text))
 	alpha = alpha or 1
 	backgroundColor = backgroundColor or _COLORS.black
-	local x = pos.x
 	if rightAlign then
 		x = x - width
 	end
 
 	love.graphics.setColor(backgroundColor[1], backgroundColor[2], backgroundColor[3], 0.7 * alpha)
-	love.graphics.rectangle("fill", x - 3, pos.y, width + 6, height)
+	love.graphics.rectangle("fill", x - 3, y, width + 6, height)
 	if shadow then
 		love.graphics.setColor(0, 0, 0, alpha)
-		love.graphics.print(text, x + 2, pos.y + 2)
+		love.graphics.print(text, x + 2, y + 2)
 	end
 	love.graphics.setColor(1, 1, 1, alpha)
-	love.graphics.print(text, x, pos.y)
+	love.graphics.print(text, x, y)
 end
 
 function Debug:drawDebugInfo()
 	-- Debug screen
 	local leftLines = _Utils.strSplit(self:getDebugInfo(), "\n")
 	for i, l in ipairs(leftLines) do
-		self:drawVisibleText(l, Vec2(0, 15 * (i - 1)), 15)
+		self:drawVisibleText(l, 0, 15 * (i - 1), 15)
 	end
 
 	local rightLines = _Utils.strSplit(self:getRightDebugInfo(), "\n")
 	for i, l in ipairs(rightLines) do
-		self:drawVisibleText(l, Vec2(_Display.size.x, 15 * (i - 1)), 15, nil, nil, nil, nil, true)
+		self:drawVisibleText(l, _Display.size.x, 15 * (i - 1), 15, nil, nil, nil, nil, true)
 	end
 end
 
 function Debug:drawFpsInfo()
 	local s = "FPS = " .. tostring(love.timer.getFPS())
 
-	self:drawVisibleText(s, Vec2(), 15, 65)
+	self:drawVisibleText(s, 0, 0, 15, 65)
 end
 
 

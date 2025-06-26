@@ -184,13 +184,13 @@ function BootMain:draw()
         love.graphics.print("This version is not guaranteed to work properly.\nBreaking changes may occur at any time.\n\nThank you for your support!", 45, 100)
         -- Github link
         if self.urlHovered then
-            love.graphics.setColor(0.2, 1, 1)
+            love.graphics.setColor(1, 1, 1)
         else
-            love.graphics.setColor(1, 1, 0.2)
+            love.graphics.setColor(0.2, 1, 1)
         end
         love.graphics.setFont(_FONT_BIG)
         love.graphics.print(self.url, 45, 175)
-        love.graphics.setLineWidth(2)
+        love.graphics.setLineWidth(1)
         love.graphics.line(self.urlHoverPos.x, self.urlHoverPos.y + self.urlHoverSize.y, self.urlHoverPos.x + self.urlHoverSize.x, self.urlHoverPos.y + self.urlHoverSize.y)
     else
         -- Trial version (JOKE! THIS ENGINE WILL NEVER BE PAID)

@@ -1,15 +1,18 @@
 local class = require "com.class"
 
+---The console window serves as a debugging input/output system.
 ---@class Console
 ---@overload fun():Console
 local Console = class:derive("Console")
 
 local utf8 = require("utf8")
-local Vec2 = require("src.Essentials.Vector2")
 
-
-
+---Constructs the Console.
 function Console:new()
+	-- NOTE: Y position is recalculated each frame in `:draw()` because the console is brought down to the bottom of the window.
+	self.x, self.y = 5, 5
+	self.w, self.h = 600, 200
+
 	self.output = {}
 	self.history = {}
 	self.historyOffset = nil
@@ -31,6 +34,8 @@ function Console:new()
 	self.MAX_MESSAGES = 20
 end
 
+---Updates the console. Handles key repeat timing.
+---@param dt number Time delta in seconds.
 function Console:update(dt)
 	if self.keyRepeat then
 		self.keyRepeatTime = self.keyRepeatTime - dt
@@ -55,6 +60,8 @@ function Console:update(dt)
 	end
 end
 
+---Prints a message to the console.
+---@param message any? The message to be sent. If it's not a string or a formatted string (table), `tostring` will be implicitly used first.
 function Console:print(message)
 	if type(message) ~= "string" and type(message) ~= "table" then
 		message = tostring(message)
@@ -63,6 +70,8 @@ function Console:print(message)
 	_Log:printt("CONSOLE", _Utils.strUnformat(message))
 end
 
+---Sets whether the console is currently open.
+---@param open boolean Whether the console should be now open.
 function Console:setOpen(open)
 	self.open = open
 	self.active = open
@@ -71,6 +80,7 @@ function Console:setOpen(open)
 	end
 end
 
+---Toggles whether the console is currently open.
 function Console:toggleOpen()
 	self:setOpen(not self.open)
 end
@@ -136,15 +146,16 @@ function Console:getCommandWithoutLastWord()
 	return command
 end
 
+---Draws the Console on the screen.
 function Console:draw()
-	local pos = Vec2(5, _Display.size.y)
-	local size = Vec2(600, 200)
+	-- Bring the console to the bottom of the screen.
+	local w, h = love.window.getMode()
+	self.y = h
 
 	-- History
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(_FONT_CONSOLE)
 	for i = 1, self.MAX_MESSAGES do
-		local pos = pos - Vec2(0, 30 + 20 * i)
 		local message = self.output[#self.output - i + 1]
 		if message then
 			local t = _TotalTime - message.time
@@ -153,7 +164,7 @@ function Console:draw()
 				if not self.open then
 					a = math.min(10 - t, 1)
 				end
-				_Debug:drawVisibleText(message.text, pos, 20, nil, a, true)
+				_Debug:drawVisibleText(message.text, self.x, self.y - 30 - 20 * i, 20, nil, a, true)
 			end
 		end
 	end
@@ -162,15 +173,15 @@ function Console:draw()
 	if self.open then
 		local text = "> " .. self.command
 		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
-		_Debug:drawVisibleText(text, pos - Vec2(0, 25), 20, size.x, 1, true)
+		_Debug:drawVisibleText(text, self.x, self.y - 25, 20, self.w, 1, true)
 	end
 
 	-- Tab completion
 	if self.open and self.tabCompletionList then
 		local a = self.tabCompletionOffset + 1
 		local b = math.min(a + self.MAX_TAB_COMPLETION_SUGGESTIONS - 1, #self.tabCompletionList)
-		local x = pos.x + (utf8.len(self:getCommandWithoutLastWord()) + 2) * 8
-		local y = pos.y - 25 - (b - a + 1) * 20
+		local x = self.x + (utf8.len(self:getCommandWithoutLastWord()) + 2) * 8
+		local y = self.y - 25 - (b - a + 1) * 20
 		local width = 150
 		for i, completion in ipairs(self.tabCompletionList) do
 			width = math.max(width, _FONT_CONSOLE:getWidth(completion))
@@ -179,15 +190,15 @@ function Console:draw()
 			local completion = self.tabCompletionList[i]
 			local color = self.tabCompletionSelection == i and _COLORS.white or _COLORS.white
 			local backgroundColor = self.tabCompletionSelection == i and _COLORS.sky or _COLORS.black
-			_Debug:drawVisibleText({color, completion}, Vec2(x, y + (i - a) * 20), 20, width, nil, true, backgroundColor)
+			_Debug:drawVisibleText({color, completion}, x, y + (i - a) * 20, 20, width, nil, true, backgroundColor)
 		end
 	end
 
 	love.graphics.setFont(_FONT)
 end
 
-
-
+---LOVE2D callback for when a key is pressed.
+---@param key string The key which has been pressed.
 function Console:keypressed(key)
 	-- the shortcut is Ctrl + `
 	if key == "`" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
@@ -195,9 +206,8 @@ function Console:keypressed(key)
 	end
 	if self.active then
 		if key == "v" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
-			self:inputCharacter(love.system.getClipboardText())
-		end
-		if key == "backspace" then
+			self:inputText(love.system.getClipboardText())
+		elseif key == "backspace" then
 			self:inputBackspace()
 		elseif key == "tab" then
 			self:inputTab()
@@ -219,26 +229,31 @@ function Console:keypressed(key)
 	end
 end
 
+---LOVE2D callback for when a key was released.
+---@param key string The key that was released.
 function Console:keyreleased(key)
 	if key == self.keyRepeat then
 		self.keyRepeat = nil
 	end
 end
 
+---LOVE2D callback for when a character was inputted.
+---@param t string The character which was inputted.
 function Console:textinput(t)
-	self:inputCharacter(t)
+	self:inputText(t)
 end
 
-
-
-function Console:inputCharacter(t)
+---Adds the provided string to the current command buffer.
+---@param text string The text to be added.
+function Console:inputText(text)
 	if not self.active then
 		return
 	end
-	self.command = self.command .. t
+	self.command = self.command .. text
 	self:updateTabCompletionList()
 end
 
+---Removes the last character from the current command buffer.
 function Console:inputBackspace()
 	if not self.active then
 		return
@@ -250,6 +265,8 @@ function Console:inputBackspace()
 	end
 end
 
+---Handles the pressing of the up arrow on the keyboard.
+---Srolls the command history or the tab completion list, depending on whether the tab completion list is visible.
 function Console:inputUp()
 	if self.tabCompletionList then
 		self.tabCompletionSelection = (self.tabCompletionSelection - 2) % #self.tabCompletionList + 1
@@ -263,6 +280,8 @@ function Console:inputUp()
 	end
 end
 
+---Handles the pressing of the down arrow on the keyboard.
+---Srolls the command history or the tab completion list, depending on whether the tab completion list is visible.
 function Console:inputDown()
 	if self.tabCompletionList then
 		self.tabCompletionSelection = self.tabCompletionSelection % #self.tabCompletionList + 1
@@ -278,6 +297,8 @@ function Console:inputDown()
 	end
 end
 
+---Handless the pressing of the Page Up key on the keyboard.
+---Scrolls the tab completion list by one page.
 function Console:inputPageUp()
 	if self.tabCompletionList then
 		self.tabCompletionSelection = math.max(1, self.tabCompletionSelection - self.MAX_TAB_COMPLETION_SUGGESTIONS)
@@ -285,6 +306,8 @@ function Console:inputPageUp()
 	end
 end
 
+---Handless the pressing of the Page Down key on the keyboard.
+---Scrolls the tab completion list by one page.
 function Console:inputPageDown()
 	if self.tabCompletionList then
 		self.tabCompletionSelection = math.min(#self.tabCompletionList, self.tabCompletionSelection + self.MAX_TAB_COMPLETION_SUGGESTIONS)
@@ -292,6 +315,8 @@ function Console:inputPageDown()
 	end
 end
 
+---Handless the pressing of the Tab key on the keyboard.
+---Brings up the tab completion list and provides autofill.
 function Console:inputTab()
 	if not self.tabCompletionList then
 		self:updateTabCompletionList()
@@ -309,12 +334,15 @@ function Console:inputTab()
 	end
 end
 
+---Handles the pressing of Enter on the keyboard.
+---Runs the command and catches any errors which could happen.
 function Console:inputEnter()
 	-- Do nothing if there's no input.
 	if self.command == "" then
 		return
 	end
 
+	-- Run the command and handle any error which could happen during its execution.
 	local success, err = xpcall(function() return _Debug:runCommand(self.command) end, debug.traceback)
 	if not success and err then
 		self:print({_COLORS.lightRed, "An error has occurred while executing command: " .. self.command})
@@ -325,13 +353,10 @@ function Console:inputEnter()
 
 	-- We need to bypass the crash function somehow.
 	if success and err == "crash" then
-		local s, witty = pcall(_Debug.getWitty)
-		if not s or not witty then
-			witty = "Boring manual crash"
-		end
-		error(witty)
+		error(_Debug:getWitty())
 	end
 
+	-- Add the command to the history (if it's distinct from the last one) and clears the buffers.
 	if self.command ~= self.history[#self.history] then
 		table.insert(self.history, self.command)
 	end
