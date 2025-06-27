@@ -14,10 +14,18 @@ function Console:new()
 	self.x, self.y = 0, 0
 	self.w, self.h = 600, 200
 	self.font = love.graphics.getFont()
+	self.colors = {
+		error = _COLORS.lightRed,
+		completion = _COLORS.white,
+		completionBackground = _COLORS.black,
+		selectedCompletion = _COLORS.white,
+		selectedCompletionBackground = _COLORS.sky
+	}
 
 	---@type {text: string, time: number}[]
 	self.output = {}
 	self.outputOffset = 0
+	self.MAX_MESSAGES = 20
 	---@type string[]
 	self.history = {}
 	self.historyOffset = nil
@@ -28,6 +36,7 @@ function Console:new()
 	self.tabCompletionSelection = 0
 	self.MAX_TAB_COMPLETION_SUGGESTIONS = 10
 
+	self.time = 0
 	self.open = false
 	self.active = false
 
@@ -35,13 +44,12 @@ function Console:new()
 	self.KEY_FIRST_REPEAT_TIME = 0.5
 	self.KEY_NEXT_REPEAT_TIME = 0.05
 	self.keyRepeatTime = 0
-
-	self.MAX_MESSAGES = 20
 end
 
----Updates the console. Handles key repeat timing.
+---Updates the console. Handles key repeat timing and message fadeout.
 ---@param dt number Time delta in seconds.
 function Console:_update(dt)
+	self.time = self.time + dt
 	if self.keyRepeat then
 		self.keyRepeatTime = self.keyRepeatTime - dt
 		if self.keyRepeatTime <= 0 then
@@ -71,7 +79,7 @@ function Console:print(message)
 	if type(message) ~= "string" and type(message) ~= "table" then
 		message = tostring(message)
 	end
-	table.insert(self.output, {text = message, time = _TotalTime})
+	table.insert(self.output, {text = message, time = self.time})
 	-- When browsing the command history, don't drag previous messages from under our feet.
 	if self.outputOffset > 0 then
 		self:scrollOutputHistory(self.outputOffset + 1)
@@ -234,13 +242,13 @@ function Console:_draw()
 	local y = self.y - 25 - (b - a + 1) * 20
 	for i = a, b do
 		local message = self.output[i]
-		local t = _TotalTime - message.time
+		local t = self.time - message.time
 		if self.open or t < 10 then
 			local alpha = 1
 			if not self.open then
 				alpha = math.min(10 - t, 1)
 			end
-			_Debug:drawVisibleText(message.text, self.x + 5, y + (i - a) * 20, 20, nil, alpha, true)
+			_Debug:drawVisibleText(message.text, self.x + 5, y + (i - a) * 20, 20, self.w, alpha, true)
 		end
 	end
 
@@ -254,7 +262,9 @@ function Console:_draw()
 
 		-- Input box
 		local text = "> " .. self.command
-		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
+		if self.active and self.time % 1 < 0.5 then
+			text = text .. "_"
+		end
 		_Debug:drawVisibleText(text, self.x + 5, self.y - 23, 20, self.w, 1, true)
 
 		-- Tab completion
@@ -269,9 +279,9 @@ function Console:_draw()
 			end
 			for i = a, b do
 				local completion = self.tabCompletionList[i]
-				local color = self.tabCompletionSelection == i and _COLORS.white or _COLORS.white
-				local backgroundColor = self.tabCompletionSelection == i and _COLORS.sky or _COLORS.black
-				_Debug:drawVisibleText({color, completion}, x, y + (i - a) * 20, 20, width, nil, true, backgroundColor)
+				local color = self.tabCompletionSelection == i and self.colors.selectedCompletion or self.colors.completion
+				local backgroundColor = self.tabCompletionSelection == i and self.colors.selectedCompletionBackground or self.colors.completionBackground
+				_Debug:drawVisibleText({color, completion}, x, y + (i - a) * 20, 20, width, 1, true, backgroundColor)
 			end
 		end
 	end
@@ -451,8 +461,8 @@ function Console:inputEnter()
 	-- Run the command and handle any error which could happen during its execution.
 	local success, err = xpcall(function() return _Debug:runCommand(self.command) end, debug.traceback)
 	if not success and err then
-		self:print({_COLORS.lightRed, "An error has occurred while executing command: " .. self.command})
-		self:print({_COLORS.lightRed, _Utils.strSplit(err, "\n")[1]})
+		self:print({self.colors.error, "An error has occurred while executing command: " .. self.command})
+		self:print({self.colors.error, _Utils.strSplit(err, "\n")[1]})
 		_Log:printt("CONSOLE", "Full Error:")
 		_Log:printt("CONSOLE", err)
 	end

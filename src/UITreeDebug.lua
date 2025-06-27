@@ -30,8 +30,8 @@ end
 function UITreeDebug:draw()
     self.hoveredEntry = nil
 
-    -- If this table is not visible, don't do anything.
-    if not self.visible then
+    -- If this table is not visible or we aren't in game, don't do anything.
+    if not self.visible or not _Game.uiManager then
         return
     end
 

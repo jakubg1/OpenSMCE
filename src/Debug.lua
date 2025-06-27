@@ -144,14 +144,14 @@ function Debug:draw()
 		p2:draw()
 
 		self:drawVisibleText("Debug Keys:", 10, 10, 15)
-		self:drawVisibleText("[F1] Performance", 10, 25, 15)
-		self:drawVisibleText("[F2] UI Tree", 10, 40, 15)
-		self:drawVisibleText("    [Ctrl+F2] Collapse all invisible UI Nodes", 10, 55, 15)
-		self:drawVisibleText("[F3] Gameplay debug display", 10, 70, 15)
-		self:drawVisibleText("[F4] Debug text (FPS, level data, etc.)", 10, 85, 15)
-		self:drawVisibleText("[F5] FPS Counter", 10, 100, 15)
-		self:drawVisibleText("[F6] Sphere trains path overlay", 10, 115, 15)
-		self:drawVisibleText("[F7] Render spheres over tunnels", 10, 130, 15)
+		self:drawVisibleText({self.profVisible and _COLORS.green or _COLORS.white, "[F1] Performance"}, 10, 25, 15)
+		self:drawVisibleText({self.uiDebug.visible and _COLORS.green or _COLORS.white, "[F2] UI Tree"}, 10, 40, 15)
+		self:drawVisibleText({self.uiDebug.autoCollapseInvisible and _COLORS.green or _COLORS.white, "    [Ctrl+F2] Collapse all invisible UI Nodes"}, 10, 55, 15)
+		self:drawVisibleText({self.gameDebugVisible and _COLORS.green or _COLORS.white, "[F3] Gameplay debug display"}, 10, 70, 15)
+		self:drawVisibleText({self.textDebugVisible and _COLORS.green or _COLORS.white, "[F4] Debug text (FPS, level data, etc.)"}, 10, 85, 15)
+		self:drawVisibleText({self.fpsDebugVisible and _COLORS.green or _COLORS.white, "[F5] FPS Counter"}, 10, 100, 15)
+		self:drawVisibleText({self.sphereDebugVisible and _COLORS.green or _COLORS.white, "[F6] Sphere trains path overlay"}, 10, 115, 15)
+		self:drawVisibleText({self.mapDebugVisible and _COLORS.green or _COLORS.white, "[F7] Render spheres over tunnels"}, 10, 130, 15)
 	end
 
 	-- Console
@@ -527,7 +527,7 @@ function Debug:runCommand(command)
 	local command = words[1]
 	local commandData = self.commands[command]
 	if not commandData then
-		self:print({_COLORS.red, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
+		self:print({_COLORS.lightRed, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
 		return
 	end
 
@@ -537,14 +537,14 @@ function Debug:runCommand(command)
 		local raw = words[i + 1]
 		if not raw then
 			if not parameter.optional then
-				self:print({_COLORS.red, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
+				self:print({_COLORS.lightRed, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
 				return
 			end
 		else
 			if parameter.type == "number" or parameter.type == "integer" then
 				raw = tonumber(raw)
 				if not raw then
-					self:print({_COLORS.red, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
+					self:print({_COLORS.lightRed, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
 					return
 				end
 			elseif parameter.type == "Collectible" then
