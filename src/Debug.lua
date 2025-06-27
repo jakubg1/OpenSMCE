@@ -19,62 +19,21 @@ local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 function Debug:new()
 	self.console = Console()
 	self.console:setFont(_FONT_CONSOLE)
+	self.console:addCommand("t", "Adjusts the speed scale of the game. 1 = default.", {{name = "scale", type = "number"}}, self.commandSpeedScale, self)
+	self.console:addCommand("n", "Destroys all spheres on the board.", {}, self.commandNukeSpheres, self)
+	self.console:addCommand("test", "Spawns a test particle.", {{name = "particle", type = "ParticleEffect"}}, self.commandTest, self)
+	self.console:addCommand("crash", "Crashes the game.", {}, self.commandCrash, self)
+	self.console:addCommand("expr", "Evaluates an Expression.", {{name = "expression", type = "string", greedy = true}}, self.commandExpr, self)
+	self.console:addCommand("exprt", "Breaks down an Expression and shows the list of RPN steps.", {{name = "expression", type = "string", greedy = true}}, self.commandExprt, self)
+	self.console:addCommand("ex", "Debugs an Expression: shows detailed tokenization and list of RPN steps.", {{name = "expression", type = "string", greedy = true}}, self.commandEx, self)
+	self.console:addCommand("collectible", "Spawns a Collectible in the middle of the screen.", {{name = "collectible", type = "Collectible"}, {name = "amount", type = "integer", optional = true}}, self.commandCollectible, self)
+	self.console:addCommand("train", "Evaluates a train preset generator.", {{name = "preset", type = "string", greedy = true}}, self.commandTrain, self)
+	-- Add commands to tinker with Expression Variables
+	-- Add a list of Expression Variables in a debug screen
+	-- Add a command to play any level
+	-- Add a command to set objective values
+
 	self.uiDebug = UIDebug()
-
-	self.commands = {
-		t = {
-			description = "Adjusts the speed scale of the game. 1 = default.",
-			parameters = {{name = "scale", type = "number", optional = false}},
-			fn = function(scale)
-
-			end
-		},
-		n = {
-			description = "Destroys all spheres on the board.",
-			parameters = {}
-		},
-		test = {
-			description = "Spawns a test particle.",
-			parameters = {{name = "particle", type = "ParticleEffect", optional = false}}
-		},
-		crash = {
-			description = "Crashes the game.",
-			parameters = {}
-		},
-		expr = {
-			description = "Evaluates an Expression.",
-			parameters = {{name = "expression", type = "string", optional = false, greedy = true}}
-		},
-		exprt = {
-			description = "Breaks down an Expression and shows the list of RPN steps.",
-			parameters = {{name = "expression", type = "string", optional = false, greedy = true}}
-		},
-		ex = {
-			description = "Debugs an Expression: shows detailed tokenization and list of RPN steps.",
-			parameters = {{name = "expression", type = "string", optional = false, greedy = true}}
-		},
-		help = {
-			description = "Displays this list.",
-			parameters = {}
-		},
-		collectible = {
-			description = "Spawns a Collectible in the middle of the screen.",
-			parameters = {{name = "collectible", type = "Collectible", optional = false}, {name = "amount", type = "integer", optional = true}}
-		},
-		train = {
-			description = "Evaluates a train preset generator.",
-			parameters = {{name = "preset", type = "string", optional = false, greedy = true}}
-		}
-		-- Add commands to tinker with Expression Variables
-		-- Add a list of Expression Variables in a debug screen
-		-- Add a command to play any level
-		-- Add a command to set objective values
-	}
-	self.commandNames = {}
-	for commandName, commandData in pairs(self.commands) do
-		table.insert(self.commandNames, commandName)
-	end
-	table.sort(self.commandNames)
 
 	self.profUpdate = Profiler("Update")
 	self.profDraw = Profiler("Draw")
@@ -96,19 +55,17 @@ function Debug:new()
 	self.profPage = 1
 	self.profPages = {self.profUpdate, self.profMusic, self.profDrawLevel, self.prof3}
 
-	self.uiWidgetCount = 0
-	self.vec2PerFrame = 0
-	self.lastVec2PerFrame = 0
-
-	self.displayedDeprecationTraces = {}
-
-
-
 	self.gameDebugVisible = false -- Switched by F3
 	self.textDebugVisible = false -- Switched by F4
 	self.fpsDebugVisible = false -- Switched by F5
 	self.sphereDebugVisible = false -- Switched by F6
 	self.mapDebugVisible = false -- Switched by F7
+
+	self.uiWidgetCount = 0
+	self.vec2PerFrame = 0
+	self.lastVec2PerFrame = 0
+
+	self.displayedDeprecationTraces = {}
 end
 
 
@@ -520,216 +477,169 @@ end
 
 
 
-function Debug:runCommand(command)
-	local words = _Utils.strSplit(command, " ")
+function Debug:commandSpeedScale(scale)
+	_TimeScale = scale
+	self:print("Time scale set to " .. scale)
+end
 
-	-- Get basic command stuff.
-	local command = words[1]
-	local commandData = self.commands[command]
-	if not commandData then
-		self:print({_COLORS.lightRed, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
-		return
+function Debug:commandNukeSpheres()
+	SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
+	self:print("Nuked!")
+end
+
+function Debug:commandTest(particle)
+	_Game:spawnParticle(particle, 100, 400)
+end
+
+function Debug:commandCrash()
+	return "crash", self:getWitty()
+end
+
+function Debug:commandExpr(expression)
+	local e = Expression(expression, true)
+	self:print(string.format("expr(%s): %s", expression, e:evaluate()))
+end
+
+function Debug:commandExprt(expression)
+	local e = Expression(expression, true)
+	for i, step in ipairs(e.data) do
+		_Log:printt("Debug", string.format("%s   %s", step.type, step.value))
 	end
+	self:print(string.format("exprt(%s): %s", expression, e:getDebug()))
+end
 
-	-- Obtain all necessary parameters.
-	local parameters = {}
-	for i, parameter in ipairs(commandData.parameters) do
-		local raw = words[i + 1]
-		if not raw then
-			if not parameter.optional then
-				self:print({_COLORS.lightRed, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
-				return
-			end
-		else
-			if parameter.type == "number" or parameter.type == "integer" then
-				raw = tonumber(raw)
-				if not raw then
-					self:print({_COLORS.lightRed, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
-					return
-				end
-			elseif parameter.type == "Collectible" then
-				raw = _Game.resourceManager:getCollectibleConfig(raw)
-			end
-			-- Greedy parameters can only be strings and are always last (taking the rest of the command).
-			if parameter.type == "string" and parameter.greedy then
-				for j = i + 2, #words do
-					raw = raw .. " " .. words[j]
-				end
-			end
-		end
-		table.insert(parameters, raw)
+function Debug:commandEx(expression)
+	local e = Expression("2", true)
+	self:print(string.format("ex(%s):", expression))
+	local tokens = e:tokenize(expression)
+	for i, token in ipairs(tokens) do
+		self:print(string.format("%s   %s", token.value, token.type))
 	end
+	self:print("")
+	self:print("")
+	self:print("Compilation result:")
+	e.data = e:compile(tokens)
+	for i, step in ipairs(e.data) do
+		self:print(string.format("%s   %s", step.type, step.value))
+	end
+	self:print(string.format("ex(%s): %s", expression, e:evaluate()))
+end
 
-	-- Command handling
-	if command == "help" then
-		self:print({_COLORS.purple, "This is a still pretty rough console of OpenSMCE!"})
-		self:print({_COLORS.green, "Available commands:"})
-		for i, name in ipairs(self.commandNames) do
-			local commandData = self.commands[name]
-			local msg = {_COLORS.yellow, name}
-			for j, parameter in ipairs(commandData.parameters) do
-				local name = parameter.name
-				if parameter.greedy then
-					name = name .. "..."
-				end
-				if parameter.optional then
-					table.insert(msg, _COLORS.aqua)
-					table.insert(msg, string.format(" [%s]", name))
-				else
-					table.insert(msg, _COLORS.aqua)
-					table.insert(msg, string.format(" <%s>", name))
-				end
-			end
-			table.insert(msg, _COLORS.white)
-			table.insert(msg, " - " .. commandData.description)
-			self:print(msg)
-		end
-	elseif command == "t" then
-		_TimeScale = parameters[1]
-		self:print("Time scale set to " .. tostring(parameters[1]))
-	elseif command == "n" then
-		SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
-		self:print("Nuked!")
-	elseif command == "test" then
-		_Game:spawnParticle(parameters[1], 100, 400)
-	elseif command == "crash" then
-		return "crash"
-	elseif command == "expr" then
-		local e = Expression(parameters[1], true)
-		self:print(string.format("expr(%s): %s", parameters[1], e:evaluate()))
-	elseif command == "exprt" then
-		local e = Expression(parameters[1], true)
-		for i, step in ipairs(e.data) do
-			_Log:printt("Debug", string.format("%s   %s", step.type, step.value))
-		end
-		self:print(string.format("exprt(%s): %s", parameters[1], e:getDebug()))
-	elseif command == "ex" then
-		local e = Expression("2", true)
-		self:print(string.format("ex(%s):", parameters[1]))
-		local tokens = e:tokenize(parameters[1])
-		for i, token in ipairs(tokens) do
-			self:print(string.format("%s   %s", token.value, token.type))
-		end
-		self:print("")
-		self:print("")
-		self:print("Compilation result:")
-		e.data = e:compile(tokens)
-		for i, step in ipairs(e.data) do
-			self:print(string.format("%s   %s", step.type, step.value))
-		end
-		self:print(string.format("ex(%s): %s", parameters[1], e:evaluate()))
-	elseif command == "collectible" then
-		for i = 1, parameters[2] or 1 do
-			_Game.level:spawnCollectible(parameters[1], _Game:getNativeResolution() / 2)
-		end
-	elseif command == "train" then
-		local preset = parameters[1]
-		local result = preset
-		if tonumber(preset:sub(1, 1)) then
-			local blocks = {}
-			-- Parse the preset generator into blocks.
-			local strBlocks = _Utils.strSplit(preset, ",")
-			for i, strBlock in ipairs(strBlocks) do
-				local block = {pool = {}, size = 0} -- ex: {pool = {"X", "Y", "Z"}, size = 3}
-				local spl = _Utils.strSplit(strBlock, ":")
-				for j = 1, spl[2]:len() do
-					table.insert(block.pool, spl[2]:sub(j, j))
-				end
-				spl = _Utils.strSplit(spl[1], "*")
-				block.size = tonumber(spl[2])
-				for j = 1, tonumber(spl[1]) do
-					table.insert(blocks, block)
-				end
-			end
-			-- Generate the preset from blocks.
-			-- We need to make sure the same color (letter/key, colors are dispatched later) is not appearing in any two neighboring groups.
-			--
-			-- Key insights: (note that whenever "color" is said that actually means "key" in this context)
-			-- - Group sizes can be disregarded altogether, because their neighborhood doesn't change at all no matter how big or small
-			--    the groups are (we assume n>0).
-			-- - All generators with only groups of colors>=3 are possible, because at any possible insertion point inside the built train
-			--    there are at most 2 blocked colors, so for 3 or more colors there's always at least one good color which can be used.
-			-- - All generators with groups of colors>=2 are possible, because at the beginning and end of the built train
-			--    there's always exactly one blocked color, so the group can always pick the other one.
-			-- - If there is at least one single color group, all generators are possible as long as there is no color for which the amount of
-			--    single color groups is greater than N/2 rounded up, where N is the total number of groups.
-			-- - If so, you could always place them next to each other and fill the gaps inside with a different color; this is also an exclusive
-			--    condition for impossibility if we disregard blatant errors like groups of size = 0 or amount of colors = 0.
-			-- - Because the groups which have 2 or more colors are always going to have at least two valid places (the edges) to be inserted,
-			--    the generation should always start by picking a random single color group and only if none of them can be inserted at any
-			--    position, then place one group of the next smallest number of colors.
-			-- - Placing any of these groups will automatically enable at least one of the single color groups to be placed next to the previously
-			--    inserted group regardless of that group's position, and if we run out of everything while still having single color groups left
-			--    which cannot be dispatched, we've basically hit the impossibility condition.
-			--    (we've started with a single, then we've dispatched all X multi-color groups, and as such another X single color groups,
-			--    hence we've dispatched 2X+1 groups out of which X+1 were single color and only single color groups are left,
-			--    and as such we've proven no valid combination is possible).
-			local genBlocks = {} -- ex: {{key = "X", size = 3}, {key = "Y", size = 1}, ...}
-			while #blocks > 0 do
-				-- Each iteration = one inserted block (or crash if no valid combination is possible).
-				-- Compose the block order and iterate through it here.
-				-- #pool=1 blocks in random order, then #pool=2 blocks in random order, then #pool=3 blocks in random order, and so on.
-				local blockPools = {} -- ex: {[1] = {<block>, <block>}, [3] = {<block>}, [7] = {<block>}}, where <block> is ex: {pool = {"X", "Y", "Z"}, size = 3}
-				local blockPoolSizes = {}
-				for i, block in ipairs(blocks) do
-					if not blockPools[#block.pool] then
-						blockPools[#block.pool] = {}
-						table.insert(blockPoolSizes, #block.pool)
-					end
-					table.insert(blockPools[#block.pool], block)
-				end
-				-- Flatten the pools by shuffling all blocks within their pools and combining them together into one table with increasing pool size.
-				local blocksIter = {} -- ex: {<block #pool=1>, <block #pool=1>, <block #pool=3>, <block #pool=7>, <block #pool=7>}
-				for i, index in ipairs(blockPoolSizes) do
-					local pool = blockPools[index]
-					_Utils.tableShuffle(pool)
-					for j, block in ipairs(pool) do
-						table.insert(blocksIter, block)
-					end
-				end
-				local success = false
-				for i, block in ipairs(blocksIter) do
-					local gapInfo = {}
-					local validGaps = {}
-					for j = 1, #genBlocks + 1 do
-						-- For each position we can insert this group to, check which keys it can have.
-						local prevBlock = genBlocks[j - 1]
-						local nextBlock = genBlocks[j]
-						local validKeys = _Utils.copyTable(block.pool)
-						if prevBlock then
-							_Utils.iTableRemoveValue(validKeys, prevBlock.key)
-						end
-						if nextBlock then
-							_Utils.iTableRemoveValue(validKeys, nextBlock.key)
-						end
-						gapInfo[j] = validKeys
-						if #validKeys > 0 then
-							table.insert(validGaps, j)
-						end
-					end
-					if #validGaps > 0 then
-						-- Success! Roll the key out of valid ones, and add the block to the list.
-						local index = validGaps[math.random(#validGaps)]
-						local keys = gapInfo[index]
-						local key = keys[math.random(#keys)]
-						table.insert(genBlocks, index, {key = key, size = block.size})
-						_Utils.iTableRemoveFirstValue(blocks, block)
-						success = true
-						break
-					end
-				end
-				-- If `success` is `false`, we've exhausted all possibilities.
-				assert(success, string.format("Level error: Impossible combination of blocks for the wave `%s`! If there is at least one possible combination without repeat keys next to each other, let me know!", preset))
-			end
-			-- Generate the string from blocks.
-			result = ""
-			for i, block in ipairs(genBlocks) do
-				result = result .. block.key:rep(block.size)
-			end
-		end
-		self:print(result)
+function Debug:commandCollectible(collectible, amount)
+	amount = amount or 1
+	for i = 1, amount do
+		_Game.level:spawnCollectible(collectible, _Game:getNativeResolution() / 2)
 	end
 end
+
+function Debug:commandTrain(preset)
+	local result = preset
+	if tonumber(preset:sub(1, 1)) then
+		local blocks = {}
+		-- Parse the preset generator into blocks.
+		local strBlocks = _Utils.strSplit(preset, ",")
+		for i, strBlock in ipairs(strBlocks) do
+			local block = {pool = {}, size = 0} -- ex: {pool = {"X", "Y", "Z"}, size = 3}
+			local spl = _Utils.strSplit(strBlock, ":")
+			for j = 1, spl[2]:len() do
+				table.insert(block.pool, spl[2]:sub(j, j))
+			end
+			spl = _Utils.strSplit(spl[1], "*")
+			block.size = tonumber(spl[2])
+			for j = 1, tonumber(spl[1]) do
+				table.insert(blocks, block)
+			end
+		end
+		-- Generate the preset from blocks.
+		-- We need to make sure the same color (letter/key, colors are dispatched later) is not appearing in any two neighboring groups.
+		--
+		-- Key insights: (note that whenever "color" is said that actually means "key" in this context)
+		-- - Group sizes can be disregarded altogether, because their neighborhood doesn't change at all no matter how big or small
+		--    the groups are (we assume n>0).
+		-- - All generators with only groups of colors>=3 are possible, because at any possible insertion point inside the built train
+		--    there are at most 2 blocked colors, so for 3 or more colors there's always at least one good color which can be used.
+		-- - All generators with groups of colors>=2 are possible, because at the beginning and end of the built train
+		--    there's always exactly one blocked color, so the group can always pick the other one.
+		-- - If there is at least one single color group, all generators are possible as long as there is no color for which the amount of
+		--    single color groups is greater than N/2 rounded up, where N is the total number of groups.
+		-- - If so, you could always place them next to each other and fill the gaps inside with a different color; this is also an exclusive
+		--    condition for impossibility if we disregard blatant errors like groups of size = 0 or amount of colors = 0.
+		-- - Because the groups which have 2 or more colors are always going to have at least two valid places (the edges) to be inserted,
+		--    the generation should always start by picking a random single color group and only if none of them can be inserted at any
+		--    position, then place one group of the next smallest number of colors.
+		-- - Placing any of these groups will automatically enable at least one of the single color groups to be placed next to the previously
+		--    inserted group regardless of that group's position, and if we run out of everything while still having single color groups left
+		--    which cannot be dispatched, we've basically hit the impossibility condition.
+		--    (we've started with a single, then we've dispatched all X multi-color groups, and as such another X single color groups,
+		--    hence we've dispatched 2X+1 groups out of which X+1 were single color and only single color groups are left,
+		--    and as such we've proven no valid combination is possible).
+		local genBlocks = {} -- ex: {{key = "X", size = 3}, {key = "Y", size = 1}, ...}
+		while #blocks > 0 do
+			-- Each iteration = one inserted block (or crash if no valid combination is possible).
+			-- Compose the block order and iterate through it here.
+			-- #pool=1 blocks in random order, then #pool=2 blocks in random order, then #pool=3 blocks in random order, and so on.
+			local blockPools = {} -- ex: {[1] = {<block>, <block>}, [3] = {<block>}, [7] = {<block>}}, where <block> is ex: {pool = {"X", "Y", "Z"}, size = 3}
+			local blockPoolSizes = {}
+			for i, block in ipairs(blocks) do
+				if not blockPools[#block.pool] then
+					blockPools[#block.pool] = {}
+					table.insert(blockPoolSizes, #block.pool)
+				end
+				table.insert(blockPools[#block.pool], block)
+			end
+			-- Flatten the pools by shuffling all blocks within their pools and combining them together into one table with increasing pool size.
+			local blocksIter = {} -- ex: {<block #pool=1>, <block #pool=1>, <block #pool=3>, <block #pool=7>, <block #pool=7>}
+			for i, index in ipairs(blockPoolSizes) do
+				local pool = blockPools[index]
+				_Utils.tableShuffle(pool)
+				for j, block in ipairs(pool) do
+					table.insert(blocksIter, block)
+				end
+			end
+			local success = false
+			for i, block in ipairs(blocksIter) do
+				local gapInfo = {}
+				local validGaps = {}
+				for j = 1, #genBlocks + 1 do
+					-- For each position we can insert this group to, check which keys it can have.
+					local prevBlock = genBlocks[j - 1]
+					local nextBlock = genBlocks[j]
+					local validKeys = _Utils.copyTable(block.pool)
+					if prevBlock then
+						_Utils.iTableRemoveValue(validKeys, prevBlock.key)
+					end
+					if nextBlock then
+						_Utils.iTableRemoveValue(validKeys, nextBlock.key)
+					end
+					gapInfo[j] = validKeys
+					if #validKeys > 0 then
+						table.insert(validGaps, j)
+					end
+				end
+				if #validGaps > 0 then
+					-- Success! Roll the key out of valid ones, and add the block to the list.
+					local index = validGaps[math.random(#validGaps)]
+					local keys = gapInfo[index]
+					local key = keys[math.random(#keys)]
+					table.insert(genBlocks, index, {key = key, size = block.size})
+					_Utils.iTableRemoveFirstValue(blocks, block)
+					success = true
+					break
+				end
+			end
+			-- If `success` is `false`, we've exhausted all possibilities.
+			assert(success, string.format("Level error: Impossible combination of blocks for the wave `%s`! If there is at least one possible combination without repeat keys next to each other, let me know!", preset))
+		end
+		-- Generate the string from blocks.
+		result = ""
+		for i, block in ipairs(genBlocks) do
+			result = result .. block.key:rep(block.size)
+		end
+	end
+	self:print(result)
+end
+
+
 
 function Debug:profUpdateStart()
 	self.profUpdate:start()

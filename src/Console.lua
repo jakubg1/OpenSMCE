@@ -15,11 +15,25 @@ function Console:new()
 	self.w, self.h = 600, 200
 	self.font = love.graphics.getFont()
 	self.colors = {
+		helpHeader = _COLORS.purple,
+		command = _COLORS.yellow,
+		commandParameter = _COLORS.aqua,
+		commandDescription = _COLORS.white,
 		error = _COLORS.lightRed,
 		completion = _COLORS.white,
 		completionBackground = _COLORS.black,
 		selectedCompletion = _COLORS.white,
 		selectedCompletionBackground = _COLORS.sky
+	}
+	---@alias CommandParameter {name: string, type: string, optional: boolean?, greedy: boolean?}
+	---@type table<string, {description: string, parameters: CommandParameter[], fn: function, caller: any?}>
+	self.commands = {
+		help = {
+			description = "Displays a list of available commands.",
+			parameters = {},
+			fn = self.displayHelp,
+			caller = self
+		}
 	}
 
 	---@type {text: string, time: number}[]
@@ -107,6 +121,99 @@ function Console:setFont(font)
 	self.font = font
 end
 
+---Registers a new command for the Console.
+---@param name string The command name.
+---@param description string The command description, seen in the output of `help` command.
+---@param parameters CommandParameter[] A list of command parameters for this command.
+---@param fn function The function to be called when this command is executed. The given parameters will be converted and passed as arguments.
+---@param caller any? The object on which the function should be called. Use when a class function is passed.
+function Console:addCommand(name, description, parameters, fn, caller)
+	self.commands[name] = {
+		description = description,
+		parameters = parameters,
+		fn = fn,
+		caller = caller
+	}
+end
+
+---Parses and executes the provided command.
+---@private
+---@param command string The command to be executed.
+function Console:runCommand(command)
+	local words = _Utils.strSplit(command, " ")
+
+	-- Get command data.
+	local commandName = words[1]
+	local commandData = self.commands[commandName]
+	if not commandData then
+		self:print({_COLORS.lightRed, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
+		return
+	end
+
+	-- Parse and obtain all necessary parameters.
+	local parameters = {}
+	for i, parameter in ipairs(commandData.parameters) do
+		local raw = words[i + 1]
+		if not raw then
+			if not parameter.optional then
+				self:print({_COLORS.lightRed, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
+				return
+			end
+		else
+			if parameter.type == "number" or parameter.type == "integer" then
+				raw = tonumber(raw)
+				if not raw then
+					self:print({_COLORS.lightRed, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
+					return
+				end
+			elseif parameter.type == "Collectible" then
+				raw = _Game.resourceManager:getCollectibleConfig(raw)
+			end
+			-- Greedy parameters can only be strings and are always last (taking the rest of the command).
+			if parameter.type == "string" and parameter.greedy then
+				for j = i + 2, #words do
+					raw = raw .. " " .. words[j]
+				end
+			end
+		end
+		table.insert(parameters, raw)
+	end
+
+	-- Execute the function.
+	local fn = commandData.fn
+	local caller = commandData.caller
+	if caller then
+		return fn(caller, table.unpack(parameters))
+	else
+		return fn(table.unpack(parameters))
+	end
+end
+
+---Prints a list of all available commands with their descriptions.
+---@private
+function Console:displayHelp()
+	self:print({self.colors.helpHeader, "Available commands:"})
+	for i, name in ipairs(self:getCommandList()) do
+		local commandData = self.commands[name]
+		local msg = {self.colors.command, name}
+		for j, parameter in ipairs(commandData.parameters) do
+			local name = parameter.name
+			if parameter.greedy then
+				name = name .. "..."
+			end
+			table.insert(msg, self.colors.commandParameter)
+			if parameter.optional then
+				table.insert(msg, string.format(" [%s]", name))
+			else
+				table.insert(msg, string.format(" <%s>", name))
+			end
+		end
+		table.insert(msg, self.colors.commandDescription)
+		table.insert(msg, " - " .. commandData.description)
+		self:print(msg)
+	end
+end
+
 ---Scrolls the console output to the provided amount of lines back.
 ---Makes sure that the output is not scrolled out of bounds.
 ---@private
@@ -136,6 +243,65 @@ function Console:scrollToHistoryEntry(n)
 	end
 	self.historyOffset = n
 	--print("Scrolled to " .. tostring(n))
+end
+
+---Returns a list of all commands, sorted alphabetically.
+---@return string[]
+function Console:getCommandList()
+	local commandNames = {}
+	for commandName, commandData in pairs(self.commands) do
+		table.insert(commandNames, commandName)
+	end
+	table.sort(commandNames)
+	return commandNames
+end
+
+---Returns a list of Tab completion suggestions for the current command.
+---@private
+---@param command string The incomplete command. The suggestions will be provided for the last word.
+---@return table
+function Console:getCommandCompletionSuggestions(command)
+	local suggestions = {}
+	local words = _Utils.strSplit(command, " ")
+	if #words == 1 then
+		-- First word: provide the suggestions for command names.
+		suggestions = self:getCommandList()
+	else
+		-- Subsequent word: check the command and provide the suggestions for command arguments.
+		local commandConfig = self.commands[words[1]]
+		if commandConfig then
+			local parameter = commandConfig.parameters[#words - 1]
+			if parameter then
+				if parameter.type == "Collectible" then
+					if _Game.resourceManager then
+						suggestions = _Game.resourceManager:getResourceList("Collectible")
+					end
+				elseif parameter.type == "ParticleEffect" then
+					if _Game.resourceManager then
+						suggestions = _Game.resourceManager:getResourceList("ParticleEffect")
+					end
+				end
+			end
+		end
+	end
+
+	-- Remove irrelevant suggestions and sort them alphabetically.
+	local result = {}
+	for i = 1, #suggestions do
+		if _Utils.strStartsWith(suggestions[i], words[#words]) then
+			table.insert(result, suggestions[i])
+		end
+	end
+	-- If no suggestions are found, loosen the criteria and try finding the string anywhere.
+	if #result == 0 then
+		for i = 1, #suggestions do
+			if _Utils.strContains(suggestions[i], words[#words]) then
+				table.insert(result, suggestions[i])
+			end
+		end
+	end
+	table.sort(result)
+	return result
 end
 
 ---Updates the list of completion suggestions.
@@ -178,54 +344,6 @@ function Console:getCommandWithoutLastWord()
 		command = command .. " "
 	end
 	return command
-end
-
----Returns a list of Tab completion suggestions for the current command.
----@private
----@param command string The incomplete command. The suggestions will be provided for the last word.
----@return table
-function Console:getCommandCompletionSuggestions(command)
-	local suggestions = {}
-	local words = _Utils.strSplit(command, " ")
-	if #words == 1 then
-		-- First word: provide the suggestions for command names.
-		suggestions = _Utils.copyTable(_Debug.commandNames)
-	else
-		-- Subsequent word: check the command and provide the suggestions for command arguments.
-		local commandConfig = _Debug.commands[words[1]]
-		if commandConfig then
-			local parameter = commandConfig.parameters[#words - 1]
-			if parameter then
-				if parameter.type == "Collectible" then
-					if _Game.resourceManager then
-						suggestions = _Game.resourceManager:getResourceList("Collectible")
-					end
-				elseif parameter.type == "ParticleEffect" then
-					if _Game.resourceManager then
-						suggestions = _Game.resourceManager:getResourceList("ParticleEffect")
-					end
-				end
-			end
-		end
-	end
-
-	-- Remove irrelevant suggestions and sort them alphabetically.
-	local result = {}
-	for i = 1, #suggestions do
-		if _Utils.strStartsWith(suggestions[i], words[#words]) then
-			table.insert(result, suggestions[i])
-		end
-	end
-	-- If no suggestions are found, loosen the criteria and try finding the string anywhere.
-	if #result == 0 then
-		for i = 1, #suggestions do
-			if _Utils.strContains(suggestions[i], words[#words]) then
-				table.insert(result, suggestions[i])
-			end
-		end
-	end
-	table.sort(result)
-	return result
 end
 
 ---Draws the Console on the screen.
@@ -459,7 +577,7 @@ function Console:inputEnter()
 	end
 
 	-- Run the command and handle any error which could happen during its execution.
-	local success, err = xpcall(function() return _Debug:runCommand(self.command) end, debug.traceback)
+	local success, err, msg = xpcall(function() return self:runCommand(self.command) end, debug.traceback)
 	if not success and err then
 		self:print({self.colors.error, "An error has occurred while executing command: " .. self.command})
 		self:print({self.colors.error, _Utils.strSplit(err, "\n")[1]})
@@ -469,7 +587,7 @@ function Console:inputEnter()
 
 	-- We need to bypass the crash function somehow.
 	if success and err == "crash" then
-		error(_Debug:getWitty())
+		error(msg)
 	end
 
 	-- Add the command to the history (if it's distinct from the last one) and clears the buffers.
