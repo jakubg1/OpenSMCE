@@ -15,6 +15,7 @@ function Console:new()
 	self.w, self.h = 600, 200
 	self.font = love.graphics.getFont()
 	self.colors = {
+		background = _COLORS.black,
 		helpHeader = _COLORS.purple,
 		command = _COLORS.yellow,
 		commandParameter = _COLORS.aqua,
@@ -146,7 +147,7 @@ function Console:runCommand(command)
 	local commandName = words[1]
 	local commandData = self.commands[commandName]
 	if not commandData then
-		self:print({_COLORS.lightRed, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
+		self:print({self.colors.error, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
 		return
 	end
 
@@ -156,14 +157,14 @@ function Console:runCommand(command)
 		local raw = words[i + 1]
 		if not raw then
 			if not parameter.optional then
-				self:print({_COLORS.lightRed, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
+				self:print({self.colors.error, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
 				return
 			end
 		else
 			if parameter.type == "number" or parameter.type == "integer" then
 				raw = tonumber(raw)
 				if not raw then
-					self:print({_COLORS.lightRed, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
+					self:print({self.colors.error, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
 					return
 				end
 			elseif parameter.type == "Collectible" then
@@ -355,9 +356,10 @@ function Console:_draw()
 	-- Output
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.font)
+	local lineHeight = self.font:getHeight() + 2
 	local a = math.max(#self.output - self.MAX_MESSAGES - self.outputOffset + 1, 1)
 	local b = math.min(a + self.MAX_MESSAGES - 1, #self.output)
-	local y = self.y - 25 - (b - a + 1) * 20
+	local y = self.y - 25 - (b - a + 1) * lineHeight
 	for i = a, b do
 		local message = self.output[i]
 		local t = self.time - message.time
@@ -366,13 +368,13 @@ function Console:_draw()
 			if not self.open then
 				alpha = math.min(10 - t, 1)
 			end
-			_Debug:drawVisibleText(message.text, self.x + 5, y + (i - a) * 20, 20, self.w, alpha, true)
+			self:drawText(message.text, self.x + 5, y + (i - a) * lineHeight, self.w, lineHeight, alpha)
 		end
 	end
 
 	if self.open then
 		-- Output scrollbar
-		local totalH = self.MAX_MESSAGES * 20
+		local totalH = self.MAX_MESSAGES * lineHeight
 		local scrollH = totalH * math.min(self.MAX_MESSAGES / #self.output, 1)
 		local scrollY = totalH * (1 - (self.outputOffset / #self.output)) - scrollH
 		love.graphics.setColor(0.8, 0.8, 0.8)
@@ -383,14 +385,14 @@ function Console:_draw()
 		if self.active and self.time % 1 < 0.5 then
 			text = text .. "_"
 		end
-		_Debug:drawVisibleText(text, self.x + 5, self.y - 23, 20, self.w, 1, true)
+		self:drawText(text, self.x + 5, self.y - 23, self.w, lineHeight)
 
 		-- Tab completion
 		if self.tabCompletionList then
 			local a = self.tabCompletionOffset + 1
 			local b = math.min(a + self.MAX_TAB_COMPLETION_SUGGESTIONS - 1, #self.tabCompletionList)
 			local x = self.x + 5 + self.font:getWidth("> " .. self:getCommandWithoutLastWord())
-			local y = self.y - 23 - (b - a + 1) * 20
+			local y = self.y - 23 - (b - a + 1) * lineHeight
 			local width = 150
 			for i, completion in ipairs(self.tabCompletionList) do
 				width = math.max(width, self.font:getWidth(completion))
@@ -399,12 +401,33 @@ function Console:_draw()
 				local completion = self.tabCompletionList[i]
 				local color = self.tabCompletionSelection == i and self.colors.selectedCompletion or self.colors.completion
 				local backgroundColor = self.tabCompletionSelection == i and self.colors.selectedCompletionBackground or self.colors.completionBackground
-				_Debug:drawVisibleText({color, completion}, x, y + (i - a) * 20, 20, width, 1, true, backgroundColor)
+				self:drawText({color, completion}, x, y + (i - a) * lineHeight, width, lineHeight, 1, backgroundColor)
 			end
 		end
 	end
 
 	love.graphics.setFont(_FONT)
+end
+
+---Draws a text with a semi-transparent background.
+---@private
+---@param text string|table The text to be drawn.
+---@param x number The X position of the text.
+---@param y number The Y position of the text.
+---@param width number The box width, in pixels.
+---@param height number The box height, in pixels.
+---@param alpha number? Transparency of text. 1 is opaque (and default).
+---@param backgroundColor table? The background color, black by default.
+function Console:drawText(text, x, y, width, height, alpha, backgroundColor)
+	alpha = alpha or 1
+	backgroundColor = backgroundColor or self.colors.background
+
+	love.graphics.setColor(backgroundColor[1], backgroundColor[2], backgroundColor[3], 0.7 * alpha)
+	love.graphics.rectangle("fill", x - 3, y, width + 6, height)
+	love.graphics.setColor(0, 0, 0, alpha)
+	love.graphics.print(text, x + 2, y + 2)
+	love.graphics.setColor(1, 1, 1, alpha)
+	love.graphics.print(text, x, y)
 end
 
 ---LOVE2D callback for when the mouse wheel is scrolled.
