@@ -203,11 +203,11 @@ function Level:updateLogic(dt)
 		if self.warningDelay >= self.warningDelayMax then
 			for i, path in ipairs(self.map.paths) do
 				if path:isInDanger() then
-					_Game:spawnParticle(path.dangerParticle, path:getPos(path.length))
+					local pos = path:getPos(path.length)
+					_Game:spawnParticle(path.dangerParticle, pos.x, pos.y)
 				end
 			end
 			if self.config.dangerSound then
-				--game:playSound(self.config.dangerSound, 1 + (4 - self.warningDelayMax) / 6)
 				_Game:playSound(self.config.dangerSound)
 			end
 			self.warningDelay = 0
@@ -1611,10 +1611,10 @@ function Level:spawnNet()
 	local netConfig = _Game.configManager.gameplay.net
 	local pos = Vec2(_Game:getNativeResolution().x / 2, netConfig.posY)
 	if not self.netParticle then
-		self.netParticle = _Game:spawnParticle(netConfig.particle, pos)
+		self.netParticle = _Game:spawnParticle(netConfig.particle, pos.x, pos.y)
 	end
 	if not self.netSound then
-		self.netSound = _Game:playSound(_Game.resourceManager:getSoundEvent(netConfig.sound), pos)
+		self.netSound = _Game:playSound(_Game.resourceManager:getSoundEvent(netConfig.sound), pos.x, pos.y)
 	end
 end
 

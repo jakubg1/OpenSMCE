@@ -28,7 +28,7 @@ function SphereEntity:new(posX, posY, color, layer)
 
 	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color .. ".json")
 	self.rollOffsets = self:generateSpriteRollOffsets()
-	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, Vec2(posX, posY), layer)
+	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, posX, posY, layer)
 end
 
 
@@ -90,7 +90,7 @@ function SphereEntity:setColor(color)
 		self.particle = nil
 	end
 	if self.config.idleParticle then
-		self.particle = _Game:spawnParticle(self.config.idleParticle, Vec2(self.posX, self.posY), self.layer)
+		self.particle = _Game:spawnParticle(self.config.idleParticle, self.posX, self.posY, self.layer)
 	end
 end
 
@@ -161,7 +161,7 @@ function SphereEntity:destroy(spawnParticle)
 		self.particle = nil
 	end
 	if spawnParticle and self.config.destroyParticle then
-		_Game:spawnParticle(self.config.destroyParticle, Vec2(self.posX, self.posY), self.layer)
+		_Game:spawnParticle(self.config.destroyParticle, self.posX, self.posY, self.layer)
 	end
 end
 

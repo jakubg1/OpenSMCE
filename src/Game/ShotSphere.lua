@@ -113,7 +113,7 @@ function ShotSphere:moveStep()
 				if not self:didTraverseGap(group) then
 					table.insert(self.gapsTraversed, {size = size, group = group})
 					--local pos = path:getPos(offset)
-					--_Game:spawnParticle("particles/collapse_vise.json", pos)
+					--_Game:spawnParticle("particles/collapse_vise.json", pos.x, pos.y)
 					--_Debug.console:print(size)
 				end
 			end
@@ -194,7 +194,7 @@ function ShotSphere:moveStep()
 			end
 			_Vars:set("shot.bad", badShot)
 			if self.config.hitSound then
-				_Game:playSound(self.config.hitSound, Vec2(self.posX, self.posY))
+				_Game:playSound(self.config.hitSound, self.posX, self.posY)
 			end
 			_Vars:unset("shot")
 			if not badShot and not self.markedAsSuccessfulShot then

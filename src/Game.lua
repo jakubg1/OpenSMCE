@@ -5,6 +5,8 @@ local class = require "com.class"
 ---@overload fun(name):Game
 local Game = class:derive("Game")
 
+local Vec2 = require("src.Essentials.Vector2")
+
 local Timer = require("src.Timer")
 local ConfigManager = require("src.ConfigManager")
 local ResourceManager = require("src.ResourceManager")
@@ -188,19 +190,21 @@ end
 
 ---Plays a sound and returns its instance for modification.
 ---@param soundEvent SoundEvent The name of the Sound Effect to be played.
----@param pos Vector2? The position of the sound origin.
+---@param x number? The X position of the sound origin.
+---@param y number? The Y position of the sound origin.
 ---@return SoundInstanceList
-function Game:playSound(soundEvent, pos)
-	return soundEvent:play(pos)
+function Game:playSound(soundEvent, x, y)
+	return soundEvent:play(x and Vec2(x, y))
 end
 
 ---Spawns and returns a particle packet.
 ---@param particleEffect ParticleEffectConfig The particle effect resource.
----@param pos Vector2 The position for the particle packet to be spawned.
+---@param x number The initial X position of the particle packet.
+---@param y number The initial Y position of the particle packet.
 ---@param layer string? The UI layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game instead.
 ---@return ParticlePacket
-function Game:spawnParticle(particleEffect, pos, layer)
-	return self.particleManager:spawnParticlePacket(particleEffect, pos, layer)
+function Game:spawnParticle(particleEffect, x, y, layer)
+	return self.particleManager:spawnParticlePacket(particleEffect, x, y, layer)
 end
 
 ---Executes a Game Event.

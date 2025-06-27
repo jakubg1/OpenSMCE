@@ -28,7 +28,8 @@ function UIWidgetParticle:update(dt)
 end
 
 function UIWidgetParticle:spawn()
-	self.packet = _Game:spawnParticle(self.path, self.parent:getPos(), self.parent.layer)
+	local pos = self.parent:getPos()
+	self.packet = _Game:spawnParticle(self.path, pos.x, pos.y, self.parent.layer)
 end
 
 function UIWidgetParticle:despawn()

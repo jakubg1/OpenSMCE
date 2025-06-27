@@ -33,7 +33,7 @@ function ParticleManager:update(dt)
 	_Utils.removeDeadObjects(self.particlePieces)
 end
 
-function ParticleManager:spawnParticlePacket(path, pos, layer)
+function ParticleManager:spawnParticlePacket(path, x, y, layer)
 	-- TODO: Unmangle this code. Will the string representation be still needed after we fully move to Config Classes?
 	local data
 	if type(path) == "string" then
@@ -42,7 +42,7 @@ function ParticleManager:spawnParticlePacket(path, pos, layer)
 	else
 		data = path
 	end
-	local packet = ParticlePacket(self, data, pos.x, pos.y, layer)
+	local packet = ParticlePacket(self, data, x, y, layer)
 	table.insert(self.particlePackets, packet)
 	return packet
 end

@@ -161,11 +161,11 @@ function Shooter:update(dt)
     -- Sphere hold particles
     if self.shotPressed and self:getSphereConfig().holdParticle then
         for i = 1, self:getSphereCount() do
+            local pos = self:getSpherePos(i)
             if self.sphereHoldParticles[i] then
-                local pos = self:getSpherePos(i)
                 self.sphereHoldParticles[i]:setPos(pos.x, pos.y)
             else
-                self.sphereHoldParticles[i] = _Game:spawnParticle(self:getSphereConfig().holdParticle, self:getSpherePos(i))
+                self.sphereHoldParticles[i] = _Game:spawnParticle(self:getSphereConfig().holdParticle, pos.x, pos.y)
             end
         end
     else
@@ -177,11 +177,11 @@ function Shooter:update(dt)
         self.speedShotTime = math.max(self.speedShotTime - dt, 0)
         self.speedShotAnim = math.min(self.speedShotAnim + dt / self.config.speedShotBeam.fadeTime, 1)
         for i = 1, self:getSphereCount() do
+            local pos = self:getSpherePos(i)
             if self.speedShotParticles[i] then
-                local pos = self:getSpherePos(i)
                 self.speedShotParticles[i]:setPos(pos.x, pos.y)
             else
-                self.speedShotParticles[i] = _Game:spawnParticle(self.config.speedShotParticle, self:getSpherePos(i))
+                self.speedShotParticles[i] = _Game:spawnParticle(self.config.speedShotParticle, pos.x, pos.y)
             end
         end
     else
@@ -307,7 +307,7 @@ function Shooter:swapColors()
     local tmp = self.color
     self:setColor(self.nextColor)
     self:setNextColor(tmp)
-    _Game:playSound(self.config.sounds.sphereSwap, self.pos)
+    _Game:playSound(self.config.sounds.sphereSwap, self.pos.x, self.pos.y)
 end
 
 
@@ -336,7 +336,7 @@ function Shooter:fill()
     -- If anything is going to happen, play the sphere fill sound and reset the discard suppression flag.
     if self.nextColor == 0 or self.color == 0 then
         self.suppressColorRemoval = false
-        _Game:playSound(self.config.sounds.sphereFill, self.pos)
+        _Game:playSound(self.config.sounds.sphereFill, self.pos.x, self.pos.y)
     end
     -- Fill the reserve slot with a random color.
     if self.nextColor == 0 then
@@ -495,10 +495,11 @@ function Shooter:shoot()
             end
         elseif shotBehavior.type == "destroySpheres" then
             -- lightning spheres are not shot, they're deployed instantly
+            local pos = self:getSpherePos(i)
             if sphereConfig.destroyParticle then
-                _Game:spawnParticle(sphereConfig.destroyParticle, self:getSpherePos(i))
+                _Game:spawnParticle(sphereConfig.destroyParticle, pos.x, pos.y)
             end
-            _Game.level:destroySelector(shotBehavior.selector, self:getSpherePos(i), shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
+            _Game.level:destroySelector(shotBehavior.selector, pos, shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
             _Game.level:markSphereShot()
             self:destroySphereEntities()
         end
@@ -518,7 +519,7 @@ function Shooter:shoot()
     end
 
     -- Play the sound, etc.
-    _Game:playSound(sphereConfig.shotSound, self.pos)
+    _Game:playSound(sphereConfig.shotSound, self.pos.x, self.pos.y)
     self.color = 0
     self.shotCooldown = self.config.shotCooldown
 end

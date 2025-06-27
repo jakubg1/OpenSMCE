@@ -94,6 +94,7 @@ end
 
 ---Scrolls the console output to the provided amount of lines back.
 ---Makes sure that the output is not scrolled out of bounds.
+---@private
 ---@param offset integer The amount of lines back from the most recent line to be scrolled to.
 function Console:scrollOutputHistory(offset)
 	self.outputOffset = math.max(math.min(offset, #self.output - self.MAX_MESSAGES), 0)
@@ -102,6 +103,7 @@ end
 ---Scrolls the console input to the given history entry.
 ---If no history entry was being viewed until now, stores the command being currently typed in a buffer so it's not lost.
 ---That command is restored when you exit the history (call the function without the parameter).
+---@private
 ---@param n integer? The history entry to be scrolled to, or `nil` to exit history and go back to the previously typed line.
 function Console:scrollToHistoryEntry(n)
 	if self.historyOffset == n then
@@ -123,6 +125,7 @@ end
 
 ---Updates the list of completion suggestions.
 ---If no suggestions are available, the suggestions are disabled.
+---@private
 function Console:updateTabCompletionList()
 	self.tabCompletionList = _Debug:getCommandCompletionSuggestions(self.command)
 	if #self.tabCompletionList == 0 then
@@ -135,6 +138,7 @@ function Console:updateTabCompletionList()
 end
 
 ---Updates the scroll offset of the completion suggestion list.
+---@private
 function Console:updateTabCompletionScroll()
 	-- We treat no selection as 1.
 	local virtualSelection = math.max(self.tabCompletionSelection, 1)
@@ -149,6 +153,7 @@ end
 
 ---Returns the currently being typed-in command without the last word.
 ---If at least one word remains, a space character will be appended at the end of the string.
+---@private
 ---@return string
 function Console:getCommandWithoutLastWord()
 	local words = _Utils.strSplit(self.command, " ")
@@ -277,6 +282,7 @@ function Console:textinput(t)
 end
 
 ---Adds the provided string to the current command buffer.
+---@private
 ---@param text string The text to be added.
 function Console:inputText(text)
 	if not self.active then
@@ -287,6 +293,7 @@ function Console:inputText(text)
 end
 
 ---Removes the last character from the current command buffer.
+---@private
 function Console:inputBackspace()
 	if not self.active then
 		return
@@ -300,6 +307,7 @@ end
 
 ---Handles the pressing of the up arrow on the keyboard.
 ---Srolls the command history or the tab completion list, depending on whether the tab completion list is visible.
+---@private
 function Console:inputUp()
 	if self.tabCompletionList then
 		self.tabCompletionSelection = (self.tabCompletionSelection - 2) % #self.tabCompletionList + 1
@@ -315,6 +323,7 @@ end
 
 ---Handles the pressing of the down arrow on the keyboard.
 ---Srolls the command history or the tab completion list, depending on whether the tab completion list is visible.
+---@private
 function Console:inputDown()
 	if self.tabCompletionList then
 		self.tabCompletionSelection = self.tabCompletionSelection % #self.tabCompletionList + 1
@@ -332,6 +341,7 @@ end
 
 ---Handless the pressing of the Page Up key on the keyboard.
 ---Scrolls the tab completion list by one page.
+---@private
 function Console:inputPageUp()
 	if self.tabCompletionList then
 		self.tabCompletionSelection = math.max(1, self.tabCompletionSelection - self.MAX_TAB_COMPLETION_SUGGESTIONS)
@@ -341,6 +351,7 @@ end
 
 ---Handless the pressing of the Page Down key on the keyboard.
 ---Scrolls the tab completion list by one page.
+---@private
 function Console:inputPageDown()
 	if self.tabCompletionList then
 		self.tabCompletionSelection = math.min(#self.tabCompletionList, self.tabCompletionSelection + self.MAX_TAB_COMPLETION_SUGGESTIONS)
@@ -350,6 +361,7 @@ end
 
 ---Handless the pressing of the Tab key on the keyboard.
 ---Brings up the tab completion list and provides autofill.
+---@private
 function Console:inputTab()
 	if not self.tabCompletionList then
 		self:updateTabCompletionList()
@@ -369,6 +381,7 @@ end
 
 ---Handles the pressing of Enter on the keyboard.
 ---Runs the command and catches any errors which could happen.
+---@private
 function Console:inputEnter()
 	-- Do nothing if there's no input.
 	if self.command == "" then

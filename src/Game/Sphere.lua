@@ -194,7 +194,8 @@ function Sphere:changeColor(color, particle)
 	self.entity:setColor(color)
 	self:loadConfig()
 	if particle then
-		_Game:spawnParticle(particle, self:getPos())
+		local pos = self:getPos()
+		_Game:spawnParticle(particle, pos.x, pos.y)
 	end
 end
 
@@ -237,13 +238,14 @@ function Sphere:deleteVisually(ghostTime, crushed)
 			self.path:setOffsetVars("sphere", self:getOffset())
 			self:dumpVariables()
 			_Vars:set("sphere.crushed", crushed or false)
+			local pos = self:getPos()
 			-- Spawn collectibles, if any.
 			if self.config.destroyCollectible then
-				self.map.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectible)
+				self.map.level:spawnCollectiblesFromEntry(pos, self.config.destroyCollectible)
 			end
 			-- Play a sound.
 			if self.config.destroySound then
-				_Game:playSound(self.config.destroySound, self:getPos())
+				_Game:playSound(self.config.destroySound, pos.x, pos.y)
 			end
 			-- Execute a Game Event.
 			if self.config.destroyEvent then
@@ -284,11 +286,12 @@ function Sphere:breakChainLevel()
 	end
 
 	self.chainLevel = self.chainLevel - 1
+	local pos = self:getPos()
 	if self.config.chainDestroySound then
-		_Game:playSound(self.config.chainDestroySound, self:getPos())
+		_Game:playSound(self.config.chainDestroySound, pos.x, pos.y)
 	end
 	if self.config.chainDestroyParticle then
-		_Game:spawnParticle(self.config.chainDestroyParticle, self:getPos())
+		_Game:spawnParticle(self.config.chainDestroyParticle, pos.x, pos.y)
 	end
 end
 
@@ -334,14 +337,15 @@ function Sphere:applyEffect(effectConfig, infectionSize, infectionTime, effectGr
 		infectionTime = infectionTime or effectConfig.infectionTime,
 		effectGroupID = effectGroupID
 	}
+	local pos = self:getPos()
 	if effectConfig.particle then
-		effect.particle = _Game:spawnParticle(effectConfig.particle, self:getPos())
+		effect.particle = _Game:spawnParticle(effectConfig.particle, pos.x, pos.y)
 	end
 	table.insert(self.effects, effect)
 
 	-- Sound effect.
 	if effectConfig.applySound then
-		_Game:playSound(effectConfig.applySound, self:getPos())
+		_Game:playSound(effectConfig.applySound, pos.x, pos.y)
 	end
 end
 
@@ -356,7 +360,8 @@ function Sphere:removeAllEffects()
 		end
 		-- Emit destroy particles.
 		if effect.config.destroyParticle then
-			_Game:spawnParticle(effect.config.destroyParticle, self:getPos())
+			local pos = self:getPos()
+			_Game:spawnParticle(effect.config.destroyParticle, pos.x, pos.y)
 		end
 		-- Decrement the sphere effect group counter.
 		self.path:decrementSphereEffectGroup(effect.effectGroupID)
@@ -872,6 +877,7 @@ function Sphere:deserialize(t)
 	if t.effects then
 		for i, effect in ipairs(t.effects) do
 			local effectConfig = _Game.resourceManager:getSphereEffectConfig(effect.name)
+			local pos = self:getPos()
 			local e = {
 				name = effect.name,
 				config = effectConfig,
@@ -879,7 +885,7 @@ function Sphere:deserialize(t)
 				infectionSize = effect.infectionSize,
 				infectionTime = effect.infectionTime,
 				effectGroupID = effect.effectGroupID,
-				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, self:getPos())
+				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, pos.x, pos.y)
 			}
 			table.insert(self.effects, e)
 		end

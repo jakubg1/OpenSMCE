@@ -45,7 +45,8 @@ function PathEntity:new(path, config)
 	end
 
 	if self.config.loopSound then
-		self.sound = _Game:playSound(self.config.loopSound, self:getPos())
+		local pos = self:getPos()
+		self.sound = _Game:playSound(self.config.loopSound, pos.x, pos.y)
 	end
 
 	self.delQueue = false
@@ -88,7 +89,8 @@ function PathEntity:update(dt)
 			end
 			local offset = self.offset - offsetFromCurrentOffset
 			if self.config.renderParticlesInTunnels or self.path:getBrightness(offset) > 0.5 then -- the particles shouldn't be visible under obstacles
-				_Game:spawnParticle(self.config.particle, self.path:getPos(offset))
+				local pos = self.path:getPos(offset)
+				_Game:spawnParticle(self.config.particle, pos.x, pos.y)
 			end
 			self.trailDistance = self.trailDistance + self.config.particleSeparation
 		end
@@ -122,7 +124,8 @@ function PathEntity:update(dt)
 			if sphereGroup:getFrontPos() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
 				sphereGroup:destroySphere(#sphereGroup.spheres)
 				if self.config.sphereDestroySound then
-					_Game:playSound(self.config.sphereDestroySound, self:getPos())
+					local pos = self:getPos()
+					_Game:playSound(self.config.sphereDestroySound, pos.x, pos.y)
 				end
 				self.destroyedSpheres = self.destroyedSpheres + 1
 				-- if this sphere is the last sphere, the entity gets rekt
@@ -198,10 +201,10 @@ function PathEntity:explode()
 		_Game.level:spawnCollectiblesFromEntry(self:getPos(), self.config.destroyCollectibleGenerator)
 	end
 	if self.config.destroyParticle then
-		_Game:spawnParticle(self.config.destroyParticle, pos)
+		_Game:spawnParticle(self.config.destroyParticle, pos.x, pos.y)
 	end
 	if self.config.destroySound then
-		_Game:playSound(self.config.destroySound, pos)
+		_Game:playSound(self.config.destroySound, pos.x, pos.y)
 	end
 
 	_Vars:unset("entity")

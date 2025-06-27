@@ -508,7 +508,8 @@ function SphereGroup:join()
 	self.prevGroup:destroyFragileSpheres()
 	self:destroyFragileSpheres()
 	-- play a sound
-	_Game:playSound(_Game.resourceManager:getSoundEvent(self.config.joinSound), self.sphereChain.path:getPos(self.offset))
+	local pos = self.sphereChain.path:getPos(self.offset)
+	_Game:playSound(_Game.resourceManager:getSoundEvent(self.config.joinSound), pos.x, pos.y)
 end
 
 
@@ -794,7 +795,7 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	end
 	-- Play sounds.
 	if effectConfig.destroySound then
-		_Game:playSound(effectConfig.destroySound, pos)
+		_Game:playSound(effectConfig.destroySound, pos.x, pos.y)
 	end
 	-- Execute a score event.
 	if effectConfig.destroyScoreEvent then

@@ -636,7 +636,7 @@ function Debug:runCommand(command)
 		SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
 		self.console:print("Nuked!")
 	elseif command == "test" then
-		_Game:spawnParticle(parameters[1], Vec2(100, 400))
+		_Game:spawnParticle(parameters[1], 100, 400)
 	elseif command == "crash" then
 		return "crash"
 	elseif command == "expr" then

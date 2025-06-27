@@ -36,7 +36,7 @@ function Projectile:new(data, config, targetSphere)
     end
 
     if self.config.particle then
-        self.particle = _Game:spawnParticle(self.config.particle, self.pos)
+        self.particle = _Game:spawnParticle(self.config.particle, self.pos.x, self.pos.y)
     end
 
     self.delQueue = false
@@ -89,9 +89,9 @@ function Projectile:explode()
     _Vars:unset("hitSphere")
 
     if self.config.destroySound then
-        _Game:playSound(self.config.destroySound, self.pos)
+        _Game:playSound(self.config.destroySound, self.pos.x, self.pos.y)
     end
-	_Game:spawnParticle(self.config.destroyParticle, self.pos)
+	_Game:spawnParticle(self.config.destroyParticle, self.pos.x, self.pos.y)
 end
 
 ---Removes this Projectile from the level.
