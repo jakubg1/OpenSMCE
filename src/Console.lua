@@ -389,7 +389,7 @@ function Console:_draw()
 		if self.tabCompletionList then
 			local a = self.tabCompletionOffset + 1
 			local b = math.min(a + self.MAX_TAB_COMPLETION_SUGGESTIONS - 1, #self.tabCompletionList)
-			local x = self.x + 5 + (utf8.len(self:getCommandWithoutLastWord()) + 2) * 8
+			local x = self.x + 5 + self.font:getWidth("> " .. self:getCommandWithoutLastWord())
 			local y = self.y - 23 - (b - a + 1) * 20
 			local width = 150
 			for i, completion in ipairs(self.tabCompletionList) do
