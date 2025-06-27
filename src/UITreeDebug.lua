@@ -201,7 +201,7 @@ function UITreeDebug:keypressed(key)
     if key == "f2" then
         if love.keyboard.isDown("lctrl", "rctrl") then
             self.autoCollapseInvisible = not self.autoCollapseInvisible
-            _Debug.console:print({_COLORS.aqua, string.format("[UI Debug] Auto-collapsing hidden UI elements: %s", self.autoCollapseInvisible and "ON" or "OFF")})
+            _Debug:print({_COLORS.aqua, string.format("[UI Debug] Auto-collapsing hidden UI elements: %s", self.autoCollapseInvisible and "ON" or "OFF")})
         else
             self.visible = not self.visible
         end

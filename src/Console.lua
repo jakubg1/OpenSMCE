@@ -8,10 +8,12 @@ local Console = class:derive("Console")
 local utf8 = require("utf8")
 
 ---Constructs the Console.
+---@private
 function Console:new()
 	-- NOTE: Y position is recalculated each frame in `:draw()` because the console is brought down to the bottom of the window.
 	self.x, self.y = 0, 0
 	self.w, self.h = 600, 200
+	self.font = love.graphics.getFont()
 
 	---@type {text: string, time: number}[]
 	self.output = {}
@@ -39,7 +41,7 @@ end
 
 ---Updates the console. Handles key repeat timing.
 ---@param dt number Time delta in seconds.
-function Console:update(dt)
+function Console:_update(dt)
 	if self.keyRepeat then
 		self.keyRepeatTime = self.keyRepeatTime - dt
 		if self.keyRepeatTime <= 0 then
@@ -74,7 +76,6 @@ function Console:print(message)
 	if self.outputOffset > 0 then
 		self:scrollOutputHistory(self.outputOffset + 1)
 	end
-	_Log:printt("CONSOLE", _Utils.strUnformat(message))
 end
 
 ---Sets whether the console is currently open.
@@ -90,6 +91,12 @@ end
 ---Toggles whether the console is currently open.
 function Console:toggleOpen()
 	self:setOpen(not self.open)
+end
+
+---Sets the font to be used to draw text in the Console. A monospace font is recommended.
+---@param font love.Font A LOVE2D font object to be used as the console font.
+function Console:setFont(font)
+	self.font = font
 end
 
 ---Scrolls the console output to the provided amount of lines back.
@@ -127,7 +134,7 @@ end
 ---If no suggestions are available, the suggestions are disabled.
 ---@private
 function Console:updateTabCompletionList()
-	self.tabCompletionList = _Debug:getCommandCompletionSuggestions(self.command)
+	self.tabCompletionList = self:getCommandCompletionSuggestions(self.command)
 	if #self.tabCompletionList == 0 then
 		-- No suggestions.
 		self.tabCompletionList = nil
@@ -165,15 +172,63 @@ function Console:getCommandWithoutLastWord()
 	return command
 end
 
+---Returns a list of Tab completion suggestions for the current command.
+---@private
+---@param command string The incomplete command. The suggestions will be provided for the last word.
+---@return table
+function Console:getCommandCompletionSuggestions(command)
+	local suggestions = {}
+	local words = _Utils.strSplit(command, " ")
+	if #words == 1 then
+		-- First word: provide the suggestions for command names.
+		suggestions = _Utils.copyTable(_Debug.commandNames)
+	else
+		-- Subsequent word: check the command and provide the suggestions for command arguments.
+		local commandConfig = _Debug.commands[words[1]]
+		if commandConfig then
+			local parameter = commandConfig.parameters[#words - 1]
+			if parameter then
+				if parameter.type == "Collectible" then
+					if _Game.resourceManager then
+						suggestions = _Game.resourceManager:getResourceList("Collectible")
+					end
+				elseif parameter.type == "ParticleEffect" then
+					if _Game.resourceManager then
+						suggestions = _Game.resourceManager:getResourceList("ParticleEffect")
+					end
+				end
+			end
+		end
+	end
+
+	-- Remove irrelevant suggestions and sort them alphabetically.
+	local result = {}
+	for i = 1, #suggestions do
+		if _Utils.strStartsWith(suggestions[i], words[#words]) then
+			table.insert(result, suggestions[i])
+		end
+	end
+	-- If no suggestions are found, loosen the criteria and try finding the string anywhere.
+	if #result == 0 then
+		for i = 1, #suggestions do
+			if _Utils.strContains(suggestions[i], words[#words]) then
+				table.insert(result, suggestions[i])
+			end
+		end
+	end
+	table.sort(result)
+	return result
+end
+
 ---Draws the Console on the screen.
-function Console:draw()
+function Console:_draw()
 	-- Bring the console to the bottom of the screen.
 	local w, h = love.window.getMode()
 	self.y = h
 
 	-- Output
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.setFont(_FONT_CONSOLE)
+	love.graphics.setFont(self.font)
 	local a = math.max(#self.output - self.MAX_MESSAGES - self.outputOffset + 1, 1)
 	local b = math.min(a + self.MAX_MESSAGES - 1, #self.output)
 	local y = self.y - 25 - (b - a + 1) * 20
@@ -200,17 +255,17 @@ function Console:draw()
 		-- Input box
 		local text = "> " .. self.command
 		if self.active and _TotalTime % 1 < 0.5 then text = text .. "_" end
-		_Debug:drawVisibleText(text, self.x + 5, self.y - 25, 20, self.w, 1, true)
+		_Debug:drawVisibleText(text, self.x + 5, self.y - 23, 20, self.w, 1, true)
 
 		-- Tab completion
 		if self.tabCompletionList then
 			local a = self.tabCompletionOffset + 1
 			local b = math.min(a + self.MAX_TAB_COMPLETION_SUGGESTIONS - 1, #self.tabCompletionList)
 			local x = self.x + 5 + (utf8.len(self:getCommandWithoutLastWord()) + 2) * 8
-			local y = self.y - 25 - (b - a + 1) * 20
+			local y = self.y - 23 - (b - a + 1) * 20
 			local width = 150
 			for i, completion in ipairs(self.tabCompletionList) do
-				width = math.max(width, _FONT_CONSOLE:getWidth(completion))
+				width = math.max(width, self.font:getWidth(completion))
 			end
 			for i = a, b do
 				local completion = self.tabCompletionList[i]
@@ -227,7 +282,7 @@ end
 ---LOVE2D callback for when the mouse wheel is scrolled.
 ---@param x integer Scroll distance on X axis.
 ---@param y integer Scroll distance on Y axis.
-function Console:wheelmoved(x, y)
+function Console:_wheelmoved(x, y)
 	if not self.active then
 		return
 	end
@@ -236,7 +291,7 @@ end
 
 ---LOVE2D callback for when a key is pressed.
 ---@param key string The key which has been pressed.
-function Console:keypressed(key)
+function Console:_keypressed(key)
 	-- the shortcut is Ctrl + `
 	if key == "`" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
 		self:toggleOpen()
@@ -269,7 +324,7 @@ end
 
 ---LOVE2D callback for when a key was released.
 ---@param key string The key that was released.
-function Console:keyreleased(key)
+function Console:_keyreleased(key)
 	if key == self.keyRepeat then
 		self.keyRepeat = nil
 	end
@@ -277,7 +332,7 @@ end
 
 ---LOVE2D callback for when a character was inputted.
 ---@param t string The character which was inputted.
-function Console:textinput(t)
+function Console:_textinput(t)
 	self:inputText(t)
 end
 
@@ -301,7 +356,12 @@ function Console:inputBackspace()
 	local offset = utf8.offset(self.command, -1)
 	if offset then
 		self.command = self.command:sub(1, offset - 1)
-		self:updateTabCompletionList()
+		if self.command ~= "" then
+			self:updateTabCompletionList()
+		else
+			-- Hide the tab completion list when we've cleared the entire command.
+			self.tabCompletionList = nil
+		end
 	end
 end
 

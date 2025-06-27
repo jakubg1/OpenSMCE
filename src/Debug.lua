@@ -18,6 +18,7 @@ local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 ---Constructs a Debug class.
 function Debug:new()
 	self.console = Console()
+	self.console:setFont(_FONT_CONSOLE)
 	self.uiDebug = UIDebug()
 
 	self.commands = {
@@ -27,10 +28,6 @@ function Debug:new()
 			fn = function(scale)
 
 			end
-		},
-		e = {
-			description = "Toggles the Background Cheat Mode. Spheres render over tunnels.",
-			parameters = {}
 		},
 		n = {
 			description = "Destroys all spheres on the board.",
@@ -102,7 +99,6 @@ function Debug:new()
 	self.uiWidgetCount = 0
 	self.vec2PerFrame = 0
 	self.lastVec2PerFrame = 0
-	self.e = false
 
 	self.displayedDeprecationTraces = {}
 
@@ -112,6 +108,7 @@ function Debug:new()
 	self.textDebugVisible = false -- Switched by F4
 	self.fpsDebugVisible = false -- Switched by F5
 	self.sphereDebugVisible = false -- Switched by F6
+	self.mapDebugVisible = false -- Switched by F7
 end
 
 
@@ -119,7 +116,7 @@ end
 ---Updates the debug class.
 ---@param dt number Time delta in seconds.
 function Debug:update(dt)
-	self.console:update(dt)
+	self.console:_update(dt)
 	self.lastVec2PerFrame = self.vec2PerFrame
 	self.vec2PerFrame = 0
 
@@ -154,10 +151,11 @@ function Debug:draw()
 		self:drawVisibleText("[F4] Debug text (FPS, level data, etc.)", 10, 85, 15)
 		self:drawVisibleText("[F5] FPS Counter", 10, 100, 15)
 		self:drawVisibleText("[F6] Sphere trains path overlay", 10, 115, 15)
+		self:drawVisibleText("[F7] Render spheres over tunnels", 10, 130, 15)
 	end
 
 	-- Console
-	self.console:draw()
+	self.console:_draw()
 
 	-- UI tree
 	self.uiDebug:draw()
@@ -169,7 +167,7 @@ function Debug:draw()
 end
 
 function Debug:wheelmoved(x, y)
-	self.console:wheelmoved(x, y)
+	self.console:_wheelmoved(x, y)
 	self.uiDebug:wheelmoved(x, y)
 end
 
@@ -179,13 +177,15 @@ function Debug:keypressed(key)
 			self.profVisible = not self.profVisible
 		elseif key == "f3" then
 			self.gameDebugVisible = not self.gameDebugVisible
-			self.console:print({_COLORS.aqua, string.format("[Debug] Gameplay Debug: %s", self.gameDebugVisible and "ON" or "OFF")})
+			self:print({_COLORS.aqua, string.format("[Debug] Gameplay Debug: %s", self.gameDebugVisible and "ON" or "OFF")})
 		elseif key == "f4" then
 			self.textDebugVisible = not self.textDebugVisible
 		elseif key == "f5" then
 			self.fpsDebugVisible = not self.fpsDebugVisible
 		elseif key == "f6" then
 			self.sphereDebugVisible = not self.sphereDebugVisible
+		elseif key == "f7" then
+			self.mapDebugVisible = not self.mapDebugVisible
 		elseif key == "f10" then
 			self:deprecationNotice("test")
 		end
@@ -199,15 +199,15 @@ function Debug:keypressed(key)
 		self.uiDebug:keypressed(key)
 	end
 
-	self.console:keypressed(key)
+	self.console:_keypressed(key)
 end
 
 function Debug:keyreleased(key)
-	self.console:keyreleased(key)
+	self.console:_keyreleased(key)
 end
 
 function Debug:textinput(t)
-	self.console:textinput(t)
+	self.console:_textinput(t)
 end
 
 function Debug:mousepressed(x, y, button)
@@ -219,6 +219,13 @@ function Debug:mousereleased(x, y, button)
 end
 
 
+
+---Prints a message to the console and also to the log.
+---@param message any? The message to be sent. If it's not a string or a formatted string (table), `tostring` will be implicitly used first.
+function Debug:print(message)
+	self.console:print(message)
+	_Log:printt("CONSOLE", _Utils.strUnformat(message))
+end
 
 ---Prints a deprecation notice to the ingame console.
 ---@param message string The message to be printed.
@@ -233,8 +240,8 @@ function Debug:deprecationNotice(message, depth)
 		return
 	end
 	table.insert(self.displayedDeprecationTraces, trace)
-	self.console:print({_COLORS.aqua, "[Debug] ", _COLORS.red, "Deprecation Notice: ", _COLORS.purple, message})
-	self.console:print({_COLORS.yellow, "        " .. trace})
+	self:print({_COLORS.aqua, "[Debug] ", _COLORS.red, "Deprecation Notice: ", _COLORS.purple, message})
+	self:print({_COLORS.yellow, "        " .. trace})
 end
 
 function Debug:getDebugMain()
@@ -513,55 +520,6 @@ end
 
 
 
----Returns a list of TAB completion suggestions for the current command.
----@param command string The incomplete command. The suggestions will be provided for the last word.
----@return table
-function Debug:getCommandCompletionSuggestions(command)
-	local suggestions = {}
-	local words = _Utils.strSplit(command, " ")
-	if #words == 1 then
-		-- First word: provide the suggestions for command names.
-		suggestions = _Utils.copyTable(_Debug.commandNames)
-	else
-		-- Subsequent word: check the command and provide the suggestions for command arguments.
-		local commandConfig = self.commands[words[1]]
-		if commandConfig then
-			local parameter = commandConfig.parameters[#words - 1]
-			if parameter then
-				if parameter.type == "Collectible" then
-					if _Game.resourceManager then
-						suggestions = _Game.resourceManager:getResourceList("Collectible")
-					end
-				elseif parameter.type == "ParticleEffect" then
-					if _Game.resourceManager then
-						suggestions = _Game.resourceManager:getResourceList("ParticleEffect")
-					end
-				end
-			end
-		end
-	end
-
-	-- Remove irrelevant suggestions and sort them alphabetically.
-	local result = {}
-	for i = 1, #suggestions do
-		if _Utils.strStartsWith(suggestions[i], words[#words]) then
-			table.insert(result, suggestions[i])
-		end
-	end
-	-- If no suggestions are found, loosen the criteria and try finding the string anywhere.
-	if #result == 0 then
-		for i = 1, #suggestions do
-			if _Utils.strContains(suggestions[i], words[#words]) then
-				table.insert(result, suggestions[i])
-			end
-		end
-	end
-	table.sort(result)
-	return result
-end
-
-
-
 function Debug:runCommand(command)
 	local words = _Utils.strSplit(command, " ")
 
@@ -569,7 +527,7 @@ function Debug:runCommand(command)
 	local command = words[1]
 	local commandData = self.commands[command]
 	if not commandData then
-		self.console:print({_COLORS.red, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
+		self:print({_COLORS.red, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
 		return
 	end
 
@@ -579,14 +537,14 @@ function Debug:runCommand(command)
 		local raw = words[i + 1]
 		if not raw then
 			if not parameter.optional then
-				self.console:print({_COLORS.red, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
+				self:print({_COLORS.red, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
 				return
 			end
 		else
 			if parameter.type == "number" or parameter.type == "integer" then
 				raw = tonumber(raw)
 				if not raw then
-					self.console:print({_COLORS.red, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
+					self:print({_COLORS.red, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
 					return
 				end
 			elseif parameter.type == "Collectible" then
@@ -604,8 +562,8 @@ function Debug:runCommand(command)
 
 	-- Command handling
 	if command == "help" then
-		self.console:print({_COLORS.purple, "This is a still pretty rough console of OpenSMCE!"})
-		self.console:print({_COLORS.green, "Available commands:"})
+		self:print({_COLORS.purple, "This is a still pretty rough console of OpenSMCE!"})
+		self:print({_COLORS.green, "Available commands:"})
 		for i, name in ipairs(self.commandNames) do
 			local commandData = self.commands[name]
 			local msg = {_COLORS.yellow, name}
@@ -624,45 +582,42 @@ function Debug:runCommand(command)
 			end
 			table.insert(msg, _COLORS.white)
 			table.insert(msg, " - " .. commandData.description)
-			self.console:print(msg)
+			self:print(msg)
 		end
 	elseif command == "t" then
 		_TimeScale = parameters[1]
-		self.console:print("Time scale set to " .. tostring(parameters[1]))
-	elseif command == "e" then
-		self.e = not self.e
-		self.console:print("Background cheat mode toggled")
+		self:print("Time scale set to " .. tostring(parameters[1]))
 	elseif command == "n" then
 		SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
-		self.console:print("Nuked!")
+		self:print("Nuked!")
 	elseif command == "test" then
 		_Game:spawnParticle(parameters[1], 100, 400)
 	elseif command == "crash" then
 		return "crash"
 	elseif command == "expr" then
 		local e = Expression(parameters[1], true)
-		self.console:print(string.format("expr(%s): %s", parameters[1], e:evaluate()))
+		self:print(string.format("expr(%s): %s", parameters[1], e:evaluate()))
 	elseif command == "exprt" then
 		local e = Expression(parameters[1], true)
 		for i, step in ipairs(e.data) do
 			_Log:printt("Debug", string.format("%s   %s", step.type, step.value))
 		end
-		self.console:print(string.format("exprt(%s): %s", parameters[1], e:getDebug()))
+		self:print(string.format("exprt(%s): %s", parameters[1], e:getDebug()))
 	elseif command == "ex" then
 		local e = Expression("2", true)
-		self.console:print(string.format("ex(%s):", parameters[1]))
+		self:print(string.format("ex(%s):", parameters[1]))
 		local tokens = e:tokenize(parameters[1])
 		for i, token in ipairs(tokens) do
-			self.console:print(string.format("%s   %s", token.value, token.type))
+			self:print(string.format("%s   %s", token.value, token.type))
 		end
-		self.console:print("")
-		self.console:print("")
-		self.console:print("Compilation result:")
+		self:print("")
+		self:print("")
+		self:print("Compilation result:")
 		e.data = e:compile(tokens)
 		for i, step in ipairs(e.data) do
-			self.console:print(string.format("%s   %s", step.type, step.value))
+			self:print(string.format("%s   %s", step.type, step.value))
 		end
-		self.console:print(string.format("ex(%s): %s", parameters[1], e:evaluate()))
+		self:print(string.format("ex(%s): %s", parameters[1], e:evaluate()))
 	elseif command == "collectible" then
 		for i = 1, parameters[2] or 1 do
 			_Game.level:spawnCollectible(parameters[1], _Game:getNativeResolution() / 2)
@@ -772,7 +727,7 @@ function Debug:runCommand(command)
 				result = result .. block.key:rep(block.size)
 			end
 		end
-		self.console:print(result)
+		self:print(result)
 	end
 end
 

@@ -48,7 +48,7 @@ function DiscordRichPresence:init()
 		else
 			self.username = string.format("@%s", username)
 		end
-		_Debug.console:print({{0, 1, 1}, "[DiscordRPC] ", {0, 1, 0}, string.format("Connected! (username: %s)", self.username)})
+		_Debug:print({{0, 1, 1}, "[DiscordRPC] ", {0, 1, 0}, string.format("Connected! (username: %s)", self.username)})
 	end
 
 	function self.rpcMain.disconnected(errorCode, message)

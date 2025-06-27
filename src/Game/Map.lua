@@ -85,8 +85,8 @@ function Map:draw()
 		end
 	end
 
-	-- Objects drawn before hidden spheres (background cheat mode)
-	if _Debug.e then
+	-- Objects drawn before hidden spheres (map debugging)
+	if _Debug.mapDebugVisible then
 		for i, sprite in ipairs(self.sprites) do
 			if not sprite.background and not sprite.foreground then
 				sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
@@ -108,8 +108,8 @@ function Map:draw()
 	-- so we need to separate the layers for them into hidden and non-hidden.
 	_Game.particleManager:draw(self.isDummy and "_DUMMY_SPHERES_H" or "_SPHERES_H")
 
-	-- Objects that will be drawn when the BCM is off (foreground sprites)
-	if not _Debug.e then
+	-- Objects that will be drawn when the map debugging is off (foreground sprites)
+	if not _Debug.mapDebugVisible then
 		for i, sprite in ipairs(self.sprites) do
 			if not sprite.background and not sprite.foreground then
 				sprite.sprite:draw(sprite.pos.x, sprite.pos.y)

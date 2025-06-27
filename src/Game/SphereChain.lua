@@ -360,7 +360,7 @@ function SphereChain:endCascade()
 	if self.cascade == 0 and self.cascadeScore == 0 then
 		return
 	end
-	--_Debug.console:print("chain " .. self.cascadeScore)
+	--_Debug:print("chain " .. self.cascadeScore)
 	_Game.uiManager:executeCallback({
 		name = "cascadeEnded",
 		parameters = {self.cascade, self.cascadeScore}

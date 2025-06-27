@@ -891,7 +891,7 @@ function Level:endCascade()
 	if self.cascade == 0 and self.cascadeScore == 0 then
 		return
 	end
-	--_Debug.console:print("level " .. self.cascadeScore)
+	--_Debug:print("level " .. self.cascadeScore)
 	_Game.uiManager:executeCallback({
 		name = "cascadeEnded",
 		parameters = {self.cascade, self.cascadeScore}
