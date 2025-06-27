@@ -12,19 +12,20 @@ local utf8 = require("utf8")
 function Console:new()
 	-- NOTE: Y position is recalculated each frame in `:draw()` because the console is brought down to the bottom of the window.
 	self.x, self.y = 0, 0
-	self.w, self.h = 600, 200
+	self.width, self.height = 600, 200
+	self.scale = 1
 	self.font = love.graphics.getFont()
 	self.colors = {
-		background = _COLORS.black,
-		helpHeader = _COLORS.purple,
-		command = _COLORS.yellow,
-		commandParameter = _COLORS.aqua,
-		commandDescription = _COLORS.white,
-		error = _COLORS.lightRed,
-		completion = _COLORS.white,
-		completionBackground = _COLORS.black,
-		selectedCompletion = _COLORS.white,
-		selectedCompletionBackground = _COLORS.sky
+		background = {0, 0, 0},
+		helpHeader = {1, 0.2, 1},
+		command = {1, 1, 0.2},
+		commandParameter = {0.3, 1, 1},
+		commandDescription = {1, 1, 1},
+		error = {1, 0.4, 0.2},
+		completion = {1, 1, 1},
+		completionBackground = {0, 0, 0},
+		selectedCompletion = {1, 1, 1},
+		selectedCompletionBackground = {0.1, 0.4, 0.7}
 	}
 	---@alias CommandParameter {name: string, type: string, optional: boolean?, greedy: boolean?}
 	---@type table<string, {description: string, parameters: CommandParameter[], fn: function, caller: any?}>
@@ -114,6 +115,24 @@ end
 ---Toggles whether the console is currently open.
 function Console:toggleOpen()
 	self:setOpen(not self.open)
+end
+
+---Returns whether the console is currently open.
+---@return boolean
+function Console:isOpen()
+	return self.open
+end
+
+---Sets the width of the Console. This includes both the input box and the output background.
+---@param width number The width, in pixels.
+function Console:setWidth(width)
+	self.width = width
+end
+
+---Sets the scale of the Console.
+---@param scale number The new scale of the Console. 1 is natural size.
+function Console:setScale(scale)
+	self.scale = scale
 end
 
 ---Sets the font to be used to draw text in the Console. A monospace font is recommended.
@@ -353,13 +372,15 @@ function Console:_draw()
 	local w, h = love.window.getMode()
 	self.y = h
 
+	local previousFont = love.graphics.getFont()
+
 	-- Output
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(self.font)
-	local lineHeight = self.font:getHeight() + 2
+	local lineHeight = (self.font:getHeight() + 2) * self.scale
 	local a = math.max(#self.output - self.MAX_MESSAGES - self.outputOffset + 1, 1)
 	local b = math.min(a + self.MAX_MESSAGES - 1, #self.output)
-	local y = self.y - 25 - (b - a + 1) * lineHeight
+	local y = self.y - lineHeight - 5 - (b - a + 1) * lineHeight
 	for i = a, b do
 		local message = self.output[i]
 		local t = self.time - message.time
@@ -368,7 +389,7 @@ function Console:_draw()
 			if not self.open then
 				alpha = math.min(10 - t, 1)
 			end
-			self:drawText(message.text, self.x + 5, y + (i - a) * lineHeight, self.w, lineHeight, alpha)
+			self:drawText(message.text, self.x + 5, y + (i - a) * lineHeight, self.width, lineHeight, self.scale, alpha)
 		end
 	end
 
@@ -378,21 +399,21 @@ function Console:_draw()
 		local scrollH = totalH * math.min(self.MAX_MESSAGES / #self.output, 1)
 		local scrollY = totalH * (1 - (self.outputOffset / #self.output)) - scrollH
 		love.graphics.setColor(0.8, 0.8, 0.8)
-		love.graphics.rectangle("fill", self.x, self.y - 25 - totalH + scrollY, 2, scrollH)
+		love.graphics.rectangle("fill", self.x, self.y - lineHeight - 5 - totalH + scrollY, 2, scrollH)
 
 		-- Input box
 		local text = "> " .. self.command
 		if self.active and self.time % 1 < 0.5 then
 			text = text .. "_"
 		end
-		self:drawText(text, self.x + 5, self.y - 23, self.w, lineHeight)
+		self:drawText(text, self.x + 5, self.y - lineHeight - 3, self.width, lineHeight, self.scale)
 
 		-- Tab completion
 		if self.tabCompletionList then
 			local a = self.tabCompletionOffset + 1
 			local b = math.min(a + self.MAX_TAB_COMPLETION_SUGGESTIONS - 1, #self.tabCompletionList)
-			local x = self.x + 5 + self.font:getWidth("> " .. self:getCommandWithoutLastWord())
-			local y = self.y - 23 - (b - a + 1) * lineHeight
+			local x = self.x + 5 + self.font:getWidth("> " .. self:getCommandWithoutLastWord()) * self.scale
+			local y = self.y - lineHeight - 3 - (b - a + 1) * lineHeight
 			local width = 150
 			for i, completion in ipairs(self.tabCompletionList) do
 				width = math.max(width, self.font:getWidth(completion))
@@ -401,12 +422,12 @@ function Console:_draw()
 				local completion = self.tabCompletionList[i]
 				local color = self.tabCompletionSelection == i and self.colors.selectedCompletion or self.colors.completion
 				local backgroundColor = self.tabCompletionSelection == i and self.colors.selectedCompletionBackground or self.colors.completionBackground
-				self:drawText({color, completion}, x, y + (i - a) * lineHeight, width, lineHeight, 1, backgroundColor)
+				self:drawText({color, completion}, x, y + (i - a) * lineHeight, width, lineHeight, self.scale, 1, backgroundColor)
 			end
 		end
 	end
 
-	love.graphics.setFont(_FONT)
+	love.graphics.setFont(previousFont)
 end
 
 ---Draws a text with a semi-transparent background.
@@ -416,18 +437,22 @@ end
 ---@param y number The Y position of the text.
 ---@param width number The box width, in pixels.
 ---@param height number The box height, in pixels.
+---@param scale number? Relative scale of text.
 ---@param alpha number? Transparency of text. 1 is opaque (and default).
 ---@param backgroundColor table? The background color, black by default.
-function Console:drawText(text, x, y, width, height, alpha, backgroundColor)
+function Console:drawText(text, x, y, width, height, scale, alpha, backgroundColor)
+	scale = scale or 1
 	alpha = alpha or 1
 	backgroundColor = backgroundColor or self.colors.background
 
 	love.graphics.setColor(backgroundColor[1], backgroundColor[2], backgroundColor[3], 0.7 * alpha)
-	love.graphics.rectangle("fill", x - 3, y, width + 6, height)
+	love.graphics.rectangle("fill", x - 3 * scale, y, width + 6 * scale, height)
+	-- Pad text down a bit.
+	y = y + scale
 	love.graphics.setColor(0, 0, 0, alpha)
-	love.graphics.print(text, x + 2, y + 2)
+	love.graphics.print(text, x + 2, y + 2, 0, scale)
 	love.graphics.setColor(1, 1, 1, alpha)
-	love.graphics.print(text, x, y)
+	love.graphics.print(text, x, y, 0, scale)
 end
 
 ---LOVE2D callback for when the mouse wheel is scrolled.
@@ -444,13 +469,13 @@ end
 ---@param key string The key which has been pressed.
 function Console:_keypressed(key)
 	-- the shortcut is Ctrl + `
-	if key == "`" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
+	if key == "`" and love.keyboard.isDown("lctrl", "rctrl") then
 		self:toggleOpen()
 	end
 	if not self.active then
 		return
 	end
-	if key == "v" and (_KeyModifiers["lctrl"] or _KeyModifiers["rctrl"]) then
+	if key == "v" and love.keyboard.isDown("lctrl", "rctrl") then
 		self:inputText(love.system.getClipboardText())
 	elseif key == "backspace" then
 		self:inputBackspace()

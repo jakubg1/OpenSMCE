@@ -96,7 +96,6 @@ _BUILD_NUMBER = "unknown"
 -- GLOBAL ZONE
 _DisplayFullscreen = false
 _MousePos = Vec2(0, 0)
-_KeyModifiers = {lshift = false, lctrl = false, lalt = false, rshift = false, rctrl = false, ralt = false}
 -- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
 _FSPrefix = ""
 
@@ -224,7 +223,6 @@ function love.wheelmoved(x, y)
 end
 
 function love.keypressed(key)
-	for k, v in pairs(_KeyModifiers) do if key == k then _KeyModifiers[k] = true end end
 	-- Backspace is treated exclusively and will trigger repeatedly when held.
 	love.keyboard.setKeyRepeat(key == "backspace")
 
@@ -236,8 +234,6 @@ function love.keypressed(key)
 end
 
 function love.keyreleased(key)
-	for k, v in pairs(_KeyModifiers) do if key == k then _KeyModifiers[k] = false end end
-
 	if not _Debug.console.active then
 		if _Game then _Game:keyreleased(key) end
 	end
