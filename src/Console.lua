@@ -58,7 +58,7 @@ function Console:new()
 
 	self.keyRepeat = nil
 	self.KEY_FIRST_REPEAT_TIME = 0.5
-	self.KEY_NEXT_REPEAT_TIME = 0.05
+	self.KEY_NEXT_REPEAT_TIME = 0.02
 	self.keyRepeatTime = 0
 end
 
