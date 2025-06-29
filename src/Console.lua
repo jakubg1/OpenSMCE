@@ -95,10 +95,13 @@ function Console:print(message)
 	if type(message) ~= "string" and type(message) ~= "table" then
 		message = tostring(message)
 	end
-	table.insert(self.output, {text = message, time = self.time})
+	local lines = _Utils.strSplit(message, "\n")
+	for i, line in ipairs(lines) do
+		table.insert(self.output, {text = line, time = self.time})
+	end
 	-- When browsing the command history, don't drag previous messages from under our feet.
 	if self.outputOffset > 0 then
-		self:scrollOutputHistory(self.outputOffset + 1)
+		self:scrollOutputHistory(self.outputOffset + #lines)
 	end
 end
 

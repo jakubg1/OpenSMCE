@@ -1,6 +1,11 @@
 -- utils.lua by jakubg1
 -- version for OpenSMCE (might consider expanding this so that they get their own repository)
 
+---It is currently not possible to accurately describe this type using Luadoc.
+---A table with alternating values: color in format of `{r, g, b}` and text which should be drawn using that color.
+---Example: `{{1, 0, 0}, "red", {0, 1, 0}, "green", {1, 1, 1}, "white"}`
+---@alias ColoredText table
+
 local json = require("com.json")
 
 local utils = {}
@@ -457,24 +462,43 @@ end
 
 
 ---Splits a string `s` with the delimiter being `k` and returns a list of results.
----@param s string A string to be split.
+---If Colored Text is passed, the result will be a list of Colored Texts.
+---@param s string|ColoredText A string or LOVE Colored Text to be split.
 ---@param k string A delimiter which determines where to split `s`.
----@return table
+---@return string[]|ColoredText[]
 function utils.strSplit(s, k)
-	assert(s, "input string is nil")
-	assert(k, "input delimiter is nil")
-	local t = {}
-	local l = k:len()
-	while true do
-		local n = s:find("%" .. k)
-		if n then
-			table.insert(t, s:sub(1, n - 1))
-			s = s:sub(n + l)
-		else
-			table.insert(t, s)
-			return t
+	local result = {}
+	if type(s) == "string" then
+		local l = k:len()
+		while true do
+			local n = s:find("%" .. k)
+			if n then
+				table.insert(result, s:sub(1, n - 1))
+				s = s:sub(n + l)
+			else
+				table.insert(result, s)
+				return result
+			end
 		end
+	elseif type(s) == "table" then
+		-- We are splitting a colored text.
+		-- Split each chunk separately and give it the same color.
+		for i = 2, #s, 2 do
+			local color = s[i - 1]
+			local substrs = utils.strSplit(s[i], k)
+			for j, substr in ipairs(substrs) do
+				-- The first chunk of this color should be merged with the last chunk of the previous color.
+				-- Otherwise, create a new chunk.
+				if j > 1 or #result == 0 then
+					table.insert(result, {})
+				end
+				table.insert(result[#result], color)
+				table.insert(result[#result], substr)
+			end
+		end
+		return result
 	end
+	error(string.format("Illegal input type for `utils.strSplit()`: %s (type %s, expected: string or table)", s, type(s)))
 end
 
 
