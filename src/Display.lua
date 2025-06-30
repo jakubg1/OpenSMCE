@@ -12,6 +12,7 @@ function Display:new()
     self.renderResolution = Vec2(800, 600)
     self.renderCanvas = nil
     self.renderLayers = {}
+    self.renderMode = "filtered"
 
     self.funniFlashlight = false
 end
@@ -45,13 +46,15 @@ end
 
 ---Generates a new Canvas which can be drawn on.
 ---@param resolution Vector2 The new canvas resolution (native resolution).
----@param mode "filtered"|"pixel" The canvas mode. If `"pixel"`, the canvas image will not be interpolated.
+---@param mode "filtered"|"pixel"|"pixelPerfect" The canvas mode. If `"pixel"`, the canvas image will not be interpolated.
 function Display:setCanvas(resolution, mode)
     self.renderResolution = resolution
+    self.renderMode = mode
 	self.renderCanvas = love.graphics.newCanvas(resolution.x, resolution.y)
     self.renderLayers.MAIN =  love.graphics.newCanvas(resolution.x, resolution.y)
-	if mode == "pixel" then
-		self.renderCanvas:setFilter("nearest", "nearest")
+	self.renderCanvas:setFilter("nearest", "nearest")
+	if mode == "pixel" or mode == "pixelPerfect" then
+		self.renderLayers.MAIN:setFilter("nearest", "nearest")
 	end
 end
 
@@ -63,17 +66,30 @@ function Display:getDisplayOffsetX()
 	return (self.size.x - self.renderResolution.x * self:getCanvasScale()) / 2
 end
 
+---Returns the Y offset of actual screen contents.
+---This will only be non-zero in the `"pixelPerfect"` canvas mode.
+---@return number
+function Display:getDisplayOffsetY()
+	return (self.size.y - self.renderResolution.y * self:getCanvasScale()) / 2
+end
+
 ---Returns the scale of screen contents, depending on the current window size.
+---
+---If the display mode is `"pixelPerfect"`, the result is brought down to the nearest integer.
 ---@return number
 function Display:getCanvasScale()
-	return self.size.y / self.renderResolution.y
+    local scale = self.size.y / self.renderResolution.y
+    if self.renderMode == "pixelPerfect" then
+        return math.max(math.floor(scale), 1)
+    end
+	return scale
 end
 
 ---Returns the logical position of the given onscreen point.
 ---@param pos Vector2 The onscreen point of which the logical position will be returned.
 ---@return Vector2
 function Display:posFromScreen(pos)
-	return (pos - Vec2(self:getDisplayOffsetX(), 0)) / self:getCanvasScale()
+	return (pos - Vec2(self:getDisplayOffsetX(), self:getDisplayOffsetY())) / self:getCanvasScale()
 end
 
 ---Starts drawing on this Display's canvas, clearing it beforehand.
@@ -88,14 +104,16 @@ function Display:canvasStop()
     if self.funniFlashlight then
         love.graphics.stencil(function()
             love.graphics.setColor(1, 1, 1)
-            love.graphics.circle("fill", _MousePos.x * self:getCanvasScale() + self:getDisplayOffsetX(), _MousePos.y * self:getCanvasScale(), 100 * self:getCanvasScale())
+            local x = _MousePos.x * self:getCanvasScale() + self:getDisplayOffsetX()
+            local y = _MousePos.y * self:getCanvasScale() + self:getDisplayOffsetY()
+            love.graphics.circle("fill", x, y, 100 * self:getCanvasScale())
         end, "replace", 1)
         -- mark only these pixels as the pixels which can be affected
         love.graphics.setStencilTest("equal", 1)
     end
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), 0, 0, self:getCanvasScale())
-    love.graphics.draw(self.renderLayers.MAIN, self:getDisplayOffsetX(), 0, 0, self:getCanvasScale())
+	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
+    love.graphics.draw(self.renderLayers.MAIN, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
     if self.funniFlashlight then
         love.graphics.setStencilTest()
     end
