@@ -72,8 +72,8 @@ function UIManager:new()
     profileGetSavedLevel = function() return _Game:getSession():getLevelSaveData() end,
     profileGetMap = function() return _Game:getSession():getMapData() end,
     profileGetLatestCheckpoint = function() return _Game:getSession():getLatestCheckpoint() end,
-    profileGetUnlockedCheckpoints = function() return _Game:getProfile():getUnlockedCheckpoints() end,
-    profileIsCheckpointUnlocked = function(n) return _Game:getProfile():isCheckpointUnlocked(n) end,
+    profileGetUnlockedCheckpoints = function(levelSet) return _Game:getProfile():getUnlockedCheckpoints(_Game.resourceManager:getLevelSetConfig(levelSet)) end,
+    profileIsCheckpointUnlocked = function(levelSet, n) return _Game:getProfile():isCheckpointUnlocked(_Game.resourceManager:getLevelSetConfig(levelSet), n) end,
     profileIsCheckpointUpcoming = function() return _Game:getSession():isCheckpointUpcoming() end,
 
     profileSetVariable = function(name, value) _Game:getProfile():setVariable(name, value) end,
@@ -83,10 +83,10 @@ function UIManager:new()
     highscoreGetEntry = function(n) return _Game.runtimeManager.highscores:getEntry(n) end,
 
     configGetMapData = function(name) return _Game.configManager.maps[name] end,
-    configGetLevelData = function(n) return _Game:getSession().levelSet.levelOrder[n].level end,
-    configGetLevelName = function(n) return _Game:getSession().levelSet.levelOrder[n].name end,
-    configGetCheckpointID = function(n) return _Game:getSession().checkpointData[n].levelID end,
-    configGetCheckpointLevel = function(n) return _Game:getSession():getCheckpointLevelN(n) end,
+    configGetLevelData = function(levelSet, n) return _Game.resourceManager:getLevelSetConfig(levelSet).levelOrder[n].level end,
+    configGetLevelName = function(levelSet, n) return _Game.resourceManager:getLevelSetConfig(levelSet).levelOrder[n].name end,
+    configGetCheckpointID = function(levelSet, n) return _Game:getProfile():getCheckpointData(_Game.resourceManager:getLevelSetConfig(levelSet))[n].levelID end,
+    configGetCheckpointLevel = function(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Game.resourceManager:getLevelSetConfig(levelSet), n) end,
 
     optionsLoad = function() self:optionsLoad() end,
     optionsSave = function() self:optionsSave() end,

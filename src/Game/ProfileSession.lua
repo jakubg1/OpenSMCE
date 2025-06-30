@@ -149,7 +149,7 @@ function ProfileSession:advanceLevel()
 	local checkpoints = self:getLevelEntry().unlockCheckpointsOnBeat
 	if checkpoints then
 		for i, checkpoint in ipairs(checkpoints) do
-			self.profile:unlockCheckpoint(checkpoint)
+			self:unlockCheckpoint(checkpoint)
 		end
 	end
 
@@ -226,18 +226,7 @@ end
 ---@param levels integer The total number of levels to be considered.
 ---@return integer
 function ProfileSession:getLevelCountFromEntries(levels)
-	local n = 0
-	-- If it's a single level, count 1.
-	-- If it's a randomizer, count that many levels as there are defined in the randomizer.
-	for i = 1, levels do
-		local entry = self.levelSet.levelOrder[i]
-		if entry.type == "level" then
-			n = n + 1
-		elseif entry.type == "randomizer" then
-			n = n + entry.count
-		end
-	end
-	return n
+	return self.profile:getLevelCountFromEntries(self.levelSet, levels)
 end
 
 ---Advances one level in the level entry list, or one sublevel, if the level has more sublevels.
@@ -313,6 +302,39 @@ end
 ---------------- C H E C K P O I N T S ---------------
 --##################################################--
 
+---Returns a list of checkpoints this player has unlocked for this game.
+---@return integer[]
+function ProfileSession:getUnlockedCheckpoints()
+	return self.profile:getUnlockedCheckpoints(self.levelSet)
+end
+
+---Returns whether this player has unlocked a given checkpoint in this game.
+---@param n integer The checkpoint ID to be checked.
+---@return boolean
+function ProfileSession:isCheckpointUnlocked(n)
+	return self.profile:isCheckpointUnlocked(self.levelSet, n)
+end
+
+---Unlocks a given checkpoint for the player if it has not been unlocked yet in this game.
+---@param n integer The checkpoint ID to be unlocked.
+function ProfileSession:unlockCheckpoint(n)
+	self.profile:unlockCheckpoint(self.levelSet, n)
+end
+
+---Generates checkpoint data based on the current level set. Useful for lookup.
+---@return table<integer, {levelID: integer, unlockedOnStart: boolean}>
+function ProfileSession:getCheckpointData()
+	return self.profile:getCheckpointData(self.levelSet)
+end
+
+---Returns the total level number corresponding to the provided checkpoint ID.
+---TODO: This should be parsed at the start and stored once.
+---@param n number The checkpoint ID.
+---@return integer
+function ProfileSession:getCheckpointLevelN(n)
+	return self.profile:getCheckpointLevelN(self.levelSet, n)
+end
+
 ---Returns a checkpoint ID which is assigned to the most recent level set entry which has one.
 ---If none of the checkpoints have been beaten yet, returns `nil`.
 ---@return integer?
@@ -336,27 +358,6 @@ function ProfileSession:isCheckpointUpcoming()
 
 	local nextEntry = self:getNextLevelEntry()
 	return nextEntry and nextEntry.checkpoint ~= nil or false
-end
-
----Generates checkpoint data based on the current level set. Useful for lookup.
----@return table<integer, {levelID: integer, unlockedOnStart: boolean}>
-function ProfileSession:getCheckpointData()
-    local checkpoints = {}
-	for i, entry in ipairs(self.levelSet.levelOrder) do
-		if entry.checkpoint then
-			checkpoints[entry.checkpoint.id] = {levelID = i, unlockedOnStart = entry.checkpoint.unlockedOnStart}
-		end
-	end
-    return checkpoints
-end
-
----Returns the total level number corresponding to the provided checkpoint ID.
----TODO: This should be parsed at the start and stored once.
----@param checkpoint number The checkpoint ID.
----@return integer
-function ProfileSession:getCheckpointLevelN(checkpoint)
-	local entryN = self.checkpointData[checkpoint].levelID
-	return self:getLevelCountFromEntries(entryN - 1) + 1
 end
 
 --############################################################--

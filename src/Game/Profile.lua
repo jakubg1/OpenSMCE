@@ -23,16 +23,26 @@ function Profile:new(data, name)
 	---@alias LevelStatistics {score: integer, won: integer, lost: integer}
 	---@type table<string, LevelStatistics>
 	self.levelStats = {}
-	self.checkpointsUnlocked = {}
+
+	--- This table stores the unlocked checkpoints per level set.
+	---@type table<string, integer[]>
+	self.unlockedCheckpoints = {}
 	self.variables = {}
 
 	if data then
 		self:deserialize(data)
 	else
-		-- This is a new profile. Unlock the starting checkpoints.
-		-- TODO: Currently it is hardcoded to unlock checkpoint 1.
-		-- Find a way to store unlocked checkpoints per level set.
-		table.insert(self.checkpointsUnlocked, 1)
+		-- Populate all level sets with their starting checkpoints.
+		-- TODO: Make a singleton class for the Level Sets.
+		for i, id in ipairs(_Game.resourceManager:getResourceList("LevelSet")) do
+			local levelSet = _Game.resourceManager:getLevelSetConfig(id)
+			self.unlockedCheckpoints[id] = {}
+			for j, entry in ipairs(levelSet.levelOrder) do
+				if entry.checkpoint and entry.checkpoint.unlockedOnStart then
+					table.insert(self.unlockedCheckpoints[id], entry.checkpoint.id)
+				end
+			end
+		end
 	end
 end
 
@@ -88,30 +98,84 @@ function Profile:getVariable(name)
 	return self.variables[name]
 end
 
+--##############################################--
+---------------- L E V E L   S E T ---------------
+--##############################################--
+
+-- TODO: Make Level Sets their own singleton class.
+
+---Returns how many sublevels the first N levels have in total in the provided level set.
+---@param levelSet LevelSetConfig The level set to be looked for.
+---@param levels integer The total number of levels to be considered.
+---@return integer
+function Profile:getLevelCountFromEntries(levelSet, levels)
+	local n = 0
+	-- If it's a single level, count 1.
+	-- If it's a randomizer, count that many levels as there are defined in the randomizer.
+	for i = 1, levels do
+		local entry = levelSet.levelOrder[i]
+		if entry.type == "level" then
+			n = n + 1
+		elseif entry.type == "randomizer" then
+			n = n + entry.count
+		end
+	end
+	return n
+end
+
 --##################################################--
 ---------------- C H E C K P O I N T S ---------------
 --##################################################--
 
----Returns a list of checkpoints this player has unlocked.
----@return table
-function Profile:getUnlockedCheckpoints()
-	return self.checkpointsUnlocked
+---Returns a list of checkpoints this player has unlocked for the provided level set.
+---@param levelSet LevelSetConfig The level set to be looked for.
+---@return integer[]
+function Profile:getUnlockedCheckpoints(levelSet)
+	local id = _Game.resourceManager:getResourceReference(levelSet)
+	return self.unlockedCheckpoints[id]
 end
 
----Returns whether this player has unlocked a given checkpoint.
+---Returns whether this player has unlocked a given checkpoint in the provided level set.
+---@param levelSet LevelSetConfig The level set to be looked for.
 ---@param n integer The checkpoint ID to be checked.
 ---@return boolean
-function Profile:isCheckpointUnlocked(n)
-	return _Utils.isValueInTable(self.checkpointsUnlocked, n)
+function Profile:isCheckpointUnlocked(levelSet, n)
+	local id = _Game.resourceManager:getResourceReference(levelSet)
+	return _Utils.isValueInTable(self.unlockedCheckpoints[id], n)
 end
 
----Unlocks a given checkpoint for the player if it has not been unlocked yet.
+---Unlocks a given checkpoint for the player if it has not been unlocked yet in the provided level set.
+---@param levelSet LevelSetConfig The level set to be looked for.
 ---@param n integer The checkpoint ID to be unlocked.
-function Profile:unlockCheckpoint(n)
-	if self:isCheckpointUnlocked(n) then
+function Profile:unlockCheckpoint(levelSet, n)
+	local id = _Game.resourceManager:getResourceReference(levelSet)
+	if _Utils.isValueInTable(self.unlockedCheckpoints[id], n) then
 		return
 	end
-	table.insert(self.checkpointsUnlocked, n)
+	table.insert(self.unlockedCheckpoints[id], n)
+end
+
+---Generates checkpoint data for the provided level set. Useful for lookup.
+---@param levelSet LevelSetConfig The level set to be looked for.
+---@return table<integer, {levelID: integer, unlockedOnStart: boolean}>
+function Profile:getCheckpointData(levelSet)
+    local checkpoints = {}
+	for i, entry in ipairs(levelSet.levelOrder) do
+		if entry.checkpoint then
+			checkpoints[entry.checkpoint.id] = {levelID = i, unlockedOnStart = entry.checkpoint.unlockedOnStart}
+		end
+	end
+    return checkpoints
+end
+
+---Returns the total level number corresponding to the provided checkpoint ID in the provided level set.
+---TODO: This should be parsed at the start and stored once. Make a singleton LevelSet class.
+---@param levelSet LevelSetConfig The level set to be looked for.
+---@param n number The checkpoint ID.
+---@return integer
+function Profile:getCheckpointLevelN(levelSet, n)
+	local entryN = self:getCheckpointData(levelSet)[n].levelID
+	return self:getLevelCountFromEntries(levelSet, entryN - 1) + 1
 end
 
 --######################################################--
@@ -122,9 +186,9 @@ end
 ---@return table
 function Profile:serialize()
 	local t = {
-		session = self.session:serialize(),
+		session = self.session and self.session:serialize(),
 		levelStats = self.levelStats,
-		checkpoints = self.checkpointsUnlocked,
+		unlockedCheckpoints = self.unlockedCheckpoints,
 		variables = self.variables,
 		ultimatelySatisfyingMode = self.ultimatelySatisfyingMode
 	}
@@ -134,9 +198,9 @@ end
 ---Restores all data which has been saved by the serialization function.
 ---@param t table The data to be serialized.
 function Profile:deserialize(t)
-	self.session = ProfileSession(self, t.session)
+	self.session = t.session and ProfileSession(self, t.session)
 	self.levelStats = t.levelStats
-	self.checkpointsUnlocked = t.checkpoints
+	self.unlockedCheckpoints = t.unlockedCheckpoints
 	if t.variables then
 		self.variables = t.variables
 	end

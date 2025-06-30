@@ -23,6 +23,7 @@ function Debug:new()
 	self.console:addCommand("n", "Destroys all spheres on the board.", {}, self.commandNukeSpheres, self)
 	self.console:addCommand("test", "Spawns a test particle.", {{name = "particle", type = "ParticleEffect"}}, self.commandTest, self)
 	self.console:addCommand("crash", "Crashes the game.", {}, self.commandCrash, self)
+	self.console:addCommand("lose", "Loses the level.", {}, self.commandLose, self)
 	self.console:addCommand("expr", "Evaluates an Expression.", {{name = "expression", type = "string", greedy = true}}, self.commandExpr, self)
 	self.console:addCommand("exprt", "Breaks down an Expression and shows the list of RPN steps.", {{name = "expression", type = "string", greedy = true}}, self.commandExprt, self)
 	self.console:addCommand("ex", "Debugs an Expression: shows detailed tokenization and list of RPN steps.", {{name = "expression", type = "string", greedy = true}}, self.commandEx, self)
@@ -493,6 +494,10 @@ end
 
 function Debug:commandCrash()
 	return "crash", self:getWitty()
+end
+
+function Debug:commandLose()
+	_Game.level:lose()
 end
 
 function Debug:commandExpr(expression)
