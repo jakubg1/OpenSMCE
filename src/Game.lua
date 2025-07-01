@@ -283,7 +283,8 @@ end
 ---Returns the ongoing Session for the currently selected Profile, if it exists.
 ---@return ProfileSession?
 function Game:getSession()
-	return self:getProfile():getSession()
+	local profile = self:getProfile()
+	return profile and profile:getSession()
 end
 
 ---Returns the effective sound volume, dictated by the game options.

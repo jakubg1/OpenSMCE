@@ -206,9 +206,9 @@ function Console:runCommand(command)
 	local fn = commandData.fn
 	local caller = commandData.caller
 	if caller then
-		return fn(caller, table.unpack(parameters))
+		return fn(caller, unpack(parameters))
 	else
-		return fn(table.unpack(parameters))
+		return fn(unpack(parameters))
 	end
 end
 
