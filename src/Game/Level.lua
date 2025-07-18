@@ -201,12 +201,7 @@ function Level:updateLogic(dt)
 	if self.warningDelayMax then
 		self.warningDelay = self.warningDelay + dt
 		if self.warningDelay >= self.warningDelayMax then
-			for i, path in ipairs(self.map.paths) do
-				if path:isInDanger() then
-					local x, y = path:getPos(path.length)
-					_Game:spawnParticle(_Game.resourceManager:getParticleEffectConfig(path.dangerParticle), x, y)
-				end
-			end
+			self.map:spawnDangerParticles()
 			if self.config.dangerSound then
 				_Game:playSound(self.config.dangerSound)
 			end
@@ -1382,7 +1377,7 @@ end
 
 
 ---Picks a sphere to be destroyed by a lightning storm strike, or `nil` if no spheres are found.
----@return Sphere|nil
+---@return Sphere?
 function Level:getLightningStormSphere()
 	local length = self:getLowestMatchLength()
 	-- first, check for spheres that would make matching easier when destroyed

@@ -1179,11 +1179,7 @@ end
 
 
 function SphereGroup:getSphereID(sphere)
-	for i, sphereT in ipairs(self.spheres) do
-		if sphereT == sphere then
-			return i
-		end
-	end
+	return _Utils.iTableGetValueIndex(self.spheres, sphere)
 end
 
 

@@ -6,11 +6,7 @@ local class = require "com.class"
 local Map = class:derive("Map")
 
 local Vec2 = require("src.Essentials.Vector2")
-local Sprite = require("src.Essentials.Sprite")
-
 local Path = require("src.Game.Path")
-
-
 
 ---Constructs a new Map.
 ---@param level Level The level which is tied to this Map.
@@ -23,6 +19,7 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	self.isDummy = isDummy
 
 	local data = _Utils.loadJson(_ParsePath(path .. "/config.json"))
+	assert(data, string.format("Failed to load map file %s", path))
 	self.name = data.name
 
 	self.paths = {}
@@ -51,8 +48,6 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	end
 end
 
-
-
 ---Updates this Map.
 ---@param dt number Delta time in seconds.
 function Map:update(dt)
@@ -61,20 +56,22 @@ function Map:update(dt)
 	end
 end
 
-
-
----Returns the ID of a given Path, or `nil` if not found.
----@param path Path The Path of which ID is to be obtained.
----@return integer|nil
-function Map:getPathID(path)
-	for i, pathT in ipairs(self.paths) do
-		if pathT == path then
-			return i
+---Spawns danger particles configured for this map for all paths which are currently in danger.
+function Map:spawnDangerParticles()
+	for i, path in ipairs(self.paths) do
+		if path:isInDanger() then
+			local x, y = path:getPos(path.length)
+			_Game:spawnParticle(path.dangerParticle, x, y)
 		end
 	end
 end
 
-
+---Returns the ID of a given Path, or `nil` if not found.
+---@param path Path The Path of which ID is to be obtained.
+---@return integer?
+function Map:getPathID(path)
+	return _Utils.iTableGetValueIndex(self.paths, path)
+end
 
 ---Draws this Map.
 function Map:draw()
@@ -118,8 +115,6 @@ function Map:draw()
 	end
 end
 
-
-
 ---Draws spheres, their particles, and foreground sprites which appear on this map.
 function Map:drawSpheres()
 	for x = 1, 2 do
@@ -138,8 +133,6 @@ function Map:drawSpheres()
 	end
 end
 
-
-
 ---Unloads resources loaded by this map.
 function Map:destroy()
 	for i, path in ipairs(self.paths) do
@@ -147,8 +140,6 @@ function Map:destroy()
 	end
 	_Game.resourceManager:unloadResourceBatch("map")
 end
-
-
 
 ---Serializes the Map's data to be saved.
 ---@return table
@@ -160,8 +151,6 @@ function Map:serialize()
 	return t
 end
 
-
-
 ---Deserializes the Map's data.
 ---@param t table The data to be loaded.
 function Map:deserialize(t)
@@ -169,7 +158,5 @@ function Map:deserialize(t)
 		self.paths[i]:deserialize(path)
 	end
 end
-
-
 
 return Map

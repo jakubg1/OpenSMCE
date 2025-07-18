@@ -555,13 +555,11 @@ function SphereChain:draw(hidden, shadow)
 	--love.graphics.print(self:getDebugText(), 40, 40 + self.path:getSphereChainID(self) * 100)
 end
 
+---Returns the ID of the provided Sphere Group in this Sphere Chain, or `nil` if it's not here.
+---@param sphereGroup SphereGroup The sphere group to be looked after.
+---@return integer?
 function SphereChain:getSphereGroupID(sphereGroup)
-	for i, sphereGroupT in pairs(self.sphereGroups) do
-		if sphereGroupT == sphereGroup then
-			return i
-		end
-	end
-	return "ERROR"
+	return _Utils.iTableGetValueIndex(self.sphereGroups, sphereGroup)
 end
 
 ---Returns the first (frontmost) Sphere Group in this Sphere Chain.

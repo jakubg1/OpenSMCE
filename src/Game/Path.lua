@@ -40,7 +40,7 @@ function Path:new(map, pathData, pathBehavior)
 	self.spawnAmount = 0
 	self.spawnDistance = pathBehavior.spawnDistance
 	self.dangerDistance = pathBehavior.dangerDistance
-	self.dangerParticle = pathBehavior.dangerParticle or "particles/warning.json"
+	self.dangerParticle = _Game.resourceManager:getParticleEffectConfig(pathBehavior.dangerParticle or "particles/warning.json")
 	self.speeds = pathBehavior.speeds
 
 	self:prepareNodes(nodes)
@@ -484,13 +484,9 @@ end
 
 ---Returns the ID of a given Sphere Chain. If not found, returns `nil`.
 ---@param sphereChain SphereChain The Sphere Chain of which ID will be returned.
----@return integer|nil
+---@return integer?
 function Path:getSphereChainID(sphereChain)
-	for i, sphereChainT in pairs(self.sphereChains) do
-		if sphereChainT == sphereChain then
-			return i
-		end
-	end
+	return _Utils.iTableGetValueIndex(self.sphereChains, sphereChain)
 end
 
 ---Returns the first (frontmost) Sphere Chain on this Path.
