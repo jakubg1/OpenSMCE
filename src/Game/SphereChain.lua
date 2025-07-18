@@ -549,8 +549,8 @@ function SphereChain:draw(hidden, shadow)
 			sphereGroup:draw(hidden, shadow)
 		end
 	end
-	--local pos = self.path:getPos(self.sphereGroups[1]:getLastSphereOffset())
-	--love.graphics.circle("fill", pos.x, pos.y, 8)
+	--local x, y = self.path:getPos(self.sphereGroups[1]:getLastSphereOffset())
+	--love.graphics.circle("fill", x, y, 8)
 	--love.graphics.setColor(0, 0, 0)
 	--love.graphics.print(self:getDebugText(), 40, 40 + self.path:getSphereChainID(self) * 100)
 end

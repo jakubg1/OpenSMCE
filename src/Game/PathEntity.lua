@@ -89,8 +89,8 @@ function PathEntity:update(dt)
 			end
 			local offset = self.offset - offsetFromCurrentOffset
 			if self.config.renderParticlesInTunnels or self.path:getBrightness(offset) > 0.5 then -- the particles shouldn't be visible under obstacles
-				local pos = self.path:getPos(offset)
-				_Game:spawnParticle(self.config.particle, pos.x, pos.y)
+				local x, y = self.path:getPos(offset)
+				_Game:spawnParticle(self.config.particle, x, y)
 			end
 			self.trailDistance = self.trailDistance + self.config.particleSeparation
 		end
@@ -250,7 +250,7 @@ end
 ---Returns the onscreen position of this Path Entity.
 ---@return Vector2
 function PathEntity:getPos()
-	return self.path:getPos(self.offset)
+	return Vec2(self.path:getPos(self.offset))
 end
 
 

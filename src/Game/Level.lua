@@ -203,8 +203,8 @@ function Level:updateLogic(dt)
 		if self.warningDelay >= self.warningDelayMax then
 			for i, path in ipairs(self.map.paths) do
 				if path:isInDanger() then
-					local pos = path:getPos(path.length)
-					_Game:spawnParticle(path.dangerParticle, pos.x, pos.y)
+					local x, y = path:getPos(path.length)
+					_Game:spawnParticle(path.dangerParticle, x, y)
 				end
 			end
 			if self.config.dangerSound then

@@ -5,7 +5,6 @@ local class = require "com.class"
 ---@overload fun(map, pathData, pathBehavior):Path
 local Path = class:derive("Path")
 
-local Vec2 = require("src.Essentials.Vector2")
 local SphereChain = require("src.Game.SphereChain")
 local PathEntity = require("src.Game.PathEntity")
 
@@ -28,7 +27,7 @@ function Path:new(map, pathData, pathBehavior)
 
 	local nodes = {}
 	for i, node in ipairs(pathData) do
-		nodes[i] = {pos = Vec2(node.x, node.y), scale = node.scale or 1, hidden = node.hidden, warp = node.warp}
+		nodes[i] = {x = node.x, y = node.y, scale = node.scale or 1, hidden = node.hidden, warp = node.warp}
 	end
 
 	self.trainRules = pathBehavior.trainRules
@@ -61,11 +60,17 @@ end
 function Path:prepareNodes(nodes)
 	for i, node in ipairs(nodes) do
 		local length = 0
-		if nodes[i + 1] and not node.warp then length = (nodes[i + 1].pos - node.pos):len() end
+		if nodes[i + 1] and not node.warp then
+			length = _V.length(nodes[i + 1].x - node.x, nodes[i + 1].y - node.y)
+		end
 		local angle1 = nil
 		local angle2 = nil
-		if nodes[i - 1] and not nodes[i - 1].warp then angle1 = (node.pos - nodes[i - 1].pos):angle() end
-		if nodes[i + 1] and not node.warp then angle2 = (nodes[i + 1].pos - node.pos):angle() end
+		if nodes[i - 1] and not nodes[i - 1].warp then
+			angle1 = _V.angle(node.x - nodes[i - 1].x, node.y - nodes[i - 1].y)
+		end
+		if nodes[i + 1] and not node.warp then
+			angle2 = _V.angle(nodes[i + 1].x - node.x, nodes[i + 1].y - node.y)
+		end
 		-- compensation if wraps around 360°
 		if angle1 and angle2 then
 			if angle2 - angle1 > math.pi then angle2 = angle2 - 2 * math.pi end
@@ -78,7 +83,7 @@ function Path:prepareNodes(nodes)
 			if angle2 then angle = angle2 else angle = 0 end
 		end
 		angle = (angle + math.pi / 2) % (math.pi * 2)
-		self.nodes[i] = {pos = node.pos, scale = node.scale, hidden = node.hidden, warp = node.warp, length = length, angle = angle}
+		self.nodes[i] = {x = node.x, y = node.y, scale = node.scale, hidden = node.hidden, warp = node.warp, length = length, angle = angle}
 
 		-- brightnesses stuff
 		if node.hidden then
@@ -104,7 +109,9 @@ function Path:prepareNodes(nodes)
 	end
 
 	-- if no tunnels we must add a placeholder
-	if #self.brightnesses == 0 then table.insert(self.brightnesses, {distance = 0, value = 1}) end
+	if #self.brightnesses == 0 then
+		table.insert(self.brightnesses, {distance = 0, value = 1})
+	end
 end
 
 
@@ -175,8 +182,8 @@ function Path:spawnChain()
 	table.insert(self.sphereChains, sphereChain)
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
-		local pos = self:getPos(0)
-		_Game:playSound(_Game.resourceManager:getSoundEvent(_Game.configManager.gameplay.sphereBehavior.newGroupSound), pos.x, pos.y)
+		local x, y = self:getPos(0)
+		_Game:playSound(_Game.resourceManager:getSoundEvent(_Game.configManager.gameplay.sphereBehavior.newGroupSound), x, y)
 	end
 end
 
@@ -423,12 +430,12 @@ function Path:drawDebug()
 	love.graphics.setLineWidth(1)
 	love.graphics.setColor(0, 1, 1)
 	for i, node in ipairs(self.nodes) do
-		love.graphics.rectangle("line", node.pos.x - 4, node.pos.y - 4, 8, 8)
-		--if mx > node.pos.x - 4 and mx < node.pos.x + 4 and my > node.pos.y - 4 and my < node.pos.y + 4 then
-		--	love.graphics.print(tostring(node.angle), node.pos.x + 8, node.pos.y)
+		love.graphics.rectangle("line", node.x - 4, node.y - 4, 8, 8)
+		--if mx > node.x - 4 and mx < node.x + 4 and my > node.y - 4 and my < node.y + 4 then
+		--	love.graphics.print(tostring(node.angle), node.x + 8, node.y)
 		--end
 		if i > 1 then
-			love.graphics.line(self.nodes[i - 1].pos.x, self.nodes[i - 1].pos.y, node.pos.x, node.pos.y)
+			love.graphics.line(self.nodes[i - 1].x, self.nodes[i - 1].y, node.x, node.y)
 		end
 	end
 end
@@ -458,8 +465,8 @@ end
 function Path:drawDebugLine()
 	for i = 0, self.length, 5 do
 		love.graphics.setColor(math.sqrt(self:getSpeed(i)) / 30, 0, 0)
-		local pos = self:getPos(i)
-		love.graphics.circle("fill", pos.x, pos.y, 5)
+		local x, y = self:getPos(i)
+		love.graphics.circle("fill", x, y, 5)
 	end
 end
 
@@ -469,8 +476,8 @@ end
 ---This one draws a circle where the max offset is located.
 function Path:drawDebugFill()
 	love.graphics.setColor(1, 0.2, 0)
-	local pos = self:getPos(self:getMaxOffset())
-	love.graphics.circle("fill", pos.x, pos.y, 10)
+	local x, y = self:getPos(self:getMaxOffset())
+	love.graphics.circle("fill", x, y, 10)
 end
 
 
@@ -635,22 +642,21 @@ end
 
 ---Returns the onscreen position at the given offset of this Path.
 ---@param pixels number The path offset to be considered, in pixels.
----@return Vector2
+---@return number, number
 function Path:getPos(pixels)
 	local nodeID, remainder = self:getNodeID(pixels)
 	if nodeID == 0 then
-		return self.nodes[1].pos
+		return self.nodes[1].x, self.nodes[1].y
 	elseif nodeID > #self.nodes then
-		return self.nodes[#self.nodes].pos
+		local node = self.nodes[#self.nodes]
+		return node.x, node.y
 		-- uncomment the below one for extending after the final node
-		--return self.nodes[#self.nodes].pos + Vec2(0, -remainder):rotate(self.nodes[#self.nodes].angle) end
+		--return _V.rotate(node.x, node.y - remainder, node.angle) end
 	end
-	local part = remainder / self.nodes[nodeID].length
-	---@type Vector2
-	local p1 = self.nodes[nodeID].pos
-	---@type Vector2
-	local p2 = self.nodes[nodeID + 1].pos
-	return p1 * (1 - part) + p2 * part
+	local t = remainder / self.nodes[nodeID].length
+	local p1 = self.nodes[nodeID]
+	local p2 = self.nodes[nodeID + 1]
+	return p1.x * (1 - t) + p2.x * t, p1.y * (1 - t) + p2.y * t
 end
 
 
@@ -659,8 +665,8 @@ end
 ---@param pixels number The path offset to be considered, in pixels.
 ---@return number
 function Path:getAngle(pixels)
-	local p1 = self:getPos(pixels - 16)
-	local p2 = self:getPos(pixels + 16)
+	local x1, y1 = self:getPos(pixels - 16)
+	local x2, y2 = self:getPos(pixels + 16)
 	-- get IDs of this node, and ID of nodes 16 pixels behind and 16 pixels ahead
 	local id1 = self:getNodeID(pixels - 16)
 	local id = self:getNodeID(pixels)
@@ -668,18 +674,20 @@ function Path:getAngle(pixels)
 	-- look for warp nodes behind
 	for i = id1, id - 1 do
 		if self.nodes[i] and self.nodes[i].warp then
-			p1 = self.nodes[i + 1].pos
+			local node = self.nodes[i + 1]
+			x1, y1 = node.x, node.y
 			break
 		end
 	end
 	-- and ahead
 	for i = id, id2 do
 		if self.nodes[i] and self.nodes[i].warp then
-			p2 = self.nodes[i].pos
+			local node = self.nodes[i]
+			x2, y2 = node.x, node.y
 			break
 		end
 	end
-	return (p2 - p1):angle() + math.pi / 2
+	return _V.angle(x2 - x1, y2 - y1) + math.pi / 2
 end
 
 
@@ -753,8 +761,8 @@ function Path:getIntersectionPoints(p1x, p1y, p2x, p2y)
 			break
 		end
 		-- Eliminate all impossible cases for optimization.
-		local p3x, p3y = node.pos.x, node.pos.y
-		local p4x, p4y = node2.pos.x, node2.pos.y
+		local p3x, p3y = node.x, node.y
+		local p4x, p4y = node2.x, node2.y
 		if not (math.max(p3x, p4x) < pminX or math.min(p3x, p4x) > pmaxX or math.max(p3y, p4y) < pminY or math.min(p3y, p4y) > pmaxY) then
 			-- We're going to use the algorithm from https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
 			-- For convenience, we will arrange and name the variables so that they match the ones described in the website above.

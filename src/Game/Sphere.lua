@@ -580,9 +580,9 @@ end
 ---@return Vector2
 function Sphere:getPos()
 	if self.appendSize < 1 then
-		return self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize)) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
+		return Vec2(self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize))) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
 	end
-	return self.path:getPos(self:getOffset())
+	return Vec2(self.path:getPos(self:getOffset()))
 end
 
 
@@ -724,14 +724,14 @@ function Sphere:draw(hidden, shadow)
 	end
 
 	if _Debug.gameDebugVisible and self.appendSize < 1 then
-		local p1 = self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize))
+		local x1, y1 = self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize))
 		local p2 = self.shootOrigin
 		love.graphics.setColor(1, 0.5, 0)
 		love.graphics.setLineWidth(3)
-		love.graphics.line(p1.x, p1.y, p2.x, p2.y)
+		love.graphics.line(x1, y1, p2.x, p2.y)
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.setLineWidth(1)
-		love.graphics.circle("line", p1.x, p1.y, 15)
+		love.graphics.circle("line", x1, y1, 15)
 	end
 
 	-- debug: you can peek some sphere-related values here

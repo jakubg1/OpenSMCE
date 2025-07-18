@@ -112,8 +112,8 @@ function ShotSphere:moveStep()
 				-- We've traversed a gap.
 				if not self:didTraverseGap(group) then
 					table.insert(self.gapsTraversed, {size = size, group = group})
-					--local pos = path:getPos(offset)
-					--_Game:spawnParticle("particles/collapse_vise.json", pos.x, pos.y)
+					--local x, y = path:getPos(offset)
+					--_Game:spawnParticle("particles/collapse_vise.json", x, y)
 					--_Debug:print(size)
 				end
 			end
@@ -183,7 +183,7 @@ function ShotSphere:moveStep()
 				else
 					-- the inserted ball IS at the end of the group
 					local o = self.hitSphere.sphereGroup:getLastSphereOffset() + (self.size + self.hitSphere.sphere.config.size) / 2
-					p = self.hitSphere.path:getPos(o)
+					p = Vec2(self.hitSphere.path:getPos(o))
 				end
 				-- calculate length from the current position
 				local d = _V.length(self.posX - p.x, self.posY - p.y)

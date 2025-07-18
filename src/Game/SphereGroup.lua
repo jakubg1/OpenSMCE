@@ -5,8 +5,8 @@ local class = require "com.class"
 ---@overload fun(sphereChain, data):SphereGroup
 local SphereGroup = class:derive("SphereGroup")
 
+local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
-
 local Sphere = require("src.Game.Sphere")
 
 
@@ -508,8 +508,8 @@ function SphereGroup:join()
 	self.prevGroup:destroyFragileSpheres()
 	self:destroyFragileSpheres()
 	-- play a sound
-	local pos = self.sphereChain.path:getPos(self.offset)
-	_Game:playSound(_Game.resourceManager:getSoundEvent(self.config.joinSound), pos.x, pos.y)
+	local x, y = self.sphereChain.path:getPos(self.offset)
+	_Game:playSound(_Game.resourceManager:getSoundEvent(self.config.joinSound), x, y)
 end
 
 
@@ -740,7 +740,7 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 
 
 	-- Determine the center position and destroy spheres.
-	local pos = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
+	local x, y = self.sphereChain.path:getPos((self:getSphereOffset(position1) + self:getSphereOffset(position2)) / 2)
 	local color = self.sphereChain.path:getSphereEffectGroup(effectGroupID).cause.color
 	for i = #spheres, 1, -1 do
 		local sphere = spheres[i]
@@ -795,16 +795,16 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	end
 	-- Play sounds.
 	if effectConfig.destroySound then
-		_Game:playSound(effectConfig.destroySound, pos.x, pos.y)
+		_Game:playSound(effectConfig.destroySound, x, y)
 	end
 	-- Execute a score event.
 	if effectConfig.destroyScoreEvent then
-		local score = self.map.level:executeScoreEvent(effectConfig.destroyScoreEvent, pos)
+		local score = self.map.level:executeScoreEvent(effectConfig.destroyScoreEvent, Vec2(x, y))
 		self:addToCascadeScore(score)
 	end
 	-- Spawn any collectibles if applicable.
 	if effectConfig.destroyCollectible then
-		self.map.level:spawnCollectiblesFromEntry(pos, effectConfig.destroyCollectible)
+		self.map.level:spawnCollectiblesFromEntry(Vec2(x, y), effectConfig.destroyCollectible)
 	end
 	-- Execute the "after" game events.
 	if effectConfig.eventsAfter then
@@ -939,15 +939,15 @@ function SphereGroup:drawDebug()
 	if #self.spheres == 0 then
 		return
 	end
-	local pos = self.sphereChain.path:getPos(self:getFrontPos())
+	local x, y = self.sphereChain.path:getPos(self:getFrontPos())
 	love.graphics.setColor(0.5, 1, 0)
-	love.graphics.circle("fill", pos.x, pos.y, 6)
-	local pos = self.sphereChain.path:getPos(self:getBackPos())
+	love.graphics.circle("fill", x, y, 6)
+	local x, y = self.sphereChain.path:getPos(self:getBackPos())
 	love.graphics.setColor(1, 0.5, 0)
-	love.graphics.circle("fill", pos.x, pos.y, 6)
-	local pos = self.sphereChain.path:getPos(self.offset)
+	love.graphics.circle("fill", x, y, 6)
+	local x, y = self.sphereChain.path:getPos(self.offset)
 	love.graphics.setColor(1, 1, 1)
-	love.graphics.circle("fill", pos.x, pos.y, 4)
+	love.graphics.circle("fill", x, y, 4)
 end
 
 
@@ -1221,7 +1221,7 @@ end
 
 
 function SphereGroup:getSpherePos(sphereID)
-	return self.sphereChain.path:getPos(self:getSphereOffset(sphereID))
+	return Vec2(self.sphereChain.path:getPos(self:getSphereOffset(sphereID)))
 end
 
 
