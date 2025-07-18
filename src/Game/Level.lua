@@ -1599,7 +1599,7 @@ end
 ---Spawns a new FloatingText into the Level.
 ---@param text string The text to be displayed.
 ---@param pos Vector2 The starting position of this text.
----@param font string|Font Path to the Font or the Font itself which is going to be used.
+---@param font Font The font which is going to be used to draw the text.
 function Level:spawnFloatingText(text, pos, font)
 	table.insert(self.floatingTexts, FloatingText(text, pos, font))
 end

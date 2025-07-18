@@ -23,11 +23,12 @@ end
 
 
 function UIWidgetText:draw(variables)
-	self.font:draw(self.textTmp, self.parent:getPos(), self.align, nil, self.parent:getAlpha())
+	local pos = self.parent:getPos()
+	self.font:draw(self.textTmp, pos.x, pos.y, self.align.x, self.align.y, nil, self.parent:getAlpha())
 end
 
 function UIWidgetText:getSize()
-	return self.font:getTextSize(self.textTmp)
+	return Vec2(self.font:getTextSize(self.textTmp))
 end
 
 return UIWidgetText

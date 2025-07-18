@@ -122,7 +122,7 @@ function ShotSphere:moveStep()
 
 	-- add if there's a sphere nearby
 	local nearestSphere = _Game.level:getNearestSphere(self.posX, self.posY)
-	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.size) / 2 and (not self.homingTowards or self.homingTowards == nearestSphere.sphere) then
+	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.config.size) / 2 and (not self.homingTowards or self.homingTowards == nearestSphere.sphere) then
 		-- Execute this only if we are close enough to the nearest sphere and have ANY collision (we are not homing towards something different).
 		if nearestSphere.sphere:isFragile() then
 			-- If we've hit a fragile sphere, destroy the fragile spheres instead of hitting.
@@ -182,7 +182,7 @@ function ShotSphere:moveStep()
 					p = self.hitSphere.sphereGroup:getSpherePos(self.hitSphere.sphereID)
 				else
 					-- the inserted ball IS at the end of the group
-					local o = self.hitSphere.sphereGroup:getLastSphereOffset() + (self.size + self.hitSphere.sphere.size) / 2
+					local o = self.hitSphere.sphereGroup:getLastSphereOffset() + (self.size + self.hitSphere.sphere.config.size) / 2
 					p = self.hitSphere.path:getPos(o)
 				end
 				-- calculate length from the current position

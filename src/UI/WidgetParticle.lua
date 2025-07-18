@@ -10,7 +10,7 @@ function UIWidgetParticle:new(parent, path)
 	self.type = "particle"
 
 	self.parent = parent
-	self.path = path
+	self.effectConfig = _Game.resourceManager:getParticleEffectConfig(path)
 
 	self.packet = nil
 	self.debugColor = {0.0, 1.0, 1.0}
@@ -29,7 +29,7 @@ end
 
 function UIWidgetParticle:spawn()
 	local pos = self.parent:getPos()
-	self.packet = _Game:spawnParticle(self.path, pos.x, pos.y, self.parent.layer)
+	self.packet = _Game:spawnParticle(self.effectConfig, pos.x, pos.y, self.parent.layer)
 end
 
 function UIWidgetParticle:despawn()

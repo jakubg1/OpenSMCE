@@ -501,22 +501,22 @@ function utils.parseParticleConfigOpt(data, base, path, fields)
 	return parseClassConfigOpt(data, base, path, fields, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
 end
 
----@return ParticleConfig
+---@return ParticleEffectConfig
 function utils.parseParticleEffectConfig(data, base, path, fields)
 	return parseClassConfig(data, base, path, fields, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
 end
 
----@return ParticleConfig?
+---@return ParticleEffectConfig?
 function utils.parseParticleEffectConfigOpt(data, base, path, fields)
 	return parseClassConfigOpt(data, base, path, fields, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
 end
 
----@return ParticleConfig
+---@return ParticleEmitterConfig
 function utils.parseParticleEmitterConfig(data, base, path, fields)
 	return parseClassConfig(data, base, path, fields, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
 end
 
----@return ParticleConfig?
+---@return ParticleEmitterConfig?
 function utils.parseParticleEmitterConfigOpt(data, base, path, fields)
 	return parseClassConfigOpt(data, base, path, fields, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
 end

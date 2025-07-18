@@ -33,16 +33,14 @@ function ParticleManager:update(dt)
 	_Utils.removeDeadObjects(self.particlePieces)
 end
 
-function ParticleManager:spawnParticlePacket(path, x, y, layer)
-	-- TODO: Unmangle this code. Will the string representation be still needed after we fully move to Config Classes?
-	local data
-	if type(path) == "string" then
-		_Debug:deprecationNotice("ParticleManager:spawnParticlePacket(): String argument will be phased out soon!", 2)
-		data = _Game.resourceManager:getParticleEffectConfig(path)
-	else
-		data = path
-	end
-	local packet = ParticlePacket(self, data, x, y, layer)
+---Spawns a new Particle Packet (Effect) and returns a handle to it.
+---@param particleEffect ParticleEffectConfig Particle Effect to be spawned.
+---@param x number Initial X position of the effect.
+---@param y number Initial Y position of the effect.
+---@param layer string? UI layer on which the effect should be visible. If not specified, the effect will be rendered on top of everything.
+---@return ParticlePacket
+function ParticleManager:spawnParticlePacket(particleEffect, x, y, layer)
+	local packet = ParticlePacket(self, particleEffect, x, y, layer)
 	table.insert(self.particlePackets, packet)
 	return packet
 end

@@ -580,7 +580,7 @@ end
 ---@return Vector2
 function Sphere:getPos()
 	if self.appendSize < 1 then
-		return self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize)) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
+		return self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize)) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
 	end
 	return self.path:getPos(self:getOffset())
 end
@@ -606,13 +606,13 @@ end
 ---Returns the diameter of this Sphere, in pixels. This includes the normal Sphere size, its appending and path scaling.
 ---@return number
 function Sphere:getSize()
-	return self.size * self.appendSize * self:getScale()
+	return self.config.size * self.appendSize * self:getScale()
 end
 
 ---Same as `sphere:getSize()`, but will not include the appending size.
 ---@return number
 function Sphere:getDesiredSize()
-	return self.size * self:getScale()
+	return self.config.size * self:getScale()
 end
 
 
@@ -624,7 +624,7 @@ function Sphere:getPrevSeparation()
 	end
 	if not self.prevSphere.prevSphere then
 		-- This is a correction for spheres being appended at the back. They are instantly correctly aligned, so no need to counter it here.
-		return (self:getSize() + self.prevSphere.size) / 2
+		return (self:getSize() + self.prevSphere.config.size) / 2
 	end
 	return (self:getSize() + self.prevSphere:getSize()) / 2
 end
@@ -694,7 +694,7 @@ function Sphere:draw(hidden, shadow)
 		pos = self.attachedSphere:getPos() - Vec2(self:getSize() + self.attachedSphere:getSize(), 0):rotate(self.attachedAngle + self.attachedSphere:getAngle())
 	end
 	local angle = self:getAngle()
-	local scale = self:getScale() * self.size / 32
+	local scale = self:getScale() * self.config.size / 32
 	local colorM = self:getColor()
 	local roll = self.appendSize == 1 and self:getOffset() or nil
 
@@ -724,7 +724,7 @@ function Sphere:draw(hidden, shadow)
 	end
 
 	if _Debug.gameDebugVisible and self.appendSize < 1 then
-		local p1 = self.path:getPos(self:getOffset() + self.size / 2 * (1 - self.appendSize))
+		local p1 = self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize))
 		local p2 = self.shootOrigin
 		love.graphics.setColor(1, 0.5, 0)
 		love.graphics.setLineWidth(3)
@@ -762,8 +762,6 @@ end
 ---Reloads the configuration variables of the current sphere color.
 function Sphere:loadConfig()
 	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
-	-- TODO/DEPRECATED: Remove default value
-	self.size = self.config.size or 32
 end
 
 

@@ -273,9 +273,9 @@ function SphereGroup:destroySphere(position, crushed)
 	-- no need to divide if it's the first or last sphere in this group
 	if position == 1 then
 		-- Shift the group offset to the next sphere. It might not exist.
-		self.offset = self.offset + self.spheres[position].size / 2
+		self.offset = self.offset + self.spheres[position].config.size / 2
 		if self.spheres[position + 1] then
-			self.offset = self.offset + self.spheres[position + 1].size / 2
+			self.offset = self.offset + self.spheres[position + 1].config.size / 2
 		end
 		self.spheres[position]:delete(crushed)
 		table.remove(self.spheres, position)
@@ -310,9 +310,9 @@ function SphereGroup:destroySpheres(position1, position2)
 	-- check if it's on the beginning or on the end of the group
 	if position1 == 1 then
 		-- Shift the group offset to the next sphere. It might not exist.
-		self.offset = self.offset + self.spheres[position2].size / 2
+		self.offset = self.offset + self.spheres[position2].config.size / 2
 		if self.spheres[position2 + 1] then
-			self.offset = self.offset + self.spheres[position2 + 1].size / 2
+			self.offset = self.offset + self.spheres[position2 + 1].config.size / 2
 		end
 		for i = 1, position2 do
 			self.spheres[1]:delete()
@@ -1258,7 +1258,7 @@ end
 
 
 function SphereGroup:getBackPos()
-	return self:getSphereOffset(1) - self:getSphereSize(1) + self.spheres[1].size / 2
+	return self:getSphereOffset(1) - self:getSphereSize(1) + self.spheres[1].config.size / 2
 end
 
 
