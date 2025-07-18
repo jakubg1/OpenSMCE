@@ -1611,7 +1611,7 @@ function Level:spawnNet()
 	local netConfig = _Game.configManager.gameplay.net
 	local x, y = _Game:getNativeResolution().x / 2, netConfig.posY
 	if not self.netParticle then
-		self.netParticle = _Game:spawnParticle(netConfig.particle, x, y)
+		self.netParticle = _Game:spawnParticle(_Game.resourceManager:getParticleEffectConfig(netConfig.particle), x, y)
 	end
 	if not self.netSound then
 		self.netSound = _Game:playSound(_Game.resourceManager:getSoundEvent(netConfig.sound), x, y)
