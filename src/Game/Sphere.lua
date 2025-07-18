@@ -182,7 +182,7 @@ end
 
 ---Changes the color of this Sphere.
 ---@param color integer The new color for this Sphere to be obtained.
----@param particle string? A one-time particle packet pointer to be spawned if the color change is successful.
+---@param particle ParticleEffectConfig? A one-time particle packet pointer to be spawned if the color change is successful.
 function Sphere:changeColor(color, particle)
 	self.map.level.colorManager:decrement(self.color)
 	self.map.level.colorManager:increment(color)

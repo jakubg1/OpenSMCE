@@ -204,7 +204,7 @@ function Level:updateLogic(dt)
 			for i, path in ipairs(self.map.paths) do
 				if path:isInDanger() then
 					local x, y = path:getPos(path.length)
-					_Game:spawnParticle(path.dangerParticle, x, y)
+					_Game:spawnParticle(_Game.resourceManager:getParticleEffectConfig(path.dangerParticle), x, y)
 				end
 			end
 			if self.config.dangerSound then
@@ -1257,7 +1257,7 @@ end
 ---@param hitBehavior table The sphere's Hit Behavior with `selector`, `color` and `particle` (optional) fields.
 ---@param pos Vector2? The position used to calculate distances to spheres.
 function Level:replaceColorSelector(hitBehavior, pos)
-	SphereSelectorResult(hitBehavior.selector, pos):changeColor(hitBehavior.color:evaluate(), hitBehavior.particlecle)
+	SphereSelectorResult(hitBehavior.selector, pos):changeColor(hitBehavior.color:evaluate(), hitBehavior.particle)
 end
 
 

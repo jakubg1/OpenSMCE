@@ -107,7 +107,7 @@ end
 
 ---Changes the color of all of the spheres contained in this Result to a given color.
 ---@param color integer The new color of affected spheres.
----@param particle table? The particle effect to be used for each affected sphere.
+---@param particle ParticleEffectConfig? The particle effect to be used for each affected sphere.
 function SphereSelectorResult:changeColor(color, particle)
 	for i, sphere in ipairs(self.spheres) do
 		sphere:changeColor(color, particle)
