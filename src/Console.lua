@@ -95,7 +95,7 @@ function Console:print(message)
 	if type(message) ~= "string" and type(message) ~= "table" then
 		message = tostring(message)
 	end
-	local lines = _Utils.strSplit(message, "\n")
+	local lines = _Utils.tableIsCtext(message) and _Utils.ctextSplit(message, "\n") or _Utils.strSplit(message, "\n")
 	for i, line in ipairs(lines) do
 		table.insert(self.output, {text = line, time = self.time})
 	end
