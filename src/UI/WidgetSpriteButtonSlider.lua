@@ -41,15 +41,15 @@ end
 
 function UIWidgetSpriteButtonSlider:setValue(value)
 	self.value = value
-	self.parent.pos.x = self.bounds[1] + ((self.bounds[2] - self.bounds[1]) * value)
+	self.parent.pos.x = _Utils.lerp(self.bounds[1], self.bounds[2], value)
 end
 
 
 
 function UIWidgetSpriteButtonSlider:draw()
 	if self.button.clicked then
-		self.parent.pos.x = math.min(math.max(_MousePos.x - self.catchX, self.bounds[1]), self.bounds[2])
-		self.value = (self.parent.pos.x - self.bounds[1]) / (self.bounds[2] - self.bounds[1])
+		self.parent.pos.x = _Utils.clamp(_MousePos.x - self.catchX, self.bounds[1], self.bounds[2])
+		self.value = _Utils.map(0, 1, self.bounds[1], self.bounds[2], self.parent.pos.x)
 	end
 	self.button:draw()
 end

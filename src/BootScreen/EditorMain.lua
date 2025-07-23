@@ -304,7 +304,7 @@ function EditorMain:wheelmoved(x, y)
 	if _MousePos.x < 300 then
 		self.resourceListOffset = self.resourceListOffset - y * 30
 	else
-		self.spriteScale = math.min(math.max(self.spriteScale + y, 1), 8)
+		self.spriteScale = _Utils.clamp(self.spriteScale + y, 1, 8)
 	end
 end
 

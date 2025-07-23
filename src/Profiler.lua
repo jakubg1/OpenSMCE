@@ -100,8 +100,8 @@ function Profiler:putValue(value)
 end
 
 function Profiler:getYForValue(value)
-	local p = (value - self.minValue) / (self.maxValue - self.minValue)
-	return self.y - (self.h - 40) * math.min(math.max(p, 0), 1)
+	local p = _Utils.mapc(0, 1, self.minValue, self.maxValue, value)
+	return self.y - (self.h - 40) * p
 end
 
 function Profiler:getColor(n)

@@ -212,7 +212,7 @@ local OPERATOR_FUNCTIONS = {
 		local c = table.remove(stack)
 		local b = table.remove(stack)
 		local a = table.remove(stack)
-		table.insert(stack, math.min(math.max(a,b),c))
+		table.insert(stack, _Utils.clamp(a,b,c))
 	end,
 
 	-- Miscellaneous.

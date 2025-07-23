@@ -93,7 +93,7 @@ function Shooter:update(dt)
             self.pos.x = _MousePos.x
         end
         -- clamp to bounds defined in config
-        self.pos.x = math.min(math.max(self.pos.x, self.movement.xMin), self.movement.xMax)
+        self.pos.x = _Utils.clamp(self.pos.x, self.movement.xMin, self.movement.xMax)
     elseif self.movement.type == "circular" then
         -- zuma shooter
         if _MousePos == self.mousePos then

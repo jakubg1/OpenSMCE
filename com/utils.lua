@@ -815,6 +815,15 @@ function utils.normalizeBox(x, y, w, h)
 	return math.min(x, x + w), math.min(y, y + h), math.abs(w), math.abs(h)
 end
 
+---Clamps a number `n` into range `<a, b>`.
+---@param n number The number to be clamped.
+---@param a number? The minimum possible value. Defaults to `0`.
+---@param b number? The maximum possible value. Defaults to `1`.
+---@return number
+function utils.clamp(n, a, b)
+	return math.min(math.max(n, a or 0), b or 1)
+end
+
 ---Interpolates a number from `a` to `b` based on time `t`.
 ---When `t = 0`, `a` is returned, and when `t = 1`, `b` is returned.
 ---@param a number The value for `t = 0`.
@@ -832,7 +841,7 @@ end
 ---@param t number The time parameter.
 ---@return number
 function utils.lerpc(a, b, t)
-	return utils.lerp(a, b, math.min(math.max(t, 0), 1))
+	return utils.lerp(a, b, utils.clamp(t))
 end
 
 ---Interpolates a number from `a` to `b` based on time `t` in range from `t1` to `t2`.
@@ -1108,9 +1117,9 @@ local Color = require("src.Essentials.Color")
 ---@return Color
 function utils.getRainbowColor(t)
 	t = t * 3
-	local r = math.min(math.max(2 * (1 - math.abs(t % 3)), 0), 1) + math.min(math.max(2 * (1 - math.abs((t % 3) - 3)), 0), 1)
-	local g = math.min(math.max(2 * (1 - math.abs((t % 3) - 1)), 0), 1)
-	local b = math.min(math.max(2 * (1 - math.abs((t % 3) - 2)), 0), 1)
+	local r = utils.clamp(2 * (1 - math.abs(t % 3))) + utils.clamp(2 * (1 - math.abs((t % 3) - 3)))
+	local g = utils.clamp(2 * (1 - math.abs((t % 3) - 1)))
+	local b = utils.clamp(2 * (1 - math.abs((t % 3) - 2)))
 	return Color(r, g, b)
 end
 
