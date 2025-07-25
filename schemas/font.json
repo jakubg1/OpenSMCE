@@ -6,7 +6,8 @@
         "type": {
             "enum": [
                 "image",
-                "truetype"
+                "truetype",
+                "bmfont"
             ]
         }
     },
@@ -96,7 +97,7 @@
                 "properties": {
                     "$schema": true,
                     "type": true,
-                    "path": {
+                    "file": {
                         "$ref": "_structures/FontFile.json",
                         "description": "The path to a TTF font file which contains the characters."
                     },
@@ -111,9 +112,40 @@
                     }
                 },
                 "required": [
-                    "path",
-                    "size",
-                    "color"
+                    "file",
+                    "size"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "bmfont",
+                        "description": "The font loads a BMFont file and its related resources."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "file": {
+                        "type": "string",
+                        "description": "The path to a valid BMFont .fnt file. Images related to the BMFont must be located alongside that file.",
+                        "markdownDescription": "The path to a valid BMFont `.fnt` file. Images related to the BMFont must be located alongside that file."
+                    },
+                    "color": {
+                        "$ref": "_structures/Color.json",
+                        "description": "The color of this Font."
+                    }
+                },
+                "required": [
+                    "file"
                 ],
                 "additionalProperties": false
             }

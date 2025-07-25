@@ -8,6 +8,7 @@ local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local ColorGeneratorConfig = require("src.Configs.ColorGenerator")
 local ColorPaletteConfig = require("src.Configs.ColorPalette")
+local FontConfig = require("src.Configs.Font")
 local GameEventConfig = require("src.Configs.GameEvent")
 local LevelConfig = require("src.Configs.Level")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
@@ -304,6 +305,16 @@ function utils.parseSoundOpt(data, base, path, fields)
 	return parseResourceOpt(data, base, path, fields, "Sound", _Game.resourceManager.getSound)
 end
 
+---@return FontFile
+function utils.parseFontFile(data, base, path, fields)
+	return parseResource(data, base, path, fields, "FontFile", _Game.resourceManager.getFontFile)
+end
+
+---@return FontFile?
+function utils.parseFontFileOpt(data, base, path, fields)
+	return parseResourceOpt(data, base, path, fields, "FontFile", _Game.resourceManager.getFontFile)
+end
+
 ---@return SoundEvent
 function utils.parseSoundEvent(data, base, path, fields)
 	return parseResource(data, base, path, fields, "SoundEvent", _Game.resourceManager.getSoundEvent)
@@ -324,16 +335,6 @@ function utils.parseMusicOpt(data, base, path, fields)
 	return parseResourceOpt(data, base, path, fields, "Music", _Game.resourceManager.getMusic)
 end
 
----@return Font
-function utils.parseFont(data, base, path, fields)
-	return parseResource(data, base, path, fields, "Font", _Game.resourceManager.getFont)
-end
-
----@return Font?
-function utils.parseFontOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "Font", _Game.resourceManager.getFont)
-end
-
 
 
 -- The following are moved to Config Classes, but use singleton getters instead:
@@ -346,6 +347,16 @@ end
 ---@return Sprite?
 function utils.parseSpriteOpt(data, base, path, fields)
 	return parseResourceOpt(data, base, path, fields, "Sprite", _Game.resourceManager.getSprite)
+end
+
+---@return Font
+function utils.parseFont(data, base, path, fields)
+	return parseResource(data, base, path, fields, "Font", _Game.resourceManager.getFont)
+end
+
+---@return Font?
+function utils.parseFontOpt(data, base, path, fields)
+	return parseResourceOpt(data, base, path, fields, "Font", _Game.resourceManager.getFont)
 end
 
 ---@return ColorPalette

@@ -11,6 +11,7 @@ local SpriteAtlas = require("src.Essentials.SpriteAtlas")
 local Sound = require("src.Essentials.Sound")
 local SoundEvent = require("src.Essentials.SoundEvent")
 local Music = require("src.Essentials.Music")
+local FontFile = require("src.Essentials.FontFile")
 local Font = require("src.Essentials.Font")
 local ColorPalette = require("src.Essentials.ColorPalette")
 
@@ -43,11 +44,10 @@ function ResourceManager:new()
 	self.RESOURCE_TYPES = {
 		Image = {assetConstructor = Image},
 		Sound = {assetConstructor = Sound},
-		FontFile = {},
+		FontFile = {assetConstructor = FontFile},
 
 		SoundEvent = {assetConstructor = SoundEvent},
-		Music = {assetConstructor = Music},
-		Font = {assetConstructor = Font}
+		Music = {assetConstructor = Music}
 	}
 
 	-- TODO: Auto-generate these two below.
@@ -55,8 +55,7 @@ function ResourceManager:new()
 	-- Alongside this, update the table in Resource Management section in the wiki!
 	self.SCHEMA_TO_RESOURCE_MAP = {
 		["sound_event.json"] = "SoundEvent",
-		["music_track.json"] = "Music",
-		["font.json"] = "Font"
+		["music_track.json"] = "Music"
 	}
 	self.EXTENSION_TO_RESOURCE_MAP = {
 		png = "Image",
@@ -72,6 +71,7 @@ function ResourceManager:new()
 	-- Register the singleton/asset constructors.
 	self.SINGLETON_LIST = {
 		ColorPalette = ColorPalette,
+		Font = Font,
 		Sprite = Sprite,
 		SpriteAtlas = SpriteAtlas
 	}
@@ -187,6 +187,13 @@ function ResourceManager:getSound(path)
 	return self:getResourceAsset(path, "sound")
 end
 
+---Retrieves a Font File by a given path.
+---@param path string The resource path.
+---@return FontFile
+function ResourceManager:getFontFile(path)
+	return self:getResourceAsset(path, "font file")
+end
+
 ---Retrieves a Sound Event by a given path.
 ---@param path string The resource path.
 ---@return SoundEvent
@@ -199,13 +206,6 @@ end
 ---@return Music
 function ResourceManager:getMusic(path)
 	return self:getResourceAsset(path, "music track")
-end
-
----Retrieves a Font by a given path.
----@param path string The resource path.
----@return Font
-function ResourceManager:getFont(path)
-	return self:getResourceAsset(path, "font")
 end
 
 

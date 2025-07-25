@@ -7,21 +7,21 @@ local Font = class:derive("Font")
 local Color = require("src.Essentials.Color")
 
 ---Constructs a new Font.
----@param data table Data for this Font. TODO: Change to Config Class.
----@param path string The file path of this Font.
-function Font:new(data, path)
+---@param config FontConfig The Config of this Font.
+---@param path string A path to the font file.
+function Font:new(config, path)
 	self.path = path
 
-	self.type = data.type
+	self.type = config.type
 
 	if self.type == "image" then
-		self.image = _Game.resourceManager:getImage(data.image)
+		self.image = config.image
 		self.height = self.image.size.y
-		self.newlineAdjustment = data.newlineAdjustment or 0
+		self.newlineAdjustment = config.newlineAdjustment
 		---@alias CharacterData {quad: love.Quad, width: integer}
 		---@type table<string, CharacterData>
 		self.characters = {}
-		for characterN, character in pairs(data.characters) do
+		for characterN, character in pairs(config.characters) do
 			self.characters[characterN] = {
 				quad = love.graphics.newQuad(character.offset, 0, character.width, self.image.size.y, self.image.size.x, self.image.size.y),
 				width = character.width
@@ -30,8 +30,11 @@ function Font:new(data, path)
 		---@type table<string, boolean?>
 		self.reportedCharacters = {}
 	elseif self.type == "truetype" then
-		self.font = _Utils.loadFont(_ParsePath(data.path), data.size)
-		self.color = _ParseColor(data.color)
+		self.font = config.file:makeFont(config.size)
+		self.color = config.color or Color()
+	elseif self.type == "bmfont" then
+		self.font = love.graphics.newFont(_ParsePath(config.file))
+		self.color = config.color or Color()
 	end
 end
 
@@ -54,7 +57,7 @@ function Font:getTextSize(text)
 		end
 		sizeX = math.max(sizeX, lineWidth)
 		return sizeX, sizeY
-	elseif self.type == "truetype" then
+	else
 		local sizeX, sizeY = self.font:getWidth(text), self.font:getHeight()
 		for i = 1, text:len() do
 			local character = text:sub(i, i)
@@ -97,7 +100,7 @@ function Font:draw(text, x, y, alignX, alignY, color, alpha)
 			end
 		end
 		self:drawLine(line, x, y, alignX)
-	elseif self.type == "truetype" then
+	else
 		local oldFont = love.graphics.getFont()
 
 		love.graphics.setColor(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
@@ -148,6 +151,20 @@ function Font:getCharacterData(character)
 		end
 		return self.characters["0"]
 	end
+end
+
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function Font.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
+
+    ---Retrieves a Font by a given path.
+    ---@param path string The resource path.
+    ---@return Font
+    function ResourceManager:getFont(path)
+        return self:getResourceAsset(path, "Font")
+    end
 end
 
 return Font
