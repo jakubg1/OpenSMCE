@@ -733,12 +733,28 @@ end
 
 ---Returns `true` if the given position is inside of a box of given position and size.
 ---If the point lies anywhere on the box's edge, the check will still pass.
----@param p Vector2 The point which is checked against.
----@param bp Vector2 The position of the upper left corner of the box.
----@param bs Vector2 The size of the box.
+---@param x number The X coordinate of the point which is checked against.
+---@param y number The Y coordinate of the point which is checked against.
+---@param bx number The X position of the top left corner of the box.
+---@param by number The Y position of the top left corner of the box.
+---@param bw number The width of the box.
+---@param bh number The height of the box.
 ---@return boolean
-function utils.isPointInsideBox(p, bp, bs)
-	return p.x >= bp.x and p.y >= bp.y and p.x <= (bp.x + bs.x) and p.y <= (bp.y + bs.y)
+function utils.isPointInsideBox(x, y, bx, by, bw, bh)
+	return x >= bx and y >= by and x <= (bx + bw) and y <= (by + bh)
+end
+
+---Returns `true` if the given position is inside of a box of given position and size.
+---If the point lies anywhere on the box's edge, the check will fail.
+---@param x number The X coordinate of the point which is checked against.
+---@param y number The Y coordinate of the point which is checked against.
+---@param bx number The X position of the top left corner of the box.
+---@param by number The Y position of the top left corner of the box.
+---@param bw number The width of the box.
+---@param bh number The height of the box.
+---@return boolean
+function utils.isPointInsideBoxExcl(x, y, bx, by, bw, bh)
+	return x > bx and y > by and x < (bx + bw) and y < (by + bh)
 end
 
 -- One-dimensional cubic Beazier curve.

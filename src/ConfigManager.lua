@@ -11,9 +11,6 @@ local ConfigManager = class:derive("ConfigManager")
 function ConfigManager:new()
 	self.config = _Game.resourceManager:getConfigConfig("config.json")
 
-	-- TODO: make a game config class
-	self.nativeResolution = _ParseVec2(self.config.nativeResolution)
-
 	-- Load configuration files.
 	self.gameplay = _Utils.loadJson(_ParsePath("config/gameplay.json"))
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
@@ -52,7 +49,7 @@ end
 ---Returns the native resolution of this game.
 ---@return Vector2
 function ConfigManager:getNativeResolution()
-	return self.nativeResolution
+	return self.config.nativeResolution
 end
 
 ---Returns whether the Discord Rich Presence should be active in this game.

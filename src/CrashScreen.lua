@@ -36,15 +36,12 @@ function CrashScreen:new(err)
 end
 
 function CrashScreen:update(dt)
-    _MousePos = Vec2(love.mouse.getPosition())
+    _MouseX, _MouseY = love.mouse.getPosition()
 
     -- Button hover
     self.bottomText = ""
     for i, button in ipairs(self.buttons) do
-        button.hovered = _MousePos.x > button.pos.x and
-                        _MousePos.x < button.pos.x + button.size.x and
-                        _MousePos.y > button.pos.y and
-                        _MousePos.y < button.pos.y + button.size.y
+        button.hovered = _Utils.isPointInsideBoxExcl(_MouseX, _MouseY, button.pos.x, button.pos.y, button.size.x, button.size.y)
         if button.hovered then
             if i == 1 then
                 self.bottomText = self:transformText("Copies the error data to clipboard.")

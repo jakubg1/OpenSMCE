@@ -5,7 +5,6 @@ local class = require "com.class"
 ---@overload fun(posX, posY, color, layer):SphereEntity
 local SphereEntity = class:derive("SphereEntity")
 
-local Vec2 = require("src.Essentials.Vector2")
 local Color = require("src.Essentials.Color")
 
 

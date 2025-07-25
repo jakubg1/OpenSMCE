@@ -4,7 +4,6 @@ local class = require "com.class"
 ---@overload fun(parent, sprite, bounds, clickSound, releaseSound, hoverSound):UIWidgetSpriteButtonSlider
 local UIWidgetSpriteButtonSlider = class:derive("UIWidgetSpriteButtonSlider")
 
-local Vec2 = require("src.Essentials.Vector2")
 local UIWidgetSpriteButton = require("src.UI.WidgetSpriteButton")
 
 
@@ -23,7 +22,7 @@ end
 function UIWidgetSpriteButtonSlider:click()
 	if not self.parent:isVisible() or not self.button.hovered or self.button.clicked then return end
 	self.button:click()
-	self.catchX = _MousePos.x - self.parent.pos.x
+	self.catchX = _MouseX - self.parent.pos.x
 end
 
 function UIWidgetSpriteButtonSlider:unclick()
@@ -48,7 +47,7 @@ end
 
 function UIWidgetSpriteButtonSlider:draw()
 	if self.button.clicked then
-		self.parent.pos.x = _Utils.clamp(_MousePos.x - self.catchX, self.bounds[1], self.bounds[2])
+		self.parent.pos.x = _Utils.clamp(_MouseX - self.catchX, self.bounds[1], self.bounds[2])
 		self.value = _Utils.map(0, 1, self.bounds[1], self.bounds[2], self.parent.pos.x)
 	end
 	self.button:draw()

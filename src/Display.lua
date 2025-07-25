@@ -4,12 +4,10 @@ local class = require "com.class"
 ---@overload fun():Display
 local Display = class:derive("Display")
 
-local Vec2 = require("src.Essentials.Vector2")
-
 ---Constructs a Display Manager.
 function Display:new()
-    self.size = Vec2(800, 600)
-    self.renderResolution = Vec2(800, 600)
+    self.w, self.h = 800, 600
+    self.renderResolutionW, self.renderResolutionH = 800, 600
     self.renderCanvas = nil
     self.renderLayers = {}
     self.renderMode = "filtered"
@@ -28,7 +26,7 @@ function Display:setResolution(resolution, resizable, title, maximized)
 		love.window.maximize()
 	end
 	love.window.setTitle(title)
-	self.size = resolution
+	self.w, self.h = resolution.x, resolution.y
 end
 
 ---Sets whether the window should be fullscreen.
@@ -37,18 +35,18 @@ function Display:setFullscreen(fullscreen)
     if fullscreen == love.window.getFullscreen() then return end
     if fullscreen then
         local _, _, flags = love.window.getMode()
-        self.size = Vec2(love.window.getDesktopDimensions(flags.display))
+        self.w, self.h = love.window.getDesktopDimensions(flags.display)
     else
-        self.size = self.renderResolution
+        self.w, self.h = self.renderResolutionW, self.renderResolutionH
     end
-    love.window.setMode(self.size.x, self.size.y, {fullscreen = fullscreen, resizable = true})
+    love.window.setMode(self.w, self.h, {fullscreen = fullscreen, resizable = true})
 end
 
 ---Generates a new Canvas which can be drawn on.
 ---@param resolution Vector2 The new canvas resolution (native resolution).
 ---@param mode "filtered"|"pixel"|"pixelPerfect" The canvas mode. If `"pixel"`, the canvas image will not be interpolated.
 function Display:setCanvas(resolution, mode)
-    self.renderResolution = resolution
+    self.renderResolutionW, self.renderResolutionH = resolution.x, resolution.y
     self.renderMode = mode
 	self.renderCanvas = love.graphics.newCanvas(resolution.x, resolution.y)
     self.renderLayers.MAIN =  love.graphics.newCanvas(resolution.x, resolution.y)
@@ -63,14 +61,14 @@ end
 ---in such a way that the contents are exactly in the center.
 ---@return number
 function Display:getDisplayOffsetX()
-	return (self.size.x - self.renderResolution.x * self:getCanvasScale()) / 2
+	return (self.w - self.renderResolutionW * self:getCanvasScale()) / 2
 end
 
 ---Returns the Y offset of actual screen contents.
 ---This will only be non-zero in the `"pixelPerfect"` canvas mode.
 ---@return number
 function Display:getDisplayOffsetY()
-	return (self.size.y - self.renderResolution.y * self:getCanvasScale()) / 2
+	return (self.h - self.renderResolutionH * self:getCanvasScale()) / 2
 end
 
 ---Returns the scale of screen contents, depending on the current window size.
@@ -78,7 +76,7 @@ end
 ---If the display mode is `"pixelPerfect"`, the result is brought down to the nearest integer.
 ---@return number
 function Display:getCanvasScale()
-    local scale = self.size.y / self.renderResolution.y
+    local scale = self.h / self.renderResolutionH
     if self.renderMode == "pixelPerfect" then
         return math.max(math.floor(scale), 1)
     end
@@ -86,10 +84,13 @@ function Display:getCanvasScale()
 end
 
 ---Returns the logical position of the given onscreen point.
----@param pos Vector2 The onscreen point of which the logical position will be returned.
----@return Vector2
-function Display:posFromScreen(pos)
-	return (pos - Vec2(self:getDisplayOffsetX(), self:getDisplayOffsetY())) / self:getCanvasScale()
+---@param x number The X coordinate of which the logical position will be returned.
+---@param y number The Y coordinate of which the logical position will be returned.
+---@return number, number
+function Display:posFromScreen(x, y)
+    x = (x - self:getDisplayOffsetX()) / self:getCanvasScale()
+    y = (y - self:getDisplayOffsetY()) / self:getCanvasScale()
+	return x, y
 end
 
 ---Starts drawing on this Display's canvas, clearing it beforehand.
@@ -104,8 +105,8 @@ function Display:canvasStop()
     if self.funniFlashlight then
         love.graphics.stencil(function()
             love.graphics.setColor(1, 1, 1)
-            local x = _MousePos.x * self:getCanvasScale() + self:getDisplayOffsetX()
-            local y = _MousePos.y * self:getCanvasScale() + self:getDisplayOffsetY()
+            local x = _MouseX * self:getCanvasScale() + self:getDisplayOffsetX()
+            local y = _MouseY * self:getCanvasScale() + self:getDisplayOffsetY()
             love.graphics.circle("fill", x, y, 100 * self:getCanvasScale())
         end, "replace", 1)
         -- mark only these pixels as the pixels which can be affected

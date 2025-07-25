@@ -4,10 +4,6 @@ local class = require "com.class"
 ---@overload fun(name):Profiler
 local Profiler = class:derive("Profiler")
 
-local Vec2 = require("src.Essentials.Vector2")
-
-
-
 function Profiler:new(name)
 	self.COLORS = {
 		{1, 0, 0},

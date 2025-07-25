@@ -95,7 +95,7 @@ _BUILD_NUMBER = "unknown"
 
 -- GLOBAL ZONE
 _DisplayFullscreen = false
-_MousePos = Vec2(0, 0)
+_MouseX, _MouseY = 0, 0
 -- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
 _FSPrefix = ""
 
@@ -172,7 +172,7 @@ end
 function love.update(dt)
 	_Debug:profUpdateStart()
 
-	_MousePos = _Display:posFromScreen(Vec2(love.mouse.getPosition()))
+	_MouseX, _MouseY = _Display:posFromScreen(love.mouse.getPosition())
 	if _Game then
 		_Game:update(dt * _TimeScale)
 	end

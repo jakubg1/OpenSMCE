@@ -69,7 +69,7 @@ function EditorMain:update(dt)
 	self.hoveredResource = nil
 	for i, key in ipairs(self.resourceList) do
 		local y = 50 + (i - 1) * 15 - self.resourceListOffset
-		if _Utils.isPointInsideBox(_MousePos, Vec2(0, y), Vec2(300, 15)) then
+		if _Utils.isPointInsideBox(_MouseX, _MouseY, 0, y, 300, 15) then
 			self.hoveredResource = key
 			break
 		end
@@ -83,11 +83,11 @@ function EditorMain:update(dt)
 			local stateY = 630 + (i - 1) * 16
 			local frameWidth = 20
 			local stateWidth = 100 + frameWidth * state.frames.x * state.frames.y
-			if _Utils.isPointInsideBox(_MousePos, Vec2(350, stateY), Vec2(stateWidth, 16)) then
+			if _Utils.isPointInsideBox(_MouseX, _MouseY, 350, stateY, stateWidth, 16) then
 				self.hoveredSpriteState = i
 				for j = 1, state.frames.x * state.frames.y do
 					local frameX = 450 + (j - 1) * frameWidth
-					if _Utils.isPointInsideBox(_MousePos, Vec2(frameX, stateY), Vec2(frameWidth, 16)) then
+					if _Utils.isPointInsideBox(_MouseX, _MouseY, frameX, stateY, frameWidth, 16) then
 						self.hoveredSpriteFrame = j
 						break
 					end
@@ -301,7 +301,7 @@ function EditorMain:mousereleased(x, y, button)
 end
 
 function EditorMain:wheelmoved(x, y)
-	if _MousePos.x < 300 then
+	if _MouseX < 300 then
 		self.resourceListOffset = self.resourceListOffset - y * 30
 	else
 		self.spriteScale = _Utils.clamp(self.spriteScale + y, 1, 8)

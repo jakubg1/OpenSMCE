@@ -6,8 +6,6 @@ local UIWidgetTextInput = class:derive("UIWidgetTextInput")
 
 local Vec2 = require("src.Essentials.Vector2")
 
-
-
 function UIWidgetTextInput:new(parent, font, align, cursorSprite, maxLength)
 	self.type = "textInput"
 
@@ -20,8 +18,6 @@ function UIWidgetTextInput:new(parent, font, align, cursorSprite, maxLength)
 	self.cursorSpriteBlink = 0
 	self.maxLength = maxLength
 end
-
-
 
 function UIWidgetTextInput:update(dt)
 	self.cursorSpriteBlink = (self.cursorSpriteBlink + dt) % 1
@@ -42,7 +38,7 @@ function UIWidgetTextInput:textinput(t)
 	end
 end
 
-function UIWidgetTextInput:draw(variables)
+function UIWidgetTextInput:draw()
 	local pos = self.parent:getPos()
 	local alpha = self.parent:getAlpha()
 	self.font:draw(self.text, pos.x, pos.y, self.align.x, self.align.y, nil, alpha)

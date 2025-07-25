@@ -199,6 +199,8 @@ function SphereChain:new(path, data)
 
 	self.maxOffset = 0
 
+	self.config = _Game.configManager.gameplay.sphereBehavior
+
 	self.delQueue = false
 end
 
@@ -215,8 +217,8 @@ function SphereChain:update(dt)
 			local dist = prevChain:getLastSphereGroup():getBackPos() - self:getFirstSphereGroup():getFrontPos()
 			if dist < 0 then
 				-- If so, either destroy the scarab or move the frontmost chain (or slow down the one behind it).
-				if _Game.configManager.gameplay.sphereBehavior.invincibleScarabs then
-					if _Game.configManager.gameplay.sphereBehavior.invincibleScarabFrontMatters then
+				if self.config.invincibleScarabs then
+					if self.config.invincibleScarabFrontMatters then
 						self:getFirstSphereGroup():move(dist)
 					else
 						prevChain:getLastSphereGroup():move(-dist)
@@ -265,7 +267,7 @@ function SphereChain:update(dt)
 	end
 
 	-- Reset the cascade combo if necessary.
-	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "chain" and not self:isMatchPredicted() then
+	if self.config.cascadeScope == "chain" and not self:isMatchPredicted() then
 		self:endCascade()
 	end
 
@@ -323,7 +325,7 @@ function SphereChain:isMatchPredicted()
 			sphereGroup:hasShotSpheres() or
 			sphereGroup:hasKeepCascadeSpheres() or
 			sphereGroup:hasGhostSpheres() or
-			(_Game.configManager.gameplay.sphereBehavior.luxorized and sphereGroup.speed < 0)
+			(self.config.luxorized and sphereGroup.speed < 0)
 		) then
 			return true
 		end
@@ -372,7 +374,7 @@ end
 function SphereChain:join()
 	-- Joins with the previous group and deletes a vise from this group.
 	local prevChain = self.path.sphereChains[self.path:getSphereChainID(self) + 1]
-	if not _Game.configManager.gameplay.sphereBehavior.noScarabs then
+	if not self.config.noScarabs then
 		self:getLastSphereGroup():destroySphere(1, true)
 	end
 	-- update group links
@@ -473,7 +475,7 @@ function SphereChain:concludeGeneration()
 	local group = self:getLastSphereGroup()
 
 	-- Spawn a vise.
-	if not _Game.configManager.gameplay.sphereBehavior.noScarabs then
+	if not self.config.noScarabs then
 		group:pushSphereBack(0)
 	end
 

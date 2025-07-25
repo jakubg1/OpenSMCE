@@ -4,35 +4,28 @@ local class = require "com.class"
 ---@overload fun(name, font, pos, size, onClick):Button
 local Button = class:derive("Button")
 
-local Vec2 = require("src.Essentials.Vector2")
-
-
-
 function Button:new(name, font, pos, size, onClick)
 	self.name = name
 	self.font = font
 	self.pos = pos
 	self.size = size
-	
+
 	self.visible = true
 	self.hovered = false
 	self.selected = false
-	
+
 	self.onClick = onClick
 end
 
 function Button:update(dt)
 	if not self.visible then return end
-	
-	self.hovered = _MousePos.x > self.pos.x and
-					_MousePos.x < self.pos.x + self.size.x and
-					_MousePos.y > self.pos.y and
-					_MousePos.y < self.pos.y + self.size.y
+
+	self.hovered = _Utils.isPointInsideBoxExcl(_MouseX, _MouseY, self.pos.x, self.pos.y, self.size.x, self.size.y)
 end
 
 function Button:draw()
 	if not self.visible then return end
-	
+
 	love.graphics.setFont(self.font)
 	love.graphics.setLineWidth(1)
 	if self.hovered then
@@ -59,7 +52,7 @@ end
 
 function Button:mousereleased(x, y, button)
 	if not self.visible then return end
-	
+
 	if self.hovered then
 		self.onClick()
 	end

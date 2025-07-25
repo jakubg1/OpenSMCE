@@ -53,7 +53,7 @@ function Shooter:new(data)
 
     -- memorizing the pressed keys for keyboard control of the shooter
     self.moveKeys = {left = false, right = false}
-    self.mousePos = _MousePos
+    self.mouseX, self.mouseY = _MouseX, _MouseY
     -- the speed of the shooter when controlled via keyboard
     self.moveKeySpeed = 500
     self.rotateKeySpeed = 4
@@ -80,7 +80,7 @@ function Shooter:update(dt)
     -- movement
     if self.movement.type == "linear" then
         -- luxor shooter
-        if _MousePos == self.mousePos then
+        if _MouseX == self.mouseX and _MouseY == self.mouseY then
             -- if the mouse position hasn't changed, then the keyboard can be freely used
             if self.moveKeys.left then
                 self.pos.x = self.pos.x - self.moveKeySpeed * dt
@@ -90,13 +90,13 @@ function Shooter:update(dt)
             end
         else
             -- else, the mouse takes advantage and overwrites the position
-            self.pos.x = _MousePos.x
+            self.pos.x = _MouseX
         end
         -- clamp to bounds defined in config
         self.pos.x = _Utils.clamp(self.pos.x, self.movement.xMin, self.movement.xMax)
     elseif self.movement.type == "circular" then
         -- zuma shooter
-        if _MousePos == self.mousePos then
+        if _MouseX == self.mouseX and _MouseY == self.mouseY then
             -- if the mouse position hasn't changed, then the keyboard can be freely used
             if self.moveKeys.left then
                 self.angle = self.angle - self.rotateKeySpeed * dt
@@ -106,12 +106,12 @@ function Shooter:update(dt)
             end
         else
             -- else, the mouse takes advantage and overwrites the angle
-            self.angle = (_MousePos - self.pos):angle() + math.pi / 2
+            self.angle = _V.angle(_MouseX - self.pos.x, _MouseY - self.pos.y) + math.pi / 2
         end
         -- make the angle be in the interval [-pi, pi)
         self.angle = (self.angle + math.pi) % (math.pi * 2) - math.pi
     end
-    self.mousePos = _MousePos
+    self.mouseX, self.mouseY = _MouseX, _MouseY
 
     -- shot cooldown
     if self.shotCooldown and (not _Game.level:hasShotSpheres() or self.config.multishot) then

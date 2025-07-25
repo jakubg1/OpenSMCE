@@ -37,7 +37,7 @@ function UITreeDebug:draw()
 
     -- Scrolling logic.
     local height = love.graphics.getHeight()
-    local mousePos = _MousePos
+    local mouseX, mouseY = _MouseX, _MouseY
     local mousePressed = love.mouse.isDown(1)
     local scrollbarWidth = 15
     local scrollbarHeight = 50
@@ -48,10 +48,10 @@ function UITreeDebug:draw()
     -- if the mouse is in clicked state then move the rectangle here
     if mousePressed then
         if not self.scrollPressOffset then
-            self.scrollPressOffset = self.listOffset - mousePos.y * (maxOffset / logicalHeight)
+            self.scrollPressOffset = self.listOffset - mouseY * (maxOffset / logicalHeight)
         end
         if self.mouse.x < scrollbarWidth then
-            self.listOffset = mousePos.y * (maxOffset / logicalHeight) + self.scrollPressOffset
+            self.listOffset = mouseY * (maxOffset / logicalHeight) + self.scrollPressOffset
         end
     else
         self.scrollPressOffset = nil
@@ -62,8 +62,8 @@ function UITreeDebug:draw()
 
     -- Which one we've hovered?
     local hover = nil
-    if mousePos.x > scrollbarWidth and mousePos.x < 500 then
-        hover = math.floor((self.listOffset + mousePos.y) / 15)
+    if mouseX > scrollbarWidth and mouseX < 500 then
+        hover = math.floor((self.listOffset + mouseY) / 15)
     end
 
     -- Draw stuff.
@@ -94,7 +94,7 @@ function UITreeDebug:draw()
     -- draw the scroll rectangle
     if self.widgetDebugCount > maxWidgets then
         local yy = self.listOffset / maxOffset * logicalHeight
-        if (mousePos.x < scrollbarWidth and mousePos.y > yy and mousePos.y < yy + scrollbarHeight) or (mousePressed and self.mouse.x < scrollbarWidth) then
+        if (mouseX < scrollbarWidth and mouseY > yy and mouseY < yy + scrollbarHeight) or (mousePressed and self.mouse.x < scrollbarWidth) then
             love.graphics.setColor(0, 1, 0)
         else
             love.graphics.setColor(0.25, 0.75, 0.25)
@@ -190,7 +190,7 @@ end
 ---Returns whether the UI Tree Debug is hovered.
 ---@return boolean
 function UITreeDebug:isHovered()
-    return self.visible and _MousePos.x < 500
+    return self.visible and _MouseX < 500
 end
 
 

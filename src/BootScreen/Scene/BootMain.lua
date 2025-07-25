@@ -80,10 +80,7 @@ function BootMain:update(dt)
     end
 
     -- URL hover
-    self.urlHovered = _MousePos.x > self.urlHoverPos.x and
-        _MousePos.x < self.urlHoverPos.x + self.urlHoverSize.x and
-        _MousePos.y > self.urlHoverPos.y and
-        _MousePos.y < self.urlHoverPos.y + self.urlHoverSize.y
+    self.urlHovered = _Utils.isPointInsideBox(_MouseX, _MouseY, self.urlHoverPos.x, self.urlHoverPos.y, self.urlHoverSize.x, self.urlHoverSize.y)
 end
 
 

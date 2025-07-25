@@ -4,10 +4,6 @@ local class = require "com.class"
 ---@overload fun(parent, sprite, value, smooth):UIWidgetSpriteProgress
 local UIWidgetSpriteProgress = class:derive("UIWidgetSpriteProgress")
 
-local Vec2 = require("src.Essentials.Vector2")
-
-
-
 function UIWidgetSpriteProgress:new(parent, sprite, value, smooth)
 	self.type = "spriteProgress"
 
@@ -19,8 +15,6 @@ function UIWidgetSpriteProgress:new(parent, sprite, value, smooth)
 	self.valueData = value
 	self.smooth = smooth
 end
-
-
 
 function UIWidgetSpriteProgress:update(dt)
 	local value = self.valueData
@@ -35,7 +29,7 @@ function UIWidgetSpriteProgress:update(dt)
 	end
 end
 
-function UIWidgetSpriteProgress:draw(variables)
+function UIWidgetSpriteProgress:draw()
 	local pos = self.parent:getPos()
 	love.graphics.setScissor(pos.x, pos.y, self.size.x * self.value, self.size.y)
 	self.sprite:draw(pos.x, pos.y, nil, nil, nil, nil, nil, nil, self.parent:getAlpha())

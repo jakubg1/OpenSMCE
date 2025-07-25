@@ -4,10 +4,6 @@ local class = require "com.class"
 ---@overload fun(name, font, pos, size, onClick):Checkbox
 local Checkbox = class:derive("Checkbox")
 
-local Vec2 = require("src.Essentials.Vector2")
-
-
-
 function Checkbox:new(name, font, pos, size, onClick)
 	self.name = name
 	self.font = font
@@ -24,10 +20,7 @@ end
 function Checkbox:update(dt)
 	if not self.visible then return end
 
-	self.hovered = _MousePos.x > self.pos.x and
-					_MousePos.x < self.pos.x + self.size.x and
-					_MousePos.y > self.pos.y and
-					_MousePos.y < self.pos.y + self.size.y
+	self.hovered = _Utils.isPointInsideBoxExcl(_MouseX, _MouseY, self.pos.x, self.pos.y, self.size.x, self.size.y)
 end
 
 function Checkbox:draw()

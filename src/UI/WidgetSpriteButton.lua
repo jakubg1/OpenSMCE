@@ -6,8 +6,6 @@ local UIWidgetSpriteButton = class:derive("UIWidgetSpriteButton")
 
 local Vec2 = require("src.Essentials.Vector2")
 
-
-
 function UIWidgetSpriteButton:new(parent, sprite, clickSound, releaseSound, hoverSound, orbMasterHoverEffect)
 	self.type = "spriteButton"
 
@@ -60,8 +58,6 @@ function UIWidgetSpriteButton:setEnabled(enabled)
 	self.enableForced = enabled
 end
 
-
-
 function UIWidgetSpriteButton:update(dt)
 	if self.hovered then
 		self.orbMasterHoverTime = math.min(self.orbMasterHoverTime + dt / 0.25, 1)
@@ -72,6 +68,7 @@ end
 
 function UIWidgetSpriteButton:draw()
 	local pos = self.parent:getPos()
+	local origPos = pos:clone()
 	local alpha = self.parent:getAlpha()
 	local size = self.size
 	local scale = 1
@@ -84,7 +81,7 @@ function UIWidgetSpriteButton:draw()
 	end
 
 	self.enabled = self.enableForced and (alpha == 1 or self.parent.neverDisabled)
-	local hovered = self.enabled and self.parent.active and _Utils.isPointInsideBox(_MousePos, self.parent:getPos(), size) and not _Debug.uiDebug:isHovered()
+	local hovered = self.enabled and self.parent.active and _Utils.isPointInsideBox(_MouseX, _MouseY, origPos.x, origPos.y, size.x, size.y) and not _Debug.uiDebug:isHovered()
 	if hovered ~= self.hovered then
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end

@@ -6,8 +6,6 @@ local UIWidgetText = class:derive("UIWidgetText")
 
 local Vec2 = require("src.Essentials.Vector2")
 
-
-
 function UIWidgetText:new(parent, text, font, align)
 	self.type = "text"
 
@@ -20,9 +18,7 @@ function UIWidgetText:new(parent, text, font, align)
 	self.debugColor = {1.0, 0.5, 0.5}
 end
 
-
-
-function UIWidgetText:draw(variables)
+function UIWidgetText:draw()
 	local pos = self.parent:getPos()
 	self.font:draw(self.textTmp, pos.x, pos.y, self.align.x, self.align.y, nil, self.parent:getAlpha())
 end

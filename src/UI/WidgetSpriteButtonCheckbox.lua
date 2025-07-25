@@ -4,7 +4,6 @@ local class = require "com.class"
 ---@overload fun(parent, sprites, clickSound, releaseSound, hoverSound):UIWidgetSpriteButtonCheckbox
 local UIWidgetSpriteButtonCheckbox = class:derive("UIWidgetSpriteButtonCheckbox")
 
-local Vec2 = require("src.Essentials.Vector2")
 local UIWidgetSpriteButton = require("src.UI.WidgetSpriteButton")
 
 
