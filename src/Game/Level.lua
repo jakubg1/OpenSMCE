@@ -535,12 +535,13 @@ end
 
 
 ---Activates a collectible generator in a given position.
----@param pos Vector2 The position where the collectibles will spawn.
+---@param x number The X position where the collectibles will spawn.
+---@param y number The Y position where the collectibles will spawn.
 ---@param entry CollectibleGeneratorConfig The Collectible Generator entry to be evaluated.
-function Level:spawnCollectiblesFromEntry(pos, entry)
+function Level:spawnCollectiblesFromEntry(x, y, entry)
 	local collectibles = self:evaluateCollectibleGeneratorEntry(entry)
 	for i, collectible in ipairs(collectibles) do
-		self:spawnCollectible(collectible, pos)
+		self:spawnCollectible(collectible, x, y)
 	end
 end
 
@@ -598,7 +599,7 @@ function Level:executeScoreEvent(scoreEvent, pos)
 		end
 		if font then
 			local text = scoreEvent.text and scoreEvent.text:evaluate() or (score > 0 and _Utils.formatNumber(score) or "")
-			self:spawnFloatingText(text, pos, font)
+			self:spawnFloatingText(text, pos.x, pos.y, font)
 		end
 	end
 	_Vars:unset("event")
@@ -674,8 +675,9 @@ end
 
 ---Applies an effect to the level.
 ---@param effect CollectibleEffectConfig The effect data to be applied.
----@param pos Vector2? The position of the effect.
-function Level:applyEffect(effect, pos)
+---@param x number? The X position of the effect.
+---@param y number? The Y position of the effect.
+function Level:applyEffect(effect, x, y)
 	if effect.type == "replaceSphere" then
 		self.shooter:getSphere(effect.color)
 	elseif effect.type == "multiSphere" then
@@ -697,7 +699,7 @@ function Level:applyEffect(effect, pos)
 			end
 		end
 	elseif effect.type == "destroySpheres" then
-		self:destroySelector(effect.selector, pos, effect.scoreEvent, effect.scoreEventPerSphere, effect.gameEvent, effect.gameEventPerSphere, true)
+		self:destroySelector(effect.selector, Vec2(x, y), effect.scoreEvent, effect.scoreEventPerSphere, effect.gameEvent, effect.gameEventPerSphere, true)
 	elseif effect.type == "spawnPathEntity" then
 		local path = self:getMostDangerousPath()
 		if path then
@@ -712,7 +714,7 @@ function Level:applyEffect(effect, pos)
 	elseif effect.type == "setStreak" then
 		self.streak = effect.streak
 	elseif effect.type == "executeScoreEvent" then
-		self:executeScoreEvent(effect.scoreEvent, pos)
+		self:executeScoreEvent(effect.scoreEvent, Vec2(x, y))
 	elseif effect.type == "executeGameEvent" then
 		_Game:executeGameEvent(effect.gameEvent)
 	elseif effect.type == "setScoreMultiplier" then
@@ -1565,9 +1567,10 @@ end
 
 ---Spawns a new Collectible into the Level.
 ---@param collectible CollectibleConfig The collectible which should be spawned.
----@param pos Vector2 Where the Collectible should be spawned at.
-function Level:spawnCollectible(collectible, pos)
-	table.insert(self.collectibles, Collectible(nil, collectible, pos))
+---@param x number Where the Collectible should be spawned at on X axis.
+---@param y number Where the Collectible should be spawned at on Y axis.
+function Level:spawnCollectible(collectible, x, y)
+	table.insert(self.collectibles, Collectible(nil, collectible, x, y))
 end
 
 
@@ -1593,10 +1596,11 @@ end
 
 ---Spawns a new FloatingText into the Level.
 ---@param text string The text to be displayed.
----@param pos Vector2 The starting position of this text.
+---@param x number The starting X position of this text.
+---@param y number The starting Y position of this text.
 ---@param font Font The font which is going to be used to draw the text.
-function Level:spawnFloatingText(text, pos, font)
-	table.insert(self.floatingTexts, FloatingText(text, pos, font))
+function Level:spawnFloatingText(text, x, y, font)
+	table.insert(self.floatingTexts, FloatingText(text, x, y, font))
 end
 
 

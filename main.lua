@@ -53,9 +53,6 @@ local DiscordRichPresence = require("src.DiscordRichPresence")
 local Network = require("src.Network")
 local ThreadManager = require("src.ThreadManager")
 
-
-
--- CONSTANT ZONE
 _VERSION = "v0.51.0"
 _VERSION_NAME = "Beta 4.12.0-dev"
 _DISCORD_APPLICATION_ID = "797956172539887657"
@@ -89,12 +86,6 @@ _FONT_CONSOLE = _Utils.loadFont("assets/unifont.ttf", 16)
 -- You can automate this in i.e. a script by simply adding a `_BUILD_NUMBER = "<your number>"` line at the end of this main.lua file.
 _BUILD_NUMBER = "unknown"
 
-
-
-
-
--- GLOBAL ZONE
-_DisplayFullscreen = false
 _MouseX, _MouseY = 0, 0
 -- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
 _FSPrefix = ""
@@ -112,25 +103,12 @@ _Vars = ExpressionVariables()
 _Network = Network()
 _ThreadManager = ThreadManager()
 
-
-
 _TotalTime = 0
 _TimeScale = 1
-
 ---@type Settings
 _EngineSettings = nil
-
 ---@type DiscordRichPresence
 _DiscordRPC = nil
-
-
-
-
-
-
-
-
--- CALLBACK ZONE
 
 function love.load(args)
 	-- Initialize RNG for Boot Screen

@@ -146,7 +146,7 @@ function utils.loadFontData(path, size)
 	end
 end
 
----Opens a fond file and constructs `love.Font` from it. Returns `nil` if the file has not been found.
+---Opens a font file and constructs `love.Font` from it. Returns `nil` if the file has not been found.
 ---@param path string The path to the file.
 ---@param size integer? The size of the font, in pixels. Defaults to LOVE-specified 12 pixels.
 ---@return love.Font?
@@ -156,6 +156,18 @@ function utils.loadFont(path, size)
 		return
 	end
 	return love.graphics.newFont(fontData)
+end
+
+---Opens a shader file and constructs `love.Shader` from it. Returns `nil` if file not found.
+---@param path string The path to the file.
+---@return love.Shader?
+function utils.loadShader(path)
+	local data = utils.loadFile(path)
+	if not data then
+		return
+	end
+	local shader = love.graphics.newShader(data)
+	return shader
 end
 
 ---Returns a list of directories and/or files in a given path.

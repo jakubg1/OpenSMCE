@@ -913,10 +913,11 @@ end
 
 
 ---Returns `true` if the given position is inside this Shooter's hitbox.
----@param pos Vector2 The position to be checked against.
+---@param x number The X position to be checked against.
+---@param y number The Y position to be checked against.
 ---@return boolean
-function Shooter:isPosCatchable(pos)
-    return math.abs(self.pos.x - pos.x + self.config.hitboxOffset.x) < self.config.hitboxSize.x / 2 and math.abs(self.pos.y - pos.y + self.config.hitboxOffset.y) < self.config.hitboxSize.y / 2
+function Shooter:isPosCatchable(x, y)
+    return math.abs(self.pos.x - x + self.config.hitboxOffset.x) < self.config.hitboxSize.x / 2 and math.abs(self.pos.y - y + self.config.hitboxOffset.y) < self.config.hitboxSize.y / 2
 end
 
 
