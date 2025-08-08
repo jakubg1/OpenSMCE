@@ -228,7 +228,7 @@ function love.textinput(t)
 end
 
 function love.resize(w, h)
-	_Display.size = Vec2(w, h)
+	_Display:resize(w, h)
 end
 
 function love.quit()

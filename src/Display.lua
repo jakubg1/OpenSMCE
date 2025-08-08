@@ -120,4 +120,11 @@ function Display:canvasStop()
     end
 end
 
+---LOVE2D callback handler when the screen is resized.
+---@param w integer Window width, in pixels.
+---@param h integer Window height, in pixels.
+function Display:resize(w, h)
+    self.w, self.h = w, h
+end
+
 return Display
