@@ -241,7 +241,7 @@ function Sphere:deleteVisually(ghostTime, crushed)
 			local pos = self:getPos()
 			-- Spawn collectibles, if any.
 			if self.config.destroyCollectible then
-				self.map.level:spawnCollectiblesFromEntry(pos, self.config.destroyCollectible)
+				self.map.level:spawnCollectiblesFromEntry(pos.x, pos.y, self.config.destroyCollectible)
 			end
 			-- Play a sound.
 			if self.config.destroySound then

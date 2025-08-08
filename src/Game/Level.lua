@@ -124,7 +124,7 @@ function Level:updateLogic(dt)
 		if rain.count > 0 then
 			rain.time = rain.time - dt
 			if rain.time <= 0 then
-				self:spawnCollectiblesFromEntry(Vec2(math.random() * _Game:getNativeResolution().x, -32), rain.generator)
+				self:spawnCollectiblesFromEntry(math.random() * _Game:getNativeResolution().x, -32, rain.generator)
 				rain.count = rain.count - 1
 				if rain.count > 0 then
 					rain.time = rain.time + rain.delay:evaluate()

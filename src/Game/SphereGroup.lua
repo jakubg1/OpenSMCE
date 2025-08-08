@@ -804,7 +804,7 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	end
 	-- Spawn any collectibles if applicable.
 	if effectConfig.destroyCollectible then
-		self.map.level:spawnCollectiblesFromEntry(Vec2(x, y), effectConfig.destroyCollectible)
+		self.map.level:spawnCollectiblesFromEntry(x, y, effectConfig.destroyCollectible)
 	end
 	-- Execute the "after" game events.
 	if effectConfig.eventsAfter then

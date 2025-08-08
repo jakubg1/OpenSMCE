@@ -8,13 +8,11 @@ local Vec2 = require("src.Essentials.Vector2")
 
 function UIWidgetText:new(parent, text, font, align)
 	self.type = "text"
-
 	self.parent = parent
-
 	self.text = text
 	self.textTmp = ""
 	self.font = _Game.resourceManager:getFont(font)
-	self.align = align and _ParseVec2(align) or Vec2(0.5, 0)
+	self.align = align and Vec2(align.x, align.y) or Vec2(0.5, 0)
 	self.debugColor = {1.0, 0.5, 0.5}
 end
 

@@ -29,7 +29,7 @@ function UIWidget:new(name, data, parent)
 		data = _Utils.loadJson(_ParsePath(data))
 	end
 	self.type = data.type or "none"
-	self.pos = _ParseVec2(data.pos)
+	self.pos = Vec2(data.pos.x, data.pos.y)
 	self.layer = data.layer
 	self.alpha = data.alpha
 
@@ -105,7 +105,7 @@ function UIWidget:new(name, data, parent)
 		if self.animations.in_.type == "fade" then
 			self.alpha = self.animations.in_.startValue
 		elseif self.animations.in_.type == "move" then
-			self.pos = _ParseVec2(self.animations.in_.startPos)
+			self.pos = Vec2(self.animations.in_.startPos.x, self.animations.in_.startPos.y)
 		end
 	end
 end
@@ -121,7 +121,7 @@ function UIWidget:update(dt)
 		if animation.type == "fade" then
 			self.alpha = animation.startValue * (1 - t) + animation.endValue * t
 		elseif animation.type == "move" then
-			self.pos = _ParseVec2(animation.startPos) * (1 - t) + _ParseVec2(animation.endPos) * t
+			self.pos = Vec2(animation.startPos.x, animation.startPos.y) * (1 - t) + Vec2(animation.endPos.x, animation.endPos.y) * t
 		end
 
 		-- If the animation has finished:
