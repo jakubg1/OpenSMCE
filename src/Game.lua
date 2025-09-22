@@ -50,9 +50,9 @@ function Game:init()
 	self.configManager = ConfigManager()
 
 	-- Step 3. Initialize the window and canvas
-	local res = self:getNativeResolution()
-	_Display:setResolution(res, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
-	_Display:setCanvas(res, self.configManager:getCanvasRenderingMode())
+	local w, h = self:getNativeResolution()
+	_Display:setResolution(w, h, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
+	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode())
 
 	-- Step 4. Initialize RNG and timer
 	self.timer = Timer()
@@ -269,7 +269,7 @@ function Game:executeGameEvent(event)
 end
 
 ---Returns the native resolution of this Game.
----@return Vector2
+---@return integer, integer
 function Game:getNativeResolution()
 	return self.configManager:getNativeResolution()
 end

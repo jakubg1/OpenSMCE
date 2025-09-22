@@ -30,8 +30,9 @@ end
 ---Saves a file to the given path with the given contents. Errors out if the file cannot be created.
 ---@param path string The path to the file.
 ---@param data string The contents of the file.
-function utils.saveFile(path, data)
-	local file = io.open(path, "w")
+---@param append boolean? If set to `true`, the data will be appended at the end of the file, if it exists.
+function utils.saveFile(path, data, append)
+	local file = io.open(path, append and "a" or "w")
 	assert(file, string.format("SAVE FILE FAIL: %s", path))
 	io.output(file)
 	io.write(data)
@@ -913,6 +914,14 @@ end
 function utils.almostEqual(a, b, e)
 	e = e or 1e-9
 	return a > b - e and a < b + e
+end
+
+---Returns `true` or `false` depending on whether `b`-th bit of number `n` is a `1` or a `0`.
+---@param n integer The number to be checked.
+---@param b integer The bit of the number `n` to be checked.
+---@return boolean
+function utils.getBit(n, b)
+	return math.floor((n % (2 ^ b)) / (2 ^ (b - 1))) ~= 0
 end
 
 --####################################################--

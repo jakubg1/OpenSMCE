@@ -47,9 +47,9 @@ function ConfigManager:getWindowTitle()
 end
 
 ---Returns the native resolution of this game.
----@return Vector2
+---@return integer, integer
 function ConfigManager:getNativeResolution()
-	return self.config.nativeResolution
+	return self.config.nativeResolution.x, self.config.nativeResolution.y
 end
 
 ---Returns whether the Discord Rich Presence should be active in this game.

@@ -34,9 +34,6 @@ _Profiler = require("com.jprof")
 
 local json = require("com.json")
 
-local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
-
 local Log = require("src.Log")
 local Debug = require("src.Debug")
 local Display = require("src.Display")

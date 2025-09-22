@@ -53,10 +53,10 @@ function EditorMain:init()
 	self.configManager = ConfigManager()
 
 	-- Step 3. Initialize the window
-	local res = self:getNativeResolution()
-	_Display:setResolution(res, false, "OpenSMCE [" .. _VERSION .. "] - Game Editor - " .. self.name)
+	local w, h = self:getNativeResolution()
+	_Display:setResolution(w, h, false, "OpenSMCE [" .. _VERSION .. "] - Game Editor - " .. self.name)
 	-- Despite the canvas is not used to draw any editor UI, the size is used to calculate the mouse position.
-	_Display:setCanvas(res, "filtered")
+	_Display:setCanvas(w, h, "filtered")
 end
 
 
@@ -257,9 +257,9 @@ end
 
 
 ---Returns the native resolution of the Game Editor, which is always 1280 by 720.
----@return Vector2
+---@return integer, integer
 function EditorMain:getNativeResolution()
-	return self.nativeResolution
+	return self.nativeResolution.x, self.nativeResolution.y
 end
 
 

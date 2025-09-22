@@ -20,7 +20,8 @@ function TestMain:init()
 	_Log:printt("TestMain", "Testing mode")
 
 	-- Step 1. Initialize the window
-	_Display:setResolution(self:getNativeResolution(), false, "OpenSMCE [" .. _VERSION .. "] - Test Suite")
+	local w, h = self:getNativeResolution()
+	_Display:setResolution(w, h, false, "OpenSMCE [" .. _VERSION .. "] - Test Suite")
 
 	-- Step 2. Get all test files
 	self.modules = self:getModules()
@@ -130,9 +131,9 @@ function TestMain:draw()
 end
 
 ---Returns the native resolution of the Test Suite.
----@return Vector2
+---@return integer, integer
 function TestMain:getNativeResolution()
-	return self.nativeResolution
+	return self.nativeResolution.x, self.nativeResolution.y
 end
 
 ---Returns the effective sound volume. In the editor, it's always 1.

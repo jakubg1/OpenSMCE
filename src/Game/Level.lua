@@ -124,7 +124,8 @@ function Level:updateLogic(dt)
 		if rain.count > 0 then
 			rain.time = rain.time - dt
 			if rain.time <= 0 then
-				self:spawnCollectiblesFromEntry(math.random() * _Game:getNativeResolution().x, -32, rain.generator)
+				local w, h = _Game:getNativeResolution()
+				self:spawnCollectiblesFromEntry(math.random() * w, -32, rain.generator)
 				rain.count = rain.count - 1
 				if rain.count > 0 then
 					rain.time = rain.time + rain.delay:evaluate()
@@ -1608,7 +1609,8 @@ end
 ---Spawns the Net particle and sound, if it doesn't exist yet.
 function Level:spawnNet()
 	local netConfig = _Game.configManager.gameplay.net
-	local x, y = _Game:getNativeResolution().x / 2, netConfig.posY
+	local w, h = _Game:getNativeResolution()
+	local x, y = w / 2, netConfig.posY
 	if not self.netParticle then
 		self.netParticle = _Game:spawnParticle(_Game.resourceManager:getParticleEffectConfig(netConfig.particle), x, y)
 	end

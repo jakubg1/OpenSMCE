@@ -16,17 +16,18 @@ function Display:new()
 end
 
 ---Sets the window settings: resolution, whether it can be changed, and its title.
----@param resolution Vector2 The new window resolution.
+---@param w integer The new window width.
+---@param h integer The new window height.
 ---@param resizable boolean Whether the window can be resized.
 ---@param title string The window title.
 ---@param maximized boolean? If set, the window will be maximized.
-function Display:setResolution(resolution, resizable, title, maximized)
-	love.window.setMode(resolution.x, resolution.y, {resizable = resizable})
+function Display:setResolution(w, h, resizable, title, maximized)
+	love.window.setMode(w, h, {resizable = resizable})
 	if maximized then
 		love.window.maximize()
 	end
 	love.window.setTitle(title)
-	self.w, self.h = resolution.x, resolution.y
+	self.w, self.h = w, h
 end
 
 ---Sets whether the window should be fullscreen.
@@ -43,13 +44,14 @@ function Display:setFullscreen(fullscreen)
 end
 
 ---Generates a new Canvas which can be drawn on.
----@param resolution Vector2 The new canvas resolution (native resolution).
+---@param w integer The new canvas width (native width).
+---@param h integer The new canvas height (native height).
 ---@param mode "filtered"|"pixel"|"pixelPerfect" The canvas mode. If `"pixel"`, the canvas image will not be interpolated.
-function Display:setCanvas(resolution, mode)
-    self.renderResolutionW, self.renderResolutionH = resolution.x, resolution.y
+function Display:setCanvas(w, h, mode)
+    self.renderResolutionW, self.renderResolutionH = w, h
     self.renderMode = mode
-	self.renderCanvas = love.graphics.newCanvas(resolution.x, resolution.y)
-    self.renderLayers.MAIN =  love.graphics.newCanvas(resolution.x, resolution.y)
+	self.renderCanvas = love.graphics.newCanvas(w, h)
+    self.renderLayers.MAIN =  love.graphics.newCanvas(w, h)
 	self.renderCanvas:setFilter("nearest", "nearest")
 	if mode == "pixel" or mode == "pixelPerfect" then
 		self.renderLayers.MAIN:setFilter("nearest", "nearest")

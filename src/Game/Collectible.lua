@@ -39,6 +39,7 @@ function Collectible:update(dt)
 	self.x, self.y = self.x + self.speedX * dt, self.y + self.speedY * dt
 
 	-- catching/bouncing/destroying
+	local w, h = _Game:getNativeResolution()
 	local byShooter = _Game.level.shooter:isPosCatchable(self.x, self.y)
 	local byNet = _Game.level.netTime > 0 and self.y >= _Game.configManager.gameplay.net.posY
 	if byShooter or byNet then
@@ -47,13 +48,13 @@ function Collectible:update(dt)
 	if self.x < 10 then -- left
 		self.x = 10
 		self.speedX = -self.speedX
-	elseif self.x > _Game:getNativeResolution().x - 10 then -- right
-		self.x = _Game:getNativeResolution().x - 10
+	elseif self.x > w - 10 then -- right
+		self.x = w - 10
 		self.speedX = -self.speedX
 	elseif self.y < 10 then -- up
 		self.y = 10
 		self.speedY = -self.speedY
-	elseif self.y > _Game:getNativeResolution().y + 20 then -- down - uncatched, falls down
+	elseif self.y > h + 20 then -- down - uncatched, falls down
 		self:destroy()
 		if self.config.dropEffects then
 			for i, effect in ipairs(self.config.dropEffects) do

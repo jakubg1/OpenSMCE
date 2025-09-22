@@ -105,7 +105,9 @@ function SoundEvent:play(pos)
             if instance then
                 instance:setVolume(entry.volume:evaluate())
                 instance:setPitch(entry.pitch:evaluate())
-                instance:setPos(not entry.flat and pos)
+                if pos and not entry.flat then
+                    instance:setPos(pos.x, pos.y)
+                end
                 instance:setLoop(entry.loop)
                 if instance:isPlaying() then
                     instance:stop()

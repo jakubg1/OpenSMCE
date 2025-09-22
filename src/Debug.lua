@@ -532,9 +532,9 @@ end
 
 function Debug:commandCollectible(collectible, amount)
 	amount = amount or 1
-	local natRes = _Game:getNativeResolution()
+	local w, h = _Game:getNativeResolution()
 	for i = 1, amount do
-		_Game.level:spawnCollectible(collectible, natRes.x / 2, natRes.y / 2)
+		_Game.level:spawnCollectible(collectible, w / 2, h / 2)
 	end
 end
 

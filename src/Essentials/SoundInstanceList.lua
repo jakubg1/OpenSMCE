@@ -5,10 +5,8 @@ local class = require "com.class"
 ---@overload fun(instances):SoundInstanceList
 local SoundInstanceList = class:derive("SoundInstanceList")
 
-
-
 ---Constructs a new Sound Instance List.
----@param instances table A list of sound instances.
+---@param instances SoundInstance[] A list of sound instances.
 function SoundInstanceList:new(instances)
     self.sounds = instances
 end
@@ -21,21 +19,21 @@ function SoundInstanceList:update(dt)
     end
 end
 
----Plays the Instances.
+---Plays all Sound Instances within the list.
 function SoundInstanceList:play()
     for i, sound in ipairs(self.sounds) do
         sound:play()
     end
 end
 
----Stops the Instances.
+---Stops all Sound Instances within the list.
 function SoundInstanceList:stop()
     for i, sound in ipairs(self.sounds) do
         sound:stop()
     end
 end
 
----Sets the volume of Instances.
+---Sets the volume of all Sound Instances within the list.
 ---@param volume number The new volume, as a percentage.
 function SoundInstanceList:setVolume(volume)
     for i, sound in ipairs(self.sounds) do
@@ -43,7 +41,7 @@ function SoundInstanceList:setVolume(volume)
     end
 end
 
----Sets the pitch of Instances.
+---Sets the pitch of all Sound Instances within the list.
 ---@param pitch number The new pitch, as a percentage.
 function SoundInstanceList:setPitch(pitch)
     for i, sound in ipairs(self.sounds) do
@@ -51,11 +49,11 @@ function SoundInstanceList:setPitch(pitch)
     end
 end
 
----Sets the position of Instances.
----@param pos Vector2? The new position. Passing `nil` does nothing.
+---Sets the position of all Sound Instances within the list.
+---@param pos Vector2 The new position.
 function SoundInstanceList:setPos(pos)
     for i, sound in ipairs(self.sounds) do
-        sound:setPos(pos)
+        sound:setPos(pos.x, pos.y)
     end
 end
 
@@ -69,7 +67,5 @@ function SoundInstanceList:isPlaying()
     end
     return false
 end
-
-
 
 return SoundInstanceList

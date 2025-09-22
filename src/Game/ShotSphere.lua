@@ -218,8 +218,8 @@ end
 ---@return boolean
 function ShotSphere:isOutsideBoard()
 	local margin = self.size / 2
-	local nativeResolution = _Game:getNativeResolution()
-	return self.posX < -margin or self.posX > nativeResolution.x + margin or self.posY < -margin or self.posY > nativeResolution.y + margin
+	local w, h = _Game:getNativeResolution()
+	return self.posX < -margin or self.posX > w + margin or self.posY < -margin or self.posY > h + margin
 end
 
 
