@@ -1,0 +1,8 @@
+- (object) - The root object.
+    - nodes (array) - A list of nodes constituting to the path.
+        - (object) - A single path node.
+            - x (number) - The X position of this node.
+            - y (number) - The Y position of this node.
+            - scale* = 1 (number) [>0] - The scale of spheres on this node. Defaults to 1.
+            - hidden* = false (boolean) - When set, the segment from this to next node will be hidden - the spheres will become darker, unshootable, and they will be rendered behind non-background sprites.
+            - warp* (boolean) - When set, the spheres will instantly teleport to the next node once they reach this node.

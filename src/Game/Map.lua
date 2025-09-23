@@ -18,29 +18,18 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	-- whether it's just a decorative map, if false then it's meant to be playable
 	self.isDummy = isDummy
 
-	local data = _Utils.loadJson(_ParsePath(path .. "/config.json"))
-	assert(data, string.format("Failed to load map file %s", path))
-	self.name = data.name
+	self.config = _Game.resourceManager:getMapConfig(path .. "/config.json")
+	self.name = self.config.name
 
 	self.paths = {}
-	self.sprites = {}
 
 	local mapFolderName = _Utils.strSplit(path, "/")
 	_Game.resourceManager:setNamespace(mapFolderName[#mapFolderName])
 	_Game.resourceManager:setBatches({"map"})
-	for i, spriteData in ipairs(data.sprites) do
-		local sprite = {
-			pos = Vec2(spriteData.x, spriteData.y),
-			sprite = _Game.resourceManager:getSprite(spriteData.path),
-			background = spriteData.background,
-			foreground = spriteData.foreground
-		}
-		table.insert(self.sprites, sprite)
-	end
 	_Game.resourceManager:setNamespace()
 	_Game.resourceManager:setBatches()
 
-	for i, pathData in ipairs(data.paths) do
+	for i, pathData in ipairs(self.config.paths) do
 		-- Loop around the path behavior list if not sufficient enough.
 		-- Useful if all paths should share the same behavior; you don't have to clone it.
 		local pathBehavior = pathsBehavior[(i - 1) % #pathsBehavior + 1]
@@ -76,17 +65,17 @@ end
 ---Draws this Map.
 function Map:draw()
 	-- Background
-	for i, sprite in ipairs(self.sprites) do
+	for i, sprite in ipairs(self.config.sprites) do
 		if sprite.background then
-			sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
+			sprite.sprite:draw(sprite.x, sprite.y)
 		end
 	end
 
 	-- Objects drawn before hidden spheres (map debugging)
 	if _Debug.mapDebugVisible then
-		for i, sprite in ipairs(self.sprites) do
+		for i, sprite in ipairs(self.config.sprites) do
 			if not sprite.background and not sprite.foreground then
-				sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
+				sprite.sprite:draw(sprite.x, sprite.y)
 			end
 		end
 	end
@@ -107,9 +96,9 @@ function Map:draw()
 
 	-- Objects that will be drawn when the map debugging is off (foreground sprites)
 	if not _Debug.mapDebugVisible then
-		for i, sprite in ipairs(self.sprites) do
+		for i, sprite in ipairs(self.config.sprites) do
 			if not sprite.background and not sprite.foreground then
-				sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
+				sprite.sprite:draw(sprite.x, sprite.y)
 			end
 		end
 	end
@@ -126,9 +115,9 @@ function Map:drawSpheres()
 
 	_Game.particleManager:draw(self.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
 
-	for i, sprite in ipairs(self.sprites) do
+	for i, sprite in ipairs(self.config.sprites) do
 		if not sprite.background and sprite.foreground then
-			sprite.sprite:draw(sprite.pos.x, sprite.pos.y)
+			sprite.sprite:draw(sprite.x, sprite.y)
 		end
 	end
 end

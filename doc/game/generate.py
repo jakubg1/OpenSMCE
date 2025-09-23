@@ -894,7 +894,7 @@ def docld_to_lua_index(fields):
 
 
 # Converts a list of fields to traverse through, such as `{{"type": "string", "value": "integers"}, {"type": "integer", "value": "n"}}`
-# into e.g. `".integers[n]`.
+# into e.g. `".integers[n]"`.
 # ref_string is indexed by `[n]` instead of `.n`
 # ref_integer is indexed by `[tonumber(n)]` instead of `[n]`
 def docld_to_lua_context(fields):
@@ -951,6 +951,7 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 		"Particle": "parseParticleConfig",
 		"ParticleEffect": "parseParticleEffectConfig",
 		"ParticleEmitter": "parseParticleEmitterConfig",
+		"Path": "parsePathConfig",
 		"PathEntity": "parsePathEntityConfig",
 		"Projectile": "parseProjectileConfig",
 		"ScoreEvent": "parseScoreEventConfig",

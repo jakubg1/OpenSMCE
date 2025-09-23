@@ -12,40 +12,8 @@
             "type": "array",
             "description": "A list of paths which are available on this map.",
             "items": {
-                "type": "array",
-                "description": "A single path, which is a list of nodes.",
-                "items": {
-                    "type": "object",
-                    "description": "A single path node.",
-                    "properties": {
-                        "x": {
-                            "type": "number",
-                            "description": "The X position of this node."
-                        },
-                        "y": {
-                            "type": "number",
-                            "description": "The Y position of this node."
-                        },
-                        "scale": {
-                            "type": "number",
-                            "description": "The scale of spheres on this node. Defaults to 1.",
-                            "exclusiveMinimum": 0.0
-                        },
-                        "hidden": {
-                            "type": "boolean",
-                            "description": "When set, the segment from this to next node will be hidden - the spheres will become darker, unshootable, and they will be rendered behind non-background sprites."
-                        },
-                        "warp": {
-                            "type": "boolean",
-                            "description": "When set, the spheres will instantly teleport to the next node once they reach this node."
-                        }
-                    },
-                    "required": [
-                        "x",
-                        "y"
-                    ],
-                    "additionalProperties": false
-                }
+                "$ref": "_structures/Path.json",
+                "description": "A single path."
             }
         },
         "sprites": {

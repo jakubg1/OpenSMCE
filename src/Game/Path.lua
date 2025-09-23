@@ -12,7 +12,7 @@ local PathEntity = require("src.Game.PathEntity")
 
 ---Constructs a new Path instance.
 ---@param map Map The map which this Path belongs to.
----@param pathData table A list of nodes this path has.
+---@param pathData PathConfig A list of nodes this path has.
 ---@param pathBehavior table Path behavior which is going to be used in this level.
 function Path:new(map, pathData, pathBehavior)
 	self.map = map
@@ -24,11 +24,6 @@ function Path:new(map, pathData, pathBehavior)
 	self.nodeBookmarks = {} -- node bookmark IDs start from 0 !!!
 	self.nodeBookmarkCount = 0
 	self.NODE_BOOKMARK_DELAY = 500
-
-	local nodes = {}
-	for i, node in ipairs(pathData) do
-		nodes[i] = {x = node.x, y = node.y, scale = node.scale or 1, hidden = node.hidden, warp = node.warp}
-	end
 
 	self.trainRules = pathBehavior.trainRules
 	self.currentWave = 0
@@ -43,7 +38,7 @@ function Path:new(map, pathData, pathBehavior)
 	self.dangerParticle = _Game.resourceManager:getParticleEffectConfig(pathBehavior.dangerParticle or "particles/warning.json")
 	self.speeds = pathBehavior.speeds
 
-	self:prepareNodes(nodes)
+	self:prepareNodes(pathData.nodes)
 
 	self.sphereChains = {}
 	self.cascade = 0

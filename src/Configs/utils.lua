@@ -7,8 +7,6 @@ local CollectibleConfig = require("src.Configs.Collectible")
 local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local ColorGeneratorConfig = require("src.Configs.ColorGenerator")
-local ColorPaletteConfig = require("src.Configs.ColorPalette")
-local FontConfig = require("src.Configs.Font")
 local GameEventConfig = require("src.Configs.GameEvent")
 local LevelConfig = require("src.Configs.Level")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
@@ -17,6 +15,7 @@ local LevelTrainRulesConfig = require("src.Configs.LevelTrainRules")
 local ParticleConfig = require("src.Configs.Particle")
 local ParticleEffectConfig = require("src.Configs.ParticleEffect")
 local ParticleEmitterConfig = require("src.Configs.ParticleEmitter")
+local PathConfig = require("src.Configs.Path")
 local PathEntityConfig = require("src.Configs.PathEntity")
 local ProjectileConfig = require("src.Configs.Projectile")
 local ScoreEventConfig = require("src.Configs.ScoreEvent")
@@ -530,6 +529,16 @@ end
 ---@return ParticleEmitterConfig?
 function utils.parseParticleEmitterConfigOpt(data, base, path, fields)
 	return parseClassConfigOpt(data, base, path, fields, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
+end
+
+---@return PathConfig
+function utils.parsePathConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "Path", _Game.resourceManager.getPathConfig, PathConfig)
+end
+
+---@return PathConfig?
+function utils.parsePathConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "Path", _Game.resourceManager.getPathConfig, PathConfig)
 end
 
 ---@return PathEntityConfig
