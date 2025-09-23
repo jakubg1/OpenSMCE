@@ -506,12 +506,8 @@ function ResourceManager:updateResourceBatches(key, batches)
 		return
 	end
 	-- Otherwise, we merge two batch lists together.
-	if batches and resource.batches then
-		for i, batch in ipairs(batches) do
-			if not _Utils.isValueInTable(resource.batches, batch) then
-				table.insert(resource.batches, batch)
-			end
-		end
+	if resource.batches then
+		_Utils.tableUnionInplace(resource.batches, batches)
 	end
 end
 
