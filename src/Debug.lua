@@ -90,15 +90,15 @@ function Debug:draw()
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.setFont(_FONT)
 		local p1 = self.profPages[self.profPage]
-		p1.x, p1.y = 0, _Display.size.y
+		p1.x, p1.y = 0, _Display.h
 		p1:draw()
 
 		local pt = self.profTimer
-		pt.x, pt.y = 310, _Display.size.y
+		pt.x, pt.y = 310, _Display.h
 		pt:draw()
 
 		local p2 = self.profDraw
-		p2.x, p2.y = 400, _Display.size.y
+		p2.x, p2.y = 400, _Display.h
 		p2:draw()
 
 		self:drawVisibleText("Debug Keys:", 10, 10, 15)
@@ -399,7 +399,7 @@ function Debug:drawDebugInfo()
 
 	local rightLines = _Utils.strSplit(self:getRightDebugInfo(), "\n")
 	for i, l in ipairs(rightLines) do
-		self:drawVisibleText(l, _Display.size.x, 15 * (i - 1), 15, nil, nil, nil, nil, true)
+		self:drawVisibleText(l, _Display.w, 15 * (i - 1), 15, nil, nil, nil, nil, true)
 	end
 end
 
@@ -412,8 +412,8 @@ end
 
 
 function Debug:drawSphereInfo()
-	local p = Vec2(0, _Display.size.y - 200)
-	local s = Vec2(_Display.size.x, 200)
+	local p = Vec2(0, _Display.h - 200)
+	local s = Vec2(_Display.w, 200)
 
 	-- background
 	love.graphics.setColor(0, 0, 0, 0.5)
