@@ -19,6 +19,11 @@ From Beta 5.0 onwards, all games are intended to be backwards compatible. Then, 
 - Partial *Luxor 2* support (mainly focusing on bringing the converter to parity)
 - Some quality-of-life changes for modders (https://github.com/jakubg1/OpenSMCE/issues/66, https://github.com/jakubg1/OpenSMCE/issues/74, https://github.com/jakubg1/OpenSMCE/issues/84, https://github.com/jakubg1/OpenSMCE/issues/90, https://github.com/jakubg1/OpenSMCE/issues/98, https://github.com/jakubg1/OpenSMCE/issues/101, https://github.com/jakubg1/OpenSMCE/issues/114, https://github.com/jakubg1/OpenSMCE/issues/117, https://github.com/jakubg1/OpenSMCE/issues/123)
 
+After the data management module is finished, the engine will be separated. The sphere matching gameplay will stay on this repository, while the rest will be extracted into another repository (the OpenSMCE Engine).
+The OpenSMCE Engine will be able to handle any type of game and will handle resource management, UI and hopefully more.
+
+The idea is to have an in-between solution between fantasy consoles (such as Picotron, PICO-8 and TIC-80) and professional game engines (Godot, Unity, UE).
+
 If you want to help me, don't hesitate to do so! If you have any questions or you need more information, make a ticket on the Issues page. Any support is greatly appreciated.
 
 For more information, you can take a look at the [Beta 5.0 issue list](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Beta+5.0.0+release%22) and the [1.0 issue list](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Full+1.0+release%22).
