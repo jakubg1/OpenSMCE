@@ -12,6 +12,7 @@ function ConfigManager:new()
 	self.config = _Game.resourceManager:getConfigConfig("config.json")
 
 	-- Load configuration files.
+	-- TODO: These should be handled by Resource Manager and Config Classes.
 	self.gameplay = _Utils.loadJson(_ParsePath("config/gameplay.json"))
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
 	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
@@ -21,12 +22,14 @@ function ConfigManager:new()
 	self.gameplay.sphereBehavior.cascadeScope = self.gameplay.sphereBehavior.cascadeScope or "chain"
 
 	-- Load map data.
+	-- TODO: This is now only used for checking the map names without loading the map (UI script -> stage map).
+	-- Find out how to do it better at some point. Hint: Luxor 2 free play map selection dialog.
 	self.maps = {}
 	local mapList = _Utils.getDirListing(_ParsePath("maps"), "dir")
 	for i, mapName in ipairs(mapList) do
 		local mapConfig = _Utils.loadJson(_ParsePath("maps/" .. mapName .. "/config.json"))
 		if mapConfig then
-			_Log:printt("ConfigManager", "Loading map " .. mapName)
+			_Log:printt("ConfigManager", "Loading map data: " .. mapName)
 			self.maps[mapName] = mapConfig
 		end
 	end

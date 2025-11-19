@@ -128,13 +128,19 @@ function love.load(args)
 	-- Parse commandline arguments.
 	local parsedArgs = _ParseCommandLineArguments(args)
 
-	-- If the `-t` argument is provided, load the test suite.
-	if parsedArgs.t then
+	if parsedArgs.h or parsedArgs.help then
+		print("OpenSMCE Command Line Arguments")
+		print("===============================")
+		print("-g / --game <game>    Immediately starts the provided game from directory.")
+		print("-t / --test           Opens the test suite and performs unit tests.")
+		love.event.quit()
+	elseif parsedArgs.t or parsedArgs.test then
+		-- If the `-t` argument is provided, load the test suite.
 		_LoadTestSuite()
 	else
 		-- If the `-g` argument is provided, that game will be immediately loaded and Boot Screen will be skipped.
 		-- Otherwise, if the `autoload.txt` exists in the main directory, read the game name from it and load that game.
-		local autoload = parsedArgs.g or _Utils.loadFile("autoload.txt")
+		local autoload = parsedArgs.g or parsedArgs.game or _Utils.loadFile("autoload.txt")
 		if autoload then
 			_LoadGame(autoload)
 		else
@@ -229,8 +235,12 @@ function love.resize(w, h)
 end
 
 function love.quit()
+	if not _Game then
+		-- No game or boot screen or editor has started in the first place (for example when using `--help`). Stop immediately.
+		return false
+	end
 	_Log:printt("main", "User-caused Exit...")
-	local canGoBack = not _Game.isBootScreen
+	local canGoBack = _Game and not _Game.isBootScreen
 	if _Game and _Game.quit then
 		_Game:quit(not _EngineSettings:getBackToBootWithX())
 	end
@@ -249,15 +259,18 @@ end
 
 ---Parses command-line arguments and returns a table.
 ---The arguments are parsed as follows:
---- - `-param` will set the corresponding `param` field to `true`.
---- - `-param value` will set the corresponding `param` field to `"value"`.
----@param args [string] The raw list of strings containing all parameters.
----@return table
+--- - `-param` or `--param` will set the corresponding `param` field to `true`.
+--- - `-param value` or `--param value` will set the corresponding `param` field to `"value"`.
+---@param args string[] The raw list of strings containing all parameters.
+---@return table<string, string|boolean>
 function _ParseCommandLineArguments(args)
 	local parsedArgs = {}
 	local currentArg = nil
 	for i, arg in ipairs(args) do
-		if _Utils.strStartsWith(arg, "-") then
+		if _Utils.strStartsWith(arg, "--") then
+			currentArg = arg:sub(3)
+			parsedArgs[currentArg] = true
+		elseif _Utils.strStartsWith(arg, "-") then
 			currentArg = arg:sub(2)
 			parsedArgs[currentArg] = true
 		elseif currentArg then
