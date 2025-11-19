@@ -27,6 +27,11 @@
             "description": "The base pitch of the sound.",
             "exclusiveMinimum": 0.0
         },
+        "playsPerFrame": {
+            "type": "integer",
+            "description": "The maximum number of instances of this sound which can start playing on a single frame. No limit if not specified.",
+            "exclusiveMinimum": 0
+        },
         "instances": {
             "type": "integer",
             "description": "The number of instances of this sound which can be played at once. Defaults to 8.",
@@ -61,6 +66,11 @@
                         "$ref": "_structures/ExprNumber.json",
                         "description": "The pitch of the sound.",
                         "exclusiveMinimum": 0.0
+                    },
+                    "playsPerFrame": {
+                        "type": "integer",
+                        "description": "The maximum number of instances of this sound which can start playing on a single frame. No limit if not specified.",
+                        "exclusiveMinimum": 0
                     },
                     "instances": {
                         "type": "integer",

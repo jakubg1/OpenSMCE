@@ -18,6 +18,7 @@ function SoundEvent:new(data, path)
     self.path = path
 
     self.sounds = {}
+    -- TODO: Extract Sound Entries to a separate class.
     if data.sound then
         local sound = _Game.resourceManager:getSound(data.sound)
         local entry = {}
@@ -25,6 +26,8 @@ function SoundEvent:new(data, path)
         entry.pitch = Expression(data.pitch or 1)
         entry.loop = data.loop or false
         entry.flat = data.flat or false
+        entry.playsPerFrame = data.playsPerFrame
+        entry.playsThisFrame = 0
         entry.instanceCount = data.instances or 8
         entry.instances = {}
         for i = 1, entry.instanceCount do
@@ -39,6 +42,8 @@ function SoundEvent:new(data, path)
             entry.pitch = Expression(snd.pitch or 1)
             entry.loop = snd.loop or false
             entry.flat = snd.flat or false
+            entry.playsPerFrame = snd.playsPerFrame
+            entry.playsThisFrame = 0
             entry.instanceCount = snd.instances or 8
             entry.instances = {}
             for j = 1, entry.instanceCount do
@@ -61,6 +66,7 @@ end
 ---@param dt number Time delta in seconds.
 function SoundEvent:update(dt)
     for i, entry in ipairs(self.sounds) do
+        entry.playsThisFrame = 0
         for j, instance in ipairs(entry.instances) do
             instance:update(dt)
         end
@@ -92,7 +98,10 @@ function SoundEvent:play(pos)
     local instances = {}
     for i, entry in ipairs(self.sounds) do
         local conditionsPassed = true
-        if entry.conditions then
+        if entry.playsPerFrame and entry.playsThisFrame >= entry.playsPerFrame then
+            -- Entry playback limit this frame reached, don't play anything.
+            conditionsPassed = false
+        elseif entry.conditions then
             for j, condition in ipairs(entry.conditions) do
                 if not condition:evaluate() then
                     conditionsPassed = false
@@ -101,6 +110,7 @@ function SoundEvent:play(pos)
             end
         end
         if conditionsPassed then
+            entry.playsThisFrame = entry.playsThisFrame + 1
             local instance = self:getFreeInstance(i)
             if instance then
                 instance:setVolume(entry.volume:evaluate())
