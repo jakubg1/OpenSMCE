@@ -24,7 +24,10 @@ If you want to help me, don't hesitate to do so! If you have any questions or yo
 For more information, you can take a look at the [Beta 5.0 issue list](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Beta+5.0.0+release%22) and the [1.0 issue list](https://github.com/jakubg1/OpenSMCE/issues?q=is%3Aopen+is%3Aissue+milestone%3A%22Full+1.0+release%22).
 
 ### Further plans
-After 1.0.0 is released, I'll focus on making new features and working on *Luxor 2* support.
+After the data management module is finished, the engine will be separated. The sphere matching gameplay will stay on this repository, while the rest will be extracted into another repository (the OpenSMCE Engine).
+The OpenSMCE Engine will be able to handle any type of game and will handle resource management, UI and hopefully more.
+
+The idea is to have an in-between solution between fantasy consoles (such as Picotron, PICO-8 and TIC-80) and professional game engines (Godot, Unity, UE).
 
 ## Launching
 If you have LÖVE2D installed, you can run the game by launching `start.bat`.
