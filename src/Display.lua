@@ -11,6 +11,8 @@ function Display:new()
     self.renderCanvas = nil
     self.renderLayers = {}
     self.renderMode = "filtered"
+    ---@type love.Shader[]
+    self.shaderStack = {love.graphics.getShader()}
 
     self.funniFlashlight = false
 end
@@ -120,6 +122,20 @@ function Display:canvasStop()
     if self.funniFlashlight then
         love.graphics.setStencilTest()
     end
+end
+
+---Pushes a new shader on the stack. The topmost shader will be used for drawing.
+---@param shader Shader The shader to be pushed onto the stack.
+function Display:pushShader(shader)
+    table.insert(self.shaderStack, shader:getShader())
+    love.graphics.setShader(self.shaderStack[#self.shaderStack])
+end
+
+---Pops the most recently inserted shader from the stack. If there are no shaders left, throws an error.
+function Display:popShader()
+    assert(#self.shaderStack > 1, "Attempted to pop from an empty shader stack :(")
+    table.remove(self.shaderStack)
+    love.graphics.setShader(self.shaderStack[#self.shaderStack])
 end
 
 ---LOVE2D callback handler when the screen is resized.

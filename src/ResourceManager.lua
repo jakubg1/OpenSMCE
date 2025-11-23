@@ -13,6 +13,7 @@ local SoundEvent = require("src.Essentials.SoundEvent")
 local Music = require("src.Essentials.Music")
 local FontFile = require("src.Essentials.FontFile")
 local Font = require("src.Essentials.Font")
+local Shader = require("src.Essentials.Shader")
 local ColorPalette = require("src.Essentials.ColorPalette")
 
 
@@ -45,7 +46,8 @@ function ResourceManager:new()
 		Image = {assetConstructor = Image},
 		Sound = {assetConstructor = Sound},
 		FontFile = {assetConstructor = FontFile},
-
+		Shader = {assetConstructor = Shader},
+		-- Resource types below still need migration to Config Classes:
 		SoundEvent = {assetConstructor = SoundEvent},
 		Music = {assetConstructor = Music}
 	}
@@ -62,7 +64,8 @@ function ResourceManager:new()
 		ogg = "Sound",
 		mp3 = "Sound",
 		wav = "Sound",
-		ttf = "FontFile"
+		ttf = "FontFile",
+		glsl = "Shader"
 	}
 
 	-- Register the resource types and config constructors.
@@ -192,6 +195,13 @@ end
 ---@return FontFile
 function ResourceManager:getFontFile(path)
 	return self:getResourceAsset(path, "font file")
+end
+
+---Retrieves a Shader by a given path.
+---@param path string The resource path.
+---@return Shader
+function ResourceManager:getShader(path)
+	return self:getResourceAsset(path, "shader")
 end
 
 ---Retrieves a Sound Event by a given path.
@@ -384,8 +394,8 @@ function ResourceManager:loadResource(key, batches)
 			baseResource = self:getResourceConfig(contents["_extends"], resType)
 		end
 	else
-		local extension = _Utils.strSplit(key, ".")
-		extension = extension[#extension]
+		local extensionSpl = _Utils.strSplit(key, ".")
+		local extension = extensionSpl[#extensionSpl]
 		resType = extension and self.EXTENSION_TO_RESOURCE_MAP[extension]
 	end
 
