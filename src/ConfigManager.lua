@@ -9,7 +9,7 @@ local ConfigManager = class:derive("ConfigManager")
 
 ---Constructs a new ConfigManager and initializes all lists.
 function ConfigManager:new()
-	self.config = _Game.resourceManager:getConfigConfig("config.json")
+	self.config = _Res:getConfigConfig("config.json")
 
 	-- Load configuration files.
 	-- TODO: These should be handled by Resource Manager and Config Classes.
@@ -84,19 +84,19 @@ end
 ---Returns the default Sound Event which will be played when a UI button is pressed.
 ---@return SoundEvent?
 function ConfigManager:getUIClickSound()
-	return self.gameplay.ui.buttonClickSound and _Game.resourceManager:getSoundEvent(self.gameplay.ui.buttonClickSound)
+	return self.gameplay.ui.buttonClickSound and _Res:getSoundEvent(self.gameplay.ui.buttonClickSound)
 end
 
 ---Returns the default Sound Event which will be played when a UI button is released.
 ---@return SoundEvent?
 function ConfigManager:getUIReleaseSound()
-	return self.gameplay.ui.buttonReleaseSound and _Game.resourceManager:getSoundEvent(self.gameplay.ui.buttonReleaseSound)
+	return self.gameplay.ui.buttonReleaseSound and _Res:getSoundEvent(self.gameplay.ui.buttonReleaseSound)
 end
 
 ---Returns the default Sound Event which will be played when a UI button is hovered.
 ---@return SoundEvent?
 function ConfigManager:getUIHoverSound()
-	return self.gameplay.ui.buttonHoverSound and _Game.resourceManager:getSoundEvent(self.gameplay.ui.buttonHoverSound)
+	return self.gameplay.ui.buttonHoverSound and _Res:getSoundEvent(self.gameplay.ui.buttonHoverSound)
 end
 
 

@@ -48,7 +48,7 @@ function ShotSphere:new(data, shooter, posX, posY, angle, size, color, speed, sp
 		self.hitSphere = nil
 	end
 
-	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
+	self.config = _Res:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
 
 	self.PIXELS_PER_STEP = 8
 

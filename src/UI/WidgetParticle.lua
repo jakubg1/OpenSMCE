@@ -10,7 +10,7 @@ function UIWidgetParticle:new(parent, path)
 	self.type = "particle"
 
 	self.parent = parent
-	self.effectConfig = _Game.resourceManager:getParticleEffectConfig(path)
+	self.effectConfig = _Res:getParticleEffectConfig(path)
 
 	self.packet = nil
 	self.debugColor = {0.0, 1.0, 1.0}

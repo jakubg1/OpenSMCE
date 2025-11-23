@@ -385,10 +385,10 @@ function SphereGroup:updateDistanceEvents()
 			self.distanceEventStates[i] = {rolledPast = rolledPast}
 		else
 			if event.forwards and rolledPast and not self.distanceEventStates[i].rolledPast then
-				_Game:executeGameEvent(_Game.resourceManager:getGameEventConfig(event.event))
+				_Game:executeGameEvent(_Res:getGameEventConfig(event.event))
 			end
 			if event.backwards and not rolledPast and self.distanceEventStates[i].rolledPast then
-				_Game:executeGameEvent(_Game.resourceManager:getGameEventConfig(event.event))
+				_Game:executeGameEvent(_Res:getGameEventConfig(event.event))
 			end
 			self.distanceEventStates[i].rolledPast = rolledPast
 		end
@@ -509,7 +509,7 @@ function SphereGroup:join()
 	self:destroyFragileSpheres()
 	-- play a sound
 	local x, y = self.sphereChain.path:getPos(self.offset)
-	_Game:playSound(_Game.resourceManager:getSoundEvent(self.config.joinSound), x, y)
+	_Game:playSound(_Res:getSoundEvent(self.config.joinSound), x, y)
 end
 
 

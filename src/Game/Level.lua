@@ -1231,7 +1231,7 @@ end
 ---@param color2 integer The second color to be checked against.
 ---@return boolean
 function Level:colorsMatch(color1, color2)
-	local sphereConfig1 = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color1 .. ".json")
+	local sphereConfig1 = _Res:getSphereConfig("spheres/sphere_" .. color1 .. ".json")
 	return _Utils.isValueInTable(sphereConfig1.matches, color2)
 end
 
@@ -1612,10 +1612,10 @@ function Level:spawnNet()
 	local w, h = _Game:getNativeResolution()
 	local x, y = w / 2, netConfig.posY
 	if not self.netParticle then
-		self.netParticle = _Game:spawnParticle(_Game.resourceManager:getParticleEffectConfig(netConfig.particle), x, y)
+		self.netParticle = _Game:spawnParticle(_Res:getParticleEffectConfig(netConfig.particle), x, y)
 	end
 	if not self.netSound then
-		self.netSound = _Game:playSound(_Game.resourceManager:getSoundEvent(netConfig.sound), x, y)
+		self.netSound = _Game:playSound(_Res:getSoundEvent(netConfig.sound), x, y)
 	end
 end
 
@@ -1745,7 +1745,7 @@ function Level:serialize()
 			count = collectibleRain.count,
 			time = collectibleRain.time,
 			delay = collectibleRain.delay.str,
-			generator = _Game.resourceManager:getResourceReference(collectibleRain.generator)
+			generator = _Res:getResourceReference(collectibleRain.generator)
 		})
 	end
 	for i, projectileStorm in ipairs(self.projectileStorms) do
@@ -1753,7 +1753,7 @@ function Level:serialize()
 			count = projectileStorm.count,
 			time = projectileStorm.time,
 			delay = projectileStorm.delay.str,
-			projectile = _Game.resourceManager:getResourceReference(projectileStorm.projectile),
+			projectile = _Res:getResourceReference(projectileStorm.projectile),
 			cancelWhenNoTargetsRemaining = projectileStorm.cancelWhenNoTargetsRemaining
 		})
 	end
@@ -1827,7 +1827,7 @@ function Level:deserialize(t)
 			count = tCollectibleRain.count,
 			time = tCollectibleRain.time,
 			delay = Expression(tCollectibleRain.delay),
-			generator = _Game.resourceManager:getCollectibleGeneratorConfig(tCollectibleRain.generator)
+			generator = _Res:getCollectibleGeneratorConfig(tCollectibleRain.generator)
 		})
 	end
 	self.projectileStorms = {}
@@ -1836,7 +1836,7 @@ function Level:deserialize(t)
 			count = tProjectileStorm.count,
 			time = tProjectileStorm.time,
 			delay = Expression(tProjectileStorm.delay),
-			projectile = _Game.resourceManager:getProjectileConfig(tProjectileStorm.projectile),
+			projectile = _Res:getProjectileConfig(tProjectileStorm.projectile),
 			cancelWhenNoTargetsRemaining = tProjectileStorm.cancelWhenNoTargetsRemaining
 		})
 	end

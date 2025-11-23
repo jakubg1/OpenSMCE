@@ -34,8 +34,8 @@ function Profile:new(data, name)
 	else
 		-- Populate all level sets with their starting checkpoints.
 		-- TODO: Make a singleton class for the Level Sets.
-		for i, id in ipairs(_Game.resourceManager:getResourceList("LevelSet")) do
-			local levelSet = _Game.resourceManager:getLevelSetConfig(id)
+		for i, id in ipairs(_Res:getResourceList("LevelSet")) do
+			local levelSet = _Res:getLevelSetConfig(id)
 			self.unlockedCheckpoints[id] = {}
 			for j, entry in ipairs(levelSet.levelOrder) do
 				if entry.checkpoint and entry.checkpoint.unlockedOnStart then
@@ -131,7 +131,7 @@ end
 ---@param levelSet LevelSetConfig The level set to be looked for.
 ---@return integer[]
 function Profile:getUnlockedCheckpoints(levelSet)
-	local id = _Game.resourceManager:getResourceReference(levelSet)
+	local id = _Res:getResourceReference(levelSet)
 	return self.unlockedCheckpoints[id]
 end
 
@@ -140,7 +140,7 @@ end
 ---@param n integer The checkpoint ID to be checked.
 ---@return boolean
 function Profile:isCheckpointUnlocked(levelSet, n)
-	local id = _Game.resourceManager:getResourceReference(levelSet)
+	local id = _Res:getResourceReference(levelSet)
 	return _Utils.isValueInTable(self.unlockedCheckpoints[id], n)
 end
 
@@ -148,7 +148,7 @@ end
 ---@param levelSet LevelSetConfig The level set to be looked for.
 ---@param n integer The checkpoint ID to be unlocked.
 function Profile:unlockCheckpoint(levelSet, n)
-	local id = _Game.resourceManager:getResourceReference(levelSet)
+	local id = _Res:getResourceReference(levelSet)
 	if _Utils.isValueInTable(self.unlockedCheckpoints[id], n) then
 		return
 	end

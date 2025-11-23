@@ -20,7 +20,7 @@ function SoundEvent:new(data, path)
     self.sounds = {}
     -- TODO: Extract Sound Entries to a separate class.
     if data.sound then
-        local sound = _Game.resourceManager:getSound(data.sound)
+        local sound = _Res:getSound(data.sound)
         local entry = {}
         entry.volume = Expression(data.volume or 1)
         entry.pitch = Expression(data.pitch or 1)
@@ -36,7 +36,7 @@ function SoundEvent:new(data, path)
         self.sounds[1] = entry
     elseif data.sounds then
         for i, snd in ipairs(data.sounds) do
-            local sound = _Game.resourceManager:getSound(snd.sound)
+            local sound = _Res:getSound(snd.sound)
             local entry = {}
             entry.volume = Expression(snd.volume or 1)
             entry.pitch = Expression(snd.pitch or 1)

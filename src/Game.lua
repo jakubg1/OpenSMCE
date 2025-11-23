@@ -24,7 +24,6 @@ function Game:new(name)
 
 	self.hasFocus = false
 
-	self.resourceManager = nil
 	self.configManager = nil
 	self.runtimeManager = nil
 	self.level = nil
@@ -43,25 +42,22 @@ end
 function Game:init()
 	_Log:printt("Game", "Selected game: " .. self.name)
 
-	-- Step 1. Create a resource manager
-	self.resourceManager = ResourceManager()
-
-	-- Step 2. Load the config
+	-- Step 1. Load the config
 	self.configManager = ConfigManager()
 
-	-- Step 3. Initialize the window and canvas
+	-- Step 2. Initialize the window and canvas
 	local w, h = self:getNativeResolution()
 	_Display:setResolution(w, h, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
 	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode())
 
-	-- Step 4. Initialize RNG and timer
+	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
-	local _ = math.randomseed(os.time())
+	math.randomseed(os.time())
 
-	-- Step 5. Create a runtime manager
+	-- Step 4. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
 
-	-- Step 6. Set up the UI Manager
+	-- Step 5. Set up the UI Manager
 	self.uiManager = UIManager()
 	self.uiManager:initSplash()
 end
@@ -70,11 +66,11 @@ end
 
 ---Loads all game resources.
 function Game:loadMain()
-	self.resourceManager:startLoadCounter("main")
+	_Res:startLoadCounter("main")
 	-- DEBUG: Make the game load everything on the fly
-	--self.resourceManager.loadCounters.main = {queued = 1, loaded = 1, active = false, queueKeys = {}}
-	self.resourceManager:scanResources()
-	self.resourceManager:stopLoadCounter("main")
+	--_Res.loadCounters.main = {queued = 1, loaded = 1, active = false, queueKeys = {}}
+	_Res:scanResources()
+	_Res:stopLoadCounter("main")
 end
 
 
@@ -105,8 +101,6 @@ end
 ---Updates the game logic. Contrary to `:update()`, this function will always have its delta time given as a multiple of 1/60.
 ---@param dt number Delta time in seconds.
 function Game:tick(dt) -- always with 1/60 seconds
-	self.resourceManager:update(dt)
-
 	if self.level then
 		self.level:update(dt)
 	end
@@ -366,7 +360,7 @@ function Game:draw()
 
 	-- Debug sprite atlas preview
 	--love.graphics.setColor(1, 1, 1)
-	--love.graphics.draw(self.resourceManager:getSpriteAtlas("sprite_atlases/spheres.json").canvas, 0, 0)
+	--love.graphics.draw(_Res:getSpriteAtlas("sprite_atlases/spheres.json").canvas, 0, 0)
 
 	_Debug:profDrawStop()
 end
@@ -443,7 +437,7 @@ end
 ---@param forced boolean? If `true`, the engine will exit completely even if the "Return to Boot Screen" option is enabled.
 function Game:quit(forced)
 	self:save()
-	self.resourceManager:unload()
+	_Res:unloadAllResources()
 	if _EngineSettings:getBackToBoot() and not forced then
 		_LoadBootScreen()
 	else

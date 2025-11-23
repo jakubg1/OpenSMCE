@@ -13,7 +13,7 @@ local Music = class:derive("Music")
 function Music:new(data, path)
     self.path = path
 
-	local sound = _Game.resourceManager:getSound(data.audio)
+	local sound = _Res:getSound(data.audio)
 	-- TODO: This likes to crash with certain music files. Look into it in the future.
 	--self.instance = sound:makeAdvancedSource()
 	self.instance = sound:makeSource("stream")

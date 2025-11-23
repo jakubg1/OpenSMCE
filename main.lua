@@ -37,6 +37,7 @@ local json = require("com.json")
 local Log = require("src.Log")
 local Debug = require("src.Debug")
 local Display = require("src.Display")
+local ResourceManager = require("src.ResourceManager")
 
 local Game = require("src.Game")
 local EditorMain = require("src.BootScreen.EditorMain")
@@ -95,6 +96,8 @@ _Log = nil
 _Debug = nil
 ---@type Display
 _Display = nil
+---@type ResourceManager
+_Res = nil
 
 _Vars = ExpressionVariables()
 _Network = Network()
@@ -109,12 +112,13 @@ _DiscordRPC = nil
 
 function love.load(args)
 	-- Initialize RNG for Boot Screen
-	local _ = math.randomseed(os.time())
+	math.randomseed(os.time())
 
 	-- Initialize some classes
 	_Log = Log()
 	_Debug = Debug()
 	_Display = Display()
+	_Res = ResourceManager()
 	_EngineSettings = Settings("settings.json")
 	_DiscordRPC = DiscordRichPresence()
 
@@ -160,6 +164,7 @@ function love.update(dt)
 
 	_Log:update(dt)
 	_Debug:update(dt)
+	_Res:update(dt)
 	_DiscordRPC:update(dt)
 	_ThreadManager:update(dt)
 	_Vars:clearVariableProviderCache()

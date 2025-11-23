@@ -17,11 +17,11 @@ function UIWidgetSpriteButton:new(parent, sprite, clickSound, releaseSound, hove
 	self.enabled = true
 	self.enableForced = true
 
-	self.sprite = _Game.resourceManager:getSprite(sprite)
+	self.sprite = _Res:getSprite(sprite)
 	self.size = self.sprite.config.frameSize
-	self.clickSound = clickSound and _Game.resourceManager:getSoundEvent(clickSound) or _Game.configManager:getUIClickSound()
-	self.releaseSound = releaseSound and _Game.resourceManager:getSoundEvent(releaseSound) or _Game.configManager:getUIReleaseSound()
-	self.hoverSound = hoverSound and _Game.resourceManager:getSoundEvent(hoverSound) or _Game.configManager:getUIHoverSound()
+	self.clickSound = clickSound and _Res:getSoundEvent(clickSound) or _Game.configManager:getUIClickSound()
+	self.releaseSound = releaseSound and _Res:getSoundEvent(releaseSound) or _Game.configManager:getUIReleaseSound()
+	self.hoverSound = hoverSound and _Res:getSoundEvent(hoverSound) or _Game.configManager:getUIHoverSound()
 
 	self.orbMasterHoverEffect = orbMasterHoverEffect
 	self.orbMasterHoverTime = 0

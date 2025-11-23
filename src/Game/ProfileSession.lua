@@ -200,7 +200,7 @@ end
 ---Returns a string reference to the player's current level config.
 ---@return string
 function ProfileSession:getLevelID()
-	return _Game.resourceManager:getResourceReference(self.levelID)
+	return _Res:getResourceReference(self.levelID)
 end
 
 ---Returns the player's current level's map data. This is the raw map data which is written in `maps/*/config.json`.
@@ -487,7 +487,7 @@ end
 ---@return table
 function ProfileSession:serialize()
     local t = {
-        difficulty = _Game.resourceManager:getResourceReference(self.difficulty),
+        difficulty = _Res:getResourceReference(self.difficulty),
         score = self.score,
         lives = self.lives,
         coins = self.coins,
@@ -495,7 +495,7 @@ function ProfileSession:serialize()
         level = self.level,
         sublevel = self.sublevel,
         sublevelPool = self.sublevelPool,
-        levelID = _Game.resourceManager:getResourceReference(self.levelID),
+        levelID = _Res:getResourceReference(self.levelID),
         levelSaveData = self.levelSaveData
     }
     return t
@@ -504,7 +504,7 @@ end
 ---Deserializes previously saved session data and restores its state.
 ---@param t table The data to be deserialized.
 function ProfileSession:deserialize(t)
-    self.difficulty = _Game.resourceManager:getDifficultyConfig(t.difficulty)
+    self.difficulty = _Res:getDifficultyConfig(t.difficulty)
     self.levelSet = self.difficulty.levelSet
     self.lifeConfig = self.difficulty.lifeConfig
     self.checkpointData = self:getCheckpointData()
@@ -515,7 +515,7 @@ function ProfileSession:deserialize(t)
     self.level = t.level
     self.sublevel = t.sublevel
     self.sublevelPool = t.sublevelPool
-    self.levelID = _Game.resourceManager:getLevelConfig(t.levelID)
+    self.levelID = _Res:getLevelConfig(t.levelID)
     self.levelSaveData = t.levelSaveData
 end
 

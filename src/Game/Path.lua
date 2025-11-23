@@ -35,7 +35,7 @@ function Path:new(map, pathData, pathBehavior)
 	self.spawnAmount = 0
 	self.spawnDistance = pathBehavior.spawnDistance
 	self.dangerDistance = pathBehavior.dangerDistance
-	self.dangerParticle = _Game.resourceManager:getParticleEffectConfig(pathBehavior.dangerParticle or "particles/warning.json")
+	self.dangerParticle = _Res:getParticleEffectConfig(pathBehavior.dangerParticle or "particles/warning.json")
 	self.speeds = pathBehavior.speeds
 
 	self:prepareNodes(pathData.nodes)
@@ -178,7 +178,7 @@ function Path:spawnChain()
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
 		local x, y = self:getPos(0)
-		_Game:playSound(_Game.resourceManager:getSoundEvent(_Game.configManager.gameplay.sphereBehavior.newGroupSound), x, y)
+		_Game:playSound(_Res:getSoundEvent(_Game.configManager.gameplay.sphereBehavior.newGroupSound), x, y)
 	end
 end
 

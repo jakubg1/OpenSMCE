@@ -260,7 +260,7 @@ end
 local function parseResource(data, base, path, fields, resType, getter)
 	local value = getDataValue(data, fields)
 	if value then
-		return getter(_Game.resourceManager, value)
+		return getter(_Res, value)
 	end
 	return assert(getDataValue(base, fields), string.format("%s: field %s is missing (%s expected)", path, getFieldPathStr(fields), resType))
 end
@@ -277,7 +277,7 @@ end
 local function parseResourceOpt(data, base, path, fields, resType, getter)
 	local value = getDataValue(data, fields)
 	if value then
-		return getter(_Game.resourceManager, value)
+		return getter(_Res, value)
 	end
 	return getDataValue(base, fields)
 end
@@ -286,52 +286,52 @@ end
 
 ---@return Image
 function utils.parseImage(data, base, path, fields)
-	return parseResource(data, base, path, fields, "Image", _Game.resourceManager.getImage)
+	return parseResource(data, base, path, fields, "Image", _Res.getImage)
 end
 
 ---@return Image?
 function utils.parseImageOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "Image", _Game.resourceManager.getImage)
+	return parseResourceOpt(data, base, path, fields, "Image", _Res.getImage)
 end
 
 ---@return Sound
 function utils.parseSound(data, base, path, fields)
-	return parseResource(data, base, path, fields, "Sound", _Game.resourceManager.getSound)
+	return parseResource(data, base, path, fields, "Sound", _Res.getSound)
 end
 
 ---@return Sound?
 function utils.parseSoundOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "Sound", _Game.resourceManager.getSound)
+	return parseResourceOpt(data, base, path, fields, "Sound", _Res.getSound)
 end
 
 ---@return FontFile
 function utils.parseFontFile(data, base, path, fields)
-	return parseResource(data, base, path, fields, "FontFile", _Game.resourceManager.getFontFile)
+	return parseResource(data, base, path, fields, "FontFile", _Res.getFontFile)
 end
 
 ---@return FontFile?
 function utils.parseFontFileOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "FontFile", _Game.resourceManager.getFontFile)
+	return parseResourceOpt(data, base, path, fields, "FontFile", _Res.getFontFile)
 end
 
 ---@return SoundEvent
 function utils.parseSoundEvent(data, base, path, fields)
-	return parseResource(data, base, path, fields, "SoundEvent", _Game.resourceManager.getSoundEvent)
+	return parseResource(data, base, path, fields, "SoundEvent", _Res.getSoundEvent)
 end
 
 ---@return SoundEvent?
 function utils.parseSoundEventOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "SoundEvent", _Game.resourceManager.getSoundEvent)
+	return parseResourceOpt(data, base, path, fields, "SoundEvent", _Res.getSoundEvent)
 end
 
 ---@return Music
 function utils.parseMusic(data, base, path, fields)
-	return parseResource(data, base, path, fields, "Music", _Game.resourceManager.getMusic)
+	return parseResource(data, base, path, fields, "Music", _Res.getMusic)
 end
 
 ---@return Music?
 function utils.parseMusicOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "Music", _Game.resourceManager.getMusic)
+	return parseResourceOpt(data, base, path, fields, "Music", _Res.getMusic)
 end
 
 
@@ -340,32 +340,32 @@ end
 
 ---@return Sprite
 function utils.parseSprite(data, base, path, fields)
-	return parseResource(data, base, path, fields, "Sprite", _Game.resourceManager.getSprite)
+	return parseResource(data, base, path, fields, "Sprite", _Res.getSprite)
 end
 
 ---@return Sprite?
 function utils.parseSpriteOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "Sprite", _Game.resourceManager.getSprite)
+	return parseResourceOpt(data, base, path, fields, "Sprite", _Res.getSprite)
 end
 
 ---@return Font
 function utils.parseFont(data, base, path, fields)
-	return parseResource(data, base, path, fields, "Font", _Game.resourceManager.getFont)
+	return parseResource(data, base, path, fields, "Font", _Res.getFont)
 end
 
 ---@return Font?
 function utils.parseFontOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "Font", _Game.resourceManager.getFont)
+	return parseResourceOpt(data, base, path, fields, "Font", _Res.getFont)
 end
 
 ---@return ColorPalette
 function utils.parseColorPalette(data, base, path, fields)
-	return parseResource(data, base, path, fields, "Color Palette", _Game.resourceManager.getColorPalette)
+	return parseResource(data, base, path, fields, "Color Palette", _Res.getColorPalette)
 end
 
 ---@return ColorPalette?
 function utils.parseColorPaletteOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "Color Palette", _Game.resourceManager.getColorPalette)
+	return parseResourceOpt(data, base, path, fields, "Color Palette", _Res.getColorPalette)
 end
 
 
@@ -385,7 +385,7 @@ local function parseClassConfig(data, base, path, fields, resType, getter, const
 		if type(value) == "table" then
 			return constructor(value, path, true)
 		else
-			return getter(_Game.resourceManager, value)
+			return getter(_Res, value)
 		end
 	end
 	return assert(getDataValue(base, fields), string.format("%s: field %s is missing (%s Config expected)", path, getFieldPathStr(fields), resType))
@@ -413,222 +413,222 @@ end
 
 ---@return CollectibleConfig
 function utils.parseCollectibleConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
+	return parseClassConfig(data, base, path, fields, "Collectible", _Res.getCollectibleConfig, CollectibleConfig)
 end
 
 ---@return CollectibleConfig?
 function utils.parseCollectibleConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "Collectible", _Game.resourceManager.getCollectibleConfig, CollectibleConfig)
+	return parseClassConfigOpt(data, base, path, fields, "Collectible", _Res.getCollectibleConfig, CollectibleConfig)
 end
 
 ---@return CollectibleEffectConfig
 function utils.parseCollectibleEffectConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "CollectibleEffect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
+	return parseClassConfig(data, base, path, fields, "CollectibleEffect", _Res.getCollectibleEffectConfig, CollectibleEffectConfig)
 end
 
 ---@return CollectibleEffectConfig?
 function utils.parseCollectibleEffectConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "CollectibleEffect", _Game.resourceManager.getCollectibleEffectConfig, CollectibleEffectConfig)
+	return parseClassConfigOpt(data, base, path, fields, "CollectibleEffect", _Res.getCollectibleEffectConfig, CollectibleEffectConfig)
 end
 
 ---@return CollectibleGeneratorConfig
 function utils.parseCollectibleGeneratorConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
+	return parseClassConfig(data, base, path, fields, "CollectibleGenerator", _Res.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
 
 ---@return CollectibleGeneratorConfig?
 function utils.parseCollectibleGeneratorConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "CollectibleGenerator", _Game.resourceManager.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
+	return parseClassConfigOpt(data, base, path, fields, "CollectibleGenerator", _Res.getCollectibleGeneratorConfig, CollectibleGeneratorConfig)
 end
 
 ---@return ColorGeneratorConfig
 function utils.parseColorGeneratorConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "ColorGenerator", _Game.resourceManager.getColorGeneratorConfig, ColorGeneratorConfig)
+	return parseClassConfig(data, base, path, fields, "ColorGenerator", _Res.getColorGeneratorConfig, ColorGeneratorConfig)
 end
 
 ---@return ColorGeneratorConfig?
 function utils.parseColorGeneratorConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "ColorGenerator", _Game.resourceManager.getColorGeneratorConfig, ColorGeneratorConfig)
+	return parseClassConfigOpt(data, base, path, fields, "ColorGenerator", _Res.getColorGeneratorConfig, ColorGeneratorConfig)
 end
 
 ---@return GameEventConfig
 function utils.parseGameEventConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
+	return parseClassConfig(data, base, path, fields, "GameEvent", _Res.getGameEventConfig, GameEventConfig)
 end
 
 ---@return GameEventConfig?
 function utils.parseGameEventConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "GameEvent", _Game.resourceManager.getGameEventConfig, GameEventConfig)
+	return parseClassConfigOpt(data, base, path, fields, "GameEvent", _Res.getGameEventConfig, GameEventConfig)
 end
 
 ---@return LevelConfig
 function utils.parseLevelConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "Level", _Game.resourceManager.getLevelConfig, LevelConfig)
+	return parseClassConfig(data, base, path, fields, "Level", _Res.getLevelConfig, LevelConfig)
 end
 
 ---@return LevelConfig?
 function utils.parseLevelConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "Level", _Game.resourceManager.getLevelConfig, LevelConfig)
+	return parseClassConfigOpt(data, base, path, fields, "Level", _Res.getLevelConfig, LevelConfig)
 end
 
 ---@return LevelSequenceConfig
 function utils.parseLevelSequenceConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
+	return parseClassConfig(data, base, path, fields, "LevelSequence", _Res.getLevelSequenceConfig, LevelSequenceConfig)
 end
 
 ---@return LevelSequenceConfig?
 function utils.parseLevelSequenceConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "LevelSequence", _Game.resourceManager.getLevelSequenceConfig, LevelSequenceConfig)
+	return parseClassConfigOpt(data, base, path, fields, "LevelSequence", _Res.getLevelSequenceConfig, LevelSequenceConfig)
 end
 
 ---@return LevelSetConfig
 function utils.parseLevelSetConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "LevelSet", _Game.resourceManager.getLevelSetConfig, LevelSetConfig)
+	return parseClassConfig(data, base, path, fields, "LevelSet", _Res.getLevelSetConfig, LevelSetConfig)
 end
 
 ---@return LevelSetConfig?
 function utils.parseLevelSetConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "LevelSet", _Game.resourceManager.getLevelSetConfig, LevelSetConfig)
+	return parseClassConfigOpt(data, base, path, fields, "LevelSet", _Res.getLevelSetConfig, LevelSetConfig)
 end
 
 ---@return LevelTrainRulesConfig
 function utils.parseLevelTrainRulesConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "LevelTrainRules", _Game.resourceManager.getLevelTrainRulesConfig, LevelTrainRulesConfig)
+	return parseClassConfig(data, base, path, fields, "LevelTrainRules", _Res.getLevelTrainRulesConfig, LevelTrainRulesConfig)
 end
 
 ---@return LevelTrainRulesConfig?
 function utils.parseLevelTrainRulesConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "LevelTrainRules", _Game.resourceManager.getLevelTrainRulesConfig, LevelTrainRulesConfig)
+	return parseClassConfigOpt(data, base, path, fields, "LevelTrainRules", _Res.getLevelTrainRulesConfig, LevelTrainRulesConfig)
 end
 
 ---@return ParticleConfig
 function utils.parseParticleConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
+	return parseClassConfig(data, base, path, fields, "Particle", _Res.getParticleConfig, ParticleConfig)
 end
 
 ---@return ParticleConfig?
 function utils.parseParticleConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "Particle", _Game.resourceManager.getParticleConfig, ParticleConfig)
+	return parseClassConfigOpt(data, base, path, fields, "Particle", _Res.getParticleConfig, ParticleConfig)
 end
 
 ---@return ParticleEffectConfig
 function utils.parseParticleEffectConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
+	return parseClassConfig(data, base, path, fields, "ParticleEffect", _Res.getParticleEffectConfig, ParticleEffectConfig)
 end
 
 ---@return ParticleEffectConfig?
 function utils.parseParticleEffectConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "ParticleEffect", _Game.resourceManager.getParticleEffectConfig, ParticleEffectConfig)
+	return parseClassConfigOpt(data, base, path, fields, "ParticleEffect", _Res.getParticleEffectConfig, ParticleEffectConfig)
 end
 
 ---@return ParticleEmitterConfig
 function utils.parseParticleEmitterConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
+	return parseClassConfig(data, base, path, fields, "ParticleEmitter", _Res.getParticleEmitterConfig, ParticleEmitterConfig)
 end
 
 ---@return ParticleEmitterConfig?
 function utils.parseParticleEmitterConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "ParticleEmitter", _Game.resourceManager.getParticleEmitterConfig, ParticleEmitterConfig)
+	return parseClassConfigOpt(data, base, path, fields, "ParticleEmitter", _Res.getParticleEmitterConfig, ParticleEmitterConfig)
 end
 
 ---@return PathConfig
 function utils.parsePathConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "Path", _Game.resourceManager.getPathConfig, PathConfig)
+	return parseClassConfig(data, base, path, fields, "Path", _Res.getPathConfig, PathConfig)
 end
 
 ---@return PathConfig?
 function utils.parsePathConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "Path", _Game.resourceManager.getPathConfig, PathConfig)
+	return parseClassConfigOpt(data, base, path, fields, "Path", _Res.getPathConfig, PathConfig)
 end
 
 ---@return PathEntityConfig
 function utils.parsePathEntityConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "PathEntity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
+	return parseClassConfig(data, base, path, fields, "PathEntity", _Res.getPathEntityConfig, PathEntityConfig)
 end
 
 ---@return PathEntityConfig?
 function utils.parsePathEntityConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "PathEntity", _Game.resourceManager.getPathEntityConfig, PathEntityConfig)
+	return parseClassConfigOpt(data, base, path, fields, "PathEntity", _Res.getPathEntityConfig, PathEntityConfig)
 end
 
 ---@return ProjectileConfig
 function utils.parseProjectileConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
+	return parseClassConfig(data, base, path, fields, "Projectile", _Res.getProjectileConfig, ProjectileConfig)
 end
 
 ---@return ProjectileConfig?
 function utils.parseProjectileConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "Projectile", _Game.resourceManager.getProjectileConfig, ProjectileConfig)
+	return parseClassConfigOpt(data, base, path, fields, "Projectile", _Res.getProjectileConfig, ProjectileConfig)
 end
 
 ---@return ScoreEventConfig
 function utils.parseScoreEventConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "ScoreEvent", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
+	return parseClassConfig(data, base, path, fields, "ScoreEvent", _Res.getScoreEventConfig, ScoreEventConfig)
 end
 
 ---@return ScoreEventConfig?
 function utils.parseScoreEventConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "ScoreEvent", _Game.resourceManager.getScoreEventConfig, ScoreEventConfig)
+	return parseClassConfigOpt(data, base, path, fields, "ScoreEvent", _Res.getScoreEventConfig, ScoreEventConfig)
 end
 
 ---@return ShooterMovementConfig
 function utils.parseShooterMovementConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "ShooterMovement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
+	return parseClassConfig(data, base, path, fields, "ShooterMovement", _Res.getShooterMovementConfig, ShooterMovementConfig)
 end
 
 ---@return ShooterMovementConfig?
 function utils.parseShooterMovementConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "ShooterMovement", _Game.resourceManager.getShooterMovementConfig, ShooterMovementConfig)
+	return parseClassConfigOpt(data, base, path, fields, "ShooterMovement", _Res.getShooterMovementConfig, ShooterMovementConfig)
 end
 
 ---@return SphereConfig
 function utils.parseSphereConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
+	return parseClassConfig(data, base, path, fields, "Sphere", _Res.getSphereConfig, SphereConfig)
 end
 
 ---@return SphereConfig?
 function utils.parseSphereConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "Sphere", _Game.resourceManager.getSphereConfig, SphereConfig)
+	return parseClassConfigOpt(data, base, path, fields, "Sphere", _Res.getSphereConfig, SphereConfig)
 end
 
 ---@return SphereEffectConfig
 function utils.parseSphereEffectConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "SphereEffect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
+	return parseClassConfig(data, base, path, fields, "SphereEffect", _Res.getSphereEffectConfig, SphereEffectConfig)
 end
 
 ---@return SphereEffectConfig?
 function utils.parseSphereEffectConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "SphereEffect", _Game.resourceManager.getSphereEffectConfig, SphereEffectConfig)
+	return parseClassConfigOpt(data, base, path, fields, "SphereEffect", _Res.getSphereEffectConfig, SphereEffectConfig)
 end
 
 ---@return SphereSelectorConfig
 function utils.parseSphereSelectorConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "SphereSelector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
+	return parseClassConfig(data, base, path, fields, "SphereSelector", _Res.getSphereSelectorConfig, SphereSelectorConfig)
 end
 
 ---@return SphereSelectorConfig?
 function utils.parseSphereSelectorConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "SphereSelector", _Game.resourceManager.getSphereSelectorConfig, SphereSelectorConfig)
+	return parseClassConfigOpt(data, base, path, fields, "SphereSelector", _Res.getSphereSelectorConfig, SphereSelectorConfig)
 end
 
 ---@return SpriteAtlasConfig
 function utils.parseSpriteAtlasConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "SpriteAtlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
+	return parseClassConfig(data, base, path, fields, "SpriteAtlas", _Res.getSpriteAtlasConfig, SpriteAtlasConfig)
 end
 
 ---@return SpriteAtlasConfig?
 function utils.parseSpriteAtlasConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "SpriteAtlas", _Game.resourceManager.getSpriteAtlasConfig, SpriteAtlasConfig)
+	return parseClassConfigOpt(data, base, path, fields, "SpriteAtlas", _Res.getSpriteAtlasConfig, SpriteAtlasConfig)
 end
 
 ---@return VariableProvidersConfig
 function utils.parseVariableProvidersConfig(data, base, path, fields)
-	return parseClassConfig(data, base, path, fields, "VariableProviders", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
+	return parseClassConfig(data, base, path, fields, "VariableProviders", _Res.getVariableProvidersConfig, VariableProvidersConfig)
 end
 
 ---@return VariableProvidersConfig?
 function utils.parseVariableProvidersConfigOpt(data, base, path, fields)
-	return parseClassConfigOpt(data, base, path, fields, "VariableProviders", _Game.resourceManager.getVariableProvidersConfig, VariableProvidersConfig)
+	return parseClassConfigOpt(data, base, path, fields, "VariableProviders", _Res.getVariableProvidersConfig, VariableProvidersConfig)
 end
 
 

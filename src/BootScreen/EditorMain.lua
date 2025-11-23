@@ -19,11 +19,10 @@ function EditorMain:new(name)
 
 	self.nativeResolution = Vec2(1280, 720)
 
-	self.resourceManager = nil
 	self.configManager = nil
 
 	-- buttons
-	self.menuBtn = Button("Quit", _FONT_BIG, Vec2(1170, 4), Vec2(100, 24), function() _LoadBootScreen() end)
+	self.menuBtn = Button("Quit", _FONT_BIG, Vec2(1170, 4), Vec2(100, 24), function() self:quit() end)
 
 	-- other UI stuff
 	self.resourceListOffset = 0
@@ -43,11 +42,10 @@ end
 function EditorMain:init()
 	_Log:printt("EditorMain", "Editing game: " .. self.name)
 
-	-- Step 1. Create a resource bank
-	self.resourceManager = ResourceManager()
-	self.resourceManager:startLoadCounter("main")
-	self.resourceManager:scanResources()
-	self.resourceManager:stopLoadCounter("main")
+	-- Step 1. Queue resources for loading
+	_Res:startLoadCounter("main")
+	_Res:scanResources()
+	_Res:stopLoadCounter("main")
 
 	-- Step 2. Load the config
 	self.configManager = ConfigManager()
@@ -62,7 +60,6 @@ end
 
 
 function EditorMain:update(dt)
-	self.resourceManager:update(dt)
 	-- buttons
 	self.menuBtn:update(dt)
 
@@ -78,7 +75,7 @@ function EditorMain:update(dt)
 	self.hoveredSpriteState = nil
 	self.hoveredSpriteFrame = nil
 	if self.selectedResource then
-		local sprite = self.resourceManager:getSprite(self.selectedResource)
+		local sprite = _Res:getSprite(self.selectedResource)
 		for i, state in ipairs(sprite.config.states) do
 			local stateY = 630 + (i - 1) * 16
 			local frameWidth = 20
@@ -115,10 +112,10 @@ function EditorMain:draw()
 	-----------------------------
 	-- LEFT BAR
 	-----------------------------
-	if self.resourceManager:getLoadProgress("main") < 1 then
+	if _Res:getLoadProgress("main") < 1 then
 		love.graphics.print("Loading...", 15, 35)
 	end
-	self.resourceList = self.resourceManager:getResourceList("Sprite")
+	self.resourceList = _Res:getResourceList("Sprite")
 	table.sort(self.resourceList, function(a, b) return a < b end)
 	for i, key in ipairs(self.resourceList) do
 		local y = 50 + (i - 1) * 15 - self.resourceListOffset
@@ -145,7 +142,7 @@ function EditorMain:draw()
 	if self.selectedResource then
 		local x = 400
 		local y = 50
-		local sprite = self.resourceManager:getSprite(self.selectedResource)
+		local sprite = _Res:getSprite(self.selectedResource)
 		local image = sprite.config.image
 		local sizeX = image.size.x * self.spriteScale
 		local sizeY = image.size.y * self.spriteScale
@@ -284,7 +281,7 @@ function EditorMain:mousepressed(x, y, button)
 	if button == 1 then
 		if self.hoveredResource then
 			self.selectedResource = self.hoveredResource
-			--self.selectedSpriteState = math.min(self.selectedSpriteState, #self.resourceManager:getSprite(self.selectedResource).config.states)
+			--self.selectedSpriteState = math.min(self.selectedSpriteState, #_Res:getSprite(self.selectedResource).config.states)
 			self.selectedSpriteState = 1
 			self.selectedSpriteFrame = 1
 		end
@@ -320,6 +317,10 @@ function EditorMain:textinput(t)
 	-- STUB
 end
 
-
+---Exits the Editor.
+function EditorMain:quit()
+	_Res:unloadAllResources()
+	_LoadBootScreen()
+end
 
 return EditorMain

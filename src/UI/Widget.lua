@@ -40,8 +40,8 @@ function UIWidget:new(name, data, parent)
 	end
 	self.sounds = {in_ = nil, out = nil}
 	if data.sounds then
-		if data.sounds.in_ then self.sounds.in_ = _Game.resourceManager:getSoundEvent(data.sounds.in_) end
-		if data.sounds.out then self.sounds.out = _Game.resourceManager:getSoundEvent(data.sounds.out) end
+		if data.sounds.in_ then self.sounds.in_ = _Res:getSoundEvent(data.sounds.in_) end
+		if data.sounds.out then self.sounds.out = _Res:getSoundEvent(data.sounds.out) end
 	end
 
 	self.widget = nil

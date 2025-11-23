@@ -165,13 +165,14 @@ end
 
 
 
----Destructor function.
----TODO: Stop all sounds and music elsewhere. This is not the place to do it!
-function ResourceManager:unload()
+---Unloads all resources from this Resource Manager.
+function ResourceManager:unloadAllResources()
 	for key, resource in pairs(self.resources) do
+		-- TODO: Stop all sounds and music elsewhere. This is not the place to do it!
 		if resource.asset and resource.asset.stop then
 			resource.asset:stop()
 		end
+		self:unloadResource(key)
 	end
 end
 
@@ -441,6 +442,17 @@ end
 
 
 
+---Unloads the resource by its key.
+---@private
+---@param key string The resource key.
+function ResourceManager:unloadResource(key)
+	local resType = self.resources[key].type
+	self.resources[key] = nil
+	self:say(key .. " (" .. resType .. ") unloaded!")
+end
+
+
+
 ---Sets the current namespace for the Resource Manager.
 ---When called, all subsequent resources loaded by `:getResource*()` and `:queueResource()` will use this namespace as default
 ---when the path specified starts with a colon, e.g. `":flame1.json"`.
@@ -493,9 +505,7 @@ function ResourceManager:unloadResourceBatch(name)
 				if batch == name then
 					table.remove(resource.batches, i)
 					if #resource.batches == 0 then
-						local resType = self.resources[key].type
-						self.resources[key] = nil
-						self:say(key .. " (" .. resType .. ") unloaded!")
+						self:unloadResource(key)
 					end
 					break
 				end

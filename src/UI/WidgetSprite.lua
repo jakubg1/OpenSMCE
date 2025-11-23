@@ -11,7 +11,7 @@ function UIWidgetSprite:new(parent, sprite)
 
 	self.parent = parent
 
-	self.sprite = _Game.resourceManager:getSprite(sprite)
+	self.sprite = _Res:getSprite(sprite)
 	self.debugColor = {0.0, 1.0, 0.0}
 end
 

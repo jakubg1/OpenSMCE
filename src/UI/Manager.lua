@@ -16,7 +16,7 @@ function UIManager:new()
     loadMain = function() _Game:loadMain() end,
     initSession = function() _Game:initSession() end,
     sessionTerminate = function() _Game:gameOver() end,
-    loadingGetProgress = function() return _Game.resourceManager:getLoadProgress("main") end,
+    loadingGetProgress = function() return _Res:getLoadProgress("main") end,
 
     levelStart = function() _Game:startLevel() end,
     levelRestartMusic = function() _Game.level:restartMusic() end,
@@ -43,11 +43,11 @@ function UIManager:new()
     levelGetNewRecord = function() return _Game.level:hasNewScoreRecord() end,
     levelGetAccuracy = function() return _Game.level:getShotAccuracy() end,
 
-    levelExecuteScoreEvent = function(event, pos) _Game.level:executeScoreEvent(_Game.resourceManager:getScoreEventConfig(event), pos) end,
+    levelExecuteScoreEvent = function(event, pos) _Game.level:executeScoreEvent(_Res:getScoreEventConfig(event), pos) end,
 
-    musicVolume = function(music, volume, duration) _Game.resourceManager:getMusic(music):play(volume, duration) end,
-    musicStop = function(music, duration) _Game.resourceManager:getMusic(music):stop(duration) end,
-    playSound = function(sound) _Game:playSound(_Game.resourceManager:getSoundEvent(sound)) end,
+    musicVolume = function(music, volume, duration) _Res:getMusic(music):play(volume, duration) end,
+    musicStop = function(music, duration) _Res:getMusic(music):stop(duration) end,
+    playSound = function(sound) _Game:playSound(_Res:getSoundEvent(sound)) end,
 
     profileMSet = function(name) _Game.runtimeManager.profileManager:setCurrentProfile(name) end,
     profileMCreate = function(name) return _Game.runtimeManager.profileManager:createProfile(name) end,
@@ -55,7 +55,7 @@ function UIManager:new()
 
     profileMGetNameOrder = function() return _Game.runtimeManager.profileManager.order end,
 
-    profileNewGame = function(checkpoint, difficulty) _Game:getProfile():newGame(checkpoint, _Game.resourceManager:getDifficultyConfig(difficulty)) end,
+    profileNewGame = function(checkpoint, difficulty) _Game:getProfile():newGame(checkpoint, _Res:getDifficultyConfig(difficulty)) end,
     profileDeleteGame = function() _Game:getProfile():deleteGame() end,
     profileLevelAdvance = function() _Game:getSession():advanceLevel() end,
     profileHighscoreWrite = function() return _Game:getSession():writeHighscore() end,
@@ -72,8 +72,8 @@ function UIManager:new()
     profileGetSavedLevel = function() return _Game:getSession():getLevelSaveData() end,
     profileGetMap = function() return _Game:getSession():getMapData() end,
     profileGetLatestCheckpoint = function() return _Game:getSession():getLatestCheckpoint() end,
-    profileGetUnlockedCheckpoints = function(levelSet) return _Game:getProfile():getUnlockedCheckpoints(_Game.resourceManager:getLevelSetConfig(levelSet)) end,
-    profileIsCheckpointUnlocked = function(levelSet, n) return _Game:getProfile():isCheckpointUnlocked(_Game.resourceManager:getLevelSetConfig(levelSet), n) end,
+    profileGetUnlockedCheckpoints = function(levelSet) return _Game:getProfile():getUnlockedCheckpoints(_Res:getLevelSetConfig(levelSet)) end,
+    profileIsCheckpointUnlocked = function(levelSet, n) return _Game:getProfile():isCheckpointUnlocked(_Res:getLevelSetConfig(levelSet), n) end,
     profileIsCheckpointUpcoming = function() return _Game:getSession():isCheckpointUpcoming() end,
 
     profileSetVariable = function(name, value) _Game:getProfile():setVariable(name, value) end,
@@ -83,10 +83,10 @@ function UIManager:new()
     highscoreGetEntry = function(n) return _Game.runtimeManager.highscores:getEntry(n) end,
 
     configGetMapData = function(name) return _Game.configManager.maps[name] end,
-    configGetLevelData = function(levelSet, n) return _Game.resourceManager:getLevelSetConfig(levelSet).levelOrder[n].level end,
-    configGetLevelName = function(levelSet, n) return _Game.resourceManager:getLevelSetConfig(levelSet).levelOrder[n].name end,
-    configGetCheckpointID = function(levelSet, n) return _Game:getProfile():getCheckpointData(_Game.resourceManager:getLevelSetConfig(levelSet))[n].levelID end,
-    configGetCheckpointLevel = function(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Game.resourceManager:getLevelSetConfig(levelSet), n) end,
+    configGetLevelData = function(levelSet, n) return _Res:getLevelSetConfig(levelSet).levelOrder[n].level end,
+    configGetLevelName = function(levelSet, n) return _Res:getLevelSetConfig(levelSet).levelOrder[n].name end,
+    configGetCheckpointID = function(levelSet, n) return _Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet))[n].levelID end,
+    configGetCheckpointLevel = function(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Res:getLevelSetConfig(levelSet), n) end,
 
     optionsLoad = function() self:optionsLoad() end,
     optionsSave = function() self:optionsSave() end,

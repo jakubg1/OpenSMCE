@@ -284,7 +284,7 @@ end
 ---@return table
 function PathEntity:serialize()
 	local t = {
-		id = _Game.resourceManager:getResourceReference(self.config),
+		id = _Res:getResourceReference(self.config),
 		offset = self.offset,
 		backwards = self.backwards,
 		offsetBound = self.offsetBound,
@@ -304,7 +304,7 @@ end
 ---Loads previously saved data from a given table.
 ---@param t table The data to be loaded.
 function PathEntity:deserialize(t)
-	self.config = _Game.resourceManager:getPathEntityConfig(t.id)
+	self.config = _Res:getPathEntityConfig(t.id)
 	self.offset = t.offset
 	self.backwards = t.backwards
 	self.offsetBound = t.offsetBound

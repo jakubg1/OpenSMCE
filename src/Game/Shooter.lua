@@ -16,7 +16,7 @@ local SphereEntity = require("src.Game.SphereEntity")
 ---@param data {shooter: string, movement: ShooterMovementConfig?}? Data for the shooter.
 function Shooter:new(data)
     self.levelMovement = data and data.movement
-    self:setConfig(_Game.resourceManager:getShooterConfig(data and data.shooter or "shooters/default.json"))
+    self:setConfig(_Res:getShooterConfig(data and data.shooter or "shooters/default.json"))
 
     self.pos = self:getInitialPos()
     self.angle = self:getInitialAngle()
@@ -818,7 +818,7 @@ end
 ---@param color integer The sphere ID for which the color should be checked.
 ---@return Color
 function Shooter:getReticleColorForSphere(color)
-    local config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color .. ".json")
+    local config = _Res:getSphereConfig("spheres/sphere_" .. color .. ".json")
     if config.colorPalette then
         return config.colorPalette:getColor(_TotalTime * config.colorPaletteSpeed)
     elseif config.color then
@@ -957,7 +957,7 @@ end
 ---Returns the config of the current sphere.
 ---@return SphereConfig
 function Shooter:getSphereConfig()
-    return _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
+    return _Res:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
 end
 
 
@@ -965,7 +965,7 @@ end
 ---Returns the config of the next sphere.
 ---@return SphereConfig
 function Shooter:getNextSphereConfig()
-    return _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.nextColor .. ".json")
+    return _Res:getSphereConfig("spheres/sphere_" .. self.nextColor .. ".json")
 end
 
 

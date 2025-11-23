@@ -18,16 +18,16 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	-- whether it's just a decorative map, if false then it's meant to be playable
 	self.isDummy = isDummy
 
-	self.config = _Game.resourceManager:getMapConfig(path .. "/config.json")
+	local mapFolderName = _Utils.strSplit(path, "/")
+	_Res:setNamespace(mapFolderName[#mapFolderName])
+	_Res:setBatches({"map"})
+	self.config = _Res:getMapConfig(path .. "/config.json")
+	_Res:setNamespace()
+	_Res:setBatches()
 	self.name = self.config.name
 
 	self.paths = {}
 
-	local mapFolderName = _Utils.strSplit(path, "/")
-	_Game.resourceManager:setNamespace(mapFolderName[#mapFolderName])
-	_Game.resourceManager:setBatches({"map"})
-	_Game.resourceManager:setNamespace()
-	_Game.resourceManager:setBatches()
 
 	for i, pathData in ipairs(self.config.paths) do
 		-- Loop around the path behavior list if not sufficient enough.
@@ -127,7 +127,7 @@ function Map:destroy()
 	for i, path in ipairs(self.paths) do
 		path:destroy()
 	end
-	_Game.resourceManager:unloadResourceBatch("map")
+	_Res:unloadResourceBatch("map")
 end
 
 ---Serializes the Map's data to be saved.

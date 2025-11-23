@@ -103,7 +103,7 @@ end
 ---@return table
 function Collectible:serialize()
 	return {
-		id = _Game.resourceManager:getResourceReference(self.config),
+		id = _Res:getResourceReference(self.config),
 		pos = {x = self.x, y = self.y},
 		speed = {x = self.speedX, y = self.speedY},
 		acceleration = {x = self.accelerationX, y = self.accelerationY}
@@ -113,7 +113,7 @@ end
 ---Deserializes the Collectible's data, or in other words restores previously saved state.
 ---@param t table The data to be deserialized.
 function Collectible:deserialize(t)
-	self.config = _Game.resourceManager:getCollectibleConfig(t.id)
+	self.config = _Res:getCollectibleConfig(t.id)
 	self.x, self.y = t.pos.x, t.pos.y
 	self.speedX, self.speedY = t.speed.x, t.speed.y
 	self.accelerationX, self.accelerationY = t.acceleration.x, t.acceleration.y

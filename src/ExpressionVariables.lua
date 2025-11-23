@@ -45,8 +45,8 @@ function ExpressionVariables:get(name, default)
         return self.variableProviderCache[name]
     end
     local providers = nil
-    if _Game.resourceManager:isResourceLoaded(self.VARIABLE_PROVIDER_PATH) then
-        providers = _Game.resourceManager:getVariableProvidersConfig(self.VARIABLE_PROVIDER_PATH).providers
+    if _Res:isResourceLoaded(self.VARIABLE_PROVIDER_PATH) then
+        providers = _Res:getVariableProvidersConfig(self.VARIABLE_PROVIDER_PATH).providers
     end
     if providers and providers[name] then
         local value = self:evaluateVariableProvider(providers[name])

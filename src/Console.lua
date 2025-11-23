@@ -190,7 +190,7 @@ function Console:runCommand(command)
 					return
 				end
 			elseif parameter.type == "Collectible" then
-				raw = _Game.resourceManager:getCollectibleConfig(raw)
+				raw = _Res:getCollectibleConfig(raw)
 			end
 			-- Greedy parameters can only be strings and are always last (taking the rest of the command).
 			if parameter.type == "string" and parameter.greedy then
@@ -296,13 +296,9 @@ function Console:getCommandCompletionSuggestions(command)
 			local parameter = commandConfig.parameters[#words - 1]
 			if parameter then
 				if parameter.type == "Collectible" then
-					if _Game.resourceManager then
-						suggestions = _Game.resourceManager:getResourceList("Collectible")
-					end
+					suggestions = _Res:getResourceList("Collectible")
 				elseif parameter.type == "ParticleEffect" then
-					if _Game.resourceManager then
-						suggestions = _Game.resourceManager:getResourceList("ParticleEffect")
-					end
+					suggestions = _Res:getResourceList("ParticleEffect")
 				end
 			end
 		end

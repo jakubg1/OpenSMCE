@@ -16,7 +16,7 @@ function UIWidgetSpriteButtonCheckbox:new(parent, sprites, clickSound, releaseSo
 
 	self.state = false
 
-	self.sprites = {_Game.resourceManager:getSprite(sprites[1]), _Game.resourceManager:getSprite(sprites[2])}
+	self.sprites = {_Res:getSprite(sprites[1]), _Res:getSprite(sprites[2])}
 end
 
 function UIWidgetSpriteButtonCheckbox:click()

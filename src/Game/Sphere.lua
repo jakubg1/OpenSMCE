@@ -736,7 +736,7 @@ function Sphere:draw(hidden, shadow)
 
 	-- debug: you can peek some sphere-related values here
 	--[[
-	local effectConfig = _Game.resourceManager:getSphereEffectConfig("sphere_effects/match.json")
+	local effectConfig = _Res:getSphereEffectConfig("sphere_effects/match.json")
 	if not shadow and self:hasEffect(effectConfig) then
 		local p = self:getPos()
 		love.graphics.print(self:getEffectGroupID(effectConfig), p.x, p.y + 20)
@@ -761,7 +761,7 @@ end
 
 ---Reloads the configuration variables of the current sphere color.
 function Sphere:loadConfig()
-	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
+	self.config = _Res:getSphereConfig("spheres/sphere_" .. self.color .. ".json")
 end
 
 
@@ -874,7 +874,7 @@ function Sphere:deserialize(t)
 	self.effects = {}
 	if t.effects then
 		for i, effect in ipairs(t.effects) do
-			local effectConfig = _Game.resourceManager:getSphereEffectConfig(effect.name)
+			local effectConfig = _Res:getSphereEffectConfig(effect.name)
 			local pos = self:getPos()
 			local e = {
 				name = effect.name,

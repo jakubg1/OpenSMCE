@@ -25,7 +25,7 @@ function SphereEntity:new(posX, posY, color, layer)
 	self.alpha = 1
 	self.layer = layer
 
-	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color .. ".json")
+	self.config = _Res:getSphereConfig("spheres/sphere_" .. color .. ".json")
 	self.rollOffsets = self:generateSpriteRollOffsets()
 	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, posX, posY, layer)
 end
@@ -80,7 +80,7 @@ end
 ---@param color integer The color to be changed to.
 function SphereEntity:setColor(color)
 	self.color = color
-	self.config = _Game.resourceManager:getSphereConfig("spheres/sphere_" .. color .. ".json")
+	self.config = _Res:getSphereConfig("spheres/sphere_" .. color .. ".json")
 	self.rollOffsets = self:generateSpriteRollOffsets()
 
 	-- Particle stuff

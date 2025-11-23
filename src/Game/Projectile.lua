@@ -118,7 +118,7 @@ end
 ---@return table
 function Projectile:serialize()
     return {
-        id = _Game.resourceManager:getResourceReference(self.config),
+        id = _Res:getResourceReference(self.config),
         pos = {x = self.pos.x, y = self.pos.y},
         targetPos = {x = self.targetPos.x, y = self.targetPos.y},
         targetSphere = self.targetSphere and self.targetSphere:getIDs()
@@ -128,7 +128,7 @@ end
 ---Deserializes previously saved Projectile's data and restores its state.
 ---@param t table The data to be deserialized.
 function Projectile:deserialize(t)
-    self.config = _Game.resourceManager:getProjectileConfig(t.id)
+    self.config = _Res:getProjectileConfig(t.id)
     self.pos = Vec2(t.pos.x, t.pos.y)
     self.targetPos = Vec2(t.targetPos.x, t.targetPos.y)
     self.targetSphere = t.targetSphere and _Game.level:getSphere(t.targetSphere)

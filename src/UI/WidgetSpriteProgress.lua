@@ -9,7 +9,7 @@ function UIWidgetSpriteProgress:new(parent, sprite, value, smooth)
 
 	self.parent = parent
 
-	self.sprite = _Game.resourceManager:getSprite(sprite)
+	self.sprite = _Res:getSprite(sprite)
 	self.size = self.sprite.imageSize
 	self.value = 0
 	self.valueData = value
