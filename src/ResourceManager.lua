@@ -27,7 +27,6 @@ function ResourceManager:new()
 	-- - `asset` holds the resource itself. Optional, only if the resources are singletons and are not creatable from elsewhere (like Sprites, Sprite Atlases, Music etc.).
 	-- - `batches` is a list of resource batches this resource was loaded as, once all of them are unloaded, this entry is deleted; can be `nil` to omit that feature for global resources
 	---@alias Resource {type: string, config: any?, asset: any?, batches: string[]?}
-	--
 	-- Keys are absolute paths starting from the root game directory. Use `:resolvePath()` to obtain a key to this table from stuff like `":flame.json"`.
 	-- If a resource is queued but not loaded, its entry will not exist at all.
 	---@type table<string, Resource>
@@ -42,6 +41,7 @@ function ResourceManager:new()
 
 	self.RESOURCE_TYPE_LOCATION = "src/Configs"
 
+	-- This table is filled dynamically by calling `ResourceManager:registerResourceTypes()`.
 	self.RESOURCE_TYPES = {
 		Image = {assetConstructor = Image},
 		Sound = {assetConstructor = Sound},
@@ -52,13 +52,14 @@ function ResourceManager:new()
 		Music = {assetConstructor = Music}
 	}
 
-	-- TODO: Auto-generate these two below.
-	-- Maybe consider registering the resource types dynamically?
-	-- Alongside this, update the table in Resource Management section in the wiki!
+	-- This table is filled dynamically by calling `ResourceManager:registerResourceTypes()`.
 	self.SCHEMA_TO_RESOURCE_MAP = {
+		-- Resource types below still need migration to Config Classes:
 		["sound_event.json"] = "SoundEvent",
 		["music_track.json"] = "Music"
 	}
+
+	-- This table is used to determine resource types which are not JSON files with a `$schema` field.
 	self.EXTENSION_TO_RESOURCE_MAP = {
 		png = "Image",
 		ogg = "Sound",
@@ -357,8 +358,8 @@ function ResourceManager:getResourceTypeFromSchema(schemaPath)
 	if not schemaPath then
 		return
 	end
-	local schema = _Utils.strSplit(schemaPath, "/schemas/")
-	schema = schema[2] or schema[1]
+	local schemaSpl = _Utils.strSplit(schemaPath, "/schemas/")
+	local schema = schemaSpl[2] or schemaSpl[1]
 	return schema and self.SCHEMA_TO_RESOURCE_MAP[schema]
 end
 
