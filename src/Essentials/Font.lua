@@ -31,11 +31,10 @@ function Font:new(config, path)
 		self.reportedCharacters = {}
 	elseif self.type == "truetype" then
 		self.font = config.file:makeFont(config.size)
-		self.color = config.color or Color()
 	elseif self.type == "bmfont" then
 		self.font = love.graphics.newFont(_ParsePath(config.file))
-		self.color = config.color or Color()
 	end
+	self.color = config.color or Color()
 end
 
 ---Returns size of the provided text written in this font.
@@ -85,7 +84,7 @@ function Font:draw(text, x, y, alignX, alignY, color, alpha)
 
 	local sizeX, sizeY = self:getTextSize(text)
 	if self.type == "image" then
-		love.graphics.setColor(color.r, color.g, color.b, alpha)
+		love.graphics.setColor(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
 
 		y = y - sizeY * alignY
 		local line = ""

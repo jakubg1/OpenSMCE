@@ -9,7 +9,6 @@
     - "truetype" - The font loads glyphs from a TTF file.
         - file (FontFile) - The path to a TTF font file which contains the characters.
         - size (integer) [>0] - The size of the Font, in pixels.
-        - color* (Color) - The color of this Font.
     - "bmfont" - The font loads a BMFont file and its related resources.
         - file (string) - The path to a valid BMFont `.fnt` file. Images related to the BMFont must be located alongside that file.
-        - color* (Color) - The color of this Font.
+    - color* (Color) - The color of this Font.

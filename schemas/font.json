@@ -72,6 +72,10 @@
                     "newlineAdjustment": {
                         "type": "number",
                         "description": "The padding between lines to be added in a multiline text, in pixels."
+                    },
+                    "color": {
+                        "$ref": "_structures/Color.json",
+                        "description": "The color of this Font."
                     }
                 },
                 "required": [

@@ -40,13 +40,12 @@ function FontConfig:new(data, path, isAnonymous, base)
     elseif self.type == "truetype" then
         self.file = u.parseFontFile(data, base, path, {"file"})
         self.size = u.parseInteger(data, base, path, {"size"})
-        self.color = u.parseColorOpt(data, base, path, {"color"})
     elseif self.type == "bmfont" then
         self.file = u.parseString(data, base, path, {"file"})
-        self.color = u.parseColorOpt(data, base, path, {"color"})
     else
         error(string.format("Unknown FontConfig type: %s (expected \"image\", \"truetype\", \"bmfont\")", self.type))
     end
+    self.color = u.parseColorOpt(data, base, path, {"color"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.
