@@ -5,12 +5,11 @@
 --!!--
 
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---@class ShooterConfig
 ---@overload fun(data, path, isAnonymous):ShooterConfig
 local ShooterConfig = class:derive("ShooterConfig")
-
-local Vec2 = require("src.Essentials.Vector2")
 
 ShooterConfig.metadata = {
     schemaPath = "shooter.json"

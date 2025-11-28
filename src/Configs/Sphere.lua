@@ -5,12 +5,11 @@
 --!!--
 
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---@class SphereConfig
 ---@overload fun(data, path, isAnonymous):SphereConfig
 local SphereConfig = class:derive("SphereConfig")
-
-local Vec2 = require("src.Essentials.Vector2")
 
 SphereConfig.metadata = {
     schemaPath = "sphere.json"

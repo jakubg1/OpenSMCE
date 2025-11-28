@@ -64,7 +64,7 @@ end
 
 ---Updates the console. Handles key repeat timing and message fadeout.
 ---@param dt number Time delta in seconds.
-function Console:_update(dt)
+function Console:update(dt)
 	self.time = self.time + dt
 	if self.keyRepeat then
 		self.keyRepeatTime = self.keyRepeatTime - dt
@@ -366,7 +366,7 @@ function Console:getCommandWithoutLastWord()
 end
 
 ---Draws the Console on the screen.
-function Console:_draw()
+function Console:draw()
 	-- Bring the console to the bottom of the screen.
 	local w, h = love.window.getMode()
 	self.y = h
@@ -457,7 +457,7 @@ end
 ---LOVE2D callback for when the mouse wheel is scrolled.
 ---@param x integer Scroll distance on X axis.
 ---@param y integer Scroll distance on Y axis.
-function Console:_wheelmoved(x, y)
+function Console:wheelmoved(x, y)
 	if not self.active then
 		return
 	end
@@ -466,7 +466,7 @@ end
 
 ---LOVE2D callback for when a key is pressed.
 ---@param key string The key which has been pressed.
-function Console:_keypressed(key)
+function Console:keypressed(key)
 	-- the shortcut is Ctrl + `
 	if key == "`" and love.keyboard.isDown("lctrl", "rctrl") then
 		self:toggleOpen()
@@ -499,7 +499,7 @@ end
 
 ---LOVE2D callback for when a key was released.
 ---@param key string The key that was released.
-function Console:_keyreleased(key)
+function Console:keyreleased(key)
 	if key == self.keyRepeat then
 		self.keyRepeat = nil
 	end
@@ -507,7 +507,7 @@ end
 
 ---LOVE2D callback for when a character was inputted.
 ---@param t string The character which was inputted.
-function Console:_textinput(t)
+function Console:textinput(t)
 	self:inputText(t)
 end
 

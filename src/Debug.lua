@@ -74,7 +74,7 @@ end
 ---Updates the debug class.
 ---@param dt number Time delta in seconds.
 function Debug:update(dt)
-	self.console:_update(dt)
+	self.console:update(dt)
 	self.lastVec2PerFrame = self.vec2PerFrame
 	self.vec2PerFrame = 0
 
@@ -113,7 +113,7 @@ function Debug:draw()
 	end
 
 	-- Console
-	self.console:_draw()
+	self.console:draw()
 
 	-- UI tree
 	self.uiDebug:draw()
@@ -125,7 +125,7 @@ function Debug:draw()
 end
 
 function Debug:wheelmoved(x, y)
-	self.console:_wheelmoved(x, y)
+	self.console:wheelmoved(x, y)
 	self.uiDebug:wheelmoved(x, y)
 end
 
@@ -157,15 +157,15 @@ function Debug:keypressed(key)
 		self.uiDebug:keypressed(key)
 	end
 
-	self.console:_keypressed(key)
+	self.console:keypressed(key)
 end
 
 function Debug:keyreleased(key)
-	self.console:_keyreleased(key)
+	self.console:keyreleased(key)
 end
 
 function Debug:textinput(t)
-	self.console:_textinput(t)
+	self.console:textinput(t)
 end
 
 function Debug:mousepressed(x, y, button)
