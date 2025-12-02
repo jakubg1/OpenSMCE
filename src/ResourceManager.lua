@@ -139,7 +139,7 @@ function ResourceManager:registerResourceTypes(dir)
 	local names = _Utils.getDirListing(dir, "file", ".lua")
 	for i, name in ipairs(names) do
 		name = _Utils.pathStripExtension(name)
-		local resourceClass = require(dir .. "/" .. name)
+		local resourceClass = require(dir:gsub("/", ".") .. "." .. name)
 		if resourceClass.metadata and resourceClass.inject then
 			self:say("Registered resource type: " .. name)
 			self.SCHEMA_TO_RESOURCE_MAP[resourceClass.metadata.schemaPath] = name
