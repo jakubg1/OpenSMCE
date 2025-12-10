@@ -23,7 +23,7 @@ function Collectible:new(data, config, x, y)
 		local acceleration = self.config.acceleration:evaluate()
 		self.accelerationX, self.accelerationY = acceleration.x, acceleration.y
 
-		_Game:playSound(self.config.spawnSound, self.x, self.y)
+		self.config.spawnSound:play(self.x, self.y)
 	end
 
 	self.particle = _Game:spawnParticle(self.config.particle, self.x, self.y)
@@ -77,7 +77,7 @@ function Collectible:catch()
 		end
 	end
 
-	_Game:playSound(self.config.pickupSound, self.x, self.y)
+	self.config.pickupSound:play(self.x, self.y)
 	_Game:spawnParticle(self.config.pickupParticle, self.x, self.y)
 	if self.config.pickupName then
 		_Game.level:spawnFloatingText(self.config.pickupName, self.x, self.y, self.config.pickupFont)

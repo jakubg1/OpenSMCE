@@ -1,13 +1,10 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local Button = require("src.BootScreen.UI.Button")
 
 ---@class BootMain
 ---@overload fun(bootScreen):BootMain
 local BootMain = class:derive("BootMain")
-
-local Vec2 = require("src.Essentials.Vector2")
-local Button = require("src.BootScreen.UI.Button")
-
-
 
 function BootMain:new(bootScreen)
     self.bootScreen = bootScreen

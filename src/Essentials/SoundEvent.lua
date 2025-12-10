@@ -92,9 +92,10 @@ end
 
 ---Plays a Sound Event and returns a SoundInstance or itself.
 ---Returning a SoundInstanceList allows the caller to change the sound parameters (like position) while the sound is playing.
----@param pos Vector2? The position of the sound for sounds which support 3D positioning.
+---@param x number? The X position of the sound for sounds which support 3D positioning.
+---@param y number? The Y position of the sound for sounds which support 3D positioning.
 ---@return SoundInstanceList
-function SoundEvent:play(pos)
+function SoundEvent:play(x, y)
     local instances = {}
     for i, entry in ipairs(self.sounds) do
         local conditionsPassed = true
@@ -115,8 +116,8 @@ function SoundEvent:play(pos)
             if instance then
                 instance:setVolume(entry.volume:evaluate())
                 instance:setPitch(entry.pitch:evaluate())
-                if pos and not entry.flat then
-                    instance:setPos(pos.x, pos.y)
+                if x and y and not entry.flat then
+                    instance:setPos(x, y)
                 end
                 instance:setLoop(entry.loop)
                 if instance:isPlaying() then

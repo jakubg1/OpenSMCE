@@ -1,10 +1,9 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---@class TestMain
 ---@overload fun():TestMain
 local TestMain = class:derive("TestMain")
-
-local Vec2 = require("src.Essentials.Vector2")
 
 ---Constructs a new instance of Test Suite.
 ---This is the class which manages Tests, runs them and displays the results.

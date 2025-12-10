@@ -1,16 +1,12 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local Color = require("src.Essentials.Color")
+local SphereEntity = require("src.Game.SphereEntity")
 
 ---Represents a Shooter which is controlled by the player. Has a current and a next sphere slot. Can have multi-spheres and speed shot.
 ---@class Shooter
 ---@overload fun(data):Shooter
 local Shooter = class:derive("Shooter")
-
-local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
-
-local SphereEntity = require("src.Game.SphereEntity")
-
-
 
 ---Constructs a new Shooter.
 ---@param data {shooter: string, movement: ShooterMovementConfig?}? Data for the shooter.
@@ -307,7 +303,7 @@ function Shooter:swapColors()
     local tmp = self.color
     self:setColor(self.nextColor)
     self:setNextColor(tmp)
-    _Game:playSound(self.config.sounds.sphereSwap, self.pos.x, self.pos.y)
+    self.config.sounds.sphereSwap:play(self.pos.x, self.pos.y)
 end
 
 
@@ -336,7 +332,7 @@ function Shooter:fill()
     -- If anything is going to happen, play the sphere fill sound and reset the discard suppression flag.
     if self.nextColor == 0 or self.color == 0 then
         self.suppressColorRemoval = false
-        _Game:playSound(self.config.sounds.sphereFill, self.pos.x, self.pos.y)
+        self.config.sounds.sphereFill:play(self.pos.x, self.pos.y)
     end
     -- Fill the reserve slot with a random color.
     if self.nextColor == 0 then
@@ -519,7 +515,7 @@ function Shooter:shoot()
     end
 
     -- Play the sound, etc.
-    _Game:playSound(sphereConfig.shotSound, self.pos.x, self.pos.y)
+    sphereConfig.shotSound:play(self.pos.x, self.pos.y)
     self.color = 0
     self.shotCooldown = self.config.shotCooldown
 end

@@ -50,10 +50,11 @@ function SoundInstanceList:setPitch(pitch)
 end
 
 ---Sets the position of all Sound Instances within the list.
----@param pos Vector2 The new position.
-function SoundInstanceList:setPos(pos)
+---@param x number The new X position.
+---@param y number The new Y position.
+function SoundInstanceList:setPos(x, y)
     for i, sound in ipairs(self.sounds) do
-        sound:setPos(pos.x, pos.y)
+        sound:setPos(x, y)
     end
 end
 

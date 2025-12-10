@@ -425,14 +425,14 @@ function ResourceManager:loadResource(key, batches)
 	if constructor then
 		-- Construct the resource and check for errors.
 		local success, result = xpcall(function() return constructor(contents, key, false, baseResource) end, debug.traceback)
-		assert(success, string.format("Failed to load file %s: %s", key, result))
+		assert(success, string.format("Failed to load file %s: %s", key, tostring(result)))
 		self.resources[key].config = result
 	end
 
 	if assetConstructor then
 		-- Construct the resource and check for errors.
 		local success, result = xpcall(function() return assetConstructor(self.resources[key].config or contents, key) end, debug.traceback)
-		assert(success, string.format("Failed to load file %s: %s", key, result))
+		assert(success, string.format("Failed to load file %s: %s", key, tostring(result)))
 		self.resources[key].asset = result
 	end
 

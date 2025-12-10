@@ -1,11 +1,10 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---Represents a Projectile which is moving towards its target, destroying spheres based on its Sphere Selector.
 ---@class Projectile
 ---@overload fun(data, config, targetSphere):Projectile
 local Projectile = class:derive("Projectile")
-
-local Vec2 = require("src.Essentials.Vector2")
 
 ---Constructs a new Projectile.
 ---@param data table? If specified, data from this table will be used to load the entity state.
@@ -19,24 +18,26 @@ function Projectile:new(data, config, targetSphere)
         assert(targetSphere, "data is nil, targetSphere is nil. This shouldn't happen")
 
         self.config = config
-        self.targetPos = targetSphere:getPos()
+        local targetPos = targetSphere:getPos()
+        self.targetX, self.targetY = targetPos.x, targetPos.y
         if config.spawnDistance then
-            self.pos = self.targetPos + Vec2(config.spawnDistance:evaluate(), 0):rotate(math.random() * math.pi * 2)
+            local ox, oy = _V.rotate(config.spawnDistance:evaluate(), 0, math.random() * math.pi * 2)
+            self.x, self.y = self.targetX + ox, self.targetY + oy
             -- If `targetSphere` is `nil`, then `targetPos` will not be updated, that's why we are only setting it if this Projectile is homing.
             self.targetSphere = config.homing and targetSphere
         else
             -- Insta-exploding projectile (for example: lightning storm strike).
-            self.pos = self.targetPos
+            self.x, self.y = self.targetX, self.targetY
             self.targetSphere = targetSphere
         end
 
         if config.spawnSound then
-            _Game:playSound(config.spawnSound)
+            config.spawnSound:play()
         end
     end
 
     if self.config.particle then
-        self.particle = _Game:spawnParticle(self.config.particle, self.pos.x, self.pos.y)
+        self.particle = _Game:spawnParticle(self.config.particle, self.x, self.y)
     end
 
     self.delQueue = false
@@ -54,7 +55,8 @@ function Projectile:update(dt)
     if self.targetSphere then
         if not self.targetSphere.delQueue then
             -- If we are homing towards a sphere, update the target position.
-            self.targetPos = self.targetSphere:getPos()
+            local targetPos = self.targetSphere:getPos()
+            self.targetX, self.targetY = targetPos.x, targetPos.y
         else
             -- The target sphere no longer exists; stop homing towards it.
             self.targetSphere = nil
@@ -62,19 +64,20 @@ function Projectile:update(dt)
     end
 
     local distanceThisFrame = self.config.speed * dt
-    if (self.targetPos - self.pos):len() <= distanceThisFrame then
+    if _V.length(self.targetX - self.x, self.targetY - self.y) <= distanceThisFrame then
         -- This frame, we will pass through the target; snap to it and explode.
-        self.pos = self.targetPos
+        self.x, self.y = self.targetX, self.targetY
         self:explode()
     else
         -- Come closer to the target if we're not there yet.
-        local targetAngle = (self.targetPos - self.pos):angle()
-        self.pos = self.pos + Vec2(distanceThisFrame, 0):rotate(targetAngle)
+        local targetAngle = _V.angle(self.targetX - self.x, self.targetY - self.y)
+        local targetOX, targetOY = _V.rotate(distanceThisFrame, 0, targetAngle)
+        self.x, self.y = self.x + targetOX, self.y + targetOY
     end
 
     -- Update the particle position.
     if self.particle then
-    	self.particle:setPos(self.pos.x, self.pos.y)
+    	self.particle:setPos(self.x, self.y)
     end
 end
 
@@ -85,13 +88,13 @@ function Projectile:explode()
     if self.targetSphere then
         self.targetSphere:dumpVariables("hitSphere")
     end
-    _Game.level:destroySelector(self.config.destroySphereSelector, self.pos, self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere, self.config.destroyGameEvent, self.config.destroyGameEventPerSphere)
+    _Game.level:destroySelector(self.config.destroySphereSelector, Vec2(self.x, self.y), self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere, self.config.destroyGameEvent, self.config.destroyGameEventPerSphere)
     _Vars:unset("hitSphere")
 
     if self.config.destroySound then
-        _Game:playSound(self.config.destroySound, self.pos.x, self.pos.y)
+        self.config.destroySound:play(self.x, self.y)
     end
-	_Game:spawnParticle(self.config.destroyParticle, self.pos.x, self.pos.y)
+	_Game:spawnParticle(self.config.destroyParticle, self.x, self.y)
 end
 
 ---Removes this Projectile from the level.
@@ -110,7 +113,7 @@ end
 function Projectile:draw()
     if _Debug.sphereDebugVisible then
         love.graphics.setColor(1, 0, 0.5)
-        love.graphics.circle("fill", self.targetPos.x, self.targetPos.y, 15)
+        love.graphics.circle("fill", self.targetX, self.targetY, 15)
     end
 end
 
@@ -119,8 +122,8 @@ end
 function Projectile:serialize()
     return {
         id = _Res:getResourceReference(self.config),
-        pos = {x = self.pos.x, y = self.pos.y},
-        targetPos = {x = self.targetPos.x, y = self.targetPos.y},
+        pos = {x = self.x, y = self.y},
+        targetPos = {x = self.targetX, y = self.targetY},
         targetSphere = self.targetSphere and self.targetSphere:getIDs()
     }
 end
@@ -129,8 +132,8 @@ end
 ---@param t table The data to be deserialized.
 function Projectile:deserialize(t)
     self.config = _Res:getProjectileConfig(t.id)
-    self.pos = Vec2(t.pos.x, t.pos.y)
-    self.targetPos = Vec2(t.targetPos.x, t.targetPos.y)
+    self.x, self.y = t.pos.x, t.pos.y
+    self.targetX, self.targetY = t.targetPos.x, t.targetPos.y
     self.targetSphere = t.targetSphere and _Game.level:getSphere(t.targetSphere)
 end
 

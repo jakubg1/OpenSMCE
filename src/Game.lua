@@ -1,21 +1,15 @@
 local class = require "com.class"
-
----Main class for a Game. Handles everything the Game has to do.
----@class Game
----@overload fun(name):Game
-local Game = class:derive("Game")
-
-local Vec2 = require("src.Essentials.Vector2")
-
 local Timer = require("src.Timer")
 local ConfigManager = require("src.ConfigManager")
-local ResourceManager = require("src.ResourceManager")
 local RuntimeManager = require("src.Game.RuntimeManager")
 local Level = require("src.Game.Level")
 local UIManager = require("src.UI.Manager")
 local ParticleManager = require("src.Particle.Manager")
 
-
+---Main class for a Game. Handles everything the Game has to do.
+---@class Game
+---@overload fun(name):Game
+local Game = class:derive("Game")
 
 ---Constructs a new instance of Game.
 ---@param name string The name of the game, equivalent to the folder name in `games` directory.
@@ -30,13 +24,7 @@ function Game:new(name)
 
 	self.uiManager = nil
 	self.particleManager = nil
-
-
-	-- revert to original font size
-	love.graphics.setFont(_FONT)
 end
-
-
 
 ---Initializes the game and all its components.
 function Game:init()
@@ -62,8 +50,6 @@ function Game:init()
 	self.uiManager:initSplash()
 end
 
-
-
 ---Loads all game resources.
 function Game:loadMain()
 	_Res:startLoadCounter("main")
@@ -72,8 +58,6 @@ function Game:loadMain()
 	_Res:scanResources()
 	_Res:stopLoadCounter("main")
 end
-
-
 
 ---Initializes the game session, as well as UI and particle managers.
 function Game:initSession()
@@ -84,8 +68,6 @@ function Game:initSession()
 	_Game.uiManager:executeCallback("sessionInit")
 end
 
-
-
 ---Updates the game.
 ---@param dt number Delta time in seconds.
 function Game:update(dt) -- callback from main.lua
@@ -95,8 +77,6 @@ function Game:update(dt) -- callback from main.lua
 		self:tick(delta)
 	end
 end
-
-
 
 ---Updates the game logic. Contrary to `:update()`, this function will always have its delta time given as a multiple of 1/60.
 ---@param dt number Delta time in seconds.
@@ -119,8 +99,6 @@ function Game:tick(dt) -- always with 1/60 seconds
 		self:updateRichPresence()
 	end
 end
-
-
 
 ---Starts a new Level from the current Profile, or loads one in progress if it has one.
 ---This also executes an appropriate entry in the UI script if the current level set's entry is a UI Script one. Yep, it's a mess.
@@ -180,15 +158,6 @@ function Game:save()
 		self.level:save()
 	end
 	self.runtimeManager:save()
-end
-
----Plays a sound and returns its instance for modification.
----@param soundEvent SoundEvent The name of the Sound Effect to be played.
----@param x number? The X position of the sound origin.
----@param y number? The Y position of the sound origin.
----@return SoundInstanceList
-function Game:playSound(soundEvent, x, y)
-	return soundEvent:play(x and Vec2(x, y))
 end
 
 ---Spawns and returns a particle packet.
@@ -258,7 +227,7 @@ function Game:executeGameEvent(event)
 		end
 		self.level:executeScoreEvent(event.scoreEvent)
 	elseif event.type == "playSound" then
-		self:playSound(event.soundEvent)
+		event.soundEvent:play()
 	end
 end
 
@@ -293,8 +262,6 @@ function Game:getEffectiveMusicVolume()
 	return self.runtimeManager.options:getEffectiveMusicVolume()
 end
 
-
-
 ---Updates the game's Rich Presence information.
 function Game:updateRichPresence()
 	local session = self:getSession()
@@ -326,8 +293,6 @@ function Game:updateRichPresence()
 
 	_DiscordRPC:setStatus(line1, line2)
 end
-
-
 
 ---Draws the game contents.
 function Game:draw()
@@ -365,8 +330,6 @@ function Game:draw()
 	_Debug:profDrawStop()
 end
 
-
-
 ---Callback from `main.lua`.
 ---@param x integer The X coordinate of mouse position.
 ---@param y integer The Y coordinate of mouse position.
@@ -378,8 +341,6 @@ function Game:mousepressed(x, y, button)
 		self.level:mousepressed(x, y, button)
 	end
 end
-
-
 
 ---Callback from `main.lua`.
 ---@param x integer The X coordinate of mouse position.
@@ -393,16 +354,12 @@ function Game:mousereleased(x, y, button)
 	end
 end
 
-
-
 ---Callback from `main.lua`.
 ---@param x integer The X delta of the scroll.
 ---@param y integer The Y delta of the scroll.
 function Game:wheelmoved(x, y)
 	-- STUB
 end
-
-
 
 ---Callback from `main.lua`.
 ---@param key string The pressed key code.
@@ -413,8 +370,6 @@ function Game:keypressed(key)
 	end
 end
 
-
-
 ---Callback from `main.lua`.
 ---@param key string The released key code.
 function Game:keyreleased(key)
@@ -423,15 +378,11 @@ function Game:keyreleased(key)
 	end
 end
 
-
-
 ---Callback from `main.lua`.
 ---@param t string Something which makes text going.
 function Game:textinput(t)
 	self.uiManager:textinput(t)
 end
-
-
 
 ---Exits the game.
 ---@param forced boolean? If `true`, the engine will exit completely even if the "Return to Boot Screen" option is enabled.
@@ -444,7 +395,5 @@ function Game:quit(forced)
 		love.event.quit()
 	end
 end
-
-
 
 return Game

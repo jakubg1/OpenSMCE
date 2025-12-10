@@ -48,6 +48,10 @@ end
 ---Updates the newest version values based on the provided version tag.
 ---@param version string Version tag, such as `v0.47.0`.
 function VersionManager:updateNewestVersion(version)
+	if not version then
+		-- Failsafe for love.js, as `_GetNewestVersionThreaded()` seems to struggle with delivering any result (threads not supported?)
+		return
+	end
 	self.newestVersion = version
   _Log:printt("VersionManager", string.format("Newest version: %s", self.newestVersion))
 	if self.newestVersion then

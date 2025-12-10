@@ -1,12 +1,10 @@
 local class = require "com.class"
+local Path = require("src.Game.Path")
 
 ---Represents a Map, which houses Paths. In the future, this may extend to particle effects, other visuals and other things which affect spheres like reflectors.
 ---@class Map
 ---@overload fun(level, path, pathsBehavior, isDummy):Map
 local Map = class:derive("Map")
-
-local Vec2 = require("src.Essentials.Vector2")
-local Path = require("src.Game.Path")
 
 ---Constructs a new Map.
 ---@param level Level The level which is tied to this Map.

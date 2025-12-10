@@ -1,11 +1,10 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local Color = require("src.Essentials.Color")
 
 ---@class ColorPalette
 ---@overload fun(config, path):ColorPalette
 local ColorPalette = class:derive("ColorPalette")
-
-local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
 
 ---Constructs a new Color Palette.
 ---@param config ColorPaletteConfig The config of this Color Palette.

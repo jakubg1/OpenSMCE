@@ -1,15 +1,14 @@
 local class = require "com.class"
+local SphereGroup = require("src.Game.SphereGroup")
 
 ---Represents a Sphere Chain, which is a single train of spheres, usually with a pusher (Scarab) at the end.
 ---@class SphereChain
 ---@overload fun(path, data):SphereChain
 local SphereChain = class:derive("SphereChain")
 
-local json = require("com.json")
-local SphereGroup = require("src.Game.SphereGroup")
-
-
-
+---Constructs a new Sphere Chain.
+---@param path Path The path this Sphere Chain is on.
+---@param data table? Saved data if this Sphere Chain is loaded from a saved game.
 function SphereChain:new(path, data)
 	self.path = path
 	self.map = path.map

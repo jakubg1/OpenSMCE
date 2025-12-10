@@ -1,10 +1,9 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---@class UIWidgetSpriteButton
 ---@overload fun(parent, sprite, clickSound, releaseSound, hoverSound, orbMasterHoverEffect):UIWidgetSpriteButton
 local UIWidgetSpriteButton = class:derive("UIWidgetSpriteButton")
-
-local Vec2 = require("src.Essentials.Vector2")
 
 function UIWidgetSpriteButton:new(parent, sprite, clickSound, releaseSound, hoverSound, orbMasterHoverEffect)
 	self.type = "spriteButton"
@@ -31,7 +30,7 @@ function UIWidgetSpriteButton:click()
 	if not self.parent:isVisible() or not self.hovered or self.clicked then return end
 	self.clicked = true
 	if self.clickSound then
-		_Game:playSound(self.clickSound)
+		self.clickSound:play()
 	end
 	print("Button clicked: " .. self.parent:getFullName())
 end
@@ -42,7 +41,7 @@ function UIWidgetSpriteButton:unclick()
 		self.parent:executeAction("buttonClick")
 	end
 	if self.releaseSound then
-		_Game:playSound(self.releaseSound)
+		self.releaseSound:play()
 	end
 	self.clicked = false
 end
@@ -86,7 +85,7 @@ function UIWidgetSpriteButton:draw()
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end
 		if hovered and self.hoverSound then
-			_Game:playSound(self.hoverSound)
+			self.hoverSound:play()
 		end
 	end
 

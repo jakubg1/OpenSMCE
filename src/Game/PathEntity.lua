@@ -1,14 +1,10 @@
 local class = require "com.class"
+local Color = require("src.Essentials.Color")
 
 ---Represents a PathEntity.
 ---@class PathEntity
 ---@overload fun(path, config):PathEntity
 local PathEntity = class:derive("PathEntity")
-
-local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
-
-
 
 ---Constructs a new PathEntity.
 ---@param path Path The path this PathEntity is on.
@@ -45,14 +41,12 @@ function PathEntity:new(path, config)
 	end
 
 	if self.config.loopSound then
-		local pos = self:getPos()
-		self.sound = _Game:playSound(self.config.loopSound, pos.x, pos.y)
+		local x, y = self:getPos()
+		self.sound = self.config.loopSound:play(x, y)
 	end
 
 	self.delQueue = false
 end
-
-
 
 ---Updates the Path Entity's logic.
 ---@param dt number Delta time in seconds.
@@ -105,8 +99,8 @@ function PathEntity:update(dt)
 			end
 			local offset = self.offset - offsetFromCurrentOffset
 			if self.collectibleDistance > 0 then -- We don't spawn anything the moment this Entity is spawned.
-				local pos = self:getPos()
-				_Game.level:spawnCollectiblesFromEntry(pos.x, pos.y, self.config.collectibleGenerator)
+				local x, y = self:getPos()
+				_Game.level:spawnCollectiblesFromEntry(self.config.collectibleGenerator, x, y)
 			end
 			self.collectibleDistance = self.collectibleDistance + self.config.collectibleGeneratorSeparation
 		end
@@ -125,8 +119,8 @@ function PathEntity:update(dt)
 			if sphereGroup:getFrontPos() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
 				sphereGroup:destroySphere(#sphereGroup.spheres)
 				if self.config.sphereDestroySound then
-					local pos = self:getPos()
-					_Game:playSound(self.config.sphereDestroySound, pos.x, pos.y)
+					local x, y = self:getPos()
+					self.config.sphereDestroySound:play(x, y)
 				end
 				self.destroyedSpheres = self.destroyedSpheres + 1
 				-- if this sphere is the last sphere, the entity gets rekt
@@ -143,7 +137,8 @@ function PathEntity:update(dt)
 
 	-- Sound
 	if self.sound then
-		self.sound:setPos(self:getPos())
+		local x, y = self:getPos()
+		self.sound:setPos(x, y)
 	end
 
 	-- Destroy the entity when certain conditions are met.
@@ -151,8 +146,6 @@ function PathEntity:update(dt)
 		self:explode()
 	end
 end
-
-
 
 ---Returns whether this Path Entity should be destroyed now.
 ---@return boolean
@@ -181,8 +174,6 @@ function PathEntity:shouldExplode()
 	return false
 end
 
-
-
 ---Destroys the Path Entity, by giving points, spawning particles and playing a sound.
 function PathEntity:explode()
 	if self.delQueue then
@@ -194,18 +185,18 @@ function PathEntity:explode()
 	_Vars:set("entity.destroyedSpheres", self.destroyedSpheres)
 	_Vars:set("entity.destroyedChains", self.destroyedChains)
 
-	local pos = self:getPos()
+	local x, y = self:getPos()
 	if self.config.destroyScoreEvent then
-		_Game.level:executeScoreEvent(self.config.destroyScoreEvent, pos)
+		_Game.level:executeScoreEvent(self.config.destroyScoreEvent, x, y)
 	end
 	if self.config.destroyCollectibleGenerator then
-		_Game.level:spawnCollectiblesFromEntry(pos.x, pos.y, self.config.destroyCollectibleGenerator)
+		_Game.level:spawnCollectiblesFromEntry(self.config.destroyCollectibleGenerator, x, y)
 	end
 	if self.config.destroyParticle then
-		_Game:spawnParticle(self.config.destroyParticle, pos.x, pos.y)
+		_Game:spawnParticle(self.config.destroyParticle, x, y)
 	end
 	if self.config.destroySound then
-		_Game:playSound(self.config.destroySound, pos.x, pos.y)
+		self.config.destroySound:play(x, y)
 	end
 
 	_Vars:unset("entity")
@@ -213,9 +204,7 @@ function PathEntity:explode()
 	self:destroy()
 end
 
-
-
----Destructor.
+---Queues this Path Entity for removal.
 function PathEntity:destroy()
 	if self.delQueue then
 		return
@@ -226,35 +215,29 @@ function PathEntity:destroy()
 	end
 end
 
-
-
 ---Draws this Path Entity on the screen.
 ---@param hidden boolean Whether this drawing call comes from a hidden sphere pass.
 ---@param shadow boolean Whether to draw the actual entity or its shadow.
 function PathEntity:draw(hidden, shadow)
 	if self:getHidden() == hidden then
-		local pos = self:getPos()
+		local x, y = self:getPos()
 		if shadow then
 			if self.config.shadowSprite then
-				self.config.shadowSprite:draw(pos.x + 4, pos.y + 4, 0.5, 0.5)
+				self.config.shadowSprite:draw(x + 4, y + 4, 0.5, 0.5)
 			end
 		else
 			if self.config.sprite then
-				self.config.sprite:draw(pos.x, pos.y, 0.5, 0.5, nil, nil, self:getAngle() + math.pi, Color(self:getBrightness()))
+				self.config.sprite:draw(x, y, 0.5, 0.5, nil, nil, self:getAngle() + math.pi, Color(self:getBrightness()))
 			end
 		end
 	end
 end
 
-
-
 ---Returns the onscreen position of this Path Entity.
----@return Vector2
+---@return number, number
 function PathEntity:getPos()
-	return Vec2(self.path:getPos(self.offset))
+	return self.path:getPos(self.offset)
 end
-
-
 
 ---Returns the current angle of this Path Entity.
 ---@return number
@@ -262,23 +245,17 @@ function PathEntity:getAngle()
 	return self.path:getAngle(self.offset)
 end
 
-
-
 ---Returns the current brightness of this Path Entity.
 ---@return number
 function PathEntity:getBrightness()
 	return self.path:getBrightness(self.offset)
 end
 
-
-
 ---Returns whether this Path Entity is marked as hidden.
 ---@return boolean
 function PathEntity:getHidden()
 	return self.path:getHidden(self.offset)
 end
-
-
 
 ---Serializes this Path Entity to a set of values which can be reimported later.
 ---@return table
@@ -299,8 +276,6 @@ function PathEntity:serialize()
 	return t
 end
 
-
-
 ---Loads previously saved data from a given table.
 ---@param t table The data to be loaded.
 function PathEntity:deserialize(t)
@@ -316,7 +291,5 @@ function PathEntity:deserialize(t)
 	self.destroyedSpheres = t.destroyedSpheres
 	self.destroyedChains = t.destroyedChains
 end
-
-
 
 return PathEntity

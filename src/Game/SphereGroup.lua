@@ -1,16 +1,16 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local Color = require("src.Essentials.Color")
+local Sphere = require("src.Game.Sphere")
 
 ---Represents a Sphere Group, which is a single group of spheres connected to each other. Handles all sphere movement on the track.
 ---@class SphereGroup
 ---@overload fun(sphereChain, data):SphereGroup
 local SphereGroup = class:derive("SphereGroup")
 
-local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
-local Sphere = require("src.Game.Sphere")
-
-
-
+---Constructs a new Sphere Group.
+---@param sphereChain SphereChain The sphere chain this Sphere Group belongs to.
+---@param data table? Saved data if this Sphere Group is loaded from a saved game.
 function SphereGroup:new(sphereChain, data)
 	self.sphereChain = sphereChain
 	self.map = sphereChain.map
@@ -509,7 +509,7 @@ function SphereGroup:join()
 	self:destroyFragileSpheres()
 	-- play a sound
 	local x, y = self.sphereChain.path:getPos(self.offset)
-	_Game:playSound(_Res:getSoundEvent(self.config.joinSound), x, y)
+	_Res:getSoundEvent(self.config.joinSound):play(x, y)
 end
 
 
@@ -546,7 +546,7 @@ function SphereGroup:divide(position)
 	self.nextGroup = newGroup
 
 	-- add to the master
-	table.insert(self.sphereChain.sphereGroups, self.sphereChain:getSphereGroupID(self), newGroup)
+	table.insert(self.sphereChain.sphereGroups, assert(self.sphereChain:getSphereGroupID(self)), newGroup)
 end
 
 
@@ -795,16 +795,16 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	end
 	-- Play sounds.
 	if effectConfig.destroySound then
-		_Game:playSound(effectConfig.destroySound, x, y)
+		effectConfig.destroySound:play(x, y)
 	end
 	-- Execute a score event.
 	if effectConfig.destroyScoreEvent then
-		local score = self.map.level:executeScoreEvent(effectConfig.destroyScoreEvent, Vec2(x, y))
+		local score = self.map.level:executeScoreEvent(effectConfig.destroyScoreEvent, x, y)
 		self:addToCascadeScore(score)
 	end
 	-- Spawn any collectibles if applicable.
 	if effectConfig.destroyCollectible then
-		self.map.level:spawnCollectiblesFromEntry(x, y, effectConfig.destroyCollectible)
+		self.map.level:spawnCollectiblesFromEntry(effectConfig.destroyCollectible, x, y)
 	end
 	-- Execute the "after" game events.
 	if effectConfig.eventsAfter then

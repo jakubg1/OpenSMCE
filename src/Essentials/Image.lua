@@ -1,12 +1,9 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---@class Image
 ---@overload fun(data, path):Image
 local Image = class:derive("Image")
-
-local Vec2 = require("src.Essentials.Vector2")
-
-
 
 ---Constructs a new Image.
 ---@param data nil Unused, but required due to standardized resource constructors.

@@ -1,4 +1,5 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---Represents the result of executing a Sphere Selector.
 ---
@@ -10,10 +11,6 @@ local class = require "com.class"
 ---@class SphereSelectorResult
 ---@overload fun(config, pos):SphereSelectorResult
 local SphereSelectorResult = class:derive("SphereSelectorResult")
-
-local Vec2 = require("src.Essentials.Vector2")
-
-
 
 ---Constructs a new SphereSelectorResult.
 ---@param config SphereSelectorConfig The Sphere Selector configuration that will be used to generate a result of this selector.
@@ -84,7 +81,7 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 			end
 			eventPos = minPos and ((minPos + maxPos) / 2) or Vec2()
 		end
-		_Game.level:executeScoreEvent(scoreEvent, eventPos)
+		_Game.level:executeScoreEvent(scoreEvent, eventPos.x, eventPos.y)
 	end
 	if gameEvent then
 		_Game:executeGameEvent(gameEvent)
@@ -92,7 +89,8 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 	for i, sphere in ipairs(self.spheres) do
 		sphere:dumpVariables("sphere", self.pos)
 		if scoreEventPerSphere then
-			_Game.level:executeScoreEvent(scoreEventPerSphere, sphere:getPos())
+			local pos = sphere:getPos()
+			_Game.level:executeScoreEvent(scoreEventPerSphere, pos.x, pos.y)
 		end
 		if gameEventPerSphere then
 			_Game:executeGameEvent(gameEventPerSphere)

@@ -1,15 +1,11 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local SphereEntity = require("src.Game.SphereEntity")
 
 ---Represents a Sphere which has been shot from the Shooter and is flying on the screen until it finds a Sphere Group on its way.
 ---@class ShotSphere
 ---@overload fun(data, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming):ShotSphere
 local ShotSphere = class:derive("ShotSphere")
-
-local Vec2 = require("src.Essentials.Vector2")
-
-local SphereEntity = require("src.Game.SphereEntity")
-
-
 
 ---Constructs a new Shot Sphere.
 ---@param data table? The deserialization data to be used instead of the fields below if loading a previously saved game.
@@ -194,7 +190,7 @@ function ShotSphere:moveStep()
 			end
 			_Vars:set("shot.bad", badShot)
 			if self.config.hitSound then
-				_Game:playSound(self.config.hitSound, self.posX, self.posY)
+				self.config.hitSound:play(self.posX, self.posY)
 			end
 			_Vars:unset("shot")
 			if not badShot and not self.markedAsSuccessfulShot then

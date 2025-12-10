@@ -43,11 +43,11 @@ function UIManager:new()
     levelGetNewRecord = function() return _Game.level:hasNewScoreRecord() end,
     levelGetAccuracy = function() return _Game.level:getShotAccuracy() end,
 
-    levelExecuteScoreEvent = function(event, pos) _Game.level:executeScoreEvent(_Res:getScoreEventConfig(event), pos) end,
+    levelExecuteScoreEvent = function(event, pos) _Game.level:executeScoreEvent(_Res:getScoreEventConfig(event), pos.x, pos.y) end,
 
     musicVolume = function(music, volume, duration) _Res:getMusic(music):play(volume, duration) end,
     musicStop = function(music, duration) _Res:getMusic(music):stop(duration) end,
-    playSound = function(sound) _Game:playSound(_Res:getSoundEvent(sound)) end,
+    playSound = function(sound) _Res:getSoundEvent(sound):play() end,
 
     profileMSet = function(name) _Game.runtimeManager.profileManager:setCurrentProfile(name) end,
     profileMCreate = function(name) return _Game.runtimeManager.profileManager:createProfile(name) end,

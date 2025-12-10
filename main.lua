@@ -327,6 +327,10 @@ end
 ---@param result table HTTPS request result.
 ---@return string?
 function _ParseNewestVersion(result)
+	if not result then
+		-- Failsafe for love.js, as `_GetNewestVersionThreaded()` seems to struggle with delivering any result (threads not supported?)
+		return
+	end
 	if result.code == 200 and result.body then
 		-- Trim everything before the first square bracket.
 		while result.body:sub(1, 1) ~= "[" do

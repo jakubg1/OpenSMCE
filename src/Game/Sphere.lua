@@ -1,17 +1,12 @@
-### This class is not used yet. All sphere algorithms are stored in SphereGroup.lua.
-
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local Color = require("src.Essentials.Color")
+local SphereEntity = require("src.Game.SphereEntity")
 
 ---Represents a single Sphere which is inside of a Sphere Group on the board. Can have a lot of properties.
 ---@class Sphere
 ---@overload fun(sphereGroup, data, color, shootOrigin, shootTime, sphereEntity, gaps, destroyedFragileSpheres, chainLevel):Sphere
 local Sphere = class:derive("Sphere")
-
-local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
-local SphereEntity = require("src.Game.SphereEntity")
-
-
 
 ---Constructs a new Sphere.
 ---@param sphereGroup SphereGroup The sphere group this sphere belongs to.
@@ -241,11 +236,11 @@ function Sphere:deleteVisually(ghostTime, crushed)
 			local pos = self:getPos()
 			-- Spawn collectibles, if any.
 			if self.config.destroyCollectible then
-				self.map.level:spawnCollectiblesFromEntry(pos.x, pos.y, self.config.destroyCollectible)
+				self.map.level:spawnCollectiblesFromEntry(self.config.destroyCollectible, pos.x, pos.y)
 			end
 			-- Play a sound.
 			if self.config.destroySound then
-				_Game:playSound(self.config.destroySound, pos.x, pos.y)
+				self.config.destroySound:play(pos.x, pos.y)
 			end
 			-- Execute a Game Event.
 			if self.config.destroyEvent then
@@ -288,7 +283,7 @@ function Sphere:breakChainLevel()
 	self.chainLevel = self.chainLevel - 1
 	local pos = self:getPos()
 	if self.config.chainDestroySound then
-		_Game:playSound(self.config.chainDestroySound, pos.x, pos.y)
+		self.config.chainDestroySound:play(pos.x, pos.y)
 	end
 	if self.config.chainDestroyParticle then
 		_Game:spawnParticle(self.config.chainDestroyParticle, pos.x, pos.y)
@@ -345,7 +340,7 @@ function Sphere:applyEffect(effectConfig, infectionSize, infectionTime, effectGr
 
 	-- Sound effect.
 	if effectConfig.applySound then
-		_Game:playSound(effectConfig.applySound, pos.x, pos.y)
+		effectConfig.applySound:play(pos.x, pos.y)
 	end
 end
 

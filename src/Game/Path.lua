@@ -178,7 +178,7 @@ function Path:spawnChain()
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
 		local x, y = self:getPos(0)
-		_Game:playSound(_Res:getSoundEvent(_Game.configManager.gameplay.sphereBehavior.newGroupSound), x, y)
+		_Res:getSoundEvent(_Game.configManager.gameplay.sphereBehavior.newGroupSound):play(x, y)
 	end
 end
 

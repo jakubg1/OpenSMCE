@@ -1,16 +1,11 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local Button = require("src.BootScreen.UI.Button")
+local ConfigManager = require("src.ConfigManager")
 
 ---@class EditorMain
 ---@overload fun(bootScreen):EditorMain
 local EditorMain = class:derive("EditorMain")
-
-local Vec2 = require("src.Essentials.Vector2")
-local Button = require("src.BootScreen.UI.Button")
-
-local ConfigManager = require("src.ConfigManager")
-local ResourceManager = require("src.ResourceManager")
-
-
 
 ---Constructs a new instance of Game Editor.
 ---@param name string The name of the game, equivalent to the folder name in `games` directory.

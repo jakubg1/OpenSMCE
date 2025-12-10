@@ -1,10 +1,9 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---@class UIWidgetTextInput
 ---@overload fun(parent, font, align, cursorSprite, maxLength):UIWidgetTextInput
 local UIWidgetTextInput = class:derive("UIWidgetTextInput")
-
-local Vec2 = require("src.Essentials.Vector2")
 
 function UIWidgetTextInput:new(parent, font, align, cursorSprite, maxLength)
 	self.type = "textInput"

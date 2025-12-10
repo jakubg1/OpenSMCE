@@ -88,7 +88,7 @@ function Level:updateLogic(dt)
 		local d1 = self:getDanger() and not self.lost
 		local d2 = self.danger
 		if d1 and not d2 then
-			self.dangerLoopSound = _Game:playSound(self.config.dangerLoopSound)
+			self.dangerLoopSound = self.config.dangerLoopSound:play()
 		elseif not d1 and d2 then
 			self.dangerLoopSound:stop()
 			self.dangerLoopSound = nil
@@ -125,7 +125,7 @@ function Level:updateLogic(dt)
 			rain.time = rain.time - dt
 			if rain.time <= 0 then
 				local w, h = _Game:getNativeResolution()
-				self:spawnCollectiblesFromEntry(math.random() * w, -32, rain.generator)
+				self:spawnCollectiblesFromEntry(rain.generator, math.random() * w, -32)
 				rain.count = rain.count - 1
 				if rain.count > 0 then
 					rain.time = rain.time + rain.delay:evaluate()
@@ -204,7 +204,7 @@ function Level:updateLogic(dt)
 		if self.warningDelay >= self.warningDelayMax then
 			self.map:spawnDangerParticles()
 			if self.config.dangerSound then
-				_Game:playSound(self.config.dangerSound)
+				self.config.dangerSound:play()
 			end
 			self.warningDelay = 0
 		end
@@ -536,10 +536,10 @@ end
 
 
 ---Activates a collectible generator in a given position.
+---@param entry CollectibleGeneratorConfig The Collectible Generator entry to be evaluated.
 ---@param x number The X position where the collectibles will spawn.
 ---@param y number The Y position where the collectibles will spawn.
----@param entry CollectibleGeneratorConfig The Collectible Generator entry to be evaluated.
-function Level:spawnCollectiblesFromEntry(x, y, entry)
+function Level:spawnCollectiblesFromEntry(entry, x, y)
 	local collectibles = self:evaluateCollectibleGeneratorEntry(entry)
 	for i, collectible in ipairs(collectibles) do
 		self:spawnCollectible(collectible, x, y)
@@ -575,9 +575,10 @@ end
 
 ---Executes a Score Event at the given position and returns a number of points calculated for further usage.
 ---@param scoreEvent ScoreEventConfig The Score Event config to be used for calculation.
----@param pos Vector2? The position where the Score Event should be executed. If not provided, the score text will not be displayed.
+---@param x number? The X position where the Score Event should be executed. If not provided, the score text will not be displayed.
+---@param y number? The Y position where the Score Event should be executed. If not provided, the score text will not be displayed.
 ---@return integer
-function Level:executeScoreEvent(scoreEvent, pos)
+function Level:executeScoreEvent(scoreEvent, x, y)
 	local score = scoreEvent.score:evaluate()
 	if _Game:getProfile().ultimatelySatisfyingMode then
 		score = math.floor(score * (1 + (_Game:getSession():getUSMNumber() - 1) * 0.2) + 0.5)
@@ -591,7 +592,7 @@ function Level:executeScoreEvent(scoreEvent, pos)
 	self:grantScore(score, unmultipliedScore)
 
 	-- Display the score text (Floating Text) only if a position is provided.
-	if pos then
+	if x and y then
 		local font = scoreEvent.font
 		if scoreEvent.fonts then
 			-- We pick one of the font options.
@@ -600,7 +601,7 @@ function Level:executeScoreEvent(scoreEvent, pos)
 		end
 		if font then
 			local text = scoreEvent.text and scoreEvent.text:evaluate() or (score > 0 and _Utils.formatNumber(score) or "")
-			self:spawnFloatingText(text, pos.x, pos.y, font)
+			self:spawnFloatingText(text, x, y, font)
 		end
 	end
 	_Vars:unset("event")
@@ -715,7 +716,7 @@ function Level:applyEffect(effect, x, y)
 	elseif effect.type == "setStreak" then
 		self.streak = effect.streak
 	elseif effect.type == "executeScoreEvent" then
-		self:executeScoreEvent(effect.scoreEvent, Vec2(x, y))
+		self:executeScoreEvent(effect.scoreEvent, x, y)
 	elseif effect.type == "executeGameEvent" then
 		_Game:executeGameEvent(effect.gameEvent)
 	elseif effect.type == "setScoreMultiplier" then
@@ -959,7 +960,7 @@ function Level:jumpToSequenceStep(stepN)
 	elseif step.type == "gameplay" then
 		self.levelSequenceVars = {warmupTime = 0}
 		if self.config.warmupLoopSound then
-			self.warmupLoop = _Game:playSound(self.config.warmupLoopSound)
+			self.warmupLoop = self.config.warmupLoopSound:play()
 		end
 	elseif step.type == "waitForCollectibles" then
 		self.levelSequenceVars = {}
@@ -1077,10 +1078,10 @@ function Level:lose()
 	end
 	-- play loss sounds
 	if self.config.failSound then
-		_Game:playSound(self.config.failSound)
+		self.config.failSound:play()
 	end
 	if self.config.failLoopSound then
-		self.failLoop = _Game:playSound(self.config.failLoopSound)
+		self.failLoop = self.config.failLoopSound:play()
 	end
 	-- update sequence step
 	local jumpTo = self.levelSequence[self.levelSequenceStep].onFail
@@ -1615,7 +1616,7 @@ function Level:spawnNet()
 		self.netParticle = _Game:spawnParticle(_Res:getParticleEffectConfig(netConfig.particle), x, y)
 	end
 	if not self.netSound then
-		self.netSound = _Game:playSound(_Res:getSoundEvent(netConfig.sound), x, y)
+		self.netSound = _Res:getSoundEvent(netConfig.sound):play(x, y)
 	end
 end
 

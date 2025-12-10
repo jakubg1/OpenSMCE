@@ -1,10 +1,9 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---@class UIWidgetRectangle
 ---@overload fun(parent, size, color):UIWidgetRectangle
 local UIWidgetRectangle = class:derive("UIWidgetRectangle")
-
-local Vec2 = require("src.Essentials.Vector2")
 
 function UIWidgetRectangle:new(parent, size, color)
 	self.type = "rectangle"

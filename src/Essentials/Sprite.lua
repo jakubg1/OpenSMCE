@@ -1,11 +1,10 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local Color = require("src.Essentials.Color")
 
 ---@class Sprite
 ---@overload fun(config, path):Sprite
 local Sprite = class:derive("Sprite")
-
-local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
 
 ---Constructs a new Sprite.
 ---@param config SpriteConfig The Sprite Config of this Sprite.
