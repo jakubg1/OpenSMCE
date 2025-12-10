@@ -1,10 +1,9 @@
 local class = require "com.class"
+local Color = require("src.Essentials.Color")
 
 ---@class Font
 ---@overload fun(data, path):Font
 local Font = class:derive("Font")
-
-local Color = require("src.Essentials.Color")
 
 ---Constructs a new Font.
 ---@param config FontConfig The Config of this Font.
@@ -31,6 +30,8 @@ function Font:new(config, path)
 		self.reportedCharacters = {}
 	elseif self.type == "truetype" then
 		self.font = config.file:makeFont(config.size)
+	elseif self.type == "imageLove" then
+		self.font = love.graphics.newImageFont(config.image.data, config.characters, config.spacing)
 	elseif self.type == "bmfont" then
 		self.font = love.graphics.newFont(_ParsePath(config.file))
 	end
@@ -77,15 +78,19 @@ end
 ---@param alignY number? Vertical alignment of the text. `0` is top, `1` is bottom. Defaults to center `0.5`.
 ---@param color Color? The color to draw this text in, white by default.
 ---@param alpha number? Opacity of the text, fully opaque `1` by default.
-function Font:draw(text, x, y, alignX, alignY, color, alpha)
+---@param scaleX number? Horizontal scale of the text, defaults to `1`.
+---@param scaleY number? Horizontal scale of the text, defaults to `scaleX`.
+function Font:draw(text, x, y, alignX, alignY, color, alpha, scaleX, scaleY)
 	alignX, alignY = alignX or 0.5, alignY or 0.5
 	color = color or Color()
 	alpha = alpha or 1
+	scaleX, scaleY = scaleX or 1, scaleY or scaleX or 1
 
 	local sizeX, sizeY = self:getTextSize(text)
 	if self.type == "image" then
 		love.graphics.setColor(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
 
+		-- TODO: Add support for scaling for image type fonts.
 		y = y - sizeY * alignY
 		local line = ""
 		for i = 1, text:len() do
@@ -104,8 +109,8 @@ function Font:draw(text, x, y, alignX, alignY, color, alpha)
 
 		love.graphics.setColor(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
 		love.graphics.setFont(self.font)
-		local px, py = x - sizeX * alignX, y - sizeY * alignY
-		love.graphics.print(text, px, py)
+		local px, py = x - sizeX * alignX * scaleX, y - sizeY * alignY * scaleY
+		love.graphics.print(text, px, py, 0, scaleX, scaleY)
 
 		love.graphics.setFont(oldFont)
 	end

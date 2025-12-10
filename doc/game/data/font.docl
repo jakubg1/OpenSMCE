@@ -6,6 +6,10 @@
                 - offset (integer) [>=0] - The X offset of the image where the character starts, in pixels.
                 - width (integer) [>=0] - The width of the character, in pixels.
         - newlineAdjustment* = 0 (number) - The padding between lines to be added in a multiline text, in pixels.
+    - "imageLove" - The font loads glyphs from an image file. The characters are separated with a different color of a line. All characters must be placed in a single row.
+        - image (Image) - The path to an Image which contains the characters.
+        - characters (string) - A string of characters contained in this Font, in the same order as contained in the image.
+        - spacing* = 1 (integer) [>=0] - Spacing between characters, in pixels.
     - "truetype" - The font loads glyphs from a TTF file.
         - file (FontFile) - The path to a TTF font file which contains the characters.
         - size (integer) [>0] - The size of the Font, in pixels.

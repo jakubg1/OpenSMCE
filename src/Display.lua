@@ -12,7 +12,7 @@ function Display:new()
     self.renderLayers = {}
     self.renderMode = "filtered"
     ---@type love.Shader[]
-    self.shaderStack = {love.graphics.getShader()}
+    self.shaderStack = {}
 
     self.funniFlashlight = false
 end
@@ -133,7 +133,7 @@ end
 
 ---Pops the most recently inserted shader from the stack. If there are no shaders left, throws an error.
 function Display:popShader()
-    assert(#self.shaderStack > 1, "Attempted to pop from an empty shader stack :(")
+    assert(#self.shaderStack > 0, "Attempted to pop from an empty shader stack :(")
     table.remove(self.shaderStack)
     love.graphics.setShader(self.shaderStack[#self.shaderStack])
 end

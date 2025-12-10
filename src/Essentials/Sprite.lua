@@ -74,6 +74,19 @@ function Sprite:getFramePos(state, frame)
 	return s.pos + Vec2((frame - 1) % s.frames.x, math.floor((frame - 1) / s.frames.x)) * self.config.frameSize
 end
 
+---Returns the amount of states in this Sprite.
+---@return integer
+function Sprite:getStateCount()
+	return #self.states
+end
+
+---Returns the amount of frames in the given state of this Sprite.
+---@param state integer? The state for which the count of frames should be provided. `1` by default.
+---@return integer
+function Sprite:getFrameCount(state)
+	return self.states[state or 1].frameCount
+end
+
 ---Draws this Sprite onto the screen.
 ---@param posX number The sprite's horizontal position.
 ---@param posY number The sprite's vertical position.

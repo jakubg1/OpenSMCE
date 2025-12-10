@@ -6,6 +6,7 @@
         "type": {
             "enum": [
                 "image",
+                "imageLove",
                 "truetype",
                 "bmfont"
             ]
@@ -72,6 +73,47 @@
                     "newlineAdjustment": {
                         "type": "number",
                         "description": "The padding between lines to be added in a multiline text, in pixels."
+                    },
+                    "color": {
+                        "$ref": "_structures/Color.json",
+                        "description": "The color of this Font."
+                    }
+                },
+                "required": [
+                    "image",
+                    "characters"
+                ],
+                "additionalProperties": false
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "type": {
+                        "const": "imageLove",
+                        "description": "The font loads glyphs from an image file. The characters are separated with a different color of a line. All characters must be placed in a single row."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "$schema": true,
+                    "type": true,
+                    "image": {
+                        "$ref": "_structures/Image.json",
+                        "description": "The path to an Image which contains the characters."
+                    },
+                    "characters": {
+                        "type": "string",
+                        "description": "A string of characters contained in this Font, in the same order as contained in the image."
+                    },
+                    "spacing": {
+                        "type": "integer",
+                        "description": "Spacing between characters, in pixels.",
+                        "minimum": 0
                     },
                     "color": {
                         "$ref": "_structures/Color.json",

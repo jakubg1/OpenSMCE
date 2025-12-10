@@ -37,13 +37,17 @@ function FontConfig:new(data, path, isAnonymous, base)
             self.characters[n].width = u.parseInteger(data, base, path, {"characters", n, "width"})
         end
         self.newlineAdjustment = u.parseNumberOpt(data, base, path, {"newlineAdjustment"}) or 0
+    elseif self.type == "imageLove" then
+        self.image = u.parseImage(data, base, path, {"image"})
+        self.characters = u.parseString(data, base, path, {"characters"})
+        self.spacing = u.parseIntegerOpt(data, base, path, {"spacing"}) or 1
     elseif self.type == "truetype" then
         self.file = u.parseFontFile(data, base, path, {"file"})
         self.size = u.parseInteger(data, base, path, {"size"})
     elseif self.type == "bmfont" then
         self.file = u.parseString(data, base, path, {"file"})
     else
-        error(string.format("Unknown FontConfig type: %s (expected \"image\", \"truetype\", \"bmfont\")", self.type))
+        error(string.format("Unknown FontConfig type: %s (expected \"image\", \"imageLove\", \"truetype\", \"bmfont\")", self.type))
     end
     self.color = u.parseColorOpt(data, base, path, {"color"})
 end

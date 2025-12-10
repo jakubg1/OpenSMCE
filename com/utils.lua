@@ -19,7 +19,23 @@ local utils = {}
 function utils.loadFile(path)
 	local file, err = io.open(path, "r")
 	if not file then
-		return
+		-- Try also returning data from inside the executable if fused.
+		return love.filesystem.read(path)
+	end
+	io.input(file)
+	local contents = io.read("*a")
+	io.close(file)
+	return contents
+end
+
+---Loads a file from a given path and returns its contents in binary form, or `nil` if the file has not been found.
+---@param path string The path to the file.
+---@return string?
+function utils.loadFileBinary(path)
+	local file, err = io.open(path, "rb")
+	if not file then
+		-- Try also returning data from inside the executable if fused.
+		return love.filesystem.read(path)
 	end
 	io.input(file)
 	local contents = io.read("*a")
@@ -48,7 +64,7 @@ function utils.loadJson(path)
 		return nil
 	end
 	local success, data = pcall(function() return json.decode(contents) end)
-	assert(success, string.format("JSON error: %s: %s", path, data))
+	assert(success, string.format("JSON error: %s: %s", path, tostring(data)))
 	assert(data, string.format("Could not JSON-decode: %s, error in file contents", path))
 	return data
 end
@@ -68,15 +84,11 @@ end
 ---@param path string The path to the file.
 ---@return love.ImageData?
 function utils.loadImageData(path)
-	local f = io.open(path, "rb")
-	if f then
-		local data = f:read("*all")
-		f:close()
-		if data then
-			data = love.filesystem.newFileData(data, "tempname")
-			data = love.image.newImageData(data)
-			return data
-		end
+	local data = utils.loadFileBinary(path)
+	if data then
+		data = love.filesystem.newFileData(data, "tempname")
+		data = love.image.newImageData(data)
+		return data
 	end
 end
 
@@ -99,19 +111,15 @@ end
 ---@param path string The path to the file.
 ---@return love.SoundData?
 function utils.loadSoundData(path)
-	local f = io.open(path, "rb")
-	if f then
-		local data = f:read("*all")
-		f:close()
-		if data then
-			-- to make everything work properly, we need to get the extension from the path, because it is used
-			-- source: https://love2d.org/wiki/love.filesystem.newFileData
-			local t = utils.strSplit(path, ".")
-			local extension = t[#t]
-			data = love.filesystem.newFileData(data, "tempname." .. extension)
-			data = love.sound.newSoundData(data)
-			return data
-		end
+	local data = utils.loadFileBinary(path)
+	if data then
+		-- to make everything work properly, we need to get the extension from the path, because it is used
+		-- source: https://love2d.org/wiki/love.filesystem.newFileData
+		local t = utils.strSplit(path, ".")
+		local extension = t[#t]
+		data = love.filesystem.newFileData(data, "tempname." .. extension)
+		data = love.sound.newSoundData(data)
+		return data
 	end
 end
 
@@ -121,10 +129,7 @@ end
 ---@return love.Source?
 function utils.loadSound(path, type)
 	local soundData = utils.loadSoundData(path)
-	if not soundData then
-		return
-	end
-	return love.audio.newSource(soundData, type)
+	return soundData and love.audio.newSource(soundData, type)
 end
 
 -- This function allows to load fonts from external sources.
@@ -135,15 +140,11 @@ end
 ---@param size integer? The size of the font, in pixels. Defaults to LOVE-specified 12 pixels.
 ---@return love.Rasterizer?
 function utils.loadFontData(path, size)
-	local f = io.open(path, "rb")
-	if f then
-		local data = f:read("*all")
-		f:close()
-		if data then
-			data = love.filesystem.newFileData(data, "tempname")
-			data = love.font.newRasterizer(data, size)
-			return data
-		end
+	local data = utils.loadFileBinary(path)
+	if data then
+		data = love.filesystem.newFileData(data, "tempname")
+		data = love.font.newRasterizer(data, size)
+		return data
 	end
 end
 
@@ -153,10 +154,7 @@ end
 ---@return love.Font?
 function utils.loadFont(path, size)
 	local fontData = utils.loadFontData(path, size)
-	if not fontData then
-		return
-	end
-	return love.graphics.newFont(fontData)
+	return fontData and love.graphics.newFont(fontData)
 end
 
 ---Opens a shader file and constructs `love.Shader` from it. Returns `nil` if file not found.
@@ -164,11 +162,7 @@ end
 ---@return love.Shader?
 function utils.loadShader(path)
 	local data = utils.loadFile(path)
-	if not data then
-		return
-	end
-	local shader = love.graphics.newShader(data)
-	return shader
+	return data and love.graphics.newShader(data)
 end
 
 ---Returns a list of directories and/or files in a given path.
@@ -490,6 +484,21 @@ function utils.removeDeadObjects(t)
 			table.remove(t, i)
 		end
 	end
+end
+
+---Creates a multidimensional table (table of tables).
+---@param value any? The default value for all table elements. If `nil`, the table will be empty. If a function, the function's will be called for each item and the result will be put.
+---@param dimSize integer? First of the dimensions. If `nil`, returns the raw `value`.
+---@return any?
+function utils.tableNewMultidim(value, dimSize, ...)
+	if not dimSize then
+		return type(value) == "function" and value() or value
+	end
+	local tbl = {}
+	for i = 1, dimSize do
+		tbl[i] = utils.tableNewMultidim(value, ...)
+	end
+	return tbl
 end
 
 --##########################################--
