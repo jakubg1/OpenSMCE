@@ -1,35 +1,23 @@
 local class = require "com.class"
+local Profile = require("src.Game.Profile")
 
 ---Manages all Profiles. Handles creating and removing them, and also saving and loading profile data.
 ---@class ProfileManager
 ---@overload fun(data):ProfileManager
 local ProfileManager = class:derive("ProfileManager")
 
-local Profile = require("src.Game.Profile")
-
-
-
 ---Constructs a Profile Manager.
----@param data table Deserialization data.
-function ProfileManager:new(data)
+function ProfileManager:new()
 	self.order = {}
 	self.profiles = {}
 	self.selected = ""
-
-	if data then
-		self:deserialize(data)
-	end
 end
-
-
 
 ---Returns the currently selected Profile.
 ---@return Profile
 function ProfileManager:getCurrentProfile()
 	return self.profiles[self.selected]
 end
-
-
 
 ---Selects a profile with a given name.
 ---@param name string The profile name to be selected.
@@ -39,8 +27,6 @@ function ProfileManager:setCurrentProfile(name)
 	-- Load USM (TODO: declare USM in difficulty settings)
 	_Game.satMode = self:getCurrentProfile().ultimatelySatisfyingMode
 end
-
-
 
 ---Creates a new profile with a given name, selects it and returns `true`. If a profile with a given name already exists, this function returns `false` instead.
 ---@param name string The profile name.
@@ -55,8 +41,6 @@ function ProfileManager:createProfile(name)
 	self.selected = name
 	return true
 end
-
-
 
 ---Removes a profile with a given name. If this was the currently selected profile, the ProfileManager will select the first profile from a list.
 ---@param name string The profile name.
@@ -74,8 +58,6 @@ function ProfileManager:deleteProfile(name)
 	end
 end
 
-
-
 ---Serializes the ProfileManager's data to be saved.
 ---@return table
 function ProfileManager:serialize()
@@ -89,8 +71,6 @@ function ProfileManager:serialize()
 	end
 	return t
 end
-
-
 
 ---Restores the ProfileManager's state to the one saved by the serialization function.
 ---@param t table The data to be deserialized.
@@ -106,7 +86,5 @@ function ProfileManager:deserialize(t)
 	local p = self:getCurrentProfile()
 	_Game.satMode = p and p.ultimatelySatisfyingMode
 end
-
-
 
 return ProfileManager

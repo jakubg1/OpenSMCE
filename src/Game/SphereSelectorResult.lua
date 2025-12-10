@@ -59,8 +59,6 @@ function SphereSelectorResult:new(config, pos)
 	end
 end
 
-
-
 ---Destroys all of the spheres contained in this Result.
 ---@param scoreEvent ScoreEventConfig? The Score Event that will be executed once on the whole batch.
 ---@param scoreEventPerSphere ScoreEventConfig? The Score Event that will be executed separately for each sphere.
@@ -101,8 +99,6 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 	_Vars:unset("selector")
 end
 
-
-
 ---Changes the color of all of the spheres contained in this Result to a given color.
 ---@param color integer The new color of affected spheres.
 ---@param particle ParticleEffectConfig? The particle effect to be used for each affected sphere.
@@ -112,8 +108,6 @@ function SphereSelectorResult:changeColor(color, particle)
 	end
 end
 
-
-
 ---Applies a Sphere Effect to all of the spheres contained in this Result.
 ---@param effect string The path to the Sphere Effect to be applied.
 function SphereSelectorResult:applyEffect(effect)
@@ -122,15 +116,11 @@ function SphereSelectorResult:applyEffect(effect)
 	end
 end
 
-
-
 ---Returns the amount of spheres contained in this Result.
 ---@return integer
 function SphereSelectorResult:countSpheres()
 	return #self.spheres
 end
-
-
 
 ---Returns a table, where keys are the sphere colors, and the values are the amounts of spheres of corresponding color contained in this Result.
 ---@return table
@@ -147,15 +137,11 @@ function SphereSelectorResult:countColors()
 	return result
 end
 
-
-
 ---Returns whether the provided Sphere is contained in this Result.
 ---@param sphere Sphere The sphere to be searched for.
 ---@return boolean
 function SphereSelectorResult:hasSphere(sphere)
 	return _Utils.isValueInTable(self.spheres, sphere)
 end
-
-
 
 return SphereSelectorResult

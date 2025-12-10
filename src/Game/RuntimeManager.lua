@@ -12,9 +12,9 @@ local RuntimeManager = class:derive("RuntimeManager")
 function RuntimeManager:new()
 	_Log:printt("RuntimeManager", "Initializing RuntimeManager...")
 
-	self.profileManager = nil
-	self.highscores = nil
-	self.options = nil
+	self.profileManager = ProfileManager()
+	self.highscores = Highscores()
+	self.options = Options()
 
 	self:load()
 end
@@ -24,9 +24,9 @@ function RuntimeManager:load()
 	-- if runtime.json exists, then load it
 	local data = _Utils.loadJson(_ParsePath("runtime.json"))
 	if data then
-		self.profileManager = ProfileManager(data.profiles)
-		self.highscores = Highscores(data.highscores)
-		self.options = Options(data.options)
+		self.profileManager:deserialize(data.profiles)
+		self.highscores:deserialize(data.highscores)
+		self.options:deserialize(data.options)
 	else
 		_Log:printt("RuntimeManager", "No data found! Possibly starting up for the first time or the save data got corrupted...")
 		_Log:printt("RuntimeManager", "If you believe you had some data saved in this game, DON'T EXIT NORMALLY and do the following:")
@@ -36,9 +36,6 @@ function RuntimeManager:load()
 		_Log:printt("RuntimeManager", "or send it to the development team!")
 		_Log:printt("RuntimeManager", "")
 		_Log:printt("RuntimeManager", "If you're launching the game for the first time, you can safely ignore the above message.")
-		self.profileManager = ProfileManager()
-		self.highscores = Highscores()
-		self.options = Options()
 	end
 end
 
@@ -47,8 +44,8 @@ function RuntimeManager:save()
 	local data = {}
 
 	data.profiles = self.profileManager:serialize()
-	data.highscores = self.highscores.data
-	data.options = self.options.data
+	data.highscores = self.highscores:serialize()
+	data.options = self.options:serialize()
 
 	_Utils.saveJson(_ParsePath("runtime.json"), data)
 end

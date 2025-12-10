@@ -391,6 +391,7 @@ function Debug:drawVisibleText(text, x, y, height, width, alpha, shadow, backgro
 end
 
 function Debug:drawDebugInfo()
+	love.graphics.setFont(_FONT)
 	-- Debug screen
 	local leftLines = _Utils.strSplit(self:getDebugInfo(), "\n")
 	for i, l in ipairs(leftLines) do
@@ -404,6 +405,7 @@ function Debug:drawDebugInfo()
 end
 
 function Debug:drawFpsInfo()
+	love.graphics.setFont(_FONT)
 	local s = "FPS = " .. tostring(love.timer.getFPS())
 
 	self:drawVisibleText(s, 0, 0, 15, 65)
@@ -412,6 +414,7 @@ end
 
 
 function Debug:drawSphereInfo()
+	love.graphics.setFont(_FONT)
 	local p = Vec2(0, _Display.h - 200)
 	local s = Vec2(_Display.w, 200)
 
