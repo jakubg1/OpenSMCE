@@ -74,11 +74,11 @@ _COLORS = {
 }
 
 -- Fonts
-_FONT = _Utils.loadFont("assets/dejavusans.ttf")
-_FONT_MED = _Utils.loadFont("assets/dejavusans.ttf", 14)
-_FONT_BIG = _Utils.loadFont("assets/dejavusans.ttf", 18)
-_FONT_GIANT = _Utils.loadFont("assets/dejavusans.ttf", 30)
-_FONT_CONSOLE = _Utils.loadFont("assets/unifont.ttf", 16)
+_FONT = _Utils.loadFont("assets/dejavusans.ttf") or love.graphics.newFont()
+_FONT_MED = _Utils.loadFont("assets/dejavusans.ttf", 14) or love.graphics.newFont(14)
+_FONT_BIG = _Utils.loadFont("assets/dejavusans.ttf", 18) or love.graphics.newFont(18)
+_FONT_GIANT = _Utils.loadFont("assets/dejavusans.ttf", 30) or love.graphics.newFont(30)
+_FONT_CONSOLE = _Utils.loadFont("assets/unifont.ttf", 16) or love.graphics.newFont(14)
 
 -- Set this to a string of your choice. This will be only printed in log files and is not used anywhere else.
 -- You can automate this in i.e. a script by simply adding a `_BUILD_NUMBER = "<your number>"` line at the end of this main.lua file.
