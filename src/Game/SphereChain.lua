@@ -13,6 +13,8 @@ function SphereChain:new(path, data)
 	self.path = path
 	self.map = path.map
 
+	self.config = _Game.configManager.gameplay.sphereBehavior
+
 	if data then
 		self:deserialize(data)
 	else
@@ -197,8 +199,6 @@ function SphereChain:new(path, data)
 	end
 
 	self.maxOffset = 0
-
-	self.config = _Game.configManager.gameplay.sphereBehavior
 
 	self.delQueue = false
 end
