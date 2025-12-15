@@ -1,6 +1,6 @@
 local class = require "com.class"
 
----@class Debug
+---@class Debug : Class
 ---@overload fun():Debug
 local Debug = class:derive("Debug")
 
@@ -33,6 +33,15 @@ function Debug:new()
 	-- Add a list of Expression Variables in a debug screen
 	-- Add a command to play any level
 	-- Add a command to set objective values
+
+	-- Register network test commands.
+	self.console:addCommand("nettest", "A suite of commands intended for testing the networking functionality.", {{name = "action", type = "string"}})
+	self.console:addCommand("nettest host", "Hosts a session at the given IP address and port.", {{name = "ip", type = "string", optional = true}, {name = "port", type = "integer", optional = true}}, self.commandNetHost, self)
+	self.console:addCommand("nettest join", "Connects to a session at the given IP address and port.", {{name = "ip", type = "string", optional = true}, {name = "port", type = "integer", optional = true}}, self.commandNetJoin, self)
+	self.console:addCommand("nettest leave", "Ends a session or a connection, depending on whether this is a server or a client.", {}, self.commandNetLeave, self)
+	self.console:addCommand("nettest name", "Sets a username of choice for this session.", {{name = "name", type = "string", greedy = true}}, self.commandNetName, self)
+	self.console:addCommand("nettest send", "Sends a message which is visible for all connected players.", {{name = "message", type = "string", greedy = true}}, self.commandNetSend, self)
+	self.console:addCommand("nettest list", "Shows the list of all players connected to the current session.", {}, self.commandNetList, self)
 
 	self.uiDebug = UIDebug()
 
@@ -646,6 +655,44 @@ function Debug:commandTrain(preset)
 		end
 	end
 	self:print(result)
+end
+
+-- Network test commands
+
+---Handles the `nettest host` command.
+---@param ip string The IP at which the server will be hosted.
+---@param port integer The port on which the server will listen to packets.
+function Debug:commandNetHost(ip, port)
+	self.console:print(string.format("commandNetHost %s %s", ip, port))
+end
+
+---Handles the `nettest join` command.
+---@param ip string The IP of the server to connect to.
+---@param port integer The port on which the server is listening to.
+function Debug:commandNetJoin(ip, port)
+	self.console:print(string.format("commandNetJoin %s %s", ip, port))
+end
+
+---Handles the `nettest leave` command.
+function Debug:commandNetLeave()
+	self.console:print("commandNetLeave")
+end
+
+---Handles the `nettest name` command.
+---@param name string The new username to be used.
+function Debug:commandNetName(name)
+	self.console:print(string.format("commandNetName %s", name))
+end
+
+---Handles the `nettest send` command.
+---@param message string The message to be sent to all clients of the party.
+function Debug:commandNetSend(message)
+	self.console:print(string.format("commandNetSend %s", message))
+end
+
+---Handles the `nettest list` command.
+function Debug:commandNetList()
+	self.console:print("commandNetList")
 end
 
 

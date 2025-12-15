@@ -27,8 +27,9 @@ function Console:new()
 		selectedCompletion = {1, 1, 1},
 		selectedCompletionBackground = {0.1, 0.4, 0.7}
 	}
-	---@alias CommandParameter {name: string, type: string, optional: boolean?, greedy: boolean?}
-	---@type table<string, {description: string, parameters: CommandParameter[], fn: function, caller: any?}>
+	---@alias Command {description: string, parameters: CommandParameter[], fn: function?, caller: any?}
+	---@alias CommandParameter {name: string, type: string, optional: boolean?, greedy: boolean?, subcommands: Command[]?}
+	---@type table<string, Command>
 	self.commands = {
 		help = {
 			description = "Displays a list of available commands.",
@@ -145,18 +146,37 @@ function Console:setFont(font)
 end
 
 ---Registers a new command for the Console.
----@param name string The command name.
+---@param name string The command name. You can also make subcommands by using spaces, for example `"net connect"`.
 ---@param description string The command description, seen in the output of `help` command.
 ---@param parameters CommandParameter[] A list of command parameters for this command.
----@param fn function The function to be called when this command is executed. The given parameters will be converted and passed as arguments.
----@param caller any? The object on which the function should be called. Use when a class function is passed.
+---@param fn function? The function to be called when this command is executed. The given parameters will be converted and passed as arguments. If not specified, nothing will happen when the command is executed. Normally that would make the command useless, but it's desirable if you want to set up subcommands.
+---@param caller Class? The object on which the function should be called. Use when a class function is passed.
 function Console:addCommand(name, description, parameters, fn, caller)
-	self.commands[name] = {
-		description = description,
-		parameters = parameters,
-		fn = fn,
-		caller = caller
-	}
+	local subnames = _Utils.strSplit(name, " ")
+	if #subnames == 1 then
+		-- Add a new command.
+		self.commands[name] = {
+			description = description,
+			parameters = parameters,
+			fn = fn,
+			caller = caller
+		}
+	elseif #subnames > 1 then
+		-- Add a subcommand to an existing command.
+		local command = assert(self.commands[subnames[1]], string.format("Failed to register a command `%s`: The `%s` command must be registered first.", name, subnames[1]))
+		local lastParam = command.parameters[#command.parameters]
+		assert(lastParam and lastParam.type == "string", string.format("Failed to register a command `%s`: The last parameter of the `%s` command must be a string.", name, subnames[1]))
+		-- Create a list of subcommands if this is the first subcommand added to the command.
+		if not lastParam.subcommands then
+			lastParam.subcommands = {}
+		end
+		lastParam.subcommands[subnames[2]] = {
+			description = description,
+			parameters = parameters,
+			fn = fn,
+			caller = caller
+		}
+	end
 end
 
 ---Parses and executes the provided command.
@@ -166,49 +186,80 @@ function Console:runCommand(command)
 	local words = _Utils.strSplit(command, " ")
 
 	-- Get command data.
-	local commandName = words[1]
-	local commandData = self.commands[commandName]
+	-- This will change in the parsing step to the subcommand data if a subcommand is encountered!
+	local commandData = self.commands[words[1]]
 	if not commandData then
-		self:print({self.colors.error, string.format("Command \"%s\" not found. Type \"help\" to see available commands.", words[1])})
+		self:print({self.colors.error, string.format("Command `%s` not found. Type `help` to see available commands.", words[1])})
 		return
 	end
 
 	-- Parse and obtain all necessary parameters.
 	local parameters = {}
-	for i, parameter in ipairs(commandData.parameters) do
-		local raw = words[i + 1]
-		if not raw then
-			if not parameter.optional then
-				self:print({self.colors.error, string.format("Missing parameter: \"%s\", expected: %s", parameter.name, parameter.type)})
+	local paramIndex = 1 -- In the current command data (as this can shift), which parameter is going to be parsed next
+	local greed = false -- Whether we've already encountered a greedy parameter - this means all subsequent words will add on to the last parameter
+	for i = 2, #words do
+		local word = words[i]
+		if greed then
+			parameters[#parameters] = parameters[#parameters] .. " " .. word
+		else
+			local parameter = commandData.parameters[paramIndex]
+			local success, result = pcall(function() return self:parseCommandParameter(parameter, word) end)
+			if success then
+				if parameter.subcommands then
+					-- This is a subcommand parameter, which means we're going to shift our focus to the selected subcommand.
+					commandData = parameter.subcommands[result]
+					if not commandData then
+						-- An invalid subcommand has been specified. Stop the process.
+						self:print({self.colors.error, string.format("Invalid subcommand for `%s`: `%s`", words[1], result)})
+						return
+					end
+					-- Note that we're setting 0 here because this will be incremented by the time the next iteration starts.
+					paramIndex = 0
+				else
+					table.insert(parameters, result)
+					if parameter.greedy then
+						greed = true
+					end
+				end
+			else
+				-- There has been an error. Stop the process.
+				self:print({self.colors.error, result})
 				return
 			end
-		else
-			if parameter.type == "number" or parameter.type == "integer" then
-				raw = tonumber(raw)
-				if not raw then
-					self:print({self.colors.error, string.format("Failed to convert to number: \"%s\", expected: %s", words[i + 1], parameter.type)})
-					return
-				end
-			elseif parameter.type == "Collectible" then
-				raw = _Res:getCollectibleConfig(raw)
-			end
-			-- Greedy parameters can only be strings and are always last (taking the rest of the command).
-			if parameter.type == "string" and parameter.greedy then
-				for j = i + 2, #words do
-					raw = raw .. " " .. words[j]
-				end
-			end
 		end
-		table.insert(parameters, raw)
+		paramIndex = paramIndex + 1
 	end
 
 	-- Execute the function.
 	local fn = commandData.fn
-	local caller = commandData.caller
-	if caller then
-		return fn(caller, unpack(parameters))
+	if fn then
+		local caller = commandData.caller
+		if caller then
+			return fn(caller, unpack(parameters))
+		else
+			return fn(unpack(parameters))
+		end
+	end
+end
+
+---Parses the provided command parameter. If the parsing fails, throws an error with a description.
+---@private
+---@param parameter CommandParameter The manifest for the provided parameter.
+---@param raw string The word to be parsed.
+---@return any
+function Console:parseCommandParameter(parameter, raw)
+	if not raw then
+		assert(parameter.optional, string.format("Missing parameter: `%s`, expected: %s", parameter.name, parameter.type))
+		-- Optional parameters which are not given evaluate to `nil`.
+		return nil
 	else
-		return fn(unpack(parameters))
+		if parameter.type == "number" or parameter.type == "integer" then
+			return assert(tonumber(raw), string.format("Failed to convert to number: `%s`, expected: %s", raw, parameter.type))
+		elseif parameter.type == "string" then
+			return raw
+		elseif parameter.type == "Collectible" then
+			return _Res:getCollectibleConfig(raw)
+		end
 	end
 end
 
@@ -227,6 +278,8 @@ function Console:displayHelp()
 			table.insert(msg, self.colors.commandParameter)
 			if parameter.optional then
 				table.insert(msg, string.format(" [%s]", name))
+			elseif parameter.subcommands then
+				table.insert(msg, string.format(" <%s> ...", name))
 			else
 				table.insert(msg, string.format(" <%s>", name))
 			end
@@ -294,11 +347,24 @@ function Console:getCommandCompletionSuggestions(command)
 		local commandConfig = self.commands[words[1]]
 		if commandConfig then
 			local parameter = commandConfig.parameters[#words - 1]
+			if not parameter then
+				-- There is no parameter for our command because we went too far. But maybe there's a subcommand in the process?
+				local lastParamConfig = commandConfig.parameters[#commandConfig.parameters]
+				if lastParamConfig and lastParamConfig.subcommands then
+					-- There is! Check the subcommand.
+					--print("Found config for " .. tostring(words[#commandConfig.parameters + 1]))
+					commandConfig = lastParamConfig.subcommands[words[#commandConfig.parameters + 1]]
+					-- TODO: Continue and possibly untangle the logic (recursive function?)
+				end
+			end
 			if parameter then
+				-- TODO: Support all resource types.
 				if parameter.type == "Collectible" then
 					suggestions = _Res:getResourceList("Collectible")
 				elseif parameter.type == "ParticleEffect" then
 					suggestions = _Res:getResourceList("ParticleEffect")
+				elseif parameter.type == "string" and parameter.subcommands then
+					suggestions = _Utils.tableGetSortedKeys(parameter.subcommands)
 				end
 			end
 		end
@@ -606,7 +672,11 @@ function Console:inputTab()
 		local commandStripped = self:getCommandWithoutLastWord()
 		if self.tabCompletionSelection == 0 or self.command == commandStripped .. self.tabCompletionList[self.tabCompletionSelection] then
 			-- Move through the suggestions.
-			self.tabCompletionSelection = self.tabCompletionSelection % #self.tabCompletionList + 1
+			if love.keyboard.isDown("lshift", "rshift") then
+				self.tabCompletionSelection = (self.tabCompletionSelection - 2) % #self.tabCompletionList + 1
+			else
+				self.tabCompletionSelection = self.tabCompletionSelection % #self.tabCompletionList + 1
+			end
 			self:updateTabCompletionScroll()
 		end
 		-- Autofill the suggestion.
