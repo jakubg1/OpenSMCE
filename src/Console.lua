@@ -161,7 +161,7 @@ function Console:addCommand(name, description, parameters, fn, caller)
 			fn = fn,
 			caller = caller
 		}
-	elseif #subnames > 1 then
+	elseif #subnames == 2 then
 		-- Add a subcommand to an existing command.
 		local command = assert(self.commands[subnames[1]], string.format("Failed to register a command `%s`: The `%s` command must be registered first.", name, subnames[1]))
 		local lastParam = command.parameters[#command.parameters]
@@ -176,6 +176,9 @@ function Console:addCommand(name, description, parameters, fn, caller)
 			fn = fn,
 			caller = caller
 		}
+	elseif #subnames > 2 then
+		-- TODO: Rewrite this code so that multiple layers of depth are supported.
+		error(string.format("Failed to register a command `%s`: Multi-layered subcommands are not yet supported.", name))
 	end
 end
 

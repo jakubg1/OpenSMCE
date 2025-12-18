@@ -1,19 +1,15 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
+local Profiler = require("src.Profiler")
+local Console = require("src.Console")
+local UIDebug = require("src.UITreeDebug")
+local NetworkingTest = require("src.NetworkingTest")
+local Expression = require("src.Expression")
+local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 
 ---@class Debug : Class
 ---@overload fun():Debug
 local Debug = class:derive("Debug")
-
-local Vec2 = require("src.Essentials.Vector2")
-
-local Profiler = require("src.Profiler")
-local Console = require("src.Console")
-local UIDebug = require("src.UITreeDebug")
-
-local Expression = require("src.Expression")
-local SphereSelectorResult = require("src.Game.SphereSelectorResult")
-
-
 
 ---Constructs a Debug class.
 function Debug:new()
@@ -42,6 +38,7 @@ function Debug:new()
 	self.console:addCommand("nettest name", "Sets a username of choice for this session.", {{name = "name", type = "string", greedy = true}}, self.commandNetName, self)
 	self.console:addCommand("nettest send", "Sends a message which is visible for all connected players.", {{name = "message", type = "string", greedy = true}}, self.commandNetSend, self)
 	self.console:addCommand("nettest list", "Shows the list of all players connected to the current session.", {}, self.commandNetList, self)
+	self.netTest = NetworkingTest()
 
 	self.uiDebug = UIDebug()
 
@@ -84,6 +81,7 @@ end
 ---@param dt number Time delta in seconds.
 function Debug:update(dt)
 	self.console:update(dt)
+	self.netTest:update(dt)
 	self.lastVec2PerFrame = self.vec2PerFrame
 	self.vec2PerFrame = 0
 
@@ -663,36 +661,36 @@ end
 ---@param ip string The IP at which the server will be hosted.
 ---@param port integer The port on which the server will listen to packets.
 function Debug:commandNetHost(ip, port)
-	self.console:print(string.format("commandNetHost %s %s", ip, port))
+	self.netTest:host(ip, port)
 end
 
 ---Handles the `nettest join` command.
 ---@param ip string The IP of the server to connect to.
 ---@param port integer The port on which the server is listening to.
 function Debug:commandNetJoin(ip, port)
-	self.console:print(string.format("commandNetJoin %s %s", ip, port))
+	self.netTest:join(ip, port)
 end
 
 ---Handles the `nettest leave` command.
 function Debug:commandNetLeave()
-	self.console:print("commandNetLeave")
+	self.netTest:leave()
 end
 
 ---Handles the `nettest name` command.
 ---@param name string The new username to be used.
 function Debug:commandNetName(name)
-	self.console:print(string.format("commandNetName %s", name))
+	self.netTest:sendName(name)
 end
 
 ---Handles the `nettest send` command.
 ---@param message string The message to be sent to all clients of the party.
 function Debug:commandNetSend(message)
-	self.console:print(string.format("commandNetSend %s", message))
+	self.netTest:send(message)
 end
 
 ---Handles the `nettest list` command.
 function Debug:commandNetList()
-	self.console:print("commandNetList")
+	self.netTest:list()
 end
 
 

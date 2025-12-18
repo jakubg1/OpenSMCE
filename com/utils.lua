@@ -987,7 +987,7 @@ function utils.ctextSplit(s, k)
 	return result
 end
 
----Adds a new text segment to the provided chunk of colored text.
+---Adds in-place a new text segment to the provided chunk of colored text.
 ---@param ctext ColoredText The colored text to be added to.
 ---@param text string|ColoredText The text or colored text to be added.
 ---@param color RawColor? The color of the new segment. If not specified, color of the previous segment will be used.
