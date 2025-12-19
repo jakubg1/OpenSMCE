@@ -3,7 +3,7 @@ local Vec2 = require("src.Essentials.Vector2")
 local Profiler = require("src.Profiler")
 local Console = require("src.Console")
 local UIDebug = require("src.UITreeDebug")
-local NetworkingTest = require("src.NetworkingTest")
+local NetworkingTest = require("src.NetworkingTest.NetworkingTest")
 local Expression = require("src.Expression")
 local SphereSelectorResult = require("src.Game.SphereSelectorResult")
 
@@ -181,6 +181,11 @@ end
 
 function Debug:mousereleased(x, y, button)
 	self.uiDebug:mousereleased(x, y, button)
+end
+
+---Handles disconnecting from the Networking Test if the game is closed.
+function Debug:disconnect()
+	self.netTest:disconnect()
 end
 
 
@@ -679,7 +684,7 @@ end
 ---Handles the `nettest name` command.
 ---@param name string The new username to be used.
 function Debug:commandNetName(name)
-	self.netTest:sendName(name)
+	self.netTest:setName(name)
 end
 
 ---Handles the `nettest send` command.

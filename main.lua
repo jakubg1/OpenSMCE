@@ -254,6 +254,7 @@ function love.quit()
 		return true
 	end
 	_DiscordRPC:disconnect()
+	_Debug:disconnect()
 	_Log:save(true)
 	_Profiler.write("performance.jprof")
 end
