@@ -31,6 +31,9 @@ local NetworkingTest = Class:derive("NetworkingTest")
 -- - name (string) - The requested nickname.
 -- "NAMX" (H->C) - Sent by the host as a response to the NAME request.
 -- - name (string) - The requested nickname is returned back.
+-- "LIST" (C->H) - Sent by the client as a request to get a list of users and their data.
+-- "LISX" (H->C) - Sent by the host as a response to the LISX request.
+-- - users (User[]) - A list of all users, pre-ordered in the suggested printing order. User fields: name, ip, port, isHost, ping.
 
 ---Creates a Networking Test instance.
 function NetworkingTest:new()
@@ -77,6 +80,7 @@ function NetworkingTest:host(ip, port)
         self.isHost = true
         self.name = "Host"
         self.userList:addUser(ip, port, self.name)
+        self.userList:setUserHost(self.name, true)
         self:say(string.format("Socket opened on address %s:%s", ip, port))
     else
         self:printError("Failed to host a socket. Check if the address and the port are correct.")
@@ -128,6 +132,7 @@ function NetworkingTest:setName(name)
             return
         end
         self.userList:renameUser(self.name, name)
+        self:broadcastChatMessage(string.format("%s changed their name to %s", self.name, name))
         self.name = name
         self:printChatMessage("Your name has been changed to " .. self.name)
     else
@@ -153,12 +158,27 @@ end
 
 ---Displays a list of all connected users in the party in the console.
 function NetworkingTest:list()
-    assert(self.isHost, "Command not available to clients for now")
-    self:say("Name                 Ping   Time  IP:Port")
-    local users = self.userList:getUsers()
-    for i, name in ipairs(_Utils.tableGetSortedKeys(users)) do
-        local user = users[name]
-        self:say(string.format("%s - address: %s:%s", name, user.ip, user.port))
+    if not self.socket then
+        self:printError("You're currently not connected. Connect with `net join` or host with `net host` first.")
+        return
+    end
+    if self.isHost then
+        self:say("")
+        self:say("Name                 Ping   Time  IP:Port", _COLORS.aqua)
+        local users = self.userList:getUsers()
+        for i, name in ipairs(self.userList:getSortedUserNames()) do
+            local user = users[name]
+            local s = name
+            s = s .. string.rep(" ", 21 - s:len())
+            s = s .. (user.isHost and "Host" or (user.ping and string.format("%dms", user.ping * 1000) or "----"))
+            s = s .. string.rep(" ", 28 - s:len())
+            s = s .. "----"
+            s = s .. string.rep(" ", 34 - s:len())
+            s = s .. string.format("%s:%s", user.ip, user.port)
+            self:say(s, user.isHost and _COLORS.orange or _COLORS.white)
+        end
+    else
+        self:sendPacket({type = "LIST"})
     end
 end
 
@@ -298,7 +318,13 @@ function NetworkingTest:receivePacket(payload, ip, port)
             self.userList:removeUser(name)
             self:broadcastChatMessage(name .. " left the party.")
         elseif payload.type == "PING" then
-            -- We've got a ping from one of the users. Respond.
+            -- We've got a ping from one of the users. Store the ping if it's there and respond.
+            local name = self.userList:getUserNameFromSocket(ip, port)
+            if not name then
+                -- It was a random fluke. Ignore the packet.
+                return
+            end
+            self.userList:setUserPing(name, payload.ping)
             self:sendPacket({type = "PING"}, ip, port)
         elseif payload.type == "MSG" then
             -- We're told to broadcast this message from one of the users.
@@ -317,7 +343,17 @@ function NetworkingTest:receivePacket(payload, ip, port)
                 return
             end
             self.userList:renameUser(name, payload.name)
+            self:broadcastChatMessage(string.format("%s changed their name to %s", name, payload.name))
             self:sendPacket({type = "NAMX", name = payload.name})
+        elseif payload.type == "LIST" then
+            -- We're told to give basic data about the connected users.
+            local data = {}
+            local users = self.userList:getUsers()
+            for i, name in ipairs(self.userList:getSortedUserNames()) do
+                local user = users[name]
+                table.insert(data, {name = name, ip = user.ip, port = user.port, isHost = user.isHost, ping = user.ping})
+            end
+            self:sendPacket({type = "LISX", users = data})
         end
     else
         -- Packets dispatched by the clients.
@@ -348,6 +384,18 @@ function NetworkingTest:receivePacket(payload, ip, port)
             -- Our nickname has changed.
             self.name = payload.name
             self:printChatMessage("Your name has been changed to " .. self.name)
+        elseif payload.type == "LISX" then
+            -- We got user list data.
+            self:say("")
+            self:say("Name                 Ping   IP:Port", _COLORS.aqua)
+            for i, user in ipairs(payload.users) do
+                local s = user.name
+                s = s .. string.rep(" ", 21 - s:len())
+                s = s .. (user.isHost and "Host" or (user.ping and string.format("%dms", user.ping * 1000) or "----"))
+                s = s .. string.rep(" ", 28 - s:len())
+                s = s .. string.format("%s:%s", user.ip, user.port)
+                self:say(s, user.isHost and _COLORS.orange or _COLORS.white)
+            end
         end
     end
 end

@@ -7,7 +7,7 @@ local UserList = Class:derive("UserList")
 ---Creates a new User List.
 ---This is a class which stores the list of all clients connected to the Networking Test party.
 function UserList:new()
-    ---@alias User {ip: string, port: integer, atime: number}
+    ---@alias User {ip: string, port: integer, isHost: boolean, ping: number?, atime: number}
     ---@type table<string, User>
     self.users = {} -- A list of connected users, keyed by names. Remains empty if this user is not a host.
     ---@type table<string, table<integer, string>>
@@ -34,7 +34,7 @@ end
 ---@param name string The name of the connected user.
 function UserList:addUser(ip, port, name)
     assert(not self.users[name], "The user " .. name .. " already exists.")
-    self.users[name] = {ip = ip, port = port}
+    self.users[name] = {ip = ip, port = port, isHost = false}
     self.nameLookup[ip] = self.nameLookup[ip] or {}
     self.nameLookup[ip][port] = name
 end
@@ -66,6 +66,20 @@ function UserList:empty()
     _Utils.emptyTable(self.nameLookup)
 end
 
+---Sets the given player's host status.
+---@param name string The player name.
+---@param host boolean Whether this player should be the game host.
+function UserList:setUserHost(name, host)
+    self.users[name].isHost = host
+end
+
+---Sets the given player's ping.
+---@param name string The player name.
+---@param ping number? The ping, in seconds. Passing `nil` will reset the value.
+function UserList:setUserPing(name, ping)
+    self.users[name].ping = ping
+end
+
 ---Returns the name of the user connected to the provided IP and port.
 ---Returns `nil` if nobody is connected there.
 ---@param ip string The IP address of the connected user.
@@ -73,6 +87,23 @@ end
 ---@return string?
 function UserList:getUserNameFromSocket(ip, port)
     return self.nameLookup[ip] and self.nameLookup[ip][port]
+end
+
+---Returns the list of user names sorted in a specific way, based on two criteria:
+--- - First, the users with host status are considered.
+--- - Then, user names are sorted alphabetically.
+---@return string[]
+function UserList:getSortedUserNames()
+    local names = _Utils.tableGetSortedKeys(self.users)
+    table.sort(names, function(a, b)
+        if self.users[a].isHost and not self.users[b].isHost then
+            return true
+        elseif not self.users[a].isHost and self.users[b].isHost then
+            return false
+        end
+        return a > b
+    end)
+    return names
 end
 
 ---Returns the first free username, starting with `"Guest1"`, `"Guest2"` and so on.
