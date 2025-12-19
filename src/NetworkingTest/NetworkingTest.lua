@@ -360,7 +360,7 @@ function NetworkingTest:receivePacket(payload, ip, port)
             -- We're told to change the provided user's name.
             local success, msg = self:validateUsername(payload.name)
             if not success then
-                self:sendPacket({type = "ERR", message = msg})
+                self:sendPacket({type = "ERR", message = msg}, ip, port)
                 return
             end
             local name = self.userList:getUserNameFromSocket(ip, port)
@@ -370,7 +370,7 @@ function NetworkingTest:receivePacket(payload, ip, port)
             end
             self.userList:renameUser(name, payload.name)
             self:broadcastChatMessage(string.format("%s changed their name to %s", name, payload.name))
-            self:sendPacket({type = "NAMX", name = payload.name})
+            self:sendPacket({type = "NAMX", name = payload.name}, ip, port)
         elseif payload.type == "LIST" then
             -- We're told to give basic data about the connected users.
             local data = {}
@@ -379,7 +379,7 @@ function NetworkingTest:receivePacket(payload, ip, port)
                 local user = users[name]
                 table.insert(data, {name = name, ip = user.ip, port = user.port, isHost = user.isHost, ping = user.ping})
             end
-            self:sendPacket({type = "LISX", users = data})
+            self:sendPacket({type = "LISX", users = data}, ip, port)
         end
     else
         -- Packets dispatched by the clients.
