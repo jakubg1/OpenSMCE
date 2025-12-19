@@ -34,7 +34,7 @@ end
 ---@param name string The name of the connected user.
 function UserList:addUser(ip, port, name)
     assert(not self.users[name], "The user " .. name .. " already exists.")
-    self.users[name] = {ip = ip, port = port, isHost = false}
+    self.users[name] = {ip = ip, port = port, isHost = false, atime = _GetPreciseTime()}
     self.nameLookup[ip] = self.nameLookup[ip] or {}
     self.nameLookup[ip][port] = name
 end
@@ -80,6 +80,12 @@ function UserList:setUserPing(name, ping)
     self.users[name].ping = ping
 end
 
+---Marks the user's heartbeat by updating the `atime` field with the current timestamp.
+---@param name string The player name.
+function UserList:markUserHeartbeat(name)
+    self.users[name].atime = _GetPreciseTime()
+end
+
 ---Returns the name of the user connected to the provided IP and port.
 ---Returns `nil` if nobody is connected there.
 ---@param ip string The IP address of the connected user.
@@ -89,7 +95,7 @@ function UserList:getUserNameFromSocket(ip, port)
     return self.nameLookup[ip] and self.nameLookup[ip][port]
 end
 
----Returns the list of user names sorted in a specific way, based on two criteria:
+---Returns a list of user names sorted in a specific way, based on two criteria:
 --- - First, the users with host status are considered.
 --- - Then, user names are sorted alphabetically.
 ---@return string[]
@@ -103,6 +109,20 @@ function UserList:getSortedUserNames()
         end
         return a > b
     end)
+    return names
+end
+
+---Returns a list of user names whose hearts have not beaten for the provided number of seconds.
+---Hosts are exempt from being dead.
+---@param threshold number Time threshold until the player is considered dead.
+---@return string[]
+function UserList:getDeadUserNames(threshold)
+    local names = {}
+    for name, user in pairs(self.users) do
+        if not user.isHost and _GetPreciseTime() - user.atime >= threshold then
+            table.insert(names, name)
+        end
+    end
     return names
 end
 
