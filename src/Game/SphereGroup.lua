@@ -509,7 +509,7 @@ function SphereGroup:join()
 	self:destroyFragileSpheres()
 	-- play a sound
 	local x, y = self.sphereChain.path:getPos(self.offset)
-	_Res:getSoundEvent(self.config.joinSound):play(x, y)
+	self.config.joinSound:play(x, y)
 end
 
 

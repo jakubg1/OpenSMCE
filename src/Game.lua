@@ -32,6 +32,7 @@ function Game:init()
 
 	-- Step 1. Load the config
 	self.configManager = ConfigManager()
+	self.configManager:load()
 
 	-- Step 2. Initialize the window and canvas
 	local w, h = self:getNativeResolution()
