@@ -207,7 +207,7 @@ end
 ---Returns `nil` if the current level is a UI script entry.
 ---@return table?
 function ProfileSession:getMapData()
-	return self.levelID and _Game.configManager.maps[self.levelID.map]
+	return self.levelID and _Game.configManager:getMapData(self.levelID.map)
 end
 
 ---Returns the player's current level set entry name.

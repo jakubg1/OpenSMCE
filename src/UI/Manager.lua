@@ -82,7 +82,7 @@ function UIManager:new()
     highscoreReset = function() _Game.runtimeManager.highscores:reset() end,
     highscoreGetEntry = function(n) return _Game.runtimeManager.highscores:getEntry(n) end,
 
-    configGetMapData = function(name) return _Game.configManager.maps[name] end,
+    configGetMapData = function(name) return _Game.configManager:getMapData(name) end,
     configGetLevelData = function(levelSet, n) return _Res:getLevelSetConfig(levelSet).levelOrder[n].level end,
     configGetLevelName = function(levelSet, n) return _Res:getLevelSetConfig(levelSet).levelOrder[n].name end,
     configGetCheckpointID = function(levelSet, n) return _Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet))[n].levelID end,

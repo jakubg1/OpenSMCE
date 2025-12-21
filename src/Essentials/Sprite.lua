@@ -98,7 +98,8 @@ end
 ---@param alpha number? Sprite transparency. `0` is fully transparent. `1` is fully opaque.
 ---@param scaleX number? The horizontal scale of this sprite.
 ---@param scaleY number? The horizontal scale of this sprite.
-function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha, scaleX, scaleY)
+---@param scaleMode boolean? If `true`, the `scaleX` and `scaleY` will instead specify the sprite size in pixels, regardless of the frame size.
+function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha, scaleX, scaleY, scaleMode)
 	--_Debug:deprecationNotice("Test deprecation notice/Sprites will need layers soon!", 2)
 
 	alignX, alignY = alignX or 0, alignY or 0
@@ -107,7 +108,10 @@ function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha
 	rot = rot or 0
 	color = color or Color()
 	alpha = alpha or 1
-	scaleX, scaleY = scaleX or 1, scaleY or 1
+	scaleX, scaleY = scaleX or 1, scaleY or scaleX or 1
+	if scaleMode then
+		scaleX, scaleY = scaleX / self.config.frameSize.x, scaleY / self.config.frameSize.y
+	end
 
 	local x, y = _V.rotate(alignX * scaleX * self.config.frameSize.x, alignY * scaleY * self.config.frameSize.y, rot)
 	posX, posY = posX - x, posY - y
