@@ -1,22 +1,15 @@
 local class = require "com.class"
+local DummyLevel = require("src.Game.DummyLevel")
 
 ---@class UIWidgetLevel
 ---@overload fun(parent, path):UIWidgetLevel
 local UIWidgetLevel = class:derive("UIWidgetLevel")
 
-local DummyLevel = require("src.Game.DummyLevel")
-
-
-
 function UIWidgetLevel:new(parent, path)
 	self.type = "level"
-	
 	self.parent = parent
-	
 	self.level = DummyLevel(path)
 end
-
-
 
 function UIWidgetLevel:update(dt)
 	if not self.parent.visible then

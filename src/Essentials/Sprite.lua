@@ -100,9 +100,8 @@ end
 ---@param scaleY number? The horizontal scale of this sprite.
 ---@param scaleMode boolean? If `true`, the `scaleX` and `scaleY` will instead specify the sprite size in pixels, regardless of the frame size.
 function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha, scaleX, scaleY, scaleMode)
-	--_Debug:deprecationNotice("Test deprecation notice/Sprites will need layers soon!", 2)
-
 	alignX, alignY = alignX or 0, alignY or 0
+	alignX, alignY = alignX * self.config.frameSize.x, alignY * self.config.frameSize.y
 	state = state or 1
 	frame = frame or 1
 	rot = rot or 0
@@ -113,11 +112,8 @@ function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha
 		scaleX, scaleY = scaleX / self.config.frameSize.x, scaleY / self.config.frameSize.y
 	end
 
-	local x, y = _V.rotate(alignX * scaleX * self.config.frameSize.x, alignY * scaleY * self.config.frameSize.y, rot)
-	posX, posY = posX - x, posY - y
-
-	love.graphics.setColor(color.r, color.g, color.b, alpha)
-	love.graphics.draw(self.image, self:getFrame(state, frame), posX, posY, rot, scaleX, scaleY)
+	_Renderer:setColor(color, alpha)
+	_Renderer:drawImage(self.image, self:getFrame(state, frame), posX, posY, rot, scaleX, scaleY, alignX, alignY)
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

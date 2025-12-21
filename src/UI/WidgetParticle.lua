@@ -4,8 +4,6 @@ local class = require "com.class"
 ---@overload fun(parent, path):UIWidgetParticle
 local UIWidgetParticle = class:derive("UIWidgetParticle")
 
-
-
 function UIWidgetParticle:new(parent, path)
 	self.type = "particle"
 
@@ -44,9 +42,8 @@ function UIWidgetParticle:clean()
 	end
 end
 
-
-
 function UIWidgetParticle:draw()
+	-- Drawing is handled by the Particle Manager.
 end
 
 return UIWidgetParticle

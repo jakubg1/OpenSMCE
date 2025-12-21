@@ -37,6 +37,7 @@ local json = require("com.json")
 local Log = require("src.Log")
 local Debug = require("src.Debug")
 local Display = require("src.Display")
+local Renderer = require("src.Renderer")
 local ResourceManager = require("src.ResourceManager")
 
 local Game = require("src.Game")
@@ -96,6 +97,8 @@ _Log = nil
 _Debug = nil
 ---@type Display
 _Display = nil
+---@type Renderer
+_Renderer = nil
 ---@type ResourceManager
 _Res = nil
 
@@ -118,6 +121,7 @@ function love.load(args)
 	_Log = Log()
 	_Debug = Debug()
 	_Display = Display()
+	_Renderer = Renderer()
 	_Res = ResourceManager()
 	_EngineSettings = Settings("settings.json")
 	_DiscordRPC = DiscordRichPresence()

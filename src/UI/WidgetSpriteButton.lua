@@ -89,6 +89,7 @@ function UIWidgetSpriteButton:draw()
 		end
 	end
 
+	_Renderer:setLayer(self.parent.layer)
 	self.sprite:draw(pos.x, pos.y, nil, nil, self:getState(), nil, nil, nil, alpha, scale)
 end
 

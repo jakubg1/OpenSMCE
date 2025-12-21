@@ -17,6 +17,7 @@ end
 
 function UIWidgetText:draw()
 	local pos = self.parent:getPos()
+	_Renderer:setLayer(self.parent.layer)
 	self.font:draw(self.textTmp, pos.x, pos.y, self.align.x, self.align.y, nil, self.parent:getAlpha())
 end
 

@@ -224,6 +224,7 @@ function Debug:getDebugMain()
 	s = s .. "DrawcallsSaved = " .. tostring(love.graphics.getStats().drawcallsbatched) .. "\n"
 	s = s .. "UIWidgetCount = " .. tostring(self.uiWidgetCount) .. "\n"
 	s = s .. "Vec2PerFrame = " .. tostring(self.lastVec2PerFrame) .. "\n"
+	s = s .. "DrawPerFrame = " .. tostring(_Renderer:getLastQueueLength()) .. "\n"
 
 	return s
 end

@@ -30,7 +30,7 @@ function UIWidget:new(name, data, parent)
 	end
 	self.type = data.type or "none"
 	self.pos = Vec2(data.pos.x, data.pos.y)
-	self.layer = data.layer
+	self.layer = data.layer or (parent and parent.layer)
 	self.alpha = data.alpha
 
 	self.animations = {in_ = nil, out = nil}
@@ -349,16 +349,11 @@ end
 
 
 
-function UIWidget:generateDrawData(layers, startN)
+function UIWidget:generateDrawData()
 	for childN, child in pairs(self.children) do
-		child:generateDrawData(layers, startN)
+		child:generateDrawData()
 	end
 	if self.widget then
-		if self:getAlpha() > 0 then
-			local names = self:getNames()
-			names[1] = startN
-			table.insert(layers[self:getLayer()], names)
-		end
 		if self.widget.type == "text" then
 			self.widget.textTmp = self.widget.text
 		end
@@ -367,7 +362,12 @@ end
 
 function UIWidget:draw()
 	_Debug.uiWidgetCount = _Debug.uiWidgetCount + 1
-	self.widget:draw()
+	if self.widget and self:getAlpha() > 0 then
+		self.widget:draw()
+	end
+	for childN, child in pairs(self.children) do
+		child:draw()
+	end
 end
 
 function UIWidget:drawDebug()

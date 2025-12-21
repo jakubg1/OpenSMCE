@@ -1,12 +1,9 @@
 local class = require "com.class"
+local UIWidgetSpriteButton = require("src.UI.WidgetSpriteButton")
 
 ---@class UIWidgetSpriteButtonSlider
 ---@overload fun(parent, sprite, bounds, clickSound, releaseSound, hoverSound):UIWidgetSpriteButtonSlider
 local UIWidgetSpriteButtonSlider = class:derive("UIWidgetSpriteButtonSlider")
-
-local UIWidgetSpriteButton = require("src.UI.WidgetSpriteButton")
-
-
 
 function UIWidgetSpriteButtonSlider:new(parent, sprite, bounds, clickSound, releaseSound, hoverSound)
 	self.type = "spriteButtonSlider"
@@ -42,8 +39,6 @@ function UIWidgetSpriteButtonSlider:setValue(value)
 	self.value = value
 	self.parent.pos.x = _Utils.lerp(self.bounds[1], self.bounds[2], value)
 end
-
-
 
 function UIWidgetSpriteButtonSlider:draw()
 	if self.button.clicked then

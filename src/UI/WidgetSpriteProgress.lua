@@ -6,9 +6,7 @@ local UIWidgetSpriteProgress = class:derive("UIWidgetSpriteProgress")
 
 function UIWidgetSpriteProgress:new(parent, sprite, value, smooth)
 	self.type = "spriteProgress"
-
 	self.parent = parent
-
 	self.sprite = _Res:getSprite(sprite)
 	self.size = self.sprite.imageSize
 	self.value = 0
@@ -31,9 +29,10 @@ end
 
 function UIWidgetSpriteProgress:draw()
 	local pos = self.parent:getPos()
-	love.graphics.setScissor(pos.x, pos.y, self.size.x * self.value, self.size.y)
+	_Renderer:setLayer(self.parent.layer)
+	_Renderer:setScissor(pos.x, pos.y, self.size.x * self.value, self.size.y)
 	self.sprite:draw(pos.x, pos.y, nil, nil, nil, nil, nil, nil, self.parent:getAlpha())
-	love.graphics.setScissor()
+	_Renderer:setScissor()
 end
 
 function UIWidgetSpriteProgress:getSize()

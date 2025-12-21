@@ -4,21 +4,16 @@ local class = require "com.class"
 ---@overload fun(parent, sprite):UIWidgetSprite
 local UIWidgetSprite = class:derive("UIWidgetSprite")
 
-
-
 function UIWidgetSprite:new(parent, sprite)
 	self.type = "sprite"
-
 	self.parent = parent
-
 	self.sprite = _Res:getSprite(sprite)
 	self.debugColor = {0.0, 1.0, 0.0}
 end
 
-
-
 function UIWidgetSprite:draw()
 	local pos = self.parent:getPos()
+	_Renderer:setLayer(self.parent.layer)
 	self.sprite:draw(pos.x, pos.y, nil, nil, nil, nil, nil, nil, self.parent:getAlpha())
 end
 

@@ -7,12 +7,8 @@ local Display = class:derive("Display")
 ---Constructs a Display Manager.
 function Display:new()
     self.w, self.h = 800, 600
-    self.renderResolutionW, self.renderResolutionH = 800, 600
+    self.bufferW, self.bufferH = 800, 600
     self.renderCanvas = nil
-    ---@type table<string, love.Canvas>
-    self.renderLayers = {}
-    ---@type string[]
-    self.renderLayerOrder = {"MAIN"}
     self.renderMode = "filtered"
     ---@type love.Shader[]
     self.shaderStack = {}
@@ -43,7 +39,7 @@ function Display:setFullscreen(fullscreen)
         local _, _, flags = love.window.getMode()
         self.w, self.h = love.window.getDesktopDimensions(flags.display)
     else
-        self.w, self.h = self.renderResolutionW, self.renderResolutionH
+        self.w, self.h = self.bufferW, self.bufferH
     end
     love.window.setMode(self.w, self.h, {fullscreen = fullscreen, resizable = true})
 end
@@ -52,20 +48,13 @@ end
 ---@param w integer The new canvas width (native width).
 ---@param h integer The new canvas height (native height).
 ---@param mode "filtered"|"pixel"|"pixelPerfect" The canvas mode. If `"pixel"`, the canvas image will not be interpolated.
----@param layers string[]? The list of layers to be created, starting from the bottommost one. If not specified, one layer named `MAIN` will be created.
-function Display:setCanvas(w, h, mode, layers)
-    self.renderResolutionW, self.renderResolutionH = w, h
+function Display:setCanvas(w, h, mode)
+    self.bufferW, self.bufferH = w, h
     self.renderMode = mode
-    self.renderLayerOrder = layers or {"MAIN"}
     -- Create the main render canvas. This is where the entire screen contents will be assembled each frame from all layers.
 	self.renderCanvas = love.graphics.newCanvas(w, h)
     if mode == "pixel" or mode == "pixelPerfect" then
         self.renderCanvas:setFilter("nearest", "nearest")
-    end
-    -- Create a canvas for each layer.
-    for i, layer in ipairs(self.renderLayerOrder) do
-        self.renderLayers[layer] = love.graphics.newCanvas(w, h)
-        self.renderLayers[layer]:setFilter("nearest", "nearest")
     end
 end
 
@@ -74,14 +63,14 @@ end
 ---in such a way that the contents are exactly in the center.
 ---@return number
 function Display:getDisplayOffsetX()
-	return (self.w - self.renderResolutionW * self:getCanvasScale()) / 2
+	return (self.w - self.bufferW * self:getCanvasScale()) / 2
 end
 
 ---Returns the Y offset of actual screen contents.
 ---This will only be non-zero in the `"pixelPerfect"` canvas mode.
 ---@return number
 function Display:getDisplayOffsetY()
-	return (self.h - self.renderResolutionH * self:getCanvasScale()) / 2
+	return (self.h - self.bufferH * self:getCanvasScale()) / 2
 end
 
 ---Returns the scale of screen contents, depending on the current window size.
@@ -89,7 +78,7 @@ end
 ---If the display mode is `"pixelPerfect"`, the result is brought down to the nearest integer.
 ---@return number
 function Display:getCanvasScale()
-    local scale = self.h / self.renderResolutionH
+    local scale = self.h / self.bufferH
     if self.renderMode == "pixelPerfect" then
         return math.max(math.floor(scale), 1)
     end
@@ -106,32 +95,15 @@ function Display:posFromScreen(x, y)
 	return x, y
 end
 
----Starts drawing on the specified layer.
----@param layer string? The layer name. If not specified, no layer will be selected and all drawing routines will draw directly to the screen.
-function Display:setLayer(layer)
-    if layer then
-        assert(self.renderLayers[layer], string.format("Display error: There is no layer named `%s`", layer))
-	    love.graphics.setCanvas({self.renderLayers[layer], stencil = true})
-    else
-        love.graphics.setCanvas()
-    end
+---Clears the render buffer and starts drawing on it.
+function Display:start()
+    love.graphics.setCanvas({self.renderCanvas, stencil = true})
+    love.graphics.clear()
 end
 
----Assembles all layers onto the render buffer, clears the layers, and then draws the render buffer on the screen.
+---Draws the render buffer on the screen.
 function Display:draw()
     assert(self.renderCanvas, "Display error: You must initialize a Display with `Display:setCanvas()` before interacting.")
-	love.graphics.setColor(1, 1, 1)
-    -- Assemble all layers.
-    love.graphics.setCanvas(self.renderCanvas)
-    for i, layer in ipairs(self.renderLayerOrder) do
-        love.graphics.draw(self.renderLayers[layer])
-    end
-    -- Clear all layers.
-    for i, layer in ipairs(self.renderLayerOrder) do
-        love.graphics.setCanvas(self.renderLayers[layer])
-        love.graphics.clear()
-    end
-    -- Draw the assembled buffer.
     love.graphics.setCanvas()
     if self.funniFlashlight then
         love.graphics.stencil(function()
@@ -143,6 +115,7 @@ function Display:draw()
         -- mark only these pixels as the pixels which can be affected
         love.graphics.setStencilTest("equal", 1)
     end
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
     if self.funniFlashlight then
         love.graphics.setStencilTest()

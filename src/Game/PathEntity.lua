@@ -222,12 +222,12 @@ function PathEntity:draw()
 	local angle = self:getAngle() + math.pi
 	-- Draw the main sprite.
 	if self.config.sprite then
-		_Display:setLayer(hidden and "GamePieceHidden" or "GamePieceNormal")
+		_Renderer:setLayer(hidden and "GamePieceHidden" or "GamePieceNormal")
 		self.config.sprite:draw(x, y, 0.5, 0.5, nil, nil, angle, Color(self:getBrightness()))
 	end
 	-- Draw the shadow.
 	if self.config.shadowSprite then
-		_Display:setLayer(hidden and "GamePieceHShadow" or "GamePieceNShadow")
+		_Renderer:setLayer(hidden and "GamePieceHShadow" or "GamePieceNShadow")
 		self.config.shadowSprite:draw(x + 4, y + 4, 0.5, 0.5, nil, nil, angle)
 	end
 end

@@ -66,11 +66,11 @@ function Map:draw()
 	-- Draw sprites.
 	for i, sprite in ipairs(self.config.sprites) do
 		if sprite.background then
-			_Display:setLayer("GameBackground")
+			_Renderer:setLayer("GameBackground")
 		elseif sprite.foreground or _Debug.mapDebugVisible then
-			_Display:setLayer("GameScores")
+			_Renderer:setLayer("GameScores")
 		else
-			_Display:setLayer("GameBackgroundSprites")
+			_Renderer:setLayer("GameBackgroundSprites")
 		end
 		sprite.sprite:draw(sprite.x, sprite.y)
 	end

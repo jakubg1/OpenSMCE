@@ -35,7 +35,8 @@ function Game:init()
 	-- Step 2. Initialize the window and canvas
 	local w, h = self:getNativeResolution()
 	_Display:setResolution(w, h, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
-	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode(), self.configManager.hudLayerOrder)
+	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode())
+	_Renderer:setLayers(self.configManager.hudLayerOrder)
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -298,13 +299,16 @@ function Game:draw()
 	_Debug:profDrawStart()
 
 	-- Start drawing on canvas
-	_Display:setLayer("MAIN")
+	_Display:start()
 
 	-- Level
 	if self.level then
 		self.level:draw()
 	end
 	_Debug:profDrawCheckpoint()
+
+	-- Renderer queue
+	_Renderer:flush()
 
 	-- Particles and UI
 	if self.particleManager then

@@ -42,6 +42,7 @@ function UIWidgetTextInput:draw()
 	if self.cursorSprite then
 		local cpos = pos + Vec2(self:getSize().x * (1 - self.align.x), 0)
 		local frame = math.floor(self.cursorSpriteBlink * 2) + 1
+		_Renderer:setLayer(self.parent.layer)
 		self.cursorSprite:draw(cpos.x, cpos.y, nil, nil, nil, frame, nil, nil, alpha)
 	end
 end

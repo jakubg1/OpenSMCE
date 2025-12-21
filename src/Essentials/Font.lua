@@ -87,9 +87,8 @@ function Font:draw(text, x, y, alignX, alignY, color, alpha, scaleX, scaleY)
 	scaleX, scaleY = scaleX or 1, scaleY or scaleX or 1
 
 	local sizeX, sizeY = self:getTextSize(text)
+	_Renderer:setColorRGB(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
 	if self.type == "image" then
-		love.graphics.setColor(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
-
 		-- TODO: Add support for scaling for image type fonts.
 		y = y - sizeY * alignY
 		local line = ""
@@ -105,14 +104,9 @@ function Font:draw(text, x, y, alignX, alignY, color, alpha, scaleX, scaleY)
 		end
 		self:drawLine(line, x, y, alignX)
 	else
-		local oldFont = love.graphics.getFont()
-
-		love.graphics.setColor(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
-		love.graphics.setFont(self.font)
 		local px, py = x - sizeX * alignX * scaleX, y - sizeY * alignY * scaleY
-		love.graphics.print(text, px, py, 0, scaleX, scaleY)
-
-		love.graphics.setFont(oldFont)
+		_Renderer:setFont(self.font)
+		_Renderer:drawText(text, px, py, 0, scaleX, scaleY)
 	end
 end
 
@@ -128,7 +122,7 @@ function Font:drawLine(text, x, y, align)
 	for i = 1, text:len() do
 		local char = text:sub(i, i)
 		local charData = self:getCharacterData(char)
-		self.image:draw(charData.quad, math.floor(x), math.floor(y))
+		_Renderer:drawImage(self.image.img, charData.quad, math.floor(x), math.floor(y))
 		x = x + charData.width
 	end
 end

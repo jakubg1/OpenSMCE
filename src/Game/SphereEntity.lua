@@ -170,7 +170,7 @@ end
 ---Draws this Sphere Entity on the screen.
 function SphereEntity:draw()
 	-- Draw the main sprites.
-	_Display:setLayer(self.hidden and "GamePieceHidden" or "GamePieceNormal")
+	_Renderer:setLayer(self.hidden and "GamePieceHidden" or "GamePieceNormal")
 	for i, sprite in ipairs(self.config.sprites) do
 		local conditionsPassed = true
 		if sprite.conditions then
@@ -187,8 +187,9 @@ function SphereEntity:draw()
 	end
 	-- Draw the shadow sprite.
 	if self.config.shadowSprite then
-		_Display:setLayer(self.hidden and "GamePieceHShadow" or "GamePieceNShadow")
-		self.config.shadowSprite:draw(self.x + self.config.shadowOffset.x, self.y + self.config.shadowOffset.y, 0.5, 0.5, nil, nil, self.angle, nil, self.alpha, self.scaleX, self.scaleY)
+		_Renderer:setLayer(self.hidden and "GamePieceHShadow" or "GamePieceNShadow")
+		local x, y = self.x + self.config.shadowOffset.x, self.y + self.config.shadowOffset.y
+		self.config.shadowSprite:draw(x, y, 0.5, 0.5, nil, nil, self.angle, nil, self.alpha, self.scaleX, self.scaleY)
 	end
 end
 

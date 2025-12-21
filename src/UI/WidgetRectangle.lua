@@ -14,9 +14,10 @@ function UIWidgetRectangle:new(parent, size, color)
 end
 
 function UIWidgetRectangle:draw()
-	love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.parent:getAlpha())
 	local pos = self.parent:getPos()
-	love.graphics.rectangle("fill", pos.x, pos.y, self.size.x, self.size.y)
+	_Renderer:setLayer(self.parent.layer)
+	_Renderer:setColor(self.color, self.parent:getAlpha())
+	_Renderer:drawRectangle("fill", pos.x, pos.y, self.size.x, self.size.y)
 end
 
 function UIWidgetRectangle:getSize()
