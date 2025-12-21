@@ -677,10 +677,8 @@ end
 
 
 ---Draws this Sphere.
----@param hidden boolean Filter the drawing routine only to hidden or not hidden spheres.
----@param shadow boolean If `true`, the shadow sprite will be rendered, else, the main entity.
-function Sphere:draw(hidden, shadow)
-	if not self.entity or self:getHidden() ~= hidden then
+function Sphere:draw()
+	if not self.entity then
 		return
 	end
 
@@ -692,23 +690,25 @@ function Sphere:draw(hidden, shadow)
 	local scale = self:getScale() * self.config.size / 32
 	local colorM = self:getColor()
 	local roll = self.appendSize == 1 and self:getOffset() or nil
+	local hidden = self:getHidden()
 
 	-- Update the entity position, rotation, scale, frame, etc.
 	self.entity:setPos(pos.x, pos.y)
 	self.entity:setAngle(angle)
 	self.entity:setScale(scale)
 	self.entity:setRoll(roll)
+	self.entity:setHidden(hidden)
 	self.entity:setColorM(colorM)
 
 	-- Move the particles to the appropriate layer.
-	if self:getHidden() then
+	if hidden then
 		self.entity:setLayer(self.map.isDummy and "_DUMMY_SPHERES_H" or "_SPHERES_H")
 	else
 		self.entity:setLayer(self.map.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
 	end
 
 	self:dumpVariables("sphere")
-	self.entity:draw(shadow)
+	self.entity:draw()
 	_Vars:unset("sphere")
 
 	-- Update particle positions.

@@ -31,6 +31,7 @@ function SphereChain:new(path, data)
 		self.colorSortTime = nil
 		self.colorSortStopWhenTampered = nil
 
+		---@type SphereGroup[]
 		self.sphereGroups = {}
 
 		local length = self.path:getCurrentTrainLength()
@@ -539,16 +540,11 @@ function SphereChain:stopColorSort()
 	self.colorSortStopWhenTampered = nil
 end
 
-
-
-function SphereChain:draw(hidden, shadow)
-	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
-	-- shadow: to make all shadows rendered before spheres
+---Draws the Sphere Chain on the screen.
+function SphereChain:draw()
 	--love.graphics.print(self:getDebugText(), 10, 10)
 	for i, sphereGroup in ipairs(self.sphereGroups) do
-		if not sphereGroup.delQueue then
-			sphereGroup:draw(hidden, shadow)
-		end
+		sphereGroup:draw()
 	end
 	--local x, y = self.path:getPos(self.sphereGroups[1]:getLastSphereOffset())
 	--love.graphics.circle("fill", x, y, 8)
@@ -588,6 +584,8 @@ function SphereChain:getSphereList()
 	return spheres
 end
 
+---Returns whether any portion of this Sphere Chain is in its path's danger area.
+---@return boolean
 function SphereChain:getDanger()
 	return self.path:getDanger(self.maxOffset)
 end

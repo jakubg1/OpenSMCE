@@ -216,20 +216,19 @@ function PathEntity:destroy()
 end
 
 ---Draws this Path Entity on the screen.
----@param hidden boolean Whether this drawing call comes from a hidden sphere pass.
----@param shadow boolean Whether to draw the actual entity or its shadow.
-function PathEntity:draw(hidden, shadow)
-	if self:getHidden() == hidden then
-		local x, y = self:getPos()
-		if shadow then
-			if self.config.shadowSprite then
-				self.config.shadowSprite:draw(x + 4, y + 4, 0.5, 0.5)
-			end
-		else
-			if self.config.sprite then
-				self.config.sprite:draw(x, y, 0.5, 0.5, nil, nil, self:getAngle() + math.pi, Color(self:getBrightness()))
-			end
-		end
+function PathEntity:draw()
+	local x, y = self:getPos()
+	local hidden = self:getHidden()
+	local angle = self:getAngle() + math.pi
+	-- Draw the main sprite.
+	if self.config.sprite then
+		_Display:setLayer(hidden and "GamePieceHidden" or "GamePieceNormal")
+		self.config.sprite:draw(x, y, 0.5, 0.5, nil, nil, angle, Color(self:getBrightness()))
+	end
+	-- Draw the shadow.
+	if self.config.shadowSprite then
+		_Display:setLayer(hidden and "GamePieceHShadow" or "GamePieceNShadow")
+		self.config.shadowSprite:draw(x + 4, y + 4, 0.5, 0.5, nil, nil, angle)
 	end
 end
 

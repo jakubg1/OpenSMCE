@@ -35,7 +35,7 @@ function Game:init()
 	-- Step 2. Initialize the window and canvas
 	local w, h = self:getNativeResolution()
 	_Display:setResolution(w, h, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
-	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode())
+	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode(), self.configManager.hudLayerOrder)
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -298,7 +298,7 @@ function Game:draw()
 	_Debug:profDrawStart()
 
 	-- Start drawing on canvas
-	_Display:canvasStart()
+	_Display:setLayer("MAIN")
 
 	-- Level
 	if self.level then
@@ -314,7 +314,7 @@ function Game:draw()
 	_Debug:profDrawCheckpoint()
 
 	-- Finish drawing on canvas
-	_Display:canvasStop()
+	_Display:draw()
 
 	-- Borders
 	-- Not necessary; leaving this code for the future when the widescreen frame comes to the engine!

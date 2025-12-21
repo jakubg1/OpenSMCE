@@ -40,10 +40,12 @@ function Path:new(map, pathData, pathBehavior)
 
 	self:prepareNodes(pathData.nodes)
 
+	---@type SphereChain[]
 	self.sphereChains = {}
 	self.cascade = 0
 	self.cascadeScore = 0
 	self.clearOffset = 0
+	---@type PathEntity[]
 	self.pathEntities = {}
 	self.sphereEffectGroups = {}
 end
@@ -389,29 +391,16 @@ end
 
 
 
----Draws spheres on this Path.
----@param hidden boolean Whether to draw spheres in the hidden pass.
----@param shadow boolean If `true`, the shadows will be drawn. Else, the actual sprites.
-function Path:drawSpheres(hidden, shadow)
-	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
-	for i, sphereChain in pairs(self.sphereChains) do
-		sphereChain:draw(hidden, shadow)
+---Draws spheres and path entities which are on this Path.
+function Path:draw()
+	-- Draw spheres.
+	for i, sphereChain in ipairs(self.sphereChains) do
+		sphereChain:draw()
 	end
-end
 
-
-
----Draws entities which are on this Path.
----@param hidden boolean Whether to draw the entities in the hidden pass.
-function Path:draw(hidden)
-	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
+	-- Draw path entities.
 	for i, pathEntity in ipairs(self.pathEntities) do
-		pathEntity:draw(hidden, true)
-		pathEntity:draw(hidden, false)
-	end
-
-	if not hidden then
-		--self:drawDebugBrightness()
+		pathEntity:draw()
 	end
 end
 
@@ -527,11 +516,12 @@ end
 ---@return number
 function Path:getSpeed(pixels)
 	local speedMultiplier = 1
-	if not self.map.isDummy and _Game:getSession() then
+	local session = _Game:getSession()
+	if not self.map.isDummy and session then
 		if _Game.satMode then
-			speedMultiplier = 1 + (_Game:getSession():getUSMNumber() - 1) * 0.05
+			speedMultiplier = 1 + (session:getUSMNumber() - 1) * 0.05
 		end
-		speedMultiplier = speedMultiplier * _Game:getSession():getDifficultyConfig().speedMultiplier
+		speedMultiplier = speedMultiplier * session:getDifficultyConfig().speedMultiplier
 	end
 
 	for i, speed in ipairs(self.speeds) do

@@ -24,6 +24,7 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	_Res:setBatches()
 	self.name = self.config.name
 
+	---@type Path[]
 	self.paths = {}
 
 
@@ -62,28 +63,21 @@ end
 
 ---Draws this Map.
 function Map:draw()
-	-- Background
+	-- Draw sprites.
 	for i, sprite in ipairs(self.config.sprites) do
 		if sprite.background then
-			sprite.sprite:draw(sprite.x, sprite.y)
+			_Display:setLayer("GameBackground")
+		elseif sprite.foreground or _Debug.mapDebugVisible then
+			_Display:setLayer("GameScores")
+		else
+			_Display:setLayer("GameBackgroundSprites")
 		end
+		sprite.sprite:draw(sprite.x, sprite.y)
 	end
 
-	-- Objects drawn before hidden spheres (map debugging)
-	if _Debug.mapDebugVisible then
-		for i, sprite in ipairs(self.config.sprites) do
-			if not sprite.background and not sprite.foreground then
-				sprite.sprite:draw(sprite.x, sprite.y)
-			end
-		end
-	end
-
-	-- Draw hidden spheres and other hidden path stuff
-	for x = 1, 2 do
-		for i, path in ipairs(self.paths) do
-			path:drawSpheres(true, x == 1)
-			path:draw(true)
-		end
+	-- Draw paths.
+	for i, path in ipairs(self.paths) do
+		path:draw()
 	end
 
 	-- Draw particles for hidden spheres before the map's foreground sprites.
@@ -91,33 +85,7 @@ function Map:draw()
 	-- Particles are drawn directly after the corresponding spheres, and none of the particles are drawn twice,
 	-- so we need to separate the layers for them into hidden and non-hidden.
 	_Game.particleManager:draw(self.isDummy and "_DUMMY_SPHERES_H" or "_SPHERES_H")
-
-	-- Objects that will be drawn when the map debugging is off (foreground sprites)
-	if not _Debug.mapDebugVisible then
-		for i, sprite in ipairs(self.config.sprites) do
-			if not sprite.background and not sprite.foreground then
-				sprite.sprite:draw(sprite.x, sprite.y)
-			end
-		end
-	end
-end
-
----Draws spheres, their particles, and foreground sprites which appear on this map.
-function Map:drawSpheres()
-	for x = 1, 2 do
-		for i, path in ipairs(self.paths) do
-			path:drawSpheres(false, x == 1)
-			path:draw(false)
-		end
-	end
-
 	_Game.particleManager:draw(self.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
-
-	for i, sprite in ipairs(self.config.sprites) do
-		if not sprite.background and sprite.foreground then
-			sprite.sprite:draw(sprite.x, sprite.y)
-		end
-	end
 end
 
 ---Unloads resources loaded by this map.

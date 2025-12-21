@@ -25,6 +25,7 @@ function SphereGroup:new(sphereChain, data)
 		self.offset = 0
 		self.speed = 0
 		self.speedTime = nil -- this is used ONLY in zuma knockback; aka the speed of this group will be locked for this time
+		---@type Sphere[]
 		self.spheres = {}
 		self.matchCheck = true -- this is used ONLY in vise destruction to not trigger a chain reaction
 		self.distanceEventStates = {}
@@ -919,21 +920,16 @@ end
 
 
 
-
-
-function SphereGroup:draw(hidden, shadow)
-	-- hidden: with that, you can filter the spheres drawn either to the visible ones or to the invisible ones
-	-- shadow: to make all shadows rendered before spheres
+---Draws the Sphere Group on the screen.
+function SphereGroup:draw()
 	--love.graphics.print(self:getDebugText2(), 10, 10 * #self.spheres)
 	for i, sphere in ipairs(self.spheres) do
-		sphere:draw(hidden, shadow)
+		sphere:draw()
 	end
 	if _Debug.gameDebugVisible then
 		self:drawDebug()
 	end
 end
-
-
 
 function SphereGroup:drawDebug()
 	if #self.spheres == 0 then

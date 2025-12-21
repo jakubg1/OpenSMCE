@@ -9,7 +9,10 @@ function Display:new()
     self.w, self.h = 800, 600
     self.renderResolutionW, self.renderResolutionH = 800, 600
     self.renderCanvas = nil
+    ---@type table<string, love.Canvas>
     self.renderLayers = {}
+    ---@type string[]
+    self.renderLayerOrder = {"MAIN"}
     self.renderMode = "filtered"
     ---@type love.Shader[]
     self.shaderStack = {}
@@ -49,15 +52,21 @@ end
 ---@param w integer The new canvas width (native width).
 ---@param h integer The new canvas height (native height).
 ---@param mode "filtered"|"pixel"|"pixelPerfect" The canvas mode. If `"pixel"`, the canvas image will not be interpolated.
-function Display:setCanvas(w, h, mode)
+---@param layers string[]? The list of layers to be created, starting from the bottommost one. If not specified, one layer named `MAIN` will be created.
+function Display:setCanvas(w, h, mode, layers)
     self.renderResolutionW, self.renderResolutionH = w, h
     self.renderMode = mode
+    self.renderLayerOrder = layers or {"MAIN"}
+    -- Create the main render canvas. This is where the entire screen contents will be assembled each frame from all layers.
 	self.renderCanvas = love.graphics.newCanvas(w, h)
-    self.renderLayers.MAIN =  love.graphics.newCanvas(w, h)
-	self.renderCanvas:setFilter("nearest", "nearest")
-	if mode == "pixel" or mode == "pixelPerfect" then
-		self.renderLayers.MAIN:setFilter("nearest", "nearest")
-	end
+    if mode == "pixel" or mode == "pixelPerfect" then
+        self.renderCanvas:setFilter("nearest", "nearest")
+    end
+    -- Create a canvas for each layer.
+    for i, layer in ipairs(self.renderLayerOrder) do
+        self.renderLayers[layer] = love.graphics.newCanvas(w, h)
+        self.renderLayers[layer]:setFilter("nearest", "nearest")
+    end
 end
 
 ---Returns the X offset of actual screen contents.
@@ -97,15 +106,33 @@ function Display:posFromScreen(x, y)
 	return x, y
 end
 
----Starts drawing on this Display's canvas, clearing it beforehand.
-function Display:canvasStart()
-	love.graphics.setCanvas({self.renderLayers.MAIN, stencil = true})
-	love.graphics.clear()
+---Starts drawing on the specified layer.
+---@param layer string? The layer name. If not specified, no layer will be selected and all drawing routines will draw directly to the screen.
+function Display:setLayer(layer)
+    if layer then
+        assert(self.renderLayers[layer], string.format("Display error: There is no layer named `%s`", layer))
+	    love.graphics.setCanvas({self.renderLayers[layer], stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
 end
 
----Finishes drawing on this Display's canvas and draws it onto the screen.
-function Display:canvasStop()
-	love.graphics.setCanvas()
+---Assembles all layers onto the render buffer, clears the layers, and then draws the render buffer on the screen.
+function Display:draw()
+    assert(self.renderCanvas, "Display error: You must initialize a Display with `Display:setCanvas()` before interacting.")
+	love.graphics.setColor(1, 1, 1)
+    -- Assemble all layers.
+    love.graphics.setCanvas(self.renderCanvas)
+    for i, layer in ipairs(self.renderLayerOrder) do
+        love.graphics.draw(self.renderLayers[layer])
+    end
+    -- Clear all layers.
+    for i, layer in ipairs(self.renderLayerOrder) do
+        love.graphics.setCanvas(self.renderLayers[layer])
+        love.graphics.clear()
+    end
+    -- Draw the assembled buffer.
+    love.graphics.setCanvas()
     if self.funniFlashlight then
         love.graphics.stencil(function()
             love.graphics.setColor(1, 1, 1)
@@ -116,9 +143,7 @@ function Display:canvasStop()
         -- mark only these pixels as the pixels which can be affected
         love.graphics.setStencilTest("equal", 1)
     end
-	love.graphics.setColor(1, 1, 1)
 	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
-    love.graphics.draw(self.renderLayers.MAIN, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
     if self.funniFlashlight then
         love.graphics.setStencilTest()
     end

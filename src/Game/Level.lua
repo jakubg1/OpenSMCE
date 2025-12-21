@@ -1640,7 +1640,6 @@ end
 function Level:draw()
 	self.map:draw()
 	self.shooter:drawSpeedShotBeam()
-	self.map:drawSpheres()
 	self.shooter:draw()
 
 	for i, shotSphere in ipairs(self.shotSpheres) do
