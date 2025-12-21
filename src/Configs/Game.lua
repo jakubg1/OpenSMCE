@@ -6,20 +6,20 @@
 
 local class = require "com.class"
 
----@class ConfigConfig
----@overload fun(data, path, isAnonymous):ConfigConfig
-local ConfigConfig = class:derive("ConfigConfig")
+---@class GameConfig
+---@overload fun(data, path, isAnonymous):GameConfig
+local GameConfig = class:derive("GameConfig")
 
-ConfigConfig.metadata = {
-    schemaPath = "config.json"
+GameConfig.metadata = {
+    schemaPath = "game.json"
 }
 
----Constructs an instance of ConfigConfig.
+---Constructs an instance of GameConfig.
 ---@param data table Raw data from a file.
 ---@param path string? Path to the file. Used for error messages and saving data.
 ---@param isAnonymous boolean? If `true`, this resource is anonymous and its path is invalid for saving data.
----@param base ConfigConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
-function ConfigConfig:new(data, path, isAnonymous, base)
+---@param base GameConfig? If specified, this resource extends the provided resource. Any missing fields are prepended from the base resource.
+function GameConfig:new(data, path, isAnonymous, base)
     local u = _ConfigUtils
     self._path = path
     self._alias = data._alias
@@ -34,23 +34,25 @@ function ConfigConfig:new(data, path, isAnonymous, base)
     self.tickRate = u.parseIntegerOpt(data, base, path, {"tickRate"}) or 60
     self.canvasRenderingMode = u.parseStringOpt(data, base, path, {"canvasRenderingMode"}) or "filtered"
 
-    self.richPresence = {}
-    self.richPresence.enabled = u.parseBoolean(data, base, path, {"richPresence", "enabled"})
-    self.richPresence.applicationID = u.parseStringOpt(data, base, path, {"richPresence", "applicationID"})
+    if data.richPresence then
+        self.richPresence = {}
+        self.richPresence.enabled = u.parseBoolean(data, base, path, {"richPresence", "enabled"})
+        self.richPresence.applicationID = u.parseStringOpt(data, base, path, {"richPresence", "applicationID"})
+    end
 end
 
 ---Injects functions to Resource Manager regarding this resource type.
 ---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
-function ConfigConfig.inject(ResourceManager)
+function GameConfig.inject(ResourceManager)
     ---@class ResourceManager
     ResourceManager = ResourceManager
 
-    ---Retrieves a ConfigConfig by given path.
+    ---Retrieves a GameConfig by given path.
     ---@param reference string The path to the resource.
-    ---@return ConfigConfig
-    function ResourceManager:getConfigConfig(reference)
-        return self:getResourceConfig(reference, "Config")
+    ---@return GameConfig
+    function ResourceManager:getGameConfig(reference)
+        return self:getResourceConfig(reference, "Game")
     end
 end
 
-return ConfigConfig
+return GameConfig

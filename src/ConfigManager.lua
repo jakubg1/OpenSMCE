@@ -9,7 +9,7 @@ local ConfigManager = class:derive("ConfigManager")
 
 ---Constructs a new ConfigManager and initializes all lists.
 function ConfigManager:new()
-	self.config = _Res:getConfigConfig("config.json")
+	self.config = _Res:getGameConfig("config.json")
 end
 
 ---Loads gameplay, highscores, UI layer list and maps.
@@ -18,11 +18,9 @@ function ConfigManager:load()
 	-- TODO: These should be handled by Resource Manager and Config Classes.
 	self.gameplay = _Res:getGameplayConfig("config/gameplay.json")
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
-	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
 
-	-- Add a default value for combo scope.
-	-- TODO: Config Classes for gameplay.json.
-	self.gameplay.sphereBehavior.cascadeScope = self.gameplay.sphereBehavior.cascadeScope or "chain"
+	-- TODO: Rename or join this file and expand layers to all sprite rendering.
+	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
 
 	-- Load map data.
 	-- TODO: This is now only used for checking the map names without loading the map (UI script -> stage map).
@@ -61,13 +59,13 @@ end
 ---Returns whether the Discord Rich Presence should be active in this game.
 ---@return boolean
 function ConfigManager:isRichPresenceEnabled()
-	return self.config.richPresence.enabled
+	return self.config.richPresence and self.config.richPresence.enabled
 end
 
 ---Returns the Rich Presence Application ID for this game, if it exists.
 ---@return string?
 function ConfigManager:getRichPresenceApplicationID()
-	return self.config.richPresence.applicationID
+	return self.config.richPresence and self.config.richPresence.applicationID
 end
 
 ---Returns the canvas rendering mode, `"filtered"` by default.

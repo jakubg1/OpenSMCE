@@ -8,6 +8,6 @@
         - "filtered" - Default value. The canvas will be stretched to the maximum vertical extent with smooth scaling. The aspect ratio will be preserved.
         - "pixel" - The canvas will be stretched to the maximum vertical extent without smooth scaling. The aspect ratio will be preserved. When scaled up, every separate pixel will be visible.
         - "pixelPerfect" - The canvas will be stretched to the maximum vertical extent while keeping an integer scaling. This guarantees that all pixels will be exactly the same size.
-    - richPresence (object) - Defines the Discord Rich Presence behavior.
+    - richPresence* (object) - Defines the Discord Rich Presence behavior. If absent, Discord Rich Presence will be disabled in this game.
         - enabled (boolean) - Should be always `true`, unless you want the game to be a secret. In that case, loading a game with this flag set to `false` causes Rich Presence to disconnect.
         - applicationID* (string) - Optional. If defined, this will be used as an Application ID when running this game, instead of the default OpenSMCE one.

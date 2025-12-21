@@ -46,7 +46,7 @@
         },
         "richPresence": {
             "type": "object",
-            "description": "Defines the Discord Rich Presence behavior.",
+            "description": "Defines the Discord Rich Presence behavior. If absent, Discord Rich Presence will be disabled in this game.",
             "properties": {
                 "enabled": {
                     "type": "boolean",
@@ -66,8 +66,7 @@
     },
     "required": [
         "engineVersion",
-        "nativeResolution",
-        "richPresence"
+        "nativeResolution"
     ],
     "additionalProperties": false
 }

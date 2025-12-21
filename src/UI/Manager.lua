@@ -95,6 +95,8 @@ function UIManager:new()
     getWidgetN = function(names) return self:getWidgetN(names) end,
     resetActive = function() self:resetActive() end
   }
+
+  self.hasFocus = true
 end
 
 function UIManager:initSplash()

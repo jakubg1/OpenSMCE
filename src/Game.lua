@@ -16,8 +16,6 @@ local Game = class:derive("Game")
 function Game:new(name)
 	self.name = name
 
-	self.hasFocus = false
-
 	self.configManager = nil
 	self.runtimeManager = nil
 	self.level = nil
@@ -96,7 +94,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 		self.particleManager:update(dt)
 	end
 
-	if self.configManager.config.richPresence.enabled then
+	if self.configManager:isRichPresenceEnabled() then
 		self:updateRichPresence()
 	end
 end
