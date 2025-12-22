@@ -11,11 +11,12 @@ function Renderer:new()
     self.alpha = 1 -- The working opacity
     self.font = love.graphics.getFont() -- The working font
     self.sx, self.sy, self.sw, self.sh = nil, nil, nil, nil -- The working scissor
+    self.workStencil = {fn = nil, action = nil, value = nil, keepValues = nil, testMode = nil, testValue = nil} -- The working stencil
     self.layer = "MAIN" -- The working layer
     ---@type table<string, integer>
     self.layers = {MAIN = 1} -- A list of layers, keyed by their names. The higher the number, the later the layer is drawn.
 
-    ---@alias RendererQueueItem {i: integer, r: number, g: number, b: number, alpha: number, scissorX: number?, scissorY: number?, scissorW: number?, scissorH: number?, layer: string, type: string, [any]: any}
+    ---@alias RendererQueueItem {i: integer, r: number, g: number, b: number, alpha: number, scissorX: number?, scissorY: number?, scissorW: number?, scissorH: number?, stencilFn: function?, stencilAction: love.StencilAction?, stencilValue: integer?, stencilKeepValues: boolean?, stencilTestMode: love.CompareMode?, stencilTestValue: number?, layer: string, type: string, [any]: any}
     ---A list of commands to be performed, in the order of placing. When `:flush()` is called, this list is sorted by layer and emptied.
     ---@type RendererQueueItem[]
     self.queue = {}
@@ -76,9 +77,30 @@ function Renderer:setScissor(x, y, w, h)
     self.sw, self.sh = w, h
 end
 
+---Sets a stencil for subsequent `:draw*()` calls. Aliases `love.graphics.stencil()`.
+---@param fn function? The function to be used to draw a stencil mask. Use regular `love.graphics.*` calls inside.
+---@param action love.StencilAction? The stencil action to be performed.
+---@param value integer? If `action` is `replace`, what value should the affected pixels be replaced by, from 0 to 255.
+---@param keepValues boolean? If `true`, the unaffected pixels' stencil values won't be set to 0.
+function Renderer:stencil(fn, action, value, keepValues)
+    self.workStencil.fn = fn
+    self.workStencil.action = action
+    self.workStencil.value = value
+    self.workStencil.keepValues = keepValues
+end
+
+---Sets how the stencil should affect subsequent `:draw*()` calls. Aliases `love.graphics.setStencilTest()`.
+---@param mode love.CompareMode? The comparison mode.
+---@param value number? The number to be compared to.
+function Renderer:setStencilTest(mode, value)
+    self.workStencil.testMode = mode
+    self.workStencil.testValue = value
+end
+
 ---Sets a layer the following `:draw*()` calls will draw to.
 ---@param layer string Layer name.
 function Renderer:setLayer(layer)
+    assert(layer, string.format("Renderer error: Could not find a layer called %s", layer))
     self.layer = layer
 end
 
@@ -93,6 +115,12 @@ function Renderer:getBaseQueueItem()
         font = self.font,
         scissorX = self.sx, scissorY = self.sy,
         scissorW = self.sw, scissorH = self.sh,
+        stencilFn = self.workStencil.fn,
+        stencilAction = self.workStencil.action,
+        stencilValue = self.workStencil.value,
+        stencilKeepValues = self.workStencil.keepValues,
+        stencilTestMode = self.workStencil.testMode,
+        stencilTestValue = self.workStencil.testValue,
         layer = self.layer,
         type = ""
     }
@@ -155,6 +183,10 @@ end
 function Renderer:flush()
     table.sort(self.queue, self.queueSortFn)
     for i, item in ipairs(self.queue) do
+        if item.stencilFn then
+            love.graphics.stencil(item.stencilFn, item.stencilAction, item.stencilValue, item.stencilKeepValues)
+        end
+        love.graphics.setStencilTest(item.stencilTestMode, item.stencilTestValue)
         love.graphics.setColor(item.r, item.g, item.b, item.alpha)
         love.graphics.setFont(item.font)
         love.graphics.setScissor(item.scissorX, item.scissorY, item.scissorW, item.scissorH)

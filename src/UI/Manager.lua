@@ -138,12 +138,6 @@ function UIManager:draw()
         widget:generateDrawData()
         widget:draw()
     end
-
-    for i, layer in ipairs(_Game.configManager.hudLayerOrder) do
-        if _Game.particleManager then
-            _Game.particleManager:draw(layer)
-        end
-    end
 end
 
 

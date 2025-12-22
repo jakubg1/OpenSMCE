@@ -36,6 +36,7 @@ end
 
 ---Draws the Floating Text.
 function FloatingText:draw()
+	_Renderer:setLayer("GameScores")
 	self.font:draw(self.text, self.x, self.y - self.time * 48, nil, nil, nil, math.min((1 - self.time) / 0.2, 1))
 end
 

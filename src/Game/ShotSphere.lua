@@ -272,7 +272,6 @@ function ShotSphere:draw()
 	if not self.hitSphere then
 		self.sphereEntity:setPos(self:getDrawPos())
 		self.sphereEntity:setAngle(self.angle)
-		self.sphereEntity:draw(true)
 		self.sphereEntity:draw()
 		--self:drawDebug()
 	end

@@ -356,7 +356,7 @@ function Sphere:removeAllEffects()
 		-- Emit destroy particles.
 		if effect.config.destroyParticle then
 			local pos = self:getPos()
-			_Game:spawnParticle(effect.config.destroyParticle, pos.x, pos.y)
+			_Game:spawnParticle(effect.config.destroyParticle, pos.x, pos.y, "GameCollapses")
 		end
 		-- Decrement the sphere effect group counter.
 		self.path:decrementSphereEffectGroup(effect.effectGroupID)
@@ -701,11 +701,7 @@ function Sphere:draw()
 	self.entity:setColorM(colorM)
 
 	-- Move the particles to the appropriate layer.
-	if hidden then
-		self.entity:setLayer(self.map.isDummy and "_DUMMY_SPHERES_H" or "_SPHERES_H")
-	else
-		self.entity:setLayer(self.map.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
-	end
+	self.entity:setLayer(hidden and "GamePieceHiddenPsys" or "GamePieceNormalPsys")
 
 	self:dumpVariables("sphere")
 	self.entity:draw()
@@ -878,7 +874,7 @@ function Sphere:deserialize(t)
 				infectionSize = effect.infectionSize,
 				infectionTime = effect.infectionTime,
 				effectGroupID = effect.effectGroupID,
-				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, pos.x, pos.y)
+				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, pos.x, pos.y, "GamePieceNormalPsys")
 			}
 			table.insert(self.effects, e)
 		end

@@ -37,7 +37,7 @@ end
 ---@param particleEffect ParticleEffectConfig Particle Effect to be spawned.
 ---@param x number Initial X position of the effect.
 ---@param y number Initial Y position of the effect.
----@param layer string? UI layer on which the effect should be visible. If not specified, the effect will be rendered on top of everything.
+---@param layer string UI layer on which the effect should be visible.
 ---@return ParticlePacket
 function ParticleManager:spawnParticlePacket(particleEffect, x, y, layer)
 	local packet = ParticlePacket(self, particleEffect, x, y, layer)
@@ -124,9 +124,9 @@ end
 
 
 
-function ParticleManager:draw(layer)
+function ParticleManager:draw()
 	for i, particlePiece in ipairs(self.particlePieces) do
-		particlePiece:draw(layer)
+		particlePiece:draw()
 	end
 	if _Debug.gameDebugVisible then
 		for i, particlePacket in ipairs(self.particlePackets) do

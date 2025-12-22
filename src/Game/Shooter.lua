@@ -161,7 +161,7 @@ function Shooter:update(dt)
             if self.sphereHoldParticles[i] then
                 self.sphereHoldParticles[i]:setPos(pos.x, pos.y)
             else
-                self.sphereHoldParticles[i] = _Game:spawnParticle(self:getSphereConfig().holdParticle, pos.x, pos.y)
+                self.sphereHoldParticles[i] = _Game:spawnParticle(self:getSphereConfig().holdParticle, pos.x, pos.y, "GameBulletPsys")
             end
         end
     else
@@ -177,7 +177,7 @@ function Shooter:update(dt)
             if self.speedShotParticles[i] then
                 self.speedShotParticles[i]:setPos(pos.x, pos.y)
             else
-                self.speedShotParticles[i] = _Game:spawnParticle(self.config.speedShotParticle, pos.x, pos.y)
+                self.speedShotParticles[i] = _Game:spawnParticle(self.config.speedShotParticle, pos.x, pos.y, "GameSpeedShotPsys")
             end
         end
     else
@@ -493,7 +493,7 @@ function Shooter:shoot()
             -- lightning spheres are not shot, they're deployed instantly
             local pos = self:getSpherePos(i)
             if sphereConfig.destroyParticle then
-                _Game:spawnParticle(sphereConfig.destroyParticle, pos.x, pos.y)
+                _Game:spawnParticle(sphereConfig.destroyParticle, pos.x, pos.y, "GameCollapses")
             end
             _Game.level:destroySelector(shotBehavior.selector, pos, shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
             _Game.level:markSphereShot()
@@ -590,9 +590,11 @@ function Shooter:draw()
     local pos = self:getVisualPos()
     if self.config.shadowSprite then
         local x, y = _V.rotate(self.config.shadowSpriteOffset.x, self.config.shadowSpriteOffset.y, self.angle)
+        _Renderer:setLayer("GamePlayerBaseShadow")
         self.config.shadowSprite:draw(pos.x + x, pos.y + y, self.config.shadowSpriteAnchor.x, self.config.shadowSpriteAnchor.y, nil, nil, self.angle)
     end
     local x, y = _V.rotate(self.config.spriteOffset.x, self.config.spriteOffset.y, self.angle)
+    _Renderer:setLayer("GamePlayerBase")
     self.config.sprite:draw(pos.x + x, pos.y + y, self.config.spriteAnchor.x, self.config.spriteAnchor.y, nil, nil, self.angle)
 
     -- retical
@@ -616,6 +618,7 @@ function Shooter:draw()
     local nextSpriteConfig = self.config.nextBallSprites[self.nextColor] or self.config.nextBallSprites[0]
     local sprite = nextSpriteConfig.sprite
     local nx, ny = _V.rotate(self.config.nextBallOffset.x, self.config.nextBallOffset.y, self.angle)
+    _Renderer:setLayer("GamePlayerBase")
     sprite:draw(pos.x + nx, pos.y + ny, self.config.nextBallAnchor.x, self.config.nextBallAnchor.y, nil, self:getNextSphereFrame(), self.angle)
 
 	if _Debug.gameDebugVisible then
@@ -653,21 +656,23 @@ function Shooter:drawSpeedShotBeam()
             local p3 = startPos + Vec2(self.config.speedShotBeam.sprite.imageSize.x / 2, 16):rotate(self.angle)
             local p4 = startPos + Vec2(-self.config.speedShotBeam.sprite.imageSize.x / 2, 16):rotate(self.angle)
             -- mark all pixels within the polygon with value of 1
-            love.graphics.stencil(function()
+            _Renderer:stencil(function()
                 love.graphics.setColor(1, 1, 1)
                 love.graphics.polygon("fill", p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y)
             end, "replace", 1)
             -- mark only these pixels as the pixels which can be affected
-            love.graphics.setStencilTest("equal", 1)
+            _Renderer:setStencilTest("equal", 1)
         end
         -- apply color if wanted
         local color = self.config.speedShotBeam.colored and self:getReticleColor() or Color()
         -- draw the beam
         local x, y = _V.rotate(0, 16, self.angle)
+        _Renderer:setLayer("GameSpeedShotPsys")
         self.config.speedShotBeam.sprite:draw(startPos.x + x, startPos.y + y, 0.5, 1, nil, nil, self.angle, color, self.speedShotAnim, scale.x, scale.y)
-        -- reset the scissor
+        -- reset the stencil
         if self.config.speedShotBeam.renderingType == "cut" then
-            love.graphics.setStencilTest()
+            _Renderer:stencil()
+            _Renderer:setStencilTest()
         end
     end
 end

@@ -180,13 +180,11 @@ function ParticlePiece:getAlpha()
 end
 
 ---Draws this particle piece on the screen.
----@param layer string The layer to draw this particle on.
-function ParticlePiece:draw(layer)
-	if self.layer == layer then
-		local x, y = self:getPos()
-		local frame = math.min(math.floor(self.animationFrame), self.animationFrameCount)
-		self.sprite:draw(x, y, 0.5, 0.5, nil, frame, nil, self:getColor(), self:getAlpha())
-	end
+function ParticlePiece:draw()
+	local x, y = self:getPos()
+	local frame = math.min(math.floor(self.animationFrame), self.animationFrameCount)
+	_Renderer:setLayer(self.layer or "MAIN")
+	self.sprite:draw(x, y, 0.5, 0.5, nil, frame, nil, self:getColor(), self:getAlpha())
 end
 
 return ParticlePiece

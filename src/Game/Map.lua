@@ -49,7 +49,7 @@ function Map:spawnDangerParticles()
 	for i, path in ipairs(self.paths) do
 		if path:isInDanger() then
 			local x, y = path:getPos(path.length)
-			_Game:spawnParticle(path.dangerParticle, x, y)
+			_Game:spawnParticle(path.dangerParticle, x, y, "GameLevelWarningPsys")
 		end
 	end
 end
@@ -79,13 +79,6 @@ function Map:draw()
 	for i, path in ipairs(self.paths) do
 		path:draw()
 	end
-
-	-- Draw particles for hidden spheres before the map's foreground sprites.
-	-- In order to accomplish that, Sphere.lua dispatches four quasi-layers called "(_DUMMY)_SPHERES(_H)".
-	-- Particles are drawn directly after the corresponding spheres, and none of the particles are drawn twice,
-	-- so we need to separate the layers for them into hidden and non-hidden.
-	_Game.particleManager:draw(self.isDummy and "_DUMMY_SPHERES_H" or "_SPHERES_H")
-	_Game.particleManager:draw(self.isDummy and "_DUMMY_SPHERES" or "_SPHERES")
 end
 
 ---Unloads resources loaded by this map.

@@ -26,7 +26,7 @@ function Collectible:new(data, config, x, y)
 		self.config.spawnSound:play(self.x, self.y)
 	end
 
-	self.particle = _Game:spawnParticle(self.config.particle, self.x, self.y)
+	self.particle = _Game:spawnParticle(self.config.particle, self.x, self.y, "GamePowerups")
 
 	self.delQueue = false
 end
@@ -78,7 +78,7 @@ function Collectible:catch()
 	end
 
 	self.config.pickupSound:play(self.x, self.y)
-	_Game:spawnParticle(self.config.pickupParticle, self.x, self.y)
+	_Game:spawnParticle(self.config.pickupParticle, self.x, self.y, "GamePowerups")
 	if self.config.pickupName then
 		_Game.level:spawnFloatingText(self.config.pickupName, self.x, self.y, self.config.pickupFont)
 	end

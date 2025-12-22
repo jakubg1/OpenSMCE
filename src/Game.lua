@@ -164,10 +164,10 @@ end
 ---@param particleEffect ParticleEffectConfig The particle effect resource.
 ---@param x number The initial X position of the particle packet.
 ---@param y number The initial Y position of the particle packet.
----@param layer string? The UI layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game instead.
+---@param layer string? The layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game instead.
 ---@return ParticlePacket
 function Game:spawnParticle(particleEffect, x, y, layer)
-	return self.particleManager:spawnParticlePacket(particleEffect, x, y, layer)
+	return self.particleManager:spawnParticlePacket(particleEffect, x, y, layer or "MAIN")
 end
 
 ---Executes a Game Event.
@@ -307,15 +307,15 @@ function Game:draw()
 	end
 	_Debug:profDrawCheckpoint()
 
-	-- Renderer queue
-	_Renderer:flush()
-
 	-- Particles and UI
 	if self.particleManager then
 		self.particleManager:draw()
 	end
 	self.uiManager:draw()
 	_Debug:profDrawCheckpoint()
+
+	-- Renderer queue
+	_Renderer:flush()
 
 	-- Finish drawing on canvas
 	_Display:draw()
