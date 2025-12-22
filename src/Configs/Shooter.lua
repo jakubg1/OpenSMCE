@@ -29,12 +29,23 @@ function ShooterConfig:new(data, path, isAnonymous, base)
     base = base or {}
 
     self.movement = u.parseShooterMovementConfig(data, base, path, {"movement"})
-    self.sprite = u.parseSprite(data, base, path, {"sprite"})
-    self.spriteOffset = u.parseVec2Opt(data, base, path, {"spriteOffset"}) or Vec2()
-    self.spriteAnchor = u.parseVec2Opt(data, base, path, {"spriteAnchor"}) or Vec2(0.5, 0)
-    self.shadowSprite = u.parseSpriteOpt(data, base, path, {"shadowSprite"})
-    self.shadowSpriteOffset = u.parseVec2Opt(data, base, path, {"shadowSpriteOffset"}) or Vec2(8, 8)
-    self.shadowSpriteAnchor = u.parseVec2Opt(data, base, path, {"shadowSpriteAnchor"}) or Vec2(0.5, 0)
+
+    self.sprites = {}
+    for i = 1, #data.sprites do
+        self.sprites[i] = {}
+        self.sprites[i].sprite = u.parseSprite(data, base, path, {"sprites", i, "sprite"})
+        self.sprites[i].layer = u.parseString(data, base, path, {"sprites", i, "layer"})
+        self.sprites[i].offset = u.parseVec2Opt(data, base, path, {"sprites", i, "offset"}) or Vec2()
+        self.sprites[i].anchor = u.parseVec2Opt(data, base, path, {"sprites", i, "anchor"}) or Vec2(0.5, 0.5)
+        self.sprites[i].animationSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "animationSpeed"})
+
+        self.sprites[i].conditions = {}
+        if data.sprites[i].conditions then
+            for j = 1, #data.sprites[i].conditions do
+                self.sprites[i].conditions[j] = u.parseExprBoolean(data, base, path, {"sprites", i, "conditions", j})
+            end
+        end
+    end
 
     self.spheres = {}
     for i = 1, #data.spheres do
@@ -42,16 +53,6 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         self.spheres[i].pos = u.parseVec2(data, base, path, {"spheres", i, "pos"})
         self.spheres[i].shotPos = u.parseVec2Opt(data, base, path, {"spheres", i, "shotPos"})
     end
-
-    self.nextBallSprites = {}
-    for n, _ in pairs(data.nextBallSprites) do
-        self.nextBallSprites[tonumber(n)] = {}
-        self.nextBallSprites[tonumber(n)].sprite = u.parseSprite(data, base, path, {"nextBallSprites", n, "sprite"})
-        self.nextBallSprites[tonumber(n)].spriteAnimationSpeed = u.parseNumberOpt(data, base, path, {"nextBallSprites", n, "spriteAnimationSpeed"})
-    end
-
-    self.nextBallOffset = u.parseVec2Opt(data, base, path, {"nextBallOffset"}) or Vec2(0, 21)
-    self.nextBallAnchor = u.parseVec2Opt(data, base, path, {"nextBallAnchor"}) or Vec2(0.5, 0)
 
     self.reticle = {}
     if data.reticle then

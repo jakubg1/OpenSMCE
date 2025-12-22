@@ -588,14 +588,20 @@ end
 ---Drawing callback function.
 function Shooter:draw()
     local pos = self:getVisualPos()
-    if self.config.shadowSprite then
-        local x, y = _V.rotate(self.config.shadowSpriteOffset.x, self.config.shadowSpriteOffset.y, self.angle)
-        _Renderer:setLayer("GamePlayerBaseShadow")
-        self.config.shadowSprite:draw(pos.x + x, pos.y + y, self.config.shadowSpriteAnchor.x, self.config.shadowSpriteAnchor.y, nil, nil, self.angle)
+    _Vars:set("shooter.color", self.color)
+    _Vars:set("shooter.nextColor", self.nextColor)
+    for i, sprite in ipairs(self.config.sprites) do
+        if _Utils.checkExpressions(sprite.conditions) then
+            local x, y = _V.rotate(sprite.offset.x, sprite.offset.y, self.angle)
+            local frame = 1
+            if sprite.animationSpeed then
+                frame = math.floor(sprite.animationSpeed * _TotalTime)
+            end
+            _Renderer:setLayer(sprite.layer)
+            sprite.sprite:draw(pos.x + x, pos.y + y, sprite.anchor.x, sprite.anchor.y, nil, frame, self.angle)
+        end
     end
-    local x, y = _V.rotate(self.config.spriteOffset.x, self.config.spriteOffset.y, self.angle)
-    _Renderer:setLayer("GamePlayerBase")
-    self.config.sprite:draw(pos.x + x, pos.y + y, self.config.spriteAnchor.x, self.config.spriteAnchor.y, nil, nil, self.angle)
+    _Vars:unset("shooter")
 
     -- retical
     if _EngineSettings:getAimingRetical() then
@@ -614,12 +620,6 @@ function Shooter:draw()
             entity:draw()
         end
     end
-    -- next color
-    local nextSpriteConfig = self.config.nextBallSprites[self.nextColor] or self.config.nextBallSprites[0]
-    local sprite = nextSpriteConfig.sprite
-    local nx, ny = _V.rotate(self.config.nextBallOffset.x, self.config.nextBallOffset.y, self.angle)
-    _Renderer:setLayer("GamePlayerBase")
-    sprite:draw(pos.x + nx, pos.y + ny, self.config.nextBallAnchor.x, self.config.nextBallAnchor.y, nil, self:getNextSphereFrame(), self.angle)
 
 	if _Debug.gameDebugVisible then
 		self:drawDebug()

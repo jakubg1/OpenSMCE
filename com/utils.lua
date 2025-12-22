@@ -1192,4 +1192,19 @@ function utils.getRainbowColor(t)
 	return Color(r, g, b)
 end
 
+---Checks an expression list and returns `true` if all expressions evaluate to `true`.
+---@param expressions Expression[]? A list of expressions.
+---@return boolean
+function utils.checkExpressions(expressions)
+	if not expressions then
+		return true
+	end
+	for i, expression in ipairs(expressions) do
+		if not expression:evaluate() then
+			return false
+		end
+	end
+	return true
+end
+
 return utils

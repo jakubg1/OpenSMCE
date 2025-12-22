@@ -1,21 +1,18 @@
 - (object) - The root object.
     - movement (ShooterMovement) - Describes the positioning and movement of the shooter.
-    - sprite (Sprite) - The sprite for the shooter to be used.
-    - spriteOffset* = (0, 0) (Vector2) - The offset of the shooter sprite. Defaults to `(0, 0)`.
-    - spriteAnchor* = (0.5, 0) (Vector2) - The anchor point of the shooter sprite. Defaults to `(0.5, 0)`.
-    - shadowSprite* (Sprite) - The shadow sprite for the shooter to be used.
-    - shadowSpriteOffset* = (8, 8) (Vector2) - The offset of the shooter shadow sprite. Defaults to `(8, 8)`.
-    - shadowSpriteAnchor* = (0.5, 0) (Vector2) - The anchor point of the shooter shadow sprite. Defaults to `(0.5, 0)`.
+    - sprites (array) - A list of sprites which the Shooter's body should be composed of.
+        - (object) - A single sprite entry.
+            - sprite (Sprite) - A sprite to be drawn as a part of this Shooter.
+            - layer (string) - The layer for this sprite to be drawn on.
+            - offset* = (0, 0) (Vector2) - The offset of this sprite. Defaults to `(0, 0)`.
+            - anchor* = (0.5, 0.5) (Vector2) - The anchor point of this sprite. Defaults to `(0.5, 0.5)`.
+            - animationSpeed* (number) [>=0] - If specified, this sprite will animate with that speed in frames per second.
+            - conditions* (array) - If specified, a list of boolean Expressions. If any of them is not passed, this sprite entry will not be displayed on the screen.
+                - ($boolean) - A single condition.
     - spheres (array) - A list of primary spheres that can be shot.
         - (object) - A single primary sphere.
             - pos (Vector2) - The position of the sphere, relative to the shooter.
             - shotPos* (Vector2) - If present, this is the position - relative to the shooter - that the sphere will warp to when shot and will start moving from that position. If absent, the sphere will start flying from its current position without any modifications.
-    - nextBallSprites (object) <<^[-]?[0-9]*$>> - Contains next ball sprites for all possible sphere colors. Key names must be stringified integers.
-        - (object) - Contains next sphere sprite data for that particular sphere color.
-            - sprite (Sprite) - A sprite used to draw the shooter's next color indicator.
-            - spriteAnimationSpeed* (number) [>=0] - When defined, the next sphere sprite will animate with that speed in frames per second.
-    - nextBallOffset* = (0, 21) (Vector2) - The offset of the shooter's next ball sprite. Defaults to `(0, 21)`.
-    - nextBallAnchor* = (0.5, 0) (Vector2) - The anchor point of the shooter's next ball sprite. Defaults to `(0.5, 0)`.
     - reticle* = {} (object) - Describes the appearance of a shooting reticle.
         - sprite* (Sprite) - The aiming reticle sprite to use when Aiming Retical is on. Will fallback to the default drawn caret if not defined.
         - offset* (Vector2) - The aiming reticle's offset, relative to the position the cursor is aiming at.

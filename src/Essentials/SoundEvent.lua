@@ -102,15 +102,8 @@ function SoundEvent:play(x, y)
         if entry.playsPerFrame and entry.playsThisFrame >= entry.playsPerFrame then
             -- Entry playback limit this frame reached, don't play anything.
             conditionsPassed = false
-        elseif entry.conditions then
-            for j, condition in ipairs(entry.conditions) do
-                if not condition:evaluate() then
-                    conditionsPassed = false
-                    break
-                end
-            end
         end
-        if conditionsPassed then
+        if conditionsPassed and _Utils.checkExpressions(entry.conditions) then
             entry.playsThisFrame = entry.playsThisFrame + 1
             local instance = self:getFreeInstance(i)
             if instance then

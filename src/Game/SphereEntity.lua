@@ -172,16 +172,7 @@ function SphereEntity:draw()
 	-- Draw the main sprites.
 	_Renderer:setLayer(self.hidden and "GamePieceHidden" or "GamePieceNormal")
 	for i, sprite in ipairs(self.config.sprites) do
-		local conditionsPassed = true
-		if sprite.conditions then
-			for j, condition in ipairs(sprite.conditions) do
-				if not condition:evaluate() then
-					conditionsPassed = false
-					break
-				end
-			end
-		end
-		if conditionsPassed then
+		if _Utils.checkExpressions(sprite.conditions) then
 			sprite.sprite:draw(self.x, self.y, 0.5, 0.5, nil, self:getFrame(i), self:getAngle(i), self.colorM, self.alpha, self.scaleX, self.scaleY)
 		end
 	end
