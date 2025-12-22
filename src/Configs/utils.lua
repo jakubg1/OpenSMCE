@@ -314,16 +314,6 @@ function utils.parseFontFileOpt(data, base, path, fields)
 	return parseResourceOpt(data, base, path, fields, "FontFile", _Res.getFontFile)
 end
 
----@return SoundEvent
-function utils.parseSoundEvent(data, base, path, fields)
-	return parseResource(data, base, path, fields, "SoundEvent", _Res.getSoundEvent)
-end
-
----@return SoundEvent?
-function utils.parseSoundEventOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "SoundEvent", _Res.getSoundEvent)
-end
-
 ---@return Music
 function utils.parseMusic(data, base, path, fields)
 	return parseResource(data, base, path, fields, "Music", _Res.getMusic)
@@ -366,6 +356,16 @@ end
 ---@return ColorPalette?
 function utils.parseColorPaletteOpt(data, base, path, fields)
 	return parseResourceOpt(data, base, path, fields, "Color Palette", _Res.getColorPalette)
+end
+
+---@return SoundEvent
+function utils.parseSoundEvent(data, base, path, fields)
+	return parseResource(data, base, path, fields, "SoundEvent", _Res.getSoundEvent)
+end
+
+---@return SoundEvent?
+function utils.parseSoundEventOpt(data, base, path, fields)
+	return parseResourceOpt(data, base, path, fields, "SoundEvent", _Res.getSoundEvent)
 end
 
 

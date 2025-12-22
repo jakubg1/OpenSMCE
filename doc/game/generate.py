@@ -958,6 +958,8 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 					default = " ~= false" if entry["default"] else " == true"
 				elif entry["type"] == "string":
 					default += "\"" + entry["default"] + "\""
+				elif "expression" in entry:
+					default += "Expression(" + str(entry["default"]) + ")"
 				else:
 					default += str(entry["default"])
 			return function + "(data, base, path, " + docld_to_lua_index(fields) + ")" + default

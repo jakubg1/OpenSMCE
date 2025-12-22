@@ -48,14 +48,13 @@ function ResourceManager:new()
 		FontFile = {assetConstructor = FontFile},
 		Shader = {assetConstructor = Shader},
 		-- Resource types below still need migration to Config Classes:
-		SoundEvent = {assetConstructor = SoundEvent},
 		Music = {assetConstructor = Music}
 	}
 
 	-- This table is filled dynamically by calling `ResourceManager:registerResourceTypes()`.
+	---@type table<string, string>
 	self.SCHEMA_TO_RESOURCE_MAP = {
 		-- Resource types below still need migration to Config Classes:
-		["sound_event.json"] = "SoundEvent",
 		["music_track.json"] = "Music"
 	}
 
@@ -77,7 +76,8 @@ function ResourceManager:new()
 		ColorPalette = ColorPalette,
 		Font = Font,
 		Sprite = Sprite,
-		SpriteAtlas = SpriteAtlas
+		SpriteAtlas = SpriteAtlas,
+		SoundEvent = SoundEvent
 	}
 	self:registerResourceSingletons(self.SINGLETON_LIST)
 
@@ -204,13 +204,6 @@ end
 ---@return Shader
 function ResourceManager:getShader(path)
 	return self:getResourceAsset(path, "shader")
-end
-
----Retrieves a Sound Event by a given path.
----@param path string The resource path.
----@return SoundEvent
-function ResourceManager:getSoundEvent(path)
-	return self:getResourceAsset(path, "sound event")
 end
 
 ---Retrieves a piece of Music by a given path.

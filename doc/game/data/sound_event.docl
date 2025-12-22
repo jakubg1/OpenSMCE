@@ -1,19 +1,19 @@
 - (object) - The root entry.
     - sound* (Sound) - Cannot coexist with `sounds`. The path to an audio file associated with this Sound Event. If not provided, this Sound Event will be silent.
-    - loop* (boolean) - Whether the sample should loop.
-    - flat* (boolean) - If set, the 3D positioning will be disabled for this Sound Event. Note that if you use a stereo Sound, 3D positioning will be forcefully disabled and this flag will have no effect on the playback.
-    - volume* ($number) [>=0] - The base volume of the sound.
-    - pitch* ($number) [>0] - The base pitch of the sound.
+    - loop* = false (boolean) - Whether the sample should loop.
+    - flat* = false (boolean) - If set, the 3D positioning will be disabled for this Sound Event. Note that if you use a stereo Sound, 3D positioning will be forcefully disabled and this flag will have no effect on the playback.
+    - volume* = 1 ($number) [>=0] - The base volume of the sound.
+    - pitch* = 1 ($number) [>0] - The base pitch of the sound.
     - playsPerFrame* (integer) [>0] - The maximum number of instances of this sound which can start playing on a single frame. No limit if not specified.
-    - instances* (integer) [>0] - The number of instances of this sound which can be played at once. Defaults to 8.
+    - instances* = 8 (integer) [>0] - The number of instances of this sound which can be played at once. Defaults to 8.
     - sounds* (array) - Cannot coexist with `sound`. A list of sounds to be played.
         - (object) - A single sound entry.
             - sound (Sound) - The path to a sound which is going to be played.
-            - loop* (boolean) - Whether the sample should loop.
-            - flat* (boolean) - If set, the 3D positioning will be disabled for this entry. Note that if you use a stereo Sound, 3D positioning will be forcefully disabled and this flag will have no effect on the playback.
-            - volume* ($number) [>=0] - The volume of the sound.
-            - pitch* ($number) [>0] - The pitch of the sound.
+            - loop* = false (boolean) - Whether the sample should loop.
+            - flat* = false (boolean) - If set, the 3D positioning will be disabled for this entry. Note that if you use a stereo Sound, 3D positioning will be forcefully disabled and this flag will have no effect on the playback.
+            - volume* = 1 ($number) [>=0] - The volume of the sound.
+            - pitch* = 1 ($number) [>0] - The pitch of the sound.
             - playsPerFrame* (integer) [>0] - The maximum number of instances of this sound which can start playing on a single frame. No limit if not specified.
-            - instances* (integer) [>0] - The number of instances of this sound which can be played at once. Defaults to 8.
+            - instances* = 8 (integer) [>0] - The number of instances of this sound which can be played at once. Defaults to 8.
             - conditions* (array) - If specified, all conditions inside must be satisfied in order for this entry to be played.
                 - ($boolean) - A single condition.
