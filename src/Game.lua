@@ -298,8 +298,8 @@ end
 function Game:draw()
 	_Debug:profDrawStart()
 
-	-- Start drawing on canvas
-	_Display:start()
+	-- Start drawing on the debug canvas. All `love.graphics.*` calls will go there.
+	_Display:startDebug()
 
 	-- Level
 	if self.level then
@@ -314,10 +314,9 @@ function Game:draw()
 	self.uiManager:draw()
 	_Debug:profDrawCheckpoint()
 
-	-- Renderer queue
+	-- Flush all accumulated render tasks and draw them on the display.
+	_Display:start()
 	_Renderer:flush()
-
-	-- Finish drawing on canvas
 	_Display:draw()
 
 	-- Borders

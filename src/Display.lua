@@ -9,6 +9,7 @@ function Display:new()
     self.w, self.h = 800, 600
     self.bufferW, self.bufferH = 800, 600
     self.renderCanvas = nil
+    self.debugCanvas = nil
     self.renderMode = "filtered"
     ---@type love.Shader[]
     self.shaderStack = {}
@@ -56,6 +57,8 @@ function Display:setCanvas(w, h, mode)
     if mode == "pixel" or mode == "pixelPerfect" then
         self.renderCanvas:setFilter("nearest", "nearest")
     end
+    -- The debug canvas is active for any `love.graphics.*` calls while the Renderer is active.
+    self.debugCanvas = love.graphics.newCanvas(w, h)
 end
 
 ---Returns the X offset of actual screen contents.
@@ -95,6 +98,12 @@ function Display:posFromScreen(x, y)
 	return x, y
 end
 
+---Clears the debug render buffer and starts drawing on it.
+function Display:startDebug()
+    love.graphics.setCanvas({self.debugCanvas, stencil = true})
+    love.graphics.clear()
+end
+
 ---Clears the render buffer and starts drawing on it.
 function Display:start()
     love.graphics.setCanvas({self.renderCanvas, stencil = true})
@@ -117,6 +126,7 @@ function Display:draw()
     end
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
+	love.graphics.draw(self.debugCanvas, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
     if self.funniFlashlight then
         love.graphics.setStencilTest()
     end
