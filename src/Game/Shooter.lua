@@ -982,18 +982,6 @@ end
 
 
 
----Returns the next sphere's animation frame.
----@return integer
-function Shooter:getNextSphereFrame()
-    local animationSpeed = self.config.nextBallSprites[self.nextColor].spriteAnimationSpeed
-    if animationSpeed then
-        return math.floor(animationSpeed * _TotalTime)
-    end
-    return 1
-end
-
-
-
 ---Callback from `main.lua`.
 ---@param x integer The X coordinate of mouse position.
 ---@param y integer The Y coordinate of mouse position.
