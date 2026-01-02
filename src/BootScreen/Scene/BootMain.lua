@@ -273,7 +273,7 @@ function BootMain:draw()
     -----------------------------
     love.graphics.setFont(_FONT)
     love.graphics.print("OpenSMCE is a short for Open-Source Sphere Matcher Community Engine.", 30, 525)
-    love.graphics.print("Copyright (C) 2020-2025 jakubg1 & contributors\nThis software is licensed under MIT license.", 30, 555)
+    love.graphics.print("Copyright (C) 2020-2026 jakubg1 & contributors\nThis software is licensed under MIT license.", 30, 555)
 
     -----------------------------
     -- BUTTONS
