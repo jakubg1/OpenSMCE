@@ -15,6 +15,24 @@
                         "$ref": "_structures/Sprite.json",
                         "description": "A sprite to be drawn when the sphere is on the screen."
                     },
+                    "layer": {
+                        "type": "string",
+                        "description": "The layer on which this sprite will be drawn."
+                    },
+                    "hiddenLayer": {
+                        "type": "string",
+                        "description": "The layer on which this sprite will be drawn, if this Sphere is currently on a hidden part of the path."
+                    },
+                    "offset": {
+                        "$ref": "_structures/Vector2.json",
+                        "description": "The offset of this sprite. Defaults to (0, 0).",
+                        "markdownDescription": "The offset of this sprite. Defaults to `(0, 0)`."
+                    },
+                    "anchor": {
+                        "$ref": "_structures/Vector2.json",
+                        "description": "The anchor point of this sprite. Defaults to (0.5, 0.5).",
+                        "markdownDescription": "The anchor point of this sprite. Defaults to `(0.5, 0.5)`."
+                    },
                     "rotate": {
                         "type": "boolean",
                         "description": "Whether this sprite should rotate based on the path curvature."
@@ -44,15 +62,6 @@
                 ],
                 "additionalProperties": false
             }
-        },
-        "shadowSprite": {
-            "$ref": "_structures/Sprite.json",
-            "description": "A shadow sprite to be drawn along the sphere."
-        },
-        "shadowOffset": {
-            "$ref": "_structures/Vector2.json",
-            "description": "The offset of the shadow sprite, compared to the base sprite. Defaults to (4, 4).",
-            "markdownDescription": "The offset of the shadow sprite, compared to the base sprite. Defaults to `(4, 4)`."
         },
         "size": {
             "type": "number",

@@ -32,6 +32,10 @@ function SphereConfig:new(data, path, isAnonymous, base)
     for i = 1, #data.sprites do
         self.sprites[i] = {}
         self.sprites[i].sprite = u.parseSprite(data, base, path, {"sprites", i, "sprite"})
+        self.sprites[i].layer = u.parseStringOpt(data, base, path, {"sprites", i, "layer"}) or "GamePieceNormal"
+        self.sprites[i].hiddenLayer = u.parseStringOpt(data, base, path, {"sprites", i, "hiddenLayer"}) or "GamePieceHidden"
+        self.sprites[i].offset = u.parseVec2Opt(data, base, path, {"sprites", i, "offset"}) or Vec2()
+        self.sprites[i].anchor = u.parseVec2Opt(data, base, path, {"sprites", i, "anchor"}) or Vec2(0.5, 0.5)
         self.sprites[i].rotate = u.parseBooleanOpt(data, base, path, {"sprites", i, "rotate"}) ~= false
         self.sprites[i].animationSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "animationSpeed"})
         self.sprites[i].rollingSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "rollingSpeed"}) or 0.63662
@@ -44,8 +48,6 @@ function SphereConfig:new(data, path, isAnonymous, base)
         end
     end
 
-    self.shadowSprite = u.parseSpriteOpt(data, base, path, {"shadowSprite"})
-    self.shadowOffset = u.parseVec2Opt(data, base, path, {"shadowOffset"}) or Vec2(4, 4)
     self.size = u.parseNumberOpt(data, base, path, {"size"}) or 32
     self.idleParticle = u.parseParticleEffectConfigOpt(data, base, path, {"idleParticle"})
     self.holdParticle = u.parseParticleEffectConfigOpt(data, base, path, {"holdParticle"})

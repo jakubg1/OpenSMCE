@@ -477,16 +477,12 @@ end
 ---@return CollectibleConfig[]
 function Level:evaluateCollectibleGeneratorEntry(generator)
 	-- Run any present conditions and check them. If they aren't met, this entry returns an empty list.
-	if generator.conditions then
-		_Vars:set("generator.latestCheckpoint", _Game:getSession():getLatestCheckpoint())
-		for i, condition in ipairs(generator.conditions) do
-			if not condition:evaluate() then
-				_Vars:unset("generator")
-				return {}
-			end
-		end
+	_Vars:set("generator.latestCheckpoint", _Game:getSession():getLatestCheckpoint())
+	if not _Utils.checkExpressions(generator.conditions) then
 		_Vars:unset("generator")
+		return {}
 	end
+	_Vars:unset("generator")
 	-- Check the entry type and act accordingly.
 	if generator.type == "collectible" then
 		return {generator.collectible}

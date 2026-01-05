@@ -7,7 +7,7 @@ local class = require "com.class"
 ---This comes in handy when drawing a lot of spheres or particles at once in any desired order.
 ---
 ---Sprite Atlases inject themselves into affected Sprites.
----All affected Sprites are permanently redirected to the latest Atlas they are defined in.
+---All affected Sprites are redirected to the latest Atlas they are defined in.
 ---
 ---**NOTE:**
 ---Currently, if the Atlas contains multiple Sprites which reference the same Image, the Image would get copied for each sprite,

@@ -174,12 +174,8 @@ end
 ---@param event GameEventConfig The game event to be executed.
 function Game:executeGameEvent(event)
 	-- Abort the execution if any of the conditions are not met.
-	if event.conditions then
-		for i, condition in ipairs(event.conditions) do
-			if not condition:evaluate() then
-				return
-			end
-		end
+	if not _Utils.checkExpressions(event.conditions) then
+		return
 	end
 	-- Execute the event.
 	if event.type == "single" then
