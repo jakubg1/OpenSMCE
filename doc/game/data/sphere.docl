@@ -14,8 +14,11 @@
                 - ($boolean) - A single condition.
     - size* = 32 (number) [>0] - The diameter of this sphere, in pixels. The sprite will be resized if needed. Defaults to `32`.
     - idleParticle* (ParticleEffect) - A persistent particle packet used when the sphere is on the board.
+    - idleParticleLayer* = "GamePieceNormalPsys" (string) - The layer on which the sphere's idle particles will be rendered.
+    - idleParticleHiddenLayer* = "GamePieceHiddenPsys" (string) - The layer on which the sphere's idle particles will be rendered, if this Sphere is currently on a hidden part of the path.
     - holdParticle* (ParticleEffect) - A persistent particle packet used whenever the left mouse button is held. Works best with `autofire` enabled.
     - destroyParticle* (ParticleEffect) - A one-time particle packet used when the sphere is destroyed.
+    - destroyParticleLayer* = "GameCollapses" (string) - The layer on which the destroy particles will be rendered.
     - destroyCollectible* (CollectibleGenerator) - A collectible generator used when the sphere is destroyed. **Note:** The generator will be evaluated for each single sphere of this type removed from the board. You may want to check out Sphere Effects' collectible generators instead.
     - destroySound* (SoundEvent) - A sound event to be played when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' sound events instead.
     - destroyEvent* (GameEvent) - A game event to be executed when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' game events instead.

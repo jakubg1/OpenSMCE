@@ -700,9 +700,6 @@ function Sphere:draw()
 	self.entity:setHidden(hidden)
 	self.entity:setColorM(colorM)
 
-	-- Move the particles to the appropriate layer.
-	self.entity:setLayer(hidden and "GamePieceHiddenPsys" or "GamePieceNormalPsys")
-
 	self:dumpVariables("sphere")
 	self.entity:draw()
 	_Vars:unset("sphere")

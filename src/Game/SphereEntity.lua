@@ -3,15 +3,14 @@ local Color = require("src.Essentials.Color")
 
 ---Represents an actual drawable form of Spheres.
 ---@class SphereEntity
----@overload fun(posX, posY, color, layer):SphereEntity
+---@overload fun(x: number, y: number, color: integer):SphereEntity
 local SphereEntity = class:derive("SphereEntity")
 
 ---Constructs a new Sphere Entity.
 ---@param x number The initial X coordinate of this Sphere Entity.
 ---@param y number The initial Y coordinate of this Sphere Entity.
 ---@param color integer The initial sphere color.
----@param layer string? The layer on which the sphere's idle particles should appear. If not specified, they will be drawn in the main pass of the Particle Manager, i.e. on top of everything.
-function SphereEntity:new(x, y, color, layer)
+function SphereEntity:new(x, y, color)
 	self.x, self.y = x, y
 	self.angle = 0
 	self.scaleX = 1
@@ -21,11 +20,10 @@ function SphereEntity:new(x, y, color, layer)
 	self.colorM = Color()
 	self.color = color
 	self.alpha = 1
-	self.layer = layer
 
 	self.config = _Res:getSphereConfig("spheres/sphere_" .. color .. ".json")
 	self.rollOffsets = self:generateSpriteRollOffsets()
-	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, x, y, layer)
+	self.particle = self.config.idleParticle and _Game:spawnParticle(self.config.idleParticle, x, y, self:getIdleParticleLayer())
 end
 
 ---Moves the sphere entity to a given location.
@@ -60,6 +58,9 @@ end
 ---@param hidden boolean Whether this Sphere Entity should be hidden.
 function SphereEntity:setHidden(hidden)
 	self.hidden = hidden
+	if self.particle then
+		self.particle:setLayer(self:getIdleParticleLayer())
+	end
 end
 
 ---Sets the color modifier of this sphere entity. The color modifier will tint this entity with a given color.
@@ -81,7 +82,7 @@ function SphereEntity:setColor(color)
 		self.particle = nil
 	end
 	if self.config.idleParticle then
-		self.particle = _Game:spawnParticle(self.config.idleParticle, self.x, self.y, self.layer)
+		self.particle = _Game:spawnParticle(self.config.idleParticle, self.x, self.y, self:getIdleParticleLayer())
 	end
 end
 
@@ -89,15 +90,6 @@ end
 ---@param alpha number The transparency of this entity, from `0` (fully invisible) to `1` (fully visible).
 function SphereEntity:setAlpha(alpha)
 	self.alpha = alpha
-end
-
----Moves the idle particle effect of this sphere entity to the provided layer.
----@param layer string The new layer name.
-function SphereEntity:setLayer(layer)
-	self.layer = layer
-	if self.particle then
-		self.particle:setLayer(layer)
-	end
 end
 
 ---Randomizes the frame offsets for the rolling animation, for each sprite separately.
@@ -118,10 +110,16 @@ function SphereEntity:getConfig()
 	return self.config
 end
 
+---Returns the layer on which this Sphere Entity's idle particle should be rendered on.
+---@return string
+function SphereEntity:getIdleParticleLayer()
+	return self.hidden and self.config.idleParticleHiddenLayer or self.config.idleParticleLayer
+end
+
 ---Returns a new instance of itself.
 ---@return SphereEntity
 function SphereEntity:copy()
-	local entity = SphereEntity(self.x, self.y, self.color, self.layer)
+	local entity = SphereEntity(self.x, self.y, self.color)
 	entity.angle = self.angle
 	entity.scaleX, entity.scaleY = self.scaleX, self.scaleY
 	entity.colorM = self.colorM
@@ -140,7 +138,7 @@ function SphereEntity:destroy(spawnParticle)
 		self.particle = nil
 	end
 	if spawnParticle and self.config.destroyParticle then
-		_Game:spawnParticle(self.config.destroyParticle, self.x, self.y, self.layer)
+		_Game:spawnParticle(self.config.destroyParticle, self.x, self.y, self.config.destroyParticleLayer)
 	end
 end
 

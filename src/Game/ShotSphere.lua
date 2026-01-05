@@ -61,7 +61,7 @@ function ShotSphere:update(dt)
 		self.hitTime = self.hitTime + dt
 		-- if the timer expired, destroy the entity and add the ball to the chain
 		if self.hitTime >= self.hitTimeMax then
-			self:destroy(true)
+			self:destroy(true, true)
 		end
 	else
 		-- If this is a homing sphere, go towards that.
@@ -254,11 +254,12 @@ end
 
 ---Deinitializates itself, destroys the associated sphere entity and allows the shooter to shoot again.
 ---@param silent boolean? If set, the sphere will not emit any particles.
-function ShotSphere:destroy(silent)
+---@param pass boolean? If set, the sphere entity will be kept. Use if the sphere entity is passed on to a Sphere in the chain.
+function ShotSphere:destroy(silent, pass)
 	if self.delQueue then
 		return
 	end
-	if self.sphereEntity then
+	if self.sphereEntity and not pass then
 		self.sphereEntity:setPos(self:getDrawPos())
 		self.sphereEntity:destroy(not silent)
 	end

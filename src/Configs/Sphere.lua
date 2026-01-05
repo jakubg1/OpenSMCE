@@ -50,8 +50,11 @@ function SphereConfig:new(data, path, isAnonymous, base)
 
     self.size = u.parseNumberOpt(data, base, path, {"size"}) or 32
     self.idleParticle = u.parseParticleEffectConfigOpt(data, base, path, {"idleParticle"})
+    self.idleParticleLayer = u.parseStringOpt(data, base, path, {"idleParticleLayer"}) or "GamePieceNormalPsys"
+    self.idleParticleHiddenLayer = u.parseStringOpt(data, base, path, {"idleParticleHiddenLayer"}) or "GamePieceHiddenPsys"
     self.holdParticle = u.parseParticleEffectConfigOpt(data, base, path, {"holdParticle"})
     self.destroyParticle = u.parseParticleEffectConfigOpt(data, base, path, {"destroyParticle"})
+    self.destroyParticleLayer = u.parseStringOpt(data, base, path, {"destroyParticleLayer"}) or "GameCollapses"
     self.destroyCollectible = u.parseCollectibleGeneratorConfigOpt(data, base, path, {"destroyCollectible"})
     self.destroySound = u.parseSoundEventOpt(data, base, path, {"destroySound"})
     self.destroyEvent = u.parseGameEventConfigOpt(data, base, path, {"destroyEvent"})

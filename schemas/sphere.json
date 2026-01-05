@@ -73,6 +73,14 @@
             "$ref": "_structures/ParticleEffect.json",
             "description": "A persistent particle packet used when the sphere is on the board."
         },
+        "idleParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the sphere's idle particles will be rendered."
+        },
+        "idleParticleHiddenLayer": {
+            "type": "string",
+            "description": "The layer on which the sphere's idle particles will be rendered, if this Sphere is currently on a hidden part of the path."
+        },
         "holdParticle": {
             "$ref": "_structures/ParticleEffect.json",
             "description": "A persistent particle packet used whenever the left mouse button is held. Works best with autofire enabled.",
@@ -81,6 +89,10 @@
         "destroyParticle": {
             "$ref": "_structures/ParticleEffect.json",
             "description": "A one-time particle packet used when the sphere is destroyed."
+        },
+        "destroyParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the destroy particles will be rendered."
         },
         "destroyCollectible": {
             "$ref": "_structures/CollectibleGenerator.json",
