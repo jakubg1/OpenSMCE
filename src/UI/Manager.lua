@@ -87,8 +87,14 @@ function UIManager:new()
         configGetCheckpointID = function(levelSet, n) return _Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet))[n].levelID end,
         configGetCheckpointLevel = function(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Res:getLevelSetConfig(levelSet), n) end,
 
-        optionsLoad = function() self:optionsLoad() end,
-        optionsSave = function() self:optionsSave() end,
+        optionsGetMusicVolume = function() return _Game.runtimeManager.options:getMusicVolume() end,
+        optionsGetSoundVolume = function() return _Game.runtimeManager.options:getSoundVolume() end,
+        optionsGetFullscreen = function() return _Game.runtimeManager.options:getFullscreen() end,
+        optionsGetMute = function() return _Game.runtimeManager.options:getMute() end,
+        optionsSetMusicVolume = function(volume) _Game.runtimeManager.options:setMusicVolume(volume) end,
+        optionsSetSoundVolume = function(volume) _Game.runtimeManager.options:setSoundVolume(volume) end,
+        optionsSetFullscreen = function(fullscreen) _Game.runtimeManager.options:setFullscreen(fullscreen) end,
+        optionsSetMute = function(mute) _Game.runtimeManager.options:setMute(mute) end,
 
 
         getWidgetN = function(names) return self:getWidgetN(names) end,
@@ -236,26 +242,6 @@ end
 ---@return UIWidget?
 function UIManager:getWidgetN(names)
     return self:getWidget(_Utils.strSplit(names, "/"))
-end
-
----Sets the menu slider values to the values fetched from the game options.
----TODO: Move this to UI Script.
-function UIManager:optionsLoad()
-    -- TODO: HARDCODED - make it more flexible
-    self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget:setValue(_Game.runtimeManager.options:getMusicVolume())
-    self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget:setValue(_Game.runtimeManager.options:getSoundVolume())
-    self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget:setState(_Game.runtimeManager.options:getFullscreen())
-    self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget:setState(_Game.runtimeManager.options:getMute())
-end
-
----Sets the game option values to the current UI slider values.
----TODO: Move this to UI Script.
-function UIManager:optionsSave()
-    -- TODO: HARDCODED - make it more flexible
-    _Game.runtimeManager.options:setMusicVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget.value)
-    _Game.runtimeManager.options:setSoundVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_sfx", "Slider_Effects"}).widget.value)
-    _Game.runtimeManager.options:setFullscreen(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget.state)
-    _Game.runtimeManager.options:setMute(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget.state)
 end
 
 return UIManager
