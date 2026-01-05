@@ -366,18 +366,6 @@ function UIWidget:isButtonHovered()
 	return false
 end
 
----Prepares this Widget to be drawn. This allows the Particles to be drawn at the middle of the text widgets.
-function UIWidget:generateDrawData()
-	for childN, child in pairs(self.children) do
-		child:generateDrawData()
-	end
-	if self.widget then
-		if self.widget.type == "text" then
-			self.widget.textTmp = self.widget.text
-		end
-	end
-end
-
 ---Draws this Widget and all its children.
 function UIWidget:draw()
 	_Debug.uiWidgetCount = _Debug.uiWidgetCount + 1

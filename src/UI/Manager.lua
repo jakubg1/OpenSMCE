@@ -138,7 +138,6 @@ function UIManager:draw()
     _Debug.uiWidgetCount = 0
     -- Draw the UI widgets.
     for widgetN, widget in pairs(self.widgets) do
-        widget:generateDrawData()
         widget:draw()
     end
 end
