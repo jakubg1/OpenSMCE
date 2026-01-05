@@ -363,10 +363,7 @@ function SphereChain:endCascade()
 		return
 	end
 	--_Debug:print("chain " .. self.cascadeScore)
-	_Game.uiManager:executeCallback({
-		name = "cascadeEnded",
-		parameters = {self.cascade, self.cascadeScore}
-	})
+	_Game.uiManager:executeCallback("cascadeEnded", {self.cascade, self.cascadeScore})
 	self.cascade = 0
 	self.cascadeScore = 0
 end

@@ -607,10 +607,7 @@ function Level:executeScoreEvent(scoreEvent, x, y)
 	_Vars:unset("event")
 
 	-- Execute a UI callback.
-	_Game.uiManager:executeCallback({
-		name = "scoreAdded",
-		parameters = {score}
-	})
+	_Game.uiManager:executeCallback("scoreAdded", {score})
 
 	return score
 end
@@ -891,10 +888,7 @@ function Level:endCascade()
 		return
 	end
 	--_Debug:print("level " .. self.cascadeScore)
-	_Game.uiManager:executeCallback({
-		name = "cascadeEnded",
-		parameters = {self.cascade, self.cascadeScore}
-	})
+	_Game.uiManager:executeCallback("cascadeEnded", {self.cascade, self.cascadeScore})
 	self.cascade = 0
 	self.cascadeScore = 0
 end

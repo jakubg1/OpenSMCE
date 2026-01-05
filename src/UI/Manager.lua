@@ -1,13 +1,11 @@
 local class = require "com.class"
+local UIWidget = require("src.UI.Widget")
 
 ---@class UIManager
 ---@overload fun():UIManager
 local UIManager = class:derive("UIManager")
 
-local UIWidget = require("src.UI.Widget")
-
-
-
+---Constructs the UI Manager.
 function UIManager:new()
     ---@type table<string, UIWidget?>
     self.widgets = {splash = nil, root = nil}
@@ -100,21 +98,25 @@ function UIManager:new()
     self.hasFocus = true
 end
 
+---Initializes the splash screen, loads the UI Script and fires the `init` UI Script callback.
 function UIManager:initSplash()
-    self.widgets.splash = UIWidget("Splash", _Utils.loadJson(_ParsePath("ui/splash.json")))
+    self.widgets.splash = UIWidget("Splash", "ui/splash.json")
 
     self.script = require(_ParsePathDots("ui.script"))
     self:executeCallback("init")
 end
 
+---Destroys the splash screen and loads the main game UI structure.
 function UIManager:init()
     -- Cleanup the splash
     self.widgets.splash = nil
 
     -- Setup the UI
-    self.widgets.root = UIWidget("Root", _Utils.loadJson(_ParsePath("ui/root.json")))
+    self.widgets.root = UIWidget("Root", "ui/root.json")
 end
 
+---Updates the UI Manager.
+---@param dt number Time delta in seconds.
 function UIManager:update(dt)
     -- despite being called since the splash screen starts, scripts are loaded when the main game widgets are loaded, and therefore this tick is called only after such event happens
     self:executeCallback("tick")
@@ -131,6 +133,7 @@ function UIManager:update(dt)
     end
 end
 
+---Draws all UI elements on the screen.
 function UIManager:draw()
     _Debug.uiWidgetCount = 0
     -- Draw the UI widgets.
@@ -140,8 +143,10 @@ function UIManager:draw()
     end
 end
 
-
-
+---Executed when a mouse button is pressed.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button.
 function UIManager:mousepressed(x, y, button)
     if button == 1 then
         for widgetN, widget in pairs(self.widgets) do
@@ -150,6 +155,10 @@ function UIManager:mousepressed(x, y, button)
     end
 end
 
+---Executed when a mouse button is released.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button.
 function UIManager:mousereleased(x, y, button)
     if button == 1 then
         for widgetN, widget in pairs(self.widgets) do
@@ -159,35 +168,33 @@ function UIManager:mousereleased(x, y, button)
     end
 end
 
+---Executed when a key is pressed.
+---@param key string The key code.
 function UIManager:keypressed(key)
     for widgetN, widget in pairs(self.widgets) do
         widget:keypressed(key)
     end
 end
 
+---Executed when text is entered.
+---@param t string The entered text.
 function UIManager:textinput(t)
     for widgetN, widget in pairs(self.widgets) do
         widget:textinput(t)
     end
 end
 
-
-
-function UIManager:executeCallback(data)
-    local name = ""
-    local params = {}
-    if type(data) == "string" then
-        name = data
-    else
-        name = data.name
-        params = data.parameters
-    end
+---Executes a UI script callback function, if it exists. Does nothing if the function does not exist in the UI script.
+---@param name string The function name.
+---@param parameters any[]? If specified, this is a list of parameters which will be passed to the executed function as a list.
+function UIManager:executeCallback(name, parameters)
     local f = self.script[name]
     if f then
-        f(self.scriptFunctions, params)
+        f(self.scriptFunctions, parameters)
     end
 end
 
+---Deactivates all Widgets, which means they are no longer interactable.
 function UIManager:resetActive()
     for widgetN, widget in pairs(self.widgets) do
         widget:resetActive()
@@ -232,6 +239,8 @@ function UIManager:getWidgetN(names)
     return self:getWidget(_Utils.strSplit(names, "/"))
 end
 
+---Sets the menu slider values to the values fetched from the game options.
+---TODO: Move this to UI Script.
 function UIManager:optionsLoad()
     -- TODO: HARDCODED - make it more flexible
     self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget:setValue(_Game.runtimeManager.options:getMusicVolume())
@@ -240,6 +249,8 @@ function UIManager:optionsLoad()
     self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget:setState(_Game.runtimeManager.options:getMute())
 end
 
+---Sets the game option values to the current UI slider values.
+---TODO: Move this to UI Script.
 function UIManager:optionsSave()
     -- TODO: HARDCODED - make it more flexible
     _Game.runtimeManager.options:setMusicVolume(self:getWidget({"root", "Menu_Options", "Frame", "Slot_music", "Slider_Music"}).widget.value)
@@ -247,7 +258,5 @@ function UIManager:optionsSave()
     _Game.runtimeManager.options:setFullscreen(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Fullscreen"}).widget.state)
     _Game.runtimeManager.options:setMute(self:getWidget({"root", "Menu_Options", "Frame", "Toggle_Mute"}).widget.state)
 end
-
-
 
 return UIManager
