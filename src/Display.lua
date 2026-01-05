@@ -43,6 +43,7 @@ function Display:setFullscreen(fullscreen)
         self.w, self.h = self.bufferW, self.bufferH
     end
     love.window.setMode(self.w, self.h, {fullscreen = fullscreen, resizable = true})
+    self:populateSpriteAtlases()
 end
 
 ---Generates a new Canvas which can be drawn on.
@@ -59,6 +60,15 @@ function Display:setCanvas(w, h, mode)
     end
     -- The debug canvas is active for any `love.graphics.*` calls while the Renderer is active.
     self.debugCanvas = love.graphics.newCanvas(w, h)
+end
+
+---(Re)populates all Sprite Atlases.
+---When `love.graphics.setMode()` is called, all Sprite Atlases are cleared and need to be repopulated.
+---@private
+function Display:populateSpriteAtlases()
+    for i, atlas in ipairs(_Res:getResourceList("SpriteAtlas")) do
+        _Res:getSpriteAtlas(atlas):populate()
+    end
 end
 
 ---Returns the X offset of actual screen contents.

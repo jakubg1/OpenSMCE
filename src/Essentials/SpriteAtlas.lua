@@ -25,11 +25,13 @@ function SpriteAtlas:new(config, path)
 
     self.canvas = nil
     self.sprites = {} -- Indexed by Sprite instances, data: {offsetX, offsetY}
-    self:generateAtlas()
+    self:init()
+    self:populate()
 end
 
----Generates the Sprite Atlas from all sprites defined in its configuration.
-function SpriteAtlas:generateAtlas()
+---Creates the canvas this Atlas will be stored on. This only needs to be done once.
+---@private
+function SpriteAtlas:init()
     -- Determine the atlas' canvas size.
     -- All sprites have a 1px margin on all four sides to avoid additional bleeding.
     local sizeX = 0
@@ -39,8 +41,14 @@ function SpriteAtlas:generateAtlas()
         sizeY = sizeY + sprite.imageSize.y + 2
     end
     self.canvas = love.graphics.newCanvas(sizeX, sizeY)
+end
+
+---Populates the Sprite Atlas with sprites defined in its configuration.
+---This needs to be done each time `love.graphics.setMode()` is used, as calling that clears all canvases.
+function SpriteAtlas:populate()
     -- Place the sprites on the canvas and generate relevant metadata.
     love.graphics.setCanvas(self.canvas)
+    love.graphics.clear()
     local y = 1
     for i, sprite in ipairs(self.config.sprites) do
         sprite.config.image:draw(1, y)

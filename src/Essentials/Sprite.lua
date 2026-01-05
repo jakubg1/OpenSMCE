@@ -15,20 +15,29 @@ function Sprite:new(config, path)
 
 	self.image = config.image.img
 	self.imageSize = config.image.size
+	self.atlasImage = nil
+	self.atlasImageSize = nil
 	---@type {frameCount: integer, frames: love.Quad[]}[]
 	self.states = {}
 	self:generateFrames(0, 0)
 end
 
----Permanently attaches this Sprite as part of the provided Sprite Atlas.
+---Attaches this Sprite as part of the provided Sprite Atlas.
 ---This function offsets all sprite Quads to match the position of this Sprite's position on the atlas.
 ---@param atlas SpriteAtlas The Sprite Atlas this Sprite will be a part of.
 ---@param offsetX integer The horizontal offset of this Sprite on the Atlas texture, in pixels.
 ---@param offsetY integer The vertical offset of this Sprite on the Atlas texture, in pixels.
 function Sprite:attachToAtlas(atlas, offsetX, offsetY)
-	self.image = atlas.canvas
-	self.imageSize = Vec2(atlas.canvas:getDimensions())
+	self.atlasImage = atlas.canvas
+	self.atlasImageSize = Vec2(atlas.canvas:getDimensions())
 	self:generateFrames(offsetX, offsetY)
+end
+
+---Detaches this Sprite from its current Sprite Atlas.
+function Sprite:detachFromAtlas()
+	self.atlasImage = nil
+	self.atlasImageSize = nil
+	self:generateFrames(0, 0)
 end
 
 ---Generates the frame positions and sizes (`love.Quad` objects) based on this Sprite's config.
@@ -44,7 +53,9 @@ function Sprite:generateFrames(offsetX, offsetY)
 			for k = 1, state.frames.y do
 				local p = self.config.frameSize * (Vec2(j, k) - 1) + state.pos
 				local n = (k - 1) * state.frames.x + j
-				s.frames[n] = love.graphics.newQuad(p.x + offsetX, p.y + offsetY, self.config.frameSize.x, self.config.frameSize.y, self.imageSize.x, self.imageSize.y)
+				local sx = self.atlasImageSize and self.atlasImageSize.x or self.imageSize.x
+				local sy = self.atlasImageSize and self.atlasImageSize.y or self.imageSize.y
+				s.frames[n] = love.graphics.newQuad(p.x + offsetX, p.y + offsetY, self.config.frameSize.x, self.config.frameSize.y, sx, sy)
 			end
 		end
 		self.states[i] = s
@@ -113,7 +124,7 @@ function Sprite:draw(posX, posY, alignX, alignY, state, frame, rot, color, alpha
 	end
 
 	_Renderer:setColor(color, alpha)
-	_Renderer:drawImage(self.image, self:getFrame(state, frame), posX, posY, rot, scaleX, scaleY, alignX, alignY)
+	_Renderer:drawImage(self.atlasImage or self.image, self:getFrame(state, frame), posX, posY, rot, scaleX, scaleY, alignX, alignY)
 end
 
 ---Injects functions to Resource Manager regarding this resource type.
