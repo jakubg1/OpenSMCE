@@ -595,7 +595,7 @@ def docl_to_docld(data):
 
 	lines = data.split("\n")
 	for line in lines:
-		line_out = {}
+		line_out = {"optional": False}
 
 		# 4 spaces = one indent.
 		line = line.replace("    ", "\t")
@@ -669,15 +669,10 @@ def docl_to_docld(data):
 				subtokens = token[1:-1].split("|")
 				for subtoken in subtokens:
 					if subtoken[0] == "$": # $expression
-						if subtoken[1].lower() != subtoken[1]: # $Structure (applies only to $Vector2)
-							line_out["types"].append({"structure": subtoken[1:], "expression": True})
-						else:
-							line_out["types"].append({"type": subtoken[1:], "expression": True})
-					elif subtoken[0].lower() != subtoken[0]: # Structure
-						line_out["types"].append({"structure": subtoken})
+						line_out["types"].append({"type": subtoken[1:], "expression": True})
 					else: # type
 						line_out["types"].append({"type": subtoken})
-				# "types" don't exist if there's one type. Instead, have a direct field: "structure" or "type".
+				# `types` don't exist if there's one type. Instead, have a direct `type` field.
 				if len(line_out["types"]) == 1:
 					for i in range(len(line_out["types"][0].keys())):
 						line_out[list(line_out["types"][0].keys())[i]] = list(line_out["types"][0].values())[i]
@@ -696,8 +691,11 @@ def docl_to_docld(data):
 				curly = True
 			elif token == "=": # = default_value
 				default = True
-			else: # name (or name* if optional - parsed by docld_to_* functions for now!)
+			else: # name (or name* if optional)
 				line_out["name"] = token
+				if line_out["name"][-1] == "*":
+					line_out["name"] = line_out["name"][:-1]
+					line_out["optional"] = True
 		
 		# Insert the processed line as a child.
 		if indent == 0:
@@ -723,7 +721,7 @@ def docl_to_docld(data):
 
 # Returns whether the entry has at least a single Vector2 structure inside itself which has a default value.
 def docld_contains_default_vector(entry):
-	if "structure" in entry and entry["structure"] == "Vector2" and "default" in entry:
+	if "type" in entry and entry["type"] == "Vector2" and "default" in entry:
 		return True
 	if "children" in entry:
 		for child in entry["children"]:
@@ -735,6 +733,7 @@ def docld_contains_default_vector(entry):
 
 # Converts DocLangData to a JSON schema.
 def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
+	simple_types = ["number", "integer", "boolean", "string", "object", "array"]
 	constraints = {
 		">=": "minimum",
 		">": "exclusiveMinimum",
@@ -749,12 +748,13 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 		out["$schema"] = "http://json-schema.org/draft-07/schema"
 	# Carry the type over.
 	if "type" in entry:
-		if "expression" in entry:
-			out["$ref"] = structures_path + "Expr" + entry["type"].capitalize() + ".json"
+		if entry["type"] in simple_types:
+			if "expression" in entry:
+				out["$ref"] = structures_path + "Expr" + entry["type"].capitalize() + ".json"
+			else:
+				out["type"] = entry["type"]
 		else:
-			out["type"] = entry["type"]
-	elif "structure" in entry:
-		out["$ref"] = structures_path + ("Expr" if "expression" in entry else "") + entry["structure"] + ".json"
+			out["$ref"] = structures_path + ("Expr" if "expression" in entry else "") + entry["type"] + ".json"
 	elif "const" in entry:
 		out["const"] = entry["const"]
 	elif "types" in entry:
@@ -762,9 +762,10 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 		out["anyOf"] = []
 		for choice in entry["types"]:
 			if "type" in choice:
-				out["anyOf"].append({"type": choice["type"]})
-			elif "structure" in choice:
-				out["anyOf"].append({"$ref": structures_path + ("Expr" if "expression" in choice else "") + choice["structure"] + ".json"})
+				if entry["type"] in simple_types:
+					out["anyOf"].append({"type": entry["type"]})
+				else:
+					out["anyOf"].append({"$ref": structures_path + ("Expr" if "expression" in choice else "") + entry["type"] + ".json"})
 			elif "const" in choice:
 				out["anyOf"].append({"const": choice["const"]})
 				
@@ -802,8 +803,8 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 							# We can't really hook up a call to itself here, because children of this child would get involved and mess things up.
 							child_block["if"] = {"properties": {key: {"const": child["const"], "description": child["description"]}}, "required": [key]}
 							# Now similar stuff to regular objects. Shenanigans incoming!!!
-							# Adding an array as a child at the front with an asterisk ensures that it will come first, display as True and won't show up as required twice.
-							child_children = [{"name": key + "*"}]
+							# Adding an array as a child at the front ensures that it will come first, display as True and won't show up as required twice.
+							child_children = [{"name": key, "optional": True}]
 							if "children" in child:
 								child_children += child["children"]
 							child_block["then"] = docld_to_schema({"type": "object", "children": child_children}, is_root, structures_path)
@@ -817,15 +818,11 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 							for child_block in out["allOf"]:
 								# The first entry is the type definition, so we need to omit that one.
 								if "then" in child_block:
-									name = child["name"]
-									# Names ending with an asterisk depict optional properties.
-									if name[-1] == "*":
-										name = name[:-1]
-									else:
+									if not child["optional"]:
 										if not "required" in child_block["then"]:
 											child_block["then"]["required"] = []
-										child_block["then"]["required"].append(name)
-									child_block["then"]["properties"][name] = docld_to_schema(child, False, structures_path)
+										child_block["then"]["required"].append(child["name"])
+									child_block["then"]["properties"][child["name"]] = docld_to_schema(child, False, structures_path)
 			elif "children" in entry and not "name" in entry["children"][0]:
 				# One nameless child in a regular object means that the object behaves like an array, with all keys possible.
 				out["patternProperties"] = {}
@@ -839,13 +836,9 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 					out["properties"]["$schema"] = True
 				if "children" in entry:
 					for child in entry["children"]:
-						name = child["name"]
-						# Names ending with an asterisk depict optional properties.
-						if name[-1] == "*":
-							name = name[:-1]
-						else:
-							out["required"].append(name)
-						out["properties"][name] = docld_to_schema(child, False, structures_path)
+						if not child["optional"]:
+							out["required"].append(child["name"])
+						out["properties"][child["name"]] = docld_to_schema(child, False, structures_path)
 				if len(out["required"]) == 0:
 					del out["required"]
 		elif entry["type"] == "array":
@@ -912,10 +905,9 @@ def docld_to_lua_context(fields):
 # Determines LDoc (luadoc) type from the DocLD entry, without the `---@type ` prefix.
 def docld_to_lua_ldoc(entry):
 	# TODO: Do something with this.
-	structure_config_lookup = ["Vector2","Color","Sprite","Image","ColorPalette","Font","FontFile","SoundEvent","Sound","Music"]
+	structure_config_lookup = ["number","integer","boolean","string","Vector2","Color","Sprite","Image","ColorPalette","Font","FontFile","SoundEvent","Sound","Music"]
 
-	# TODO: Instead of here, sort out the optionality in the DocLD itself.
-	optional = "name" in entry and entry["name"][-1] == "*"
+	optional = entry["optional"]
 	out = ""
 	if "expression" in entry:
 		if entry["expression"]:
@@ -958,7 +950,6 @@ def docld_to_lua_ldoc(entry):
 		elif entry["type"] == "string":
 			if "children" in entry:
 				# Enum string.
-				out = ""
 				for child in entry["children"]:
 					if out != "":
 						out += "|"
@@ -968,10 +959,8 @@ def docld_to_lua_ldoc(entry):
 				out = "string"
 		else:
 			out = entry["type"]
-	elif "structure" in entry:
-		out = entry["structure"]
-		if not entry["structure"] in structure_config_lookup:
-			out += "Config"
+			if not entry["type"] in structure_config_lookup:
+				out += "Config"
 	if optional and not "default" in entry:
 		out += "?"
 	return out
@@ -985,15 +974,7 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 		"number": "parseNumber",
 		"integer": "parseInteger",
 		"string": "parseString",
-		"boolean": "parseBoolean"
-	}
-	lua_expr_type_assoc = {
-		"number": "parseExprNumber",
-		"integer": "parseExprInteger",
-		"string": "parseExprString",
-		"boolean": "parseExprBoolean"
-	}
-	lua_structure_assoc = {
+		"boolean": "parseBoolean",
 		"Vector2": "parseVec2",
 		"Color": "parseColor",
 		"Sprite": "parseSprite",
@@ -1005,63 +986,53 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 		"Sound": "parseSound",
 		"Music": "parseMusic"
 	}
-	lua_expr_structure_assoc = {
+	lua_expr_type_assoc = {
+		"number": "parseExprNumber",
+		"integer": "parseExprInteger",
+		"string": "parseExprString",
+		"boolean": "parseExprBoolean",
 		"Vector2": "parseExprVec2"
 	}
 	
 	# Deal with simple fields.
 	if "type" in entry:
 		if entry["type"] == "object" or entry["type"] == "array":
-			print("ERROR: something went wrong")
-			return "ERROR"
+			raise Exception("ERROR: Cannot get a generic object or array parser")
+		lookup = lua_expr_type_assoc if "expression" in entry else lua_type_assoc
+		if entry["type"] in lookup:
+			function = "u." + lookup[entry["type"]] + ("Opt" if optional else "")
 		else:
-			function = "u." + (lua_expr_type_assoc if "expression" in entry else lua_type_assoc)[entry["type"]] + ("Opt" if optional else "")
-			default = ""
-			if "default" in entry:
-				default = ", "
-				if entry["type"] == "boolean":
-					default += "true" if entry["default"] else "false"
-				elif entry["type"] == "string":
-					default += "\"" + entry["default"] + "\""
-				else:
-					default += str(entry["default"])
-			return function + "(data, base, path, " + docld_to_lua_index(fields) + default + ")"
-	elif "structure" in entry:
-		lookup = lua_expr_structure_assoc if "expression" in entry else lua_structure_assoc
-		if entry["structure"] in lookup:
-			function = "u." + lookup[entry["structure"]] + ("Opt" if optional else "")
-		else:
-			function = "u.parse" + entry["structure"] + "Config" + ("Opt" if optional else "")
+			# If the provided type is not present in the lookup, assume a registered resource parser such as `parseCollectibleGeneratorConfig`
+			function = "u.parse" + entry["type"] + "Config" + ("Opt" if optional else "")
 		default = ""
 		if "default" in entry:
 			default = ", "
-			if entry["default"]["x"] == 0 and entry["default"]["y"] == 0:
-				default += "Vec2()"
+			if entry["type"] == "boolean":
+				default += "true" if entry["default"] else "false"
+			elif entry["type"] == "string":
+				default += "\"" + entry["default"] + "\""
+			elif entry["type"] == "Vector2":
+				if entry["default"]["x"] == 0 and entry["default"]["y"] == 0:
+					default += "Vec2()"
+				else:
+					default += "Vec2(" + str(entry["default"]["x"]) + ", " + str(entry["default"]["y"]) + ")"
 			else:
-				default += "Vec2(" + str(entry["default"]["x"]) + ", " + str(entry["default"]["y"]) + ")"
+				default += str(entry["default"])
 		return function + "(data, base, path, " + docld_to_lua_index(fields) + default + ")"
 	elif "const" in entry:
-		print("TODO: Consts not supported")
-		return "ERROR"
+		raise Exception("TODO: Consts not supported")
 	elif "types" in entry:
-		print("TODO: Multitypes aren't supported")
-		return "ERROR"
-	print("TODO: something not supported at all!!!")
-	return "ERROR"
+		raise Exception("TODO: Multitypes aren't supported")
+	raise Exception("TODO: something not supported at all!!!")
 
 # Converts DocLangData to raw Lua config class information.
 # You might want to convert it to a fully fledged Lua config class by further processing the result using `docld_to_lua_pack()` and `docld_to_lua_finalize()`.
 def docld_to_lua_raw(entry, class_name, schema_path, is_root = True, fields = [], iterators_used = 0):
 	out = []
 
-	# Optional entries have an asterisk.
-	# Strip it and set a flag if such asterisk is present.
-	optional = False
+	optional = entry["optional"]
 	if "name" in entry:
 		name = entry["name"]
-		if name[-1] == "*":
-			optional = True
-			name = name[:-1]
 	
 	# Generate contexts.
 	fields_with_name = fields + [{"type": "string", "value": name}] if "name" in entry else fields
@@ -1167,8 +1138,6 @@ def docld_to_lua_raw(entry, class_name, schema_path, is_root = True, fields = []
 			out.append("")
 		else:
 			out.append("self" + context_with_name + " = " + docld_to_lua_value(entry, class_name, fields_with_name, optional))
-	elif "structure" in entry:
-		out.append("self" + context_with_name + " = " + docld_to_lua_value(entry, class_name, fields_with_name, optional))
 	elif "const" in entry:
 		print("TODO: Consts not supported")
 	elif "types" in entry:

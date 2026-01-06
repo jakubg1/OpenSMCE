@@ -8,6 +8,11 @@
     - "integer" - An integer value.
         - default* (integer) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
         - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
+    - "Vector2" - A Vector2 value.
+        - default* (object) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
+            - x (number) - The X coordinate of the default vector.
+            - y (number) - The Y coordinate of the default vector.
+        - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
     - "boolean" - A boolean value.
         - default* (boolean) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
         - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
@@ -18,6 +23,7 @@
             - (object) - A single choice.
                 - const (string) - One of the possible values.
                 - description (string) - The value description.
+        - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
     - "array" - An array value.
         - children (array) - Must have exactly 1 item. This is an item that must be conformed to for all items in this array in the resource file.
             - (DocLD) - A child object.
@@ -36,14 +42,6 @@
                 - description (string) - The value description.
                 - children* (array) - List of children entries in this object, if the `keyconst` field matches the `const` value. If absent, no child fields are allowed.
                     - (DocLD) - A child object.
-    - name* (string) - The name of the field in its parent object. Can only be absent if it is a root object or an element of an array. If it has an asterisk at the end, it is an optional value. Note that this must be handled further in the chain.
+    - name* (string) - The name of the field in its parent object. Can only be absent if it is a root object or an element of an array.
     - description* (string) - Description of the object. Can contain simple Markdown, in which case the schema will contain both `description` and `markdownDescription` fields to make sure IDEs display it properly.
-
-- (object) {structure?: The structure type.} - A single field from a table in DocLD format.
-    - "Vector2" - A Vector2 value.
-        - default* (object) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
-            - x (number) - The X coordinate of the default vector.
-            - y (number) - The Y coordinate of the default vector.
-        - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
-    - name* (string) - The name of the field in its parent object. Can only be absent if it is a root object or an element of an array. If it has an asterisk at the end, it is an optional value. Note that this must be handled further in the chain.
-    - description* (string) - Description of the object. Can contain simple Markdown, in which case the schema will contain both `description` and `markdownDescription` fields to make sure IDEs display it properly.
+    - optional (boolean) - If `true`, this field is optional.
