@@ -36,12 +36,14 @@
         - children* (array) - List of children entries in this object. If absent, this object has no children and is considered to be required empty.
             - (DocLD) - A child object.
         IF KEYCONST SPECIFIED:
-        - children* (array) - List of choices for the `keyconst` variable.
+        - children* (array) - List of choices for the `keyconst` field.
             - (object) - A single choice.
                 - const (string) - One of the possible values for the field pointed to by `keyconst`.
                 - description (string) - The value description.
                 - children* (array) - List of children entries in this object, if the `keyconst` field matches the `const` value. If absent, no child fields are allowed.
                     - (DocLD) - A child object.
+            OR JUST:
+            - (DocLD) - A child object, valid no matter what the `keyconst` field is set to.
     - name* (string) - The name of the field in its parent object. Can only be absent if it is a root object or an element of an array.
     - description* (string) - Description of the object. Can contain simple Markdown, in which case the schema will contain both `description` and `markdownDescription` fields to make sure IDEs display it properly.
     - optional (boolean) - If `true`, this field is optional.

@@ -1,3 +1,4 @@
+---@type {contents: string, inner: {contents: string}}
 self.outer = {}
 self.outer.contents = u.parseString(data, base, path, {"outer", "contents"})
 

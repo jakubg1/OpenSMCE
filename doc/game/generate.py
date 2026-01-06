@@ -933,11 +933,7 @@ def docld_to_lua_ldoc(entry):
 							out += ", "
 						if not "name" in child:
 							raise Exception("Regular objects' children must have a name!")
-						# TODO: Remove this stupid optionality check.
-						child_name = child["name"]
-						if child_name[-1] == "*":
-							child_name = child_name[:-1]
-						out += child_name + ": " + docld_to_lua_ldoc(child)
+						out += child["name"] + ": " + docld_to_lua_ldoc(child)
 				out += "}"
 			# Optional objects and arrays are actually always prepended, even if they are optional and no data is there.
 			optional = False

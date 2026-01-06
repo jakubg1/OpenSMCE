@@ -1,3 +1,4 @@
+---@type {type: "test", a: {field: integer}?}
 self.obj = {}
 self.obj.type = u.parseString(data, base, path, {"obj", "type"})
 if self.obj.type == "test" then

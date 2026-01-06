@@ -1,3 +1,4 @@
+---@type {two: {three: {value: integer}[]}[]}[]
 self.one = {}
 for i = 1, #data.one do
     self.one[i].two = {}
