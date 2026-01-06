@@ -240,6 +240,9 @@ local OPERATOR_FUNCTIONS = {
 ---@param str any The expression to be compiled (or not).
 ---@param raw boolean? Whether the provided `str` value is guaranteed to be a valid expression which is not packed inside the `${...}` clause.
 function Expression:new(str, raw)
+	if str == nil then
+		error("Attempted to make an Expression with no data!")
+	end
 	self.str = str
 
 	-- Prepare the Expression.
@@ -284,6 +287,9 @@ function Expression:getToken(str)
 		if not a or not b then
 			a, b = string.find(str, "^%d+")
 		end
+		if not a then
+			return nil, "Number expected"
+		end
 		value = tonumber(string.sub(str, a, b))
 		str = string.sub(str, b + 1)
 
@@ -306,6 +312,9 @@ function Expression:getToken(str)
 
 	elseif type == "literal" then
 		local a, b = string.find(str, "^[%a%d_]+")
+		if not a then
+			return nil, "Literal expected"
+		end
 		value = string.sub(str, a, b)
 		-- Convert to a boolean.
 		if value == "true" or value == "false" then
@@ -480,6 +489,7 @@ function Expression:evaluate()
 
 	local stack = {}
 
+	assert(self.data, string.format("No data found in Expression: %s", self.str))
 	for i, step in ipairs(self.data) do
 		if step.type == "value" then
 			table.insert(stack, step.value)

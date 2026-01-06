@@ -36,11 +36,11 @@ function FontConfig:new(data, path, isAnonymous, base)
             self.characters[n].offset = u.parseInteger(data, base, path, {"characters", n, "offset"})
             self.characters[n].width = u.parseInteger(data, base, path, {"characters", n, "width"})
         end
-        self.newlineAdjustment = u.parseNumberOpt(data, base, path, {"newlineAdjustment"}) or 0
+        self.newlineAdjustment = u.parseNumberOpt(data, base, path, {"newlineAdjustment"}, 0)
     elseif self.type == "imageLove" then
         self.image = u.parseImage(data, base, path, {"image"})
         self.characters = u.parseString(data, base, path, {"characters"})
-        self.spacing = u.parseIntegerOpt(data, base, path, {"spacing"}) or 1
+        self.spacing = u.parseIntegerOpt(data, base, path, {"spacing"}, 1)
     elseif self.type == "truetype" then
         self.file = u.parseFontFile(data, base, path, {"file"})
         self.size = u.parseInteger(data, base, path, {"size"})

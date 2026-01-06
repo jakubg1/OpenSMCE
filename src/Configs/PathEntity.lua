@@ -30,9 +30,9 @@ function PathEntityConfig:new(data, path, isAnonymous, base)
     self.sprite = u.parseSpriteOpt(data, base, path, {"sprite"})
     self.shadowSprite = u.parseSpriteOpt(data, base, path, {"shadowSprite"})
     self.spawnPlacement = u.parseString(data, base, path, {"spawnPlacement"})
-    self.spawnOffset = u.parseNumberOpt(data, base, path, {"spawnOffset"}) or 0
+    self.spawnOffset = u.parseNumberOpt(data, base, path, {"spawnOffset"}, 0)
     self.speed = u.parseNumber(data, base, path, {"speed"})
-    self.acceleration = u.parseNumberOpt(data, base, path, {"acceleration"}) or 0
+    self.acceleration = u.parseNumberOpt(data, base, path, {"acceleration"}, 0)
     self.maxSpeed = u.parseNumberOpt(data, base, path, {"maxSpeed"})
     self.maxOffset = u.parseNumberOpt(data, base, path, {"maxOffset"})
     self.destroyOffset = u.parseNumberOpt(data, base, path, {"destroyOffset"})

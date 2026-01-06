@@ -51,7 +51,7 @@ function ParticleConfig:new(data, path, isAnonymous, base)
     self.animationFrameRandom = u.parseBoolean(data, base, path, {"animationFrameRandom"})
     self.fadeInPoint = u.parseNumber(data, base, path, {"fadeInPoint"})
     self.fadeOutPoint = u.parseNumber(data, base, path, {"fadeOutPoint"})
-    self.posRelative = u.parseBooleanOpt(data, base, path, {"posRelative"}) == true
+    self.posRelative = u.parseBooleanOpt(data, base, path, {"posRelative"}, false)
     self.colorPalette = u.parseColorPaletteOpt(data, base, path, {"colorPalette"})
     self.colorPaletteSpeed = u.parseNumberOpt(data, base, path, {"colorPaletteSpeed"})
     self.directionDeviationTime = u.parseNumberOpt(data, base, path, {"directionDeviationTime"})

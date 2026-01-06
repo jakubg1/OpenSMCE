@@ -36,7 +36,7 @@ function DifficultyConfig:new(data, path, isAnonymous, base)
     if self.lifeConfig.type == "score" then
         self.lifeConfig.startingLives = u.parseInteger(data, base, path, {"lifeConfig", "startingLives"})
         self.lifeConfig.scorePerLife = u.parseInteger(data, base, path, {"lifeConfig", "scorePerLife"})
-        self.lifeConfig.countUnmultipliedScore = u.parseBooleanOpt(data, base, path, {"lifeConfig", "countUnmultipliedScore"}) == true
+        self.lifeConfig.countUnmultipliedScore = u.parseBooleanOpt(data, base, path, {"lifeConfig", "countUnmultipliedScore"}, false)
     elseif self.lifeConfig.type == "coins" then
         self.lifeConfig.startingLives = u.parseInteger(data, base, path, {"lifeConfig", "startingLives"})
         self.lifeConfig.coinsPerLife = u.parseInteger(data, base, path, {"lifeConfig", "coinsPerLife"})
@@ -45,8 +45,8 @@ function DifficultyConfig:new(data, path, isAnonymous, base)
     else
         error(string.format("Unknown lifeConfig type: %s (expected \"score\", \"coins\", \"none\")", self.lifeConfig.type))
     end
-    self.lifeConfig.rollbackScoreAfterFailure = u.parseBooleanOpt(data, base, path, {"lifeConfig", "rollbackScoreAfterFailure"}) == true
-    self.lifeConfig.rollbackCoinsAfterFailure = u.parseBooleanOpt(data, base, path, {"lifeConfig", "rollbackCoinsAfterFailure"}) == true
+    self.lifeConfig.rollbackScoreAfterFailure = u.parseBooleanOpt(data, base, path, {"lifeConfig", "rollbackScoreAfterFailure"}, false)
+    self.lifeConfig.rollbackCoinsAfterFailure = u.parseBooleanOpt(data, base, path, {"lifeConfig", "rollbackCoinsAfterFailure"}, false)
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

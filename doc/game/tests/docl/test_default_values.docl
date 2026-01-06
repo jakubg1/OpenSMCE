@@ -5,3 +5,5 @@
     - d* = true (boolean) - A default truey boolean.
     - e* = "Hello, World!" (string) - A default string.
     - f* = (-2.5, 6) (Vector2) - A default Vector2.
+    - g* = 1 ($number) - A default number expression.
+    - h* = (-420, 69) ($Vector2) - A default Vector2 expression.

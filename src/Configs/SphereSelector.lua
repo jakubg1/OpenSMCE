@@ -37,7 +37,7 @@ function SphereSelectorConfig:new(data, path, isAnonymous, base)
             self.operations[i].sphere = u.parseExprString(data, base, path, {"operations", i, "sphere"})
         elseif self.operations[i].type == "select" then
             self.operations[i].percentage = u.parseNumber(data, base, path, {"operations", i, "percentage"})
-            self.operations[i].round = u.parseStringOpt(data, base, path, {"operations", i, "round"}) or "down"
+            self.operations[i].round = u.parseStringOpt(data, base, path, {"operations", i, "round"}, "down")
         else
             error(string.format("Unknown SphereSelectorConfig type: %s (expected \"add\", \"addOne\", \"select\")", self.operations[i].type))
         end

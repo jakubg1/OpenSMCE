@@ -69,7 +69,7 @@ function GameplayConfig:new(data, path, isAnonymous, base)
     self.sphereBehavior.noScarabAttraction = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "noScarabAttraction"})
     self.sphereBehavior.permitLongMatches = u.parseBoolean(data, base, path, {"sphereBehavior", "permitLongMatches"})
     self.sphereBehavior.instantMatches = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "instantMatches"})
-    self.sphereBehavior.cascadeScope = u.parseStringOpt(data, base, path, {"sphereBehavior", "cascadeScope"}) or "chain"
+    self.sphereBehavior.cascadeScope = u.parseStringOpt(data, base, path, {"sphereBehavior", "cascadeScope"}, "chain")
 
     self.sphereBehavior.distanceEvents = {}
     if data.sphereBehavior.distanceEvents then
@@ -77,8 +77,8 @@ function GameplayConfig:new(data, path, isAnonymous, base)
             self.sphereBehavior.distanceEvents[i] = {}
             self.sphereBehavior.distanceEvents[i].reference = u.parseString(data, base, path, {"sphereBehavior", "distanceEvents", i, "reference"})
             self.sphereBehavior.distanceEvents[i].distance = u.parseNumber(data, base, path, {"sphereBehavior", "distanceEvents", i, "distance"})
-            self.sphereBehavior.distanceEvents[i].forwards = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "distanceEvents", i, "forwards"}) == true
-            self.sphereBehavior.distanceEvents[i].backwards = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "distanceEvents", i, "backwards"}) == true
+            self.sphereBehavior.distanceEvents[i].forwards = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "distanceEvents", i, "forwards"}, false)
+            self.sphereBehavior.distanceEvents[i].backwards = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "distanceEvents", i, "backwards"}, false)
             self.sphereBehavior.distanceEvents[i].event = u.parseGameEventConfig(data, base, path, {"sphereBehavior", "distanceEvents", i, "event"})
         end
     end
@@ -102,7 +102,7 @@ function GameplayConfig:new(data, path, isAnonymous, base)
         for n, _ in pairs(data.levelTimers) do
             self.levelTimers[n] = {}
             self.levelTimers[n].countDown = u.parseBooleanOpt(data, base, path, {"levelTimers", n, "countDown"})
-            self.levelTimers[n].value = u.parseNumberOpt(data, base, path, {"levelTimers", n, "value"}) or 0
+            self.levelTimers[n].value = u.parseNumberOpt(data, base, path, {"levelTimers", n, "value"}, 0)
         end
     end
 

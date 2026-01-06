@@ -953,16 +953,14 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 			function = "u." + (lua_expr_type_assoc if "expression" in entry else lua_type_assoc)[entry["type"]] + ("Opt" if optional else "")
 			default = ""
 			if "default" in entry:
-				default = " or "
+				default = ", "
 				if entry["type"] == "boolean":
-					default = " ~= false" if entry["default"] else " == true"
+					default += "true" if entry["default"] else "false"
 				elif entry["type"] == "string":
 					default += "\"" + entry["default"] + "\""
-				elif "expression" in entry:
-					default += "Expression(" + str(entry["default"]) + ")"
 				else:
 					default += str(entry["default"])
-			return function + "(data, base, path, " + docld_to_lua_index(fields) + ")" + default
+			return function + "(data, base, path, " + docld_to_lua_index(fields) + default + ")"
 	elif "structure" in entry:
 		lookup = lua_expr_structure_assoc if "expression" in entry else lua_structure_assoc
 		if entry["structure"] in lookup:
@@ -971,12 +969,12 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 			function = "u.parse" + entry["structure"] + "Config" + ("Opt" if optional else "")
 		default = ""
 		if "default" in entry:
-			default = " or "
+			default = ", "
 			if entry["default"]["x"] == 0 and entry["default"]["y"] == 0:
 				default += "Vec2()"
 			else:
 				default += "Vec2(" + str(entry["default"]["x"]) + ", " + str(entry["default"]["y"]) + ")"
-		return function + "(data, base, path, " + docld_to_lua_index(fields) + ")" + default
+		return function + "(data, base, path, " + docld_to_lua_index(fields) + default + ")"
 	elif "const" in entry:
 		print("TODO: Consts not supported")
 		return "ERROR"

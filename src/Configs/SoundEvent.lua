@@ -5,7 +5,6 @@
 --!!--
 
 local class = require "com.class"
-local Expression = require("src.Expression")
 
 ---@class SoundEventConfig
 ---@overload fun(data, path, isAnonymous):SoundEventConfig
@@ -29,24 +28,24 @@ function SoundEventConfig:new(data, path, isAnonymous, base)
     base = base or {}
 
     self.sound = u.parseSoundOpt(data, base, path, {"sound"})
-    self.loop = u.parseBooleanOpt(data, base, path, {"loop"}) == true
-    self.flat = u.parseBooleanOpt(data, base, path, {"flat"}) == true
-    self.volume = u.parseExprNumberOpt(data, base, path, {"volume"}) or Expression(1)
-    self.pitch = u.parseExprNumberOpt(data, base, path, {"pitch"}) or Expression(1)
+    self.loop = u.parseBooleanOpt(data, base, path, {"loop"}, false)
+    self.flat = u.parseBooleanOpt(data, base, path, {"flat"}, false)
+    self.volume = u.parseExprNumberOpt(data, base, path, {"volume"}, 1)
+    self.pitch = u.parseExprNumberOpt(data, base, path, {"pitch"}, 1)
     self.playsPerFrame = u.parseIntegerOpt(data, base, path, {"playsPerFrame"})
-    self.instances = u.parseIntegerOpt(data, base, path, {"instances"}) or 8
+    self.instances = u.parseIntegerOpt(data, base, path, {"instances"}, 8)
 
     self.sounds = {}
     if data.sounds then
         for i = 1, #data.sounds do
             self.sounds[i] = {}
             self.sounds[i].sound = u.parseSound(data, base, path, {"sounds", i, "sound"})
-            self.sounds[i].loop = u.parseBooleanOpt(data, base, path, {"sounds", i, "loop"}) == true
-            self.sounds[i].flat = u.parseBooleanOpt(data, base, path, {"sounds", i, "flat"}) == true
-            self.sounds[i].volume = u.parseExprNumberOpt(data, base, path, {"sounds", i, "volume"}) or Expression(1)
-            self.sounds[i].pitch = u.parseExprNumberOpt(data, base, path, {"sounds", i, "pitch"}) or Expression(1)
+            self.sounds[i].loop = u.parseBooleanOpt(data, base, path, {"sounds", i, "loop"}, false)
+            self.sounds[i].flat = u.parseBooleanOpt(data, base, path, {"sounds", i, "flat"}, false)
+            self.sounds[i].volume = u.parseExprNumberOpt(data, base, path, {"sounds", i, "volume"}, 1)
+            self.sounds[i].pitch = u.parseExprNumberOpt(data, base, path, {"sounds", i, "pitch"}, 1)
             self.sounds[i].playsPerFrame = u.parseIntegerOpt(data, base, path, {"sounds", i, "playsPerFrame"})
-            self.sounds[i].instances = u.parseIntegerOpt(data, base, path, {"sounds", i, "instances"}) or 8
+            self.sounds[i].instances = u.parseIntegerOpt(data, base, path, {"sounds", i, "instances"}, 8)
 
             self.sounds[i].conditions = {}
             if data.sounds[i].conditions then

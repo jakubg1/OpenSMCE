@@ -86,9 +86,9 @@ function utils.parseInteger(data, base, path, fields)
 end
 
 ---@return integer?
-function utils.parseIntegerOpt(data, base, path, fields)
+function utils.parseIntegerOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value
+	return value or default
 end
 
 ---@return number
@@ -99,9 +99,9 @@ function utils.parseNumber(data, base, path, fields)
 end
 
 ---@return number?
-function utils.parseNumberOpt(data, base, path, fields)
+function utils.parseNumberOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value
+	return value or default
 end
 
 ---@return boolean
@@ -112,9 +112,9 @@ function utils.parseBoolean(data, base, path, fields)
 end
 
 ---@return boolean?
-function utils.parseBooleanOpt(data, base, path, fields)
+function utils.parseBooleanOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value
+	return value ~= nil and value or default
 end
 
 ---@return string
@@ -125,9 +125,9 @@ function utils.parseString(data, base, path, fields)
 end
 
 ---@return string?
-function utils.parseStringOpt(data, base, path, fields)
+function utils.parseStringOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value
+	return value or default
 end
 
 
@@ -146,9 +146,9 @@ end
 ---@param data table The data to be parsed.
 ---@param fields any[] A list of indexes specifying the path inside of the file.
 ---@return Vector2?
-function utils.parseVec2Opt(data, base, path, fields)
+function utils.parseVec2Opt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and Vec2(value.x, value.y)
+	return value and Vec2(value.x, value.y) or default
 end
 
 ---@return Color
@@ -159,9 +159,9 @@ function utils.parseColor(data, base, path, fields)
 end
 
 ---@return Color?
-function utils.parseColorOpt(data, base, path, fields)
+function utils.parseColorOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and Color(value.r, value.g, value.b)
+	return value and Color(value.r, value.g, value.b) or default
 end
 
 
@@ -175,12 +175,12 @@ function utils.parseExprNumber(data, base, path, fields)
 end
 
 ---@return Expression?
-function utils.parseExprNumberOpt(data, base, path, fields)
+function utils.parseExprNumberOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
 	if value then
 		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
 	end
-	return value and Expression(value)
+	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
 end
 
 ---@return Expression
@@ -192,12 +192,12 @@ function utils.parseExprInteger(data, base, path, fields)
 end
 
 ---@return Expression?
-function utils.parseExprIntegerOpt(data, base, path, fields)
+function utils.parseExprIntegerOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
 	if value then
 		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
 	end
-	return value and Expression(value)
+	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
 end
 
 ---@return Expression
@@ -209,12 +209,12 @@ function utils.parseExprBoolean(data, base, path, fields)
 end
 
 ---@return Expression?
-function utils.parseExprBooleanOpt(data, base, path, fields)
+function utils.parseExprBooleanOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
 	if value then
 		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
 	end
-	return value and Expression(value)
+	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
 end
 
 ---@return Expression
@@ -225,9 +225,9 @@ function utils.parseExprString(data, base, path, fields)
 end
 
 ---@return Expression?
-function utils.parseExprStringOpt(data, base, path, fields)
+function utils.parseExprStringOpt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and Expression(value)
+	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
 end
 
 ---@return Expression
@@ -239,12 +239,12 @@ function utils.parseExprVec2(data, base, path, fields)
 end
 
 ---@return Expression?
-function utils.parseExprVec2Opt(data, base, path, fields)
+function utils.parseExprVec2Opt(data, base, path, fields, default)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
 	if value then
 		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
 	end
-	return value and Expression(value)
+	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
 end
 
 

@@ -35,8 +35,8 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         self.sprites[i] = {}
         self.sprites[i].sprite = u.parseSprite(data, base, path, {"sprites", i, "sprite"})
         self.sprites[i].layer = u.parseString(data, base, path, {"sprites", i, "layer"})
-        self.sprites[i].offset = u.parseVec2Opt(data, base, path, {"sprites", i, "offset"}) or Vec2()
-        self.sprites[i].anchor = u.parseVec2Opt(data, base, path, {"sprites", i, "anchor"}) or Vec2(0.5, 0.5)
+        self.sprites[i].offset = u.parseVec2Opt(data, base, path, {"sprites", i, "offset"}, Vec2())
+        self.sprites[i].anchor = u.parseVec2Opt(data, base, path, {"sprites", i, "anchor"}, Vec2(0.5, 0.5))
         self.sprites[i].animationSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "animationSpeed"})
 
         self.sprites[i].conditions = {}
@@ -77,11 +77,11 @@ function ShooterConfig:new(data, path, isAnonymous, base)
 
     self.speedShotParticle = u.parseParticleEffectConfig(data, base, path, {"speedShotParticle"})
     self.shotSpeed = u.parseNumber(data, base, path, {"shotSpeed"})
-    self.shotCooldown = u.parseNumberOpt(data, base, path, {"shotCooldown"}) or 0
-    self.shotCooldownFade = u.parseNumberOpt(data, base, path, {"shotCooldownFade"}) or 0
-    self.multishot = u.parseBooleanOpt(data, base, path, {"multishot"}) == true
-    self.autofire = u.parseBooleanOpt(data, base, path, {"autofire"}) == true
-    self.destroySphereOnFail = u.parseBooleanOpt(data, base, path, {"destroySphereOnFail"}) == true
+    self.shotCooldown = u.parseNumberOpt(data, base, path, {"shotCooldown"}, 0)
+    self.shotCooldownFade = u.parseNumberOpt(data, base, path, {"shotCooldownFade"}, 0)
+    self.multishot = u.parseBooleanOpt(data, base, path, {"multishot"}, false)
+    self.autofire = u.parseBooleanOpt(data, base, path, {"autofire"}, false)
+    self.destroySphereOnFail = u.parseBooleanOpt(data, base, path, {"destroySphereOnFail"}, false)
 
     if data.knockback then
         self.knockback = {}
@@ -91,7 +91,7 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         self.knockback.speedShotStrength = u.parseNumberOpt(data, base, path, {"knockback", "speedShotStrength"})
     end
 
-    self.hitboxOffset = u.parseVec2Opt(data, base, path, {"hitboxOffset"}) or Vec2()
+    self.hitboxOffset = u.parseVec2Opt(data, base, path, {"hitboxOffset"}, Vec2())
     self.hitboxSize = u.parseVec2(data, base, path, {"hitboxSize"})
 end
 

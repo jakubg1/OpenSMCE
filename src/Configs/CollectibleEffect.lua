@@ -78,11 +78,11 @@ function CollectibleEffectConfig:new(data, path, isAnonymous, base)
         self.projectile = u.parseProjectileConfig(data, base, path, {"projectile"})
         self.count = u.parseExprInteger(data, base, path, {"count"})
         self.delay = u.parseExprNumber(data, base, path, {"delay"})
-        self.cancelWhenNoTargetsRemaining = u.parseBooleanOpt(data, base, path, {"cancelWhenNoTargetsRemaining"}) == true
+        self.cancelWhenNoTargetsRemaining = u.parseBooleanOpt(data, base, path, {"cancelWhenNoTargetsRemaining"}, false)
     elseif self.type == "colorSort" then
         self.sortType = u.parseString(data, base, path, {"sortType"})
-        self.delay = u.parseNumberOpt(data, base, path, {"delay"}) or 0
-        self.stopWhenTampered = u.parseBooleanOpt(data, base, path, {"stopWhenTampered"}) == true
+        self.delay = u.parseNumberOpt(data, base, path, {"delay"}, 0)
+        self.stopWhenTampered = u.parseBooleanOpt(data, base, path, {"stopWhenTampered"}, false)
     elseif self.type == "grantCoin" then
         -- No fields
     elseif self.type == "incrementGemStat" then

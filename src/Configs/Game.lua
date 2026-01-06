@@ -31,8 +31,8 @@ function GameConfig:new(data, path, isAnonymous, base)
     self.windowTitle = u.parseStringOpt(data, base, path, {"windowTitle"})
     self.engineVersion = u.parseString(data, base, path, {"engineVersion"})
     self.nativeResolution = u.parseVec2(data, base, path, {"nativeResolution"})
-    self.tickRate = u.parseIntegerOpt(data, base, path, {"tickRate"}) or 60
-    self.canvasRenderingMode = u.parseStringOpt(data, base, path, {"canvasRenderingMode"}) or "filtered"
+    self.tickRate = u.parseIntegerOpt(data, base, path, {"tickRate"}, 60)
+    self.canvasRenderingMode = u.parseStringOpt(data, base, path, {"canvasRenderingMode"}, "filtered")
 
     if data.richPresence then
         self.richPresence = {}
