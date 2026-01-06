@@ -27,6 +27,7 @@ function ParticleEffectConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
+    ---@type ParticleEmitterConfig[]
     self.emitters = {}
     for i = 1, #data.emitters do
         self.emitters[i] = u.parseParticleEmitterConfig(data, base, path, {"emitters", i})

@@ -27,6 +27,7 @@ function ParticleConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
+    ---@type table
     self.movement = {}
     self.movement.type = u.parseString(data, base, path, {"movement", "type"})
     if self.movement.type == "loose" then

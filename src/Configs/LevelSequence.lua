@@ -27,6 +27,7 @@ function LevelSequenceConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
+    ---@type table[]
     self.sequence = {}
     for i = 1, #data.sequence do
         self.sequence[i] = {}

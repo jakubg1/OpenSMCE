@@ -32,9 +32,11 @@ function ScoreEventConfig:new(data, path, isAnonymous, base)
     self.text = u.parseExprStringOpt(data, base, path, {"text"})
     self.font = u.parseFontOpt(data, base, path, {"font"})
 
+    ---@type {options: Font[], default: Font, choice: Expression}
     if data.fonts then
         self.fonts = {}
 
+        ---@type Font[]
         self.fonts.options = {}
         for i = 1, #data.fonts.options do
             self.fonts.options[i] = u.parseFont(data, base, path, {"fonts", "options", i})

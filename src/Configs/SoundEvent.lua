@@ -35,6 +35,7 @@ function SoundEventConfig:new(data, path, isAnonymous, base)
     self.playsPerFrame = u.parseIntegerOpt(data, base, path, {"playsPerFrame"})
     self.instances = u.parseIntegerOpt(data, base, path, {"instances"}, 8)
 
+    ---@type {sound: Sound, loop: boolean, flat: boolean, volume: Expression, pitch: Expression, playsPerFrame: integer?, instances: integer, conditions: Expression[]}[]
     self.sounds = {}
     if data.sounds then
         for i = 1, #data.sounds do
@@ -47,6 +48,7 @@ function SoundEventConfig:new(data, path, isAnonymous, base)
             self.sounds[i].playsPerFrame = u.parseIntegerOpt(data, base, path, {"sounds", i, "playsPerFrame"})
             self.sounds[i].instances = u.parseIntegerOpt(data, base, path, {"sounds", i, "instances"}, 8)
 
+            ---@type Expression[]
             self.sounds[i].conditions = {}
             if data.sounds[i].conditions then
                 for j = 1, #data.sounds[i].conditions do

@@ -27,6 +27,7 @@ function LevelSetConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
+    ---@type table[]
     self.levelOrder = {}
     for i = 1, #data.levelOrder do
         self.levelOrder[i] = {}
@@ -52,12 +53,14 @@ function LevelSetConfig:new(data, path, isAnonymous, base)
             error(string.format("Unknown LevelSetConfig type: %s (expected \"level\", \"uiScript\", \"randomizer\")", self.levelOrder[i].type))
         end
 
+        ---@type {id: integer, unlockedOnStart: boolean?}
         if data.levelOrder[i].checkpoint then
             self.levelOrder[i].checkpoint = {}
             self.levelOrder[i].checkpoint.id = u.parseInteger(data, base, path, {"levelOrder", i, "checkpoint", "id"})
             self.levelOrder[i].checkpoint.unlockedOnStart = u.parseBooleanOpt(data, base, path, {"levelOrder", i, "checkpoint", "unlockedOnStart"})
         end
 
+        ---@type integer[]
         self.levelOrder[i].unlockCheckpointsOnBeat = {}
         if data.levelOrder[i].unlockCheckpointsOnBeat then
             for j = 1, #data.levelOrder[i].unlockCheckpointsOnBeat do

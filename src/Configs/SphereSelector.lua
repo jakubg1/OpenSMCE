@@ -27,6 +27,7 @@ function SphereSelectorConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
+    ---@type table[]
     self.operations = {}
     for i = 1, #data.operations do
         self.operations[i] = {}

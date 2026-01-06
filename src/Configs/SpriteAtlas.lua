@@ -27,6 +27,7 @@ function SpriteAtlasConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
+    ---@type Sprite[]
     self.sprites = {}
     for i = 1, #data.sprites do
         self.sprites[i] = u.parseSprite(data, base, path, {"sprites", i})

@@ -31,6 +31,7 @@ function DifficultyConfig:new(data, path, isAnonymous, base)
     self.scoreMultiplier = u.parseNumber(data, base, path, {"scoreMultiplier"})
     self.levelSet = u.parseLevelSetConfig(data, base, path, {"levelSet"})
 
+    ---@type table
     self.lifeConfig = {}
     self.lifeConfig.type = u.parseString(data, base, path, {"lifeConfig", "type"})
     if self.lifeConfig.type == "score" then

@@ -30,6 +30,7 @@ function ShooterConfig:new(data, path, isAnonymous, base)
 
     self.movement = u.parseShooterMovementConfig(data, base, path, {"movement"})
 
+    ---@type {sprite: Sprite, layer: string, offset: Vector2, anchor: Vector2, animationSpeed: number?, conditions: Expression[]}[]
     self.sprites = {}
     for i = 1, #data.sprites do
         self.sprites[i] = {}
@@ -39,6 +40,7 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         self.sprites[i].anchor = u.parseVec2Opt(data, base, path, {"sprites", i, "anchor"}, Vec2(0.5, 0.5))
         self.sprites[i].animationSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "animationSpeed"})
 
+        ---@type Expression[]
         self.sprites[i].conditions = {}
         if data.sprites[i].conditions then
             for j = 1, #data.sprites[i].conditions do
@@ -47,6 +49,7 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         end
     end
 
+    ---@type {pos: Vector2, shotPos: Vector2?}[]
     self.spheres = {}
     for i = 1, #data.spheres do
         self.spheres[i] = {}
@@ -54,6 +57,7 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         self.spheres[i].shotPos = u.parseVec2Opt(data, base, path, {"spheres", i, "shotPos"})
     end
 
+    ---@type {sprite: Sprite?, offset: Vector2?, nextBallSprite: Sprite?, nextBallOffset: Vector2?, radiusSprite: Sprite?, colorFadeTime: number?, nextColorFadeTime: number?}
     self.reticle = {}
     if data.reticle then
         self.reticle.sprite = u.parseSpriteOpt(data, base, path, {"reticle", "sprite"})
@@ -65,13 +69,16 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         self.reticle.nextColorFadeTime = u.parseNumberOpt(data, base, path, {"reticle", "nextColorFadeTime"})
     end
 
+    ---@type {sphereSwap: SoundEvent, sphereFill: SoundEvent}
     self.sounds = {}
     self.sounds.sphereSwap = u.parseSoundEvent(data, base, path, {"sounds", "sphereSwap"})
     self.sounds.sphereFill = u.parseSoundEvent(data, base, path, {"sounds", "sphereFill"})
 
+    ---@type {sprite: Sprite, fadeTime: number, renderingType: "full"|"cut"|"scale", colored: boolean}
     self.speedShotBeam = {}
     self.speedShotBeam.sprite = u.parseSprite(data, base, path, {"speedShotBeam", "sprite"})
     self.speedShotBeam.fadeTime = u.parseNumber(data, base, path, {"speedShotBeam", "fadeTime"})
+    ---@type "full"|"cut"|"scale"
     self.speedShotBeam.renderingType = u.parseString(data, base, path, {"speedShotBeam", "renderingType"})
     self.speedShotBeam.colored = u.parseBoolean(data, base, path, {"speedShotBeam", "colored"})
 
@@ -83,6 +90,7 @@ function ShooterConfig:new(data, path, isAnonymous, base)
     self.autofire = u.parseBooleanOpt(data, base, path, {"autofire"}, false)
     self.destroySphereOnFail = u.parseBooleanOpt(data, base, path, {"destroySphereOnFail"}, false)
 
+    ---@type {duration: number, strength: number, speedShotDuration: number?, speedShotStrength: number?}
     if data.knockback then
         self.knockback = {}
         self.knockback.duration = u.parseNumber(data, base, path, {"knockback", "duration"})

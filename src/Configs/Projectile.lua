@@ -31,6 +31,7 @@ function ProjectileConfig:new(data, path, isAnonymous, base)
     self.speed = u.parseNumber(data, base, path, {"speed"})
     self.spawnDistance = u.parseExprNumberOpt(data, base, path, {"spawnDistance"})
     self.spawnSound = u.parseSoundEventOpt(data, base, path, {"spawnSound"})
+    ---@type "homingBugs"|"lightningStorm"
     self.sphereAlgorithm = u.parseString(data, base, path, {"sphereAlgorithm"})
     self.homing = u.parseBooleanOpt(data, base, path, {"homing"})
     self.destroyParticle = u.parseParticleEffectConfig(data, base, path, {"destroyParticle"})

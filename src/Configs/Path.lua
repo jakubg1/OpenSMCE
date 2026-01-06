@@ -27,7 +27,7 @@ function PathConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
-    ---@type {x: number, y: number, scale: number?, hidden: boolean?, warp: boolean?}[]
+    ---@type {x: number, y: number, scale: number, hidden: boolean, warp: boolean?}[]
     self.nodes = {}
     for i = 1, #data.nodes do
         self.nodes[i] = {}

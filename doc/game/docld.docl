@@ -1,0 +1,49 @@
+# This is specification for the internal DocLD format.
+# Note that this data is not parsed or enforced in any way.
+
+- (object) {type?: The value type.} - A single field from a table in DocLD format.
+    - "number" - A number value.
+        - default* (number) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
+        - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
+    - "integer" - An integer value.
+        - default* (integer) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
+        - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
+    - "boolean" - A boolean value.
+        - default* (boolean) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
+        - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
+    - "string" - A string value.
+        - default* (string) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
+        - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
+        - children* (array) - If specified, this value can only be one of the specified values. Each value additionally has a description.
+            - (object) - A single choice.
+                - const (string) - One of the possible values.
+                - description (string) - The value description.
+    - "array" - An array value.
+        - children (array) - Must have exactly 1 item. This is an item that must be conformed to for all items in this array in the resource file.
+            - (DocLD) - A child object.
+    - "object" - An object value.
+        - default* (object) - The default value which will be prepended in the Config Class if nothing is provided in the resource file. Only `{}` is allowed.
+        - keyconst* (string) - If specified, this object is an Enum Object, which means that the possible children fields will change based on the field of name specified here.
+        - keyconst_description* (string) - The description of the `keyconst` field.
+        - regex* (string) - A regex expression, starting with `^` and ending with `$`. If specified, the `children` field must contain one unnamed entry. All keys in the schema must match the provided regular expression.
+        IF KEYCONST NOT SPECIFIED:
+        - children* (array) - List of children entries in this object. If absent, this object has no children and is considered to be required empty.
+            - (DocLD) - A child object.
+        IF KEYCONST SPECIFIED:
+        - children* (array) - List of choices for the `keyconst` variable.
+            - (object) - A single choice.
+                - const (string) - One of the possible values for the field pointed to by `keyconst`.
+                - description (string) - The value description.
+                - children* (array) - List of children entries in this object, if the `keyconst` field matches the `const` value. If absent, no child fields are allowed.
+                    - (DocLD) - A child object.
+    - name* (string) - The name of the field in its parent object. Can only be absent if it is a root object or an element of an array. If it has an asterisk at the end, it is an optional value. Note that this must be handled further in the chain.
+    - description* (string) - Description of the object. Can contain simple Markdown, in which case the schema will contain both `description` and `markdownDescription` fields to make sure IDEs display it properly.
+
+- (object) {structure?: The structure type.} - A single field from a table in DocLD format.
+    - "Vector2" - A Vector2 value.
+        - default* (object) - The default value which will be prepended in the Config Class if nothing is provided in the resource file.
+            - x (number) - The X coordinate of the default vector.
+            - y (number) - The Y coordinate of the default vector.
+        - expression* (boolean) - If set to `true`, the value given in the resource can be an Expression which must resolve to this type.
+    - name* (string) - The name of the field in its parent object. Can only be absent if it is a root object or an element of an array. If it has an asterisk at the end, it is an optional value. Note that this must be handled further in the chain.
+    - description* (string) - Description of the object. Can contain simple Markdown, in which case the schema will contain both `description` and `markdownDescription` fields to make sure IDEs display it properly.

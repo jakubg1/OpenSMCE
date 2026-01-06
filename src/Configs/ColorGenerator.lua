@@ -51,6 +51,7 @@ function ColorGeneratorConfig:new(data, path, isAnonymous, base)
         error(string.format("Unknown ColorGeneratorConfig type: %s (expected \"random\", \"nearEnd\", \"giveUp\")", self.type))
     end
 
+    ---@type integer[]
     self.colors = {}
     for i = 1, #data.colors do
         self.colors[i] = u.parseInteger(data, base, path, {"colors", i})

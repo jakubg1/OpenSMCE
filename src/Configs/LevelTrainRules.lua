@@ -60,6 +60,7 @@ function LevelTrainRulesConfig:new(data, path, isAnonymous, base)
             self.key[i] = {}
             self.key[i].key = u.parseStringOpt(data, base, path, {"key", i, "key"})
 
+            ---@type string[]
             self.key[i].keys = {}
             if data.key[i].keys then
                 for j = 1, #data.key[i].keys do
@@ -67,6 +68,7 @@ function LevelTrainRulesConfig:new(data, path, isAnonymous, base)
                 end
             end
 
+            ---@type integer[]
             self.key[i].colors = {}
             for j = 1, #data.key[i].colors do
                 self.key[i].colors[j] = u.parseInteger(data, base, path, {"key", i, "colors", j})
@@ -77,6 +79,7 @@ function LevelTrainRulesConfig:new(data, path, isAnonymous, base)
             self.key[i].colorStreak = u.parseNumberOpt(data, base, path, {"key", i, "colorStreak"})
             self.key[i].forceDifferentColor = u.parseBooleanOpt(data, base, path, {"key", i, "forceDifferentColor"})
 
+            ---@type number[]
             self.key[i].chainChances = {}
             if data.key[i].chainChances then
                 for j = 1, #data.key[i].chainChances do

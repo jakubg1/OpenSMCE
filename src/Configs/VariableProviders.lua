@@ -27,6 +27,7 @@ function VariableProvidersConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
+    ---@type table<string, table>
     if data.providers then
         self.providers = {}
         for n, _ in pairs(data.providers) do

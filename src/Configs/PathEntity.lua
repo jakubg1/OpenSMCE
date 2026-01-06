@@ -29,6 +29,7 @@ function PathEntityConfig:new(data, path, isAnonymous, base)
 
     self.sprite = u.parseSpriteOpt(data, base, path, {"sprite"})
     self.shadowSprite = u.parseSpriteOpt(data, base, path, {"shadowSprite"})
+    ---@type "start"|"end"|"furthestSpheres"
     self.spawnPlacement = u.parseString(data, base, path, {"spawnPlacement"})
     self.spawnOffset = u.parseNumberOpt(data, base, path, {"spawnOffset"}, 0)
     self.speed = u.parseNumber(data, base, path, {"speed"})

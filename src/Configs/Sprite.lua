@@ -30,6 +30,7 @@ function SpriteConfig:new(data, path, isAnonymous, base)
     self.image = u.parseImage(data, base, path, {"image"})
     self.frameSize = u.parseVec2(data, base, path, {"frameSize"})
 
+    ---@type {x1: integer, x2: integer, y1: integer, y2: integer}
     if data.frameCuts then
         self.frameCuts = {}
         self.frameCuts.x1 = u.parseInteger(data, base, path, {"frameCuts", "x1"})
@@ -38,6 +39,7 @@ function SpriteConfig:new(data, path, isAnonymous, base)
         self.frameCuts.y2 = u.parseInteger(data, base, path, {"frameCuts", "y2"})
     end
 
+    ---@type {pos: Vector2, frames: Vector2}[]
     self.states = {}
     for i = 1, #data.states do
         self.states[i] = {}

@@ -891,8 +891,6 @@ def docld_to_lua_index(fields):
 			out += str(field["value"])
 	return out + "}"
 
-
-
 # Converts a list of fields to traverse through, such as `{{"type": "string", "value": "integers"}, {"type": "integer", "value": "n"}}`
 # into e.g. `".integers[n]"`.
 # ref_string is indexed by `[n]` instead of `.n`
@@ -909,6 +907,73 @@ def docld_to_lua_context(fields):
 			out += "[" + field["value"] + "]"
 		elif field["type"] == "ref_integer":
 			out += "[tonumber(" + str(field["value"]) + ")]"
+	return out
+
+# Determines LDoc (luadoc) type from the DocLD entry, without the `---@type ` prefix.
+def docld_to_lua_ldoc(entry):
+	# TODO: Do something with this.
+	structure_config_lookup = ["Vector2","Color","Sprite","Image","ColorPalette","Font","FontFile","SoundEvent","Sound","Music"]
+
+	# TODO: Instead of here, sort out the optionality in the DocLD itself.
+	optional = "name" in entry and entry["name"][-1] == "*"
+	out = ""
+	if "expression" in entry:
+		if entry["expression"]:
+			out = "Expression"
+	elif "type" in entry:
+		if entry["type"] == "object":
+			if "keyconst" in entry:
+				# Enum object.
+				# TODO: Do something with this.
+				out = "table"
+			elif "regex" in entry:
+				# Regex object.
+				if not "children" in entry or len(entry["children"]) != 1:
+					raise Exception("Regex Objects must have exactly one child!")
+				key_type = "number" if is_regex_numeric(entry["regex"]) else "string"
+				out = "table<" + key_type + ", " + docld_to_lua_ldoc(entry["children"][0]) + ">"
+			else:
+				# Regular object.
+				out = "{"
+				if "children" in entry:
+					for child in entry["children"]:
+						if out != "{":
+							out += ", "
+						if not "name" in child:
+							raise Exception("Regular objects' children must have a name!")
+						# TODO: Remove this stupid optionality check.
+						child_name = child["name"]
+						if child_name[-1] == "*":
+							child_name = child_name[:-1]
+						out += child_name + ": " + docld_to_lua_ldoc(child)
+				out += "}"
+			# Optional objects and arrays are actually always prepended, even if they are optional and no data is there.
+			optional = False
+		elif entry["type"] == "array":
+			if not "children" in entry or len(entry["children"]) != 1:
+				raise Exception("Arrays must have exactly one child!")
+			out = docld_to_lua_ldoc(entry["children"][0]) + "[]"
+			# Optional objects and arrays are actually always prepended, even if they are optional and no data is there.
+			optional = False
+		elif entry["type"] == "string":
+			if "children" in entry:
+				# Enum string.
+				out = ""
+				for child in entry["children"]:
+					if out != "":
+						out += "|"
+					out += "\"" + child["const"] + "\""
+			else:
+				# A regular string.
+				out = "string"
+		else:
+			out = entry["type"]
+	elif "structure" in entry:
+		out = entry["structure"]
+		if not entry["structure"] in structure_config_lookup:
+			out += "Config"
+	if optional and not "default" in entry:
+		out += "?"
 	return out
 
 
@@ -983,14 +1048,6 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 		return "ERROR"
 	print("TODO: something not supported at all!!!")
 	return "ERROR"
-
-
-# Converts DocLangData to a Lua config class.
-def docld_to_lua(entry, class_name, schema_path, pack = True):
-	raw = docld_to_lua_raw(entry, class_name, schema_path)
-	if pack:
-		raw = docld_to_lua_pack(raw, entry, class_name, schema_path)
-	return docld_to_lua_finalize(raw)
 
 # Converts DocLangData to raw Lua config class information.
 # You might want to convert it to a fully fledged Lua config class by further processing the result using `docld_to_lua_pack()` and `docld_to_lua_finalize()`.
@@ -1072,6 +1129,8 @@ def docld_to_lua_raw(entry, class_name, schema_path, is_root = True, fields = []
 						distinguish_block = (not "type" in child or child["type"] != "string") and "children" in child
 						if distinguish_block and (len(out) > 0 and out[-1] != ""):
 							out.append("")
+						if "children" in child:
+							out.append("---@type " + docld_to_lua_ldoc(child))
 						out += docld_to_lua_raw(child, class_name, schema_path, False, fields_with_name, iterators_used)
 						if distinguish_block:
 							out.append("")
@@ -1210,6 +1269,13 @@ def docld_to_lua_finalize(raw):
 			output += "    " * indent + raw[i] + "\n"
 	# Remove the last newline.
 	return output[:-1]
+
+# Converts DocLangData to a Lua config class.
+def docld_to_lua(entry, class_name, schema_path, pack = True):
+	raw = docld_to_lua_raw(entry, class_name, schema_path)
+	if pack:
+		raw = docld_to_lua_pack(raw, entry, class_name, schema_path)
+	return docld_to_lua_finalize(raw)
 
 
 

@@ -36,6 +36,7 @@ function CollectibleConfig:new(data, path, isAnonymous, base)
     self.pickupName = u.parseStringOpt(data, base, path, {"pickupName"})
     self.pickupFont = u.parseFontOpt(data, base, path, {"pickupFont"})
 
+    ---@type CollectibleEffectConfig[]
     self.effects = {}
     if data.effects then
         for i = 1, #data.effects do
@@ -43,6 +44,7 @@ function CollectibleConfig:new(data, path, isAnonymous, base)
         end
     end
 
+    ---@type CollectibleEffectConfig[]
     self.dropEffects = {}
     if data.dropEffects then
         for i = 1, #data.dropEffects do

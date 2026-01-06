@@ -40,6 +40,7 @@ function LevelConfig:new(data, path, isAnonymous, base)
     self.colorGeneratorNormal = u.parseColorGeneratorConfig(data, base, path, {"colorGeneratorNormal"})
     self.colorGeneratorDanger = u.parseColorGeneratorConfig(data, base, path, {"colorGeneratorDanger"})
 
+    ---@type {shooter: ShooterConfig, movement: ShooterMovementConfig?}
     if data.shooter then
         self.shooter = {}
         self.shooter.shooter = u.parseShooterConfig(data, base, path, {"shooter", "shooter"})
@@ -48,13 +49,16 @@ function LevelConfig:new(data, path, isAnonymous, base)
 
     self.matchEffect = u.parseSphereEffectConfig(data, base, path, {"matchEffect"})
 
+    ---@type {type: "destroyedSpheres"|"timeElapsed"|"score"|"sphereChainsSpawned", target: number}[]
     self.objectives = {}
     for i = 1, #data.objectives do
         self.objectives[i] = {}
+        ---@type "destroyedSpheres"|"timeElapsed"|"score"|"sphereChainsSpawned"
         self.objectives[i].type = u.parseString(data, base, path, {"objectives", i, "type"})
         self.objectives[i].target = u.parseNumber(data, base, path, {"objectives", i, "target"})
     end
 
+    ---@type {trainRules: LevelTrainRulesConfig, spawnDistance: number, dangerDistance: number, dangerParticle: ParticleEffectConfig?, speeds: {distance: number?, offset: number?, offsetFromEnd: number?, speed: number, transition: table}[]}[]
     self.pathsBehavior = {}
     for i = 1, #data.pathsBehavior do
         self.pathsBehavior[i] = {}
@@ -63,6 +67,7 @@ function LevelConfig:new(data, path, isAnonymous, base)
         self.pathsBehavior[i].dangerDistance = u.parseNumber(data, base, path, {"pathsBehavior", i, "dangerDistance"})
         self.pathsBehavior[i].dangerParticle = u.parseParticleEffectConfigOpt(data, base, path, {"pathsBehavior", i, "dangerParticle"})
 
+        ---@type {distance: number?, offset: number?, offsetFromEnd: number?, speed: number, transition: table}[]
         self.pathsBehavior[i].speeds = {}
         for j = 1, #data.pathsBehavior[i].speeds do
             self.pathsBehavior[i].speeds[j] = {}
@@ -71,6 +76,7 @@ function LevelConfig:new(data, path, isAnonymous, base)
             self.pathsBehavior[i].speeds[j].offsetFromEnd = u.parseNumberOpt(data, base, path, {"pathsBehavior", i, "speeds", j, "offsetFromEnd"})
             self.pathsBehavior[i].speeds[j].speed = u.parseNumber(data, base, path, {"pathsBehavior", i, "speeds", j, "speed"})
 
+            ---@type table
             if data.pathsBehavior[i].speeds[j].transition then
                 self.pathsBehavior[i].speeds[j].transition = {}
                 self.pathsBehavior[i].speeds[j].transition.type = u.parseString(data, base, path, {"pathsBehavior", i, "speeds", j, "transition", "type"})

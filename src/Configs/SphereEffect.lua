@@ -46,6 +46,7 @@ function SphereEffectConfig:new(data, path, isAnonymous, base)
     self.causeCheck = u.parseBoolean(data, base, path, {"causeCheck"})
     self.ghostTime = u.parseNumberOpt(data, base, path, {"ghostTime"})
 
+    ---@type GameEventConfig[]
     self.eventsBefore = {}
     if data.eventsBefore then
         for i = 1, #data.eventsBefore do
@@ -53,6 +54,7 @@ function SphereEffectConfig:new(data, path, isAnonymous, base)
         end
     end
 
+    ---@type GameEventConfig[]
     self.eventsAfter = {}
     if data.eventsAfter then
         for i = 1, #data.eventsAfter do

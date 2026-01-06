@@ -28,6 +28,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
+    ---@type {sprite: Sprite, layer: string, hiddenLayer: string, offset: Vector2, anchor: Vector2, rotate: boolean, animationSpeed: number?, rollingSpeed: number, conditions: Expression[]}[]
     self.sprites = {}
     for i = 1, #data.sprites do
         self.sprites[i] = {}
@@ -40,6 +41,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
         self.sprites[i].animationSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "animationSpeed"})
         self.sprites[i].rollingSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "rollingSpeed"}, 0.63662)
 
+        ---@type Expression[]
         self.sprites[i].conditions = {}
         if data.sprites[i].conditions then
             for j = 1, #data.sprites[i].conditions do
@@ -65,6 +67,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
     self.colorPaletteSpeed = u.parseNumberOpt(data, base, path, {"colorPaletteSpeed"})
     self.swappable = u.parseBooleanOpt(data, base, path, {"swappable"}, true)
 
+    ---@type table
     self.shotBehavior = {}
     self.shotBehavior.type = u.parseString(data, base, path, {"shotBehavior", "type"})
     if self.shotBehavior.type == "normal" then
@@ -81,6 +84,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
         error(string.format("Unknown shotBehavior type: %s (expected \"normal\", \"destroySpheres\")", self.shotBehavior.type))
     end
 
+    ---@type CollectibleEffectConfig[]
     self.shotEffects = {}
     if data.shotEffects then
         for i = 1, #data.shotEffects do
@@ -92,6 +96,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
     self.shotCooldown = u.parseNumberOpt(data, base, path, {"shotCooldown"})
     self.shotSound = u.parseSoundEventOpt(data, base, path, {"shotSound"})
 
+    ---@type table
     self.hitBehavior = {}
     self.hitBehavior.type = u.parseString(data, base, path, {"hitBehavior", "type"})
     if self.hitBehavior.type == "normal" then
@@ -125,14 +130,17 @@ function SphereConfig:new(data, path, isAnonymous, base)
     end
 
     self.hitSound = u.parseSoundEventOpt(data, base, path, {"hitSound"})
+    ---@type "normal"|"stone"?
     self.type = u.parseStringOpt(data, base, path, {"type"})
     self.autofire = u.parseBooleanOpt(data, base, path, {"autofire"}, false)
 
+    ---@type integer[]
     self.matches = {}
     for i = 1, #data.matches do
         self.matches[i] = u.parseInteger(data, base, path, {"matches", i})
     end
 
+    ---@type integer[]
     self.doesNotCollideWith = {}
     if data.doesNotCollideWith then
         for i = 1, #data.doesNotCollideWith do

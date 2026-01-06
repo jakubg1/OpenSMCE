@@ -63,6 +63,7 @@ function GameEventConfig:new(data, path, isAnonymous, base)
         error(string.format("Unknown GameEventConfig type: %s (expected \"single\", \"sequence\", \"random\", \"setCoins\", \"setLevelVariable\", \"setLevelTimer\", \"addToTimerSeries\", \"clearTimerSeries\", \"collectibleEffect\", \"scoreEvent\", \"playSound\")", self.type))
     end
 
+    ---@type Expression[]
     self.conditions = {}
     if data.conditions then
         for i = 1, #data.conditions do
