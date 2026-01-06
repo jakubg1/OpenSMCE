@@ -135,38 +135,27 @@ function ShotSphere:moveStep()
 			-- - "append" - The sphere is appended
 			-- - "pierce" - The sphere keeps on flying
 			-- - "vanish" - The sphere vanishes
+			local whatHappens = hitBehavior.pierce and "pierce" or "vanish"
 			if hitBehavior.type == "destroySpheres" then
 				_Game.level:destroySelector(hitBehavior.selector, Vec2(self.x, self.y), hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
-				if not hitBehavior.pierce then
-					self:destroy()
-				else
-					self.hitSphere = nil
-				end
 			elseif hitBehavior.type == "recolorSpheres" then
 				_Game.level:replaceColorSelector(hitBehavior, Vec2(self.x, self.y))
-				if not hitBehavior.pierce then
-					self:destroy()
-				else
-					self.hitSphere = nil
-				end
 			elseif hitBehavior.type == "applyEffect" then
 				_Game.level:applyEffectSelector(hitBehavior, Vec2(self.x, self.y))
-				if not hitBehavior.pierce then
-					self:destroy()
-				else
-					self.hitSphere = nil
-				end
 			elseif hitBehavior.type == "splitAndPushBack" then
 				if hitSphere.nextSphere then
 					hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
 				end
 				hitSphere.sphereGroup.speed = -hitBehavior.speed
-				if not hitBehavior.pierce then
-					self:destroy()
-				else
-					self.hitSphere = nil
-				end
 			else
+				whatHappens = "append"
+			end
+			-- Do with the sphere what we're supposed to.
+			if whatHappens == "vanish" then
+				self:destroy()
+			elseif whatHappens == "pierce" then
+				self.hitSphere = nil
+			elseif whatHappens == "append" then
 				if self.hitSphere.half then
 					self.hitSphere.sphereID = self.hitSphere.sphereID + 1
 				end
