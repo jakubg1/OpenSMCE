@@ -17,7 +17,7 @@ function UIWidgetSpriteButtonSlider:new(parent, sprite, bounds, clickSound, rele
 end
 
 function UIWidgetSpriteButtonSlider:click()
-	if not self.parent:isVisible() or not self.button.hovered or self.button.clicked then return end
+	if not self.button.hovered or self.button.clicked then return end
 	self.button:click()
 	self.catchX = _MouseX - self.parent.pos.x
 end

@@ -27,7 +27,7 @@ function UIWidgetSpriteButton:new(parent, sprite, clickSound, releaseSound, hove
 end
 
 function UIWidgetSpriteButton:click()
-	if not self.parent:isVisible() or not self.hovered or self.clicked then return end
+	if not self.hovered or self.clicked then return end
 	self.clicked = true
 	if self.clickSound then
 		self.clickSound:play()

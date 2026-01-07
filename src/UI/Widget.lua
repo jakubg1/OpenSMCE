@@ -93,7 +93,7 @@ function UIWidget:new(name, data, parent)
 	self.showDelay = data.showDelay
 	self.time = data.showDelay
 
-	---@type table<string, function[]>
+	---@type table<string, {f: function, parameters: any[]?, oneshot: boolean?, delQueue: boolean?}[]>
 	self.actions = {}
 	self.active = false
 	self.hotkey = data.hotkey
@@ -498,11 +498,12 @@ function UIWidget:executeAction(actionType)
 	end
 	-- Execute scheduled functions (UI script)
 	if self.actions[actionType] then
-		for i, f in ipairs(self.actions[actionType]) do
-			f(_Game.uiManager.scriptFunctions)
+		for i, action in ipairs(self.actions[actionType]) do
+			action.f(_Game.uiManager.scriptFunctions, action.parameters)
+			action.delQueue = action.oneshot
 		end
-		-- Clear all scheduled functions.
-		self.actions[actionType] = nil
+		-- Clear all oneshot functions.
+		_Utils.removeDeadObjects(self.actions[actionType])
 	end
 end
 
@@ -510,9 +511,20 @@ end
 ---Once the action is executed, the scheduled function will be removed, i.e. actions are registered as oneshots.
 ---@param actionType string The action type to listen for.
 ---@param f function The function to be executed when that particular action type is executed.
-function UIWidget:scheduleFunction(actionType, f)
+---@param parameters any[]? An optional list of parameters which will be passed on to the function.
+function UIWidget:scheduleFunction(actionType, f, parameters)
 	self.actions[actionType] = self.actions[actionType] or {}
-	table.insert(self.actions[actionType], f)
+	table.insert(self.actions[actionType], {f = f, parameters = parameters, oneshot = true})
+end
+
+---Schedules a function to be executed when a particular action happens.
+---Unlike `scheduleFunction()`, the callback will stay after it's executed.
+---@param actionType string The action type to listen for.
+---@param f function The function to be executed when that particular action type is executed.
+---@param parameters any[]? An optional list of parameters which will be passed on to the function.
+function UIWidget:setCallback(actionType, f, parameters)
+	self.actions[actionType] = self.actions[actionType] or {}
+	table.insert(self.actions[actionType], {f = f, parameters = parameters})
 end
 
 return UIWidget

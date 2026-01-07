@@ -345,9 +345,8 @@ end
 ---@param y integer The Y coordinate of mouse position.
 ---@param button integer The mouse button which was released.
 function Game:mousereleased(x, y, button)
-	if self.uiManager:isButtonHovered() then
-		self.uiManager:mousereleased(x, y, button)
-	elseif self.level then
+	self.uiManager:mousereleased(x, y, button)
+	if self.level and not self.uiManager:isButtonHovered() then
 		self.level:mousereleased(x, y, button)
 	end
 end
