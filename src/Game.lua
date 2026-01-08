@@ -64,8 +64,6 @@ function Game:initSession()
 	-- Setup the UI and particles.
 	self.uiManager:init()
 	self.particleManager = ParticleManager()
-
-	_Game.uiManager:executeCallback("sessionInit")
 end
 
 ---Updates the game.

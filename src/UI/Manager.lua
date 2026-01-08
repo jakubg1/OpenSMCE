@@ -98,6 +98,7 @@ function UIManager:new()
 
 
         getWidgetN = function(names) return self:getWidgetN(names) end,
+        getWidgetListN = function(names) return self:getWidgetListN(names) end,
         resetActive = function() self:resetActive() end
     }
 
@@ -242,6 +243,20 @@ end
 ---@return UIWidget?
 function UIManager:getWidgetN(names)
     return self:getWidget(_Utils.strSplit(names, "/"))
+end
+
+---Returns a list of children widgets of the widget by its path. The child names must start at `1` and be a sequence of numbers.
+---For example, if `root/List` is provided, the function will return a list of nodes at `root/List/1`, `root/List/2` and so on.
+---@param names string Path to the widget represented as widget names separated by slashes, starting from one of the root widget names.
+---@return UIWidget[]
+function UIManager:getWidgetListN(names)
+    local widgets = {}
+    local i = 1
+    while self:getWidgetN(names .. "/" .. tostring(i)) do
+        widgets[i] = self:getWidgetN(names .. "/" .. tostring(i))
+        i = i + 1
+    end
+    return widgets
 end
 
 return UIManager
