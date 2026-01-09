@@ -38,6 +38,10 @@ function UIWidgetSpriteButtonCheckbox:setState(state)
 	self.button.sprite = self.sprites[state and 2 or 1]
 end
 
+function UIWidgetSpriteButtonCheckbox:update(dt)
+	self.button:update(dt)
+end
+
 function UIWidgetSpriteButtonCheckbox:draw()
 	self.button:draw()
 end

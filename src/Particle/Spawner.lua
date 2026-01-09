@@ -36,6 +36,11 @@ end
 ---Updates this particle spawner.
 ---@param dt number Time delta in seconds.
 function ParticleSpawner:update(dt)
+	-- Sorry! You DIED!
+	if self.delQueue then
+		return
+	end
+
 	-- Update speed and position.
 	self.speedX, self.speedY = self.speedX + self.accelerationX * dt, self.speedY + self.accelerationY * dt
 	self.x, self.y = self.x + self.speedX * dt, self.y + self.speedY * dt

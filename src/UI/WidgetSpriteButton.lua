@@ -14,7 +14,7 @@ function UIWidgetSpriteButton:new(parent, sprite, clickSound, releaseSound, hove
 	self.clicked = false
 	self.clickedV = false
 	self.enabled = true
-	self.enableForced = true
+	self.disabled = false
 
 	self.sprite = _Res:getSprite(sprite)
 	self.size = self.sprite.config.frameSize
@@ -47,17 +47,18 @@ function UIWidgetSpriteButton:unclick()
 end
 
 function UIWidgetSpriteButton:keypressed(key)
-	if not self.parent:isVisible() or not self.enabled then return end
+	if not self.enabled then return end
 	if key == self.parent.hotkey then
 		self.parent:executeAction("buttonClick")
 	end
 end
 
 function UIWidgetSpriteButton:setEnabled(enabled)
-	self.enableForced = enabled
+	self.disabled = not enabled
 end
 
 function UIWidgetSpriteButton:update(dt)
+	self.enabled = not self.disabled and ((self.parent:getAlpha() == 1 and self.parent.active) or self.parent.neverDisabled)
 	if self.hovered then
 		self.orbMasterHoverTime = math.min(self.orbMasterHoverTime + dt / 0.25, 1)
 	else
@@ -79,8 +80,7 @@ function UIWidgetSpriteButton:draw()
 		size = size * scale
 	end
 
-	self.enabled = self.enableForced and (alpha == 1 or self.parent.neverDisabled)
-	local hovered = self.enabled and self.parent.active and _Utils.isPointInsideBox(_MouseX, _MouseY, origPos.x, origPos.y, size.x, size.y) and not _Debug.uiDebug:isHovered()
+	local hovered = self.enabled and self.parent.active and _Utils.isPointInsideBox(_MouseX, _MouseY, origPos.x, origPos.y, size.x - 1, size.y - 1) and not _Debug.uiDebug:isHovered()
 	if hovered ~= self.hovered then
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end

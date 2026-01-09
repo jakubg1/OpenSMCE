@@ -42,7 +42,7 @@ function UIManager:new()
         levelGetNewRecord = function() return _Game.level:hasNewScoreRecord() end,
         levelGetAccuracy = function() return _Game.level:getShotAccuracy() end,
 
-        levelExecuteScoreEvent = function(event, pos) _Game.level:executeScoreEvent(_Res:getScoreEventConfig(event), pos.x, pos.y) end,
+        levelExecuteScoreEvent = function(event, x, y) _Game.level:executeScoreEvent(_Res:getScoreEventConfig(event), x, y) end,
 
         musicVolume = function(music, volume, duration) _Res:getMusic(music):play(volume, duration) end,
         musicStop = function(music, duration) _Res:getMusic(music):stop(duration) end,

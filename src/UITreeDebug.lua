@@ -1,13 +1,10 @@
 local class = require "com.class"
+local Vec2 = require("src.Essentials.Vector2")
 
 ---This class is responsible for displaying and interacting with the UI tree debug list.
 ---@class UITreeDebug
 ---@overload fun():UITreeDebug
 local UITreeDebug = class:derive("UITreeDebug")
-
-local Vec2 = require("src.Essentials.Vector2")
-
-
 
 ---Constructs a new UI tree debug.
 function UITreeDebug:new()
@@ -23,8 +20,6 @@ function UITreeDebug:new()
     self.autoCollapseInvisible = false
 end
 
-
-
 ---Draws the tree, and also does some of the logic.
 ---TODO: Extract parts of this function to `:update(dt)`.
 function UITreeDebug:draw()
@@ -37,7 +32,7 @@ function UITreeDebug:draw()
 
     -- Scrolling logic.
     local height = love.graphics.getHeight()
-    local mouseX, mouseY = _MouseX, _MouseY
+    local mouseX, mouseY = love.mouse.getPosition()
     local mousePressed = love.mouse.isDown(1)
     local scrollbarWidth = 15
     local scrollbarHeight = 50
@@ -51,7 +46,7 @@ function UITreeDebug:draw()
             self.scrollPressOffset = self.listOffset - mouseY * (maxOffset / logicalHeight)
         end
         if self.mouse.x < scrollbarWidth then
-            self.listOffset = mouseY * (maxOffset / logicalHeight) + self.scrollPressOffset
+            self.listOffset = math.floor(mouseY * (maxOffset / logicalHeight) + self.scrollPressOffset)
         end
     else
         self.scrollPressOffset = nil
@@ -66,9 +61,10 @@ function UITreeDebug:draw()
         hover = math.floor((self.listOffset + mouseY) / 15)
     end
 
-    -- Draw stuff.
+    -- Draw the background.
     love.graphics.setColor(0, 0, 0, 0.7)
     love.graphics.rectangle("fill", 0, 0, 500, height)
+    -- Draw contents.
     for i, line in ipairs(self:getUITreeText()) do
         local y = i * 15 - self.listOffset
         if i == hover then
@@ -91,7 +87,21 @@ function UITreeDebug:draw()
         love.graphics.print(line[12], 500, y)
     end
 
-    -- draw the scroll rectangle
+    -- Draw the header.
+    love.graphics.setColor(0, 0, 0, 0.5)
+    love.graphics.rectangle("fill", 0, 0, 500, 15)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("Name", 20, 0)
+    love.graphics.print("Vis", 240, 0)
+    love.graphics.print("Vi2", 260, 0)
+    love.graphics.print("Actv", 280, 0)
+    love.graphics.print("Alph", 310, 0)
+    love.graphics.print("Alp2", 340, 0)
+    love.graphics.print("Time", 370, 0)
+    love.graphics.print("Pos", 410, 0)
+    love.graphics.print("#Callbacks", 500, 0)
+
+    -- Draw the scrollbar.
     if self.widgetDebugCount > maxWidgets then
         local yy = self.listOffset / maxOffset * logicalHeight
         if (mouseX < scrollbarWidth and mouseY > yy and mouseY < yy + scrollbarHeight) or (mousePressed and self.mouse.x < scrollbarWidth) then
@@ -105,13 +115,11 @@ function UITreeDebug:draw()
         love.graphics.line(scrollbarWidth, 0, scrollbarWidth, height)
     end
 
-    -- Draw some debug stuff with the hovered widget.
+    -- Draw some debug stuff of the hovered widget.
     if self.hoveredEntry then
         self.hoveredEntry:drawDebug()
     end
 end
-
-
 
 ---Generates and returns a list of rows with the intent of them being displayed in the table.
 ---@param node UIWidget? The UI node/widget of which the tree should be generated. Leaving this parameter out will generate data for the entire UI tree.
@@ -123,17 +131,13 @@ function UITreeDebug:getUITreeText(node, rowTable, indent)
         self.widgetDebugCount = 0
     end
 
-    local ui2 = false
-    if ui2 then
-        node = node or _Game.uiManager.rootNodes["root"] or _Game.uiManager.rootNodes["splash"]
-    else
-        node = node or _Game.uiManager.widgets.root or _Game.uiManager.widgets.splash
-    end
+    node = node or _Game.uiManager.widgets.root or _Game.uiManager.widgets.splash
     rowTable = rowTable or {}
     indent = indent or 0
 
     if node then
-        local forAutoCollapsing = not ui2 and (node:hasChildren() and not node:isVisible() and node:isNotAnimating())
+        --local forAutoCollapsing = node:hasChildren() and not node:isVisible() and node:isNotAnimating()
+        local forAutoCollapsing = node:hasChildren() and node:debugShouldBeCollapsed()
         local collapsed = node:hasChildren() and self.collapsedEntries[node] or (self.autoCollapseInvisible and forAutoCollapsing)
 
         local name = node.name
@@ -141,24 +145,12 @@ function UITreeDebug:getUITreeText(node, rowTable, indent)
         if collapsed then
             name = name .. " ..."
         end
-        local visible = ""
-        local visible2 = ""
-        if not ui2 then
-            visible = node.visible and "X" or ""
-            visible2 = node:isVisible() and "V" or ""
-        end
-        local active = node:isActive() and "A" or ""
+        local visible = node.visible and "X" or ""
+        local visible2 = node:isVisible() and "V" or ""
+        local active = node.active and "A" or ""
         local alpha = string.format("%.1f", node.alpha)
-        local alpha2
-        if ui2 then
-            alpha2 = string.format("%.1f", node:getGlobalAlpha())
-        else
-            alpha2 = string.format("%.1f", node:getAlpha())
-        end
-        local time = ""
-        if not ui2 then
-            time = node.time and tostring(math.floor(node.time * 100) / 100) or "-"
-        end
+        local alpha2 = string.format("%.1f", node:getAlpha())
+        local time = node.time and tostring(math.floor(node.time * 100) / 100) or "-"
         local pos = tostring(node.pos)
         local color = node.debugColor or {1, 1, 1}
         local scheduledCallbacks = 0
@@ -185,15 +177,11 @@ function UITreeDebug:getUITreeText(node, rowTable, indent)
     return rowTable
 end
 
-
-
 ---Returns whether the UI Tree Debug is hovered.
 ---@return boolean
 function UITreeDebug:isHovered()
-    return self.visible and _MouseX < 500
+    return self.visible and love.mouse.getX() < 500
 end
-
-
 
 ---Callback from `main.lua`.
 ---@param key string The pressed key code.
@@ -205,30 +193,18 @@ function UITreeDebug:keypressed(key)
         else
             self.visible = not self.visible
         end
+    elseif key == "pagedown" then
+        self.listOffset = self.listOffset + 300
+    elseif key == "pageup" then
+        self.listOffset = self.listOffset - 300
     end
-    if key == "pagedown" then self.listOffset = self.listOffset + 300 end
-    if key == "pageup" then self.listOffset = self.listOffset - 300 end
 end
-
-
 
 ---Callback from `main.lua`.
 ---@param x integer The X coordinate of mouse position.
 ---@param y integer The Y coordinate of mouse position.
 ---@param button integer The mouse button which was pressed.
 function UITreeDebug:mousepressed(x, y, button)
-    if button == 1 then
-        self.mouse = Vec2(x, y)
-    end
-end
-
-
-
----Callback from `main.lua`.
----@param x integer The X coordinate of mouse position.
----@param y integer The Y coordinate of mouse position.
----@param button integer The mouse button which was released.
-function UITreeDebug:mousereleased(x, y, button)
     if button == 1 then
         self.mouse = Vec2(x, y)
         if self.hoveredEntry then
@@ -238,10 +214,23 @@ function UITreeDebug:mousereleased(x, y, button)
                 self.collapsedEntries[self.hoveredEntry] = true
             end
         end
+    elseif button == 2 then
+        -- Print to console all information about the current node.
+        if self.hoveredEntry then
+            self.hoveredEntry:printDebug()
+        end
     end
 end
 
-
+---Callback from `main.lua`.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button which was released.
+function UITreeDebug:mousereleased(x, y, button)
+    if button == 1 then
+        self.mouse = Vec2(x, y)
+    end
+end
 
 ---Callback from `main.lua`.
 ---@param x integer The X delta of the scroll.
@@ -249,7 +238,5 @@ end
 function UITreeDebug:wheelmoved(x, y)
     self.listOffset = self.listOffset - y * 45
 end
-
-
 
 return UITreeDebug

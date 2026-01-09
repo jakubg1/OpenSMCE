@@ -108,6 +108,16 @@ function Display:posFromScreen(x, y)
 	return x, y
 end
 
+---Returns the onscreen position of the given logical point.
+---@param x number The X coordinate of which the onscreen position will be returned.
+---@param y number The Y coordinate of which the onscreen position will be returned.
+---@return number, number
+function Display:posOnScreen(x, y)
+    x = x * self:getCanvasScale() + self:getDisplayOffsetX()
+    y = y * self:getCanvasScale() + self:getDisplayOffsetY()
+	return x, y
+end
+
 ---Clears the debug render buffer and starts drawing on it.
 function Display:startDebug()
     love.graphics.setCanvas({self.debugCanvas, stencil = true})

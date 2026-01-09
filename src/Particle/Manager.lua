@@ -54,10 +54,14 @@ function ParticleManager:spawnParticlePiece(spawner, data)
 end
 
 function ParticleManager:cleanParticlePacket(particlePacket)
-	for i = #self.particlePieces, 1, -1 do
-		if self.particlePieces[i].packet == particlePacket then
-			self.particlePieces[i]:destroy()
-			table.remove(self.particlePieces, i)
+	for i, spawner in ipairs(self.particleSpawners) do
+		if spawner.packet == particlePacket then
+			spawner:destroy()
+		end
+	end
+	for i, piece in ipairs(self.particlePieces) do
+		if piece.packet == particlePacket then
+			piece:destroy()
 		end
 	end
 end

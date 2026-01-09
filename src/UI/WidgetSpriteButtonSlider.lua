@@ -40,6 +40,10 @@ function UIWidgetSpriteButtonSlider:setValue(value)
 	self.parent.pos.x = _Utils.lerp(self.bounds[1], self.bounds[2], value)
 end
 
+function UIWidgetSpriteButtonSlider:update(dt)
+	self.button:update(dt)
+end
+
 function UIWidgetSpriteButtonSlider:draw()
 	if self.button.clicked then
 		self.parent.pos.x = _Utils.clamp(_MouseX - self.catchX, self.bounds[1], self.bounds[2])
