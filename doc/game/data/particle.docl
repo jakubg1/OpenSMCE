@@ -16,8 +16,9 @@
     - animationSpeed (number) - Speed of the animation, in frames per second.
     - animationLoop (boolean) - If set, the animation will loop. Otherwise, it will stop on the last frame.
     - animationFrameRandom (boolean) - If set, the initial animation frame will be picked at random from all possible frames. Otherwise, it will always start from the first frame.
-    - fadeInPoint (number) [>=0,<=1] - Percentage of the particle's lifespan, until which the particle's alpha will be linearly interpolated from 0 to 1. Set to 0 if you want it to be fully visible right from the beginning.
-    - fadeOutPoint (number) [>=0,<=1] - Percentage of the particle's lifespan, from which the particle's alpha will be linearly decreasing from 1 to 0. Set to 1 if you want it to be fully visible until the very end.
+    - fadeTime* ($number) [>0] - Can be only set if `lifespan` is not specified. This is the time that will be used for `fadeInPoint` and `fadeOutPoint` calculation, while the particle itself can still exist indefinitely.
+    - fadeInPoint* (number) [>=0,<=1] - Percentage of the particle's lifespan (or fadeTime if lifespan is not defined), until which the particle's alpha will be linearly interpolated from 0 to 1.
+    - fadeOutPoint* (number) [>=0,<=1] - Percentage of the particle's lifespan (or fadeTime if lifespan is not defined), from which the particle's alpha will be linearly decreasing from 1 to 0.
     - posRelative* = false (boolean) - If set, the particle will move along with its spawner.
     - colorPalette* (ColorPalette) - Path to the Color Palette, if the particle will be tinted.
     - colorPaletteSpeed* (number) - The speed of the Color Palette animation, in pixels per second.

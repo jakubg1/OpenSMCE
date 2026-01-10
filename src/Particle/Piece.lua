@@ -52,13 +52,13 @@ function ParticlePiece:new(manager, spawner, data)
 	end
 
 	self.lifespan = data.lifespan and data.lifespan:evaluate() -- nil if it lives indefinitely
-	self.lifetime = self.lifespan
 	self.time = 0
 
 	self.sprite = data.sprite
 	self.animationSpeed = data.animationSpeed
 	self.animationFrameCount = data.animationFrameCount
 	self.animationLoop = data.animationLoop
+	self.fadeTime = data.fadeTime and data.fadeTime:evaluate()
 	self.fadeInPoint = data.fadeInPoint
 	self.fadeOutPoint = data.fadeOutPoint
 	self.posRelative = data.posRelative
@@ -78,13 +78,10 @@ end
 ---@param dt number Time delta in seconds.
 function ParticlePiece:update(dt)
 	-- Calculate lifespan and time.
-	if self.lifetime then
-		self.lifetime = self.lifetime - dt
-		if self.lifetime <= 0 then
-			self:destroy()
-		end
-	end
 	self.time = self.time + dt
+	if self.lifespan and self.time >= self.lifespan then
+		self:destroy()
+	end
 
 	-- Determine whether direction deviation should happen.
 	if not self.directionDeviation and self.directionDeviationTime and self.time >= self.directionDeviationTime then
@@ -128,7 +125,7 @@ function ParticlePiece:update(dt)
 	end
 
 	-- Destroy this particle if it has an infinite lifespan and its packet dies.
-	if not self.packet and not self.lifetime then
+	if not self.packet and not self.lifespan then
 		self:destroy()
 	end
 end
@@ -166,17 +163,23 @@ end
 ---Returns the opacity of this particle piece.
 ---@return number
 function ParticlePiece:getAlpha()
-	if not self.lifespan then
+	local totalTime = self.lifespan or self.fadeTime
+	if not totalTime then
 		return 1
 	end
-
-	if self.lifetime < self.lifespan * (1 - self.fadeOutPoint) then
-		return self.lifetime / (self.lifespan * (1 - self.fadeOutPoint))
-	elseif self.lifetime > self.lifespan * (1 - self.fadeInPoint) then
-		return 1 - (self.lifetime - self.lifespan * (1 - self.fadeInPoint)) / (self.lifespan * self.fadeInPoint)
-	else
-		return 1
+	if self.fadeInPoint then
+		local inEnd = totalTime * self.fadeInPoint
+		if self.time < inEnd then
+			return _Utils.mapc(0, 1, 0, inEnd, self.time)
+		end
 	end
+	if self.fadeOutPoint then
+		local outStart = totalTime * self.fadeOutPoint
+		if self.time > outStart then
+			return _Utils.mapc(1, 0, outStart, totalTime, self.time)
+		end
+	end
+	return 1
 end
 
 ---Draws this particle piece on the screen.

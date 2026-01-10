@@ -152,15 +152,21 @@
             "type": "boolean",
             "description": "If set, the initial animation frame will be picked at random from all possible frames. Otherwise, it will always start from the first frame."
         },
+        "fadeTime": {
+            "$ref": "_structures/ExprNumber.json",
+            "description": "Can be only set if lifespan is not specified. This is the time that will be used for fadeInPoint and fadeOutPoint calculation, while the particle itself can still exist indefinitely.",
+            "markdownDescription": "Can be only set if `lifespan` is not specified. This is the time that will be used for `fadeInPoint` and `fadeOutPoint` calculation, while the particle itself can still exist indefinitely.",
+            "exclusiveMinimum": 0.0
+        },
         "fadeInPoint": {
             "type": "number",
-            "description": "Percentage of the particle's lifespan, until which the particle's alpha will be linearly interpolated from 0 to 1. Set to 0 if you want it to be fully visible right from the beginning.",
+            "description": "Percentage of the particle's lifespan (or fadeTime if lifespan is not defined), until which the particle's alpha will be linearly interpolated from 0 to 1.",
             "minimum": 0.0,
             "maximum": 1.0
         },
         "fadeOutPoint": {
             "type": "number",
-            "description": "Percentage of the particle's lifespan, from which the particle's alpha will be linearly decreasing from 1 to 0. Set to 1 if you want it to be fully visible until the very end.",
+            "description": "Percentage of the particle's lifespan (or fadeTime if lifespan is not defined), from which the particle's alpha will be linearly decreasing from 1 to 0.",
             "minimum": 0.0,
             "maximum": 1.0
         },
@@ -193,9 +199,7 @@
         "animationFrameCount",
         "animationSpeed",
         "animationLoop",
-        "animationFrameRandom",
-        "fadeInPoint",
-        "fadeOutPoint"
+        "animationFrameRandom"
     ],
     "additionalProperties": false
 }
