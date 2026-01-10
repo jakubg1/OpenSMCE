@@ -31,7 +31,7 @@ function UIWidget:new(name, data, parent)
 	-- positions, alpha etc. are:
 	-- local in variables
 	-- global in methods
-	self.pos = Vec2(data.pos.x, data.pos.y)
+	self.pos = data.pos and Vec2(data.pos.x, data.pos.y) or Vec2()
 	self.layer = data.layer or (parent and parent.layer)
 	self.alpha = data.alpha or 1
 
@@ -42,7 +42,7 @@ function UIWidget:new(name, data, parent)
 		self.sounds.out = data.sounds.out and _Res:getSoundEvent(data.sounds.out)
 	end
 
-	---@alias WidgetAnimation2 {target: string[], type: "fade"|"move", startValue: number?, startPos: Vector2?, endValue: number?, endPos: Vector2?, time: number}[]
+	---@alias WidgetAnimation2 {target: string, type: "fade"|"move", startValue: number?, startPos: Vector2?, endValue: number?, endPos: Vector2?, time: number}[]
 	---@type {in: WidgetAnimation2?, out: WidgetAnimation2?}
 	self.animations2 = {}
 	if data.animations2 then
@@ -178,10 +178,11 @@ end
 function UIWidget:show()
 	self.visible = true
 	if self.animations2["in"] then
+		self.alpha = 1
 		-- If we have a new animation system animation instead, play that! what can happen?
 		self.a2Animation = "in"
 		self.a2Time = 0
-		self.alpha = 1
+		self:updateAnimations()
 	else
 		self.alpha = 1
 		-- Spawn the particles.
@@ -202,6 +203,7 @@ function UIWidget:hide()
 		-- If we have a new animation defined, woo fancy! Start it!
 		self.a2Animation = "out"
 		self.a2Time = 0
+		self:updateAnimations()
 	else
 		self.alpha = 0
 		-- Despawn the particles.
@@ -334,6 +336,15 @@ function UIWidget:buttonSetEnabled(enabled)
 	if self.widget and self.widget.type == "spriteButton" then
 		self.widget:setEnabled(enabled)
 	end
+end
+
+---Returns whether this specific Widget's button is enabled.
+---@return boolean
+function UIWidget:isButtonEnabled(enabled)
+	if self.widget and self.widget.type == "spriteButton" then
+		return self.widget:getEnabled()
+	end
+	return false
 end
 
 ---Returns `true` if this Widget's or any child Widget's button is hovered.
@@ -488,10 +499,7 @@ end
 ---Returns whether this Widget is active. Only if the Widget is marked as active and is visible can this Widget be active.
 ---@return boolean
 function UIWidget:isActive()
-	if self.widget then
-		return self:isVisible() and self.active and not self.widget.disabled
-	end
-	return false
+	return self.active
 end
 
 ---Returns whether this Widget and its children are neither being animated right now nor are they scheduled to be animated.

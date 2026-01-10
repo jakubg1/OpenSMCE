@@ -233,6 +233,17 @@ function Console:runCommand(command)
 		paramIndex = paramIndex + 1
 	end
 
+	-- Check if we are missing some required parameters.
+	for i, parameter in ipairs(commandData.parameters) do
+		if parameter.optional then
+			break
+		end
+		if #parameters < i then
+			self:print({self.colors.error, string.format("Missing parameter: %s", parameter.name)})
+			return
+		end
+	end
+
 	-- Execute the function.
 	local fn = commandData.fn
 	if fn then

@@ -302,10 +302,10 @@ function Game:draw()
 	_Debug:profDrawCheckpoint()
 
 	-- Particles and UI
+	self.uiManager:draw()
 	if self.particleManager then
 		self.particleManager:draw()
 	end
-	self.uiManager:draw()
 	_Debug:profDrawCheckpoint()
 
 	-- Flush all accumulated render tasks and draw them on the display.

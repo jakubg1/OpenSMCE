@@ -12,7 +12,7 @@ function UIWidgetLevel:new(parent, path)
 end
 
 function UIWidgetLevel:update(dt)
-	if not self.parent.visible then
+	if self.parent:getAlpha() == 0 then
 		return
 	end
 	self.level:update(dt)

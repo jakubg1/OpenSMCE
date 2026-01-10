@@ -24,8 +24,8 @@ function ParticlePacket:new(manager, data, x, y, layer)
 end
 
 function ParticlePacket:update(dt)
-	-- destroy when no more spawners exist
-	if self.spawnerCount == 0 then
+	-- destroy when no more spawners and particles exist
+	if self.spawnerCount == 0 and not self:hasPieces() then
 		self:destroy()
 	end
 end
@@ -67,6 +67,15 @@ function ParticlePacket:setLayer(layer)
 	self.layer = layer
 	-- HACK: Move all spawners and pieces belonging to this Packet by iterating over all of them.
 	self.manager:setParticlePacketLayer(self, layer)
+end
+
+function ParticlePacket:hasPieces()
+	for i, piece in ipairs(self.manager.particlePieces) do
+		if piece.packet == self then
+			return true
+		end
+	end
+	return false
 end
 
 return ParticlePacket

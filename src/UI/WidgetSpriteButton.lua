@@ -57,6 +57,10 @@ function UIWidgetSpriteButton:setEnabled(enabled)
 	self.disabled = not enabled
 end
 
+function UIWidgetSpriteButton:getEnabled()
+	return not self.disabled
+end
+
 function UIWidgetSpriteButton:update(dt)
 	self.enabled = not self.disabled and ((self.parent:getAlpha() == 1 and self.parent.active) or self.parent.neverDisabled)
 	if self.hovered then
