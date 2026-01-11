@@ -41,7 +41,6 @@ function Level:new(config)
 	end
 
 	self.levelSequence = config.sequence.sequence
-	self.startingVariables = _Game.configManager.gameplay.levelVariables
 	self.startingTimers = _Game.configManager.gameplay.levelTimers
 	self.startingTimerSeries = _Game.configManager.gameplay.levelTimerSeries
 
@@ -1167,8 +1166,14 @@ function Level:reset()
 	self:updateObjectives()
 
 	self.variables = {}
-	if self.startingVariables then
-		for variable, value in pairs(self.startingVariables) do
+	if _Game.configManager.gameplay.levelVariables then
+		for variable, value in pairs(_Game.configManager.gameplay.levelVariables) do
+			self.variables[variable] = value
+		end
+	end
+	-- Level-defined variables overwrite game-defined variables.
+	if self.config.variables then
+		for variable, value in pairs(self.config.variables) do
 			self.variables[variable] = value
 		end
 	end

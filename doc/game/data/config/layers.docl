@@ -1,0 +1,3 @@
+- (object) - The root object.
+    - layers (array) - A list of layers. The topmost layer is drawn first, which means it ends up behind the layers lower in the list.
+        - (string) - A single layer.

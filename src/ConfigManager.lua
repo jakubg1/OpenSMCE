@@ -18,9 +18,7 @@ function ConfigManager:load()
 	-- TODO: These should be handled by Resource Manager and Config Classes.
 	self.gameplay = _Res:getGameplayConfig("config/gameplay.json")
 	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
-
-	-- TODO: Rename or join this file and expand layers to all sprite rendering.
-	self.hudLayerOrder = _Utils.loadJson(_ParsePath("config/hud_layer_order.json"))
+	self.layers = _Res:getLayersConfig("config/layers.json")
 
 	-- Load map data.
 	-- TODO: This is now only used for checking the map names without loading the map (UI script -> stage map).

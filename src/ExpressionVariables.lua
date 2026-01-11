@@ -35,8 +35,8 @@ end
 
 ---Obtains a variable value.
 ---@param name string The variable name.
----@param default any? A value to be returned if this variable doesn't exist. If not specified, this function will raise an error in that case instead.
----@return any
+---@param default any? A value to be returned if this variable doesn't exist. If not specified, this function will return `nil` in such case.
+---@return any?
 function ExpressionVariables:get(name, default)
     if self.data[name] ~= nil then
         return self.data[name]
@@ -58,7 +58,6 @@ function ExpressionVariables:get(name, default)
             return value
         end
     end
-    assert(default ~= nil, "Tried to get a nonexistent variable: " .. name)
     return default
 end
 

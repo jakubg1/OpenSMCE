@@ -84,7 +84,7 @@ function PathEntity:update(dt)
 			local offset = self.offset - offsetFromCurrentOffset
 			if self.config.renderParticlesInTunnels or self.path:getBrightness(offset) > 0.5 then -- the particles shouldn't be visible under obstacles
 				local x, y = self.path:getPos(offset)
-				_Game:spawnParticle(self.config.particle, x, y)
+				_Game:spawnParticle(self.config.particle, x, y, self.config.particleLayer)
 			end
 			self.trailDistance = self.trailDistance + self.config.particleSeparation
 		end
@@ -193,7 +193,7 @@ function PathEntity:explode()
 		_Game.level:spawnCollectiblesFromEntry(self.config.destroyCollectibleGenerator, x, y)
 	end
 	if self.config.destroyParticle then
-		_Game:spawnParticle(self.config.destroyParticle, x, y)
+		_Game:spawnParticle(self.config.destroyParticle, x, y, self.config.destroyParticleLayer)
 	end
 	if self.config.destroySound then
 		self.config.destroySound:play(x, y)

@@ -76,6 +76,10 @@
             "$ref": "_structures/ParticleEffect.json",
             "description": "The one-time particle that this path entity will be spawning every set amount of pixels."
         },
+        "particleLayer": {
+            "type": "string",
+            "description": "The layer on which the trail particles will be displayed."
+        },
         "particleSeparation": {
             "type": "number",
             "description": "The distance between each particle, in pixels.",
@@ -101,6 +105,10 @@
         "destroyParticle": {
             "$ref": "_structures/ParticleEffect.json",
             "description": "The one-time particle that this path entity will spawn upon destruction/despawning."
+        },
+        "destroyParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the destroy particles will be displayed."
         },
         "destroySound": {
             "$ref": "_structures/SoundEvent.json",

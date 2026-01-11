@@ -118,6 +118,19 @@
                 "additionalProperties": false
             }
         },
+        "variables": {
+            "type": "object",
+            "description": "Defines the starting values for the Level Variables for this Level. Keys are variable names, values must be numbers or booleans. Level variables will be reset every time the level is retried or a new level is started.",
+            "propertyNames": {
+                "pattern": "^.*$"
+            },
+            "patternProperties": {
+                "^.*$": {
+                    "type": "number",
+                    "description": "The value for this Level Variable."
+                }
+            }
+        },
         "pathsBehavior": {
             "type": "array",
             "description": "Defines the behavior of paths. The n-th entry of this list corresponds to the n-th path. If this list is shorter than the number of paths, this list will wrap around during the behavior assignment process. If this list is longer than the number of paths, all subsequent entries are discarded.",

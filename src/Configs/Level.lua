@@ -58,6 +58,14 @@ function LevelConfig:new(data, path, isAnonymous, base)
         self.objectives[i].target = u.parseNumber(data, base, path, {"objectives", i, "target"})
     end
 
+    ---@type table<string, number>
+    if data.variables then
+        self.variables = {}
+        for n, _ in pairs(data.variables) do
+            self.variables[n] = u.parseNumber(data, base, path, {"variables", n})
+        end
+    end
+
     ---@type {trainRules: LevelTrainRulesConfig, spawnDistance: number, dangerDistance: number, dangerParticle: ParticleEffectConfig?, speeds: {distance: number?, offset: number?, offsetFromEnd: number?, speed: number, transition: table}[]}[]
     self.pathsBehavior = {}
     for i = 1, #data.pathsBehavior do

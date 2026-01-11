@@ -36,7 +36,7 @@ function Game:init()
 	local w, h = self:getNativeResolution()
 	_Display:setResolution(w, h, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
 	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode())
-	_Renderer:setLayers(self.configManager.hudLayerOrder)
+	_Renderer:setLayers(self.configManager.layers.layers)
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
