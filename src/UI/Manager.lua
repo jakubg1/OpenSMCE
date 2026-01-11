@@ -119,7 +119,7 @@ function UIManager:init()
     self.widgets.splash = nil
 
     -- Setup the UI
-    self.widgets.root = UIWidget("Root", "ui/root.json")
+    self.widgets.root = UIWidget("Root", "ui/toplevel.json")
 end
 
 ---Updates the UI Manager.

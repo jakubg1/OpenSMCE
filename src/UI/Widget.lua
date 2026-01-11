@@ -42,15 +42,15 @@ function UIWidget:new(name, data, parent)
 		self.sounds.out = data.sounds.out and _Res:getSoundEvent(data.sounds.out)
 	end
 
-	---@alias WidgetAnimation2 {target: string, type: "fade"|"move", startValue: number?, startPos: Vector2?, endValue: number?, endPos: Vector2?, time: number}[]
-	---@type {in: WidgetAnimation2?, out: WidgetAnimation2?}
-	self.animations2 = {}
-	if data.animations2 then
-		self.animations2["in"] = data.animations2["in"]
-		self.animations2["out"] = data.animations2["out"]
+	---@alias WidgetAnimation {target: string, type: "fade"|"move", startValue: number?, startPos: Vector2?, endValue: number?, endPos: Vector2?, time: number, transition: {type: "linear"|"bezier", point1: number?, point2: number?}?}[]
+	---@type {in: WidgetAnimation?, out: WidgetAnimation?}
+	self.animations = {}
+	if data.animations then
+		self.animations["in"] = data.animations["in"]
+		self.animations["out"] = data.animations["out"]
 	end
-	self.a2Animation = nil
-	self.a2Time = nil
+	self.animation = nil
+	self.animationTime = nil
 
 	self.widget = nil
 	if data.type == "rectangle" then
@@ -100,7 +100,7 @@ function UIWidget:new(name, data, parent)
 	self.callbacks = data.callbacks
 
 	-- Init alpha to 0 if an animation is defined.
-	if self.animations2["in"] then
+	if self.animations["in"] then
 		self.alpha = 0
 	end
 end
@@ -109,8 +109,8 @@ end
 ---@param dt number Time delta in seconds.
 function UIWidget:update(dt)
 	-- Update the new animations!
-	if self.a2Time then
-		self.a2Time = self.a2Time + dt
+	if self.animationTime then
+		self.animationTime = self.animationTime + dt
 		self:updateAnimations()
 	end
 
@@ -143,13 +143,16 @@ end
 
 ---Updates the current and child Widget state based on currently ongoing Animations in this specific Widget, and checks if all the animations have finished.
 function UIWidget:updateAnimations()
-	local animation = self.animations2[self.a2Animation]
+	local animation = self.animations[self.animation]
 	local maxTime = 0
 	for i, subanim in ipairs(animation) do
 		-- Get the widget we will be animating.
 		local widget = self:getChild(subanim.target)
 		-- Check the animation progress.
-		local t = _Utils.mapc(0, 1, 0, subanim.time, self.a2Time)
+		local t = _Utils.mapc(0, 1, 0, subanim.time, self.animationTime)
+		if subanim.transition and subanim.transition.type == "bezier" then
+			t = _Utils.bzLerp(t, subanim.transition.point1, subanim.transition.point2)
+		end
 		maxTime = math.max(maxTime, subanim.time)
 		-- Animate the appropriate property.
 		if subanim.type == "fade" then
@@ -161,27 +164,27 @@ function UIWidget:updateAnimations()
 		end
 	end
 	-- Check if all subanimations have finished.
-	if self.a2Time >= maxTime then
+	if self.animationTime >= maxTime then
 		-- Finish the animation.
-		if self.a2Animation == "in" then
+		if self.animation == "in" then
 			self:executeAction("showEnd")
-		elseif self.a2Animation == "out" then
+		elseif self.animation == "out" then
 			self:executeAction("hideEnd")
 			self.alpha = 0
 		end
-		self.a2Animation = nil
-		self.a2Time = nil
+		self.animation = nil
+		self.animationTime = nil
 	end
 end
 
 ---Shows the widget or starts its showing animation.
 function UIWidget:show()
 	self.visible = true
-	if self.animations2["in"] then
+	if self.animations["in"] then
 		self.alpha = 1
 		-- If we have a new animation system animation instead, play that! what can happen?
-		self.a2Animation = "in"
-		self.a2Time = 0
+		self.animation = "in"
+		self.animationTime = 0
 		self:updateAnimations()
 	else
 		self.alpha = 1
@@ -199,10 +202,10 @@ end
 ---Hides the widget or starts the hiding animation.
 function UIWidget:hide()
 	self.visible = false
-	if self.animations2["out"] then
+	if self.animations["out"] then
 		-- If we have a new animation defined, woo fancy! Start it!
-		self.a2Animation = "out"
-		self.a2Time = 0
+		self.animation = "out"
+		self.animationTime = 0
 		self:updateAnimations()
 	else
 		self.alpha = 0
@@ -505,7 +508,7 @@ end
 ---Returns whether this Widget and its children are neither being animated right now nor are they scheduled to be animated.
 ---@return boolean
 function UIWidget:isNotAnimating()
-	if self.a2Time then
+	if self.animationTime then
 		return false
 	end
 	for childN, child in pairs(self.children) do
