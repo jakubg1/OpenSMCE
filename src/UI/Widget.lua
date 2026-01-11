@@ -34,11 +34,11 @@ function UIWidget:new(data, parent)
 	self.layer = data.layer or (parent and parent.layer)
 	self.alpha = data.alpha or 1
 
-	---@type {in_: SoundEvent?, out: SoundEvent?}
-	self.sounds = {in_ = nil, out = nil}
+	---@type {in: SoundEvent?, out: SoundEvent?}
+	self.sounds = {}
 	if data.sounds then
-		self.sounds.in_ = data.sounds.in_ and _Res:getSoundEvent(data.sounds.in_)
-		self.sounds.out = data.sounds.out and _Res:getSoundEvent(data.sounds.out)
+		self.sounds["in"] = data.sounds["in"] and _Res:getSoundEvent(data.sounds["in"])
+		self.sounds["out"] = data.sounds["out"] and _Res:getSoundEvent(data.sounds["out"])
 	end
 
 	---@alias WidgetAnimation {target: string, type: "fade"|"move", startValue: number?, startPos: Vector2?, endValue: number?, endPos: Vector2?, time: number, transition: {type: "linear"|"bezier", point1: number?, point2: number?}?}[]
@@ -193,8 +193,8 @@ function UIWidget:show()
 		end
 	end
 	-- Play the sound if defined.
-	if self.sounds.in_ then
-		self.sounds.in_:play()
+	if self.sounds["in"] then
+		self.sounds["in"]:play()
 	end
 end
 
@@ -215,8 +215,8 @@ function UIWidget:hide()
 		end
 	end
 	-- Play the sound if defined.
-	if self.sounds.out then
-		self.sounds.out:play()
+	if self.sounds["out"] then
+		self.sounds["out"]:play()
 	end
 end
 
