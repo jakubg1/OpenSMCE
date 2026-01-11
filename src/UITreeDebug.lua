@@ -85,6 +85,7 @@ function UITreeDebug:draw()
         love.graphics.print(line[7], 370, y)
         love.graphics.print(line[8], 410, y)
         love.graphics.print(line[12], 500, y)
+        love.graphics.print(line[13], 510, y)
     end
 
     -- Draw the header.
@@ -100,6 +101,7 @@ function UITreeDebug:draw()
     love.graphics.print("Time", 370, 0)
     love.graphics.print("Pos", 410, 0)
     love.graphics.print("#Callbacks", 500, 0)
+    love.graphics.print("Layer", 510, 0)
 
     -- Draw the scrollbar.
     if self.widgetDebugCount > maxWidgets then
@@ -157,17 +159,18 @@ function UITreeDebug:getUITreeText(node, rowTable, indent)
         for k, v in pairs(node.actions) do
             scheduledCallbacks = scheduledCallbacks + #v
         end
+        local layer = node.layer or ""
         scheduledCallbacks = scheduledCallbacks > 0 and tostring(scheduledCallbacks) or ""
 
-        table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color, node, forAutoCollapsing, scheduledCallbacks})
+        table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color, node, forAutoCollapsing, scheduledCallbacks, layer})
         self.widgetDebugCount = self.widgetDebugCount + 1
 
         if not collapsed then
             local children = {}
-            for childN, child in pairs(node.children) do
+	        for i, child in ipairs(node.children) do
                 table.insert(children, child)
             end
-            table.sort(children, function(a, b) return a.name < b.name end)
+            --table.sort(children, function(a, b) return a.name < b.name end)
             for i, child in ipairs(children) do
                 self:getUITreeText(child, rowTable, indent + 1)
             end

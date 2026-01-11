@@ -12,21 +12,20 @@ local UIWidgetParticle = require("src.UI.WidgetParticle")
 local UIWidgetLevel = require("src.UI.WidgetLevel")
 
 ---@class UIWidget
----@overload fun(name: string, data: table|string, parent: UIWidget?):UIWidget
+---@overload fun(data: table|string, parent: UIWidget?):UIWidget
 local UIWidget = class:derive("UIWidget")
 
 ---Constructs a new UI widget.
----@param name string The widget name.
 ---@param data table|string The raw widget data from its appropriate JSON file, or path to the file with widget data.
 ---@param parent UIWidget? The parent widget.
-function UIWidget:new(name, data, parent)
-	self.name = name
-
+function UIWidget:new(data, parent)
 	-- If the provided data is a path to a JSON UI file, fetch data from that file.
 	-- TODO: Fetch data before calling `:new()` instead.
 	if type(data) == "string" then
 		data = assert(_Utils.loadJson(_ParsePath(data)), string.format("Could not load UI layout file: %s", data))
 	end
+
+	self.name = assert(data.name, string.format("Unnamed widget found at %s", parent and parent:getFullName() or "<root>"))
 	self.type = data.type or "none"
 	-- positions, alpha etc. are:
 	-- local in variables
@@ -78,11 +77,11 @@ function UIWidget:new(name, data, parent)
 	self.debugColor = self.widget and self.widget.debugColor or {0.7, 0.7, 0.7}
 
 	self.parent = parent
-	---@type table<string, UIWidget>
+	---@type UIWidget[]
 	self.children = {}
 	if data.children then
-		for childN, child in pairs(data.children) do
-			self.children[childN] = UIWidget(childN, child, self)
+		for i, child in ipairs(data.children) do
+			table.insert(self.children, UIWidget(child, self))
 		end
 	end
 
@@ -136,7 +135,7 @@ function UIWidget:update(dt)
 	end
 
 	-- Propagate updates to children.
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:update(dt)
 	end
 end
@@ -246,7 +245,7 @@ function UIWidget:showParticles()
 		self.widget:spawn()
 	end
 
-	for name, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:showParticles()
 	end
 end
@@ -258,7 +257,7 @@ function UIWidget:hideParticles()
 		self.widget:clean()
 	end
 
-	for name, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:hideParticles()
 	end
 end
@@ -269,7 +268,7 @@ function UIWidget:click()
 		self.widget:click()
 	end
 
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:click()
 	end
 end
@@ -280,7 +279,7 @@ function UIWidget:unclick()
 		self.widget:unclick()
 	end
 
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:unclick()
 	end
 end
@@ -292,7 +291,7 @@ function UIWidget:keypressed(key)
 		self.widget:keypressed(key)
 	end
 
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:keypressed(key)
 	end
 end
@@ -304,7 +303,7 @@ function UIWidget:textinput(t)
 		self.widget:textinput(t)
 	end
 
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:textinput(t)
 	end
 end
@@ -319,7 +318,7 @@ function UIWidget:setActive(keepAlreadyActive)
 
 	self.active = true
 
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:setActive(true)
 	end
 end
@@ -328,7 +327,7 @@ end
 function UIWidget:resetActive()
 	self.active = false
 
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		child:resetActive()
 	end
 end
@@ -361,7 +360,7 @@ function UIWidget:isButtonHovered()
 		end
 	end
 
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		if child:isButtonHovered() then
 			return true
 		end
@@ -375,8 +374,9 @@ function UIWidget:draw()
 	if self.widget and self:getAlpha() > 0 then
 		self.widget:draw()
 	end
-	for childN, child in pairs(self.children) do
-		child:draw()
+	-- Children are drawn bottom-first (children on top of the list render on top)
+	for i = #self.children, 1, -1 do
+		self.children[i]:draw()
 	end
 end
 
@@ -418,7 +418,7 @@ function UIWidget:debugShouldBeCollapsed()
 	if self.widget and self:getAlpha() > 0 then
 		return false
 	end
-	for name, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		if not child:debugShouldBeCollapsed() then
 			return false
 		end
@@ -479,16 +479,29 @@ function UIWidget:getLayer()
 	return self.layer or self.parent:getLayer()
 end
 
+---Returns the first child Widget with the provided name.
+---If this Widget has no children with that name, returns `nil`.
+---@param name string The child's name to look for.
+---@return UIWidget?
+function UIWidget:getChildN(name)
+	for i, child in ipairs(self.children) do
+		if child.name == name then
+			return child
+		end
+	end
+end
+
 ---Returns a child of this Widget by path. If there is no Widget at the given path, returns `nil`.
 ---@param path string Path to the widget separated by slashes.
 ---@return UIWidget?
 function UIWidget:getChild(path)
+	---@type UIWidget?
 	local widget = self
 	for i, name in ipairs(_Utils.strSplit(path, "/")) do
-		widget = widget.children[name]
 		if not widget then
 			return
 		end
+		widget = widget:getChildN(name)
 	end
 	return widget
 end
@@ -511,7 +524,7 @@ function UIWidget:isNotAnimating()
 	if self.animationTime then
 		return false
 	end
-	for childN, child in pairs(self.children) do
+	for i, child in ipairs(self.children) do
 		if not child:isNotAnimating() then
 			return false
 		end
@@ -522,7 +535,7 @@ end
 ---Returns `true` if this Widget has at least one child Widget, `false` otherwise.
 ---@return boolean
 function UIWidget:hasChildren()
-	return not _Utils.tableIsEmpty(self.children)
+	return #self.children > 0
 end
 
 ---Executes all registered action callback; both registered in the JSON files as well as registered via the UI script.

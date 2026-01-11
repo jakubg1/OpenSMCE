@@ -107,7 +107,7 @@ end
 
 ---Initializes the splash screen, loads the UI Script and fires the `init` UI Script callback.
 function UIManager:initSplash()
-    self.widgets.splash = UIWidget("Splash", "ui/splash.json")
+    self.widgets.splash = UIWidget("ui/splash.json")
 
     self.script = require(_ParsePathDots("ui.script"))
     self:executeCallback("init")
@@ -119,7 +119,7 @@ function UIManager:init()
     self.widgets.splash = nil
 
     -- Setup the UI
-    self.widgets.root = UIWidget("Root", "ui/toplevel.json")
+    self.widgets.root = UIWidget("ui/toplevel.json")
 end
 
 ---Updates the UI Manager.
@@ -232,7 +232,7 @@ function UIManager:getWidget(names)
                 --error("Could not find a widget: \"" .. strJoin(names, "/") .. "\"")
                 return
             end
-            widget = widget.children[name]
+            widget = widget:getChildN(name)
         end
     end
     return widget
