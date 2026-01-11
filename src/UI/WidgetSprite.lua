@@ -12,9 +12,9 @@ function UIWidgetSprite:new(parent, sprite)
 end
 
 function UIWidgetSprite:draw()
-	local pos = self.parent:getPos()
+	local x, y = self.parent:getPos()
 	_Renderer:setLayer(self.parent.layer)
-	self.sprite:draw(pos.x, pos.y, nil, nil, nil, nil, nil, nil, self.parent:getAlpha())
+	self.sprite:draw(x, y, nil, nil, nil, nil, nil, nil, self.parent:getAlpha())
 end
 
 function UIWidgetSprite:getSize()

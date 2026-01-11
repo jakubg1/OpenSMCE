@@ -15,10 +15,10 @@ function UIWidgetText:new(parent, text, font, align)
 end
 
 function UIWidgetText:draw()
-	local pos = self.parent:getPos()
+	local x, y = self.parent:getPos()
 	_Renderer:setLayer(self.parent.layer)
 	_Renderer:setPriority(1)
-	self.font:draw(self.text, pos.x, pos.y, self.align.x, self.align.y, nil, self.parent:getAlpha())
+	self.font:draw(self.text, x, y, self.align.x, self.align.y, nil, self.parent:getAlpha())
 	_Renderer:setPriority()
 end
 

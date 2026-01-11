@@ -14,10 +14,10 @@ function UIWidgetRectangle:new(parent, size, color)
 end
 
 function UIWidgetRectangle:draw()
-	local pos = self.parent:getPos()
+	local x, y = self.parent:getPos()
 	_Renderer:setLayer(self.parent.layer)
 	_Renderer:setColor(self.color, self.parent:getAlpha())
-	_Renderer:drawRectangle("fill", pos.x, pos.y, self.size.x, self.size.y)
+	_Renderer:drawRectangle("fill", x, y, self.size.x, self.size.y)
 end
 
 function UIWidgetRectangle:getSize()

@@ -19,7 +19,7 @@ end
 function UIWidgetSpriteButtonSlider:click()
 	if not self.button.hovered or self.button.clicked then return end
 	self.button:click()
-	self.catchX = _MouseX - self.parent.pos.x
+	self.catchX = _MouseX - self.parent.x
 end
 
 function UIWidgetSpriteButtonSlider:unclick()
@@ -37,7 +37,7 @@ end
 
 function UIWidgetSpriteButtonSlider:setValue(value)
 	self.value = value
-	self.parent.pos.x = _Utils.lerp(self.bounds[1], self.bounds[2], value)
+	self.parent.x = _Utils.lerp(self.bounds[1], self.bounds[2], value)
 end
 
 function UIWidgetSpriteButtonSlider:update(dt)
@@ -46,8 +46,8 @@ end
 
 function UIWidgetSpriteButtonSlider:draw()
 	if self.button.clicked then
-		self.parent.pos.x = _Utils.clamp(_MouseX - self.catchX, self.bounds[1], self.bounds[2])
-		self.value = _Utils.map(0, 1, self.bounds[1], self.bounds[2], self.parent.pos.x)
+		self.parent.x = _Utils.clamp(_MouseX - self.catchX, self.bounds[1], self.bounds[2])
+		self.value = _Utils.map(0, 1, self.bounds[1], self.bounds[2], self.parent.x)
 	end
 	self.button:draw()
 end

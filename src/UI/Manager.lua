@@ -129,7 +129,7 @@ end
 ---@param dt number Time delta in seconds.
 function UIManager:update(dt)
     -- despite being called since the splash screen starts, scripts are loaded when the main game widgets are loaded, and therefore this tick is called only after such event happens
-    self:executeCallback("tick")
+    self:executeCallback("tick", {dt})
 
     if self.hasFocus ~= love.window.hasFocus() then
         self.hasFocus = love.window.hasFocus()

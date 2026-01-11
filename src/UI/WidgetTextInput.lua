@@ -36,15 +36,15 @@ function UIWidgetTextInput:textinput(t)
 end
 
 function UIWidgetTextInput:draw()
-	local pos = self.parent:getPos()
+	local x, y = self.parent:getPos()
 	local alpha = self.parent:getAlpha()
 	_Renderer:setLayer(self.parent.layer)
 	_Renderer:setPriority(1)
-	self.font:draw(self.text, pos.x, pos.y, self.align.x, self.align.y, nil, alpha)
+	self.font:draw(self.text, x, y, self.align.x, self.align.y, nil, alpha)
 	if self.cursorSprite then
-		local cpos = pos + Vec2(self:getSize().x * (1 - self.align.x), 0)
+		local cx, cy = x + self:getSize().x * (1 - self.align.x), y
 		local frame = math.floor(self.cursorSpriteBlink * 2) + 1
-		self.cursorSprite:draw(cpos.x, cpos.y, nil, nil, nil, frame, nil, nil, alpha)
+		self.cursorSprite:draw(cx, cy, nil, nil, nil, frame, nil, nil, alpha)
 	end
 	_Renderer:setPriority()
 end

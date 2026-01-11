@@ -16,8 +16,8 @@ end
 
 function UIWidgetParticle:update(dt)
 	if self.packet then
-		local pos = self.parent:getPos()
-		self.packet:setPos(pos.x, pos.y)
+		local x, y = self.parent:getPos()
+		self.packet:setPos(x, y)
 		if self.packet.delQueue then
 			self.packet = nil
 			self.parent:executeAction("particleDespawn")
@@ -26,8 +26,8 @@ function UIWidgetParticle:update(dt)
 end
 
 function UIWidgetParticle:spawn()
-	local pos = self.parent:getPos()
-	self.packet = _Game:spawnParticle(self.effectConfig, pos.x, pos.y, self.parent.layer)
+	local x, y = self.parent:getPos()
+	self.packet = _Game:spawnParticle(self.effectConfig, x, y, self.parent.layer)
 end
 
 function UIWidgetParticle:despawn()

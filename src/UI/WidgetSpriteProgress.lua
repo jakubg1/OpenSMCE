@@ -28,10 +28,10 @@ function UIWidgetSpriteProgress:update(dt)
 end
 
 function UIWidgetSpriteProgress:draw()
-	local pos = self.parent:getPos()
+	local x, y = self.parent:getPos()
 	_Renderer:setLayer(self.parent.layer)
-	_Renderer:setScissor(pos.x, pos.y, self.size.x * self.value, self.size.y)
-	self.sprite:draw(pos.x, pos.y, nil, nil, nil, nil, nil, nil, self.parent:getAlpha())
+	_Renderer:setScissor(x, y, self.size.x * self.value, self.size.y)
+	self.sprite:draw(x, y, nil, nil, nil, nil, nil, nil, self.parent:getAlpha())
 	_Renderer:setScissor()
 end
 

@@ -153,7 +153,7 @@ function UITreeDebug:getUITreeText(node, rowTable, indent)
         local alpha = string.format("%.1f", node.alpha)
         local alpha2 = string.format("%.1f", node:getAlpha())
         local time = node.time and tostring(math.floor(node.time * 100) / 100) or "-"
-        local pos = tostring(node.pos)
+        local pos = string.format("(%s, %s)", node.x, node.y)
         local color = node.debugColor or {1, 1, 1}
         local scheduledCallbacks = 0
         for k, v in pairs(node.actions) do

@@ -30,7 +30,7 @@ function UIWidget:new(data, parent)
 	-- positions, alpha etc. are:
 	-- local in variables
 	-- global in methods
-	self.pos = data.pos and Vec2(data.pos.x, data.pos.y) or Vec2()
+	self.x, self.y = data.pos and data.pos.x or 0, data.pos and data.pos.y or 0
 	self.layer = data.layer or (parent and parent.layer)
 	self.alpha = data.alpha or 1
 
@@ -157,9 +157,8 @@ function UIWidget:updateAnimations()
 		if subanim.type == "fade" then
 			widget.alpha = _Utils.lerp(subanim.startValue, subanim.endValue, t)
 		elseif subanim.type == "move" then
-			local x = _Utils.lerp(subanim.startPos.x, subanim.endPos.x, t)
-			local y = _Utils.lerp(subanim.startPos.y, subanim.endPos.y, t)
-			widget.pos = Vec2(x, y)
+			widget.x = _Utils.lerp(subanim.startPos.x, subanim.endPos.x, t)
+			widget.y = _Utils.lerp(subanim.startPos.y, subanim.endPos.y, t)
 		end
 	end
 	-- Check if all subanimations have finished.
@@ -382,10 +381,10 @@ end
 
 ---Draws the debugging information about specifically this Widget: a rectangle showing its bounding box.
 function UIWidget:drawDebug()
-	local p = self:getPos()
+	local x, y = self:getPos()
 	local s = self:getSize() * _Display:getCanvasScale()
-	p = Vec2(_Display:posOnScreen(p.x, p.y))
-	local ps = (self.widget and self.widget.align) and p - s * self.widget.align or p
+	x, y = _Display:posOnScreen(x, y)
+	local ps = (self.widget and self.widget.align) and Vec2(x, y) - s * self.widget.align or Vec2(x, y)
 	-- Draw size
 	love.graphics.setColor(0, 1, 1, self:getAlpha())
 	love.graphics.setLineWidth(2)
@@ -395,8 +394,8 @@ function UIWidget:drawDebug()
 	-- Draw position
 	love.graphics.setColor(1, 0, 1)
 	love.graphics.setLineWidth(4)
-	love.graphics.line(p.x - 10, p.y, p.x + 10, p.y)
-	love.graphics.line(p.x, p.y - 10, p.x, p.y + 10)
+	love.graphics.line(x - 10, y, x + 10, y)
+	love.graphics.line(x, y - 10, x, y + 10)
 end
 
 ---Prints some information about this Widget to the console.
@@ -445,16 +444,18 @@ function UIWidget:getNames(t)
 end
 
 ---Returns the global screen position of this Widget.
----@return Vector2
+---@return number, number
 function UIWidget:getPos()
 	if self.parent and self.inheritPos then
-		local parentPos = self.parent:getPos()
+		local parentX, parentY = self.parent:getPos()
 		if self.parent.widget and self.parent.widget.type == "text" then
-			parentPos = parentPos + self.parent.widget:getSize() * (Vec2(0.5) - self.parent.widget.align)
+			local parentSize = self.parent.widget:getSize()
+			parentX = parentX + parentSize.x * (0.5 - self.parent.widget.align.x)
+			parentY = parentY + parentSize.y * (0.5 - self.parent.widget.align.y)
 		end
-		return parentPos + self.pos
+		return parentX + self.x, parentY + self.y
 	end
-	return self.pos
+	return self.x, self.y
 end
 
 ---Returns the global screen size of this Widget.

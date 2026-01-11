@@ -71,20 +71,20 @@ function UIWidgetSpriteButton:update(dt)
 end
 
 function UIWidgetSpriteButton:draw()
-	local pos = self.parent:getPos()
-	local origPos = pos:clone()
+	local x, y = self.parent:getPos()
+	local drawX, drawY = x, y
 	local alpha = self.parent:getAlpha()
 	local size = self.size
 	local scale = 1
 
 	if self.orbMasterHoverEffect then
 		local t = math.sqrt(self.orbMasterHoverTime)
-		pos = pos + Vec2(t * 20, 0)
+		drawX = drawX + t * 20
 		scale = 1 + t * 0.2
 		size = size * scale
 	end
 
-	local hovered = self.enabled and self.parent.active and _Utils.isPointInsideBox(_MouseX, _MouseY, origPos.x, origPos.y, size.x - 1, size.y - 1) and not _Debug.uiDebug:isHovered()
+	local hovered = self.enabled and self.parent.active and _Utils.isPointInsideBox(_MouseX, _MouseY, x, y, size.x - 1, size.y - 1) and not _Debug.uiDebug:isHovered()
 	if hovered ~= self.hovered then
 		self.hovered = hovered
 		--if not self.hovered and self.clicked then self:unclick() end
@@ -94,7 +94,7 @@ function UIWidgetSpriteButton:draw()
 	end
 
 	_Renderer:setLayer(self.parent.layer)
-	self.sprite:draw(pos.x, pos.y, nil, nil, self:getState(), nil, nil, nil, alpha, scale)
+	self.sprite:draw(drawX, drawY, nil, nil, self:getState(), nil, nil, nil, alpha, scale)
 end
 
 function UIWidgetSpriteButton:getState()
