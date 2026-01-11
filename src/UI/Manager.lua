@@ -84,8 +84,10 @@ function UIManager:new()
         configGetMapData = function(name) return _Game.configManager:getMapData(name) end,
         configGetLevelData = function(levelSet, n) return _Res:getLevelSetConfig(levelSet).levelOrder[n].level end,
         configGetLevelName = function(levelSet, n) return _Res:getLevelSetConfig(levelSet).levelOrder[n].name end,
+        configGetLevelCount = function(levelSet) return #_Res:getLevelSetConfig(levelSet).levelOrder end,
         configGetCheckpointID = function(levelSet, n) return _Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet))[n].levelID end,
         configGetCheckpointLevel = function(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Res:getLevelSetConfig(levelSet), n) end,
+        configGetCheckpointCount = function(levelSet) return #_Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet)) end,
 
         optionsGetMusicVolume = function() return _Game.runtimeManager.options:getMusicVolume() end,
         optionsGetSoundVolume = function() return _Game.runtimeManager.options:getSoundVolume() end,
