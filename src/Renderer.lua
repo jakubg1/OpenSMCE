@@ -13,16 +13,17 @@ function Renderer:new()
     self.sx, self.sy, self.sw, self.sh = nil, nil, nil, nil -- The working scissor
     self.workStencil = {fn = nil, action = nil, value = nil, keepValues = nil, testMode = nil, testValue = nil} -- The working stencil
     self.layer = "MAIN" -- The working layer
+    self.priority = 0 -- The working priority
     ---@type table<string, integer>
     self.layers = {MAIN = 1} -- A list of layers, keyed by their names. The higher the number, the later the layer is drawn.
 
-    ---@alias RendererQueueItem {i: integer, r: number, g: number, b: number, alpha: number, scissorX: number?, scissorY: number?, scissorW: number?, scissorH: number?, stencilFn: function?, stencilAction: love.StencilAction?, stencilValue: integer?, stencilKeepValues: boolean?, stencilTestMode: love.CompareMode?, stencilTestValue: number?, layer: string, type: string, [any]: any}
+    ---@alias RendererQueueItem {i: integer, r: number, g: number, b: number, alpha: number, scissorX: number?, scissorY: number?, scissorW: number?, scissorH: number?, stencilFn: function?, stencilAction: love.StencilAction?, stencilValue: integer?, stencilKeepValues: boolean?, stencilTestMode: love.CompareMode?, stencilTestValue: number?, layer: string, type: string, priority: number, [any]: any}
     ---A list of commands to be performed, in the order of placing. When `:flush()` is called, this list is sorted by layer and emptied.
     ---@type RendererQueueItem[]
     self.queue = {}
     self.queueSortFn = function(a, b)
         local la, lb = self.layers[a.layer] or 0, self.layers[b.layer] or 0
-        return la == lb and a.i < b.i or la < lb
+        return la == lb and (a.priority == b.priority and a.i < b.i or a.priority < b.priority) or la < lb
     end -- A function to determine the final drawing order, passed to `table.sort`.
     self.lastQueueLength = 0 -- How many queue items have been processed on the last flush.
 end
@@ -104,6 +105,13 @@ function Renderer:setLayer(layer)
     self.layer = layer
 end
 
+---Sets or resets priority for the next `:draw*()` calls. Objects with higher priority will be drawn on top of objects with lower priority within the same layer.
+---You should avoid using this and use layers instead.
+---@param priority number? The rendering priority. Not providing this will reset the priority to 0.
+function Renderer:setPriority(priority)
+    self.priority = priority or 0
+end
+
 ---Returns a generic table with fields that each queue item has to have.
 ---@private
 ---@return RendererQueueItem
@@ -122,6 +130,7 @@ function Renderer:getBaseQueueItem()
         stencilTestMode = self.workStencil.testMode,
         stencilTestValue = self.workStencil.testValue,
         layer = self.layer,
+        priority = self.priority,
         type = ""
     }
 end

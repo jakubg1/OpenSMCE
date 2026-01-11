@@ -68,6 +68,7 @@ function UIManager:new()
         profileGetLevel = function() return _Game:getSession():getTotalLevel() end,
         profileGetLevelData = function() return _Game:getSession():getLevelData() end,
         profileGetLevelName = function() return _Game:getSession():getLevelName() end,
+        profileGetDifficultyConfig = function() return _Game:getSession():getDifficultyConfig() end,
         profileGetSavedLevel = function() return _Game:getSession():getLevelSaveData() end,
         profileGetMap = function() return _Game:getSession():getMapData() end,
         profileGetLatestCheckpoint = function() return _Game:getSession():getLatestCheckpoint() end,
