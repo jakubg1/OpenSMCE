@@ -390,8 +390,8 @@ function SphereChain:join()
 	self:delete(true)
 end
 
----Returns the next sphere data (`{color = <integer>, chainLevel = <integer>}`) to spawn in this Sphere Chain. Alters the generator's state.
----@return table
+---Returns the next sphere metadata to spawn in this Sphere Chain. Alters the generator's state.
+---@return {color: integer, chainLevel: integer}
 function SphereChain:newSphereData()
 	local rules = self.path.trainRules
 	if rules.type == "random" then
@@ -402,7 +402,7 @@ function SphereChain:newSphereData()
 			repeat
 				-- Reroll if we've got the same color and the config doesn't allow that.
 				self.generationColor = rules.colors[math.random(#rules.colors)]
-			until oldColor ~= self.generationColor or not rules.forceDifferentColor
+			until oldColor ~= self.generationColor or not rules.forceDifferentColor or #rules.colors == 1
 		end
 		-- Generate the chain level.
 		local chainLevel = 0
