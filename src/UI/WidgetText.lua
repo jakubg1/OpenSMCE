@@ -9,12 +9,21 @@ function UIWidgetText:new(parent, text, font, align)
 	self.type = "text"
 	self.parent = parent
 	self.text = text or ""
-	self.font = _Res:getFont(font)
+	local success
+	success, self.font = pcall(function() return _Res:getFont(font) end)
+	if not success then
+		-- TODO: Add a checkbox in the Boot Screen to toggle these errors in the visible console.
+		_Log:print(string.format("WIDGET ERROR: Could not load font %s for widget %s", font, parent:getFullName()))
+		self.font = nil
+	end
 	self.align = align and Vec2(align.x, align.y) or Vec2(0.5, 0)
 	self.debugColor = {1.0, 0.5, 0.5}
 end
 
 function UIWidgetText:draw()
+	if not self.font then
+		return
+	end
 	local x, y = self.parent:getPos()
 	_Renderer:setLayer(self.parent.layer)
 	_Renderer:setPriority(1)
@@ -23,6 +32,9 @@ function UIWidgetText:draw()
 end
 
 function UIWidgetText:getSize()
+	if not self.font then
+		return Vec2()
+	end
 	return Vec2(self.font:getTextSize(self.text))
 end
 

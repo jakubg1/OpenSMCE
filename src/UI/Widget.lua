@@ -51,6 +51,15 @@ function UIWidget:new(data, parent)
 	self.animation = nil
 	self.animationTime = nil
 
+	self.parent = parent
+	---@type UIWidget[]
+	self.children = {}
+	if data.children then
+		for i, child in ipairs(data.children) do
+			table.insert(self.children, UIWidget(child, self))
+		end
+	end
+
 	self.widget = nil
 	if data.type == "rectangle" then
 		self.widget = UIWidgetRectangle(self, data.size, data.color)
@@ -75,15 +84,6 @@ function UIWidget:new(data, parent)
 	end
 
 	self.debugColor = self.widget and self.widget.debugColor or {0.7, 0.7, 0.7}
-
-	self.parent = parent
-	---@type UIWidget[]
-	self.children = {}
-	if data.children then
-		for i, child in ipairs(data.children) do
-			table.insert(self.children, UIWidget(child, self))
-		end
-	end
 
 	self.inheritPos = data.inheritPos ~= false
 	self.visible = false

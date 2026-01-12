@@ -16,8 +16,14 @@ function UIWidgetSpriteButton:new(parent, sprite, clickSound, releaseSound, hove
 	self.enabled = true
 	self.disabled = false
 
-	self.sprite = _Res:getSprite(sprite)
-	self.size = self.sprite.config.frameSize
+	local success
+	success, self.sprite = pcall(function() return _Res:getSprite(sprite) end)
+	if not success then
+		-- TODO: Add a checkbox in the Boot Screen to toggle these errors in the visible console.
+		_Log:print(string.format("WIDGET ERROR: Could not load sprite %s for widget %s", sprite, parent:getFullName()))
+		self.sprite = nil
+	end
+	self.size = self.sprite and self.sprite.config.frameSize or Vec2()
 	self.clickSound = clickSound and _Res:getSoundEvent(clickSound) or _Game.configManager:getUIClickSound()
 	self.releaseSound = releaseSound and _Res:getSoundEvent(releaseSound) or _Game.configManager:getUIReleaseSound()
 	self.hoverSound = hoverSound and _Res:getSoundEvent(hoverSound) or _Game.configManager:getUIHoverSound()
@@ -71,6 +77,9 @@ function UIWidgetSpriteButton:update(dt)
 end
 
 function UIWidgetSpriteButton:draw()
+	if not self.sprite then
+		return
+	end
 	local x, y = self.parent:getPos()
 	local drawX, drawY = x, y
 	local alpha = self.parent:getAlpha()
