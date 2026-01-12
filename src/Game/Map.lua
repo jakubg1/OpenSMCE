@@ -13,8 +13,7 @@ local Map = class:derive("Map")
 ---@param isDummy boolean Whether this Map corresponds to a Dummy Level.
 function Map:new(level, path, pathsBehavior, isDummy)
 	self.level = level
-	-- whether it's just a decorative map, if false then it's meant to be playable
-	self.isDummy = isDummy
+	self.isDummy = isDummy -- Whether it's just a decorative map. If `false`, then it's meant to be playable.
 
 	local mapFolderName = _Utils.strSplit(path, "/")
 	_Res:setNamespace(mapFolderName[#mapFolderName])
@@ -26,8 +25,6 @@ function Map:new(level, path, pathsBehavior, isDummy)
 
 	---@type Path[]
 	self.paths = {}
-
-
 	for i, pathData in ipairs(self.config.paths) do
 		-- Loop around the path behavior list if not sufficient enough.
 		-- Useful if all paths should share the same behavior; you don't have to clone it.
@@ -65,13 +62,7 @@ end
 function Map:draw()
 	-- Draw sprites.
 	for i, sprite in ipairs(self.config.sprites) do
-		if sprite.background then
-			_Renderer:setLayer("GameBackground")
-		elseif sprite.foreground or _Debug.mapDebugVisible then
-			_Renderer:setLayer("GameScores")
-		else
-			_Renderer:setLayer("GameBackgroundSprites")
-		end
+		_Renderer:setLayer(sprite.layer)
 		sprite.sprite:draw(sprite.x, sprite.y)
 	end
 

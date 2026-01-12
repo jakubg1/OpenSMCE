@@ -35,15 +35,14 @@ function MapConfig:new(data, path, isAnonymous, base)
         self.paths[i] = u.parsePathConfig(data, base, path, {"paths", i})
     end
 
-    ---@type {x: number, y: number, sprite: Sprite, background: boolean?, foreground: boolean?}[]
+    ---@type {x: number, y: number, sprite: Sprite, layer: string}[]
     self.sprites = {}
     for i = 1, #data.sprites do
         self.sprites[i] = {}
         self.sprites[i].x = u.parseNumber(data, base, path, {"sprites", i, "x"})
         self.sprites[i].y = u.parseNumber(data, base, path, {"sprites", i, "y"})
         self.sprites[i].sprite = u.parseSprite(data, base, path, {"sprites", i, "sprite"})
-        self.sprites[i].background = u.parseBooleanOpt(data, base, path, {"sprites", i, "background"})
-        self.sprites[i].foreground = u.parseBooleanOpt(data, base, path, {"sprites", i, "foreground"})
+        self.sprites[i].layer = u.parseString(data, base, path, {"sprites", i, "layer"})
     end
 end
 

@@ -66,7 +66,6 @@ function Debug:new()
 	self.textDebugVisible = false -- Switched by F4
 	self.fpsDebugVisible = false -- Switched by F5
 	self.sphereDebugVisible = false -- Switched by F6
-	self.mapDebugVisible = false -- Switched by F7
 
 	self.uiWidgetCount = 0
 	self.vec2PerFrame = 0
@@ -116,7 +115,6 @@ function Debug:draw()
 		self:drawVisibleText({self.textDebugVisible and _COLORS.green or _COLORS.white, "[F4] Debug text (FPS, level data, etc.)"}, 10, 85, 15)
 		self:drawVisibleText({self.fpsDebugVisible and _COLORS.green or _COLORS.white, "[F5] FPS Counter"}, 10, 100, 15)
 		self:drawVisibleText({self.sphereDebugVisible and _COLORS.green or _COLORS.white, "[F6] Sphere trains path overlay"}, 10, 115, 15)
-		self:drawVisibleText({self.mapDebugVisible and _COLORS.green or _COLORS.white, "[F7] Render spheres over tunnels"}, 10, 130, 15)
 	end
 
 	-- Console
@@ -149,8 +147,6 @@ function Debug:keypressed(key)
 			self.fpsDebugVisible = not self.fpsDebugVisible
 		elseif key == "f6" then
 			self.sphereDebugVisible = not self.sphereDebugVisible
-		elseif key == "f7" then
-			self.mapDebugVisible = not self.mapDebugVisible
 		elseif key == "f10" then
 			self:deprecationNotice("test")
 		end

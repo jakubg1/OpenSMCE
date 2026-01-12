@@ -35,19 +35,16 @@
                         "$ref": "_structures/Sprite.json",
                         "description": "The path to the Sprite to be displayed."
                     },
-                    "background": {
-                        "type": "boolean",
-                        "description": "If set, this sprite will be rendered behind all spheres. Otherwise, it will be covering hidden spheres."
-                    },
-                    "foreground": {
-                        "type": "boolean",
-                        "description": "If set, this sprite will be rendered above all spheres, regardless of whether they are hidden or not."
+                    "layer": {
+                        "type": "string",
+                        "description": "The layer on which the Sprite will be displayed."
                     }
                 },
                 "required": [
                     "x",
                     "y",
-                    "sprite"
+                    "sprite",
+                    "layer"
                 ],
                 "additionalProperties": false
             }

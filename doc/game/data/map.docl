@@ -7,5 +7,4 @@
             - x (number) - The X position of this Sprite.
             - y (number) - The Y position of this Sprite.
             - sprite (Sprite) - The path to the Sprite to be displayed.
-            - background* (boolean) - If set, this sprite will be rendered behind all spheres. Otherwise, it will be covering hidden spheres.
-            - foreground* (boolean) - If set, this sprite will be rendered above all spheres, regardless of whether they are hidden or not.
+            - layer (string) - The layer on which the Sprite will be displayed.
