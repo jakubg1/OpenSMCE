@@ -27,7 +27,7 @@ function ResourceManager:new()
 	-- - `asset` holds the resource itself. Optional, only if the resources are singletons and are not creatable from elsewhere (like Sprites, Sprite Atlases, Music etc.).
 	-- - `batches` is a list of resource batches this resource was loaded as, once all of them are unloaded, this entry is deleted; can be `nil` to omit that feature for global resources
 	---@alias Resource {type: string, config: any?, asset: any?, batches: string[]?}
-	-- Keys are absolute paths starting from the root game directory. Use `:resolvePath()` to obtain a key to this table from stuff like `":flame.json"`.
+	-- Keys are absolute paths starting from the root game directory.
 	-- If a resource is queued but not loaded, its entry will not exist at all.
 	---@type table<string, Resource>
 	self.resources = {}
@@ -36,7 +36,6 @@ function ResourceManager:new()
 	self.queuedResources = {}
 
 	-- Values below are used only for newly queued/loaded resources.
-	self.currentNamespace = nil
 	self.currentBatches = nil
 
 	self.RESOURCE_TYPE_LOCATION = "src/Configs"
@@ -215,62 +214,19 @@ end
 
 
 
----Resolves and returns the entire resource path starting from the root game folder, based on the given shorthand path.
----This is the key under which that resource would be stored.
---- - For example, providing `sprites/balls/2.json` as path will return `sprites/balls/2.json`.
---- - The colon `:` references a namespace - currently, a map folder, but this behavior may be extended in the future.
----   - For example, providing `Map1:flame.json` as path will return `maps/Map1/flame.json`.
---- - Starting the path with a colon (without referencing a namespace) will use the `namespace` parameter as the namespace name.
----   - For example, providing `:flame.json` as path and `Map3` as namespace will return `maps/Map3/flame.json`.
----   - This is used to shorten paths referenced from within the current namespace.
----@private
----@param path string The shorthand path to the resource.
----@param namespace string? The default map namespace to be prepended when referenced.
----@return string
-function ResourceManager:resolveResourcePath(path, namespace)
-	local splitPath = _Utils.strSplit(path, ":")
-	if #splitPath == 1 then
-		return path
-	else
-		if splitPath[1] == "" then
-			splitPath[1] = assert(namespace, string.format("Attempt to access an implicit namespace but none is set: %s", path))
-		end
-		return string.format("maps/%s/%s", splitPath[1], splitPath[2])
-	end
-end
-
-
-
----Returns a full path to the resource by shorthand path if that resource exists, or `nil` if it does not exist.
----@private
----@param reference string The path to the resource.
----@param namespace string The default map namespace to be prepended when referenced.
----@return string?
-function ResourceManager:resolveResourceReference(reference, namespace)
-	-- Resolve the path if a shorthand path with a namespace has been provided.
-	local key = self:resolveResourcePath(reference, namespace)
-	if not self.resources[key] then
-		return nil
-	end
-	return key
-end
-
-
-
 ---Returns `true` if a resource at the provided path is loaded, `false` otherwise.
----@param reference string The path to the resource.
+---@param key string The path to the resource.
 ---@return boolean
-function ResourceManager:isResourceLoaded(reference)
-	return self:resolveResourceReference(reference, self.currentNamespace) ~= nil
+function ResourceManager:isResourceLoaded(key)
+	return self.resources[key] ~= nil
 end
 
 
 
 ---Queues a resource to be loaded soon, if not loaded yet.
 ---If many calls to this function are done in a quick succession, the load order will be preserved.
----@param path string The path to the resource.
-function ResourceManager:queueResource(path)
-	local key = self:resolveResourcePath(path, self.currentNamespace)
+---@param key string The path to the resource.
+function ResourceManager:queueResource(key)
 	if self.resources[key] then
 		self:updateResourceBatches(key, self.currentBatches)
 	else
@@ -288,45 +244,43 @@ end
 ---
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param path string The path to the resource.
+---@param key string The path to the resource.
 ---@param resType string The type of the resource.
 ---@return Resource
-function ResourceManager:getResource(path, resType)
-	assert(type(path) == "string", string.format("Invalid resource key (%s) type: %s (must be string)", path, type(path)))
-	local key = self:resolveResourceReference(path, self.currentNamespace)
-	if key then
+function ResourceManager:getResource(key, resType)
+	assert(type(key) == "string", string.format("Invalid resource key (%s) type: %s (must be string)", key, type(key)))
+	if self.resources[key] then
 		-- We found a resource by path.
 		self:updateResourceBatches(key, self.currentBatches)
 		return self.resources[key]
 	end
 	-- If the resource is not found, try loading the resource.
-	key = self:resolveResourcePath(path, self.currentNamespace)
 	self:loadResource(key, self.currentBatches)
-	return assert(self.resources[key], string.format("Could not find %s: \"%s\"", resType, path))
+	return assert(self.resources[key], string.format("Could not find %s: \"%s\"", resType, key))
 end
 
 
 
----Retrieves the resource asset by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
+---Retrieves the resource asset by its path and type. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param path string The path to the resource.
+---@param key string The path to the resource.
 ---@param resType string The type of the resource.
 ---@return any
-function ResourceManager:getResourceAsset(path, resType)
-	return self:getResource(path, resType).asset
+function ResourceManager:getResourceAsset(key, resType)
+	return self:getResource(key, resType).asset
 end
 
 
 
----Retrieves the resource config by its path and namespace. If the resource is not yet loaded, it is immediately loaded.
+---Retrieves the resource config by its path and type. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
 ---@private
----@param path string The path to the resource.
+---@param key string The path to the resource.
 ---@param resType string The type of the resource.
 ---@return any
-function ResourceManager:getResourceConfig(path, resType)
-	return self:getResource(path, resType).config
+function ResourceManager:getResourceConfig(key, resType)
+	return self:getResource(key, resType).config
 end
 
 
@@ -446,32 +400,20 @@ end
 
 
 
----Sets the current namespace for the Resource Manager.
----When called, all subsequent resources loaded by `:getResource*()` and `:queueResource()` will use this namespace as default
----when the path specified starts with a colon, e.g. `":flame1.json"`.
----If `nil` is specified (or called without arguments), the current namespace is reset, and any attempt to load a resource with a path
----starting with a colon will crash the game.
----@param namespace string? The default namespace for subsequently queued and loaded resources.
-function ResourceManager:setNamespace(namespace)
-	self.currentNamespace = namespace
-end
-
-
-
 ---Returns a list of paths to all loaded resources of a given type.
 ---@param resType string One of `RESOURCE_TYPES`, of which all loaded resource paths will be returned.
 ---@return string[]
 function ResourceManager:getResourceList(resType)
-	local pathList = {}
+	local keys = {}
 
 	-- Iterate through all known resources. If the type matches, add it to the returned list.
 	for key, resource in pairs(self.resources) do
 		if resource.type == resType then
-			table.insert(pathList, key)
+			table.insert(keys, key)
 		end
 	end
 
-	return pathList
+	return keys
 end
 
 --############################################################--

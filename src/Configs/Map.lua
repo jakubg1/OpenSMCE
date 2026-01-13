@@ -35,14 +35,21 @@ function MapConfig:new(data, path, isAnonymous, base)
         self.paths[i] = u.parsePathConfig(data, base, path, {"paths", i})
     end
 
-    ---@type {x: number, y: number, sprite: Sprite, layer: string}[]
-    self.sprites = {}
-    for i = 1, #data.sprites do
-        self.sprites[i] = {}
-        self.sprites[i].x = u.parseNumber(data, base, path, {"sprites", i, "x"})
-        self.sprites[i].y = u.parseNumber(data, base, path, {"sprites", i, "y"})
-        self.sprites[i].sprite = u.parseSprite(data, base, path, {"sprites", i, "sprite"})
-        self.sprites[i].layer = u.parseString(data, base, path, {"sprites", i, "layer"})
+    ---@type table[]
+    self.objects = {}
+    for i = 1, #data.objects do
+        self.objects[i] = {}
+        self.objects[i].type = u.parseString(data, base, path, {"objects", i, "type"})
+        if self.objects[i].type == "sprite" then
+            self.objects[i].sprite = u.parseSprite(data, base, path, {"objects", i, "sprite"})
+        elseif self.objects[i].type == "particle" then
+            self.objects[i].particle = u.parseParticleEffectConfig(data, base, path, {"objects", i, "particle"})
+        else
+            error(string.format("Unknown MapConfig type: %s (expected \"sprite\", \"particle\")", self.objects[i].type))
+        end
+        self.objects[i].layer = u.parseString(data, base, path, {"objects", i, "layer"})
+        self.objects[i].x = u.parseNumber(data, base, path, {"objects", i, "x"})
+        self.objects[i].y = u.parseNumber(data, base, path, {"objects", i, "y"})
     end
 end
 

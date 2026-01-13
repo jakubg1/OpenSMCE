@@ -2,9 +2,12 @@
     - name (string) - The map name.
     - paths (array) - A list of paths which are available on this map.
         - (Path) - A single path.
-    - sprites (array) - A list of sprites to be drawn on this map.
-        - (object) - A single sprite.
-            - x (number) - The X position of this Sprite.
-            - y (number) - The Y position of this Sprite.
-            - sprite (Sprite) - The path to the Sprite to be displayed.
-            - layer (string) - The layer on which the Sprite will be displayed.
+    - objects (array) - A list of objects to be drawn on this map.
+        - (object) {type: The object type.} - A single object.
+            - "sprite" - A sprite.
+                - sprite (Sprite) - Path to a Sprite to be displayed.
+            - "particle" - A particle effect.
+                - particle (ParticleEffect) - Path to a particle effect to be displayed.
+            - layer (string) - The layer on which the object will be displayed.
+            - x (number) - The X position of this object.
+            - y (number) - The Y position of this object.

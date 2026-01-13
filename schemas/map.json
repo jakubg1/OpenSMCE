@@ -16,44 +16,121 @@
                 "description": "A single path."
             }
         },
-        "sprites": {
+        "objects": {
             "type": "array",
-            "description": "A list of sprites to be drawn on this map.",
+            "description": "A list of objects to be drawn on this map.",
             "items": {
                 "type": "object",
-                "description": "A single sprite.",
+                "description": "A single object.",
                 "properties": {
-                    "x": {
-                        "type": "number",
-                        "description": "The X position of this Sprite."
-                    },
-                    "y": {
-                        "type": "number",
-                        "description": "The Y position of this Sprite."
-                    },
-                    "sprite": {
-                        "$ref": "_structures/Sprite.json",
-                        "description": "The path to the Sprite to be displayed."
-                    },
-                    "layer": {
-                        "type": "string",
-                        "description": "The layer on which the Sprite will be displayed."
+                    "type": {
+                        "enum": [
+                            "sprite",
+                            "particle"
+                        ]
                     }
                 },
-                "required": [
-                    "x",
-                    "y",
-                    "sprite",
-                    "layer"
+                "allOf": [
+                    {
+                        "properties": {
+                            "type": {
+                                "description": "The object type."
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "sprite",
+                                    "description": "A sprite."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "sprite": {
+                                    "$ref": "_structures/Sprite.json",
+                                    "description": "Path to a Sprite to be displayed."
+                                },
+                                "layer": {
+                                    "type": "string",
+                                    "description": "The layer on which the object will be displayed."
+                                },
+                                "x": {
+                                    "type": "number",
+                                    "description": "The X position of this object."
+                                },
+                                "y": {
+                                    "type": "number",
+                                    "description": "The Y position of this object."
+                                }
+                            },
+                            "required": [
+                                "sprite",
+                                "layer",
+                                "x",
+                                "y"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "const": "particle",
+                                    "description": "A particle effect."
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "type": true,
+                                "particle": {
+                                    "$ref": "_structures/ParticleEffect.json",
+                                    "description": "Path to a particle effect to be displayed."
+                                },
+                                "layer": {
+                                    "type": "string",
+                                    "description": "The layer on which the object will be displayed."
+                                },
+                                "x": {
+                                    "type": "number",
+                                    "description": "The X position of this object."
+                                },
+                                "y": {
+                                    "type": "number",
+                                    "description": "The Y position of this object."
+                                }
+                            },
+                            "required": [
+                                "particle",
+                                "layer",
+                                "x",
+                                "y"
+                            ],
+                            "additionalProperties": false
+                        }
+                    }
                 ],
-                "additionalProperties": false
+                "required": [
+                    "type"
+                ]
             }
         }
     },
     "required": [
         "name",
         "paths",
-        "sprites"
+        "objects"
     ],
     "additionalProperties": false
 }

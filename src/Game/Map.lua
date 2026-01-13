@@ -15,13 +15,9 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	self.level = level
 	self.isDummy = isDummy -- Whether it's just a decorative map. If `false`, then it's meant to be playable.
 
-	local mapFolderName = _Utils.strSplit(path, "/")
-	_Res:setNamespace(mapFolderName[#mapFolderName])
 	_Res:setBatches({"map"})
 	self.config = _Res:getMapConfig(path .. "/config.json")
-	_Res:setNamespace()
 	_Res:setBatches()
-	self.name = self.config.name
 
 	---@type Path[]
 	self.paths = {}
@@ -30,6 +26,13 @@ function Map:new(level, path, pathsBehavior, isDummy)
 		-- Useful if all paths should share the same behavior; you don't have to clone it.
 		local pathBehavior = pathsBehavior[(i - 1) % #pathsBehavior + 1]
 		table.insert(self.paths, Path(self, pathData, pathBehavior))
+	end
+	---@type ParticlePacket[]
+	self.particles = {}
+	for i, object in ipairs(self.config.objects) do
+		if object.type == "particle" then
+			table.insert(self.particles, _Game:spawnParticle(object.particle, object.x, object.y, object.layer))
+		end
 	end
 end
 
@@ -61,9 +64,11 @@ end
 ---Draws this Map.
 function Map:draw()
 	-- Draw sprites.
-	for i, sprite in ipairs(self.config.sprites) do
-		_Renderer:setLayer(sprite.layer)
-		sprite.sprite:draw(sprite.x, sprite.y)
+	for i, object in ipairs(self.config.objects) do
+		if object.type == "sprite" then
+			_Renderer:setLayer(object.layer)
+			object.sprite:draw(object.x, object.y)
+		end
 	end
 
 	-- Draw paths.
@@ -74,6 +79,11 @@ end
 
 ---Unloads resources loaded by this map.
 function Map:destroy()
+	-- Destroy the particles.
+	for i, particle in ipairs(self.particles) do
+		particle:destroy()
+		particle:clean()
+	end
 	for i, path in ipairs(self.paths) do
 		path:destroy()
 	end
