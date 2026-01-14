@@ -66,7 +66,7 @@ function LevelConfig:new(data, path, isAnonymous, base)
         end
     end
 
-    ---@type {trainRules: LevelTrainRulesConfig, spawnDistance: number, dangerDistance: number, dangerParticle: ParticleEffectConfig?, speeds: {distance: number?, offset: number?, offsetFromEnd: number?, speed: number, transition: table}[]}[]
+    ---@type {trainRules: LevelTrainRulesConfig, spawnDistance: number, dangerDistance: number, dangerParticle: ParticleEffectConfig?, dangerParticleLayer: string, speeds: {distance: number?, offset: number?, offsetFromEnd: number?, speed: number, transition: table}[]}[]
     self.pathsBehavior = {}
     for i = 1, #data.pathsBehavior do
         self.pathsBehavior[i] = {}
@@ -74,6 +74,7 @@ function LevelConfig:new(data, path, isAnonymous, base)
         self.pathsBehavior[i].spawnDistance = u.parseNumber(data, base, path, {"pathsBehavior", i, "spawnDistance"})
         self.pathsBehavior[i].dangerDistance = u.parseNumber(data, base, path, {"pathsBehavior", i, "dangerDistance"})
         self.pathsBehavior[i].dangerParticle = u.parseParticleEffectConfigOpt(data, base, path, {"pathsBehavior", i, "dangerParticle"})
+        self.pathsBehavior[i].dangerParticleLayer = u.parseStringOpt(data, base, path, {"pathsBehavior", i, "dangerParticleLayer"}, "GameLevelWarningPsys")
 
         ---@type {distance: number?, offset: number?, offsetFromEnd: number?, speed: number, transition: table}[]
         self.pathsBehavior[i].speeds = {}

@@ -48,8 +48,7 @@ end
 function Map:spawnDangerParticles()
 	for i, path in ipairs(self.paths) do
 		if path:isInDanger() then
-			local x, y = path:getPos(path.length)
-			_Game:spawnParticle(path.dangerParticle, x, y, "GameLevelWarningPsys")
+			path:spawnDangerParticles()
 		end
 	end
 end

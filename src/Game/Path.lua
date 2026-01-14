@@ -1,14 +1,11 @@
 local class = require "com.class"
-
----Represents a single Path on which the Spheres move. Can have entites such as Bonus Scarabs or Scorpions.
----@class Path
----@overload fun(map, pathData, pathBehavior):Path
-local Path = class:derive("Path")
-
 local SphereChain = require("src.Game.SphereChain")
 local PathEntity = require("src.Game.PathEntity")
 
-
+---Represents a single Path on which the Spheres move. Can have entites such as Bonus Scarabs or Scorpions.
+---@class Path
+---@overload fun(map: Map, pathData: PathConfig, pathBehavior: table):Path
+local Path = class:derive("Path")
 
 ---Constructs a new Path instance.
 ---@param map Map The map which this Path belongs to.
@@ -35,7 +32,8 @@ function Path:new(map, pathData, pathBehavior)
 	self.spawnAmount = 0
 	self.spawnDistance = pathBehavior.spawnDistance
 	self.dangerDistance = pathBehavior.dangerDistance
-	self.dangerParticle = _Res:getParticleEffectConfig(pathBehavior.dangerParticle or "particles/warning.json")
+	self.dangerParticle = pathBehavior.dangerParticle or _Res:getParticleEffectConfig("particles/warning.json")
+	self.dangerParticleLayer = pathBehavior.dangerParticleLayer
 	self.speeds = pathBehavior.speeds
 
 	self:prepareNodes(pathData.nodes)
@@ -49,8 +47,6 @@ function Path:new(map, pathData, pathBehavior)
 	self.pathEntities = {}
 	self.sphereEffectGroups = {}
 end
-
-
 
 ---Generates necessary data from node positions.
 ---@param nodes table The list of nodes.
@@ -111,8 +107,6 @@ function Path:prepareNodes(nodes)
 	end
 end
 
-
-
 ---Updates the Path.
 ---@param dt number Delta time in seconds.
 function Path:update(dt)
@@ -142,8 +136,6 @@ function Path:update(dt)
 	end
 end
 
-
-
 ---Returns `true` if this Path will spawn a new Sphere Chain right now.
 ---@return boolean
 function Path:shouldSpawn()
@@ -158,15 +150,17 @@ function Path:shouldSpawn()
 	return true
 end
 
-
-
 ---Returns whether this path is in danger (spheres exist past the danger offset).
 ---@return boolean
 function Path:isInDanger()
 	return self:getDanger(self:getMaxOffset())
 end
 
-
+---Spawns danger particles at the end of this Path.
+function Path:spawnDangerParticles()
+	local x, y = self:getPos(self.length)
+	_Game:spawnParticle(self.dangerParticle, x, y, self.dangerParticleLayer)
+end
 
 ---Summons a new Sphere Chain on this Path.
 function Path:spawnChain()
@@ -184,8 +178,6 @@ function Path:spawnChain()
 	end
 end
 
-
-
 ---Returns `true` if at least one of the Sphere Chains on this Path has a predicted match.
 ---@return boolean
 function Path:isMatchPredicted()
@@ -196,8 +188,6 @@ function Path:isMatchPredicted()
 	end
 	return false
 end
-
-
 
 ---Resets the cascade combo value for this Path to 0 and emits a `cascadeEnded` UI callback if the values were greater than 0.
 function Path:endCascade()
@@ -210,15 +200,11 @@ function Path:endCascade()
 	self.cascadeScore = 0
 end
 
-
-
 ---Spawns a Path Entity on this Path.
 ---@param config PathEntityConfig The Path Entity Config to be used to create this Path Entity.
 function Path:spawnPathEntity(config)
 	table.insert(self.pathEntities, PathEntity(self, config))
 end
-
-
 
 ---Returns whether there are any Path Entities on this Path.
 ---@return boolean
