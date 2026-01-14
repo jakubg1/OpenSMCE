@@ -176,8 +176,8 @@ function Shooter:update(dt)
             local pos = self:getSpherePos(i)
             if self.speedShotParticles[i] then
                 self.speedShotParticles[i]:setPos(pos.x, pos.y)
-            else
-                self.speedShotParticles[i] = _Game:spawnParticle(self.config.speedShotParticle, pos.x, pos.y, "GameSpeedShotPsys")
+            elseif self.config.speedShotParticle then
+                self.speedShotParticles[i] = _Game:spawnParticle(self.config.speedShotParticle, pos.x, pos.y, self.config.speedShotParticleLayer)
             end
         end
     else
@@ -638,23 +638,25 @@ function Shooter:drawSpeedShotBeam()
         return
     end
 
+    local beamConfig = self.config.speedShotBeam
+
     for i = 1, self:getSphereCount() do
         local startPos = self:getSpherePos(i)
         local targetPos = self:getTargetPosForSphere(i)
-        local maxDistance = self.config.speedShotBeam.sprite.imageSize.y
+        local maxDistance = beamConfig.sprite.imageSize.y
         local distance = math.min(targetPos and (startPos - targetPos):len() or maxDistance, maxDistance)
         local distanceUnit = distance / maxDistance
         local scale = Vec2(1)
-        if self.config.speedShotBeam.renderingType == "scale" then
+        if beamConfig.renderingType == "scale" then
             -- if we need to scale the beam
             scale.y = distanceUnit
-        elseif self.config.speedShotBeam.renderingType == "cut" then
+        elseif beamConfig.renderingType == "cut" then
             -- if we need to cut the beam
             -- make a polygon: determine all four corners first
-            local p1 = startPos + Vec2(-self.config.speedShotBeam.sprite.imageSize.x / 2, -distance):rotate(self.angle)
-            local p2 = startPos + Vec2(self.config.speedShotBeam.sprite.imageSize.x / 2, -distance):rotate(self.angle)
-            local p3 = startPos + Vec2(self.config.speedShotBeam.sprite.imageSize.x / 2, 16):rotate(self.angle)
-            local p4 = startPos + Vec2(-self.config.speedShotBeam.sprite.imageSize.x / 2, 16):rotate(self.angle)
+            local p1 = startPos + Vec2(-beamConfig.sprite.imageSize.x / 2, -distance):rotate(self.angle)
+            local p2 = startPos + Vec2(beamConfig.sprite.imageSize.x / 2, -distance):rotate(self.angle)
+            local p3 = startPos + Vec2(beamConfig.sprite.imageSize.x / 2, 16):rotate(self.angle)
+            local p4 = startPos + Vec2(-beamConfig.sprite.imageSize.x / 2, 16):rotate(self.angle)
             -- mark all pixels within the polygon with value of 1
             _Renderer:stencil(function()
                 love.graphics.setColor(1, 1, 1)
@@ -664,13 +666,13 @@ function Shooter:drawSpeedShotBeam()
             _Renderer:setStencilTest("equal", 1)
         end
         -- apply color if wanted
-        local color = self.config.speedShotBeam.colored and self:getReticleColor() or Color()
+        local color = beamConfig.colored and self:getReticleColor() or Color()
         -- draw the beam
         local x, y = _V.rotate(0, 16, self.angle)
-        _Renderer:setLayer("GameSpeedShotPsys")
-        self.config.speedShotBeam.sprite:draw(startPos.x + x, startPos.y + y, 0.5, 1, nil, nil, self.angle, color, self.speedShotAnim, scale.x, scale.y)
+        _Renderer:setLayer(beamConfig.layer)
+        beamConfig.sprite:draw(startPos.x + x, startPos.y + y, 0.5, 1, nil, nil, self.angle, color, self.speedShotAnim, scale.x, scale.y)
         -- reset the stencil
-        if self.config.speedShotBeam.renderingType == "cut" then
+        if beamConfig.renderingType == "cut" then
             _Renderer:stencil()
             _Renderer:setStencilTest()
         end

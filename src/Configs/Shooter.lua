@@ -74,15 +74,17 @@ function ShooterConfig:new(data, path, isAnonymous, base)
     self.sounds.sphereSwap = u.parseSoundEvent(data, base, path, {"sounds", "sphereSwap"})
     self.sounds.sphereFill = u.parseSoundEvent(data, base, path, {"sounds", "sphereFill"})
 
-    ---@type {sprite: Sprite, fadeTime: number, renderingType: "full"|"cut"|"scale", colored: boolean}
+    ---@type {sprite: Sprite, layer: string, fadeTime: number, renderingType: "full"|"cut"|"scale", colored: boolean}
     self.speedShotBeam = {}
     self.speedShotBeam.sprite = u.parseSprite(data, base, path, {"speedShotBeam", "sprite"})
+    self.speedShotBeam.layer = u.parseStringOpt(data, base, path, {"speedShotBeam", "layer"}, "GameSpeedShotPsys")
     self.speedShotBeam.fadeTime = u.parseNumber(data, base, path, {"speedShotBeam", "fadeTime"})
     ---@type "full"|"cut"|"scale"
     self.speedShotBeam.renderingType = u.parseString(data, base, path, {"speedShotBeam", "renderingType"})
     self.speedShotBeam.colored = u.parseBoolean(data, base, path, {"speedShotBeam", "colored"})
 
-    self.speedShotParticle = u.parseParticleEffectConfig(data, base, path, {"speedShotParticle"})
+    self.speedShotParticle = u.parseParticleEffectConfigOpt(data, base, path, {"speedShotParticle"})
+    self.speedShotParticleLayer = u.parseStringOpt(data, base, path, {"speedShotParticleLayer"}, "GameSpeedShotPsys")
     self.shotSpeed = u.parseNumber(data, base, path, {"shotSpeed"})
     self.shotCooldown = u.parseNumberOpt(data, base, path, {"shotCooldown"}, 0)
     self.shotCooldownFade = u.parseNumberOpt(data, base, path, {"shotCooldownFade"}, 0)

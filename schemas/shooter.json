@@ -141,6 +141,10 @@
                     "$ref": "_structures/Sprite.json",
                     "description": "The sprite to be used by the Speed Shot beam."
                 },
+                "layer": {
+                    "type": "string",
+                    "description": "The layer on which the speed shot beam will be displayed."
+                },
                 "fadeTime": {
                     "type": "number",
                     "description": "How long the speed shot beam should fade in or out, in seconds.",
@@ -180,6 +184,10 @@
         "speedShotParticle": {
             "$ref": "_structures/ParticleEffect.json",
             "description": "Persistent particle packet. If defined, it will spawn when a speed shot powerup is obtained, and despawn when the speed shot beam diminishes."
+        },
+        "speedShotParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the speed shot particles will be displayed."
         },
         "shotSpeed": {
             "type": "number",
@@ -256,7 +264,6 @@
         "spheres",
         "sounds",
         "speedShotBeam",
-        "speedShotParticle",
         "shotSpeed",
         "hitboxSize"
     ],
