@@ -8,7 +8,7 @@ local UIWidgetText = class:derive("UIWidgetText")
 function UIWidgetText:new(parent, text, font, align)
 	self.type = "text"
 	self.parent = parent
-	self.text = text or ""
+	self.text = _Game.configManager:translate(text or "")
 	local success
 	success, self.font = pcall(function() return _Res:getFont(font) end)
 	if not success then
