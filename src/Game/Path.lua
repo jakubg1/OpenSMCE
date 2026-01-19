@@ -123,12 +123,7 @@ function Path:update(dt)
 	for i, pathEntity in ipairs(self.pathEntities) do
 		pathEntity:update(dt)
 	end
-	for i = #self.pathEntities, 1, -1 do
-		local pathEntity = self.pathEntities[i]
-		if pathEntity.delQueue then
-			table.remove(self.pathEntities, i)
-		end
-	end
+	_Utils.removeDeadObjects(self.pathEntities)
 
 	-- Reset the cascade combo if necessary.
 	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "path" and not self:isMatchPredicted() then

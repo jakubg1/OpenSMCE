@@ -600,7 +600,7 @@ function SphereGroup:destroyFragileSpheres(startFrom)
 	end
 end
 
----Destroys all spheres contained in this Sphere Group.
+---Unloads all spheres contained in this Sphere Group.
 function SphereGroup:destroy()
 	for i, sphere in ipairs(self.spheres) do
 		sphere:destroy()

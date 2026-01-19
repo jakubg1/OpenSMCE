@@ -431,24 +431,25 @@ function Debug:drawSphereInfo()
 	love.graphics.setColor(0, 0, 0, 0.5)
 	love.graphics.rectangle("fill", p.x, p.y, s.x, s.y)
 
-	local n = 0
-	local m = 0
+	local y = 0
+	local x = 0
 
 	if _Game.level then
 		for i, path in ipairs(_Game.level.map.paths) do
 			love.graphics.setColor(1, 1, 1)
-			love.graphics.print("Path " .. tostring(i), p.x + 10, p.y + 10 + n)
-			n = n + 25
+			love.graphics.print("Path " .. tostring(i), p.x + 10, p.y + 10 + y)
+			y = y + 25
 			for j, sphereChain in ipairs(path.sphereChains) do
 				love.graphics.setColor(1, 1, 1)
-				love.graphics.print(tostring(j), p.x + 20, p.y + 10 + n)
+				love.graphics.print(tostring(j), p.x + 20, p.y + 10 + y)
 				local lastSphereGroup = sphereChain:getLastSphereGroup()
 				if lastSphereGroup then
-					love.graphics.print(tostring(math.floor(sphereChain:getLastSphereGroup().offset)) .. "px", p.x + 50, p.y + 10 + n)
-					m = 0
+					love.graphics.print(tostring(math.floor(sphereChain:getLastSphereGroup().offset)) .. "px", p.x + 50, p.y + 10 + y)
+					x = 0
 					for k = #sphereChain.sphereGroups, 1, -1 do -- reverse iteration
 						local sphereGroup = sphereChain.sphereGroups[k]
 						for l, sphere in ipairs(sphereGroup.spheres) do
+							-- Draw a sphere.
 							local color = sphere:getConfig().color
 							local alpha = sphere:isGhost() and 0.5 or 1
 							if color and type(color) == "table" then
@@ -456,30 +457,63 @@ function Debug:drawSphereInfo()
 							else
 								love.graphics.setColor(0.5, 0.5, 0.5, alpha)
 							end
-							love.graphics.circle("fill", p.x + 120 + m, p.y + 20 + n, 10)
-							m = m + 20
+							love.graphics.circle("fill", p.x + 120 + x, p.y + 20 + y, 10)
+							if sphere.delQueue then
+								love.graphics.setLineWidth(3)
+								love.graphics.setColor(1, 0, 0)
+								love.graphics.circle("line", p.x + 120 + x, p.y + 20 + y, 10)
+							end
+							-- Sphere ID
+							love.graphics.setColor(1, 1, 1)
+							love.graphics.print(tostring(sphereGroup:getSphereID(sphere)), p.x + 110 + x, p.y + 30 + y)
+							-- Broken link arrows
+							if sphere.prevSphere ~= sphereGroup.spheres[l - 1] then
+								love.graphics.print("E<", p.x + 110 + x, p.y + 40 + y)
+							end
+							if sphere.nextSphere ~= sphereGroup.spheres[l + 1] then
+								love.graphics.print("E>", p.x + 110 + x, p.y + 40 + y)
+							end
+							x = x + 20
+						end
+						-- Draw error arrows if the next/previous group pointers are incorrect.
+						love.graphics.setColor(1, 0, 0)
+						love.graphics.setLineWidth(2)
+						if sphereGroup.nextGroup ~= sphereChain.sphereGroups[k - 1] then
+							-- Left arrow
+							love.graphics.line(p.x + 120 + x, p.y + 15 + y, p.x + 200 + x, p.y + 15 + y)
+							love.graphics.line(p.x + 120 + x, p.y + 15 + y, p.x + 140 + x, p.y + 10 + y)
+							love.graphics.line(p.x + 120 + x, p.y + 15 + y, p.x + 140 + x, p.y + 20 + y)
+						end
+						if sphereGroup.prevGroup ~= sphereChain.sphereGroups[k + 1] then
+							-- Right arrow
+							love.graphics.line(p.x + 120 + x, p.y + 25 + y, p.x + 200 + x, p.y + 25 + y)
+							love.graphics.line(p.x + 200 + x, p.y + 25 + y, p.x + 180 + x, p.y + 20 + y)
+							love.graphics.line(p.x + 200 + x, p.y + 25 + y, p.x + 180 + x, p.y + 30 + y)
 						end
 						if sphereGroup.nextGroup then
+							-- Draw distance between groups.
+							local text = tostring(math.floor(sphereGroup.nextGroup:getBackOffset() - sphereGroup:getFrontOffset())) .. "px"
 							love.graphics.setColor(1, 1, 1)
-							love.graphics.print(tostring(math.floor(sphereGroup.nextGroup:getBackOffset() - sphereGroup:getFrontOffset())) .. "px", p.x + 150 + m, p.y + 10 + n)
+							love.graphics.print(text, p.x + 150 + x, p.y + 10 + y)
 						end
 						--if k > 1 and sphereChain.sphereGroups[k - 1] ~= sphereGroup.nextGroup then print("ERROR") end
 						--if k < #sphereChain.sphereGroups and sphereChain.sphereGroups[k + 1] ~= sphereGroup.prevGroup then print("ERROR") end
 
-						m = m + 100
+						x = x + 100
 					end
 					if j > 1 then
+						-- Draw distance between chains.
 						local a = sphereChain:getPreviousChain():getLastSphereGroup():getBackOffset()
 						local b = sphereChain:getFirstSphereGroup():getFrontOffset()
 						love.graphics.setColor(1, 1, 1)
-						love.graphics.print(tostring(math.floor(a - b)) .. "px", p.x + 20, p.y + n)
+						love.graphics.print(tostring(math.floor(a - b)) .. "px", p.x + 20, p.y + y)
 					end
 				else
 					love.graphics.setColor(1, 0, 0)
-					love.graphics.print("ERROR", p.x + 50, p.y + 10 + n)
+					love.graphics.print("ERROR", p.x + 50, p.y + 10 + y)
 				end
 
-				n = n + 25
+				y = y + 35
 			end
 		end
 	else

@@ -271,26 +271,11 @@ function SphereChain:update(dt)
 		self:endCascade()
 	end
 
-	-- Destroy itself if holds only non-generatable spheres.
-	--[[
-	if not self:hasGeneratableSpheres() then
-		for i, sphereGroup in ipairs(self.sphereGroups) do
-			local n = 1
-			-- Avoid the vise. It has its own destruction routine.
-			if i == #self.sphereGroups then
-				n = 2
-			end
-			sphereGroup:destroySpheres(n, #sphereGroup.spheres)
-		end
-	end
-	]]
 end
 
-function SphereChain:move(offset)
-	self.pos = self.pos + offset
-	self:getFirstSphereGroup():move(-offset)
-end
-
+---Removes this Sphere Chain and marks the bonus scarab position on its path.
+---This function **does not** destroy any spheres contained in this Sphere Chain. Use `:destroy()` in that case instead.
+---@param joins any
 function SphereChain:delete(joins)
 	if self.delQueue then return end
 	self.delQueue = true
@@ -303,7 +288,7 @@ function SphereChain:delete(joins)
 	end
 end
 
----Destroys all spheres contained in this Sphere Chain.
+---Unloads all spheres contained in this Sphere Chain.
 function SphereChain:destroy()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
 		sphereGroup:destroy()

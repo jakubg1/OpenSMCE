@@ -292,7 +292,7 @@ end
 
 
 
----Unloads this sphere.
+---Unloads this sphere's entity and particles.
 function Sphere:destroy()
 	if self.entity then
 		self.entity:destroy(false)
