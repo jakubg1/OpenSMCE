@@ -925,20 +925,22 @@ end
 
 
 
----Returns the reticle position.
----@return Vector2
+---Returns the reticle position, or `nil` if the reticle should not be rendered.
+---@return Vector2?
 function Shooter:getTargetPos()
-    return _Game.level:getNearestSphereOnLine(self.pos.x, self.pos.y, self.angle).targetPos
+    local targetData = _Game.level:getNearestSphereOnLine(self.pos.x, self.pos.y, self.angle)
+    return targetData and targetData.targetPos
 end
 
 
 
----Returns the reticle position, starting from the given sphere.
+---Returns the reticle position, starting from the given sphere, or `nil` if the reticle should not be rendered.
 ---@param n integer The main slot number for the sphere to be checked for.
----@return Vector2
+---@return Vector2?
 function Shooter:getTargetPosForSphere(n)
     local spherePos = self:getSpherePos(n)
-    return _Game.level:getNearestSphereOnLine(spherePos.x, spherePos.y, self.angle).targetPos
+    local targetData = _Game.level:getNearestSphereOnLine(spherePos.x, spherePos.y, self.angle)
+    return targetData and targetData.targetPos
 end
 
 

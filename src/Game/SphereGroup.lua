@@ -1,5 +1,4 @@
 local class = require "com.class"
-local Vec2 = require("src.Essentials.Vector2")
 local Sphere = require("src.Game.Sphere")
 
 ---Represents a Sphere Group, which is a single group of spheres connected to each other. Handles all sphere movement on the track.
@@ -1123,7 +1122,7 @@ end
 ---@param position integer The sphere index in this sphere group.
 ---@return number
 function SphereGroup:getSphereOffset(position)
-	return self.offset + self.spheres[position].offset
+	return self.spheres[position]:getOffset()
 end
 
 ---Returns the size of the sphere at which the specified sphere is at, in pixels.
@@ -1137,21 +1136,7 @@ end
 ---@param position integer The sphere index in this sphere group.
 ---@return Vector2
 function SphereGroup:getSpherePos(position)
-	return Vec2(self.sphereChain.path:getPos(self:getSphereOffset(position)))
-end
-
----Returns the angle of the specified sphere.
----@param position integer The sphere index in this sphere group.
----@return number
-function SphereGroup:getSphereAngle(position)
-	return self.sphereChain.path:getAngle(self:getSphereOffset(position))
-end
-
----Returns whether the specified sphere is hidden.
----@param position integer The sphere index in this sphere group.
----@return boolean
-function SphereGroup:getSphereHidden(position)
-	return self.sphereChain.path:getHidden(self:getSphereOffset(position))
+	return self.spheres[position]:getPos()
 end
 
 ---Returns the index of the provided Sphere in this Sphere Group.
@@ -1192,12 +1177,6 @@ function SphereGroup:getLastChainedGroup()
 		group = group.sphereChain:getPreviousChain():getLastSphereGroup()
 	end
 	return group
-end
-
----Returns the position of the last sphere in this group.
----@return Vector2
-function SphereGroup:getLastSpherePos()
-	return self:getSpherePos(#self.spheres)
 end
 
 ---Returns the offset of the head of this Sphere Group on its path, in pixels.

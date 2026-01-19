@@ -118,7 +118,7 @@ function ShotSphere:moveStep()
 
 	-- add if there's a sphere nearby
 	local nearestSphere = _Game.level:getNearestSphere(self.x, self.y)
-	if nearestSphere.dist and nearestSphere.dist < (self.size + nearestSphere.sphere.config.size) / 2 and (not self.homingTowards or self.homingTowards == nearestSphere.sphere) then
+	if nearestSphere and nearestSphere.dist < (self.size + nearestSphere.sphere.config.size) / 2 and (not self.homingTowards or self.homingTowards == nearestSphere.sphere) then
 		-- Execute this only if we are close enough to the nearest sphere and have ANY collision (we are not homing towards something different).
 		if nearestSphere.sphere:isFragile() then
 			-- If we've hit a fragile sphere, destroy the fragile spheres instead of hitting.
@@ -275,7 +275,7 @@ function ShotSphere:drawDebug()
 	for i = self.y, 0, -self.PIXELS_PER_STEP do
 		love.graphics.circle("fill", self.x, i, 2)
 		local nearestSphere = _Game.level:getNearestSphere(self.x, i)
-		if nearestSphere.dist and nearestSphere.dist < 32 then
+		if nearestSphere and nearestSphere.dist < 32 then
 			love.graphics.setLineWidth(3)
 			love.graphics.circle("line", nearestSphere.pos.x, nearestSphere.pos.y, self.size / 2)
 			break

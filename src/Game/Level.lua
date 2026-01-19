@@ -1440,21 +1440,22 @@ end
 --- - `pos` (Vector2) - the position of this sphere,
 --- - `dist` (number) - the distance to this sphere,
 --- - `half` (boolean) - if `true`, this is a half pointing to the end of the path, `false` if to the beginning of said path.
+---
+---Returns `nil` if no sphere is found.
 ---@param posX number The X coordinate of the position to be checked against.
 ---@param posY number The Y coordinate of the position to be checked against.
----@return table
+---@return {path: Path, sphereChain: SphereChain, sphereGroup: SphereGroup, sphere: Sphere, sphereID: integer, pos: Vector2, dist: number, half: boolean}?
 function Level:getNearestSphere(posX, posY)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, half = nil}
 	for i, path in ipairs(self.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
-					local spherePos = sphereGroup:getSpherePos(l)
-					local sphereAngle = sphereGroup:getSphereAngle(l)
-					local sphereHidden = sphereGroup:getSphereHidden(l)
+					local spherePos = sphere:getPos()
+					local sphereAngle = sphere:getAngle()
+					local sphereHidden = sphere:getHidden()
 
 					local sphereDist = _V.length(posX - spherePos.x, posY - spherePos.y)
-
 					local sphereDistAngle = _V.angle(posX - spherePos.x, posY - spherePos.y)
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
@@ -1473,6 +1474,9 @@ function Level:getNearestSphere(posX, posY)
 			end
 		end
 	end
+	if not nearestData.sphere then
+		return nil
+	end
 	return nearestData
 end
 
@@ -1490,20 +1494,22 @@ end
 --- - `dist` (number) - the distance to this sphere,
 --- - `targetPos` (Vector2) - the collision position (used for i.e. drawing the reticle),
 --- - `half` (boolean) - if `true`, this is a half pointing to the end of the path, `false` if to the beginning of said path.
+---
+---Returns `nil` if no sphere is found.
 ---@param posX number The X coordinate of the starting position of the line of sight.
 ---@param posY number The Y coordinate of the starting position of the line of sight.
 ---@param angle number The angle of the line. 0 is up.
----@return table
+---@return {path: Path, sphereChain: SphereChain, sphereGroup: SphereGroup, sphere: Sphere, sphereID: integer, pos: Vector2, dist: number, targetPos: Vector2, half: boolean}?
 function Level:getNearestSphereOnLine(posX, posY, angle)
 	local nearestData = {path = nil, sphereChain = nil, sphereGroup = nil, sphereID = nil, sphere = nil, pos = nil, dist = nil, targetPos = nil, half = nil}
 	for i, path in ipairs(self.map.paths) do
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
-					local spherePos = sphereGroup:getSpherePos(l)
-					local sphereSize = sphereGroup:getSphereSize(l)
-					local sphereAngle = sphereGroup:getSphereAngle(l)
-					local sphereHidden = sphereGroup:getSphereHidden(l)
+					local spherePos = sphere:getPos()
+					local sphereSize = sphere:getSize()
+					local sphereAngle = sphere:getAngle()
+					local sphereHidden = sphere:getHidden()
 
 					local x, y = _V.rotate(spherePos.x - posX, spherePos.y - posY, -angle)
 					local sphereTargetCPosX, sphereTargetCPosY = posX + x, posY + y
@@ -1530,6 +1536,9 @@ function Level:getNearestSphereOnLine(posX, posY, angle)
 				end
 			end
 		end
+	end
+	if not nearestData.sphere then
+		return nil
 	end
 	return nearestData
 end
