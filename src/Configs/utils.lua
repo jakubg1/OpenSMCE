@@ -12,6 +12,7 @@ local LevelConfig = require("src.Configs.Level")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
 local LevelSetConfig = require("src.Configs.LevelSet")
 local LevelTrainRulesConfig = require("src.Configs.LevelTrainRules")
+local LocaleConfig = require("src.Configs.Locale")
 local ParticleConfig = require("src.Configs.Particle")
 local ParticleEffectConfig = require("src.Configs.ParticleEffect")
 local ParticleEmitterConfig = require("src.Configs.ParticleEmitter")
@@ -499,6 +500,16 @@ end
 ---@return LevelTrainRulesConfig?
 function utils.parseLevelTrainRulesConfigOpt(data, base, path, fields)
 	return parseClassConfigOpt(data, base, path, fields, "LevelTrainRules", _Res.getLevelTrainRulesConfig, LevelTrainRulesConfig)
+end
+
+---@return LocaleConfig
+function utils.parseLocaleConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "LocaleConfig", _Res.getLocaleConfig, LocaleConfig)
+end
+
+---@return LocaleConfig?
+function utils.parseLocaleConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "LocaleConfig", _Res.getLocaleConfig, LocaleConfig)
 end
 
 ---@return ParticleConfig

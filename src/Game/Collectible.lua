@@ -80,7 +80,7 @@ function Collectible:catch()
 	self.config.pickupSound:play(self.x, self.y)
 	_Game:spawnParticle(self.config.pickupParticle, self.x, self.y, "GamePowerups")
 	if self.config.pickupName then
-		_Game.level:spawnFloatingText(self.config.pickupName, self.x, self.y, self.config.pickupFont)
+		_Game.level:spawnFloatingText(_Game.configManager:translate(self.config.pickupName:evaluate()), self.x, self.y, self.config.pickupFont)
 	end
 end
 

@@ -29,8 +29,8 @@
             "description": "A sound event which will play when the collectible is collected."
         },
         "pickupName": {
-            "type": "string",
-            "description": "A label which will appear above the shooter when the powerup is collected."
+            "$ref": "_structures/ExprString.json",
+            "description": "A label which will appear above the shooter when the powerup is collected. Can be an Expression. This name is translated if a locale is specified."
         },
         "pickupFont": {
             "$ref": "_structures/Font.json",

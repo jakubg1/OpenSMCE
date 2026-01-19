@@ -52,7 +52,10 @@ function Font:getTextSize(text)
 				lineWidth = 0
 				sizeY = sizeY + self.height
 			else
-				lineWidth = lineWidth + self:getCharacterData(character).width
+				local charData = self:getCharacterData(character)
+				if charData then
+					lineWidth = lineWidth + charData.width
+				end
 			end
 		end
 		sizeX = math.max(sizeX, lineWidth)
@@ -122,17 +125,19 @@ function Font:drawLine(text, x, y, align)
 	for i = 1, text:len() do
 		local char = text:sub(i, i)
 		local charData = self:getCharacterData(char)
-		_Renderer:drawImage(self.image.img, charData.quad, math.floor(x), math.floor(y))
-		x = x + charData.width
+		if charData then
+			_Renderer:drawImage(self.image.img, charData.quad, math.floor(x), math.floor(y))
+			x = x + charData.width
+		end
 	end
 end
 
 ---Returns data for the provided character.
----If the character is not found in the font, it is reported to the console and data for the character `0` is returned instead.
+---If the character is not found in the font, it is reported to the console and `nil` is returned.
 ---Usable only for `image` type fonts.
 ---@private
 ---@param character string A single character.
----@return CharacterData
+---@return CharacterData?
 function Font:getCharacterData(character)
 	local b = character:byte()
 	local c = self.characters[character]
@@ -147,7 +152,6 @@ function Font:getCharacterData(character)
 			_Log:printt("Font", "ERROR: No character " .. tostring(character) .. " was found in font " .. self.path)
 			self.reportedCharacters[character] = true
 		end
-		return self.characters["0"]
 	end
 end
 

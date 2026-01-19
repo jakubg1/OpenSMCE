@@ -111,4 +111,17 @@ end
 
 
 
+---Translates a locale key to its value depending on the currently active locale and optionally fills in its parameters.
+---@param key string The locale key. If not found, this string will be returned back.
+---@param ... any Translation parameters, such as numbers.
+---@return string
+function ConfigManager:translate(key, ...)
+	if self.config.locale and self.config.locale.keys[key] then
+		return string.format(self.config.locale.keys[key], ...)
+	end
+	return key
+end
+
+
+
 return ConfigManager

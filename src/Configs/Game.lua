@@ -31,6 +31,7 @@ function GameConfig:new(data, path, isAnonymous, base)
     self.windowTitle = u.parseStringOpt(data, base, path, {"windowTitle"})
     self.engineVersion = u.parseString(data, base, path, {"engineVersion"})
     self.nativeResolution = u.parseVec2(data, base, path, {"nativeResolution"})
+    self.locale = u.parseLocaleConfigOpt(data, base, path, {"locale"})
     self.tickRate = u.parseIntegerOpt(data, base, path, {"tickRate"}, 60)
     ---@type "filtered"|"pixel"|"pixelPerfect"
     self.canvasRenderingMode = u.parseStringOpt(data, base, path, {"canvasRenderingMode"}, "filtered")

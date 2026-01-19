@@ -21,6 +21,10 @@
             "$ref": "_structures/Vector2.json",
             "description": "The native resolution of the game."
         },
+        "locale": {
+            "$ref": "_structures/Locale.json",
+            "description": "The locale file to be used by the game. Locale files contain string translations. If not specified, no locale will be used."
+        },
         "tickRate": {
             "type": "integer",
             "description": "The number of ticks to be performed per second. Defaults to 60.",

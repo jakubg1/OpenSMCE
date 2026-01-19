@@ -33,7 +33,7 @@ function CollectibleConfig:new(data, path, isAnonymous, base)
     self.pickupParticle = u.parseParticleEffectConfig(data, base, path, {"pickupParticle"})
     self.spawnSound = u.parseSoundEvent(data, base, path, {"spawnSound"})
     self.pickupSound = u.parseSoundEvent(data, base, path, {"pickupSound"})
-    self.pickupName = u.parseStringOpt(data, base, path, {"pickupName"})
+    self.pickupName = u.parseExprStringOpt(data, base, path, {"pickupName"})
     self.pickupFont = u.parseFontOpt(data, base, path, {"pickupFont"})
 
     ---@type CollectibleEffectConfig[]

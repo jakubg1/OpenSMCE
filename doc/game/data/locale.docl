@@ -1,0 +1,3 @@
+- (object) - The root object.
+    - keys (object) <<^.*$>> - A map from string keys to their translations.
+        - (string) - The string that will be displayed in-game.

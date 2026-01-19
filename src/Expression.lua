@@ -221,6 +221,24 @@ local OPERATOR_FUNCTIONS = {
 		local a = table.remove(stack)
 		table.insert(stack, _Utils.formatNumber(a))
 	end,
+	["tr"] = function(stack)
+		-- Translates a string based on its key.
+		local a = table.remove(stack)
+		table.insert(stack, _Game.configManager:translate(a))
+	end,
+	["tr1"] = function(stack)
+		-- Translates a string based on its key and one parameter.
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, _Game.configManager:translate(a, b))
+	end,
+	["tr2"] = function(stack)
+		-- Translates a string based on its key and two parameters.
+		local c = table.remove(stack)
+		local b = table.remove(stack)
+		local a = table.remove(stack)
+		table.insert(stack, _Game.configManager:translate(a, b, c))
+	end,
 	["get"] = function(stack)
 		-- Get a value of a variable.
 		local a = table.remove(stack)
