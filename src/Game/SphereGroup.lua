@@ -1,6 +1,5 @@
 local class = require "com.class"
 local Vec2 = require("src.Essentials.Vector2")
-local Color = require("src.Essentials.Color")
 local Sphere = require("src.Game.Sphere")
 
 ---Represents a Sphere Group, which is a single group of spheres connected to each other. Handles all sphere movement on the track.
@@ -38,8 +37,8 @@ function SphereGroup:new(sphereChain, data)
 	self.delQueue = false
 end
 
-
-
+---Updates the Sphere Group.
+---@param dt number Time delta in seconds.
 function SphereGroup:update(dt)
 	-- Empty sphere groups are not updated.
 	if #self.spheres == 0 then
@@ -141,7 +140,7 @@ function SphereGroup:update(dt)
 	end
 
 	-- stop spheres when away from board and rolling back
-	if self.speed < 0 and self:getFrontPos() < 0 then
+	if self.speed < 0 and self:getFrontOffset() < 0 then
 		self.speed = 0
 		self.speedTime = nil
 	end
@@ -191,8 +190,6 @@ function SphereGroup:update(dt)
 	end
 end
 
-
-
 ---Generates a Sphere at the back of this Sphere Group without any animation.
 ---@param color integer The sphere color.
 ---@param chainLevel integer? If set, the sphere will have that many chain layers on it.
@@ -206,8 +203,6 @@ end
 function SphereGroup:pushSphereFront(color, chainLevel)
 	self:addSphere(color, nil, nil, nil, #self.spheres + 1, nil, nil, nil, nil, chainLevel)
 end
-
-
 
 ---Adds a new sphere to this group.
 ---@param color integer The color of a sphere to be inserted.
@@ -258,8 +253,10 @@ function SphereGroup:addSphere(color, pos, time, sphereEntity, position, effects
 	end
 end
 
-
-
+---Returns the position at which a new sphere should be added.
+---Used to make sure no spheres can be added behind scarabs.
+---@param position integer The desired position of the added sphere.
+---@return integer
 function SphereGroup:getAddSpherePos(position)
 	-- we can't add spheres behind the vise
 	if not self.prevGroup and position == 1 and not self.config.noScarabs then
@@ -268,8 +265,10 @@ function SphereGroup:getAddSpherePos(position)
 	return position
 end
 
-
-
+---Destroys the sphere at the given position.
+---If the given sphere is in the middle of this group, it will be split.
+---@param position integer The index of the sphere to be destroyed.
+---@param crushed boolean? If specified, the targeted sphere will be destroyed as crushed. This is used for when a scarab is destroyed in a train merge event.
 function SphereGroup:destroySphere(position, crushed)
 	-- no need to divide if it's the first or last sphere in this group
 	if position == 1 then
@@ -294,20 +293,20 @@ function SphereGroup:destroySphere(position, crushed)
 	self:checkDeletion()
 end
 
-
-
+---Visually destroys the sphere at the given position. Physically, the sphere is still going to exist in the group.
+---@param position integer The index of the sphere to be destroyed.
+---@param ghostTime number? If specified, the sphere will be physically removed after this time in seconds.
+---@param crushed boolean? If specified, the targeted sphere will be destroyed as crushed. This is used for when a scarab is destroyed in a train merge event.
 function SphereGroup:destroySphereVisually(position, ghostTime, crushed)
 	self.spheres[position]:deleteVisually(ghostTime, crushed)
 end
 
-
-
+---Destroys a section of spheres from this Sphere Group.
+---If the specified selection is in the middle of this Group, it will be split.
+---@param position1 integer The index of the first sphere to be destroyed, inclusive.
+---@param position2 integer The index of the last sphere to be destroyed, inclusive.
 function SphereGroup:destroySpheres(position1, position2)
-	-- to avoid more calculation than is needed
-	-- example:
-	-- before:     oooo[ooo]ooooooo  (p1 = 5, p2 = 7) !BOTH INCLUSIVE!
-	-- after:      oooo     ooooooo   gap length: 3
-
+	assert(position1 <= position2, string.format("Illegal sphere range to be destroyed: from %s to %s", position1, position2))
 	-- check if it's on the beginning or on the end of the group
 	if position1 == 1 then
 		-- Shift the group offset to the next sphere. It might not exist.
@@ -315,7 +314,7 @@ function SphereGroup:destroySpheres(position1, position2)
 		if self.spheres[position2 + 1] then
 			self.offset = self.offset + self.spheres[position2 + 1].config.size / 2
 		end
-		for i = 1, position2 do
+		for i = position1, position2 do
 			self.spheres[1]:delete()
 			table.remove(self.spheres, 1)
 		end
@@ -338,16 +337,15 @@ function SphereGroup:destroySpheres(position1, position2)
 	self:checkDeletion()
 end
 
-
-
+---If this is an unfinished group, this means we're removing spheres at the spawn point.
+---Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
+---and flag that one as the new unfinished group.
+---
+---This function checks whether a sphere group has been completely gotten rid of spheres and spawns a new group if necessary.
 function SphereGroup:checkUnfinishedDestructionAtSpawn()
-	-- If this is an unfinished group, this means we're removing spheres at the spawn point.
-	-- Thus, in order to avoid bugs, we need to create a new sphere group behind this one at the path origin point
-	-- and flag that one as the new unfinished group.
-
 	-- Spawn that sphere group only when there are no spheres behind the spawn point. Either in this, or the next sphere group.
-	local noSpheresHere = #self.spheres == 0 or self:getBackPos() > 0
-	local noSpheresNext = not self.nextGroup or self.nextGroup:getBackPos() > 0
+	local noSpheresHere = #self.spheres == 0 or self:getBackOffset() > 0
+	local noSpheresNext = not self.nextGroup or self.nextGroup:getBackOffset() > 0
 	if self:isUnfinished() and noSpheresHere and noSpheresNext then
 		local newGroup = SphereGroup(self.sphereChain, nil)
 		-- Update group links.
@@ -362,16 +360,14 @@ function SphereGroup:checkUnfinishedDestructionAtSpawn()
 	end
 end
 
-
-
+---Updates offsets of all Spheres in this group.
 function SphereGroup:updateSphereOffsets()
 	for i, sphere in ipairs(self.spheres) do
 		sphere:updateOffset()
 	end
 end
 
-
-
+---Checks whether this group should trigger Distance Events which are defined in `gameplay.json`, and triggers them.
 function SphereGroup:updateDistanceEvents()
 	-- Abort if no Distance Events are defined.
 	if not self.config.distanceEvents then
@@ -379,25 +375,25 @@ function SphereGroup:updateDistanceEvents()
 	end
 	-- Go through Distance Events.
 	for i, event in ipairs(self.config.distanceEvents) do
-		local refDistance = event.reference == "front" and self:getFrontPos() or self:getBackPos()
+		local refDistance = event.reference == "front" and self:getFrontOffset() or self:getBackOffset()
 		local distance = self.sphereChain.path.length * event.distance
 		local rolledPast = refDistance > distance
 		if not self.distanceEventStates[i] then
 			self.distanceEventStates[i] = {rolledPast = rolledPast}
 		else
 			if event.forwards and rolledPast and not self.distanceEventStates[i].rolledPast then
-				_Game:executeGameEvent(_Res:getGameEventConfig(event.event))
+				_Game:executeGameEvent(event.event)
 			end
 			if event.backwards and not rolledPast and self.distanceEventStates[i].rolledPast then
-				_Game:executeGameEvent(_Res:getGameEventConfig(event.event))
+				_Game:executeGameEvent(event.event)
 			end
 			self.distanceEventStates[i].rolledPast = rolledPast
 		end
 	end
 end
 
-
-
+---Checks whether this Sphere Group, and by proxy its host Sphere Chain, should be destroyed.
+---This happens when the group is empty or only contains the scarab and there are no other sphere groups in this Chain.
 function SphereGroup:checkDeletion()
 	-- abort if this group is unfinished
 	if self:isUnfinished() then
@@ -415,6 +411,7 @@ function SphereGroup:checkDeletion()
 	end
 
 	-- if there's only a vise in this chain, or this chain is completely empty, the whole chain gets yeeted!
+	-- TODO: Move this logic to SphereChain.lua
 	if not self.prevGroup and not self.nextGroup then
 		if #self.spheres == 0 then
 			self.sphereChain:delete(false)
@@ -427,19 +424,38 @@ function SphereGroup:checkDeletion()
 	end
 end
 
+---Returns `true` if this Sphere Group is in state which causes the level to be lost.
+---@private
+---@return boolean
+function SphereGroup:shouldCauseLevelLoss()
+	if self:getLastSphereOffset() < self.sphereChain.path.length then
+		return false
+	end
+	if self:isMagnetizing() then
+		return false
+	end
+	if self:hasShotSpheres() then
+		return false
+	end
+	if self:hasLossProtectedSpheres() then
+		return false
+	end
+	if self:hasGhostSpheres() then
+		return false
+	end
+	if self.map.isDummy then
+		return false
+	end
+	return true
+end
 
-
+---Moves this Sphere Group by a certain distance.
+---@param offset number Distance to move this Group in pixels.
 function SphereGroup:move(offset)
 	self.offset = self.offset + offset
 	self:updateSphereOffsets()
 	-- If reached the end of the level, it's over.
-	if self:getLastSphereOffset() >= self.sphereChain.path.length and
-		not self:isMagnetizing() and
-		not self:hasShotSpheres() and
-		not self:hasLossProtectedSpheres() and
-		not self:hasGhostSpheres() and
-		not self.map.isDummy
-	then
+	if self:shouldCauseLevelLoss() then
 		self.map.level:lose()
 	end
 	-- Update Distance Events.
@@ -452,21 +468,19 @@ function SphereGroup:move(offset)
 	end
 	-- Check collisions.
 	if offset <= 0 then
-		-- if it's gonna crash into the previous group, move only what is needed
+		-- if it's going to crash into the previous group, move only what is needed
 		-- join the previous group if this group starts to overlap the previous one
-		if self.prevGroup and #self.prevGroup.spheres > 0 and self:getBackPos() - self.prevGroup:getFrontPos() < 0 then
+		if self.prevGroup and #self.prevGroup.spheres > 0 and self:getBackOffset() - self.prevGroup:getFrontOffset() < 0 then
 			self:join()
 		end
 	end
 	-- check the other direction too
 	if offset > 0 then
-		if self.nextGroup and self.nextGroup:getBackPos() - self:getFrontPos() < 0 then
+		if self.nextGroup and self.nextGroup:getBackOffset() - self:getFrontOffset() < 0 then
 			self.nextGroup:join()
 		end
 	end
 end
-
-
 
 ---Joins this Sphere Group with the previous Sphere Group, if it exists.
 ---During the process, this Sphere Group is destroyed.
@@ -513,8 +527,8 @@ function SphereGroup:join()
 	self.config.joinSound:play(x, y)
 end
 
-
-
+---Divides this Sphere Group into two Sphere Groups.
+---@param position integer The index of the sphere. The split will happen between that and the next sphere.
 function SphereGroup:divide(position)
 	-- example:
 	-- group: ooooooo
@@ -547,11 +561,12 @@ function SphereGroup:divide(position)
 	self.nextGroup = newGroup
 
 	-- add to the master
+	-- TODO: Move this logic to SphereChain.lua...?
 	table.insert(self.sphereChain.sphereGroups, assert(self.sphereChain:getSphereGroupID(self)), newGroup)
 end
 
-
-
+---Destroys this Sphere Group.
+---This function **does not** destroy spheres contained in this Group. Use `:destroy()` for that purpose instead.
 function SphereGroup:delete()
 	if self.delQueue then
 		return
@@ -566,10 +581,9 @@ function SphereGroup:delete()
 	if self.nextGroup then
 		self.nextGroup.prevGroup = self.prevGroup
 	end
+	-- TODO: Move this logic to SphereChain.lua
 	table.remove(self.sphereChain.sphereGroups, self.sphereChain:getSphereGroupID(self))
 end
-
-
 
 ---Checks this Sphere Group for spheres with a Sphere Effect which is configured as `fragile`, and if so, destroys them.
 ---@param startFrom integer? If set, checks only spheres starting with the provided index and to the front of the group.
@@ -587,16 +601,12 @@ function SphereGroup:destroyFragileSpheres(startFrom)
 	end
 end
 
-
-
--- Unloads this group.
+---Destroys all spheres contained in this Sphere Group.
 function SphereGroup:destroy()
 	for i, sphere in ipairs(self.spheres) do
 		sphere:destroy()
 	end
 end
-
-
 
 ---Returns `true` if the sphere at the given position matches at least one of its neighbors by color.
 ---@param position integer The sphere index in this sphere group.
@@ -609,8 +619,6 @@ function SphereGroup:shouldFit(position)
 	or false
 end
 
-
-
 ---Returns `true` if the sphere at the given position in this group will match - the streak combo should not be reset and the sphere should be marked as streak-boosting.
 ---@param position integer The sphere index in this sphere group.
 ---@return boolean
@@ -618,8 +626,9 @@ function SphereGroup:shouldBoostStreak(position)
 	return self:getMatchLengthInChain(position) >= 3
 end
 
-
-
+---Returns `true` if the sphere at the given position can now perform a match.
+---@param position integer The sphere index in this sphere group.
+---@return boolean
 function SphereGroup:shouldMatch(position)
 	local position1, position2 = self:getMatchBounds(position)
 	-- if not enough spheres
@@ -640,8 +649,6 @@ function SphereGroup:shouldMatch(position)
 	-- all checks passed?
 	return true
 end
-
-
 
 ---Checks for a match at the given position and, if all requirements are satisfied, applies a `match` Sphere Effect from the Level Config file to all involved spheres.
 ---@param position integer The sphere index in this sphere group which should be checked.
@@ -676,11 +683,11 @@ function SphereGroup:matchAndDelete(position)
 	end
 end
 
-
-
--- Similar to the one above, because it also grants score and destroys spheres collectively, however the bounds are based on an effect.
+---Destroys a group of spheres with the given effect at the given position.
+---@param position integer The sphere index in this group that will be the origin ("cause") sphere.
+---@param effectConfig SphereEffectConfig The sphere effect config which the sphere at the given position MUST have, otherwise this function will throw an error.
 function SphereGroup:matchAndDeleteEffect(position, effectConfig)
-	local effectGroupID = self.spheres[position]:getEffectGroupID(effectConfig)
+	local effectGroupID = assert(self.spheres[position]:getEffectGroupID(effectConfig), string.format("Assertion failed: no effect %s found on sphere %s!", effectConfig._path, position))
 
 	-- Prepare a list of spheres to be destroyed.
 	local spheres = {}
@@ -816,16 +823,13 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	_Vars:unset("match")
 end
 
-
-
--- Only removes the already destroyed spheres which have been ghosts.
+---Removes a substring of ghost spheres at the given position.
+---@param position integer The sphere index in this group.
 function SphereGroup:deleteGhost(position)
 	-- Prepare a list of spheres to be destroyed.
 	local position1, position2 = self:getGhostBounds(position)
 	self:destroySpheres(position1, position2)
 end
-
-
 
 ---Returns whether this Sphere Group should be attracted to the previous Sphere Group, if it exists.
 ---@return boolean
@@ -860,8 +864,6 @@ function SphereGroup:isMagnetizing()
 
 	return byColor or byScarab
 end
-
-
 
 ---Increments the cascade combo value of either this group's Sphere Train or Path, depending on the behavior.
 ---Also, updates the cascade combo record for this level if appropriate.
@@ -903,8 +905,6 @@ function SphereGroup:addToCascadeScore(score)
 	end
 end
 
-
-
 ---Increments the streak combo value for this group's level.
 ---Also, updates the streak combo record for this level if appropriate.
 function SphereGroup:incrementStreak()
@@ -918,8 +918,6 @@ function SphereGroup:getStreak()
 	return self.map.level.streak
 end
 
-
-
 ---Draws the Sphere Group on the screen.
 function SphereGroup:draw()
 	--love.graphics.print(self:getDebugText2(), 10, 10 * #self.spheres)
@@ -931,14 +929,15 @@ function SphereGroup:draw()
 	end
 end
 
+---Draws debug information of this Sphere Group: front and back position indicators, and where the group offset points to.
 function SphereGroup:drawDebug()
 	if #self.spheres == 0 then
 		return
 	end
-	local x, y = self.sphereChain.path:getPos(self:getFrontPos())
+	local x, y = self.sphereChain.path:getPos(self:getFrontOffset())
 	love.graphics.setColor(0.5, 1, 0)
 	love.graphics.circle("fill", x, y, 6)
-	local x, y = self.sphereChain.path:getPos(self:getBackPos())
+	local x, y = self.sphereChain.path:getPos(self:getBackOffset())
 	love.graphics.setColor(1, 0.5, 0)
 	love.graphics.circle("fill", x, y, 6)
 	local x, y = self.sphereChain.path:getPos(self.offset)
@@ -946,38 +945,9 @@ function SphereGroup:drawDebug()
 	love.graphics.circle("fill", x, y, 4)
 end
 
-
-
-function SphereGroup:getMatchPositions(position)
-	local positions = {position}
-	local color = self.spheres[position].color
-	-- seek backwards
-	local seekPosition = position
-	while true do
-		seekPosition = seekPosition - 1
-		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[seekPosition] or not self.map.level:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition + 1].color) then
-			break
-		end
-		--if not self.spheres[seekPosition]:isReadyForMatching() then return {position} end -- combinations with not spawned yet balls are forbidden
-		table.insert(positions, seekPosition)
-	end
-	-- seek forwards
-	local seekPosition = position
-	while true do
-		seekPosition = seekPosition + 1
-		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[seekPosition] or not self.map.level:colorsMatch(self.spheres[seekPosition].color, self.spheres[seekPosition - 1].color) then
-			break
-		end
-		--if not self.spheres[seekPosition]:isReadyForMatching() then return {position} end -- combinations with not spawned yet balls are forbidden
-		table.insert(positions, seekPosition)
-	end
-	return positions
-end
-
-
-
+---Returns the first and last sphere index from this group, representing a continuous chunk of spheres, which all match the sphere at the given position.
+---@param position integer The index of the sphere which will be the search origin.
+---@return integer, integer
 function SphereGroup:getMatchBounds(position)
 	local position1 = position
 	local position2 = position
@@ -1000,38 +970,19 @@ function SphereGroup:getMatchBounds(position)
 	return position1 + 1, position2 - 1
 end
 
-
-
+---Similar to `:getMatchBounds()`, but instead of returning the first and last sphere index of the given substring, returns the amount of spheres contained in the found substring.
+---@param position integer The starting sphere index in this group to be considered.
+---@return integer
 function SphereGroup:getMatchLength(position)
-	local position1 = position
-	local position2 = position
-	-- seek backwards
-	while true do
-		position1 = position1 - 1
-		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position1] or not self.map.level:colorsMatch(self.spheres[position1].color, self.spheres[position1 + 1].color) then
-			break
-		end
-	end
-	-- seek forwards
-	while true do
-		position2 = position2 + 1
-		-- end if no more spheres or found an unmatched sphere
-		if not self.spheres[position2] or not self.map.level:colorsMatch(self.spheres[position2].color, self.spheres[position2 - 1].color) then
-			break
-		end
-	end
-	return position2 - position1 - 1
+	local position1, position2 = self:getMatchBounds(position)
+	return position2 - position1 + 1
 end
 
-
-
----Returns the sphere indices from this group, representing a continuous chunk of spheres, which all have the provided Sphere Effect.
+---Returns the first and last sphere index from this group, representing a continuous chunk of spheres, which all have the provided Sphere Effect.
 ---@param position integer The index of the sphere which will be the search origin.
 ---@param effectConfig SphereEffectConfig The config of the Sphere Effect which will be searched for.
 ---@param effectGroupID integer? If given, the continuous chunk of spheres will be guaranteed to have this particular effect group ID.
----@return integer
----@return integer
+---@return integer, integer
 function SphereGroup:getEffectBounds(position, effectConfig, effectGroupID)
 	local position1 = position
 	local position2 = position
@@ -1054,8 +1005,9 @@ function SphereGroup:getEffectBounds(position, effectConfig, effectGroupID)
 	return position1 + 1, position2 - 1
 end
 
-
-
+---Returns the first and last sphere index from this group, representing a continuous chunk of spheres, which all are ghosts (have been visually deleted).
+---@param position integer The index of the sphere which will be the search origin.
+---@return integer, integer
 function SphereGroup:getGhostBounds(position)
 	local position1 = position
 	local position2 = position
@@ -1078,8 +1030,9 @@ function SphereGroup:getGhostBounds(position)
 	return position1 + 1, position2 - 1
 end
 
-
-
+---Returns the total length of a potential match at the given sphere, including neighboring sphere groups in this sphere chain.
+---@param position integer The index of the sphere which will be the search origin.
+---@return integer
 function SphereGroup:getMatchLengthInChain(position)
 	-- special seek for a shouldBoostStreak function
 	local position1 = position
@@ -1103,8 +1056,10 @@ function SphereGroup:getMatchLengthInChain(position)
 	return position2 - position1 - 1
 end
 
-
-
+---Returns the colors next to a potential match at the given sphere, including neighboring sphere groups in this sphere chain.
+---If at either end there is no extra sphere after or before the found match, `nil` is returned in place of the color.
+---@param position integer The index of the sphere which will be the search origin.
+---@return integer?, integer?
 function SphereGroup:getMatchBoundColorsInChain(position)
 	-- special seek for a lightning storm search algorithm
 	local position1 = position
@@ -1128,20 +1083,23 @@ function SphereGroup:getMatchBoundColorsInChain(position)
 	return self:getSphereInChain(position1) and self:getSphereInChain(position1).color, self:getSphereInChain(position2) and self:getSphereInChain(position2).color
 end
 
-
-
+---Returns the first Sphere in this Group (the backmost one, sometimes it's the scarab).
+---Returns `nil` if this Sphere Group is empty.
+---@return Sphere?
 function SphereGroup:getFirstSphere()
 	return self.spheres[1]
 end
 
-
-
+---Returns the last Sphere in this Group (the frontmost one).
+---Returns `nil` if this Sphere Group is empty.
+---@return Sphere?
 function SphereGroup:getLastSphere()
 	return self.spheres[#self.spheres]
 end
 
-
-
+---Returns the first (backmost) Sphere in this Group, ignoring Spheres which have not been fully appended to this group yet.
+---Returns `nil` if none of the spheres match this condition.
+---@return Sphere?
 function SphereGroup:getFirstMatureSphere()
 	for i = 1, #self.spheres do
 		if self.spheres[i].appendSize == 1 then
@@ -1150,8 +1108,9 @@ function SphereGroup:getFirstMatureSphere()
 	end
 end
 
-
-
+---Returns the last (frontmost) Sphere in this Group, ignoring Spheres which have not been fully appended to this group yet.
+---Returns `nil` if none of the spheres match this condition.
+---@return Sphere?
 function SphereGroup:getLastMatureSphere()
 	for i = #self.spheres, 1, -1 do
 		if self.spheres[i].appendSize == 1 then
@@ -1160,38 +1119,63 @@ function SphereGroup:getLastMatureSphere()
 	end
 end
 
-
-
-function SphereGroup:getSphereOffset(sphereID)
-	return self.offset + self.spheres[sphereID].offset
+---Returns the path offset at which the specified sphere is at, in pixels.
+---@param position integer The sphere index in this sphere group.
+---@return number
+function SphereGroup:getSphereOffset(position)
+	return self.offset + self.spheres[position].offset
 end
 
-
-
-function SphereGroup:getSphereSize(sphereID)
-	return self.spheres[sphereID]:getSize()
+---Returns the size of the sphere at which the specified sphere is at, in pixels.
+---@param position integer The sphere index in this sphere group.
+---@return number
+function SphereGroup:getSphereSize(position)
+	return self.spheres[position]:getSize()
 end
 
+---Returns the onscreen position at which the specified sphere is at.
+---@param position integer The sphere index in this sphere group.
+---@return Vector2
+function SphereGroup:getSpherePos(position)
+	return Vec2(self.sphereChain.path:getPos(self:getSphereOffset(position)))
+end
 
+---Returns the angle of the specified sphere.
+---@param position integer The sphere index in this sphere group.
+---@return number
+function SphereGroup:getSphereAngle(position)
+	return self.sphereChain.path:getAngle(self:getSphereOffset(position))
+end
 
+---Returns whether the specified sphere is hidden.
+---@param position integer The sphere index in this sphere group.
+---@return boolean
+function SphereGroup:getSphereHidden(position)
+	return self.sphereChain.path:getHidden(self:getSphereOffset(position))
+end
+
+---Returns the index of the provided Sphere in this Sphere Group.
+---Returns `nil` if the provided Sphere is not in this group.
+---@param sphere Sphere The sphere to be looked for.
+---@return integer?
 function SphereGroup:getSphereID(sphere)
 	return _Utils.iTableGetValueIndex(self.spheres, sphere)
 end
 
-
-
+---Returns the path offset at which the last (frontmost) sphere is at, in pixels.
+---@return number
 function SphereGroup:getLastSphereOffset()
 	return self:getSphereOffset(#self.spheres)
 end
 
-
-
+---Returns the size of the last (frontmost) sphere, in pixels.
+---@return number
 function SphereGroup:getLastSphereSize()
 	return self:getSphereSize(#self.spheres)
 end
 
-
-
+---Returns the last Sphere Group in this group's Sphere Chain.
+---@return SphereGroup
 function SphereGroup:getLastGroup()
 	local group = self
 	while group.nextGroup do
@@ -1200,8 +1184,8 @@ function SphereGroup:getLastGroup()
 	return group
 end
 
-
-
+---Returns the last Sphere Group in the backmost Sphere Chain, if this Group is a part of a daisy-chained Sphere Chain.
+---@return SphereGroup
 function SphereGroup:getLastChainedGroup()
 	local group = self
 	while not group.nextGroup and group.sphereChain:isPushingFrontTrain() do
@@ -1210,73 +1194,50 @@ function SphereGroup:getLastChainedGroup()
 	return group
 end
 
-
-
-function SphereGroup:getSpherePos(sphereID)
-	return Vec2(self.sphereChain.path:getPos(self:getSphereOffset(sphereID)))
-end
-
-
-
-function SphereGroup:getSphereAngle(sphereID)
-	return self.sphereChain.path:getAngle(self:getSphereOffset(sphereID))
-end
-
-
-
-function SphereGroup:getSphereHidden(sphereID)
-	return self.sphereChain.path:getHidden(self:getSphereOffset(sphereID))
-end
-
-
-
-function SphereGroup:getSphereColor(sphereID)
-	local brightness = self.sphereChain.path:getBrightness(self:getSphereOffset(sphereID))
-	return Color(brightness)
-end
-
-
-
+---Returns the position of the last sphere in this group.
+---@return Vector2
 function SphereGroup:getLastSpherePos()
 	return self:getSpherePos(#self.spheres)
 end
 
-
-
-function SphereGroup:getFrontPos()
+---Returns the offset of the head of this Sphere Group on its path, in pixels.
+---@return number
+function SphereGroup:getFrontOffset()
 	return self:getLastSphereOffset() + self:getLastSphereSize() / 2
 end
 
-
-
-function SphereGroup:getBackPos()
+---Returns the offset of the tail of this Sphere Group on its path, in pixels.
+---@return number
+function SphereGroup:getBackOffset()
 	return self:getSphereOffset(1) - self:getSphereSize(1) + self.spheres[1].config.size / 2
 end
 
-
-
-function SphereGroup:getSphereInChain(sphereID)
+---Returns the sphere based on the given index.
+---If an out-of-bounds index has been provided, a respective sphere from within the chain will be attempted to be returned.
+---@param position integer The sphere index in this sphere group.
+---@return Sphere?
+function SphereGroup:getSphereInChain(position)
 	-- values out of bounds are possible, it will seek in neighboring spheres then
-	if sphereID < 1 then
+	if position < 1 then
 		-- previous group
 		if not self.prevGroup or self.prevGroup.delQueue then
 			return nil
 		end
-		return self.prevGroup:getSphereInChain(sphereID + #self.prevGroup.spheres)
-	elseif sphereID > #self.spheres then
+		return self.prevGroup:getSphereInChain(position + #self.prevGroup.spheres)
+	elseif position > #self.spheres then
 		-- next group
 		if not self.nextGroup or self.nextGroup.delQueue then
 			return nil
 		end
-		return self.nextGroup:getSphereInChain(sphereID - #self.spheres)
+		return self.nextGroup:getSphereInChain(position - #self.spheres)
 	else
 		-- this group
-		return self.spheres[sphereID]
+		return self.spheres[position]
 	end
 end
 
-
-
+---Returns `true` if this Sphere Group contains at least one sphere which is not yet ready for matching.
+---@return boolean
 function SphereGroup:hasShotSpheres()
 	for i, sphere in ipairs(self.spheres) do
 		if not sphere:isReadyForMatching() then
@@ -1286,8 +1247,8 @@ function SphereGroup:hasShotSpheres()
 	return false
 end
 
-
-
+---Returns `true` if this Sphere Group contains at least one sphere which is marked as loss-protected, `false` otherwise.
+---@return boolean
 function SphereGroup:hasLossProtectedSpheres()
 	for i, sphere in ipairs(self.spheres) do
 		if sphere:hasLossProtection() then
@@ -1297,8 +1258,8 @@ function SphereGroup:hasLossProtectedSpheres()
 	return false
 end
 
-
-
+---Returns `true` if this Sphere Group contains at least one immobile sphere, `false` otherwise.
+---@return boolean
 function SphereGroup:hasImmobileSpheres()
 	for i, sphere in ipairs(self.spheres) do
 		if sphere:isImmobile() then
@@ -1308,8 +1269,8 @@ function SphereGroup:hasImmobileSpheres()
 	return false
 end
 
-
-
+---Returns `true` if this Sphere Group contains at least one fragile sphere, `false` otherwise.
+---@return boolean
 function SphereGroup:hasFragileSpheres()
 	for i, sphere in ipairs(self.spheres) do
 		if sphere:isFragile() then
@@ -1319,8 +1280,8 @@ function SphereGroup:hasFragileSpheres()
 	return false
 end
 
-
-
+---Returns `true` if this Sphere Group contains at least one sphere that can keep the cascade combo, `false` otherwise.
+---@return boolean
 function SphereGroup:hasKeepCascadeSpheres()
 	for i, sphere in ipairs(self.spheres) do
 		if sphere:canKeepCascade() then
@@ -1330,8 +1291,8 @@ function SphereGroup:hasKeepCascadeSpheres()
 	return false
 end
 
-
-
+---Returns `true` if this Sphere Group contains at least one ghost sphere, `false` otherwise.
+---@return boolean
 function SphereGroup:hasGhostSpheres()
 	for i, sphere in ipairs(self.spheres) do
 		if sphere:isGhost() then
@@ -1341,17 +1302,14 @@ function SphereGroup:hasGhostSpheres()
 	return false
 end
 
-
-
+---Returns whether this Sphere Group can still generate more spheres.
+---@return boolean
 function SphereGroup:isUnfinished()
 	return self.sphereChain.generationAllowed and not self.prevGroup
 end
 
-
-
-
-
--- For example: [1234567]
+---Returns a string which contains the sphere colors in this Sphere Group in order, for example `[1234567]`.
+---@return string
 function SphereGroup:getDebugText()
 	local text = ""
 	text = text .. "["
@@ -1362,17 +1320,17 @@ function SphereGroup:getDebugText()
 	return text
 end
 
-
-
--- For example:
--- xxx -> 1 -> 2
--- 1 -> 2 -> 3
--- 2 -> 3 -> 4
--- 3 -> 4 -> 5
--- 4 -> 5 -> 6
--- 5 -> 6 -> 7
--- 6 -> 7 -> xxx
+---Returns a string which contains some debug data of this Sphere Group.
+---@return string
 function SphereGroup:getDebugText2()
+	-- For example:
+	-- xxx -> 1 -> 2
+	-- 1 -> 2 -> 3
+	-- 2 -> 3 -> 4
+	-- 3 -> 4 -> 5
+	-- 4 -> 5 -> 6
+	-- 5 -> 6 -> 7
+	-- 6 -> 7 -> xxx
 	local text = ""
 	for i, sphere in ipairs(self.spheres) do
 		if sphere.prevSphere then
@@ -1391,10 +1349,8 @@ function SphereGroup:getDebugText2()
 	return text
 end
 
-
-
-
-
+---Returns the indices of this Sphere Group which identify this Group at this very frame.
+---@return {groupID: integer, chainID: integer, pathID: integer}
 function SphereGroup:getIDs()
 	local g = self
 	local c = g.sphereChain
@@ -1412,8 +1368,8 @@ function SphereGroup:getIDs()
 	}
 end
 
-
-
+---Returns data of this Sphere Group that can be saved in a JSON file and later reloaded using `:deserialize()`.
+---@return table
 function SphereGroup:serialize()
 	local t = {
 		offset = self.offset,
@@ -1429,8 +1385,8 @@ function SphereGroup:serialize()
 	return t
 end
 
-
-
+---Deserializes this Sphere Group and sets its state based on data gathered in `:serialize()`.
+---@param t table The save data to be loaded.
 function SphereGroup:deserialize(t)
 	self.offset = t.offset
 	self.speed = t.speed
@@ -1451,7 +1407,5 @@ function SphereGroup:deserialize(t)
 	self.distanceEventStates = t.distanceEventStates
 	self:updateSphereOffsets()
 end
-
-
 
 return SphereGroup

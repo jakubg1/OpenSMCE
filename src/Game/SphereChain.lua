@@ -214,7 +214,7 @@ function SphereChain:update(dt)
 		local prevChain = self:getPreviousChain()
 		if prevChain and not prevChain.delQueue then
 			-- Check whether this sphere chain collides with a front one.
-			local dist = prevChain:getLastSphereGroup():getBackPos() - self:getFirstSphereGroup():getFrontPos()
+			local dist = prevChain:getLastSphereGroup():getBackOffset() - self:getFirstSphereGroup():getFrontOffset()
 			if dist < 0 then
 				-- If so, either destroy the scarab or move the frontmost chain (or slow down the one behind it).
 				if self.config.invincibleScarabs then
@@ -303,7 +303,7 @@ function SphereChain:delete(joins)
 	end
 end
 
--- Unloads this chain.
+---Destroys all spheres contained in this Sphere Chain.
 function SphereChain:destroy()
 	for i, sphereGroup in ipairs(self.sphereGroups) do
 		sphereGroup:destroy()
@@ -353,7 +353,7 @@ function SphereChain:isPushingFrontTrain()
 	local prevChain = self:getPreviousChain()
 	if prevChain and not prevChain.delQueue then
 		-- Check whether this sphere chain collides with a front one. If so, return true.
-		return self.sphereGroups[1]:getFrontPos() > prevChain:getLastSphereGroup():getBackPos()
+		return self.sphereGroups[1]:getFrontOffset() > prevChain:getLastSphereGroup():getBackOffset()
 	end
 end
 
@@ -368,6 +368,7 @@ function SphereChain:endCascade()
 	self.cascadeScore = 0
 end
 
+---Joins this Sphere Chain with the previous Sphere Chain. This Sphere Chain is killed.
 function SphereChain:join()
 	-- Joins with the previous group and deletes a vise from this group.
 	local prevChain = self.path.sphereChains[self.path:getSphereChainID(self) + 1]

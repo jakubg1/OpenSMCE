@@ -461,7 +461,7 @@ function Debug:drawSphereInfo()
 						end
 						if sphereGroup.nextGroup then
 							love.graphics.setColor(1, 1, 1)
-							love.graphics.print(tostring(math.floor(sphereGroup.nextGroup:getBackPos() - sphereGroup:getFrontPos())) .. "px", p.x + 150 + m, p.y + 10 + n)
+							love.graphics.print(tostring(math.floor(sphereGroup.nextGroup:getBackOffset() - sphereGroup:getFrontOffset())) .. "px", p.x + 150 + m, p.y + 10 + n)
 						end
 						--if k > 1 and sphereChain.sphereGroups[k - 1] ~= sphereGroup.nextGroup then print("ERROR") end
 						--if k < #sphereChain.sphereGroups and sphereChain.sphereGroups[k + 1] ~= sphereGroup.prevGroup then print("ERROR") end
@@ -469,8 +469,8 @@ function Debug:drawSphereInfo()
 						m = m + 100
 					end
 					if j > 1 then
-						local a = sphereChain:getPreviousChain():getLastSphereGroup():getBackPos()
-						local b = sphereChain:getFirstSphereGroup():getFrontPos()
+						local a = sphereChain:getPreviousChain():getLastSphereGroup():getBackOffset()
+						local b = sphereChain:getFirstSphereGroup():getFrontOffset()
 						love.graphics.setColor(1, 1, 1)
 						love.graphics.print(tostring(math.floor(a - b)) .. "px", p.x + 20, p.y + n)
 					end

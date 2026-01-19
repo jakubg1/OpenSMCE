@@ -116,7 +116,7 @@ function PathEntity:update(dt)
 				break
 			end
 			local sphereGroup = self.path.sphereChains[1].sphereGroups[1]
-			if sphereGroup:getFrontPos() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
+			if sphereGroup:getFrontOffset() + 16 > self.offset and sphereGroup:getLastSphere().color ~= 0 then
 				sphereGroup:destroySphere(#sphereGroup.spheres)
 				if self.config.sphereDestroySound then
 					local x, y = self:getPos()

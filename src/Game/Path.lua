@@ -757,10 +757,10 @@ end
 function Path:getGapSize(offset)
 	for i, sphereChain in ipairs(self.sphereChains) do
 		-- Consider only a sphere chain which has the given offset inside itself.
-		if sphereChain:getFirstSphereGroup():getFrontPos() > offset and sphereChain:getLastSphereGroup():getBackPos() < offset then
+		if sphereChain:getFirstSphereGroup():getFrontOffset() > offset and sphereChain:getLastSphereGroup():getBackOffset() < offset then
 			for j, sphereGroup in ipairs(sphereChain.sphereGroups) do
-				if sphereGroup.nextGroup and sphereGroup.nextGroup:getBackPos() > offset and sphereGroup:getFrontPos() < offset then
-					return sphereGroup.nextGroup:getBackPos() - sphereGroup:getFrontPos(), sphereGroup
+				if sphereGroup.nextGroup and sphereGroup.nextGroup:getBackOffset() > offset and sphereGroup:getFrontOffset() < offset then
+					return sphereGroup.nextGroup:getBackOffset() - sphereGroup:getFrontOffset(), sphereGroup
 				end
 			end
 		end
