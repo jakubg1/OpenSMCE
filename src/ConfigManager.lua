@@ -15,9 +15,7 @@ end
 ---Loads gameplay, highscores, UI layer list and maps.
 function ConfigManager:load()
 	-- Load configuration files.
-	-- TODO: These should be handled by Resource Manager and Config Classes.
 	self.gameplay = _Res:getGameplayConfig("config/gameplay.json")
-	self.highscores = _Utils.loadJson(_ParsePath("config/highscores.json"))
 	self.layers = _Res:getLayersConfig("config/layers.json")
 
 	-- Load map data.

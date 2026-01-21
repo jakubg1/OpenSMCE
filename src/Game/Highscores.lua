@@ -7,7 +7,7 @@ local Highscores = class:derive("Highscores")
 
 ---Constructs a new Highscores object.
 function Highscores:new()
-	self.config = _Game.configManager.highscores
+	self.config = _Res:getHighscoresConfig("config/highscores.json")
 	---@type {name: string, score: integer, level: string}[]
 	self.entries = {}
 
