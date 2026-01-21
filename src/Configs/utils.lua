@@ -48,7 +48,7 @@ local function getDataValue(data, fields)
 	end
 	for i, index in ipairs(fields) do
 		data = data[index]
-		if not data then
+		if data == nil then
 			return nil
 		end
 	end
@@ -107,15 +107,28 @@ end
 
 ---@return boolean
 function utils.parseBoolean(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
+	-- This is a workaround because `false or nil` evaluates to `nil` instead of `false`.
+	local dataValue = getDataValue(data, fields)
+	local value = getDataValue(base, fields)
+	if dataValue ~= nil then
+		value = dataValue
+	end
 	assert(data ~= nil, string.format("field %s is missing (boolean expected)", getFieldPathStr(fields)))
 	return value
 end
 
 ---@return boolean?
 function utils.parseBooleanOpt(data, base, path, fields, default)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value ~= nil and value or default
+	-- This is a workaround because `false or nil` evaluates to `nil` instead of `false`.
+	local dataValue = getDataValue(data, fields)
+	local value = getDataValue(base, fields)
+	if dataValue ~= nil then
+		value = dataValue
+	end
+	if value ~= nil then
+		return value
+	end
+	return default
 end
 
 ---@return string

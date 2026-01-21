@@ -10,6 +10,7 @@
             - offset* = (0, 0) (Vector2) - The offset of this sprite. Defaults to `(0, 0)`.
             - anchor* = (0.5, 0.5) (Vector2) - The anchor point of this sprite. Defaults to `(0.5, 0.5)`.
             - rotate* = true (boolean) - Whether this sprite should rotate based on the path curvature.
+            - resize* = true (boolean) - Whether this sprite's scale should adapt to the sphere's logical size.
             - animationSpeed* (number) [>=0] - If specified, this sprite will animate with that speed in frames per second. This disables the rolling animation.
             - rollingSpeed* (number) [>=0] - When defined, the sphere sprite will roll with that speed in frames per pixel.
             - rollingMultiplier* = 2 (number) [>=0] - Another way to specify `rollingSpeed`. When defined, specifies how many full animation cycles (all frames) will be performed within this sphere's circumference (`size * pi`) in pixels. Defaults to 2.

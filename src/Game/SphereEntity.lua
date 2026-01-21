@@ -153,6 +153,15 @@ function SphereEntity:getAngle(i)
 	return sprite.rotate and self.angle or 0
 end
 
+---Returns the scale with which this Sphere Entity's `i`-th sprite should be currently displayed.
+---@private
+---@param i integer The sprite index.
+---@return number
+function SphereEntity:getScale(i)
+	local sprite = self.config.sprites[i]
+	return sprite.resize and self.config.size / sprite.sprite.config.frameSize.x or 1
+end
+
 ---Returns the layer on which this Sphere Entity's `i`-th sprite should be currently displayed.
 ---@private
 ---@param i integer The sprite index.
@@ -202,7 +211,8 @@ function SphereEntity:draw()
 			_Renderer:setLayer(self:getLayer(i))
 			local x, y = self.x + sprite.offset.x, self.y + sprite.offset.y
 			local ox, oy = sprite.anchor.x, sprite.anchor.y
-			sprite.sprite:draw(x, y, ox, oy, nil, self:getFrame(i), self:getAngle(i), self.colorM, self.alpha, self.scaleX, self.scaleY)
+			local s = self:getScale(i)
+			sprite.sprite:draw(x, y, ox, oy, nil, self:getFrame(i), self:getAngle(i), self.colorM, self.alpha, s * self.scaleX, s * self.scaleY)
 		end
 	end
 end

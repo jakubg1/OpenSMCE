@@ -28,7 +28,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
 
     base = base or {}
 
-    ---@type {sprite: Sprite, layer: string, hiddenLayer: string, shooterLayer: string, shotLayer: string, offset: Vector2, anchor: Vector2, rotate: boolean, animationSpeed: number?, rollingSpeed: number?, rollingMultiplier: number, conditions: Expression[]}[]
+    ---@type {sprite: Sprite, layer: string, hiddenLayer: string, shooterLayer: string, shotLayer: string, offset: Vector2, anchor: Vector2, rotate: boolean, resize: boolean, animationSpeed: number?, rollingSpeed: number?, rollingMultiplier: number, conditions: Expression[]}[]
     self.sprites = {}
     for i = 1, #data.sprites do
         self.sprites[i] = {}
@@ -40,6 +40,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
         self.sprites[i].offset = u.parseVec2Opt(data, base, path, {"sprites", i, "offset"}, Vec2())
         self.sprites[i].anchor = u.parseVec2Opt(data, base, path, {"sprites", i, "anchor"}, Vec2(0.5, 0.5))
         self.sprites[i].rotate = u.parseBooleanOpt(data, base, path, {"sprites", i, "rotate"}, true)
+        self.sprites[i].resize = u.parseBooleanOpt(data, base, path, {"sprites", i, "resize"}, true)
         self.sprites[i].animationSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "animationSpeed"})
         self.sprites[i].rollingSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "rollingSpeed"})
         self.sprites[i].rollingMultiplier = u.parseNumberOpt(data, base, path, {"sprites", i, "rollingMultiplier"}, 2)

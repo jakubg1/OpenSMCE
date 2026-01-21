@@ -687,7 +687,7 @@ function Sphere:draw()
 		pos = self.attachedSphere:getPos() - Vec2(self:getSize() + self.attachedSphere:getSize(), 0):rotate(self.attachedAngle + self.attachedSphere:getAngle())
 	end
 	local angle = self:getAngle()
-	local scale = self:getScale() * self.config.size / 32
+	local scale = self:getScale()
 	local colorM = self:getColor()
 	local roll = self.appendSize == 1 and self:getOffset() or nil
 	local hidden = self:getHidden()
