@@ -697,7 +697,7 @@ function Sphere:draw()
 	self.entity:setAngle(angle)
 	self.entity:setScale(scale)
 	self.entity:setRoll(roll)
-	self.entity:setHidden(hidden)
+	self.entity:setState(hidden and "hidden" or "normal")
 	self.entity:setColorM(colorM)
 
 	self:dumpVariables("sphere")

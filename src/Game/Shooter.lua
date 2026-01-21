@@ -54,6 +54,7 @@ function Shooter:new(data)
     self.moveKeySpeed = 500
     self.rotateKeySpeed = 4
 
+    ---@type SphereEntity[]
     self.sphereEntities = {}
 end
 
@@ -587,6 +588,25 @@ end
 
 ---Drawing callback function.
 function Shooter:draw()
+    -- Reticle
+    if _EngineSettings:getAimingRetical() then
+        self:drawReticle()
+    end
+
+    -- Sphere Entities
+    for i = 1, self:getSphereCount() do
+        local entity = self.sphereEntities[i]
+        if entity then
+            local entityPos = self:getSpherePos(i)
+            entity:setPos(entityPos.x, entityPos.y)
+            entity:setAngle(self.angle)
+            entity:setScale(self:getSphereSize() / 32)
+            entity:setAlpha(self:getSphereAlpha())
+            entity:draw()
+        end
+    end
+
+    -- Shooter body
     local pos = self:getVisualPos()
     _Vars:set("shooter.color", self.color)
     _Vars:set("shooter.nextColor", self.nextColor)
@@ -602,24 +622,6 @@ function Shooter:draw()
         end
     end
     _Vars:unset("shooter")
-
-    -- retical
-    if _EngineSettings:getAimingRetical() then
-        self:drawReticle()
-    end
-
-    -- this color
-    for i = 1, self:getSphereCount() do
-        local entity = self.sphereEntities[i]
-        if entity then
-            local entityPos = self:getSpherePos(i)
-            entity:setPos(entityPos.x, entityPos.y)
-            entity:setAngle(self.angle)
-            entity:setScale(self:getSphereSize() / 32)
-            entity:setAlpha(self:getSphereAlpha())
-            entity:draw()
-        end
-    end
 
 	if _Debug.gameDebugVisible then
 		self:drawDebug()
@@ -752,6 +754,7 @@ function Shooter:spawnSphereEntities()
         else
             local pos = self:getSpherePos(i)
             self.sphereEntities[i] = SphereEntity(pos.x, pos.y, self.color)
+            self.sphereEntities[i]:setState("shooter")
         end
     end
 end

@@ -5,17 +5,22 @@
             - sprite (Sprite) - A sprite to be drawn when the sphere is on the screen.
             - layer* = "GamePieceNormal" (string) - The layer on which this sprite will be drawn.
             - hiddenLayer* = "GamePieceHidden" (string) - The layer on which this sprite will be drawn, if this Sphere is currently on a hidden part of the path.
+            - shooterLayer* = "GameBullet" (string) - The layer on which this sprite will be drawn, if this Sphere is currently in the shooter.
+            - shotLayer* = "GameBullet" (string) - The layer on which this sprite will be drawn, if this Sphere has been shot.
             - offset* = (0, 0) (Vector2) - The offset of this sprite. Defaults to `(0, 0)`.
             - anchor* = (0.5, 0.5) (Vector2) - The anchor point of this sprite. Defaults to `(0.5, 0.5)`.
             - rotate* = true (boolean) - Whether this sprite should rotate based on the path curvature.
             - animationSpeed* (number) [>=0] - If specified, this sprite will animate with that speed in frames per second. This disables the rolling animation.
-            - rollingSpeed* = 0.63662 (number) [>=0] - When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to `0.63662`, which is a close approximation of `2/pi`, to ensure a smooth rolling effect.
+            - rollingSpeed* (number) [>=0] - When defined, the sphere sprite will roll with that speed in frames per pixel.
+            - rollingMultiplier* = 2 (number) [>=0] - Another way to specify `rollingSpeed`. When defined, specifies how many full animation cycles (all frames) will be performed within this sphere's circumference (`size * pi`) in pixels. Defaults to 2.
             - conditions* (array) - If specified, a list of boolean Expressions. If any of them is not passed, this sprite entry will not be displayed on the screen.
                 - ($boolean) - A single condition.
     - size* = 32 (number) [>0] - The diameter of this sphere, in pixels. The sprite will be resized if needed. Defaults to `32`.
     - idleParticle* (ParticleEffect) - A persistent particle packet used when the sphere is on the board.
     - idleParticleLayer* = "GamePieceNormalPsys" (string) - The layer on which the sphere's idle particles will be rendered.
     - idleParticleHiddenLayer* = "GamePieceHiddenPsys" (string) - The layer on which the sphere's idle particles will be rendered, if this Sphere is currently on a hidden part of the path.
+    - idleParticleShooterLayer* = "GameBulletPsys" (string) - The layer on which the sphere's idle particles will be rendered, if this Sphere is currently in the shooter.
+    - idleParticleShotLayer* = "GameBulletPsys" (string) - The layer on which the sphere's idle particles will be rendered, if this Sphere is currently a shot sphere.
     - holdParticle* (ParticleEffect) - A persistent particle packet used whenever the left mouse button is held. Works best with `autofire` enabled.
     - destroyParticle* (ParticleEffect) - A one-time particle packet used when the sphere is destroyed.
     - destroyParticleLayer* = "GameCollapses" (string) - The layer on which the destroy particles will be rendered.

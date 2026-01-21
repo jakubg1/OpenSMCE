@@ -13,10 +13,9 @@ local SphereEntity = class:derive("SphereEntity")
 function SphereEntity:new(x, y, color)
 	self.x, self.y = x, y
 	self.angle = 0
-	self.scaleX = 1
-	self.scaleY = 1
+	self.scaleX, self.scaleY = 1, 1
 	self.roll = nil
-	self.hidden = false
+	self.state = "normal"
 	self.colorM = Color()
 	self.color = color
 	self.alpha = 1
@@ -54,10 +53,10 @@ function SphereEntity:setRoll(roll)
 	self.roll = roll
 end
 
----Sets the hidden state for this Sphere Entity. If set, this Sphere Entity will be rendered on a different layer.
----@param hidden boolean Whether this Sphere Entity should be hidden.
-function SphereEntity:setHidden(hidden)
-	self.hidden = hidden
+---Sets the state for this Sphere Entity. If set, this Sphere Entity will be rendered on a different layer.
+---@param state string The new state for this Sphere Entity.
+function SphereEntity:setState(state)
+	self.state = state
 	if self.particle then
 		self.particle:setLayer(self:getIdleParticleLayer())
 	end
@@ -92,36 +91,13 @@ function SphereEntity:setAlpha(alpha)
 	self.alpha = alpha
 end
 
----Randomizes the frame offsets for the rolling animation, for each sprite separately.
----The result should be stored in the `self.rollOffsets` field.
----@return table
-function SphereEntity:generateSpriteRollOffsets()
-	local offsets = {}
-	for i, sprite in ipairs(self.config.sprites) do
-		local frameCount = sprite.sprite.states[1].frameCount
-		offsets[i] = math.random() * frameCount
-	end
-	return offsets
-end
-
----Returns the config of this Sphere Entity.
----@return table
-function SphereEntity:getConfig()
-	return self.config
-end
-
----Returns the layer on which this Sphere Entity's idle particle should be rendered on.
----@return string
-function SphereEntity:getIdleParticleLayer()
-	return self.hidden and self.config.idleParticleHiddenLayer or self.config.idleParticleLayer
-end
-
 ---Returns a new instance of itself.
 ---@return SphereEntity
 function SphereEntity:copy()
 	local entity = SphereEntity(self.x, self.y, self.color)
 	entity.angle = self.angle
 	entity.scaleX, entity.scaleY = self.scaleX, self.scaleY
+	entity.state = self.state
 	entity.colorM = self.colorM
 	entity.alpha = self.alpha
 	return entity
@@ -142,7 +118,14 @@ function SphereEntity:destroy(spawnParticle)
 	end
 end
 
+---Returns the config of this Sphere Entity.
+---@return table
+function SphereEntity:getConfig()
+	return self.config
+end
+
 ---Returns the currently displayed frame for this Sphere Entity's `i`-th sprite.
+---@private
 ---@param i integer The sprite index.
 ---@return integer
 function SphereEntity:getFrame(i)
@@ -152,12 +135,17 @@ function SphereEntity:getFrame(i)
 	if sprite.animationSpeed then
 		frame = sprite.animationSpeed * _TotalTime
 	elseif self.roll then
-		frame = sprite.rollingSpeed * -self.roll + self.rollOffsets[i]
+		if sprite.rollingSpeed then
+			frame = sprite.rollingSpeed * -self.roll + self.rollOffsets[i]
+		else
+			frame = sprite.rollingMultiplier * -self.roll / (self.config.size * math.pi) * frameCount
+		end
 	end
 	return math.floor(frame) % frameCount
 end
 
----Returns the angle at which this Sphere Entity's `i`-th sprite should be currently displayed 
+---Returns the angle at which this Sphere Entity's `i`-th sprite should be currently displayed.
+---@private
 ---@param i integer The sprite index.
 ---@return number
 function SphereEntity:getAngle(i)
@@ -165,11 +153,53 @@ function SphereEntity:getAngle(i)
 	return sprite.rotate and self.angle or 0
 end
 
+---Returns the layer on which this Sphere Entity's `i`-th sprite should be currently displayed.
+---@private
+---@param i integer The sprite index.
+---@return string
+function SphereEntity:getLayer(i)
+	if self.state == "hidden" then
+		return self.config.sprites[i].hiddenLayer
+	elseif self.state == "shooter" then
+		return self.config.sprites[i].shooterLayer
+	elseif self.state == "shot" then
+		return self.config.sprites[i].shotLayer
+	end
+	return self.config.sprites[i].layer
+end
+
+---Returns the layer on which this Sphere Entity's idle particle should be rendered on.
+---@private
+---@return string
+function SphereEntity:getIdleParticleLayer()
+	if self.state == "hidden" then
+		return self.config.idleParticleHiddenLayer
+	elseif self.state == "shooter" then
+		return self.config.idleParticleShooterLayer
+	elseif self.state == "shot" then
+		return self.config.idleParticleShotLayer
+	end
+	return self.config.idleParticleLayer
+end
+
+---Randomizes the frame offsets for the rolling animation, for each sprite separately.
+---The result should be stored in the `self.rollOffsets` field.
+---@private
+---@return table
+function SphereEntity:generateSpriteRollOffsets()
+	local offsets = {}
+	for i, sprite in ipairs(self.config.sprites) do
+		local frameCount = sprite.sprite.states[1].frameCount
+		offsets[i] = math.random() * frameCount
+	end
+	return offsets
+end
+
 ---Draws this Sphere Entity on the screen.
 function SphereEntity:draw()
 	for i, sprite in ipairs(self.config.sprites) do
 		if _Utils.checkExpressions(sprite.conditions) then
-			_Renderer:setLayer(self.hidden and sprite.hiddenLayer or sprite.layer)
+			_Renderer:setLayer(self:getLayer(i))
 			local x, y = self.x + sprite.offset.x, self.y + sprite.offset.y
 			local ox, oy = sprite.anchor.x, sprite.anchor.y
 			sprite.sprite:draw(x, y, ox, oy, nil, self:getFrame(i), self:getAngle(i), self.colorM, self.alpha, self.scaleX, self.scaleY)

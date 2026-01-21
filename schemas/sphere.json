@@ -23,6 +23,14 @@
                         "type": "string",
                         "description": "The layer on which this sprite will be drawn, if this Sphere is currently on a hidden part of the path."
                     },
+                    "shooterLayer": {
+                        "type": "string",
+                        "description": "The layer on which this sprite will be drawn, if this Sphere is currently in the shooter."
+                    },
+                    "shotLayer": {
+                        "type": "string",
+                        "description": "The layer on which this sprite will be drawn, if this Sphere has been shot."
+                    },
                     "offset": {
                         "$ref": "_structures/Vector2.json",
                         "description": "The offset of this sprite. Defaults to (0, 0).",
@@ -44,8 +52,13 @@
                     },
                     "rollingSpeed": {
                         "type": "number",
-                        "description": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to 0.63662, which is a close approximation of 2/pi, to ensure a smooth rolling effect.",
-                        "markdownDescription": "When defined, the sphere sprite will roll with that speed in frames per pixel. Defaults to `0.63662`, which is a close approximation of `2/pi`, to ensure a smooth rolling effect.",
+                        "description": "When defined, the sphere sprite will roll with that speed in frames per pixel.",
+                        "minimum": 0.0
+                    },
+                    "rollingMultiplier": {
+                        "type": "number",
+                        "description": "Another way to specify rollingSpeed. When defined, specifies how many full animation cycles (all frames) will be performed within this sphere's circumference (size * pi) in pixels. Defaults to 2.",
+                        "markdownDescription": "Another way to specify `rollingSpeed`. When defined, specifies how many full animation cycles (all frames) will be performed within this sphere's circumference (`size * pi`) in pixels. Defaults to 2.",
                         "minimum": 0.0
                     },
                     "conditions": {
@@ -80,6 +93,14 @@
         "idleParticleHiddenLayer": {
             "type": "string",
             "description": "The layer on which the sphere's idle particles will be rendered, if this Sphere is currently on a hidden part of the path."
+        },
+        "idleParticleShooterLayer": {
+            "type": "string",
+            "description": "The layer on which the sphere's idle particles will be rendered, if this Sphere is currently in the shooter."
+        },
+        "idleParticleShotLayer": {
+            "type": "string",
+            "description": "The layer on which the sphere's idle particles will be rendered, if this Sphere is currently a shot sphere."
         },
         "holdParticle": {
             "$ref": "_structures/ParticleEffect.json",

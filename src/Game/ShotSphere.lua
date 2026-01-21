@@ -30,6 +30,7 @@ function ShotSphere:new(data, shooter, posX, posY, angle, size, color, speed, sp
 		self.color = color
 		self.speed = speed
 		self.sphereEntity = sphereEntity
+		self.sphereEntity:setState("shot")
 		self.homingTowards = nil
 		if isHoming then
 			self:pickNewHomingTarget()
@@ -362,6 +363,7 @@ function ShotSphere:deserialize(t)
 		}
 	else
 		self.sphereEntity = SphereEntity(self.x, self.y, self.color)
+		self.sphereEntity:setState("shot")
 		self.sphereEntity:setAngle(self.angle)
 	end
 
