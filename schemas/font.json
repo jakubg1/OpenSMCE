@@ -47,7 +47,7 @@
                             "pattern": "^.$"
                         },
                         "patternProperties": {
-                            "^.*$": {
+                            "^.$": {
                                 "type": "object",
                                 "description": "A single character.",
                                 "properties": {

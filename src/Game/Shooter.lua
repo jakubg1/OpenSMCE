@@ -472,11 +472,11 @@ function Shooter:shoot()
     local sphereConfig = self:getSphereConfig()
     for i = 1, self:getSphereCount() do
         local shotBehavior = sphereConfig.shotBehavior
-        if shotBehavior.type == "normal" then
+        if not shotBehavior or shotBehavior.type == "normal" then
             -- Make sure the sphere alpha is always correct, we could've shot a sphere which has JUST IN THIS FRAME grown up to be shot.
             self.sphereEntities[i]:setAlpha(self:getSphereAlpha())
-            local amount = shotBehavior.amount or 1
-            local angleTotal = shotBehavior.spreadAngle or 0
+            local amount = shotBehavior and shotBehavior.amount or 1
+            local angleTotal = shotBehavior and shotBehavior.spreadAngle or 0
             local angleStart = amount == 1 and 0 or -angleTotal / 2
             local angleStep = amount == 1 and 0 or angleTotal / (amount - 1)
             for j = 1, amount do
@@ -487,7 +487,7 @@ function Shooter:shoot()
                 _Game.level:markSphereShot()
             end
             self.sphereEntities[i] = nil
-            if shotBehavior.gameEvent then
+            if shotBehavior and shotBehavior.gameEvent then
                 _Game:executeGameEvent(shotBehavior.gameEvent)
             end
         elseif shotBehavior.type == "destroySpheres" then
@@ -496,7 +496,7 @@ function Shooter:shoot()
             if sphereConfig.destroyParticle then
                 _Game:spawnParticle(sphereConfig.destroyParticle, pos.x, pos.y, "GameCollapses")
             end
-            _Game.level:destroySelector(shotBehavior.selector, pos, shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
+            _Game.level:destroySelector(shotBehavior.selector, pos.x, pos.y, shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
             _Game.level:markSphereShot()
             self:destroySphereEntities()
         end
@@ -689,7 +689,7 @@ function Shooter:drawReticle()
     local color = self:getReticleColor()
     local sphereConfig = self:getSphereConfig()
     local retConfig = self.config.reticle
-    if targetPos and sphereConfig.shotBehavior.type == "normal" then
+    if targetPos and (not sphereConfig.shotBehavior or sphereConfig.shotBehavior.type == "normal") then
         if retConfig.sprite then
             local x, y = _V.rotate(retConfig.offset.x or 0, retConfig.offset.y or 0, self.angle)
             local locationX, locationY = targetPos.x + x, targetPos.y + y
@@ -712,7 +712,7 @@ function Shooter:drawReticle()
 
         -- Fireball range highlight
         -- TODO: There is no `range` parameter, since we are using Sphere Selectors. Now what?
-        if sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud" then
+        if sphereConfig.hitBehavior and (sphereConfig.hitBehavior.type == "fireball" or sphereConfig.hitBehavior.type == "colorCloud") then
             if retConfig.radiusSprite then
                 local locationX, locationY = targetPos.x + (retConfig.offset.x or 0), targetPos.y + (retConfig.offset.y or 0)
                 local scaleX, scaleY = sphereConfig.hitBehavior.range * 2 / retConfig.radiusSprite.imageSize.x, sphereConfig.hitBehavior.range * 2 / retConfig.radiusSprite.imageSize.y

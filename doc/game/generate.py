@@ -790,7 +790,7 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 				out["propertyNames"] = {"pattern": entry["regex"]}
 				out["patternProperties"] = {}
 				# As with arrays, we care about only one child.
-				out["patternProperties"]["^.*$"] = docld_to_schema(entry["children"][0], False, structures_path)
+				out["patternProperties"][entry["regex"]] = docld_to_schema(entry["children"][0], False, structures_path)
 			elif "keyconst" in entry:
 				# So-called "Enum Object".
 				key = entry["keyconst"]

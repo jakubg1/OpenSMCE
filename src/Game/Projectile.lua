@@ -1,5 +1,4 @@
 local class = require "com.class"
-local Vec2 = require("src.Essentials.Vector2")
 
 ---Represents a Projectile which is moving towards its target, destroying spheres based on its Sphere Selector.
 ---@class Projectile
@@ -88,7 +87,7 @@ function Projectile:explode()
     if self.targetSphere then
         self.targetSphere:dumpVariables("hitSphere")
     end
-    _Game.level:destroySelector(self.config.destroySphereSelector, Vec2(self.x, self.y), self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere, self.config.destroyGameEvent, self.config.destroyGameEventPerSphere)
+    _Game.level:destroySelector(self.config.destroySphereSelector, self.x, self.y, self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere, self.config.destroyGameEvent, self.config.destroyGameEventPerSphere)
     _Vars:unset("hitSphere")
 
     if self.config.destroySound then

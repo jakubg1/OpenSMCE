@@ -8,10 +8,10 @@
             "type": "object",
             "description": "A map from string keys to their translations.",
             "propertyNames": {
-                "pattern": "^.*$"
+                "pattern": "^(.|\\n)*$"
             },
             "patternProperties": {
-                "^.*$": {
+                "^(.|\\n)*$": {
                     "type": "string",
                     "description": "The string that will be displayed in-game."
                 }

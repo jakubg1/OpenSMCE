@@ -74,20 +74,22 @@ function SphereConfig:new(data, path, isAnonymous, base)
     self.swappable = u.parseBooleanOpt(data, base, path, {"swappable"}, true)
 
     ---@type table
-    self.shotBehavior = {}
-    self.shotBehavior.type = u.parseString(data, base, path, {"shotBehavior", "type"})
-    if self.shotBehavior.type == "normal" then
-        self.shotBehavior.amount = u.parseIntegerOpt(data, base, path, {"shotBehavior", "amount"}, 1)
-        self.shotBehavior.spreadAngle = u.parseNumberOpt(data, base, path, {"shotBehavior", "spreadAngle"}, 0)
-        self.shotBehavior.gameEvent = u.parseGameEventConfigOpt(data, base, path, {"shotBehavior", "gameEvent"})
-    elseif self.shotBehavior.type == "destroySpheres" then
-        self.shotBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"shotBehavior", "selector"})
-        self.shotBehavior.scoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"shotBehavior", "scoreEvent"})
-        self.shotBehavior.scoreEventPerSphere = u.parseScoreEventConfigOpt(data, base, path, {"shotBehavior", "scoreEventPerSphere"})
-        self.shotBehavior.gameEvent = u.parseGameEventConfigOpt(data, base, path, {"shotBehavior", "gameEvent"})
-        self.shotBehavior.gameEventPerSphere = u.parseGameEventConfigOpt(data, base, path, {"shotBehavior", "gameEventPerSphere"})
-    else
-        error(string.format("Unknown shotBehavior type: %s (expected \"normal\", \"destroySpheres\")", self.shotBehavior.type))
+    if data.shotBehavior then
+        self.shotBehavior = {}
+        self.shotBehavior.type = u.parseString(data, base, path, {"shotBehavior", "type"})
+        if self.shotBehavior.type == "normal" then
+            self.shotBehavior.amount = u.parseIntegerOpt(data, base, path, {"shotBehavior", "amount"}, 1)
+            self.shotBehavior.spreadAngle = u.parseNumberOpt(data, base, path, {"shotBehavior", "spreadAngle"}, 0)
+            self.shotBehavior.gameEvent = u.parseGameEventConfigOpt(data, base, path, {"shotBehavior", "gameEvent"})
+        elseif self.shotBehavior.type == "destroySpheres" then
+            self.shotBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"shotBehavior", "selector"})
+            self.shotBehavior.scoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"shotBehavior", "scoreEvent"})
+            self.shotBehavior.scoreEventPerSphere = u.parseScoreEventConfigOpt(data, base, path, {"shotBehavior", "scoreEventPerSphere"})
+            self.shotBehavior.gameEvent = u.parseGameEventConfigOpt(data, base, path, {"shotBehavior", "gameEvent"})
+            self.shotBehavior.gameEventPerSphere = u.parseGameEventConfigOpt(data, base, path, {"shotBehavior", "gameEventPerSphere"})
+        else
+            error(string.format("Unknown shotBehavior type: %s (expected \"normal\", \"destroySpheres\")", self.shotBehavior.type))
+        end
     end
 
     ---@type CollectibleEffectConfig[]
@@ -103,36 +105,38 @@ function SphereConfig:new(data, path, isAnonymous, base)
     self.shotSound = u.parseSoundEventOpt(data, base, path, {"shotSound"})
 
     ---@type table
-    self.hitBehavior = {}
-    self.hitBehavior.type = u.parseString(data, base, path, {"hitBehavior", "type"})
-    if self.hitBehavior.type == "normal" then
-        self.hitBehavior.effects = {}
-        if data.hitBehavior.effects then
-            for i = 1, #data.hitBehavior.effects do
-                self.hitBehavior.effects[i] = u.parseSphereEffectConfig(data, base, path, {"hitBehavior", "effects", i})
+    if data.hitBehavior then
+        self.hitBehavior = {}
+        self.hitBehavior.type = u.parseString(data, base, path, {"hitBehavior", "type"})
+        if self.hitBehavior.type == "normal" then
+            self.hitBehavior.effects = {}
+            if data.hitBehavior.effects then
+                for i = 1, #data.hitBehavior.effects do
+                    self.hitBehavior.effects[i] = u.parseSphereEffectConfig(data, base, path, {"hitBehavior", "effects", i})
+                end
             end
+        elseif self.hitBehavior.type == "destroySpheres" then
+            self.hitBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"hitBehavior", "selector"})
+            self.hitBehavior.scoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"hitBehavior", "scoreEvent"})
+            self.hitBehavior.scoreEventPerSphere = u.parseScoreEventConfigOpt(data, base, path, {"hitBehavior", "scoreEventPerSphere"})
+            self.hitBehavior.gameEvent = u.parseGameEventConfigOpt(data, base, path, {"hitBehavior", "gameEvent"})
+            self.hitBehavior.gameEventPerSphere = u.parseGameEventConfigOpt(data, base, path, {"hitBehavior", "gameEventPerSphere"})
+            self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
+        elseif self.hitBehavior.type == "recolorSpheres" then
+            self.hitBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"hitBehavior", "selector"})
+            self.hitBehavior.color = u.parseExprInteger(data, base, path, {"hitBehavior", "color"})
+            self.hitBehavior.particle = u.parseParticleEffectConfigOpt(data, base, path, {"hitBehavior", "particle"})
+            self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
+        elseif self.hitBehavior.type == "splitAndPushBack" then
+            self.hitBehavior.speed = u.parseNumber(data, base, path, {"hitBehavior", "speed"})
+            self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
+        elseif self.hitBehavior.type == "applyEffect" then
+            self.hitBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"hitBehavior", "selector"})
+            self.hitBehavior.effect = u.parseSphereEffectConfig(data, base, path, {"hitBehavior", "effect"})
+            self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
+        else
+            error(string.format("Unknown hitBehavior type: %s (expected \"normal\", \"destroySpheres\", \"recolorSpheres\", \"splitAndPushBack\", \"applyEffect\")", self.hitBehavior.type))
         end
-    elseif self.hitBehavior.type == "destroySpheres" then
-        self.hitBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"hitBehavior", "selector"})
-        self.hitBehavior.scoreEvent = u.parseScoreEventConfigOpt(data, base, path, {"hitBehavior", "scoreEvent"})
-        self.hitBehavior.scoreEventPerSphere = u.parseScoreEventConfigOpt(data, base, path, {"hitBehavior", "scoreEventPerSphere"})
-        self.hitBehavior.gameEvent = u.parseGameEventConfigOpt(data, base, path, {"hitBehavior", "gameEvent"})
-        self.hitBehavior.gameEventPerSphere = u.parseGameEventConfigOpt(data, base, path, {"hitBehavior", "gameEventPerSphere"})
-        self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
-    elseif self.hitBehavior.type == "recolorSpheres" then
-        self.hitBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"hitBehavior", "selector"})
-        self.hitBehavior.color = u.parseExprInteger(data, base, path, {"hitBehavior", "color"})
-        self.hitBehavior.particle = u.parseParticleEffectConfigOpt(data, base, path, {"hitBehavior", "particle"})
-        self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
-    elseif self.hitBehavior.type == "splitAndPushBack" then
-        self.hitBehavior.speed = u.parseNumber(data, base, path, {"hitBehavior", "speed"})
-        self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
-    elseif self.hitBehavior.type == "applyEffect" then
-        self.hitBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"hitBehavior", "selector"})
-        self.hitBehavior.effect = u.parseSphereEffectConfig(data, base, path, {"hitBehavior", "effect"})
-        self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
-    else
-        error(string.format("Unknown hitBehavior type: %s (expected \"normal\", \"destroySpheres\", \"recolorSpheres\", \"splitAndPushBack\", \"applyEffect\")", self.hitBehavior.type))
     end
 
     self.hitSound = u.parseSoundEventOpt(data, base, path, {"hitSound"})

@@ -34,7 +34,7 @@
     - colorPalette* (ColorPalette) - The color palette used by the shooting reticle. Either this or `color` must exist.
     - colorPaletteSpeed* (number) [>0] - Must be present only if `colorPalette` is set. Defines how fast (in pixels per second) the palette will be animated.
     - swappable* = true (boolean) - Whether this sphere can be changed when in the first slot of the shooter. `true` by default.
-    - shotBehavior (object) {type: A sphere shot behavior type.} - Defines how this Sphere should behave when released from the Shooter.
+    - shotBehavior* (object) {type: A sphere shot behavior type.} - Defines how this Sphere should behave when released from the Shooter.
         - "normal" - The sphere gets launched and flies upwards with a speed defined by the shooter and whether the speed shot is active.
             - amount* = 1 (integer) [>=1] - The amount of spheres that will be launched.
             - spreadAngle* = 0 (number) [>=0] - The total spreadout angle in radians between all launched spheres.
@@ -50,7 +50,7 @@
     - shotSpeed* (number) [>0] - If specified, overrides the speed of this sphere when shot. By default, the shot sphere will use the current shooter speed.
     - shotCooldown* (number) [>0] - If set, the sphere will not be able to be shot once it enters the shooter's main slot before this amount of time in seconds passes. The sphere can still be swapped and when swapped back, the cooldown counter will start from the beginning.
     - shotSound* (SoundEvent) - A sound event launched when this sphere is shot.
-    - hitBehavior (object) {type: A sphere hit behavior type.} - Defines how this sphere should behave when it hits a sphere train.
+    - hitBehavior* (object) {type: A sphere hit behavior type.} - Defines how this sphere should behave when it hits a sphere train.
         - "normal" - The sphere gets appended to the sphere train where it landed.
             - effects* (array) - The list of Sphere Effects this Sphere should be inflicted with after this sphere slots into the train.
                 - (SphereEffect) - A single Sphere Effect.

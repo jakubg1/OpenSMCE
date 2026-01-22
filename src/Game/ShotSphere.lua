@@ -136,20 +136,23 @@ function ShotSphere:moveStep()
 			-- - "append" - The sphere is appended
 			-- - "pierce" - The sphere keeps on flying
 			-- - "vanish" - The sphere vanishes
-			local whatHappens = hitBehavior.pierce and "pierce" or "vanish"
-			if hitBehavior.type == "destroySpheres" then
-				_Game.level:destroySelector(hitBehavior.selector, Vec2(self.x, self.y), hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
-			elseif hitBehavior.type == "recolorSpheres" then
-				_Game.level:replaceColorSelector(hitBehavior, Vec2(self.x, self.y))
-			elseif hitBehavior.type == "applyEffect" then
-				_Game.level:applyEffectSelector(hitBehavior, Vec2(self.x, self.y))
-			elseif hitBehavior.type == "splitAndPushBack" then
-				if hitSphere.nextSphere then
-					hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
+			local whatHappens = "append"
+			if hitBehavior then
+				whatHappens = hitBehavior.pierce and "pierce" or "vanish"
+				if hitBehavior.type == "destroySpheres" then
+					_Game.level:destroySelector(hitBehavior.selector, self.x, self.y, hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
+				elseif hitBehavior.type == "recolorSpheres" then
+					_Game.level:replaceColorSelector(hitBehavior, self.x, self.y)
+				elseif hitBehavior.type == "applyEffect" then
+					_Game.level:applyEffectSelector(hitBehavior, self.x, self.y)
+				elseif hitBehavior.type == "splitAndPushBack" then
+					if hitSphere.nextSphere then
+						hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
+					end
+					hitSphere.sphereGroup.speed = -hitBehavior.speed
+				else
+					whatHappens = "append"
 				end
-				hitSphere.sphereGroup.speed = -hitBehavior.speed
-			else
-				whatHappens = "append"
 			end
 			-- Do with the sphere what we're supposed to.
 			if whatHappens == "vanish" then
@@ -175,7 +178,7 @@ function ShotSphere:moveStep()
 				local d = _V.length(self.x - p.x, self.y - p.y)
 				-- calculate time
 				self.hitTimeMax = d / self.speed * 5
-				self.hitSphere.sphereGroup:addSphere(self.color, Vec2(self.x, self.y), self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.configManager.gameplay.sphereBehavior.instantMatches)
+				self.hitSphere.sphereGroup:addSphere(self.color, Vec2(self.x, self.y), self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior and hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.configManager.gameplay.sphereBehavior.instantMatches)
 				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 			end
 			_Vars:set("shot.bad", badShot)

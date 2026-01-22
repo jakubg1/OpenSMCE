@@ -693,7 +693,7 @@ function Level:applyEffect(effect, x, y)
 			end
 		end
 	elseif effect.type == "destroySpheres" then
-		self:destroySelector(effect.selector, Vec2(x, y), effect.scoreEvent, effect.scoreEventPerSphere, effect.gameEvent, effect.gameEventPerSphere, true)
+		self:destroySelector(effect.selector, x, y, effect.scoreEvent, effect.scoreEventPerSphere, effect.gameEvent, effect.gameEventPerSphere, true)
 	elseif effect.type == "spawnPathEntity" then
 		local path = self:getMostDangerousPath()
 		if path then
@@ -1235,32 +1235,35 @@ end
 
 ---Selects spheres based on a provided Sphere Selector Config and destroys them, executing any provided Score Events in the process.
 ---@param sphereSelector SphereSelectorConfig The Sphere Selector that will be used to select the spheres to be destroyed.
----@param pos Vector2? The position used to calculate distances to spheres, and used in Floating Text position, unless `forceEventPosCalculation` is set.
+---@param x number? The X position used to calculate distances to spheres, and used in Floating Text position, unless `forceEventPosCalculation` is set.
+---@param y number? The Y position used to calculate distances to spheres, and used in Floating Text position, unless `forceEventPosCalculation` is set.
 ---@param scoreEvent ScoreEventConfig? The Score Event that will be executed once on the whole batch.
 ---@param scoreEventPerSphere ScoreEventConfig? The Score Event that will be executed separately for each sphere.
 ---@param gameEvent GameEventConfig? The Game Event which will be executed once on the whole batch.
 ---@param gameEventPerSphere GameEventConfig? The Game Event which will be executed separately for each sphere.
 ---@param forceEventPosCalculation boolean? If set, the `pos` argument will be ignored and a new position for the Score Event will be calculated anyways.
-function Level:destroySelector(sphereSelector, pos, scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
-	SphereSelectorResult(sphereSelector, pos):destroy(scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
+function Level:destroySelector(sphereSelector, x, y, scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
+	SphereSelectorResult(sphereSelector, Vec2(x, y)):destroy(scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
 end
 
 
 
 ---Selects spheres based on a provided Sphere Selector Config and changes their colors.
 ---@param hitBehavior table The sphere's Hit Behavior with `selector`, `color` and `particle` (optional) fields.
----@param pos Vector2? The position used to calculate distances to spheres.
-function Level:replaceColorSelector(hitBehavior, pos)
-	SphereSelectorResult(hitBehavior.selector, pos):changeColor(hitBehavior.color:evaluate(), hitBehavior.particle)
+---@param x number? The X position used to calculate distances to spheres.
+---@param y number? The Y position used to calculate distances to spheres.
+function Level:replaceColorSelector(hitBehavior, x, y)
+	SphereSelectorResult(hitBehavior.selector, Vec2(x, y)):changeColor(hitBehavior.color:evaluate(), hitBehavior.particle)
 end
 
 
 
 ---Selects spheres based on a provided Sphere Selector Config and applies a Sphere Effect on them.
 ---@param hitBehavior table The sphere's Hit Behavior with `selector` and `effect` fields.
----@param pos Vector2? The position used to calculate distances to spheres.
-function Level:applyEffectSelector(hitBehavior, pos)
-	SphereSelectorResult(hitBehavior.selector, pos):applyEffect(hitBehavior.effect)
+---@param x number? The X position used to calculate distances to spheres.
+---@param y number? The Y position used to calculate distances to spheres.
+function Level:applyEffectSelector(hitBehavior, x, y)
+	SphereSelectorResult(hitBehavior.selector, Vec2(x, y)):applyEffect(hitBehavior.effect)
 end
 
 
