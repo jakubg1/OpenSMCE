@@ -906,7 +906,7 @@ def docld_to_lua_context(fields):
 # Determines LDoc (luadoc) type from the DocLD entry, without the `---@type ` prefix.
 def docld_to_lua_ldoc(entry):
 	# TODO: Do something with this.
-	structure_config_lookup = ["number","integer","boolean","string","Vector2","Color","Sprite","Image","ColorPalette","Font","FontFile","SoundEvent","Sound","Music"]
+	structure_config_lookup = ["number","integer","boolean","string","Vector2","Color","Sprite","Image","ColorPalette","Font","FontFile","SoundEvent","Sound","MusicTrack"]
 
 	optional = entry["optional"]
 	out = ""
@@ -981,7 +981,7 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 		"FontFile": "parseFontFile",
 		"SoundEvent": "parseSoundEvent",
 		"Sound": "parseSound",
-		"Music": "parseMusic"
+		"MusicTrack": "parseMusicTrack"
 	}
 	lua_expr_type_assoc = {
 		"number": "parseExprNumber",

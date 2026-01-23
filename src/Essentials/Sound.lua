@@ -13,7 +13,7 @@ function Sound:new(data, path)
 end
 
 ---Makes a LOVE2D Audio Source from the data of this Sound.
----@param type "static"|"stream" The type of this source. Use `"static"` for short audio samples (SFX) and `"stream"` for music.
+---@param type love.SourceType The type of this source. Use `"static"` for short audio samples (SFX) and `"stream"` for music.
 ---@return love.Source
 function Sound:makeSource(type)
 	return love.audio.newSource(self.data, type)

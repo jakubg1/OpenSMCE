@@ -11,6 +11,7 @@ function SoundInstance:new(instance)
     self.sound = instance
 
     self.volume = 1
+    -- Set initial position to the center of the screen.
     local w, h = _Game:getNativeResolution()
     self.x, self.y = w / 2, h / 2
 end

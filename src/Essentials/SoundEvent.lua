@@ -1,7 +1,6 @@
 local class = require "com.class"
 local SoundInstance = require("src.Essentials.SoundInstance")
 local SoundInstanceList = require("src.Essentials.SoundInstanceList")
-local Expression = require("src.Expression")
 
 ---Represents a Sound Event, which can be played by miscellaneous events during the game and from the user interface.
 ---@class SoundEvent

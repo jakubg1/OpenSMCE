@@ -14,15 +14,15 @@
             "description": "The level sequence which will be obeyed for this level."
         },
         "music": {
-            "$ref": "_structures/Music.json",
+            "$ref": "_structures/MusicTrack.json",
             "description": "Which soundtrack should be played throughout the level."
         },
         "dangerMusic": {
-            "$ref": "_structures/Music.json",
+            "$ref": "_structures/MusicTrack.json",
             "description": "Which soundtrack should be played during the danger phase."
         },
         "ambientMusic": {
-            "$ref": "_structures/Music.json",
+            "$ref": "_structures/MusicTrack.json",
             "description": "Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks."
         },
         "dangerSound": {

@@ -328,16 +328,6 @@ function utils.parseFontFileOpt(data, base, path, fields)
 	return parseResourceOpt(data, base, path, fields, "FontFile", _Res.getFontFile)
 end
 
----@return Music
-function utils.parseMusic(data, base, path, fields)
-	return parseResource(data, base, path, fields, "Music", _Res.getMusic)
-end
-
----@return Music?
-function utils.parseMusicOpt(data, base, path, fields)
-	return parseResourceOpt(data, base, path, fields, "Music", _Res.getMusic)
-end
-
 
 
 -- The following are moved to Config Classes, but use singleton getters instead:
@@ -380,6 +370,16 @@ end
 ---@return SoundEvent?
 function utils.parseSoundEventOpt(data, base, path, fields)
 	return parseResourceOpt(data, base, path, fields, "SoundEvent", _Res.getSoundEvent)
+end
+
+---@return MusicTrack
+function utils.parseMusicTrack(data, base, path, fields)
+	return parseResource(data, base, path, fields, "MusicTrack", _Res.getMusicTrack)
+end
+
+---@return MusicTrack?
+function utils.parseMusicTrackOpt(data, base, path, fields)
+	return parseResourceOpt(data, base, path, fields, "MusicTrack", _Res.getMusicTrack)
 end
 
 

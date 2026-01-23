@@ -10,7 +10,7 @@ local Sprite = require("src.Essentials.Sprite")
 local SpriteAtlas = require("src.Essentials.SpriteAtlas")
 local Sound = require("src.Essentials.Sound")
 local SoundEvent = require("src.Essentials.SoundEvent")
-local Music = require("src.Essentials.Music")
+local MusicTrack = require("src.Essentials.MusicTrack")
 local FontFile = require("src.Essentials.FontFile")
 local Font = require("src.Essentials.Font")
 local Shader = require("src.Essentials.Shader")
@@ -35,27 +35,28 @@ function ResourceManager:new()
 	---@type {key: string, batches: string[]}[]
 	self.queuedResources = {}
 
-	-- Values below are used only for newly queued/loaded resources.
+	-- Newly queued/loaded resources will be a part of these batches if specified. Otherwise, loaded resources will be loaded permanently.
+	---@type string[]?
 	self.currentBatches = nil
 
+	-- Path to the source code directory where all Config Classes are stored. Used to scan for and register the resource types.
 	self.RESOURCE_TYPE_LOCATION = "src/Configs"
 
 	-- This table is filled dynamically by calling `ResourceManager:registerResourceTypes()`.
+	-- `constructor` is a Config Class constructor, whereas `assetConstructor` is a singleton resource constructor.
+	---@type table<string, {constructor: any?, assetConstructor: any?}>
 	self.RESOURCE_TYPES = {
 		Image = {assetConstructor = Image},
 		Sound = {assetConstructor = Sound},
 		FontFile = {assetConstructor = FontFile},
-		Shader = {assetConstructor = Shader},
-		-- Resource types below still need migration to Config Classes:
-		Music = {assetConstructor = Music}
+		Shader = {assetConstructor = Shader}
 	}
 
 	-- This table is filled dynamically by calling `ResourceManager:registerResourceTypes()`.
+	-- It is used to determine the resource type based on the `$schema` field for JSON files.
+	-- Check the `:getResourceTypeFromSchema()` function for more information.
 	---@type table<string, string>
-	self.SCHEMA_TO_RESOURCE_MAP = {
-		-- Resource types below still need migration to Config Classes:
-		["music_track.json"] = "Music"
-	}
+	self.SCHEMA_TO_RESOURCE_MAP = {}
 
 	-- This table is used to determine resource types which are not JSON files with a `$schema` field.
 	self.EXTENSION_TO_RESOURCE_MAP = {
@@ -76,7 +77,8 @@ function ResourceManager:new()
 		Font = Font,
 		Sprite = Sprite,
 		SpriteAtlas = SpriteAtlas,
-		SoundEvent = SoundEvent
+		SoundEvent = SoundEvent,
+		MusicTrack = MusicTrack
 	}
 	self:registerResourceSingletons(self.SINGLETON_LIST)
 
@@ -203,13 +205,6 @@ end
 ---@return Shader
 function ResourceManager:getShader(path)
 	return self:getResourceAsset(path, "shader")
-end
-
----Retrieves a piece of Music by a given path.
----@param path string The resource path.
----@return Music
-function ResourceManager:getMusic(path)
-	return self:getResourceAsset(path, "music track")
 end
 
 
