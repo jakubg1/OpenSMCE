@@ -20,4 +20,18 @@ function FontFile:makeFont(size)
 	return font
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function FontFile.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
+
+    ---Retrieves a Font File by a given path.
+    ---@param path string The resource path.
+    ---@return FontFile
+    function ResourceManager:getFontFile(path)
+        return self:getResourceAsset(path, "FontFile")
+    end
+end
+
 return FontFile

@@ -1,10 +1,4 @@
 local class = require "com.class"
-
----Manages all the Game's resources, alongside the ConfigManager. I'm not sure if this split is necessary and how it works.
----@class ResourceManager
----@overload fun():ResourceManager
-local ResourceManager = class:derive("ResourceManager")
-
 local Image = require("src.Essentials.Image")
 local Sprite = require("src.Essentials.Sprite")
 local SpriteAtlas = require("src.Essentials.SpriteAtlas")
@@ -16,7 +10,10 @@ local Font = require("src.Essentials.Font")
 local Shader = require("src.Essentials.Shader")
 local ColorPalette = require("src.Essentials.ColorPalette")
 
-
+---Manages all the Game's resources, alongside the ConfigManager. I'm not sure if this split is necessary and how it works.
+---@class ResourceManager
+---@overload fun():ResourceManager
+local ResourceManager = class:derive("ResourceManager")
 
 ---Constructs a Resource Manager.
 function ResourceManager:new()
@@ -45,12 +42,7 @@ function ResourceManager:new()
 	-- This table is filled dynamically by calling `ResourceManager:registerResourceTypes()`.
 	-- `constructor` is a Config Class constructor, whereas `assetConstructor` is a singleton resource constructor.
 	---@type table<string, {constructor: any?, assetConstructor: any?}>
-	self.RESOURCE_TYPES = {
-		Image = {assetConstructor = Image},
-		Sound = {assetConstructor = Sound},
-		FontFile = {assetConstructor = FontFile},
-		Shader = {assetConstructor = Shader}
-	}
+	self.RESOURCE_TYPES = {}
 
 	-- This table is filled dynamically by calling `ResourceManager:registerResourceTypes()`.
 	-- It is used to determine the resource type based on the `$schema` field for JSON files.
@@ -75,8 +67,12 @@ function ResourceManager:new()
 	self.SINGLETON_LIST = {
 		ColorPalette = ColorPalette,
 		Font = Font,
+		FontFile = FontFile,
+		Image = Image,
+		Shader = Shader,
 		Sprite = Sprite,
 		SpriteAtlas = SpriteAtlas,
+		Sound = Sound,
 		SoundEvent = SoundEvent,
 		MusicTrack = MusicTrack
 	}
@@ -87,8 +83,6 @@ function ResourceManager:new()
 	---@type table<string, LoadCounter>
 	self.loadCounters = {}
 end
-
-
 
 ---Updates the Resource Manager. This includes updating sound and music, and also loads a next group of files during the step load process.
 ---@param dt number Delta time in seconds.
@@ -113,8 +107,6 @@ function ResourceManager:update(dt)
 	end
 end
 
-
-
 ---Scans the game folder for all resources and queues them for loading.
 ---Resources in folders: `maps`, `config` as well as all files located directly in the root game directory will be omitted.
 function ResourceManager:scanResources()
@@ -127,8 +119,6 @@ function ResourceManager:scanResources()
 		end
 	end
 end
-
-
 
 ---Goes through all `.lua` files in the provided source code directory and for each eligible one:
 --- - Registers a resource type by adding an entry to `self.RESOURCE_TYPES` with a Config Class constructor.
@@ -145,12 +135,11 @@ function ResourceManager:registerResourceTypes(dir)
 			self:say("Registered resource type: " .. name)
 			self.SCHEMA_TO_RESOURCE_MAP[resourceClass.metadata.schemaPath] = name
 			resourceClass.inject(ResourceManager)
-			self.RESOURCE_TYPES[name] = {constructor = resourceClass}
+			self.RESOURCE_TYPES[name] = self.RESOURCE_TYPES[name] or {}
+			self.RESOURCE_TYPES[name].constructor = resourceClass
 		end
 	end
 end
-
-
 
 ---For each provided resource type in the list:
 --- - Registers a singleton constructor and stores it in the `self.RESOURCE_TYPES[].assetConstructor` field.
@@ -160,11 +149,10 @@ end
 function ResourceManager:registerResourceSingletons(singletons)
 	for name, singletonClass in pairs(singletons) do
 		singletonClass.inject(ResourceManager)
+		self.RESOURCE_TYPES[name] = self.RESOURCE_TYPES[name] or {}
 		self.RESOURCE_TYPES[name].assetConstructor = singletonClass
 	end
 end
-
-
 
 ---Unloads all resources from this Resource Manager.
 function ResourceManager:unloadAllResources()
@@ -177,46 +165,12 @@ function ResourceManager:unloadAllResources()
 	end
 end
 
-
-
----Retrieves an Image by a given path.
----@param path string The resource path.
----@return Image
-function ResourceManager:getImage(path)
-	return self:getResourceAsset(path, "image")
-end
-
----Retrieves a Sound by a given path.
----@param path string The resource path.
----@return Sound
-function ResourceManager:getSound(path)
-	return self:getResourceAsset(path, "sound")
-end
-
----Retrieves a Font File by a given path.
----@param path string The resource path.
----@return FontFile
-function ResourceManager:getFontFile(path)
-	return self:getResourceAsset(path, "font file")
-end
-
----Retrieves a Shader by a given path.
----@param path string The resource path.
----@return Shader
-function ResourceManager:getShader(path)
-	return self:getResourceAsset(path, "shader")
-end
-
-
-
 ---Returns `true` if a resource at the provided path is loaded, `false` otherwise.
 ---@param key string The path to the resource.
 ---@return boolean
 function ResourceManager:isResourceLoaded(key)
 	return self.resources[key] ~= nil
 end
-
-
 
 ---Queues a resource to be loaded soon, if not loaded yet.
 ---If many calls to this function are done in a quick succession, the load order will be preserved.
@@ -231,8 +185,6 @@ function ResourceManager:queueResource(key)
 		self:queueLoadProgressResource(key)
 	end
 end
-
-
 
 ---Retrieves the resource entry by its path. If the resource is not yet loaded, it is immediately loaded.
 ---Returns `nil` if the resource cannot be found.
@@ -254,8 +206,6 @@ function ResourceManager:getResource(key, resType)
 	return assert(self.resources[key], string.format("Could not find %s: \"%s\"", resType, key))
 end
 
-
-
 ---Retrieves the resource asset by its path and type. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
 ---@private
@@ -265,8 +215,6 @@ end
 function ResourceManager:getResourceAsset(key, resType)
 	return self:getResource(key, resType).asset
 end
-
-
 
 ---Retrieves the resource config by its path and type. If the resource is not yet loaded, it is immediately loaded.
 ---Internal use only; use other `get*` functions for type support.
@@ -278,8 +226,6 @@ function ResourceManager:getResourceConfig(key, resType)
 	return self:getResource(key, resType).config
 end
 
-
-
 ---Retrieves the provided resource's path which can be used to refer to this resource back again.
 ---Throws an error if the provided resource is an anonymous resource.
 ---@param resource any The resource config.
@@ -288,8 +234,6 @@ function ResourceManager:getResourceReference(resource)
 	assert(not resource._isAnonymous, string.format("Attempt to get a reference to an anonymous resource located in file: %s", resource._path))
 	return resource._path
 end
-
-
 
 ---Returns the resource type based on provided schema path, which is the same as the string found in the `$schema` field in any recognized resource.
 ---
@@ -305,8 +249,6 @@ function ResourceManager:getResourceTypeFromSchema(schemaPath)
 	local schema = schemaSpl[2] or schemaSpl[1]
 	return schema and self.SCHEMA_TO_RESOURCE_MAP[schema]
 end
-
-
 
 ---Loads the resource (config and/or asset): opens the file, deduces its type, and if applicable, constructs a resource and registers it in the resource table.
 ---If the resource cannot be loaded or has been already loaded, this function throws an error.
@@ -382,8 +324,6 @@ function ResourceManager:loadResource(key, batches)
 	self:say(" * " .. key .. " (" .. resType .. ")" .. (batches and (" {" .. table.concat(batches, ", ") .. "}") or "") .. " OK!")
 end
 
-
-
 ---Unloads the resource by its key.
 ---@private
 ---@param key string The resource key.
@@ -392,8 +332,6 @@ function ResourceManager:unloadResource(key)
 	self.resources[key] = nil
 	self:say(key .. " (" .. resType .. ") unloaded!")
 end
-
-
 
 ---Returns a list of paths to all loaded resources of a given type.
 ---@param resType string One of `RESOURCE_TYPES`, of which all loaded resource paths will be returned.

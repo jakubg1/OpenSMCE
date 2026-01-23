@@ -10,6 +10,7 @@ local Sound = class:derive("Sound")
 ---@param path string The path to the sound file.
 function Sound:new(data, path)
 	self.data = _Utils.loadSoundData(_ParsePath(path))
+	assert(self.data, "Failed to load sound data: " .. path)
 end
 
 ---Makes a LOVE2D Audio Source from the data of this Sound.
@@ -24,6 +25,20 @@ end
 ---@return table
 function Sound:makeAdvancedSource()
 	return love.audio.newAdvancedSource(self.data)
+end
+
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function Sound.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
+
+    ---Retrieves a Sound by a given path.
+    ---@param path string The resource path.
+    ---@return Sound
+    function ResourceManager:getSound(path)
+        return self:getResourceAsset(path, "Sound")
+    end
 end
 
 return Sound

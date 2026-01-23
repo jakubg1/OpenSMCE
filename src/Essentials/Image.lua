@@ -23,4 +23,18 @@ function Image:draw(...)
 	love.graphics.draw(self.img, ...)
 end
 
+---Injects functions to Resource Manager regarding this resource type.
+---@param ResourceManager ResourceManager Resource Manager class to inject the functions to.
+function Image.inject(ResourceManager)
+    ---@class ResourceManager
+    ResourceManager = ResourceManager
+
+    ---Retrieves a Image by a given path.
+    ---@param path string The resource path.
+    ---@return Image
+    function ResourceManager:getImage(path)
+        return self:getResourceAsset(path, "Image")
+    end
+end
+
 return Image
