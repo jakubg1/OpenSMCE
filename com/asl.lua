@@ -96,8 +96,8 @@ do
 
 	method.getInternalSource = true -- Not really for usage outside of love.audio monkeypatching...
 
-	method.getPitch = true -- Replaced with getResamplingRatio; still allowed for custom error msg.
-	method.setPitch = true -- Replaced with setResamplingRatio; still allowed for custom error msg.
+	method.getPitch = true
+	method.setPitch = true
 
 	method.queue = true
 

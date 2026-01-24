@@ -62,7 +62,9 @@ local toProc = ...
 
 -- List of ASource objects; keys are contiguous integers, however, they aren't unique indices.
 -- We also define a reverse-lookup table: keys are the unique indices, vals are the above keys.
+---@type ASource[]
 local ASourceList = {} -- number:table
+---@type number[]
 local ASourceIMap = {} -- number:number
 
 
@@ -76,6 +78,7 @@ local VarianceUnit  = {['milliseconds'] = true, ['samples']   = true, ['percenta
 
 
 -- Monkeypatching into the math library (of this thread only).
+---@class mathlib
 local math = math
 math.sgn   = function(x) return x<0.0 and -1.0 or 1.0 end
 math.clamp = function(x,min,max) return math.max(math.min(x, max), min) end
@@ -119,42 +122,51 @@ local VarDistIMap = {}; for i=0,#VarDistType do VarDistIMap[VarDistType[i]] = i 
 
 ----------------------------------------------------------------------------------------------------
 
--- Helper functions that need to be called to recalculate multiple internals from varied methods.
+-- Classes
 
--- Makes pitch shifting and time stretching possible.
-local function calculateTSMCoefficients(instance)
-	-- Set offsets
-	instance.innerOffset = instance.resampleRatio 
-	                     * instance.pitchShift    * math.sgn(instance.timeStretch)
-	instance.outerOffset = instance.resampleRatio *
-	                     ( instance.timeStretch   * math.sgn(instance.resampleRatio)
-	                     - instance.pitchShift    * math.sgn(instance.timeStretch))
-	-- Me avoiding responsibilities :c
-	instance.frameAdvance = instance.timeStretch  * math.abs(instance.resampleRatio)
-end
-
--- Pre-calculates how stereo sources should have their panning set.
-local function calculatePanningCoefficients(instance)
-	instance.panL, instance.panR = instance.panLawFunc(instance.panning)
-end
-
--- Pre-calculates values needed for uniformly random buffer resizing.
-local function calculateFrameCoefficients(instance)
-	local lLimit = math.floor( 1 * 0.001 * instance.samplingRate + 0.5) --  1 ms
-	local uLimit = math.floor(10         * instance.samplingRate + 0.5) -- 10 s
-	instance.minFrameSize = math.max(lLimit, instance.frameSize - instance.frameVariance)
-	instance.maxFrameSize = math.min(uLimit, instance.frameSize + instance.frameVariance)
-end
+---@class ASource
+local ASource = {}
 
 
 
 ----------------------------------------------------------------------------------------------------
 
--- TODO: Placeholder until we implement the full push-style version with all processing included.
-local Queue = function(instance, ...)
-	instance.source:queue(...)
-	-- No play call here; vanilla QSources didn't automatically play either.
-	return true
+-- Metatables
+
+local mtASource = {__index = ASource}
+
+
+
+----------------------------------------------------------------------------------------------------
+
+-- Helper functions that need to be called to recalculate multiple internals from varied methods.
+
+-- Makes pitch shifting and time stretching possible.
+---@package
+function ASource:calculateTSMCoefficients()
+	-- Set offsets
+	self.innerOffset = self.resampleRatio 
+	                     * self.pitchShift    * math.sgn(self.timeStretch)
+	self.outerOffset = self.resampleRatio *
+	                     ( self.timeStretch   * math.sgn(self.resampleRatio)
+	                     - self.pitchShift    * math.sgn(self.timeStretch))
+	-- Me avoiding responsibilities :c
+	self.frameAdvance = self.timeStretch  * math.abs(self.resampleRatio)
+end
+
+-- Pre-calculates how stereo sources should have their panning set.
+---@package
+function ASource:calculatePanningCoefficients()
+	self.panL, self.panR = self.panLawFunc(self.panning)
+end
+
+-- Pre-calculates values needed for uniformly random buffer resizing.
+---@package
+function ASource:calculateFrameCoefficients()
+	local lLimit = math.floor( 1 * 0.001 * self.samplingRate + 0.5) --  1 ms
+	local uLimit = math.floor(10         * self.samplingRate + 0.5) -- 10 s
+	self.minFrameSize = math.max(lLimit, self.frameSize - self.frameVariance)
+	self.maxFrameSize = math.min(uLimit, self.frameSize + self.frameVariance)
 end
 
 
@@ -167,6 +179,7 @@ local Process = {}
 
 
 
+---@param instance ASource
 Process.static = function(instance)
 	-- Localize length of the input SoundData for less table accesses and function calls.
 	-- This is only used for wrapping in the sampling functions (getSample).
@@ -638,7 +651,7 @@ Process.static = function(instance)
 			-- If needed, recalculate TSM coefficients; needs to be done here to avoid mid-frame
 			-- changes which would result in glitches.
 			if instance._recalcTSMCoefficients then
-				calculateTSMCoefficients(instance)
+				instance:calculateTSMCoefficients()
 				instance._recalcTSMCoefficients = false
 			end
 
@@ -674,22 +687,6 @@ end
 Process.queue = function()
 	-- Not Yet Implemented.
 end
-
-
-
-----------------------------------------------------------------------------------------------------
-
--- Class
-
-local ASource = {}
-
-
-
-----------------------------------------------------------------------------------------------------
-
--- Metatable
-
-local mtASource = {__index = ASource}
 
 
 
@@ -763,7 +760,11 @@ local function new(a,b,c,d,e)
 
 
 	-- The instance we're constructing.
+	---@class ASource
 	local instance = {}
+
+	-- Set up method calls.
+	setmetatable(instance, mtASource)
 
 	-- Load in initial data.
 	if sourcetype == 'queue' then
@@ -884,7 +885,7 @@ local function new(a,b,c,d,e)
 		-- The pre-calculated min, max and currently applied frame size, for performance reasons.
 		instance.minFrameSize  = nil
 		instance.maxFrameSize  = nil
-		calculateFrameCoefficients(instance)
+		instance:calculateFrameCoefficients()
 		-- The variable holding the final TSM frame size that gets used.
 		instance.curFrameSize  =  instance.frameSize
 		-- Store the current point in the TSM frame we're at, due to this not being aligned with
@@ -933,7 +934,7 @@ local function new(a,b,c,d,e)
 		instance.innerOffset = nil
 		instance.outerOffset = nil
 		instance.frameAdvance = nil -- Me avoiding responsibilities :c
-		calculateTSMCoefficients(instance)
+		instance:calculateTSMCoefficients()
 		-- Flag to know we need to recalculate the coefficients
 		-- Note: Easier to only do this at Frame borders vs. mathing out what this does mid-frame.
 		instance._recalcTSMCoefficients = false
@@ -948,7 +949,7 @@ local function new(a,b,c,d,e)
 		-- The pre-calculated left and right panning coefficients, for performance reasons.
 		instance.panL = nil
 		instance.panR = nil
-		calculatePanningCoefficients(instance)
+		instance:calculatePanningCoefficients()
 
 		-- Stereo separation value; operates on input so even with mono output, this has an impact.
 		-- Can go from -100% to 100%, from mid ch. downmix to original to side ch. downmix.
@@ -980,9 +981,6 @@ local function new(a,b,c,d,e)
 		instance.loopRegionB = instance.data:getDuration() * instance.samplingRate - 1
 	end
 
-	-- Set up method calls.
-	setmetatable(instance, mtASource)
-
 	-- Make the instance have an unique id, and add instance to the internal tables.
 	local id = #ASourceList + 1
 	instance.id = id
@@ -999,16 +997,18 @@ end
 
 -- Copy-constructor
 
-function ASource.clone(instance)
+function ASource:clone()
+	---@type ASource
 	local clone = {}
 
 	-- Shallow-copy over all parameters as an initial step.
-	for k,v in pairs(instance) do
+	for k,v in pairs(self) do
 		clone[k] = v
 	end
 
 	-- Set the playback state to stopped, which also resets the pointer to the start.
 	-- Due to reverse playback support, the start point is dependent on the playback direction.
+	-- TODO: These fields are unused ???
 	clone._isPlaying = false
 	if     clone.type == 'static' then
 		clone.pointer = clone.timeStretch >= 0 and 0 or math.max(0, clone.data:getSampleCount()-1)
@@ -1022,7 +1022,7 @@ function ASource.clone(instance)
 	--                     Decoder gets cloned, Queue has none.
 	if clone.type == 'stream' then
 		-- This should work even if the Decoder was created from a DroppedFile.
-		clone.data = instance.data:clone()
+		clone.data = self.data:clone()
 	end
 
 	-- Buffer object: Create an unique one.
@@ -1035,7 +1035,7 @@ function ASource.clone(instance)
 
 	-- Internal QSource object: Clone it.
 	-- BUG: Cloning a queueable source doesn't give back a functioning one; temporary fix.
-	--clone.source = instance.source:clone()
+	--clone.source = self.source:clone()
 	clone.source = love.audio.newQueueableSource(
 		clone.samplingRate,
 		clone.bitDepth,
@@ -1044,31 +1044,31 @@ function ASource.clone(instance)
 	)
 	-- Due to the above duct tape, we also need to manually copy over QSource internals that aren't
 	-- touched by the library:
-	local fxlist = instance.source:getActiveEffects()
+	local fxlist = self.source:getActiveEffects()
 	for i,name in ipairs(fxlist) do
-		local filtersettings = instance.source:getEffect(name)
+		local filtersettings = self.source:getEffect(name)
 		if filtersettings then
 			clone.source:setEffect(name, filtersettings)
 		else
 			clone.source:setEffect(name, true)
 		end
 	end
-	clone.source:setFilter(               instance.source:getFilter())
-	clone.source:setAirAbsorption(        instance.source:getAirAbsorption())
-	clone.source:setAttenuationDistances( instance.source:getAttenuationDistances())
-	clone.source:setCone(                 instance.source:getCone())
-	clone.source:setDirection(            instance.source:getDirection())
-	clone.source:setPosition(             instance.source:getPosition())
-	clone.source:setRolloff(              instance.source:getRolloff())
-	clone.source:setVelocity(             instance.source:getVelocity())
-	clone.source:setRelative(             instance.source:isRelative())
-	clone.source:setVolumeLimits(         instance.source:getVolumeLimits())
-	clone.source:setVolume(               instance.source:getVolume())
+	clone.source:setFilter(               self.source:getFilter())
+	clone.source:setAirAbsorption(        self.source:getAirAbsorption())
+	clone.source:setAttenuationDistances( self.source:getAttenuationDistances())
+	clone.source:setCone(                 self.source:getCone())
+	clone.source:setDirection(            self.source:getDirection())
+	clone.source:setPosition(             self.source:getPosition())
+	clone.source:setRolloff(              self.source:getRolloff())
+	clone.source:setVelocity(             self.source:getVelocity())
+	clone.source:setRelative(             self.source:isRelative())
+	clone.source:setVolumeLimits(         self.source:getVolumeLimits())
+	clone.source:setVolume(               self.source:getVolume())
 
 	-- Make sure all library-specific internals are configured correctly.
-	calculateTSMCoefficients(clone)
-	calculatePanningCoefficients(clone)
-	calculateFrameCoefficients(clone)
+	clone:calculateTSMCoefficients()
+	clone:calculatePanningCoefficients()
+	clone:calculateFrameCoefficients()
 
 	-- Set instance metatable.
 	setmetatable(clone, mtASource)
@@ -1089,24 +1089,24 @@ end
 
 -- Base class overrides (Object)
 
-function ASource.type(instance)
+function ASource:type()
 	return 'ASource'
 end
 
-function ASource.typeOf(instance, type)
+function ASource:typeOf(type)
 	if type == 'ASource' or type == 'Source' or type == 'Object' then
 		return true
 	end
 	return false
 end
 
-function ASource.release(instance)
+function ASource:release()
 	-- Clean up the whole instance itself.
-	local id = instance.id
-	if instance.data then instance.data:release() end
-	instance.buffer:release()
-	instance.source:release()
-	for k,v in pairs(instance) do k = nil end
+	local id = self.id
+	if self.data then self.data:release() end
+	self.buffer:release()
+	self.source:release()
+	for k,v in pairs(self) do k = nil end
 
 	-- Remove the instance from both tables we do book-keeping in.
 	local this = ASourceList[ASourceIMap[id]]
@@ -1131,8 +1131,8 @@ end
 
 -- Internally used across threads
 
-function ASource.getInternalSource(instance)
-	return instance.source
+function ASource:getInternalSource()
+	return self.source
 end
 
 
@@ -1141,14 +1141,12 @@ end
 
 -- Deprecations
 
-function ASource.setPitch(instance)
-	error("Function deprecated by Advanced Source Library; " ..
-		"for the same functionality, use setResamplingRatio instead.")
+function ASource:setPitch(pitch)
+	self:setResamplingRatio(pitch)
 end
 
-function ASource.getPitch(instance)
-	error("Function deprecated by Advanced Source Library; " ..
-		"for the same functionality, use getResamplingRatio instead.")
+function ASource:getPitch()
+	return self:getResamplingRatio()
 end
 
 
@@ -1157,12 +1155,15 @@ end
 
 -- Queue related
 
-function ASource.queue(instance, ...)
-	if instance.type ~= 'queue' then
+function ASource:queue(...)
+	if self.type ~= 'queue' then
 		error("Cannot call queue on a non-queueable ASource instance.")
 	end
 
-	return Queue(instance, ...)
+	-- TODO: Placeholder until we implement the full push-style version with all processing included.
+	self.source:queue(...)
+	-- No play call here; vanilla QSources didn't automatically play either.
+	return true
 end
 
 
@@ -1171,21 +1172,21 @@ end
 
 -- Format related
 
-function ASource.getType(instance)
-	return instance.type
+function ASource:getType()
+	return self.type
 end
 
-function ASource.getSampleRate(instance)
-	return instance.samplingRate
+function ASource:getSampleRate()
+	return self.samplingRate
 end
 
-function ASource.getBitDepth(instance)
-	return instance.bitDepth
+function ASource:getBitDepth()
+	return self.bitDepth
 end
 
-function ASource.getChannelCount(instance)
+function ASource:getChannelCount()
 	-- The user needs the output format, not the input, so we return that instead.
-	return instance.outputAurality --instance.channelCount
+	return self.outputAurality --self.channelCount
 end
 
 
@@ -1194,7 +1195,7 @@ end
 
 -- Buffer related (Warning: Don't resize the buffer each frame, that might tank performance.)
 
-function ASource.getBufferSize(instance, unit)
+function ASource:getBufferSize(unit)
 	unit = unit or 'milliseconds'
 
 	if not BufferUnit[unit] then
@@ -1203,13 +1204,13 @@ function ASource.getBufferSize(instance, unit)
 	end
 
 	if unit == 'samples' then
-		return instance.bufferSize
+		return self.bufferSize
 	else--if unit == 'milliseconds' then
-		return instance.bufferSize / instance.samplingRate * 1000
+		return self.bufferSize / self.samplingRate * 1000
 	end
 end
 
-function ASource.setBufferSize(instance, size, unit)
+function ASource:setBufferSize(size, unit)
 	unit = unit or 'milliseconds'
 
 	if not BufferUnit[unit] then
@@ -1227,8 +1228,8 @@ function ASource.setBufferSize(instance, size, unit)
 
 	local min, max
 	if unit == 'samples' then
-		min =  1 * 0.001 * instance.samplingRate --  1 ms
-		max = 10         * instance.samplingRate -- 10 s
+		min =  1 * 0.001 * self.samplingRate --  1 ms
+		max = 10         * self.samplingRate -- 10 s
 	else--if unit = 'milliseconds' then
 		min =  1        --  1 ms
 		max = 10 * 1000 -- 10 s
@@ -1239,20 +1240,20 @@ function ASource.setBufferSize(instance, size, unit)
 	end
 
 	if unit == 'samples' then
-		instance.bufferSize = size
+		self.bufferSize = size
 	else--if unit = 'milliseconds' then
-		instance.bufferSize = math.floor(size * 0.001 * instance.samplingRate + 0.5)
+		self.bufferSize = math.floor(size * 0.001 * self.samplingRate + 0.5)
 	end
 
 	-- Recreate internal buffer.
 	-- Note: We can assume that this call never happens mid-processing, so we never lose
 	--       previous buffer contents, no copying necessary.
-	instance.buffer:release()
-	instance.buffer = love.sound.newSoundData(
-		instance.bufferSize,
-		instance.samplingRate,
-		instance.bitDepth,
-		instance.outputAurality
+	self.buffer:release()
+	self.buffer = love.sound.newSoundData(
+		self.bufferSize,
+		self.samplingRate,
+		self.bitDepth,
+		self.outputAurality
 	)
 end
 
@@ -1262,7 +1263,7 @@ end
 
 -- TSM Frame related
 
-function ASource.getFrameSize(instance, unit)
+function ASource:getFrameSize(unit)
 	unit = unit or 'milliseconds'
 
 	if not BufferUnit[unit] then
@@ -1271,15 +1272,15 @@ function ASource.getFrameSize(instance, unit)
 	end
 
 	if unit == 'samples' then
-		return instance.frameSize,
-		       instance.curFrameSize
+		return self.frameSize,
+		       self.curFrameSize
 	else--if unit == 'milliseconds' then
-		return instance.frameSize    / instance.samplingRate * 1000,
-		       instance.curFrameSize / instance.samplingRate * 1000
+		return self.frameSize    / self.samplingRate * 1000,
+		       self.curFrameSize / self.samplingRate * 1000
 	end
 end
 
-function ASource.setFrameSize(instance, size, unit)
+function ASource:setFrameSize(size, unit)
 	unit = unit or 'milliseconds'
 
 	if not BufferUnit[unit] then
@@ -1297,8 +1298,8 @@ function ASource.setFrameSize(instance, size, unit)
 
 	local min, max
 	if unit == 'samples' then
-		min =  1 * 0.001 * instance.samplingRate --  1 ms
-		max = 10         * instance.samplingRate -- 10 s
+		min =  1 * 0.001 * self.samplingRate --  1 ms
+		max = 10         * self.samplingRate -- 10 s
 	else--if unit = 'milliseconds' then
 		min =  1        --  1 ms
 		max = 10 * 1000 -- 10 s
@@ -1309,15 +1310,15 @@ function ASource.setFrameSize(instance, size, unit)
 	end
 
 	if unit == 'samples' then
-		instance.frameSize = size
+		self.frameSize = size
 	else--if unit = 'milliseconds' then
-		instance.frameSize = math.floor(size * 0.001 * instance.samplingRate + 0.5)
+		self.frameSize = math.floor(size * 0.001 * self.samplingRate + 0.5)
 	end
 
-	calculateFrameCoefficients(instance)
+	self:calculateFrameCoefficients()
 end
 
-function ASource.getFrameVariance(instance, unit)
+function ASource:getFrameVariance(unit)
 	unit = unit or 'milliseconds'
 
 	if not VarianceUnit[unit] then
@@ -1326,15 +1327,15 @@ function ASource.getFrameVariance(instance, unit)
 	end
 
 	if unit == 'samples' then
-		return instance.frameVariance
+		return self.frameVariance
 	elseif unit == 'milliseconds' then
-		return instance.frameVariance / instance.samplingRate * 1000
+		return self.frameVariance / self.samplingRate * 1000
 	else--if unit == 'percentage' then
-		return instance.frameVariance / instance.frameSize
+		return self.frameVariance / self.frameSize
 	end
 end
 
-function ASource.setFrameVariance(instance, variance, unit)
+function ASource:setFrameVariance(variance, unit)
 	unit = unit or 'milliseconds'
 
 	if not VarianceUnit[unit] then
@@ -1360,26 +1361,26 @@ function ASource.setFrameVariance(instance, variance, unit)
 	end
 
 	if unit == 'samples' then
-		instance.frameVariance = variance
+		self.frameVariance = variance
 	elseif unit == 'milliseconds' then
-		instance.frameVariance = math.floor(variance * 0.001 * instance.samplingRate + 0.5)
+		self.frameVariance = math.floor(variance * 0.001 * self.samplingRate + 0.5)
 	else --if unit == 'percentage' then
-		instance.frameVariance = math.floor(instance.frameSize * variance + 0.5)
+		self.frameVariance = math.floor(self.frameSize * variance + 0.5)
 	end
 
-	calculateFrameCoefficients(instance)
+	self:calculateFrameCoefficients()
 end
 
-function ASource.getFrameVarianceDistribution(instance)
-	return VarDistType[instance.frameVarianceDistributionIdx]
+function ASource:getFrameVarianceDistribution()
+	return VarDistType[self.frameVarianceDistributionIdx]
 end
 
-function ASource.setFrameVarianceDistribution(instance, distribution)
+function ASource:setFrameVarianceDistribution(distribution)
 	if not VarDistIMap[distribution] then
 		error(("1st parameter is not a supported buffer variance distribution; got %s.\n" ..
 			"Supported: `uniform`, `normal`"):format(tostring(distribution)))
 	end
-	instance.frameVarianceDistributionIdx = VarDistIMap[distribution]
+	self.frameVarianceDistributionIdx = VarDistIMap[distribution]
 
 	--calculateFrameCoefficients(instance)
 end
@@ -1390,35 +1391,35 @@ end
 
 -- Playback state related
 
-function ASource.isPlaying(instance)
-	return instance.playing
+function ASource:isPlaying()
+	return self.playing
 end
 
-function ASource.play(instance)
-	instance.playing = true
+function ASource:play()
+	self.playing = true
 	return true
 end
 
 --[[
-function ASource.isPaused(instance)
-	if instance.playing then
+function ASource:isPaused()
+	if self.playing then
 		return false
 	end
 
-	if instance.timeStretch >= 0 then
-		if instance:tell() == 0 then
+	if self.timeStretch >= 0 then
+		if self:tell() == 0 then
 			return false
 		end
-	else--if instance.timeStretch < 0 then
+	else--if self.timeStretch < 0 then
 		local limit
 
-		if instance.type == 'static' then
-			limit = math.max(0, instance.data:getSampleCount() - 1)
-		else--if instance.type == 'stream' then
-			limit = math.max(0, instance.data:getDuration() * instance.samplingRate - 1)
+		if self.type == 'static' then
+			limit = math.max(0, self.data:getSampleCount() - 1)
+		else--if self.type == 'stream' then
+			limit = math.max(0, self.data:getDuration() * self.samplingRate - 1)
 		end
 
-		if instance:tell() == limit then
+		if self:tell() == limit then
 			return false
 		end
 	end
@@ -1427,31 +1428,31 @@ function ASource.isPaused(instance)
 end
 --]]
 
-function ASource.pause(instance)
-	instance.playing = false
+function ASource:pause()
+	self.playing = false
 	return true
 end
 
 --[[
-function ASource.isStopped(instance)
-	if instance.playing then
+function ASource:isStopped()
+	if self.playing then
 		return false
 	end
 
-	if instance.timeStretch >= 0 then
-		if instance:tell() ~= 0 then
+	if self.timeStretch >= 0 then
+		if self:tell() ~= 0 then
 			return false
 		end
-	else--if instance.timeStretch < 0 then
+	else--if self.timeStretch < 0 then
 		local limit
 
-		if instance.type == 'static' then
-			limit = math.max(0, instance.data:getSampleCount() - 1)
-		else--if instance.type == 'stream' then
-			limit = math.max(0, instance.data:getDuration() * instance.samplingRate - 1)
+		if self.type == 'static' then
+			limit = math.max(0, self.data:getSampleCount() - 1)
+		else--if self.type == 'stream' then
+			limit = math.max(0, self.data:getDuration() * self.samplingRate - 1)
 		end
 
-		if instance:tell() ~= limit then
+		if self:tell() ~= limit then
 			return false
 		end
 	end
@@ -1460,15 +1461,15 @@ function ASource.isStopped(instance)
 end
 --]]
 
-function ASource.stop(instance)
-	instance:pause()
-	instance:rewind()
+function ASource:stop()
+	self:pause()
+	self:rewind()
 	return true
 end
 
 
 
-function ASource.tell(instance, unit)
+function ASource:tell(unit)
 	unit = unit or 'seconds'
 
 	if not TimeUnit[unit] then
@@ -1476,20 +1477,20 @@ function ASource.tell(instance, unit)
 			"got %s instead."):format(tostring(unit)))
 	end
 
-	if instance.type == 'queue' then
+	if self.type == 'queue' then
 		-- Tell the source object.
-		return instance.source:tell(unit)
+		return self.source:tell(unit)
 
 	else
 		if unit == 'samples' then
-			return instance.playbackOffset
+			return self.playbackOffset
 		else
-			return instance.playbackOffset / instance.samplingRate
+			return self.playbackOffset / self.samplingRate
 		end
 	end
 end
 
-function ASource.seek(instance, position, unit)
+function ASource:seek(position, unit)
 	unit = unit or 'seconds'
 
 	if not TimeUnit[unit] then
@@ -1509,18 +1510,18 @@ function ASource.seek(instance, position, unit)
 			"got %f instead."):format(position))
 	end
 
-	if instance.type == 'queue' then
+	if self.type == 'queue' then
 		-- Seek the source object.
-		instance.source:seek(position, unit)
+		self.source:seek(position, unit)
 
 	else
 		if unit == 'samples' then
 			local limit
 
-			if instance.type == 'static' then
-				limit = instance.data:getSampleCount()
-			else--if instance.type == 'stream' then
-				limit = instance.data:getDuration() * instance.samplingRate
+			if self.type == 'static' then
+				limit = self.data:getSampleCount()
+			else--if self.type == 'stream' then
+				limit = self.data:getDuration() * self.samplingRate
 			end
 
 			if position >= limit then
@@ -1528,15 +1529,15 @@ function ASource.seek(instance, position, unit)
 					"%f > %f."):format(position, limit))
 			end
 
-			instance.playbackOffset = position
+			self.playbackOffset = position
 
 		else--if unit == 'seconds' then
 			local limit
 
-			if instance.type == 'static' then
-				limit = instance.data:getDuration()
-			else--if instance.type == 'stream' then
-				limit = instance.data:getDuration()
+			if self.type == 'static' then
+				limit = self.data:getDuration()
+			else--if self.type == 'stream' then
+				limit = self.data:getDuration()
 			end
 
 			if position >= limit then
@@ -1544,15 +1545,15 @@ function ASource.seek(instance, position, unit)
 					"%f > %f."):format(position, limit))
 			end
 
-			instance.playbackOffset = position * instance.samplingRate
+			self.playbackOffset = position * self.samplingRate
 		end
 
 		-- Seeking resets initial loop state.
-		instance.loopRegionEntered = false
+		self.loopRegionEntered = false
 	end
 end
 
-function ASource.getDuration(instance, unit)
+function ASource:getDuration(unit)
 	unit = unit or 'seconds'
 
 	if not TimeUnit[unit] then
@@ -1560,41 +1561,41 @@ function ASource.getDuration(instance, unit)
 			"got %s instead."):format(tostring(unit)))
 	end
 
-	if instance.type == 'queue' then
+	if self.type == 'queue' then
 		-- Get the duration of the source object.
-		return instance.source:getDuration(unit)
+		return self.source:getDuration(unit)
 	else
 		if unit == 'samples' then
-			if instance.type == 'static' then
-				return instance.data:getSampleCount()
-			else--if instance.type == 'stream' then
-				return instance.data:getDuration() * instance.samplingRate
+			if self.type == 'static' then
+				return self.data:getSampleCount()
+			else--if self.type == 'stream' then
+				return self.data:getDuration() * self.samplingRate
 			end
 		else--if unit == 'seconds' then
-			if instance.type == 'static' then
-				return instance.data:getDuration()
-			else--if instance.type == 'stream' then
-				return instance.data:getDuration()
+			if self.type == 'static' then
+				return self.data:getDuration()
+			else--if self.type == 'stream' then
+				return self.data:getDuration()
 			end
 		end
 	end
 end
 
-function ASource.rewind(instance)
-	if instance.type == 'queue' then
+function ASource:rewind()
+	if self.type == 'queue' then
 		-- Rewind the source object.
-		instance.source:seek(0)
+		self.source:seek(0)
 	else
 		-- Use the seek method.
-		if instance.timeStretch >= 0 then
-			instance:seek(0, 'samples')
+		if self.timeStretch >= 0 then
+			self:seek(0, 'samples')
 		else
-			if instance.type == 'static' then
-				instance:seek(math.max(0,
-					instance.data:getSampleCount() - 1), 'samples')
-			else--if instance.type == 'stream' then
-				instance:seek(math.max(0,
-					instance.data:getDuration() * instance.samplingRate - 1), 'samples')
+			if self.type == 'static' then
+				self:seek(math.max(0,
+					self.data:getSampleCount() - 1), 'samples')
+			else--if self.type == 'stream' then
+				self:seek(math.max(0,
+					self.data:getDuration() * self.samplingRate - 1), 'samples')
 			end
 		end
 	end
@@ -1607,13 +1608,13 @@ end
 
 -- Looping related
 
-function ASource.isLooping(instance)
+function ASource:isLooping()
 	-- Löve also just returns false for queue-type Sources as well.
-	return instance.looping
+	return self.looping
 end
 
-function ASource.setLooping(instance, state)
-	if instance.type == 'queue' then
+function ASource:setLooping(state)
+	if self.type == 'queue' then
 		error("Can't set looping behaviour on queue-type Sources.")
 	end
 
@@ -1622,19 +1623,19 @@ function ASource.setLooping(instance, state)
 			"got %s instead."):format(type(state)))
 	end
 
-	instance.looping = state
+	self.looping = state
 
 	-- Setting loop state resets initial loop state.
-	instance.loopRegionEntered = false
+	self.loopRegionEntered = false
 end
 
-function ASource.getLoopPoints(instance)
+function ASource:getLoopPoints()
 	-- Let's just return the default values even with queue-type Sources.
-	return instance.loopRegionA, instance.loopRegionB
+	return self.loopRegionA, self.loopRegionB
 end
 
-function ASource.setLoopPoints(instance, pointA, pointB)
-	if instance.type == 'queue' then
+function ASource:setLoopPoints(pointA, pointB)
+	if self.type == 'queue' then
 		error("Can't set looping region on queue-type Sources.")
 	end
 
@@ -1643,10 +1644,10 @@ function ASource.setLoopPoints(instance, pointA, pointB)
 	end
 
 	local limit
-	if instance.type == 'static' then
-		limit = instance.data:getSampleCount()
-	else--if instance.type == 'stream' then
-		limit = instance.data:getDuration() * instance.samplingRate
+	if self.type == 'static' then
+		limit = self.data:getSampleCount()
+	else--if self.type == 'stream' then
+		limit = self.data:getDuration() * self.samplingRate
 	end
 
 	if pointA ~= nil then
@@ -1660,7 +1661,7 @@ function ASource.setLoopPoints(instance, pointA, pointB)
 				"%f > %f."):format(pointA, limit))
 		end
 
-		instance.loopRegionA = pointA
+		self.loopRegionA = pointA
 	end
 	if pointB ~= nil then
 		if (type(pointB) ~= 'number' or pointB < 0) then
@@ -1673,11 +1674,11 @@ function ASource.setLoopPoints(instance, pointA, pointB)
 				"%f > %f."):format(pointB, limit))
 		end
 
-		instance.loopRegionB = pointB
+		self.loopRegionB = pointB
 	end
 
 	-- Setting loop state resets initial loop state.
-	instance.loopRegionEntered = false
+	self.loopRegionEntered = false
 end
 
 
@@ -1686,16 +1687,16 @@ end
 
 -- Interpolation related
 
-function ASource.getInterpolationMethod(instance)
-	return ItplMethodList[instance.itplMethodIdx]
+function ASource:getInterpolationMethod()
+	return ItplMethodList[self.itplMethodIdx]
 end
 
-function ASource.setInterpolationMethod(instance, method)
+function ASource:setInterpolationMethod(method)
 	if not ItplMethodIMap[method] then
 		error(("1st parameter not a supported interpolation method; got %s.\n" ..
 			"Supported: `nearest`, `linear`, `cubic`, `sinc`."):format(tostring(method)))
 	end
-	instance.itplMethodIdx = ItplMethodIMap[method]
+	self.itplMethodIdx = ItplMethodIMap[method]
 end
 
 
@@ -1704,23 +1705,23 @@ end
 
 -- TSM related (TSM buffer mixing also uses interpolation)
 
-function ASource.getMixMethod(instance)
-	return MixMethodList[instance.mixMethodIdx]
+function ASource:getMixMethod()
+	return MixMethodList[self.mixMethodIdx]
 end
 
-function ASource.setMixMethod(instance, method)
+function ASource:setMixMethod(method)
 	if not MixMethodIMap[method] then
 		error(("1st parameter not a supported mixing method; got %s.\n" ..
 			"Supported: `auto`, `linear`, `sqroot`, 'cosine'."):format(tostring(method)))
 	end
-	instance.mixMethodIdx = MixMethodIMap[method]
+	self.mixMethodIdx = MixMethodIMap[method]
 end
 
-function ASource.getResamplingRatio(instance)
-	return instance.resampleRatio
+function ASource:getResamplingRatio()
+	return self.resampleRatio
 end
 
-function ASource.setResamplingRatio(instance, ratio)
+function ASource:setResamplingRatio(ratio)
 	if not ratio then
 		error("Missing 1st parameter, must be a number.")
 	end
@@ -1729,16 +1730,16 @@ function ASource.setResamplingRatio(instance, ratio)
 			"got %s instead."):format(tostring(ratio)))
 	end
 
-	instance.resampleRatio = ratio
+	self.resampleRatio = ratio
 
-	instance._recalcTSMCoefficients = true
+	self._recalcTSMCoefficients = true
 end
 
-function ASource.getTimeStretch(instance)
-	return instance.timeStretch
+function ASource:getTimeStretch()
+	return self.timeStretch
 end
 
-function ASource.setTimeStretch(instance, ratio)
+function ASource:setTimeStretch(ratio)
 	if not ratio then
 		error("Missing 1st parameter, must be a number.")
 	end
@@ -1747,12 +1748,12 @@ function ASource.setTimeStretch(instance, ratio)
 			"got %s instead."):format(tostring(ratio)))
 	end
 
-	instance.timeStretch = ratio
+	self.timeStretch = ratio
 
-	instance._recalcTSMCoefficients = true
+	self._recalcTSMCoefficients = true
 end
 
-function ASource.getPitchShift(instance, unit)
+function ASource:getPitchShift(unit)
 	unit = unit or 'ratio'
 
 	if not PitchUnit[unit] then
@@ -1761,13 +1762,13 @@ function ASource.getPitchShift(instance, unit)
 	end
 
 	if unit == 'ratio' then
-		return instance.pitchShift
+		return self.pitchShift
 	else--if unit == 'semitones' then
-		return instance.pitchShiftSt
+		return self.pitchShiftSt
 	end
 end
 
-function ASource.setPitchShift(instance, amount, unit)
+function ASource:setPitchShift(amount, unit)
 	unit = unit or 'ratio'
 
 	if not PitchUnit[unit] then
@@ -1788,14 +1789,14 @@ function ASource.setPitchShift(instance, amount, unit)
 			error(("1st parameter must be a positive number as a ratio; " ..
 				"got %f instead."):format(amount))
 		end
-		instance.pitchShift   = amount
-		instance.pitchShiftSt = (math.log(amount)/math.log(2))*12
+		self.pitchShift   = amount
+		self.pitchShiftSt = (math.log(amount)/math.log(2))*12
 	else--if unit == 'semitones' then
-		instance.pitchShift   = 2^(amount/12)
-		instance.pitchShiftSt = amount
+		self.pitchShift   = 2^(amount/12)
+		self.pitchShiftSt = amount
 	end
 
-	instance._recalcTSMCoefficients = true
+	self._recalcTSMCoefficients = true
 end
 
 
@@ -1804,15 +1805,15 @@ end
 
 -- Panning & stereo separation related
 
-function ASource.getPanLaw(instance)
+function ASource:getPanLaw()
 	-- Returning the custom function one might have defined is not supported. It's "custom".
-	if instance.panLaw == 2 then
+	if self.panLaw == 2 then
 		return 'custom'
 	end
-	return PanLawList[instance.panLaw]
+	return PanLawList[self.panLaw]
 end
 
-function ASource.setPanLaw(instance, law)
+function ASource:setPanLaw(law)
 	if not law then
 		error("Missing 1st parameter, must be `gain`, `power` or a function " ..
 			"with one input and two output parameters: [0,1]->[0,1],[0,1].")
@@ -1824,8 +1825,8 @@ function ASource.setPanLaw(instance, law)
 			"got %s instead."):format(law))
 		end
 
-		instance.panLaw     = PanLawIMap[law]
-		instance.panLawFunc = PanLawFunc[PanLawIMap[law]]
+		self.panLaw     = PanLawIMap[law]
+		self.panLawFunc = PanLawFunc[PanLawIMap[law]]
 
 	elseif type(law) == 'function' then
 		-- Minimal testing done on the given function.
@@ -1843,8 +1844,8 @@ function ASource.setPanLaw(instance, law)
 					"got %f and %f instead."):format(l, r))
 			end
 
-			instance.panLaw     = PanLawIMap['custom']
-			instance.panLawFunc = law
+			self.panLaw     = PanLawIMap['custom']
+			self.panLawFunc = law
 		end
 
 	else
@@ -1852,14 +1853,14 @@ function ASource.setPanLaw(instance, law)
 			"got %s instead."):format(type(law)))
 	end
 
-	calculatePanningCoefficients(instance)
+	self:calculatePanningCoefficients()
 end
 
-function ASource.getPanning(instance)
-	return instance.panning
+function ASource:getPanning()
+	return self.panning
 end
 
-function ASource.setPanning(instance, pan)
+function ASource:setPanning(pan)
 	if not pan then
 		error("Missing 1st parameter, must be a number between 0 and 1 inclusive.")
 	end
@@ -1872,16 +1873,16 @@ function ASource.setPanning(instance, pan)
 			"got %f instead."):format(pan))
 	end
 
-	instance.panning = pan
+	self.panning = pan
 
-	calculatePanningCoefficients(instance)
+	self:calculatePanningCoefficients()
 end
 
-function ASource.getStereoSeparation(instance)
-	return instance.separation
+function ASource:getStereoSeparation()
+	return self.separation
 end
 
-function ASource.setStereoSeparation(instance, sep)
+function ASource:setStereoSeparation(sep)
 	if not sep then
 		error("Missing 1st parameter, must be a number between -1 and 1 inclusive.")
 	end
@@ -1894,7 +1895,7 @@ function ASource.setStereoSeparation(instance, sep)
 			"got %f instead."):format(sep))
 	end
 
-	instance.separation = sep
+	self.separation = sep
 end
 
 
@@ -1903,86 +1904,86 @@ end
 
 -- Methods that aren't modified; instead of overcomplicated metatable stuff, just have them here.
 
-function ASource.getFreeBufferCount(instance, ...)
-	return instance.source:getFreeBufferCount(...)
+function ASource:getFreeBufferCount(...)
+	return self.source:getFreeBufferCount()
 end
 
-function ASource.getEffect(instance, ...)
-	return instance.source:getEffect(...)
+function ASource:getEffect(...)
+	return self.source:getEffect(...)
 end
-function ASource.setEffect(instance, ...)
-	return instance.source:setEffect(...)
+function ASource:setEffect(...)
+	return self.source:setEffect(...)
 end
-function ASource.getFilter(instance, ...)
-	return instance.source:getFilter(...)
+function ASource:getFilter(...)
+	return self.source:getFilter()
 end
-function ASource.setFilter(instance, ...)
-	return instance.source:setFilter(...)
+function ASource:setFilter(...)
+	return self.source:setFilter(...)
 end
-function ASource.getActiveEffects(instance, ...)
-	return instance.source:getActiveEffects(...)
-end
-
-function ASource.getAirAbsorption(instance, ...)
-	return instance.source:getAirAbsorption(...)
-end
-function ASource.setAirAbsorption(instance, ...)
-	return instance.source:setAirAbsorption(...)
-end
-function ASource.getAttenuationDistances(instance, ...)
-	return instance.source:getAttenuationDistances(...)
-end
-function ASource.setAttenuationDistances(instance, ...)
-	return instance.source:setAttenuationDistances(...)
-end
-function ASource.getCone(instance, ...)
-	return instance.source:getCone(...)
-end
-function ASource.setCone(instance, ...)
-	return instance.source:setCone(...)
-end
-function ASource.getDirection(instance, ...)
-	return instance.source:getDirection(...)
-end
-function ASource.setDirection(instance, ...)
-	return instance.source:setDirection(...)
-end
-function ASource.getPosition(instance, ...)
-	return instance.source:getPosition(...)
-end
-function ASource.setPosition(instance, ...)
-	return instance.source:setPosition(...)
-end
-function ASource.getRolloff(instance, ...)
-	return instance.source:getRolloff(...)
-end
-function ASource.setRolloff(instance, ...)
-	return instance.source:setRolloff(...)
-end
-function ASource.getVelocity(instance, ...)
-	return instance.source:getVelocity(...)
-end
-function ASource.setVelocity(instance, ...)
-	return instance.source:setVelocity(...)
-end
-function ASource.isRelative(instance, ...)
-	return instance.source:isRelative(...)
-end
-function ASource.setRelative(instance, ...)
-	return instance.source:setRelative(...)
-end
-function ASource.getVolumeLimits(instance, ...)
-	return instance.source:getVolumeLimits(...)
-end
-function ASource.setVolumeLimits(instance, ...)
-	return instance.source:setVolumeLimits(...)
+function ASource:getActiveEffects(...)
+	return self.source:getActiveEffects()
 end
 
-function ASource.getVolume(instance, ...)
-	return instance.source:getVolume(...)
+function ASource:getAirAbsorption(...)
+	return self.source:getAirAbsorption()
 end
-function ASource.setVolume(instance, ...)
-	return instance.source:setVolume(...)
+function ASource:setAirAbsorption(...)
+	return self.source:setAirAbsorption(...)
+end
+function ASource:getAttenuationDistances(...)
+	return self.source:getAttenuationDistances()
+end
+function ASource:setAttenuationDistances(...)
+	return self.source:setAttenuationDistances(...)
+end
+function ASource:getCone(...)
+	return self.source:getCone()
+end
+function ASource:setCone(...)
+	return self.source:setCone(...)
+end
+function ASource:getDirection(...)
+	return self.source:getDirection()
+end
+function ASource:setDirection(...)
+	return self.source:setDirection(...)
+end
+function ASource:getPosition(...)
+	return self.source:getPosition()
+end
+function ASource:setPosition(...)
+	return self.source:setPosition(...)
+end
+function ASource:getRolloff(...)
+	return self.source:getRolloff()
+end
+function ASource:setRolloff(...)
+	return self.source:setRolloff(...)
+end
+function ASource:getVelocity(...)
+	return self.source:getVelocity()
+end
+function ASource:setVelocity(...)
+	return self.source:setVelocity(...)
+end
+function ASource:isRelative(...)
+	return self.source:isRelative()
+end
+function ASource:setRelative(...)
+	return self.source:setRelative(...)
+end
+function ASource:getVolumeLimits(...)
+	return self.source:getVolumeLimits()
+end
+function ASource:setVolumeLimits(...)
+	return self.source:setVolumeLimits(...)
+end
+
+function ASource:getVolume(...)
+	return self.source:getVolume()
+end
+function ASource:setVolume(...)
+	return self.source:setVolume(...)
 end
 
 
