@@ -336,9 +336,7 @@ function Level:updateMusic()
 			dangerMusic:play(0, 1)
 		else
 			-- Play the music accordingly to the danger flag.
-			-- This "if" statement is an experimental feature where the music is sped up when in danger. Works with ASL only.
-			-- TODO: Make this configurable.
-			if true then
+			if not _DFLAG_ASL then
 				if self.danger then
 					-- TODO: Make the danger music continue instead of starting over if the game has been unpaused.
 					if dangerMusic.volume == 0 then
@@ -353,10 +351,10 @@ function Level:updateMusic()
 				end
 			else
 				if self.danger then
-					music.instance:setTimeStretch(3)
+					music:setSpeed(3)
 				else
 					music:play(1, 1)
-					music.instance:setTimeStretch(1)
+					music:setSpeed(1)
 				end
 			end
 		end

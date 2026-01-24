@@ -13,6 +13,15 @@ os = {
 -- Enable Advanced Sound Library.
 love.audio.newAdvancedSource = require("com.asl")
 
+-- This flag controls the experimental feature of ASL.
+-- This changes the way music is handled in the levels (the music is sped up when in danger)
+-- and changes all created music tracks to use advanced sources.
+-- ASL brings features like time stretching, but at the cost of much higher resource usage.
+--
+-- At some point, the ASL library will be debugged and fixed as it is the only reasonable way to bring this feature
+-- into the engine.
+_DFLAG_ASL = false
+
 -- toolbox lol
 local t = love.timer.getTime()
 print(string.format("update took %dus", (love.timer.getTime() - t) * 1000000))

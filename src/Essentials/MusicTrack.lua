@@ -12,9 +12,8 @@ function MusicTrack:new(config, path)
     self.path = path
 
 	local sound = config.audio
-	-- TODO: This likes to crash with certain music files. Look into it in the future.
-	--self.instance = sound:makeAdvancedSource()
-	self.instance = sound:makeSource("stream")
+	-- TODO: This likes to crash with certain music files (MIDI). Look into it in the future.
+	self.instance = _DFLAG_ASL and sound:makeAdvancedSource() or sound:makeSource("stream")
 	assert(self.instance, "Failed to load sound data: " .. tostring(config.audio) .. " from " .. path)
 	self.instance:setLooping(true)
 
@@ -92,6 +91,14 @@ function MusicTrack:stop(duration)
 	if duration == 0 then
 		self.instance:stop()
 	end
+end
+
+---Sets the playback speed of this Music Track.
+---This feature only works when using ASL. Otherwise, throws an error.
+---@param speed number The playback speed. 1 is the nominal speed.
+function MusicTrack:setSpeed(speed)
+	assert(_DFLAG_ASL, "Attempt to call `MusicTrack:setSpeed()` without the ASL debug flag set. Wrap your call around with an `if` statement or turn the flag on.")
+	self.instance:setTimeStretch(speed)
 end
 
 ---Injects functions to Resource Manager regarding this resource type.
