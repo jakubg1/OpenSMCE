@@ -9,13 +9,7 @@ This is a WIP document, [you can submit an issue](https://github.com/jakubg1/Ope
 
 
 ## Editing
-The recommended IDE to use is **Visual Studio Code**. It offers a set of plugins which can massively enhance development experience.
-
-We recommend you to use the following plugins:
-- **Lua** plugin by **sumneko**
-- **Love2D support** plugin by **Pixelbyte Studios**
-
-Any other plugins are optional.
+The recommended IDE to use is **Visual Studio Code** with the **sumneko**'s **Lua Language Server** plugin which provides **luadoc** documentation as well as LÖVE2D API support.
 
 ## Source code format
 ### Bare basics
