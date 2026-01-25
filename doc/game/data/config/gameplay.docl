@@ -3,6 +3,7 @@
         - buttonClickSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been clicked.
         - buttonHoverSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been hovered with a mouse cursor.
         - buttonReleaseSound* (SoundEvent) - The default Sound Event that will be played whenever a UI button has been released (unpressed).
+    - scoreFormat* ($string) - The default score formatting used for Score Events if the Score Event doesn't specify one. Should be an Expression. If specified, can be used for further formatting by Score Events with the `[event.fscore]` variable.
     - sphereBehavior (object) - Defines behavior of the spheres.
         - acceleration (number) - The default acceleration rate of spheres being pushed.
         - attractionAcceleration* (number) - The acceleration rate of spheres magnetizing to each other.

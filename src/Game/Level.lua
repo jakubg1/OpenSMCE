@@ -41,6 +41,7 @@ function Level:new(config)
 	self.levelSequence = config.sequence.sequence
 	self.startingTimers = _Game.configManager.gameplay.levelTimers
 	self.startingTimerSeries = _Game.configManager.gameplay.levelTimerSeries
+	self.scoreFormat = _Game.configManager.gameplay.scoreFormat
 
 	-- Additional variables come from `:reset()`! You must call either `:reset()` or `:deserialize()`.
 end
@@ -558,7 +559,7 @@ function Level:executeScoreEvent(scoreEvent, x, y)
 	self:grantScore(score, unmultipliedScore)
 
 	-- Display the score text (Floating Text) only if a position is provided.
-	if x and y then
+	if score > 0 and x and y then
 		local font = scoreEvent.font
 		if scoreEvent.fonts then
 			-- We pick one of the font options.
@@ -566,7 +567,11 @@ function Level:executeScoreEvent(scoreEvent, x, y)
 			font = scoreEvent.fonts.options[choice] or scoreEvent.fonts.default
 		end
 		if font then
-			local text = scoreEvent.text and scoreEvent.text:evaluate() or (score > 0 and _Utils.formatNumber(score) or "")
+			local text = self.scoreFormat and self.scoreFormat:evaluate() or _Utils.formatNumber(score)
+			_Vars:set("event.fscore", text)
+			if scoreEvent.text then
+				text = scoreEvent.text:evaluate()
+			end
 			self:spawnFloatingText(text, x, y, font)
 		end
 	end

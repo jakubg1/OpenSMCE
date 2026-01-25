@@ -23,19 +23,14 @@ end
 function RuntimeManager:load()
 	-- if runtime.json exists, then load it
 	local data = _Utils.loadJson(_ParsePath("runtime.json"))
-	if data then
+	if data and data.profiles then
 		self.profileManager:deserialize(data.profiles)
+	end
+	if data and data.highscores then
 		self.highscores:deserialize(data.highscores)
+	end
+	if data and data.options then
 		self.options:deserialize(data.options)
-	else
-		_Log:printt("RuntimeManager", "No data found! Possibly starting up for the first time or the save data got corrupted...")
-		_Log:printt("RuntimeManager", "If you believe you had some data saved in this game, DON'T EXIT NORMALLY and do the following:")
-		_Log:printt("RuntimeManager", "In order to possibly rescue your data, open the console via Ctrl + ` and write \"crash\".")
-		_Log:printt("RuntimeManager", "The game will deliberately crash. Don't press \"Emergency Save\" and exit without saving.")
-		_Log:printt("RuntimeManager", "To possibly recover your data, inspect the runtime.json file in the game folder")
-		_Log:printt("RuntimeManager", "or send it to the development team!")
-		_Log:printt("RuntimeManager", "")
-		_Log:printt("RuntimeManager", "If you're launching the game for the first time, you can safely ignore the above message.")
 	end
 end
 

@@ -23,6 +23,11 @@
             },
             "additionalProperties": false
         },
+        "scoreFormat": {
+            "$ref": "../_structures/ExprString.json",
+            "description": "The default score formatting used for Score Events if the Score Event doesn't specify one. Should be an Expression. If specified, can be used for further formatting by Score Events with the [event.fscore] variable.",
+            "markdownDescription": "The default score formatting used for Score Events if the Score Event doesn't specify one. Should be an Expression. If specified, can be used for further formatting by Score Events with the `[event.fscore]` variable."
+        },
         "sphereBehavior": {
             "type": "object",
             "description": "Defines behavior of the spheres.",
