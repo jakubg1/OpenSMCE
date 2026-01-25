@@ -382,6 +382,16 @@ function utils.parseMusicTrackOpt(data, base, path, fields)
 	return parseResourceOpt(data, base, path, fields, "MusicTrack", _Res.getMusicTrack)
 end
 
+---@return MusicPlaylist
+function utils.parseMusicPlaylist(data, base, path, fields)
+	return parseResource(data, base, path, fields, "MusicPlaylist", _Res.getMusicPlaylist)
+end
+
+---@return MusicPlaylist?
+function utils.parseMusicPlaylistOpt(data, base, path, fields)
+	return parseResourceOpt(data, base, path, fields, "MusicPlaylist", _Res.getMusicPlaylist)
+end
+
 
 
 ---Internal function for class parsing logic.

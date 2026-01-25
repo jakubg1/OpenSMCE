@@ -1,8 +1,8 @@
 - (object) - The root object.
     - map (string) - The map name. Specifically, the name of the folder in the `maps` folder of the game.
     - sequence (LevelSequence) - The level sequence which will be obeyed for this level.
-    - music (MusicTrack) - Which soundtrack should be played throughout the level.
-    - dangerMusic* (MusicTrack) - Which soundtrack should be played during the danger phase.
+    - music (MusicPlaylist) - Which playlist should be played throughout the level. One track will be picked at random or in sequence per level attempt, as specified in the playlist file.
+    - dangerMusic* (MusicPlaylist) - Which playlist should be played during the danger phase. One track will be picked at random or in sequence per level attempt, as specified in the playlist file.
     - ambientMusic* (MusicTrack) - Which soundtrack should be played throughout the entire level, including before starting and after winning, independently of the level and danger soundtracks.
     - dangerSound* (SoundEvent) - A sound event which plays whenever the warning effect is spawned.
     - dangerLoopSound* (SoundEvent) - A looping sound event which plays during the danger phase.

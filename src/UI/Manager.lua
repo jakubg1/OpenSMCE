@@ -47,6 +47,11 @@ function UIManager:new()
         musicPause = function(music, duration) _Res:getMusicTrack(music):pause(duration) end,
         musicStop = function(music, duration) _Res:getMusicTrack(music):stop(duration) end,
         musicVolume = function(music, volume, duration) _Res:getMusicTrack(music):setVolume(volume, duration) end,
+        playlistPlay = function(playlist, duration) _Res:getMusicPlaylist(playlist):getTrack():play(duration) end,
+        playlistPause = function(playlist, duration) _Res:getMusicPlaylist(playlist):getTrack():pause(duration) end,
+        playlistStop = function(playlist, duration) _Res:getMusicPlaylist(playlist):getTrack():stop(duration) end,
+        playlistVolume = function(playlist, volume, duration) _Res:getMusicPlaylist(playlist):getTrack():setVolume(volume, duration) end,
+        playlistSkip = function(playlist) _Res:getMusicPlaylist(playlist):nextTrack() end,
         playSound = function(sound) _Res:getSoundEvent(sound):play() end,
 
         profileMSet = function(name) _Game.runtimeManager.profileManager:setCurrentProfile(name) end,

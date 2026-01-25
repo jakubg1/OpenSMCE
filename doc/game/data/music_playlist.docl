@@ -1,0 +1,6 @@
+- (object) - The root object.
+    - tracks (array) - A list of music tracks. One will be always played at random.
+        - (MusicTrack) - A single music track.
+    - order* = "random" (string) - In which order the music tracks should be played.
+        - "random" - Default. The tracks will be picked at random.
+        - "sequence" - The tracks will be played in specified order, starting from the first one.

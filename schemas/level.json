@@ -14,12 +14,12 @@
             "description": "The level sequence which will be obeyed for this level."
         },
         "music": {
-            "$ref": "_structures/MusicTrack.json",
-            "description": "Which soundtrack should be played throughout the level."
+            "$ref": "_structures/MusicPlaylist.json",
+            "description": "Which playlist should be played throughout the level. One track will be picked at random or in sequence per level attempt, as specified in the playlist file."
         },
         "dangerMusic": {
-            "$ref": "_structures/MusicTrack.json",
-            "description": "Which soundtrack should be played during the danger phase."
+            "$ref": "_structures/MusicPlaylist.json",
+            "description": "Which playlist should be played during the danger phase. One track will be picked at random or in sequence per level attempt, as specified in the playlist file."
         },
         "ambientMusic": {
             "$ref": "_structures/MusicTrack.json",

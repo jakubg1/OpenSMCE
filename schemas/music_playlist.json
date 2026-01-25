@@ -1,0 +1,34 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "description": "The root object.",
+    "properties": {
+        "$schema": true,
+        "tracks": {
+            "type": "array",
+            "description": "A list of music tracks. One will be always played at random.",
+            "items": {
+                "$ref": "_structures/MusicTrack.json",
+                "description": "A single music track."
+            }
+        },
+        "order": {
+            "type": "string",
+            "description": "In which order the music tracks should be played.",
+            "oneOf": [
+                {
+                    "const": "random",
+                    "description": "Default. The tracks will be picked at random."
+                },
+                {
+                    "const": "sequence",
+                    "description": "The tracks will be played in specified order, starting from the first one."
+                }
+            ]
+        }
+    },
+    "required": [
+        "tracks"
+    ],
+    "additionalProperties": false
+}

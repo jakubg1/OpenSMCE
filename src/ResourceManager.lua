@@ -1,14 +1,15 @@
 local class = require "com.class"
+local ColorPalette = require("src.Essentials.ColorPalette")
+local Font = require("src.Essentials.Font")
+local FontFile = require("src.Essentials.FontFile")
 local Image = require("src.Essentials.Image")
-local Sprite = require("src.Essentials.Sprite")
-local SpriteAtlas = require("src.Essentials.SpriteAtlas")
+local MusicPlaylist = require("src.Essentials.MusicPlaylist")
+local MusicTrack = require("src.Essentials.MusicTrack")
+local Shader = require("src.Essentials.Shader")
 local Sound = require("src.Essentials.Sound")
 local SoundEvent = require("src.Essentials.SoundEvent")
-local MusicTrack = require("src.Essentials.MusicTrack")
-local FontFile = require("src.Essentials.FontFile")
-local Font = require("src.Essentials.Font")
-local Shader = require("src.Essentials.Shader")
-local ColorPalette = require("src.Essentials.ColorPalette")
+local Sprite = require("src.Essentials.Sprite")
+local SpriteAtlas = require("src.Essentials.SpriteAtlas")
 
 ---Manages all the Game's resources, alongside the ConfigManager. I'm not sure if this split is necessary and how it works.
 ---@class ResourceManager
@@ -24,10 +25,12 @@ function ResourceManager:new()
 	-- - `asset` holds the resource itself. Optional, only if the resources are singletons and are not creatable from elsewhere (like Sprites, Sprite Atlases, Music etc.).
 	-- - `batches` is a list of resource batches this resource was loaded as, once all of them are unloaded, this entry is deleted; can be `nil` to omit that feature for global resources
 	---@alias Resource {type: string, config: any?, asset: any?, batches: string[]?}
+
 	-- Keys are absolute paths starting from the root game directory.
 	-- If a resource is queued but not loaded, its entry will not exist at all.
 	---@type table<string, Resource>
 	self.resources = {}
+
 	-- A list of keys of the queued resources alongside their batches. Used to preserve the loading order.
 	---@type {key: string, batches: string[]}[]
 	self.queuedResources = {}
@@ -35,9 +38,6 @@ function ResourceManager:new()
 	-- Newly queued/loaded resources will be a part of these batches if specified. Otherwise, loaded resources will be loaded permanently.
 	---@type string[]?
 	self.currentBatches = nil
-
-	-- Path to the source code directory where all Config Classes are stored. Used to scan for and register the resource types.
-	self.RESOURCE_TYPE_LOCATION = "src/Configs"
 
 	-- This table is filled dynamically by calling `ResourceManager:registerResourceTypes()`.
 	-- `constructor` is a Config Class constructor, whereas `assetConstructor` is a singleton resource constructor.
@@ -60,6 +60,9 @@ function ResourceManager:new()
 		glsl = "Shader"
 	}
 
+	-- Path to the source code directory where all Config Classes are stored. Used to scan for and register the resource types.
+	self.RESOURCE_TYPE_LOCATION = "src/Configs"
+
 	-- Register the resource types and config constructors.
 	self:registerResourceTypes(self.RESOURCE_TYPE_LOCATION)
 
@@ -69,12 +72,13 @@ function ResourceManager:new()
 		Font = Font,
 		FontFile = FontFile,
 		Image = Image,
+		MusicPlaylist = MusicPlaylist,
+		MusicTrack = MusicTrack,
 		Shader = Shader,
-		Sprite = Sprite,
-		SpriteAtlas = SpriteAtlas,
 		Sound = Sound,
 		SoundEvent = SoundEvent,
-		MusicTrack = MusicTrack
+		Sprite = Sprite,
+		SpriteAtlas = SpriteAtlas
 	}
 	self:registerResourceSingletons(self.SINGLETON_LIST)
 
