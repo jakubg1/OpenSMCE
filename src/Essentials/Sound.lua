@@ -22,7 +22,7 @@ end
 
 ---Makes a special advanced source type for extra functionality from ASL.
 ---DO NOT USE UNLESS NECESSARY: Advanced sources consume extra memory and CPU power whenever you alter their state.
----@return table
+---@return ASource
 function Sound:makeAdvancedSource()
 	return love.audio.newAdvancedSource(self.data)
 end

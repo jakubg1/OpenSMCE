@@ -18,7 +18,6 @@ function UIManager:new()
         loadingGetProgress = function() return _Res:getLoadProgress("main") end,
 
         levelStart = function() _Game:startLevel() end,
-        levelRestartMusic = function() _Game.level:restartMusic() end,
         levelContinue = function() _Game.level:continueSequence() end,
         levelPause = function() _Game.level:setPause(true) end,
         levelUnpause = function() _Game.level:setPause(false) end,
@@ -44,8 +43,10 @@ function UIManager:new()
 
         levelExecuteScoreEvent = function(event, x, y) _Game.level:executeScoreEvent(_Res:getScoreEventConfig(event), x, y) end,
 
-        musicVolume = function(music, volume, duration) _Res:getMusicTrack(music):play(volume, duration) end,
+        musicPlay = function(music, duration) _Res:getMusicTrack(music):play(duration) end,
+        musicPause = function(music, duration) _Res:getMusicTrack(music):pause(duration) end,
         musicStop = function(music, duration) _Res:getMusicTrack(music):stop(duration) end,
+        musicVolume = function(music, volume, duration) _Res:getMusicTrack(music):setVolume(volume, duration) end,
         playSound = function(sound) _Res:getSoundEvent(sound):play() end,
 
         profileMSet = function(name) _Game.runtimeManager.profileManager:setCurrentProfile(name) end,

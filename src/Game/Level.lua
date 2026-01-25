@@ -326,50 +326,37 @@ function Level:updateMusic()
 	local music = self.config.music
 	local dangerMusic = self.config.dangerMusic
 	local ambientMusic = self.config.ambientMusic
-	local mute = self:getCurrentSequenceStep().muteMusic or self.pause
+	local mute = self:isMusicMuted()
+	local danger = dangerMusic and self.danger and not _DFLAG_ASL
 
-	if dangerMusic then
-		-- If the level hasn't started yet, is lost, won or the game is paused,
-		-- mute the music.
-		if mute then
-			music:play(0, 1)
-			dangerMusic:play(0, 1)
-		else
-			-- Play the music accordingly to the danger flag.
-			if not _DFLAG_ASL then
-				if self.danger then
-					-- TODO: Make the danger music continue instead of starting over if the game has been unpaused.
-					if dangerMusic.volume == 0 then
-						dangerMusic:stop()
-						dangerMusic:play()
-					end
-					music:play(0, 1)
-					dangerMusic:play(1, 1)
-				else
-					music:play(1, 1)
-					dangerMusic:play(0, 1)
-				end
-			else
-				if self.danger then
-					music:setSpeed(3)
-				else
-					music:play(1, 1)
-					music:setSpeed(1)
-				end
-			end
-		end
+	-- Control the music volume.
+	if not mute and not danger then
+		music:play(1)
 	else
-		-- If there's no danger music, then mute it or unmute in a similar fashion.
-		if mute then
-			music:play(0, 1)
+		music:pause(1)
+	end
+	if dangerMusic then
+		if not mute and danger then
+			dangerMusic:play(1)
+		elseif self.pause then
+			dangerMusic:pause(1)
 		else
-			music:play(1, 1)
+			dangerMusic:stop(1)
 		end
 	end
 
+	-- Control the music speed if ASL is turned on.
+	if _DFLAG_ASL then
+		if self.danger then
+			music:setSpeed(3, 1)
+		else
+			music:setSpeed(1, 1)
+		end
+	end
+
+	-- Ambient music plays all the time.
 	if ambientMusic then
-		-- Ambient music plays all the time.
-		ambientMusic:play(1, 1)
+		ambientMusic:play(1)
 	end
 end
 
@@ -912,10 +899,22 @@ end
 
 
 
----Starts the level music from the beginning.
+---Returns `true` if the level music should be currently muted, `false` otherwise.
+---@return boolean
+function Level:isMusicMuted()
+	-- TODO: Not being in any sequence step at all for even a single frame is a blunder. Fix this!
+	return (not self:getCurrentSequenceStep() or self:getCurrentSequenceStep().muteMusic) or self.pause
+end
+
+---Resets the level music and changes the track.
 function Level:restartMusic()
 	self.config.music:stop()
-	self.config.music:play()
+	if not self:isMusicMuted() then
+		self.config.music:play()
+	end
+	if _DFLAG_ASL then
+		self.config.music:setSpeed(1)
+	end
 end
 
 
@@ -966,6 +965,11 @@ function Level:jumpToSequenceStep(stepN)
 	elseif step.type == "executeGameEvent" then
 		_Game:executeGameEvent(step.gameEvent)
 		self:advanceSequenceStep()
+	end
+	-- Kick off the music if this step does not mute it and the previous step did.
+	-- TODO: This is a hack. Do something with this?
+	if not step.muteMusic and (not self.levelSequence[self.levelSequenceStep - 1] or self.levelSequence[self.levelSequenceStep - 1].muteMusic) then
+		self.config.music:play()
 	end
 end
 
@@ -1100,13 +1104,13 @@ function Level:destroy()
 
 	-- Stop any music.
 	if self.config.music then
-		self.config.music:play(0, 1)
+		self.config.music:stop(1)
 	end
 	if self.config.dangerMusic then
-		self.config.dangerMusic:play(0, 1)
+		self.config.dangerMusic:stop(1)
 	end
 	if self.config.ambientMusic then
-		self.config.ambientMusic:play(0, 1)
+		self.config.ambientMusic:stop(1)
 	end
 
 	if self.warmupLoop then
@@ -1162,6 +1166,7 @@ function Level:reset()
 	self:destroyNet()
 
 	self:updateObjectives()
+	self:restartMusic()
 
 	self.variables = {}
 	if _Game.configManager.gameplay.levelVariables then
@@ -1853,6 +1858,7 @@ function Level:deserialize(t)
 	-- Pause
 	self:setPause(true)
 	self:updateObjectives()
+	self:restartMusic()
 end
 
 
