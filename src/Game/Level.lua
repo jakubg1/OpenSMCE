@@ -1,12 +1,6 @@
 local class = require "com.class"
-
----Represents a Level. Houses the Map, Shooters, Shot Spheres, Collectibles and Floating Texts. Handles elements such as level objectives and general level event order.
----@class Level
----@overload fun(config):Level
-local Level = class:derive("Level")
-
 local Vec2 = require("src.Essentials.Vector2")
-
+local Expression = require("src.Expression")
 local Map = require("src.Game.Map")
 local Shooter = require("src.Game.Shooter")
 local ColorManager = require("src.Game.ColorManager")
@@ -16,9 +10,10 @@ local Collectible = require("src.Game.Collectible")
 local Projectile = require("src.Game.Projectile")
 local FloatingText = require("src.Game.FloatingText")
 
-local Expression = require("src.Expression")
-
-
+---Represents a Level. Houses the Map, Shooters, Shot Spheres, Collectibles and Floating Texts. Handles elements such as level objectives and general level event order.
+---@class Level
+---@overload fun(config: LevelConfig):Level
+local Level = class:derive("Level")
 
 ---Constructs a new Level.
 ---@param config LevelConfig The level config.
@@ -47,8 +42,6 @@ function Level:new(config)
 	-- Additional variables come from `:reset()`! You must call either `:reset()` or `:deserialize()`.
 end
 
-
-
 ---Updates the Level.
 ---@param dt number Delta time in seconds.
 function Level:update(dt)
@@ -69,9 +62,8 @@ function Level:update(dt)
 	self:updateMusic()
 end
 
-
-
 ---Updates the Level's logic.
+---@private
 ---@param dt number Delta time in seconds.
 function Level:updateLogic(dt)
 	self.map:update(dt)
@@ -79,23 +71,142 @@ function Level:updateLogic(dt)
 	self:updateTimers(dt)
 	self:updateVariables()
 	self.colorManager:dumpVariables()
+	self:updateDanger(dt)
+	self:updateMisc(dt)
+	self:updateSequence(dt)
+	self:updateObjectives()
+end
 
-	-- Danger sound
+---Ticks all the Level Timers up or down, and all elements of Level Timer Series down.
+---Timers which are counting down are capped at 0.
+---Timer Series elements which reach 0 are removed.
+---@private
+---@param dt number Time delta in seconds.
+function Level:updateTimers(dt)
+	-- Timers
+	for name, time in pairs(self.timers) do
+		if self.startingTimers[name].countDown then
+			self:setTimer(name, math.max(time - dt, 0))
+		else
+			self:setTimer(name, time + dt)
+		end
+	end
+	-- Timer series
+	for name, timerSeries in pairs(self.timerSeries) do
+		for i = #timerSeries, 1, -1 do
+			timerSeries[i] = timerSeries[i] - dt
+			if timerSeries[i] <= 0 then
+				table.remove(timerSeries, i)
+			end
+		end
+	end
+end
+
+---Adjusts which music is playing based on the level's internal state.
+---@private
+function Level:updateMusic()
+	local music = self.config.music
+	local dangerMusic = self.config.dangerMusic
+	local ambientMusic = self.config.ambientMusic
+	local mute = self:isMusicMuted()
+	local danger = dangerMusic and self.danger and not _DFLAG_ASL
+
+	-- Control the music volume.
+	if not mute and not danger then
+		music:play(1)
+	else
+		music:pause(1)
+	end
+	if dangerMusic then
+		if not mute and danger then
+			dangerMusic:play(1)
+		elseif self.pause then
+			dangerMusic:pause(1)
+		else
+			dangerMusic:stop(1)
+		end
+	end
+
+	-- Control the music speed if ASL is turned on.
+	if _DFLAG_ASL then
+		if self.danger then
+			music:setSpeed(3, 1)
+		else
+			music:setSpeed(1, 1)
+		end
+	end
+
+	-- Ambient music plays all the time.
+	if ambientMusic then
+		ambientMusic:play(1)
+	end
+end
+
+---Exposes the current state of the level to Expression Variables:
+--- - Streak (Luxor: Combo, Zuma: Chain): `[level.streak]`
+--- - Shot accuracy: `[level.accuracy]`
+--- - Level variables: `[level.<variable>]`
+--- - Level timers: `[level.<timer>]`
+--- - Level timer series: `[level.<timerSeries>.length]`
+---@private
+function Level:updateVariables()
+	_Vars:set("level.streak", self.streak)
+	_Vars:set("level.accuracy", self:getShotAccuracy())
+	for name, variable in pairs(self.variables) do
+		_Vars:set("level." .. name, variable)
+	end
+	for name, timer in pairs(self.timers) do
+		_Vars:set("level." .. name, timer)
+	end
+	for name, timerSeries in pairs(self.timerSeries) do
+		_Vars:set("level." .. name .. ".length", #timerSeries)
+	end
+end
+
+---Updates the danger state and effects (danger loop sound and danger particles).
+---@private
+---@param dt number Time delta in seconds.
+function Level:updateDanger(dt)
+	-- Danger state and sound
+	local newDanger = self:getDanger() and not self.lost
 	if self.config.dangerLoopSound then
-		local d1 = self:getDanger() and not self.lost
-		local d2 = self.danger
-		if d1 and not d2 then
+		if newDanger and not self.danger then
+			-- Entered danger zone this frame.
 			self.dangerLoopSound = self.config.dangerLoopSound:play()
-		elseif not d1 and d2 then
+		elseif not newDanger and self.danger then
+			-- Left danger zone this frame.
 			self.dangerLoopSound:stop()
 			self.dangerLoopSound = nil
 		end
 	end
+	self.danger = newDanger
 
-	self.danger = self:getDanger() and not self.lost
+	-- Warning lights
+	local maxDistance = self:getMaxDangerProgress()
+	if maxDistance > 0 and not self.lost then
+		self.warningDelayMax = math.max((1 - maxDistance) * 3.5 + 0.5, 0.5)
+	else
+		self.warningDelayMax = nil
+	end
 
+	if self.warningDelayMax then
+		self.warningDelay = self.warningDelay + dt
+		if self.warningDelay >= self.warningDelayMax then
+			self.map:spawnDangerParticles()
+			if self.config.dangerSound then
+				self.config.dangerSound:play()
+			end
+			self.warningDelay = 0
+		end
+	else
+		self.warningDelay = 0
+	end
+end
 
-
+---Updates shot spheres, collectibles, projectiles, floating texts, collectible rains, projectile storms, nets, score multipliers and checks whether to reset the cascade combo.
+---@private
+---@param dt number Time delta in seconds.
+function Level:updateMisc(dt)
 	-- Shot spheres, collectibles, floating texts
 	for i, shotSphere in ipairs(self.shotSpheres) do
 		shotSphere:update(dt)
@@ -113,8 +224,6 @@ function Level:updateLogic(dt)
 		floatingText:update(dt)
 	end
 	_Utils.removeDeadObjects(self.floatingTexts)
-
-
 
 	-- Collectible rains
 	for i, rain in ipairs(self.collectibleRains) do
@@ -137,8 +246,6 @@ function Level:updateLogic(dt)
 			table.remove(self.collectibleRains, i)
 		end
 	end
-
-
 
 	-- Projectile storms
 	for i, storm in ipairs(self.projectileStorms) do
@@ -165,8 +272,6 @@ function Level:updateLogic(dt)
 		end
 	end
 
-
-
 	-- Net
 	if self.netTime > 0 then
 		self.netTime = math.max(self.netTime - dt, 0)
@@ -184,32 +289,16 @@ function Level:updateLogic(dt)
 		end
 	end
 
-
-
-	-- Warning lights
-	local maxDistance = self:getMaxDangerProgress()
-	if maxDistance > 0 and not self.lost then
-		self.warningDelayMax = math.max((1 - maxDistance) * 3.5 + 0.5, 0.5)
-	else
-		self.warningDelayMax = nil
+	-- Reset the cascade combo if necessary.
+	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "level" and not self:isMatchPredicted() then
+		self:endCascade()
 	end
+end
 
-	if self.warningDelayMax then
-		self.warningDelay = self.warningDelay + dt
-		if self.warningDelay >= self.warningDelayMax then
-			self.map:spawnDangerParticles()
-			if self.config.dangerSound then
-				self.config.dangerSound:play()
-			end
-			self.warningDelay = 0
-		end
-	else
-		self.warningDelay = 0
-	end
-
-
-
-	-- Current sequence step config
+---Updates the level sequence.
+---@private
+---@param dt number Time delta in seconds.
+function Level:updateSequence(dt)
 	local step = self.levelSequence[self.levelSequenceStep]
 
 	if step.type == "wait" then
@@ -305,60 +394,10 @@ function Level:updateLogic(dt)
 			self.ended = true
 		end
 	end
-
-	-- Reset the cascade combo if necessary.
-	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "level" and not self:isMatchPredicted() then
-		self:endCascade()
-	end
-
-	-- Objectives
-	self:updateObjectives()
 end
-
-
-
----Adjusts which music is playing based on the level's internal state.
-function Level:updateMusic()
-	local music = self.config.music
-	local dangerMusic = self.config.dangerMusic
-	local ambientMusic = self.config.ambientMusic
-	local mute = self:isMusicMuted()
-	local danger = dangerMusic and self.danger and not _DFLAG_ASL
-
-	-- Control the music volume.
-	if not mute and not danger then
-		music:play(1)
-	else
-		music:pause(1)
-	end
-	if dangerMusic then
-		if not mute and danger then
-			dangerMusic:play(1)
-		elseif self.pause then
-			dangerMusic:pause(1)
-		else
-			dangerMusic:stop(1)
-		end
-	end
-
-	-- Control the music speed if ASL is turned on.
-	if _DFLAG_ASL then
-		if self.danger then
-			music:setSpeed(3, 1)
-		else
-			music:setSpeed(1, 1)
-		end
-	end
-
-	-- Ambient music plays all the time.
-	if ambientMusic then
-		ambientMusic:play(1)
-	end
-end
-
-
 
 ---Updates the progress of this Level's objectives.
+---@private
 function Level:updateObjectives()
 	for i, objective in ipairs(self.objectives) do
 		if objective.type == "destroyedSpheres" then
@@ -373,8 +412,6 @@ function Level:updateObjectives()
 		objective.reached = objective.progress >= objective.target
 	end
 end
-
-
 
 ---Sets the Level Variable to the given value.
 ---@param name string The variable name.
@@ -405,52 +442,6 @@ end
 function Level:clearTimerSeries(name)
 	self.timerSeries[name] = {}
 end
-
----Exposes the current state of the level to Expression Variables:
---- - Streak (Luxor: Combo, Zuma: Chain): `[level.streak]`
---- - Shot accuracy: `[level.accuracy]`
---- - Level variables: `[level.<variable>]`
---- - Level timers: `[level.<timer>]`
---- - Level timer series: `[level.<timerSeries>.length]`
-function Level:updateVariables()
-	_Vars:set("level.streak", self.streak)
-	_Vars:set("level.accuracy", self:getShotAccuracy())
-	for name, variable in pairs(self.variables) do
-		_Vars:set("level." .. name, variable)
-	end
-	for name, timer in pairs(self.timers) do
-		_Vars:set("level." .. name, timer)
-	end
-	for name, timerSeries in pairs(self.timerSeries) do
-		_Vars:set("level." .. name .. ".length", #timerSeries)
-	end
-end
-
----Ticks all the Level Timers up or down, and all elements of Level Timer Series down.
----Timers which are counting down are capped at 0.
----Timer Series elements which reach 0 are removed.
----@param dt number Time delta in seconds.
-function Level:updateTimers(dt)
-	-- Timers
-	for name, time in pairs(self.timers) do
-		if self.startingTimers[name].countDown then
-			self:setTimer(name, math.max(time - dt, 0))
-		else
-			self:setTimer(name, time + dt)
-		end
-	end
-	-- Timer series
-	for name, timerSeries in pairs(self.timerSeries) do
-		for i = #timerSeries, 1, -1 do
-			timerSeries[i] = timerSeries[i] - dt
-			if timerSeries[i] <= 0 then
-				table.remove(timerSeries, i)
-			end
-		end
-	end
-end
-
-
 
 ---Evaluates a Collectible Generator from its config and returns a list of Collectible IDs (strings) which are generated by this entry.
 ---@param generator CollectibleGeneratorConfig The Collectible Generator to be generated from.
@@ -509,8 +500,6 @@ function Level:evaluateCollectibleGeneratorEntry(generator)
 	return {}
 end
 
-
-
 ---Activates a collectible generator in a given position.
 ---@param entry CollectibleGeneratorConfig The Collectible Generator entry to be evaluated.
 ---@param x number The X position where the collectibles will spawn.
@@ -522,8 +511,6 @@ function Level:spawnCollectiblesFromEntry(entry, x, y)
 	end
 end
 
-
-
 ---Adds score to the current Profile, as well as to level's statistics.
 ---@param score integer The score to be added.
 ---@param unmultipliedScore integer The unmultiplied score, for extra life calculation.
@@ -532,22 +519,16 @@ function Level:grantScore(score, unmultipliedScore)
 	_Game:getSession():grantScore(score, unmultipliedScore)
 end
 
-
-
 ---Adds one coin to the current Profile and to level's statistics.
 function Level:grantCoin()
 	self.coins = self.coins + 1
 	_Game:getSession():grantCoin()
 end
 
-
-
 ---Adds one gem to the level's statistics.
 function Level:grantGem()
 	self.gems = self.gems + 1
 end
-
-
 
 ---Executes a Score Event at the given position and returns a number of points calculated for further usage.
 ---@param scoreEvent ScoreEventConfig The Score Event config to be used for calculation.
@@ -588,8 +569,6 @@ function Level:executeScoreEvent(scoreEvent, x, y)
 	return score
 end
 
-
-
 ---Adds one sphere to the destroyed sphere counter.
 function Level:destroySphere()
 	if self.lost then
@@ -598,8 +577,6 @@ function Level:destroySphere()
 
 	self.destroyedSpheres = self.destroyedSpheres + 1
 end
-
-
 
 ---Adds one to the shot counter, which is used to calculate accuracy and to display in the UI.
 function Level:markSphereShot()
@@ -611,8 +588,6 @@ function Level:markSuccessfulShot()
 	self.successfulShots = self.successfulShots + 1
 end
 
-
-
 ---Returns the percentage of shot spheres which have successfully landed.
 ---@return number
 function Level:getShotAccuracy()
@@ -622,8 +597,6 @@ function Level:getShotAccuracy()
 	return self.successfulShots / self.spheresShot
 end
 
-
-
 ---Returns the fraction of progress of the given objective as a number in a range [0, 1].
 ---@param n integer The objective index.
 ---@return number
@@ -631,8 +604,6 @@ function Level:getObjectiveProgress(n)
 	local objective = self.objectives[n]
 	return math.min(objective.progress / objective.target, 1)
 end
-
-
 
 ---Returns whether all objectives defined in this level have been reached.
 ---@return boolean
@@ -645,8 +616,6 @@ function Level:areAllObjectivesReached()
 	end
 	return true
 end
-
-
 
 ---Applies an effect to the level.
 ---@param effect CollectibleEffectConfig The effect data to be applied.
@@ -712,8 +681,6 @@ function Level:applyEffect(effect, x, y)
 	end
 end
 
-
-
 ---Returns `true` if no Paths on this Level's Map contain any Spheres.
 ---@return boolean
 function Level:getEmpty()
@@ -724,8 +691,6 @@ function Level:getEmpty()
 	end
 	return true
 end
-
-
 
 ---Returns `true` if any Paths on this Level's Map are in danger.
 ---@return boolean
@@ -740,8 +705,6 @@ function Level:getDanger()
 	return false
 end
 
-
-
 ---Returns the maximum percentage distance which is occupied by spheres on all paths.
 ---@return number
 function Level:getMaxDistance()
@@ -751,8 +714,6 @@ function Level:getMaxDistance()
 	end
 	return distance
 end
-
-
 
 ---Returns the maximum danger percentage distance from all paths.
 ---Danger percentage is a number interpolated from 0 at the beginning of a danger zone to 1 at the end of the path.
@@ -764,8 +725,6 @@ function Level:getMaxDangerProgress()
 	end
 	return distance
 end
-
-
 
 ---Returns the Path which has the maximum percentage distance which is occupied by spheres on all paths.
 ---Returns `nil` if none of the paths are in danger.
@@ -782,8 +741,6 @@ function Level:getMostDangerousPath()
 	end
 	return mostDangerousPath
 end
-
-
 
 ---Returns a randomly selected path.
 ---@param notEmpty boolean? If set to `true`, this call will prioritize paths which are not empty.
@@ -811,8 +768,6 @@ function Level:getRandomPath(notEmpty, inDanger)
 	end
 end
 
-
-
 ---Returns all sphere colors that can spawn on this level on the path.
 ---@return table
 function Level:getSpawnableColors()
@@ -822,8 +777,6 @@ function Level:getSpawnableColors()
 	end
 	return colors
 end
-
-
 
 ---Returns currently used color generator data for the Shooter.
 ---@return ColorGeneratorConfig
@@ -835,15 +788,11 @@ function Level:getCurrentColorGenerator()
 	end
 end
 
-
-
 ---Returns `true` when there are no more spheres on the board and no more spheres can spawn, too.
 ---@return boolean
 function Level:hasNoMoreSpheres()
 	return self:areAllObjectivesReached() and not self.lost and self:getEmpty()
 end
-
-
 
 ---Returns `true` if at least one of the Paths in this Level has a predicted match.
 ---@return boolean
@@ -856,8 +805,6 @@ function Level:isMatchPredicted()
 	return false
 end
 
-
-
 ---Resets the cascade combo value for this Level to 0 and emits a `cascadeEnded` UI callback if the values were greater than 0.
 function Level:endCascade()
 	if self.cascade == 0 and self.cascadeScore == 0 then
@@ -869,15 +816,11 @@ function Level:endCascade()
 	self.cascadeScore = 0
 end
 
-
-
 ---Returns `true` if there are any shot spheres in this level, `false` otherwise.
 ---@return boolean
 function Level:hasShotSpheres()
 	return #self.shotSpheres > 0
 end
-
-
 
 ---Returns `true` if the current level score is the highest in history for the current Profile.
 ---@return boolean
@@ -885,15 +828,11 @@ function Level:hasNewScoreRecord()
 	return _Game:getSession():getLevelHighscore(self.score)
 end
 
-
-
 ---Returns `true` if the level has been finished, i.e. there are no more spheres and no more collectibles.
 ---@return boolean
 function Level:getFinish()
 	return self:hasNoMoreSpheres() and #self.collectibles == 0 and #self.projectiles == 0
 end
-
-
 
 ---Returns `true` if the level music should be currently muted, `false` otherwise.
 ---@return boolean
@@ -912,8 +851,6 @@ function Level:restartMusic()
 	end
 end
 
-
-
 ---Restarts the current level sequence step.
 function Level:retriggerSequenceStep()
 	self:jumpToSequenceStep(self.levelSequenceStep)
@@ -923,8 +860,6 @@ end
 function Level:advanceSequenceStep()
 	self:jumpToSequenceStep(self.levelSequenceStep + 1)
 end
-
-
 
 ---Sets the level sequence program to a given step.
 ---@param stepN integer The step to jump to.
@@ -968,8 +903,6 @@ function Level:jumpToSequenceStep(stepN)
 	end
 end
 
-
-
 ---Returns the type of the current level sequence step.
 ---@return string
 function Level:getCurrentSequenceStepType()
@@ -989,8 +922,6 @@ function Level:continueSequence()
 		self:advanceSequenceStep()
 	end
 end
-
-
 
 ---Saves the current progress on this Level.
 function Level:save()
@@ -1036,8 +967,6 @@ function Level:tryAgain()
 	end
 end
 
-
-
 ---Forfeits the level. The shooter is emptied, and spheres start rushing into the pyramid.
 function Level:lose()
 	if self:getCurrentSequenceStepType() ~= "gameplay" then
@@ -1076,9 +1005,7 @@ function Level:lose()
 	end
 end
 
-
-
----Uninitialization function. Uninitializes Level's elements which need deinitializing.
+---Deinitialization function. Deinitializes all Level's elements.
 function Level:destroy()
 	self.shooter:destroy()
 	for i, shotSphere in ipairs(self.shotSpheres) do
@@ -1113,8 +1040,6 @@ function Level:destroy()
 		self.failLoop:stop()
 	end
 end
-
-
 
 ---Resets the Level data.
 function Level:reset()
@@ -1189,8 +1114,6 @@ function Level:reset()
 	self.colorManager:reset()
 end
 
-
-
 ---Resets this level's sequence to the first step.
 function Level:resetSequence()
 	self.levelSequenceStep = 0
@@ -1198,8 +1121,6 @@ function Level:resetSequence()
 	self.levelSequenceLoad = false
 	self:jumpToSequenceStep(1)
 end
-
-
 
 ---Sets the pause flag for this Level.
 ---@param pause boolean Whether the level should be paused.
@@ -1212,8 +1133,6 @@ function Level:togglePause()
 	self:setPause(not self.pause)
 end
 
-
-
 ---Returns whether both provided colors can attract or make valid scoring combinations with each other.
 ---@param color1 integer The first color to be checked against.
 ---@param color2 integer The second color to be checked against.
@@ -1222,8 +1141,6 @@ function Level:colorsMatch(color1, color2)
 	local sphereConfig1 = _Res:getSphereConfig("spheres/sphere_" .. color1 .. ".json")
 	return _Utils.isValueInTable(sphereConfig1.matches, color2)
 end
-
-
 
 ---Selects spheres based on a provided Sphere Selector Config and destroys them, executing any provided Score Events in the process.
 ---@param sphereSelector SphereSelectorConfig The Sphere Selector that will be used to select the spheres to be destroyed.
@@ -1238,8 +1155,6 @@ function Level:destroySelector(sphereSelector, x, y, scoreEvent, scoreEventPerSp
 	SphereSelectorResult(sphereSelector, Vec2(x, y)):destroy(scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
 end
 
-
-
 ---Selects spheres based on a provided Sphere Selector Config and changes their colors.
 ---@param hitBehavior table The sphere's Hit Behavior with `selector`, `color` and `particle` (optional) fields.
 ---@param x number? The X position used to calculate distances to spheres.
@@ -1248,8 +1163,6 @@ function Level:replaceColorSelector(hitBehavior, x, y)
 	SphereSelectorResult(hitBehavior.selector, Vec2(x, y)):changeColor(hitBehavior.color:evaluate(), hitBehavior.particle)
 end
 
-
-
 ---Selects spheres based on a provided Sphere Selector Config and applies a Sphere Effect on them.
 ---@param hitBehavior table The sphere's Hit Behavior with `selector` and `effect` fields.
 ---@param x number? The X position used to calculate distances to spheres.
@@ -1257,8 +1170,6 @@ end
 function Level:applyEffectSelector(hitBehavior, x, y)
 	SphereSelectorResult(hitBehavior.selector, Vec2(x, y)):applyEffect(hitBehavior.effect)
 end
-
-
 
 ---Returns a randomly selected sphere, or `nil` if this level does not contain any spheres.
 ---@param excludeScarabs boolean? If `true`, scarabs will not be counted.
@@ -1280,8 +1191,6 @@ function Level:getRandomSphere(excludeScarabs, ignoreOffscreen, ignoreHidden)
 	end
 	return spheres[math.random(#spheres)]
 end
-
-
 
 ---Returns the lowest length out of all sphere groups of a single color on the screen.
 ---This function ignores spheres that are offscreen.
@@ -1305,8 +1214,6 @@ function Level:getLowestMatchLength()
 	end
 	return lowest
 end
-
-
 
 ---Returns a list of spheres which can be destroyed by Lightning Storm the next time it decides to impale a sphere.
 ---@param matchLength integer? The exact length of a single-color group which will be targeted.
@@ -1339,8 +1246,6 @@ function Level:getSpheresWithMatchLength(matchLength, encourageMatches)
 	return spheres
 end
 
-
-
 ---Returns a list of spheres constituting towards the largest group matching with the provided color.
 ---@param color integer? The sphere color which must match with the returned group. If not specified, any color is taken into consideration.
 ---@param ignoreHidden boolean? If set to `true`, this function will never return a sphere which is in a tunnel.
@@ -1368,8 +1273,6 @@ function Level:getSpheresOfBiggestGroupMatchingColor(color, ignoreHidden)
 	return spheres
 end
 
-
-
 ---Picks a sphere to be destroyed by a lightning storm strike, or `nil` if no spheres are found.
 ---@return Sphere?
 function Level:getLightningStormSphere()
@@ -1388,8 +1291,6 @@ function Level:getLightningStormSphere()
 	return nil
 end
 
-
-
 ---Picks a sphere to be set as a target by a homing sphere. This will be a sphere from the largest group of the specified color, or a random one in case none of them match.
 ---@param color integer? The target color for the homing sphere. If not specified, any color can be targeted.
 ---@return Sphere?
@@ -1402,8 +1303,6 @@ function Level:getHomingBugsSphere(color)
 	-- If none, return a random sphere from the board.
 	return self:getRandomSphere(true, true, true)
 end
-
-
 
 ---Destroys the frontmost sphere on all paths, for the purposes of fail animation.
 ---If the path has no spheres rolled out past the spawn area (offset<0), kills all spheres on that path.
@@ -1421,8 +1320,6 @@ function Level:destroyFrontmostSphere()
 		end
 	end
 end
-
-
 
 ---Returns the nearest sphere to the given position along with some extra data.
 ---The returned table has the following fields:
@@ -1474,8 +1371,6 @@ function Level:getNearestSphere(posX, posY)
 	end
 	return nearestData
 end
-
-
 
 ---Returns the first sphere to collide with a provided line of sight along with some extra data.
 ---The returned table has the following fields:
@@ -1538,8 +1433,6 @@ function Level:getNearestSphereOnLine(posX, posY, angle)
 	return nearestData
 end
 
-
-
 ---Returns a Sphere which has been saved by using `Sphere:getIDs()`.
 ---This function will only work correctly if the IDs have been saved at the same frame!
 ---@param ids table The ID table obtained with `Sphere:getIDs()`.
@@ -1547,8 +1440,6 @@ end
 function Level:getSphere(ids)
 	return self.map.paths[ids.pathID].sphereChains[ids.chainID].sphereGroups[ids.groupID].spheres[ids.sphereID]
 end
-
-
 
 ---Spawns a new Shot Sphere into the level.
 ---@param shooter Shooter The shooter which has shot the sphere.
@@ -1564,8 +1455,6 @@ function Level:spawnShotSphere(shooter, posX, posY, angle, size, color, speed, s
 	table.insert(self.shotSpheres, ShotSphere(nil, shooter, posX, posY, angle, size, color, speed, sphereEntity, isHoming))
 end
 
-
-
 ---Spawns a new Collectible into the Level.
 ---@param collectible CollectibleConfig The collectible which should be spawned.
 ---@param x number Where the Collectible should be spawned at on X axis.
@@ -1573,8 +1462,6 @@ end
 function Level:spawnCollectible(collectible, x, y)
 	table.insert(self.collectibles, Collectible(nil, collectible, x, y))
 end
-
-
 
 ---Spawns a new Projectile into the Level.
 ---Returns `true` if a Projectile has been successfully spawned, `false` if there were no target spheres to pick from and the projectile did not spawn.
@@ -1593,8 +1480,6 @@ function Level:spawnProjectile(projectile)
 	return targetSphere ~= nil
 end
 
-
-
 ---Spawns a new FloatingText into the Level.
 ---@param text string The text to be displayed.
 ---@param x number The starting X position of this text.
@@ -1603,8 +1488,6 @@ end
 function Level:spawnFloatingText(text, x, y, font)
 	table.insert(self.floatingTexts, FloatingText(text, x, y, font))
 end
-
-
 
 ---Spawns the Net particle and sound, if it doesn't exist yet.
 function Level:spawnNet()
@@ -1619,8 +1502,6 @@ function Level:spawnNet()
 	end
 end
 
-
-
 ---Despawns the Net particle and sound, if it exists.
 function Level:destroyNet()
 	if self.netParticle then
@@ -1633,12 +1514,9 @@ function Level:destroyNet()
 	end
 end
 
-
-
 ---Draws this Level and all its components.
 function Level:draw()
 	self.map:draw()
-	self.shooter:drawSpeedShotBeam()
 	self.shooter:draw()
 
 	for i, shotSphere in ipairs(self.shotSpheres) do
@@ -1653,13 +1531,7 @@ function Level:draw()
 	for i, floatingText in ipairs(self.floatingTexts) do
 		floatingText:draw()
 	end
-
-	-- local p = Vec2(20, 500)
-	-- love.graphics.setColor(1, 1, 1)
-	-- love.graphics.print(tostring(self.warningDelay) .. "\n" .. tostring(self.warningDelayMax), p.x, p.y)
 end
-
-
 
 ---Callback from `main.lua`.
 ---@param x integer The X coordinate of mouse position.
@@ -1669,8 +1541,6 @@ function Level:mousepressed(x, y, button)
 	self.shooter:mousepressed(x, y, button)
 end
 
-
-
 ---Callback from `main.lua`.
 ---@param x integer The X coordinate of mouse position.
 ---@param y integer The Y coordinate of mouse position.
@@ -1679,23 +1549,17 @@ function Level:mousereleased(x, y, button)
 	self.shooter:mousereleased(x, y, button)
 end
 
-
-
 ---Callback from `main.lua`.
 ---@param key string The pressed key code.
 function Level:keypressed(key)
 	self.shooter:keypressed(key)
 end
 
-
-
 ---Callback from `main.lua`.
 ---@param key string The released key code.
 function Level:keyreleased(key)
 	self.shooter:keyreleased(key)
 end
-
-
 
 ---Stores all necessary data to save the level in order to load it again with exact same things on board.
 ---@return table
@@ -1762,8 +1626,6 @@ function Level:serialize()
 	end
 	return t
 end
-
-
 
 ---Restores all data that was saved in the serialization method.
 ---@param t table The data to be deserialized.
@@ -1862,7 +1724,5 @@ function Level:deserialize(t)
 	self:updateObjectives()
 	self:restartMusic()
 end
-
-
 
 return Level

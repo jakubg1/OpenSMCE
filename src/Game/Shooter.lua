@@ -586,7 +586,7 @@ end
 
 
 
----Drawing callback function.
+---Draws the shooter on the screen.
 function Shooter:draw()
     -- Reticle
     if _EngineSettings:getAimingRetical() then
@@ -622,6 +622,9 @@ function Shooter:draw()
         end
     end
     _Vars:unset("shooter")
+
+    -- Speed shot beam
+    self:drawSpeedShotBeam()
 
 	if _Debug.gameDebugVisible then
 		self:drawDebug()
