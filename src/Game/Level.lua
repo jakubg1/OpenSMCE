@@ -44,8 +44,7 @@ function Level:new(config)
 	self.startingTimers = _Game.configManager.gameplay.levelTimers
 	self.startingTimerSeries = _Game.configManager.gameplay.levelTimerSeries
 
-	-- Additional variables come from `:reset()`!
-	self:reset()
+	-- Additional variables come from `:reset()`! You must call either `:reset()` or `:deserialize()`.
 end
 
 
@@ -56,11 +55,10 @@ function Level:update(dt)
 	-- Game speed modifier is going to be calculated outside the main logic
 	-- function, as it messes with time itself.
 	if self.gameSpeedTime > 0 then
-		self.gameSpeedTime = self.gameSpeedTime - dt
-		if self.gameSpeedTime <= 0 then
+		self.gameSpeedTime = math.max(self.gameSpeedTime - dt, 0)
+		if self.gameSpeedTime == 0 then
 			-- The time has elapsed. Return to default speed.
 			self.gameSpeed = 1
-			self.gameSpeedTime = 0
 		end
 	end
 
@@ -171,20 +169,18 @@ function Level:updateLogic(dt)
 
 	-- Net
 	if self.netTime > 0 then
-		self.netTime = self.netTime - dt
-		if self.netTime <= 0 then
-			self.netTime = 0
+		self.netTime = math.max(self.netTime - dt, 0)
+		if self.netTime == 0 then
 			self:destroyNet()
 		end
 	end
 
 	-- Score multiplier
 	if self.scoreMultiplierTime > 0 then
-		self.scoreMultiplierTime = self.scoreMultiplierTime - dt
-		if self.scoreMultiplierTime <= 0 then
+		self.scoreMultiplierTime = math.max(self.scoreMultiplierTime - dt, 0)
+		if self.scoreMultiplierTime == 0 then
 			-- The time has elapsed. Return to default multiplier.
 			self.scoreMultiplier = 1
-			self.scoreMultiplierTime = 0
 		end
 	end
 
@@ -902,8 +898,7 @@ end
 ---Returns `true` if the level music should be currently muted, `false` otherwise.
 ---@return boolean
 function Level:isMusicMuted()
-	-- TODO: Not being in any sequence step at all for even a single frame is a blunder. Fix this!
-	return (not self:getCurrentSequenceStep() or self:getCurrentSequenceStep().muteMusic) or self.pause
+	return self:getCurrentSequenceStep().muteMusic or self.pause
 end
 
 ---Resets the level music and changes the track.
@@ -969,7 +964,7 @@ function Level:jumpToSequenceStep(stepN)
 	-- Kick off the music if this step does not mute it and the previous step did.
 	-- TODO: This is a hack. Do something with this?
 	if not step.muteMusic and (not self.levelSequence[self.levelSequenceStep - 1] or self.levelSequence[self.levelSequenceStep - 1].muteMusic) then
-		self.config.music:play()
+		self:restartMusic()
 	end
 end
 
@@ -1032,14 +1027,12 @@ function Level:tryAgain()
 			session:takeLife()
 			session:doRollback()
 			self:reset()
-			self:resetSequence()
 		else
 			_Game:gameOver()
 		end
 	else
 		-- Just restart the level if the session does not exist.
 		self:reset()
-		self:resetSequence()
 	end
 end
 
@@ -1152,7 +1145,6 @@ function Level:reset()
 	self.failDestructionDelay = nil
 
 	self.pause = false
-	self.canPause = true
 	self.lost = false
 	self.ended = false
 
@@ -1166,7 +1158,7 @@ function Level:reset()
 	self:destroyNet()
 
 	self:updateObjectives()
-	self:restartMusic()
+	self:resetSequence()
 
 	self.variables = {}
 	if _Game.configManager.gameplay.levelVariables then
@@ -1199,7 +1191,7 @@ end
 
 
 
----Resets the sequence to the first step.
+---Resets this level's sequence to the first step.
 function Level:resetSequence()
 	self.levelSequenceStep = 0
 	self.levelSequenceVars = nil
@@ -1212,11 +1204,8 @@ end
 ---Sets the pause flag for this Level.
 ---@param pause boolean Whether the level should be paused.
 function Level:setPause(pause)
-	if self.pause == pause or (not self.canPause and not self.pause) then return end
 	self.pause = pause
 end
-
-
 
 ---Inverts the pause flag for this Level.
 function Level:togglePause()
@@ -1735,6 +1724,10 @@ function Level:serialize()
 		paths = self.map:serialize(),
 		lost = self.lost,
 		failDestructionDelay = self.failDestructionDelay,
+		gameSpeed = self.gameSpeed,
+		gameSpeedTime = self.gameSpeedTime,
+		scoreMultiplier = self.scoreMultiplier,
+		scoreMultiplierTime = self.scoreMultiplierTime,
 		levelSequenceStep = self.levelSequenceStep,
 		levelSequenceVars = self.levelSequenceVars,
 		variables = self.variables,
@@ -1794,6 +1787,10 @@ function Level:deserialize(t)
 	self.time = t.time
 	self.lost = t.lost
 	self.failDestructionDelay = t.failDestructionDelay
+	self.gameSpeed = t.gameSpeed
+	self.gameSpeedTime = t.gameSpeedTime
+	self.scoreMultiplier = t.scoreMultiplier
+	self.scoreMultiplierTime = t.scoreMultiplierTime
 	self.levelSequenceStep = t.levelSequenceStep
 	self.levelSequenceVars = t.levelSequenceVars
 	self.levelSequenceLoad = true
@@ -1855,8 +1852,13 @@ function Level:deserialize(t)
 		self:spawnNet()
 	end
 
+	-- Add missing stuff that is not saved.
+	self.floatingTexts = {}
+	self.warningDelay = 0
+
 	-- Pause
 	self:setPause(true)
+	-- Update objectives and music.
 	self:updateObjectives()
 	self:restartMusic()
 end

@@ -114,7 +114,7 @@ function Game:startLevel()
 			self.uiManager:executeCallback("levelLoaded")
 		else
 			-- Start a new level.
-			self.level:resetSequence()
+			self.level:reset()
 			session:saveRollback()
 		end
 	end
