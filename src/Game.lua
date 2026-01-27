@@ -74,6 +74,8 @@ function Game:update(dt) -- callback from main.lua
 	for i = 1, frames do
 		self:tick(delta)
 	end
+
+	_Display:setFullscreen(self.runtimeManager.options:getSetting("fullscreen"))
 end
 
 ---Updates the game logic. Contrary to `:update()`, this function will always have its delta time given as a multiple of 1/60.

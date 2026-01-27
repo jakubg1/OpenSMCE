@@ -97,14 +97,14 @@ function UIManager:new()
         configGetCheckpointLevel = function(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Res:getLevelSetConfig(levelSet), n) end,
         configGetCheckpointCount = function(levelSet) return #_Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet)) end,
 
-        optionsGetMusicVolume = function() return _Game.runtimeManager.options:getMusicVolume() end,
-        optionsGetSoundVolume = function() return _Game.runtimeManager.options:getSoundVolume() end,
-        optionsGetFullscreen = function() return _Game.runtimeManager.options:getFullscreen() end,
-        optionsGetMute = function() return _Game.runtimeManager.options:getMute() end,
-        optionsSetMusicVolume = function(volume) _Game.runtimeManager.options:setMusicVolume(volume) end,
-        optionsSetSoundVolume = function(volume) _Game.runtimeManager.options:setSoundVolume(volume) end,
-        optionsSetFullscreen = function(fullscreen) _Game.runtimeManager.options:setFullscreen(fullscreen) end,
-        optionsSetMute = function(mute) _Game.runtimeManager.options:setMute(mute) end,
+        optionsGetMusicVolume = function() return _Game.runtimeManager.options:getSetting("musicVolume") end,
+        optionsGetSoundVolume = function() return _Game.runtimeManager.options:getSetting("soundVolume") end,
+        optionsGetFullscreen = function() return _Game.runtimeManager.options:getSetting("fullscreen") end,
+        optionsGetMute = function() return _Game.runtimeManager.options:getSetting("mute") end,
+        optionsSetMusicVolume = function(volume) _Game.runtimeManager.options:setSetting("musicVolume", volume) end,
+        optionsSetSoundVolume = function(volume) _Game.runtimeManager.options:setSetting("soundVolume", volume) end,
+        optionsSetFullscreen = function(fullscreen) _Game.runtimeManager.options:setSetting("fullscreen", fullscreen) end,
+        optionsSetMute = function(mute) _Game.runtimeManager.options:setSetting("mute", mute) end,
 
 
         getWidgetN = function(names) return self:getWidgetN(names) end,

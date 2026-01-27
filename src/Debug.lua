@@ -301,11 +301,6 @@ function Debug:getDebugOptions()
 	local options = _Game.runtimeManager.options
 	local s = ""
 
-	s = s .. "MusicVolume = " .. tostring(options:getMusicVolume()) .. "\n"
-	s = s .. "SoundVolume = " .. tostring(options:getSoundVolume()) .. "\n"
-	s = s .. "FullScreen = " .. tostring(options:getFullscreen()) .. "\n"
-	s = s .. "Mute = " .. tostring(options:getMute()) .. "\n"
-	s = s .. "\n"
 	s = s .. "EffMusicVolume = " .. tostring(options:getEffectiveMusicVolume()) .. "\n"
 	s = s .. "EffSoundVolume = " .. tostring(options:getEffectiveSoundVolume()) .. "\n"
 
