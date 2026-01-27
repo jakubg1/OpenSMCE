@@ -310,7 +310,7 @@ function SphereChain:isMatchPredicted()
 			sphereGroup:hasShotSpheres() or
 			sphereGroup:hasKeepCascadeSpheres() or
 			sphereGroup:hasGhostSpheres() or
-			(self.config.luxorized and sphereGroup.speed < 0)
+			(self.config.luxorized and sphereGroup.speed < 0 and sphereGroup.speedDesired >= 0)
 		) then
 			return true
 		end

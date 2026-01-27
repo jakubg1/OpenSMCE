@@ -40,9 +40,7 @@ end
 ---@param dt number Time delta in seconds.
 function SphereGroup:update(dt)
 	-- Empty sphere groups are not updated.
-	if #self.spheres == 0 then
-		return
-	end
+	assert(#self.spheres > 0, "This should not happen: Empty Sphere Group gets updated!")
 
 	-- Correct the speed bound if this chain is daisy-chained with another chain.
 	local speedGrp = self:getLastChainedGroup()
@@ -499,11 +497,12 @@ function SphereGroup:join()
 	end
 	-- Apply appropriate knockback.
 	if self.speed < 0 then
-		if self.config.luxorized and self.speedDesired < 0 then
+		local cascade = self:getCascade()
+		if self.config.luxorized and self.speedDesired < 0 and cascade == 0 then
 			-- Reverse powerup in OG Luxor works a bit wonky.
 			self.prevGroup.speed = self.speed
 		else
-			self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(self:getCascade(), 1)
+			self.prevGroup.speed = self.config.knockbackSpeedBase + self.config.knockbackSpeedMult * math.max(cascade, 1)
 		end
 		self.prevGroup.speedTime = self.config.knockbackTime
 	end
@@ -774,8 +773,14 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 
 	-- Now that we've finished destroying the spheres, we can adjust the group speed.
 	-- TODO: This is dirty. See issue #121 for a potential resolution.
-	if self.config.luxorized and self.nextGroup and self.nextGroup.speed < 0 and #self.spheres > 0 and (self:getLastSphere().color == 0 or not self.nextGroup:isMagnetizing()) then
-		self.nextGroup.speed = 0
+	if self.config.luxorized and self.nextGroup and self.nextGroup.speed < 0 and #self.spheres > 0 then
+		if self:getLastSphere().color == 0 or not self.nextGroup:isMagnetizing() then
+			-- Stop the sphere group in front of us like how Luxor does (when there will be no further magnetization).
+			self.nextGroup.speed = 0
+		elseif self.speedDesired < 0 then
+			-- Or at the back, if the reverse powerup is currently active.
+			self.speed = 0
+		end
 	end
 
 	-- Boost chain and combo values.
