@@ -79,12 +79,14 @@ end
 
 
 ---Gets map data by map name from `config.json` in the respective map directory.
+---If no such map exists, throws an error.
 ---@param name string The map directory name.
+---@return table
 function ConfigManager:getMapData(name)
 	-- TODO/HARD: Currently, loading a map config also causes all of the related map assets to load.
 	-- Find a way to load resources only partially without dependencies or find a way to load resource only when they're needed.
 	--return _Res:getMapConfig("maps/" .. name .. "/config.json")
-	return self.maps[name]
+	return assert(self.maps[name], string.format("Map '%s' not found", name))
 end
 
 
