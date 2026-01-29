@@ -15,14 +15,14 @@ function Font:new(config, path)
 
 	if self.type == "image" then
 		self.image = config.image
-		self.height = self.image.size.y
-		self.newlineAdjustment = config.newlineAdjustment
+		self.height = config.height or self.image.size.y
+		self.lineSpacing = config.lineSpacing
 		---@alias CharacterData {quad: love.Quad, width: integer}
 		---@type table<string, CharacterData>
 		self.characters = {}
 		for characterN, character in pairs(config.characters) do
 			self.characters[characterN] = {
-				quad = love.graphics.newQuad(character.offset, 0, character.width, self.image.size.y, self.image.size.x, self.image.size.y),
+				quad = love.graphics.newQuad(character.x, character.y, character.width, self.height, self.image.size.x, self.image.size.y),
 				width = character.width
 			}
 		end
@@ -100,7 +100,7 @@ function Font:draw(text, x, y, alignX, alignY, color, alpha, scaleX, scaleY)
 			if character == "\n" then
 				self:drawLine(line, x, y, alignX)
 				line = ""
-				y = y + self.height + self.newlineAdjustment
+				y = y + self.height + self.lineSpacing
 			else
 				line = line .. character
 			end

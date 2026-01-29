@@ -51,9 +51,15 @@
                                 "type": "object",
                                 "description": "A single character.",
                                 "properties": {
-                                    "offset": {
+                                    "x": {
                                         "type": "integer",
-                                        "description": "The X offset of the image where the character starts, in pixels.",
+                                        "description": "The X position of the top left corner of the character box, in pixels.",
+                                        "minimum": 0
+                                    },
+                                    "y": {
+                                        "type": "integer",
+                                        "description": "The Y position of the top left corner of the character box, in pixels. Defaults to 0.",
+                                        "markdownDescription": "The Y position of the top left corner of the character box, in pixels. Defaults to `0`.",
                                         "minimum": 0
                                     },
                                     "width": {
@@ -63,14 +69,19 @@
                                     }
                                 },
                                 "required": [
-                                    "offset",
+                                    "x",
                                     "width"
                                 ],
                                 "additionalProperties": false
                             }
                         }
                     },
-                    "newlineAdjustment": {
+                    "height": {
+                        "type": "integer",
+                        "description": "The height of all characters, in pixels. If not specified, the image height will be used.",
+                        "exclusiveMinimum": 0
+                    },
+                    "lineSpacing": {
                         "type": "number",
                         "description": "The padding between lines to be added in a multiline text, in pixels."
                     },

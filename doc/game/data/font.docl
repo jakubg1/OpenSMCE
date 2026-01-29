@@ -3,9 +3,11 @@
         - image (Image) - The path to an Image which contains the characters.
         - characters (object) <<^.$>> - Contains all characters this Font consists of. Key names are single characters.
             - (object) - A single character.
-                - offset (integer) [>=0] - The X offset of the image where the character starts, in pixels.
+                - x (integer) [>=0] - The X position of the top left corner of the character box, in pixels.
+                - y* = 0 (integer) [>=0] - The Y position of the top left corner of the character box, in pixels. Defaults to `0`.
                 - width (integer) [>=0] - The width of the character, in pixels.
-        - newlineAdjustment* = 0 (number) - The padding between lines to be added in a multiline text, in pixels.
+        - height* (integer) [>0] - The height of all characters, in pixels. If not specified, the image height will be used.
+        - lineSpacing* = 0 (number) - The padding between lines to be added in a multiline text, in pixels.
     - "imageLove" - The font loads glyphs from an image file. The characters are separated with a different color of a line. All characters must be placed in a single row.
         - image (Image) - The path to an Image which contains the characters.
         - characters (string) - A string of characters contained in this Font, in the same order as contained in the image.
