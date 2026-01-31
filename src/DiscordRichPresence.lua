@@ -75,7 +75,7 @@ end
 
 ---Checks whether the Discord Rich Presence setting has changed and turns Rich Presence on or off accordingly.
 function DiscordRichPresence:updateEnabled()
-	local setting = _EngineSettings:getDiscordRPC()
+	local setting = _Settings:getSetting("discordRPC")
 	local applicationID = _DISCORD_APPLICATION_ID
 	if _Game.configManager then
 		setting = setting and _Game.configManager:isRichPresenceEnabled()

@@ -82,7 +82,7 @@ function BootScreen:getGames()
 			-- Check the version status of the game and if it is incompatible while the "Hide Incompatible Games" option is turned on,
 			-- do not add it to the list.
 			local versionStatus = self.versionManager:getVersionStatus(config.engine_version or config.engineVersion)
-			if versionStatus ~= 3 or not _EngineSettings:getHideIncompatibleGames() then
+			if versionStatus ~= 3 or not _Settings:getSetting("hideIncompatibleGames") then
 				table.insert(games, {name = name, config = config})
 			else
 				_Log:printt("BootScreen", "(Game too old, skipping!)")

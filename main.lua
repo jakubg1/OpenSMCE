@@ -110,29 +110,35 @@ _Display = nil
 _Renderer = nil
 ---@type ResourceManager
 _Res = nil
-
-_Vars = ExpressionVariables()
-_Network = Network()
-_ThreadManager = ThreadManager()
+---@type ExpressionVariables
+_Vars = nil
+---@type Network
+_Network = nil
+---@type ThreadManager
+_ThreadManager = nil
+---@type Settings
+_Settings = nil
+---@type DiscordRichPresence
+_DiscordRPC = nil
 
 _TotalTime = 0
 _TimeScale = 1
----@type Settings
-_EngineSettings = nil
----@type DiscordRichPresence
-_DiscordRPC = nil
 
 function love.load(args)
 	-- Initialize RNG for Boot Screen
 	math.randomseed(os.time())
 
 	-- Initialize some classes
+	_Settings = Settings()
+	_Settings:load()
 	_Log = Log()
 	_Debug = Debug()
 	_Display = Display()
 	_Renderer = Renderer()
 	_Res = ResourceManager()
-	_EngineSettings = Settings("settings.json")
+	_Vars = ExpressionVariables()
+	_Network = Network()
+	_ThreadManager = ThreadManager()
 	_DiscordRPC = DiscordRichPresence()
 
 	-- Optional: Print system limits.
@@ -260,10 +266,10 @@ function love.quit()
 	_Log:printt("main", "User-caused Exit...")
 	local canGoBack = _Game and not _Game.isBootScreen
 	if _Game and _Game.quit then
-		_Game:quit(not _EngineSettings:getBackToBootWithX())
+		_Game:quit(not _Settings:getSetting("backToBootWithX"))
 	end
 	-- Do not quit the engine if pressing X should return to the boot screen.
-	if _EngineSettings:getBackToBootWithX() and canGoBack then
+	if _Settings:getSetting("backToBootWithX") and canGoBack then
 		return true
 	end
 	_DiscordRPC:disconnect()

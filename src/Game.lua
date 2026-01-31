@@ -34,7 +34,7 @@ function Game:init()
 
 	-- Step 2. Initialize the window and canvas
 	local w, h = self:getNativeResolution()
-	_Display:setResolution(w, h, true, self.configManager:getWindowTitle(), _EngineSettings:getMaximizeOnStart())
+	_Display:setResolution(w, h, true, self.configManager:getWindowTitle(), _Settings:getSetting("maximizeOnStart"))
 	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode())
 	_Renderer:setLayers(self.configManager.layers.layers)
 
@@ -386,7 +386,7 @@ end
 function Game:quit(forced)
 	self:save()
 	_Res:unloadAllResources()
-	if _EngineSettings:getBackToBoot() and not forced then
+	if _Settings:getSetting("backToBoot") and not forced then
 		_LoadBootScreen()
 	else
 		love.event.quit()

@@ -53,7 +53,7 @@ function SoundInstance:setPos(x, y)
         return
     end
 
-    if _EngineSettings:get3DSound() then
+    if _Settings:getSetting("threedeeSound") then
         self.x, self.y = x, y
         local w, h = _Game:getNativeResolution()
         self.sound:setPosition(x - w / 2, y - h / 2, w * 2.5)

@@ -197,7 +197,7 @@ end
 ---@param message string The message to be printed.
 ---@param depth integer? The message will contain one line in the traceback. This parameter determines how many jumps back in the traceback should be made. The function will never print more than one instance of the same line.
 function Debug:deprecationNotice(message, depth)
-	if not _EngineSettings or not _EngineSettings:getPrintDeprecationNotices() then
+	if not _Settings:getSetting("printDeprecationNotices") then
 		return
 	end
 	depth = depth or 1

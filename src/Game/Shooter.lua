@@ -589,7 +589,7 @@ end
 ---Draws the shooter on the screen.
 function Shooter:draw()
     -- Reticle
-    if _EngineSettings:getAimingRetical() then
+    if _Settings:getSetting("aimingRetical") then
         self:drawReticle()
     end
 

@@ -1,121 +1,96 @@
 local class = require "com.class"
 
+---Represents the Engine Settings. These settings are stored in `settings.json` and are game-independent.
 ---@class Settings
----@overload fun(path):Settings
+---@overload fun():Settings
 local Settings = class:derive("Settings")
 
+---Constructs a Settings object.
+function Settings:new()
+	self.FILE = "settings.json"
 
+	---@alias Setting "discordRPC"|"backToBoot"|"backToBootWithX"|"maximizeOnStart"|"aimingRetical"|"consoleWindow"|"threedeeSound"|"hideIncompatibleGames"|"printDeprecationNotices"
 
-function Settings:new(path)
-	self.path = path
-	self:load()
+	-- Contains the true setting values which are respected.
+	self.data = {
+		discordRPC = true,
+		backToBoot = false,
+		backToBootWithX = false,
+		maximizeOnStart = true,
+		aimingRetical = false,
+		consoleWindow = true,
+		threedeeSound = false,
+		hideIncompatibleGames = false,
+		printDeprecationNotices = false
+	}
+	-- Contains the setting values which are not yet respected and have to be confirmed with `:saveWork()` or restored with `:restoreWork()`.
+	self.workData = _Utils.copyTable(self.data)
 end
 
-
-
--- TODO: Name this function better.
-function Settings:reset()
-	if not self.data then
-		_Log:printt("Settings", "Resetting Engine Settings...")
-		self.data = {}
-	end
-
-	if self:getDiscordRPC() == nil then self:setDiscordRPC(true) end
-	if self:getBackToBoot() == nil then self:setBackToBoot(false) end
-	if self:getBackToBootWithX() == nil then self:setBackToBootWithX(false) end
-	if self:getMaximizeOnStart() == nil then self:setMaximizeOnStart(true) end
-	if self:getAimingRetical() == nil then self:setAimingRetical(false) end
-	if self:getConsoleWindow() == nil then self:setConsoleWindow(true) end
-	if self:get3DSound() == nil then self:set3DSound(false) end
-	if self:getHideIncompatibleGames() == nil then self:setHideIncompatibleGames(false) end
-	if self:getPrintDeprecationNotices() == nil then self:setPrintDeprecationNotices(false) end
+---Sets a setting based on its key.
+---@param key Setting The setting key.
+---@param value any The setting value.
+function Settings:setSetting(key, value)
+	self.data[key] = value
 end
 
-
-
-function Settings:setDiscordRPC(value)
-	self.data.discordRPC = value
+---Gets a setting based on its key.
+---@param key Setting The setting key.
+---@return any
+function Settings:getSetting(key)
+	return self.data[key]
 end
 
-function Settings:getDiscordRPC()
-	return self.data.discordRPC
+---Sets a work setting based on its key.
+---The work settings are not saved or respected and need to be confirmed with `:saveWork()` or restored with `:restoreWork()`.
+---@param key Setting The setting key.
+---@param value any The setting value.
+function Settings:setWorkSetting(key, value)
+	self.workData[key] = value
 end
 
-function Settings:setBackToBoot(value)
-	self.data.backToBoot = value
+---Gets a work setting based on its key.
+---The work settings are not saved or respected and need to be confirmed with `:saveWork()` or restored with `:restoreWork()`.
+---@param key Setting The setting key.
+---@return any
+function Settings:getWorkSetting(key)
+	return self.workData[key]
 end
 
-function Settings:getBackToBoot()
-	return self.data.backToBoot
+---Saves the settings set by `:setWorkSetting()` into the real setting values.
+function Settings:saveWork()
+	self.data = _Utils.copyTable(self.workData)
 end
 
-function Settings:setBackToBootWithX(value)
-	self.data.backToBootWithX = value
+---Restores the real setting values into the work settings and discards any changes made with `:setWorkSetting()`.
+function Settings:restoreWork()
+	self.workData = _Utils.copyTable(self.data)
 end
 
-function Settings:getBackToBootWithX()
-	return self.data.backToBootWithX
+---Returns Settings' data, ready to be saved in JSON format.
+---@return table
+function Settings:serialize()
+	return self.data
 end
 
-function Settings:setMaximizeOnStart(value)
-	self.data.maximizeOnStart = value
+---Loads previously saved data into the Settings.
+---@param t table Data previously saved with `:serialize()`.
+function Settings:deserialize(t)
+	self.data = t
+	self.workData = _Utils.copyTable(t)
 end
 
-function Settings:getMaximizeOnStart()
-	return self.data.maximizeOnStart
-end
-
-function Settings:setAimingRetical(value)
-	self.data.aimingRetical = value
-end
-
-function Settings:getAimingRetical()
-	return self.data.aimingRetical
-end
-
-function Settings:setConsoleWindow(value)
-	self.data.consoleWindow = value
-end
-
-function Settings:getConsoleWindow()
-	return self.data.consoleWindow
-end
-
-function Settings:set3DSound(value)
-	self.data.threedeeSound = value
-end
-
-function Settings:get3DSound()
-	return self.data.threedeeSound
-end
-
-function Settings:setHideIncompatibleGames(value)
-	self.data.hideIncompatibleGames = value
-end
-
-function Settings:getHideIncompatibleGames()
-	return self.data.hideIncompatibleGames
-end
-
-function Settings:setPrintDeprecationNotices(value)
-	self.data.printDeprecationNotices = value
-end
-
-function Settings:getPrintDeprecationNotices()
-	return self.data.printDeprecationNotices
-end
-
-
-
+---Saves data to the settings file.
 function Settings:save()
-	_Utils.saveJson(self.path, self.data)
+	_Utils.saveJson(self.FILE, self:serialize())
 end
 
+---If the settings file exits, loads data from it.
 function Settings:load()
-	self.data = _Utils.loadJson(self.path)
-	self:reset()
+	local data = _Utils.loadJson(self.FILE)
+	if data then
+		self:deserialize(data)
+	end
 end
-
-
 
 return Settings
