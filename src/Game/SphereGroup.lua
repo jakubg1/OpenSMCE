@@ -22,6 +22,7 @@ function SphereGroup:new(sphereChain, data)
 	else
 		self.offset = 0
 		self.speed = 0
+		self.speedDesired = 0
 		self.speedTime = nil -- this is used ONLY in zuma knockback; aka the speed of this group will be locked for this time
 		---@type Sphere[]
 		self.spheres = {}
