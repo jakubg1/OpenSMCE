@@ -116,15 +116,13 @@ end
 ---@param ... any Translation parameters, such as numbers.
 ---@return string
 function ConfigManager:translate(key, ...)
-	if self.config.locale and self.config.locale.keys[key] then
-		local success, result = pcall(function(...) return string.format(self.config.locale.keys[key], ...) end, ...)
-		if success then
-			return result
-		end
-		-- `string.format()` has failed, usually due to insufficient amount of parameters. Return the raw string.
-		return key
+	local text = self.config.locale and self.config.locale.keys[key] or key
+	local success, result = pcall(function(...) return string.format(text, ...) end, ...)
+	if success then
+		return result
 	end
-	return key
+	-- `string.format()` has failed, usually due to insufficient amount of parameters. Return the raw string.
+	return text
 end
 
 
