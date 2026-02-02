@@ -155,17 +155,17 @@ end
 ---Attempts to emergency save the player's progress.
 function CrashScreen:emergencySave()
     -- Does a game exist?
-    if not _Game.name then
+    if not _Game or not _Game.name then
         return
     end
-    _Log:printt("CrashScreen", "Emergency Saving...")
+    self:say("Emergency Saving...")
     local success = pcall(function() _Game:save() end)
     if success then
         self.bottomText2 = "Emergency save successful!"
-        _Log:printt("CrashScreen", "Emergency save successful!")
+        self:say("Emergency save successful!")
     else
         self.bottomText2 = "Emergency save unsuccessful! You might have lost some progress... :'("
-        _Log:printt("CrashScreen", "Emergency save unsuccessful!")
+        self:say("Emergency save unsuccessful!")
     end
 end
 
@@ -191,6 +191,15 @@ function CrashScreen:restart()
     else
         love.event.quit("restart")
     end
+end
+
+---Prints a message to log.
+---@param message string The message to be printed.
+function CrashScreen:say(message)
+    if not _Log then
+        return
+    end
+    _Log:printt("CrashScreen", message)
 end
 
 ---Transforms text for the funni, if applicable.
