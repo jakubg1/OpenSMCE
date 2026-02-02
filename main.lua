@@ -143,11 +143,10 @@ function love.load(args)
 	_ThreadManager = ThreadManager()
 	_DiscordRPC = DiscordRichPresence()
 
-	-- Optional: Print system limits.
-	if false then
-		for k, v in pairs(love.graphics.getSystemLimits()) do
-			print(k, v)
-		end
+	-- Print system limits.
+	_Log:printt("main", "System info:")
+	for k, v in pairs(love.graphics.getSystemLimits()) do
+		_Log:printt("main", string.format("%s = %s", k, v))
 	end
 
 	-- Parse commandline arguments.
@@ -183,7 +182,6 @@ function love.update(dt)
 		_Game:update(dt * _TimeScale)
 	end
 
-	_Log:update(dt)
 	_Debug:update(dt)
 	_Res:update(dt)
 	_DiscordRPC:update(dt)
@@ -278,7 +276,6 @@ function love.quit()
 	end
 	_DiscordRPC:disconnect()
 	_Debug:disconnect()
-	_Log:save(true)
 	_Profiler.write("performance.jprof")
 end
 

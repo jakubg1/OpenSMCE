@@ -7,32 +7,16 @@ local Log = class:derive("Log")
 ---Constructs the Logger.
 function Log:new()
     self.FILE = "log.txt"
-    self.SAVE_DELAY = 10
-    self.saveTime = 0
-    -- The raw log file contents, exactly as it will be written to the file.
-    -- TODO: Append to the file instead, and perhaps make a buffer in case if the save fails somehow.
-    self.contents = ""
-
+    self.buffer = "" -- The buffer containing recent raw log file contents, exactly as it will be written to the file.
+    self:clear()
     self:printt("Log", string.format("OpenSMCE Log - Version: %s (Build: %s)", _VERSION, _BUILD_NUMBER))
-end
-
----Updates the logger. This is needed so it can track the time between saves, and saving the log every certain time needs to be performed
----as some unusual close cases (such as ending the process via Task Manager, a Not Responding state or your computer simply BSOD-ing off
----or your mice snapping your yummy power cables) will not trigger any exit functions and therefore won't save the log.
----This way we are retaining most of the log.
----@param dt number Delta time in seconds.
-function Log:update(dt)
-    self.saveTime = self.saveTime + dt
-    if self.saveTime >= self.SAVE_DELAY then
-        self.saveTime = 0
-        self:save(false)
-    end
 end
 
 ---Appends a new line to the log.
 ---@param text string The text to be written to log.
 function Log:print(text)
-    self.contents = self.contents .. string.format("[%.6f] %s\n", _GetPreciseTime(), text)
+    self.buffer = self.buffer .. string.format("[%.6f] %s\n", _GetPreciseTime(), text)
+    self:save()
     if _Settings:getSetting("consoleWindow") then
         print("[ LOG ]   " .. text)
     end
@@ -45,14 +29,19 @@ function Log:printt(tag, text)
     self:print(string.format("[%s] %s", tag, text))
 end
 
----Saves the current log to the log file.
----@param quit boolean If not set to `true`, a notice will be added at the end that several last lines might have been omitted. See `Log:update()` for details.
-function Log:save(quit)
-    local s = self.contents
-    if not quit then
-        s = s .. "...This is not a final log; a few recent lines might have been omitted!\n"
+---Clears the log file. This should be only done once on startup.
+function Log:clear()
+    _Utils.saveFile(self.FILE, "")
+end
+
+---Adds the buffer to the log file and clears the buffer.
+function Log:save()
+    local success, result = pcall(function() _Utils.saveFile(self.FILE, self.buffer, true) end)
+    if success then
+        self.buffer = ""
+    else
+        print(string.format("Error saving log file: %s", tostring(result)))
     end
-    _Utils.saveFile(self.FILE, s)
 end
 
 return Log
