@@ -68,7 +68,7 @@ function CrashScreen:draw()
     love.graphics.print(self:transformText("Oh no!"), 30, 30)
     -- Text
     love.graphics.setFont(_FONT_MED)
-    love.graphics.print(self:transformText("OpenSMCE has encountered a problem and crashed.\nThis is not meant to happen and you should report this error to the Github repository page\n(unless you caused the crash, of course).\nYou can try to emergency save the progress, in order not to lose it.\n\nHere's some error info:"), 30, 70)
+    love.graphics.print(self:transformText("OpenSMCE has encountered a problem and crashed.\nThis is not meant to happen and you should report this error to the Github repository page\n(unless you caused the crash, of course).\n\n\nHere's some error info:"), 30, 70)
 
     -- Error frame
     love.graphics.setColor(1, 1, 1)
