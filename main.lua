@@ -11,7 +11,9 @@ os = {
 }
 
 -- Enable Advanced Sound Library.
-love.audio.newAdvancedSource = require("com.asl")
+-- TODO: Including this library creates a thread which cannot be killed and makes restarting impossible.
+-- Add some means to shut the thread down before uncommenting.
+--love.audio.newAdvancedSource = require("com.asl")
 
 -- This flag controls the experimental feature of ASL.
 -- This changes the way music is handled in the levels (the music is sped up when in danger)
@@ -163,7 +165,7 @@ function love.load(args)
 	else
 		-- If the `-g` argument is provided, that game will be immediately loaded and Boot Screen will be skipped.
 		-- Otherwise, if the `autoload.txt` exists in the main directory, read the game name from it and load that game.
-		local autoload = parsedArgs.g or parsedArgs.game or _Utils.loadFile("autoload.txt")
+		local autoload = parsedArgs.g or parsedArgs.game or love.restart or _Utils.loadFile("autoload.txt")
 		if autoload then
 			_LoadGame(autoload)
 		else
@@ -258,6 +260,8 @@ function love.resize(w, h)
 	_Display:resize(w, h)
 end
 
+---Executed when LOVE2D is about to quit.
+---@return boolean? abort If `true`, the engine will keep running.
 function love.quit()
 	if not _Game then
 		-- No game or boot screen or editor has started in the first place (for example when using `--help`). Stop immediately.

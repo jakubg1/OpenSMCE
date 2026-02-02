@@ -653,6 +653,13 @@ function utils.strIsInWholeBracket(s)
 	return true
 end
 
+---Encodes the provided string into a form that can be used in a URL.
+---@param s string The string to be encoded.
+---@return string
+function utils.strEncodeURL(s)
+	return s:gsub("%%", "%%25"):gsub("#", "%%23"):gsub("&", "%%26"):gsub(" ", "%%20"):gsub("\n", "%%0a")
+end
+
 ---Strips the extension from a path to a file.
 ---@param path string The path to have its extension stripped.
 ---@return string

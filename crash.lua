@@ -56,7 +56,6 @@ function love.errorhandler(msg)
 	if love.audio then love.audio.stop() end
 	
 	love.graphics.reset()
-	local font = love.graphics.setNewFont(14)
 	
 	local trace = debug.traceback()
 	
@@ -98,7 +97,9 @@ function love.errorhandler(msg)
 		love.event.pump()
  
 		for e, a, b, c in love.event.poll() do
-			if e == "quit" then
+			if e == "quit" and a == "restart" then
+				return a, b
+			elseif e == "quit" then
 				return 1
 			elseif e == "keypressed" and a == "escape" then
 				return 1

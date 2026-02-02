@@ -14,16 +14,21 @@ function CrashScreen:new(err)
 
     -- button data
     self.buttons = {
-        {name = "Copy to clipboard", hovered = false, pos = Vec2(30, 530), size = Vec2(170, 25)},
-        {name = "Report crash", hovered = false, pos = Vec2(220, 530), size = Vec2(170, 25)},
-        {name = "Emergency save", hovered = false, pos = Vec2(410, 530), size = Vec2(170, 25)},
-        {name = "Exit", hovered = false, pos = Vec2(600, 530), size = Vec2(170, 25)}
+        {name = "Copy to clipboard", hovered = false, pos = Vec2(30, 530), size = Vec2(170, 25), description = "Copies the error data to clipboard."},
+        {name = "Report crash", hovered = false, pos = Vec2(220, 530), size = Vec2(170, 25), description = "Opens the New Issue page on GitHub with prefilled error information."},
+        {name = "Restart", hovered = false, pos = Vec2(410, 530), size = Vec2(170, 25), description = "Restarts the game."},
+        {name = "Exit", hovered = false, pos = Vec2(600, 530), size = Vec2(170, 25), description = "Exits the program."}
     }
     self.bottomText = ""
     self.bottomText2 = ""
-    self.url = "https://github.com/jakubg1/OpenSMCE/issues"
+
+    -- Replace with your project URL or remove if you want to disable the reporting functionality.
+    self.url = "https://github.com/jakubg1/OpenSMCE/issues/new"
 
     self.e00000e00 = math.random() < 1 / 100
+
+    -- Emergency save automatically.
+    self:emergencySave()
 
 
 
@@ -43,15 +48,7 @@ function CrashScreen:update(dt)
     for i, button in ipairs(self.buttons) do
         button.hovered = _Utils.isPointInsideBoxExcl(_MouseX, _MouseY, button.pos.x, button.pos.y, button.size.x, button.size.y)
         if button.hovered then
-            if i == 1 then
-                self.bottomText = self:transformText("Copies the error data to clipboard.")
-            elseif i == 2 then
-                self.bottomText = self:transformText("Copies the error data to clipboard and opens the issues page on GitHub.")
-            elseif i == 3 then
-                self.bottomText = self:transformText("Attempts to recover your progress.")
-            elseif i == 4 then
-                self.bottomText = self:transformText("Exits the program.")
-            end
+            self.bottomText = self:transformText(button.description)
         end
     end
 end
@@ -133,11 +130,11 @@ function CrashScreen:mousereleased(x, y, button)
         if buttonW.hovered then
             if i == 1 then
                 love.system.setClipboardText(self.err)
+                self.bottomText2 = "Copied!"
             elseif i == 2 then
-                love.system.setClipboardText(self.err)
-                love.system.openURL(self.url)
+                self:reportIssue()
             elseif i == 3 then
-                self:emergencySave()
+                self:restart()
             elseif i == 4 then
                 love.event.quit()
             end
@@ -155,25 +152,50 @@ end
 
 
 
+---Attempts to emergency save the player's progress.
 function CrashScreen:emergencySave()
-    _Log:printt("CrashScreen", "Emergency Saving...")
-
     -- Does a game exist?
-    if _Game.name then
-        local success = pcall(function() _Game:save() end)
-        if success then
-            self.bottomText2 = "Saved successfully!"
-            _Log:printt("CrashScreen", "Save successful!")
-        else
-            self.bottomText2 = "Save unsuccessful!"
-            _Log:printt("CrashScreen", "Save unsuccessful!")
-        end
+    if not _Game.name then
+        return
+    end
+    _Log:printt("CrashScreen", "Emergency Saving...")
+    local success = pcall(function() _Game:save() end)
+    if success then
+        self.bottomText2 = "Emergency save successful!"
+        _Log:printt("CrashScreen", "Emergency save successful!")
     else
-        self.bottomText2 = "There was nothing to save, you were in Boot Screen, duh."
-        _Log:printt("CrashScreen", "No, we're ending here")
+        self.bottomText2 = "Emergency save unsuccessful! You might have lost some progress... :'("
+        _Log:printt("CrashScreen", "Emergency save unsuccessful!")
     end
 end
 
+---Opens the browser with the GitHub issue form including prefilled error information.
+function CrashScreen:reportIssue()
+    if not self.url then
+        -- Reporting is disabled.
+        return
+    end
+    local body = "### Version\n" .. tostring(_VERSION) .. " (" .. tostring(_VERSION_NAME) .. ")\n\n"
+    body = body .. "### Description\nPlease describe when the error happened. If it can be reproduced, a list of steps or a video would be really nice! :D\n\n"
+    body = body .. "### Error Information\n```\n" .. self.err .. "\n```"
+    local url = self.url
+    --url = url .. "?title=" .. _Utils.strEncodeURL("Crash Report (Please replace and describe when the error happened!)")
+    url = url .. "?body=" .. _Utils.strEncodeURL(body)
+    love.system.openURL(url)
+end
+
+---Restarts the engine. In LOVE2D 12.0, additionally restarts the specific game the player was playing, if applicable.
+function CrashScreen:restart()
+    if love.getVersion() >= 12 then
+        love.event.restart(_Game.name)
+    else
+        love.event.quit("restart")
+    end
+end
+
+---Transforms text for the funni, if applicable.
+---@param text string The text to be transformed.
+---@return string
 function CrashScreen:transformText(text)
     if not self.e00000e00 then
         return text
@@ -190,7 +212,5 @@ function CrashScreen:transformText(text)
     end
     return s
 end
-
-
 
 return CrashScreen
