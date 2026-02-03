@@ -55,7 +55,7 @@ function Sprite:generateFrames(offsetX, offsetY)
 				local n = (k - 1) * state.frames.x + j
 				local sx = self.atlasImageSize and self.atlasImageSize.x or self.imageSize.x
 				local sy = self.atlasImageSize and self.atlasImageSize.y or self.imageSize.y
-				s.frames[n] = love.graphics.newQuad(p.x + offsetX, p.y + offsetY, self.config.frameSize.x, self.config.frameSize.y, sx, sy)
+				s.frames[n] = love.graphics.newQuad((p.x + offsetX) % sx, (p.y + offsetY) % sy, self.config.frameSize.x, self.config.frameSize.y, sx, sy)
 			end
 		end
 		self.states[i] = s

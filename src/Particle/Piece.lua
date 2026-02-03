@@ -12,7 +12,6 @@ function ParticlePiece:new(manager, spawner, data)
 	self.manager = manager
 	self.packet = spawner.packet
 	self.spawner = spawner
-	self.spawner.pieceCount = self.spawner.pieceCount + 1
 
 	if data.posRelative then
 		self.startX, self.startY = self.spawner:getRelativePos()
@@ -136,9 +135,6 @@ function ParticlePiece:destroy()
 		return
 	end
 	self.delQueue = true
-	if self.spawner then
-		self.spawner.pieceCount = self.spawner.pieceCount - 1
-	end
 end
 
 ---Returns the actual position of this particle piece.

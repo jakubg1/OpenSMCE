@@ -20,7 +20,8 @@ function ParticleSpawner:new(manager, packet, data)
 	self.lifespan = data.lifespan -- nil if it lives indefinitely
 	self.lifetime = self.lifespan
 	self.spawnMax = data.spawnMax
-	self.pieceCount = 0
+	---@type ParticlePiece[]
+	self.pieces = {} -- Stores references to all Particle Pieces spawned by this Spawner. These pieces are also stored by the Particle Manager itself and should be accessed from there!
 	self.spawnDelay = data.spawnDelay
 	self.particleData = data.particleData
 
@@ -30,6 +31,7 @@ function ParticleSpawner:new(manager, packet, data)
 		self:spawnPiece()
 	end
 
+	self.deactivated = false
 	self.delQueue = false
 end
 
@@ -41,6 +43,14 @@ function ParticleSpawner:update(dt)
 		return
 	end
 
+	-- Remove all dead particles.
+	_Utils.removeDeadObjects(self.pieces)
+
+	-- Destroy itself when there are no more particles spawned by this Spawner around.
+	if self.deactivated and #self.pieces == 0 then
+		self:destroy()
+	end
+
 	-- Update speed and position.
 	self.speedX, self.speedY = self.speedX + self.accelerationX * dt, self.speedY + self.accelerationY * dt
 	self.x, self.y = self.x + self.speedX * dt, self.y + self.speedY * dt
@@ -49,22 +59,22 @@ function ParticleSpawner:update(dt)
 	if self.lifetime then
 		self.lifetime = self.lifetime - dt
 		if self.lifetime <= 0 then
-			self:destroy()
+			self:deactivate()
 		end
 	end
 
 	-- Spawn particle pieces.
 	if self.spawnNext then
 		self.spawnNext = self.spawnNext - dt
-		while self.spawnNext <= 0 and self.pieceCount < self.spawnMax do
+		while self.spawnNext <= 0 and #self.pieces < self.spawnMax do
 			self:spawnPiece()
 			self.spawnNext = self.spawnNext + self.spawnDelay
 		end
 	end
 
-	-- Destroy when this spawner's owner is gone.
+	-- Deactivate itself when this spawner's owner is gone.
 	if self.packet.delQueue then
-		self:destroy()
+		self:deactivate()
 	end
 end
 
@@ -90,19 +100,29 @@ end
 
 ---Spawns a new particle piece unless there is a maximum number of particles spawned by this spawner on the screen.
 function ParticleSpawner:spawnPiece()
-	if self.pieceCount >= self.spawnMax then
+	if #self.pieces >= self.spawnMax then
 		return
 	end
-	self.manager:spawnParticlePiece(self, self.particleData)
+	local particle = self.manager:spawnParticlePiece(self, self.particleData)
+	table.insert(self.pieces, 1, particle)
 end
 
----Flags this spawner as ready to be removed.
+---Deactivates this Particle Spawner, which means it will no longer spawn any more particles.
+---The Spawner will not be deleted from the Particle Manager, because Particles are tied to Spawners and use them to determine the drawing order.
+function ParticleSpawner:deactivate()
+	self.deactivated = true
+end
+
+---Flags this spawner as ready to be removed and destroys all Particles this Spawner has spawned.
 function ParticleSpawner:destroy()
 	if self.delQueue then
 		return
 	end
 	self.delQueue = true
 	self.packet.spawnerCount = self.packet.spawnerCount - 1
+	for i, piece in ipairs(self.pieces) do
+		piece:destroy()
+	end
 end
 
 return ParticleSpawner

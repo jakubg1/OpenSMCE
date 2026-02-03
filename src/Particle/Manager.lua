@@ -23,14 +23,14 @@ end
 ---Updates the Particle Manager.
 ---@param dt number Time delta in seconds.
 function ParticleManager:update(dt)
-	for i, particlePacket in ipairs(self.particlePackets) do
-		particlePacket:update(dt)
+	for i, packet in ipairs(self.particlePackets) do
+		packet:update(dt)
 	end
-	for i, particleSpawner in ipairs(self.particleSpawners) do
-		particleSpawner:update(dt)
+	for i, spawner in ipairs(self.particleSpawners) do
+		spawner:update(dt)
 	end
-	for i, particlePiece in ipairs(self.particlePieces) do
-		particlePiece:update(dt)
+	for i, piece in ipairs(self.particlePieces) do
+		piece:update(dt)
 	end
 
 	-- Clean dead particles.
@@ -58,11 +58,14 @@ function ParticleManager:spawnParticleSpawner(packet, data)
 	table.insert(self.particleSpawners, ParticleSpawner(self, packet, data))
 end
 
----Spawns a new Particle in the Particle Manager.
+---Spawns a new Particle in the Particle Manager and returns it.
 ---@param spawner ParticleSpawner The Particle Spawner this Particle comes from.
 ---@param data ParticleConfig Particle data.
+---@return ParticlePiece
 function ParticleManager:spawnParticlePiece(spawner, data)
-	table.insert(self.particlePieces, ParticlePiece(self, spawner, data))
+	local piece = ParticlePiece(self, spawner, data)
+	table.insert(self.particlePieces, piece)
+	return piece
 end
 
 ---Destroys all Emitters and Particles belonging to the specified Particle Effect.
@@ -84,14 +87,14 @@ end
 ---@param particlePacket ParticlePacket The Particle Effect to change the layer for.
 ---@param layer string The layer the effect should be moved to.
 function ParticleManager:setParticlePacketLayer(particlePacket, layer)
-	for i, particleSpawner in ipairs(self.particleSpawners) do
-		if particleSpawner.packet == particlePacket then
-			particleSpawner.layer = layer
+	for i, spawner in ipairs(self.particleSpawners) do
+		if spawner.packet == particlePacket then
+			spawner.layer = layer
 		end
 	end
-	for i, particlePiece in ipairs(self.particlePieces) do
-		if particlePiece.packet == particlePacket then
-			particlePiece.layer = layer
+	for i, piece in ipairs(self.particlePieces) do
+		if piece.packet == particlePacket then
+			piece.layer = layer
 		end
 	end
 end
@@ -117,8 +120,8 @@ end
 ---Removes all Particle Effects, Particle Emitters and Particles from this Particle Manager.
 function ParticleManager:clear()
 	-- Mark all Particle Packets as destroyed to signal any users that their particle effects are now gone.
-	for i, particlePacket in ipairs(self.particlePackets) do
-		particlePacket:destroy()
+	for i, packet in ipairs(self.particlePackets) do
+		packet:destroy()
 	end
 	_Utils.emptyTable(self.particlePackets)
 	_Utils.emptyTable(self.particleSpawners)
@@ -128,15 +131,19 @@ end
 ---Draws the Particles on the screen.
 ---If the debug flag is set, also draws the debug information about Particle Effects and Emitters.
 function ParticleManager:draw()
-	for i, particlePiece in ipairs(self.particlePieces) do
-		particlePiece:draw()
-	end
-	if _Debug.gameDebugVisible then
-		for i, particlePacket in ipairs(self.particlePackets) do
-			particlePacket:draw()
+	-- Draw particles in the order of spawners.
+	for i, spawner in ipairs(self.particleSpawners) do
+		for j, piece in ipairs(spawner.pieces) do
+			piece:draw()
 		end
-		for i, particleSpawner in ipairs(self.particleSpawners) do
-			particleSpawner:draw()
+	end
+	-- Draw debug icons.
+	if _Debug.gameDebugVisible then
+		for i, packet in ipairs(self.particlePackets) do
+			packet:draw()
+		end
+		for i, spawner in ipairs(self.particleSpawners) do
+			spawner:draw()
 		end
 	end
 end
