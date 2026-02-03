@@ -1,16 +1,17 @@
 local class = require "com.class"
-
----@class CrashScreen
----@overload fun(err):CrashScreen
-local CrashScreen = class:derive("CrashScreen")
-
 local Vec2 = require("src.Essentials.Vector2")
 
+---@class CrashScreen
+---@overload fun(err: string, uerr: string):CrashScreen
+local CrashScreen = class:derive("CrashScreen")
 
-
-function CrashScreen:new(err)
+---Creates a new Crash Screen.
+---@param err string The error message This will be displayed on the screen.
+---@param uerr string The full error message. This will be copied to the clipboard and prefilled in the Github issue.
+function CrashScreen:new(err, uerr)
     -- error message
     self.err = err
+    self.uerr = uerr
 
     -- button data
     self.buttons = {
@@ -129,7 +130,7 @@ function CrashScreen:mousereleased(x, y, button)
     for i, buttonW in ipairs(self.buttons) do
         if buttonW.hovered then
             if i == 1 then
-                love.system.setClipboardText(self.err)
+                love.system.setClipboardText(self.uerr)
                 self.bottomText2 = "Copied!"
             elseif i == 2 then
                 self:reportIssue()
@@ -177,7 +178,7 @@ function CrashScreen:reportIssue()
     end
     local body = "### Version\n" .. tostring(_VERSION) .. " (" .. tostring(_VERSION_NAME) .. ")\n\n"
     body = body .. "### Description\nPlease describe when the error happened. If it can be reproduced, a list of steps or a video would be really nice! :D\n\n"
-    body = body .. "### Error Information\n```\n" .. self.err .. "\n```"
+    body = body .. "### Error Information\n```\n" .. self.uerr .. "\n```"
     local url = self.url
     --url = url .. "?title=" .. _Utils.strEncodeURL("Crash Report (Please replace and describe when the error happened!)")
     url = url .. "?body=" .. _Utils.strEncodeURL(body)

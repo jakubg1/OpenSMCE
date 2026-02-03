@@ -1,21 +1,27 @@
 local class = require "com.class"
-
----@class ParticleManager
----@overload fun():ParticleManager
-local ParticleManager = class:derive("ParticleManager")
-
 local ParticlePacket = require("src.Particle.Packet")
 local ParticleSpawner = require("src.Particle.Spawner")
 local ParticlePiece = require("src.Particle.Piece")
 
+---Particle Manager handles the particle system.
+---It is the place where the particle packets (effects), spawners (emitters) and pieces (particles) are contained.
+---Allows the orphaned Particles to still exist, update and draw themselves.
+---@class ParticleManager
+---@overload fun():ParticleManager
+local ParticleManager = class:derive("ParticleManager")
 
-
+---Creates a new Particle Manager.
 function ParticleManager:new()
+	---@type ParticlePacket[]
 	self.particlePackets = {}
+	---@type ParticleSpawner[]
 	self.particleSpawners = {}
+	---@type ParticlePiece[]
 	self.particlePieces = {}
 end
 
+---Updates the Particle Manager.
+---@param dt number Time delta in seconds.
 function ParticleManager:update(dt)
 	for i, particlePacket in ipairs(self.particlePackets) do
 		particlePacket:update(dt)
@@ -45,14 +51,22 @@ function ParticleManager:spawnParticlePacket(particleEffect, x, y, layer)
 	return packet
 end
 
+---Spawns a new Particle Emitter (Spawner) in the Particle Manager.
+---@param packet ParticlePacket The Particle Effect this Particle Spawner comes from.
+---@param data ParticleEmitterConfig Particle emitter data.
 function ParticleManager:spawnParticleSpawner(packet, data)
 	table.insert(self.particleSpawners, ParticleSpawner(self, packet, data))
 end
 
+---Spawns a new Particle in the Particle Manager.
+---@param spawner ParticleSpawner The Particle Spawner this Particle comes from.
+---@param data ParticleConfig Particle data.
 function ParticleManager:spawnParticlePiece(spawner, data)
 	table.insert(self.particlePieces, ParticlePiece(self, spawner, data))
 end
 
+---Destroys all Emitters and Particles belonging to the specified Particle Effect.
+---@param particlePacket ParticlePacket The Particle Effect to destroy the Emitters and Particles for.
 function ParticleManager:cleanParticlePacket(particlePacket)
 	for i, spawner in ipairs(self.particleSpawners) do
 		if spawner.packet == particlePacket then
@@ -66,6 +80,9 @@ function ParticleManager:cleanParticlePacket(particlePacket)
 	end
 end
 
+---Changes the layer of all Emitters and Particles belonging to the specified Particle Effect.
+---@param particlePacket ParticlePacket The Particle Effect to change the layer for.
+---@param layer string The layer the effect should be moved to.
 function ParticleManager:setParticlePacketLayer(particlePacket, layer)
 	for i, particleSpawner in ipairs(self.particleSpawners) do
 		if particleSpawner.packet == particlePacket then
@@ -79,55 +96,37 @@ function ParticleManager:setParticlePacketLayer(particlePacket, layer)
 	end
 end
 
-function ParticleManager:getParticlePacketID(particlePacket)
-	for i, particlePacketT in ipairs(self.particlePackets) do
-		if particlePacket == particlePacketT then
-			return i
-		end
-	end
-end
-
-function ParticleManager:getParticleSpawnerID(particleSpawner)
-	for i, particleSpawnerT in ipairs(self.particleSpawners) do
-		if particleSpawner == particleSpawnerT then
-			return i
-		end
-	end
-end
-
-function ParticleManager:getParticlePieceID(particlePiece)
-	for i, particlePieceT in ipairs(self.particlePieces) do
-		if particlePiece == particlePieceT then
-			return i
-		end
-	end
-end
-
+---Returns the amount of active effects in this Particle Manager.
+---@return integer
 function ParticleManager:getParticlePacketCount()
 	return #self.particlePackets
 end
 
+---Returns the amount of emitters in this Particle Manager.
+---@return integer
 function ParticleManager:getParticleSpawnerCount()
 	return #self.particleSpawners
 end
 
+---Returns the amount of particles in this Particle Manager.
+---@return integer
 function ParticleManager:getParticlePieceCount()
 	return #self.particlePieces
 end
 
+---Removes all Particle Effects, Particle Emitters and Particles from this Particle Manager.
 function ParticleManager:clear()
+	-- Mark all Particle Packets as destroyed to signal any users that their particle effects are now gone.
 	for i, particlePacket in ipairs(self.particlePackets) do
-		particlePacket.delQueue = true
+		particlePacket:destroy()
 	end
-	for i, particleSpawner in ipairs(self.particleSpawners) do
-		particleSpawner.delQueue = true
-	end
-	self.particlePackets = {}
-	self.particleSpawners = {}
+	_Utils.emptyTable(self.particlePackets)
+	_Utils.emptyTable(self.particleSpawners)
+	_Utils.emptyTable(self.particlePieces)
 end
 
-
-
+---Draws the Particles on the screen.
+---If the debug flag is set, also draws the debug information about Particle Effects and Emitters.
 function ParticleManager:draw()
 	for i, particlePiece in ipairs(self.particlePieces) do
 		particlePiece:draw()

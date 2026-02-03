@@ -1,12 +1,8 @@
 local utf8 = require("utf8")
-
-
-
 local CrashScreen = require("src.CrashScreen")
+
 local crashScreen = nil
 local DT = 0.1
-
-
 
 local function error_printer(msg, layer)
 	local crash_trace = (debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", ""))
@@ -86,7 +82,7 @@ function love.errorhandler(msg)
 	p = p:gsub("\t", "")
 	p = p:gsub("%[string \"(.-)\"%]", "%1")
 
-	local success, result = pcall(function() crashScreen = CrashScreen(p) end)
+	local success, result = pcall(function() crashScreen = CrashScreen(p, p) end)
 	if not success then
 		print("Error creating Crash Screen: " .. tostring(result))
 		return

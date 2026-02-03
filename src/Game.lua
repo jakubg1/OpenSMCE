@@ -45,7 +45,10 @@ function Game:init()
 	-- Step 4. Create a runtime manager
 	self.runtimeManager = RuntimeManager()
 
-	-- Step 5. Set up the UI Manager
+	-- Step 5. Create a Particle Manager
+	self.particleManager = ParticleManager()
+
+	-- Step 6. Set up the UI Manager
 	self.uiManager = UIManager()
 	self.uiManager:initSplash()
 end
@@ -59,11 +62,9 @@ function Game:loadMain()
 	_Res:stopLoadCounter("main")
 end
 
----Initializes the game session, as well as UI and particle managers.
+---Destroys the splash screen and sets up the main UI layout.
 function Game:initSession()
-	-- Setup the UI and particles.
 	self.uiManager:init()
-	self.particleManager = ParticleManager()
 end
 
 ---Updates the game.
