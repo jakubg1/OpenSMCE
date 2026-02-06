@@ -2,9 +2,11 @@
     - speed ($Vector2) - The starting speed of this collectible.
     - acceleration ($Vector2) - The acceleration rate of this collectible.
     - particle (ParticleEffect) - A persistent particle packet which will follow the collectible entity.
-    - pickupParticle (ParticleEffect) - A one-time particle packet which will be launched when the collectible is catched.
-    - spawnSound (SoundEvent) - A sound event which will play when the collectible is spawned.
-    - pickupSound (SoundEvent) - A sound event which will play when the collectible is collected.
+    - particleLayer* = "GamePowerups" (string) - The layer on which the `particle` will be displayed.
+    - pickupParticle* (ParticleEffect) - A one-time particle packet which will be launched when the collectible is catched.
+    - pickupParticleLayer* = "GamePowerups" (string) - The layer on which the `pickupParticle` will be displayed.
+    - spawnSound* (SoundEvent) - A sound event which will play when the collectible is spawned.
+    - pickupSound* (SoundEvent) - A sound event which will play when the collectible is collected.
     - pickupName* ($string) - A label which will appear above the shooter when the powerup is collected. Can be an Expression. This name is translated if a locale is specified.
     - pickupFont* (Font) - A font which will be used for the label.
     - effects* (array) - A list of effects to be applied when the powerup is collected.

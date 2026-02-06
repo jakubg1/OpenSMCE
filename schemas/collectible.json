@@ -16,9 +16,19 @@
             "$ref": "_structures/ParticleEffect.json",
             "description": "A persistent particle packet which will follow the collectible entity."
         },
+        "particleLayer": {
+            "type": "string",
+            "description": "The layer on which the particle will be displayed.",
+            "markdownDescription": "The layer on which the `particle` will be displayed."
+        },
         "pickupParticle": {
             "$ref": "_structures/ParticleEffect.json",
             "description": "A one-time particle packet which will be launched when the collectible is catched."
+        },
+        "pickupParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the pickupParticle will be displayed.",
+            "markdownDescription": "The layer on which the `pickupParticle` will be displayed."
         },
         "spawnSound": {
             "$ref": "_structures/SoundEvent.json",
@@ -56,10 +66,7 @@
     "required": [
         "speed",
         "acceleration",
-        "particle",
-        "pickupParticle",
-        "spawnSound",
-        "pickupSound"
+        "particle"
     ],
     "additionalProperties": false
 }

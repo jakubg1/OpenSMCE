@@ -23,10 +23,12 @@ function Collectible:new(data, config, x, y)
 		local acceleration = self.config.acceleration:evaluate()
 		self.accelerationX, self.accelerationY = acceleration.x, acceleration.y
 
-		self.config.spawnSound:play(self.x, self.y)
+		if self.config.spawnSound then
+			self.config.spawnSound:play(self.x, self.y)
+		end
 	end
 
-	self.particle = _Game:spawnParticle(self.config.particle, self.x, self.y, "GamePowerups")
+	self.particle = _Game:spawnParticle(self.config.particle, self.x, self.y, self.config.particleLayer)
 
 	self.delQueue = false
 end
@@ -77,8 +79,12 @@ function Collectible:catch()
 		end
 	end
 
-	self.config.pickupSound:play(self.x, self.y)
-	_Game:spawnParticle(self.config.pickupParticle, self.x, self.y, "GamePowerups")
+	if self.config.pickupSound then
+		self.config.pickupSound:play(self.x, self.y)
+	end
+	if self.config.pickupParticle then
+		_Game:spawnParticle(self.config.pickupParticle, self.x, self.y, self.config.pickupParticleLayer)
+	end
 	if self.config.pickupName then
 		_Game.level:spawnFloatingText(_Game.configManager:translate(self.config.pickupName:evaluate()), self.x, self.y, self.config.pickupFont)
 	end
