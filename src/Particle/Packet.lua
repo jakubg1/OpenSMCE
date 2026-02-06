@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class ParticlePacket
----@overload fun(manager, data, x, y, layer):ParticlePacket
+---@overload fun(manager: ParticleManager, data: ParticleEffectConfig, x: number, y: number, layer: string):ParticlePacket
 local ParticlePacket = class:derive("ParticlePacket")
 
 ---Constructs a particle effect. Particle packets spawn multiple particle spawners and do not move by themselves.
@@ -23,6 +23,8 @@ function ParticlePacket:new(manager, data, x, y, layer)
 	self.delQueue = false
 end
 
+---Updates this Particle Effect. Do not call this from the handler; this is automatically called by the Particle Manager.
+---@param dt number Time delta in seconds.
 function ParticlePacket:update(dt)
 	-- destroy when no more spawners and particles exist
 	if self.spawnerCount == 0 and not self:hasPieces() then
@@ -30,13 +32,12 @@ function ParticlePacket:update(dt)
 	end
 end
 
+---Draws this Particle Effect's debug widgets on the screen.
 function ParticlePacket:draw()
 	love.graphics.setColor(1, 1, 0)
 	love.graphics.setLineWidth(2)
 	love.graphics.circle("line", self.x, self.y, 15 + self.spawnerCount * 5)
 end
-
-
 
 ---Returns the current packet's position.
 ---@return number, number
@@ -63,12 +64,16 @@ function ParticlePacket:destroy(clean)
 	end
 end
 
+---Sets this Particle Effect's layer.
+---@param layer string The new layer.
 function ParticlePacket:setLayer(layer)
 	self.layer = layer
 	-- HACK: Move all spawners and pieces belonging to this Packet by iterating over all of them.
 	self.manager:setParticlePacketLayer(self, layer)
 end
 
+---Returns whether there exist any Particle Pieces owned by this Particle Effect.
+---@return boolean
 function ParticlePacket:hasPieces()
 	for i, piece in ipairs(self.manager.particlePieces) do
 		if piece.packet == self then

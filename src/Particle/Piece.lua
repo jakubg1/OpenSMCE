@@ -1,7 +1,7 @@
 local class = require "com.class"
 
 ---@class ParticlePiece
----@overload fun(manager, spawner, data):ParticlePiece
+---@overload fun(manager: ParticleManager, spawner: ParticleSpawner, data: ParticleConfig):ParticlePiece
 local ParticlePiece = class:derive("ParticlePiece")
 
 ---Constructs a new particle piece.
@@ -191,7 +191,7 @@ end
 function ParticlePiece:draw()
 	local x, y = self:getPos()
 	local frame = math.min(math.floor(self.animationFrame), self.animationFrameCount)
-	_Renderer:setLayer(self.layer or "MAIN")
+	_Renderer:setLayer(self.layer)
 	self.sprite:draw(x, y, 0.5, 0.5, nil, frame, self.angle, self:getColor(), self:getAlpha())
 end
 

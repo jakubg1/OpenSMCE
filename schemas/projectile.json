@@ -8,6 +8,11 @@
             "$ref": "_structures/ParticleEffect.json",
             "description": "A persistent particle packet which will follow the projectile entity."
         },
+        "particleLayer": {
+            "type": "string",
+            "description": "The layer on which the particle will be displayed.",
+            "markdownDescription": "The layer on which the `particle` will be displayed."
+        },
         "speed": {
             "type": "number",
             "description": "The projectile speed, in pixels per second.",
@@ -43,6 +48,11 @@
         "destroyParticle": {
             "$ref": "_structures/ParticleEffect.json",
             "description": "A one-time particle packet which will be launched when the projectile is destroyed."
+        },
+        "destroyParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the destroyParticle will be displayed.",
+            "markdownDescription": "The layer on which the `destroyParticle` will be displayed."
         },
         "destroySound": {
             "$ref": "_structures/SoundEvent.json",

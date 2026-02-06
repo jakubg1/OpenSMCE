@@ -110,6 +110,31 @@ function BootScreen:getNativeResolution()
 	return self.nativeResolution.x, self.nativeResolution.y
 end
 
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function BootScreen:gameOver()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function BootScreen:spawnParticle(particleEffect, x, y, layer)
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function BootScreen:executeGameEvent(event, x, y)
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function BootScreen:getProfile()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function BootScreen:getSession()
+	error("Not implemented")
+end
+
 
 
 function BootScreen:mousepressed(x, y, button)
@@ -134,6 +159,11 @@ end
 
 function BootScreen:textinput(t)
 	-- STUB
+end
+
+---Exits the Boot Screen.
+function BootScreen:quit(forced)
+	love.event.quit()
 end
 
 return BootScreen

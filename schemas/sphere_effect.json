@@ -8,6 +8,11 @@
             "$ref": "_structures/ParticleEffect.json",
             "description": "A persistent particle packet which will be applied to any affected sphere."
         },
+        "particleLayer": {
+            "type": "string",
+            "description": "The layer on which the particle will be displayed.",
+            "markdownDescription": "The layer on which the `particle` will be displayed."
+        },
         "time": {
             "type": "number",
             "description": "After how many seconds the spheres will be destroyed. If the effect can spread, the timer will start once the infection process is completed.",
@@ -38,6 +43,11 @@
         "destroyParticle": {
             "$ref": "_structures/ParticleEffect.json",
             "description": "A one-time particle packet used when a sphere with this effect is destroyed."
+        },
+        "destroyParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the destroyParticle will be displayed.",
+            "markdownDescription": "The layer on which the `destroyParticle` will be displayed."
         },
         "destroyCollectible": {
             "$ref": "_structures/CollectibleGenerator.json",

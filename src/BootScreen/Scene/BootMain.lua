@@ -30,7 +30,7 @@ function BootMain:new(bootScreen)
         loadGame = Button("Start!", _FONT_BIG, Vec2(544, 448), Vec2(222, 24), function() self:loadSelectedGame() end),
         editGame = Button("Edit Game", _FONT_BIG, Vec2(544, 472), Vec2(222, 24), function() self:editSelectedGame() end),
         settings = Button("Engine Settings", _FONT_BIG, Vec2(540, 530), Vec2(230, 24), function() self.bootScreen:setScene("settings") end),
-        quit = Button("Exit", _FONT_BIG, Vec2(540, 554), Vec2(230, 24), function() love.event.quit() end),
+        quit = Button("Exit", _FONT_BIG, Vec2(540, 554), Vec2(230, 24), function() self.bootScreen:quit() end),
     }
 
     if self.joke then

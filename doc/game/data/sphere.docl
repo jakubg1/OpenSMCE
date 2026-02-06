@@ -30,6 +30,7 @@
     - destroySound* (SoundEvent) - A sound event to be played when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' sound events instead.
     - destroyEvent* (GameEvent) - A game event to be executed when a sphere of this type is destroyed. **Note:** This will be played for each single sphere of this type removed from the board. You may want to check out Sphere Effects' game events instead.
     - chainDestroyParticle* (ParticleEffect) - A one-time particle packet used when the sphere's chain is destroyed.
+    - chainDestroyParticleLayer* = "GameCollapses" (string) - The layer on which the `chainDestroyParticle` will be rendered.
     - chainDestroySound* (SoundEvent) - A sound event to be played when the sphere's chain is destroyed.
     - color* (Color) - The color used by the shooting reticle. Either this or `colorPalette` must exist.
     - colorPalette* (ColorPalette) - The color palette used by the shooting reticle. Either this or `color` must exist.
@@ -66,6 +67,7 @@
             - selector (SphereSelector) - The Sphere Selector which will select the spheres of which the color will be changed.
             - color ($integer) - Which color the spheres will be changed to.
             - particle* (ParticleEffect) - A one-time particle packet launched for all affected spheres.
+            - particleLayer* = "GameCollapses" (string) - The layer on which the `particle` will be rendered.
             - pierce* (boolean) - If set, the sphere will not be destroyed upon hitting the sphere train.
         - "splitAndPushBack" - The sphere gets destroyed, splits the sphere group in front of the hit sphere and applies negative speed to the back part of it.
             - speed (number) [>=0] - The knockback speed, in pixels per second.

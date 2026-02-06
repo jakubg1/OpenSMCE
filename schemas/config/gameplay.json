@@ -305,6 +305,11 @@
                     "$ref": "../_structures/ParticleEffect.json",
                     "description": "A persistent particle packet which is spawned when the Net is spawned, and destroyed when the Net expires."
                 },
+                "particleLayer": {
+                    "type": "string",
+                    "description": "The layer on which the particle will be displayed.",
+                    "markdownDescription": "The layer on which the `particle` will be displayed."
+                },
                 "sound": {
                     "$ref": "../_structures/SoundEvent.json",
                     "description": "A looping sound event that will be played when the Net is currently active."

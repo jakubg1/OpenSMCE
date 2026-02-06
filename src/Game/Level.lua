@@ -1174,7 +1174,7 @@ end
 ---@param x number? The X position used to calculate distances to spheres.
 ---@param y number? The Y position used to calculate distances to spheres.
 function Level:replaceColorSelector(hitBehavior, x, y)
-	SphereSelectorResult(hitBehavior.selector, Vec2(x, y)):changeColor(hitBehavior.color:evaluate(), hitBehavior.particle)
+	SphereSelectorResult(hitBehavior.selector, Vec2(x, y)):changeColor(hitBehavior.color:evaluate(), hitBehavior.particle, hitBehavior.particleLayer)
 end
 
 ---Selects spheres based on a provided Sphere Selector Config and applies a Sphere Effect on them.
@@ -1510,7 +1510,7 @@ function Level:spawnNet()
 	local w, h = _Game:getNativeResolution()
 	local x, y = w / 2, netConfig.posY
 	if not self.netParticle then
-		self.netParticle = _Game:spawnParticle(netConfig.particle, x, y)
+		self.netParticle = _Game:spawnParticle(netConfig.particle, x, y, netConfig.particleLayer)
 	end
 	if not self.netSound then
 		self.netSound = netConfig.sound:play(x, y)

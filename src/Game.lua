@@ -165,28 +165,30 @@ end
 ---@param particleEffect ParticleEffectConfig The particle effect resource.
 ---@param x number The initial X position of the particle packet.
 ---@param y number The initial Y position of the particle packet.
----@param layer string? The layer the particles are supposed to be drawn on. If `nil`, they will be drawn as a part of the game instead.
+---@param layer string The layer the particles are supposed to be drawn on.
 ---@return ParticlePacket
 function Game:spawnParticle(particleEffect, x, y, layer)
-	return self.particleManager:spawnParticlePacket(particleEffect, x, y, layer or "MAIN")
+	return self.particleManager:spawnParticlePacket(particleEffect, x, y, layer)
 end
 
 ---Executes a Game Event.
 ---@param event GameEventConfig The game event to be executed.
-function Game:executeGameEvent(event)
+---@param x number? The X position where the event should be executed.
+---@param y number? The Y position where the event should be executed.
+function Game:executeGameEvent(event, x, y)
 	-- Abort the execution if any of the conditions are not met.
 	if not _Utils.checkExpressions(event.conditions) then
 		return
 	end
 	-- Execute the event.
 	if event.type == "single" then
-		self:executeGameEvent(event.event)
+		self:executeGameEvent(event.event, x, y)
 	elseif event.type == "sequence" then
 		for i, subevent in ipairs(event.events) do
-			self:executeGameEvent(subevent)
+			self:executeGameEvent(subevent, x, y)
 		end
 	elseif event.type == "random" then
-		self:executeGameEvent(event.events[math.random(#event.events)])
+		self:executeGameEvent(event.events[math.random(#event.events)], x, y)
 	elseif event.type == "setCoins" then
 		local session = self:getSession()
 		if not session then

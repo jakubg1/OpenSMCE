@@ -272,6 +272,32 @@ end
 
 
 
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function EditorMain:gameOver()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function EditorMain:spawnParticle(particleEffect, x, y, layer)
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function EditorMain:executeGameEvent(event, x, y)
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function EditorMain:getProfile()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function EditorMain:getSession()
+	error("Not implemented")
+end
+
+
 function EditorMain:mousepressed(x, y, button)
 	if button == 1 then
 		if self.hoveredResource then
@@ -313,7 +339,7 @@ function EditorMain:textinput(t)
 end
 
 ---Exits the Editor.
-function EditorMain:quit()
+function EditorMain:quit(forced)
 	_Res:unloadAllResources()
 	_LoadBootScreen()
 end

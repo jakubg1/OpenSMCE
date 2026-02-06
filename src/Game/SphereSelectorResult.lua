@@ -19,6 +19,7 @@ function SphereSelectorResult:new(config, pos)
 	self.config = config
 	self.pos = pos
 
+	---@type Sphere[]
 	self.spheres = {}
 	-- TODO: Trigger evaluation for all spheres only when necessary. The `:hasSphere()` function does not need full information.
 	for i, operation in ipairs(config.operations) do
@@ -94,7 +95,7 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 			_Game:executeGameEvent(gameEventPerSphere)
 		end
 		_Vars:unset("sphere")
-		sphere.sphereGroup:destroySphere(sphere.sphereGroup:getSphereID(sphere))
+		sphere.sphereGroup:destroySphere(assert(sphere.sphereGroup:getSphereID(sphere)))
 	end
 	_Vars:unset("selector")
 end
@@ -102,14 +103,15 @@ end
 ---Changes the color of all of the spheres contained in this Result to a given color.
 ---@param color integer The new color of affected spheres.
 ---@param particle ParticleEffectConfig? The particle effect to be used for each affected sphere.
-function SphereSelectorResult:changeColor(color, particle)
+---@param particleLayer string? If `particle` is specified, this is the layer the particle will be drawn on.
+function SphereSelectorResult:changeColor(color, particle, particleLayer)
 	for i, sphere in ipairs(self.spheres) do
-		sphere:changeColor(color, particle)
+		sphere:changeColor(color, particle, particleLayer)
 	end
 end
 
 ---Applies a Sphere Effect to all of the spheres contained in this Result.
----@param effect string The path to the Sphere Effect to be applied.
+---@param effect SphereEffectConfig The path to the Sphere Effect to be applied.
 function SphereSelectorResult:applyEffect(effect)
 	for i, sphere in ipairs(self.spheres) do
 		sphere:applyEffect(effect)

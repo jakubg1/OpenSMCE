@@ -37,6 +37,8 @@ function Sphere:new(sphereGroup, data, color, shootOrigin, shootTime, sphereEnti
 		self.boostStreak = false
 		self.shootOrigin = nil
 		self.shootTime = nil
+		---@alias SphereEffect {name: string, config: SphereEffectConfig, time: number, infectionSize: integer, infectionTime: number, effectGroupID: integer, particle: ParticlePacket?}
+		---@type SphereEffect[]
 		self.effects = {}
 		self.gaps = gaps or {}
 		self.destroyedFragileSpheres = destroyedFragileSpheres
@@ -162,7 +164,7 @@ end
 ---Executed when this Sphere finishes its growth, either naturally or by it being stopped.
 ---Checks the matches, combos, etc.
 function Sphere:finishShot()
-	local index = self.sphereGroup:getSphereID(self)
+	local index = assert(self.sphereGroup:getSphereID(self))
 	if self.sphereGroup:shouldBoostStreak(index) then
 		self.boostStreak = true
 	else
@@ -178,7 +180,8 @@ end
 ---Changes the color of this Sphere.
 ---@param color integer The new color for this Sphere to be obtained.
 ---@param particle ParticleEffectConfig? A one-time particle packet pointer to be spawned if the color change is successful.
-function Sphere:changeColor(color, particle)
+---@param particleLayer string? If `particle` is specified, this is the layer the particle will be drawn on.
+function Sphere:changeColor(color, particle, particleLayer)
 	self.map.level.colorManager:decrement(self.color)
 	self.map.level.colorManager:increment(color)
 	if self.danger then
@@ -190,7 +193,7 @@ function Sphere:changeColor(color, particle)
 	self:loadConfig()
 	if particle then
 		local pos = self:getPos()
-		_Game:spawnParticle(particle, pos.x, pos.y)
+		_Game:spawnParticle(particle, pos.x, pos.y, assert(particleLayer))
 	end
 end
 
@@ -286,7 +289,7 @@ function Sphere:breakChainLevel()
 		self.config.chainDestroySound:play(pos.x, pos.y)
 	end
 	if self.config.chainDestroyParticle then
-		_Game:spawnParticle(self.config.chainDestroyParticle, pos.x, pos.y)
+		_Game:spawnParticle(self.config.chainDestroyParticle, pos.x, pos.y, self.config.chainDestroyParticleLayer)
 	end
 end
 
@@ -334,7 +337,7 @@ function Sphere:applyEffect(effectConfig, infectionSize, infectionTime, effectGr
 	}
 	local pos = self:getPos()
 	if effectConfig.particle then
-		effect.particle = _Game:spawnParticle(effectConfig.particle, pos.x, pos.y)
+		effect.particle = _Game:spawnParticle(effectConfig.particle, pos.x, pos.y, effectConfig.particleLayer)
 	end
 	table.insert(self.effects, effect)
 
@@ -356,7 +359,7 @@ function Sphere:removeAllEffects()
 		-- Emit destroy particles.
 		if effect.config.destroyParticle then
 			local pos = self:getPos()
-			_Game:spawnParticle(effect.config.destroyParticle, pos.x, pos.y, "GameCollapses")
+			_Game:spawnParticle(effect.config.destroyParticle, pos.x, pos.y, effect.config.destroyParticleLayer)
 		end
 		-- Decrement the sphere effect group counter.
 		self.path:decrementSphereEffectGroup(effect.effectGroupID)
@@ -369,7 +372,7 @@ end
 ---Destroys this and any number of connected spheres with a given effect.
 ---@param effectConfig SphereEffectConfig The sphere effect config.
 function Sphere:matchEffect(effectConfig)
-	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), effectConfig)
+	self.sphereGroup:matchAndDeleteEffect(assert(self.sphereGroup:getSphereID(self)), effectConfig)
 end
 
 
@@ -383,7 +386,7 @@ function Sphere:matchEffectFragile()
 			break
 		end
 	end
-	self.sphereGroup:matchAndDeleteEffect(self.sphereGroup:getSphereID(self), effectConfig)
+	self.sphereGroup:matchAndDeleteEffect(assert(self.sphereGroup:getSphereID(self)), assert(effectConfig))
 end
 
 
@@ -519,7 +522,7 @@ end
 
 ---Destroys this and any number of connected spheres if their ghost time has expired.
 function Sphere:deleteGhost()
-	self.sphereGroup:deleteGhost(self.sphereGroup:getSphereID(self))
+	self.sphereGroup:deleteGhost(assert(self.sphereGroup:getSphereID(self)))
 end
 
 
@@ -871,7 +874,7 @@ function Sphere:deserialize(t)
 				infectionSize = effect.infectionSize,
 				infectionTime = effect.infectionTime,
 				effectGroupID = effect.effectGroupID,
-				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, pos.x, pos.y, "GamePieceNormalPsys")
+				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, pos.x, pos.y, effectConfig.particleLayer)
 			}
 			table.insert(self.effects, e)
 		end

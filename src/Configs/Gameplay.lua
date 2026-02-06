@@ -91,10 +91,11 @@ function GameplayConfig:new(data, path, isAnonymous, base)
         end
     end
 
-    ---@type {particle: ParticleEffectConfig, sound: SoundEvent, posY: integer}
+    ---@type {particle: ParticleEffectConfig, particleLayer: string, sound: SoundEvent, posY: integer}
     if data.net then
         self.net = {}
         self.net.particle = u.parseParticleEffectConfig(data, base, path, {"net", "particle"})
+        self.net.particleLayer = u.parseStringOpt(data, base, path, {"net", "particleLayer"}, "GamePowerups")
         self.net.sound = u.parseSoundEvent(data, base, path, {"net", "sound"})
         self.net.posY = u.parseInteger(data, base, path, {"net", "posY"})
     end

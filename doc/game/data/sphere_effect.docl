@@ -1,5 +1,6 @@
 - (object) - The root entry.
     - particle* (ParticleEffect) - A persistent particle packet which will be applied to any affected sphere.
+    - particleLayer* = "GamePieceNormalPsys" (string) - The layer on which the `particle` will be displayed.
     - time (number) [>=0] - After how many seconds the spheres will be destroyed. If the effect can spread, the timer will start once the infection process is completed.
     - infectionSize (integer) [>=0] - How many times the effect expansion should occur.
     - infectionTime (number) [>=0] - Time between the expansions, in seconds.
@@ -7,6 +8,7 @@
     - destroySound* (SoundEvent) - A sound event to be played when spheres afflicted with this effect are destroyed.
     - destroyScoreEvent* (ScoreEvent) - A score event to be executed when spheres affected with this effect are destroyed.
     - destroyParticle* (ParticleEffect) - A one-time particle packet used when a sphere with this effect is destroyed.
+    - destroyParticleLayer* = "GameCollapses" (string) - The layer on which the `destroyParticle` will be displayed.
     - destroyCollectible* (CollectibleGenerator) - The collectible generator to be used when spheres with this effect are destroyed.
     - levelLossProtection (boolean) - If set to `true`, a group with spheres with this effect applied will not trigger a level loss when past the path's end node.
     - immobile (boolean) - If `true`, the spheres affected with this effect will stop.

@@ -143,6 +143,11 @@
             "$ref": "_structures/ParticleEffect.json",
             "description": "A one-time particle packet used when the sphere's chain is destroyed."
         },
+        "chainDestroyParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the chainDestroyParticle will be rendered.",
+            "markdownDescription": "The layer on which the `chainDestroyParticle` will be rendered."
+        },
         "chainDestroySound": {
             "$ref": "_structures/SoundEvent.json",
             "description": "A sound event to be played when the sphere's chain is destroyed."
@@ -410,6 +415,11 @@
                             "particle": {
                                 "$ref": "_structures/ParticleEffect.json",
                                 "description": "A one-time particle packet launched for all affected spheres."
+                            },
+                            "particleLayer": {
+                                "type": "string",
+                                "description": "The layer on which the particle will be rendered.",
+                                "markdownDescription": "The layer on which the `particle` will be rendered."
                             },
                             "pierce": {
                                 "type": "boolean",

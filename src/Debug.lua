@@ -530,7 +530,8 @@ function Debug:commandNukeSpheres()
 end
 
 function Debug:commandTest(particle)
-	_Game:spawnParticle(particle, 100, 400)
+	-- TODO: Layer argument/debug layer?
+	_Game:spawnParticle(particle, 100, 400, "MAIN")
 end
 
 function Debug:commandCrash()
