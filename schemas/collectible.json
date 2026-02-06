@@ -46,6 +46,10 @@
             "$ref": "_structures/Font.json",
             "description": "A font which will be used for the label."
         },
+        "pickupTextLayer": {
+            "type": "string",
+            "description": "The layer on which the floating text when the powerup is collected will appear."
+        },
         "effects": {
             "type": "array",
             "description": "A list of effects to be applied when the powerup is collected.",

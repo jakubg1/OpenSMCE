@@ -37,6 +37,7 @@ function CollectibleConfig:new(data, path, isAnonymous, base)
     self.pickupSound = u.parseSoundEventOpt(data, base, path, {"pickupSound"})
     self.pickupName = u.parseExprStringOpt(data, base, path, {"pickupName"})
     self.pickupFont = u.parseFontOpt(data, base, path, {"pickupFont"})
+    self.pickupTextLayer = u.parseStringOpt(data, base, path, {"pickupTextLayer"}, "GameScores")
 
     ---@type CollectibleEffectConfig[]
     self.effects = {}

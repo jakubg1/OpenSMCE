@@ -9,6 +9,7 @@
     - pickupSound* (SoundEvent) - A sound event which will play when the collectible is collected.
     - pickupName* ($string) - A label which will appear above the shooter when the powerup is collected. Can be an Expression. This name is translated if a locale is specified.
     - pickupFont* (Font) - A font which will be used for the label.
+    - pickupTextLayer* = "GameScores" (string) - The layer on which the floating text when the powerup is collected will appear.
     - effects* (array) - A list of effects to be applied when the powerup is collected.
         - (CollectibleEffect) - A single collectible effect.
     - dropEffects* (array) - A list of effects to be applied when the powerup is not collected and falls out of the screen.

@@ -86,7 +86,7 @@ function Collectible:catch()
 		_Game:spawnParticle(self.config.pickupParticle, self.x, self.y, self.config.pickupParticleLayer)
 	end
 	if self.config.pickupName then
-		_Game.level:spawnFloatingText(_Game.configManager:translate(self.config.pickupName:evaluate()), self.x, self.y, self.config.pickupFont)
+		_Game.level:spawnFloatingText(_Game.configManager:translate(self.config.pickupName:evaluate()), self.x, self.y, self.config.pickupFont, self.config.pickupTextLayer)
 	end
 end
 

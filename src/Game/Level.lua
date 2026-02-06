@@ -572,7 +572,7 @@ function Level:executeScoreEvent(scoreEvent, x, y)
 			if scoreEvent.text then
 				text = scoreEvent.text:evaluate()
 			end
-			self:spawnFloatingText(text, x, y, font)
+			self:spawnFloatingText(text, x, y, font, scoreEvent.layer)
 		end
 	end
 	_Vars:unset("event")
@@ -1499,8 +1499,9 @@ end
 ---@param x number The starting X position of this text.
 ---@param y number The starting Y position of this text.
 ---@param font Font The font which is going to be used to draw the text.
-function Level:spawnFloatingText(text, x, y, font)
-	table.insert(self.floatingTexts, FloatingText(text, x, y, font))
+---@param layer string The layer on which the Floating Text will be rendered.
+function Level:spawnFloatingText(text, x, y, font, layer)
+	table.insert(self.floatingTexts, FloatingText(text, x, y, font, layer))
 end
 
 ---Spawns the Net particle and sound, if it doesn't exist yet.

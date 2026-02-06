@@ -2,7 +2,7 @@ local class = require "com.class"
 
 ---Represents a label which appears for a moment when the Player gets score.
 ---@class FloatingText
----@overload fun(text, x, y, font):FloatingText
+---@overload fun(text: string, x: number, y: number, font: Font, layer: string):FloatingText
 local FloatingText = class:derive("FloatingText")
 
 ---Constructs a new instance of Floating Text.
@@ -10,10 +10,12 @@ local FloatingText = class:derive("FloatingText")
 ---@param x number The starting X position of this text.
 ---@param y number The starting Y position of this text.
 ---@param font Font The font which is going to be used to draw the text.
-function FloatingText:new(text, x, y, font)
+---@param layer string The layer on which this text will be rendered.
+function FloatingText:new(text, x, y, font, layer)
 	self.text = text
 	self.x, self.y = x, y
 	self.font = font
+	self.layer = layer
 
 	self.time = 0
 
@@ -36,7 +38,7 @@ end
 
 ---Draws the Floating Text.
 function FloatingText:draw()
-	_Renderer:setLayer("GameScores")
+	_Renderer:setLayer(self.layer)
 	self.font:draw(self.text, self.x, self.y - self.time * 48, nil, nil, nil, math.min((1 - self.time) / 0.2, 1))
 end
 

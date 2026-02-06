@@ -49,6 +49,10 @@
                 "choice"
             ],
             "additionalProperties": false
+        },
+        "layer": {
+            "type": "string",
+            "description": "The layer on which the score text will be displayed."
         }
     },
     "required": [

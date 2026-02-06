@@ -8,3 +8,4 @@
             - (Font) - A single font.
         - default (Font) - The default font, if the choice matches none of the above choices.
         - choice ($integer) - An integer expression which evaluates to a number identifying one of the options.
+    - layer* = "GameScores" (string) - The layer on which the score text will be displayed.
