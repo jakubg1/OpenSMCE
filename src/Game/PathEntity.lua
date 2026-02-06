@@ -82,10 +82,8 @@ function PathEntity:update(dt)
 				offsetFromCurrentOffset = -offsetFromCurrentOffset
 			end
 			local offset = self.offset - offsetFromCurrentOffset
-			if self.config.renderParticlesInTunnels or self.path:getBrightness(offset) > 0.5 then -- the particles shouldn't be visible under obstacles
-				local x, y = self.path:getPos(offset)
-				_Game:spawnParticle(self.config.particle, x, y, self.config.particleLayer)
-			end
+			local x, y = self.path:getPos(offset)
+			_Game:spawnParticle(self.config.particle, x, y, self:getHidden() and self.config.particleHiddenLayer or self.config.particleLayer)
 			self.trailDistance = self.trailDistance + self.config.particleSeparation
 		end
 	end
@@ -222,12 +220,12 @@ function PathEntity:draw()
 	local angle = self:getAngle() + math.pi
 	-- Draw the main sprite.
 	if self.config.sprite then
-		_Renderer:setLayer(hidden and "GamePieceHidden" or "GamePieceNormal")
+		_Renderer:setLayer(hidden and self.config.spriteHiddenLayer or self.config.spriteLayer)
 		self.config.sprite:draw(x, y, 0.5, 0.5, nil, nil, angle, Color(self:getBrightness()))
 	end
 	-- Draw the shadow.
 	if self.config.shadowSprite then
-		_Renderer:setLayer(hidden and "GamePieceHShadow" or "GamePieceNShadow")
+		_Renderer:setLayer(hidden and self.config.shadowSpriteHiddenLayer or self.config.shadowSpriteLayer)
 		self.config.shadowSprite:draw(x + 4, y + 4, 0.5, 0.5, nil, nil, angle)
 	end
 end

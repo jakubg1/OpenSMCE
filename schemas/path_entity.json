@@ -8,9 +8,29 @@
             "$ref": "_structures/Sprite.json",
             "description": "The sprite to be used by the path entity."
         },
+        "spriteLayer": {
+            "type": "string",
+            "description": "The layer on which the sprite will be rendered if the path entity is on a non-hidden node.",
+            "markdownDescription": "The layer on which the `sprite` will be rendered if the path entity is on a non-hidden node."
+        },
+        "spriteHiddenLayer": {
+            "type": "string",
+            "description": "The layer on which the sprite will be rendered if the path entity is on a hidden node.",
+            "markdownDescription": "The layer on which the `sprite` will be rendered if the path entity is on a hidden node."
+        },
         "shadowSprite": {
             "$ref": "_structures/Sprite.json",
             "description": "The shadow sprite to be used by the path entity."
+        },
+        "shadowSpriteLayer": {
+            "type": "string",
+            "description": "The layer on which the shadowSprite will be rendered if the path entity is on a non-hidden node.",
+            "markdownDescription": "The layer on which the `shadowSprite` will be rendered if the path entity is on a non-hidden node."
+        },
+        "shadowSpriteHiddenLayer": {
+            "type": "string",
+            "description": "The layer on which the shadowSprite will be rendered if the path entity is on a hidden node.",
+            "markdownDescription": "The layer on which the `shadowSprite` will be rendered if the path entity is on a hidden node."
         },
         "spawnPlacement": {
             "type": "string",
@@ -78,16 +98,16 @@
         },
         "particleLayer": {
             "type": "string",
-            "description": "The layer on which the trail particles will be displayed."
+            "description": "The layer on which the trail particles will be displayed if the path entity is on a non-hidden node."
+        },
+        "particleHiddenLayer": {
+            "type": "string",
+            "description": "The layer on which the trail particles will be displayed if the path entity is on a hidden node."
         },
         "particleSeparation": {
             "type": "number",
             "description": "The distance between each particle, in pixels.",
             "exclusiveMinimum": 0.0
-        },
-        "renderParticlesInTunnels": {
-            "type": "boolean",
-            "description": "If set, the particles will be spawned in tunnels as well."
         },
         "loopSound": {
             "$ref": "_structures/SoundEvent.json",

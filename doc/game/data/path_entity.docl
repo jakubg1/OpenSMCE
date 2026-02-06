@@ -1,6 +1,10 @@
 - (object) - The root object.
     - sprite* (Sprite) - The sprite to be used by the path entity.
+    - spriteLayer* = "GamePieceNormal" (string) - The layer on which the `sprite` will be rendered if the path entity is on a non-hidden node.
+    - spriteHiddenLayer* = "GamePieceHidden" (string) - The layer on which the `sprite` will be rendered if the path entity is on a hidden node.
     - shadowSprite* (Sprite) - The shadow sprite to be used by the path entity.
+    - shadowSpriteLayer* = "GamePieceNShadow" (string) - The layer on which the `shadowSprite` will be rendered if the path entity is on a non-hidden node.
+    - shadowSpriteHiddenLayer* = "GamePieceHShadow" (string) - The layer on which the `shadowSprite` will be rendered if the path entity is on a hidden node.
     - spawnPlacement (string) - Where the path entity will be spawned at, or in relation to that place.
         - "start" - The path entity will be spawned at the beginning of the path, and will move forwards along the path.
         - "end" - The path entity will be spawned at the end of the path, and will move backwards along the path.
@@ -15,9 +19,9 @@
     - destroyWhenPathEmpty* (boolean) - If set, this path entity will be destroyed if there are no spheres on that path.
     - destroyAtClearOffset* (boolean) - If set, this path entity will be destroyed once it reaches the path's clear offset (i.e. Bonus Scarabs).
     - particle* (ParticleEffect) - The one-time particle that this path entity will be spawning every set amount of pixels.
-    - particleLayer* = "GamePieceNormal" (string) - The layer on which the trail particles will be displayed.
+    - particleLayer* = "GamePieceNormal" (string) - The layer on which the trail particles will be displayed if the path entity is on a non-hidden node.
+    - particleHiddenLayer* = "GamePieceHidden" (string) - The layer on which the trail particles will be displayed if the path entity is on a hidden node.
     - particleSeparation* (number) [>0] - The distance between each particle, in pixels.
-    - renderParticlesInTunnels* (boolean) - If set, the particles will be spawned in tunnels as well.
     - loopSound* (SoundEvent) - A looping sound event which will be played during the path entity's existence. (path_entity)
     - collectibleGenerator* (CollectibleGenerator) - A collectible generator which will periodically generate collectibles from this path entity. (path_entity)
     - collectibleGeneratorSeparation* (number) [>0] - The distance between each collectible generator activation, in pixels.
