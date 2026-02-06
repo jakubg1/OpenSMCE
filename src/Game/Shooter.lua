@@ -156,13 +156,14 @@ function Shooter:update(dt)
     end
 
     -- Sphere hold particles
-    if self.shotPressed and self:getSphereConfig().holdParticle then
+    local sphereConfig = self:getSphereConfig()
+    if self.shotPressed and sphereConfig.holdParticle then
         for i = 1, self:getSphereCount() do
             local pos = self:getSpherePos(i)
             if self.sphereHoldParticles[i] then
                 self.sphereHoldParticles[i]:setPos(pos.x, pos.y)
             else
-                self.sphereHoldParticles[i] = _Game:spawnParticle(self:getSphereConfig().holdParticle, pos.x, pos.y, "GameBulletPsys")
+                self.sphereHoldParticles[i] = _Game:spawnParticle(sphereConfig.holdParticle, pos.x, pos.y, sphereConfig.holdParticleLayer)
             end
         end
     else
@@ -494,7 +495,7 @@ function Shooter:shoot()
             -- lightning spheres are not shot, they're deployed instantly
             local pos = self:getSpherePos(i)
             if sphereConfig.destroyParticle then
-                _Game:spawnParticle(sphereConfig.destroyParticle, pos.x, pos.y, "GameCollapses")
+                _Game:spawnParticle(sphereConfig.destroyParticle, pos.x, pos.y, sphereConfig.destroyParticleLayer)
             end
             _Game.level:destroySelector(shotBehavior.selector, pos.x, pos.y, shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
             _Game.level:markSphereShot()

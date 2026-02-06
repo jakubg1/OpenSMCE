@@ -111,6 +111,11 @@
             "description": "A persistent particle packet used whenever the left mouse button is held. Works best with autofire enabled.",
             "markdownDescription": "A persistent particle packet used whenever the left mouse button is held. Works best with `autofire` enabled."
         },
+        "holdParticleLayer": {
+            "type": "string",
+            "description": "The layer on which the holdParticle will be rendered.",
+            "markdownDescription": "The layer on which the `holdParticle` will be rendered."
+        },
         "destroyParticle": {
             "$ref": "_structures/ParticleEffect.json",
             "description": "A one-time particle packet used when the sphere is destroyed."

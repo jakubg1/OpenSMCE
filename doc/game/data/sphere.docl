@@ -23,6 +23,7 @@
     - idleParticleShooterLayer* = "GameBulletPsys" (string) - The layer on which the sphere's idle particles will be rendered, if this Sphere is currently in the shooter.
     - idleParticleShotLayer* = "GameBulletPsys" (string) - The layer on which the sphere's idle particles will be rendered, if this Sphere is currently a shot sphere.
     - holdParticle* (ParticleEffect) - A persistent particle packet used whenever the left mouse button is held. Works best with `autofire` enabled.
+    - holdParticleLayer* = "GameBulletPsys" (string) - The layer on which the `holdParticle` will be rendered.
     - destroyParticle* (ParticleEffect) - A one-time particle packet used when the sphere is destroyed.
     - destroyParticleLayer* = "GameCollapses" (string) - The layer on which the destroy particles will be rendered.
     - destroyCollectible* (CollectibleGenerator) - A collectible generator used when the sphere is destroyed. **Note:** The generator will be evaluated for each single sphere of this type removed from the board. You may want to check out Sphere Effects' collectible generators instead.
