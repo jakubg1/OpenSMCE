@@ -9,8 +9,7 @@ local DummyLevel = class:derive("DummyLevel")
 ---Constructs an instance of Dummy Level.
 ---@param path string A path to the level file.
 function DummyLevel:new(path)
-	-- data specified in level config file
-	local data = assert(_Utils.loadJson(_ParsePath(path)), "Failed to load dummy level file: " .. path)
+	local data = _Res:getLevelConfig(path)
 	self.map = Map(self, "maps/" .. data.map, data.pathsBehavior, true)
 end
 
@@ -23,6 +22,16 @@ end
 ---Draws the Dummy Level.
 function DummyLevel:draw()
 	self.map:draw()
+end
+
+---Activates all particles which are a part of this Dummy Level's Map.
+function DummyLevel:activateParticles()
+	self.map:activateParticles()
+end
+
+---Despawns all particles which are a part of this Dummy Level's Map.
+function DummyLevel:deactivateParticles()
+	self.map:deactivateParticles()
 end
 
 return DummyLevel

@@ -58,6 +58,8 @@ function ParticleConfig:new(data, path, isAnonymous, base)
     self.colorPaletteSpeed = u.parseNumberOpt(data, base, path, {"colorPaletteSpeed"})
     self.directionDeviationTime = u.parseNumberOpt(data, base, path, {"directionDeviationTime"})
     self.directionDeviationSpeed = u.parseExprVec2Opt(data, base, path, {"directionDeviationSpeed"})
+    self.angle = u.parseExprNumberOpt(data, base, path, {"angle"})
+    self.angleSpeed = u.parseExprNumberOpt(data, base, path, {"angleSpeed"})
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

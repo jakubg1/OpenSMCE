@@ -64,6 +64,8 @@ function ParticlePiece:new(manager, spawner, data)
 	self.directionDeviation = false -- is switched to true after directionDeviationTime seconds (if that exists)
 	self.directionDeviationTime = data.directionDeviationTime
 	self.directionDeviationSpeed = data.directionDeviationSpeed -- evaluated every frame
+	self.angle = data.angle and data.angle:evaluate()
+	self.angleSpeed = data.angleSpeed and data.angleSpeed:evaluate()
 
 	self.animationFrame = data.animationFrameRandom and math.random(1, self.animationFrameCount) or 1
 
@@ -115,6 +117,11 @@ function ParticlePiece:update(dt)
 		end
 	end
 
+	-- Update the speed.
+	if self.angle and self.angleSpeed then
+		self.angle = (self.angle + self.angleSpeed * dt) % (math.pi * 2)
+	end
+
 	-- Detach from parents if they are gone.
 	if self.spawner and self.spawner.delQueue then
 		self.spawner = nil
@@ -148,6 +155,7 @@ function ParticlePiece:getPos()
 end
 
 ---Returns the optional color tint for this particle piece, if it has a color palette defined.
+---@private
 ---@return Color?
 function ParticlePiece:getColor()
 	if self.colorPalette then
@@ -157,6 +165,7 @@ function ParticlePiece:getColor()
 end
 
 ---Returns the opacity of this particle piece.
+---@private
 ---@return number
 function ParticlePiece:getAlpha()
 	local totalTime = self.lifespan or self.fadeTime
@@ -183,7 +192,7 @@ function ParticlePiece:draw()
 	local x, y = self:getPos()
 	local frame = math.min(math.floor(self.animationFrame), self.animationFrameCount)
 	_Renderer:setLayer(self.layer or "MAIN")
-	self.sprite:draw(x, y, 0.5, 0.5, nil, frame, nil, self:getColor(), self:getAlpha())
+	self.sprite:draw(x, y, 0.5, 0.5, nil, frame, self.angle, self:getColor(), self:getAlpha())
 end
 
 return ParticlePiece

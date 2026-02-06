@@ -29,11 +29,7 @@ function Map:new(level, path, pathsBehavior, isDummy)
 	end
 	---@type ParticlePacket[]
 	self.particles = {}
-	for i, object in ipairs(self.config.objects) do
-		if object.type == "particle" then
-			table.insert(self.particles, _Game:spawnParticle(object.particle, object.x, object.y, object.layer))
-		end
-	end
+	self:activateParticles()
 end
 
 ---Updates this Map.
@@ -42,6 +38,27 @@ function Map:update(dt)
 	for i, path in ipairs(self.paths) do
 		path:update(dt)
 	end
+end
+
+---Activates all particles which are a part of this Map.
+function Map:activateParticles()
+	-- Do not allow spawning multiple copies of the same particles.
+	if #self.particles > 0 then
+		return
+	end
+	for i, object in ipairs(self.config.objects) do
+		if object.type == "particle" then
+			table.insert(self.particles, _Game:spawnParticle(object.particle, object.x, object.y, object.layer))
+		end
+	end
+end
+
+---Despawns all particles which are a part of this Map.
+function Map:deactivateParticles()
+	for i, particle in ipairs(self.particles) do
+		particle:destroy(true)
+	end
+	_Utils.emptyTable(self.particles)
 end
 
 ---Spawns danger particles configured for this map for all paths which are currently in danger.
@@ -78,11 +95,7 @@ end
 
 ---Unloads resources loaded by this map.
 function Map:destroy()
-	-- Destroy the particles.
-	for i, particle in ipairs(self.particles) do
-		particle:destroy()
-		particle:clean()
-	end
+	self:deactivateParticles()
 	for i, path in ipairs(self.paths) do
 		path:destroy()
 	end

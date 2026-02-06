@@ -24,3 +24,5 @@
     - colorPaletteSpeed* (number) - The speed of the Color Palette animation, in pixels per second.
     - directionDeviationTime* (number) [>=0] - The delay before directional deviation kicks in.
     - directionDeviationSpeed* ($Vector2) - The speed of directional deviation, in radians per second. This will rotate the particle's speed vector.
+    - angle* ($number) - The starting rotation of this Particle, in radians.
+    - angleSpeed* ($number) - The rotation speed of this Particle, in radians per second.

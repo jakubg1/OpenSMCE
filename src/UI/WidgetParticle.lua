@@ -32,13 +32,7 @@ end
 
 function UIWidgetParticle:despawn()
 	if self.packet then
-		self.packet:destroy()
-	end
-end
-
-function UIWidgetParticle:clean()
-	if self.packet then
-		self.packet:clean()
+		self.packet:destroy(true)
 	end
 end
 

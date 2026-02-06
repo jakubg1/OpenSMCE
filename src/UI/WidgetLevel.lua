@@ -9,13 +9,25 @@ function UIWidgetLevel:new(parent, path)
 	self.type = "level"
 	self.parent = parent
 	self.level = DummyLevel(path)
+
+	self.visible = true
 end
 
 function UIWidgetLevel:update(dt)
-	if self.parent:getAlpha() == 0 then
-		return
+	local visible = self.parent:getAlpha() > 0
+	if self.visible and not visible then
+		-- We just disappeared!
+		self.level:deactivateParticles()
+	elseif not self.visible and visible then
+		-- We just appeared!
+		self.level:activateParticles()
 	end
-	self.level:update(dt)
+	self.visible = visible
+
+	-- Update the level only if it is visible.
+	if visible then
+		self.level:update(dt)
+	end
 end
 
 function UIWidgetLevel:draw()

@@ -95,9 +95,6 @@ function UIWidget:new(data, parent)
 	self.active = false
 	self.hotkey = data.hotkey
 
-	---@type table<string, string|{name: string, parameters: any[]?}>
-	self.callbacks = data.callbacks
-
 	-- Init alpha to 0 if an animation is defined.
 	if self.animations["in"] then
 		self.alpha = 0
@@ -210,7 +207,6 @@ function UIWidget:hide()
 		-- Despawn the particles.
 		if self.widget and self.widget.type == "particle" then
 			self.widget:despawn()
-			self.widget:clean()
 		end
 	end
 	-- Play the sound if defined.
@@ -253,7 +249,6 @@ end
 function UIWidget:hideParticles()
 	if self.widget and self.widget.type == "particle" then
 		self.widget:despawn()
-		self.widget:clean()
 	end
 
 	for i, child in ipairs(self.children) do
@@ -539,19 +534,10 @@ function UIWidget:hasChildren()
 	return #self.children > 0
 end
 
----Executes all registered action callback; both registered in the JSON files as well as registered via the UI script.
+---Executes all registered actions for the given callback.
 ---@param actionType string The action type to be executed.
 function UIWidget:executeAction(actionType)
--- An action is a list of functions.
-	-- Execute defined functions (JSON)
-	if self.callbacks and self.callbacks[actionType] then
-		local callback = self.callbacks[actionType]
-		if type(callback) == "string" then
-			_Game.uiManager:executeCallback(callback)
-		else
-			_Game.uiManager:executeCallback(callback.name, callback.parameters)
-		end
-	end
+	-- An action is a list of functions.
 	-- Execute scheduled functions (UI script)
 	if self.actions[actionType] then
 		for i, action in ipairs(self.actions[actionType]) do

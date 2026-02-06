@@ -51,6 +51,11 @@ function ParticleSpawner:update(dt)
 		self:destroy()
 	end
 
+	-- Do not proceed if we're deactivated.
+	if self.deactivated then
+		return
+	end
+
 	-- Update speed and position.
 	self.speedX, self.speedY = self.speedX + self.accelerationX * dt, self.speedY + self.accelerationY * dt
 	self.x, self.y = self.x + self.speedX * dt, self.y + self.speedY * dt

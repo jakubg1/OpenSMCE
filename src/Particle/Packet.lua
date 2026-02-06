@@ -51,16 +51,16 @@ function ParticlePacket:setPos(x, y)
 	self.x, self.y = x, y
 end
 
----Marks this packet as ready to be destroyed.
-function ParticlePacket:destroy()
+---Destroys this Particle Effect.
+---@param clean boolean? Whether all particles which are a part of this effect should be immediately destroyed alongside this effect. If `false`, the spawner and particles will continue to exist until they disappear on their own.
+function ParticlePacket:destroy(clean)
 	if self.delQueue then
 		return
 	end
 	self.delQueue = true
-end
-
-function ParticlePacket:clean()
-	self.manager:cleanParticlePacket(self)
+	if clean then
+		self.manager:cleanParticlePacket(self)
+	end
 end
 
 function ParticlePacket:setLayer(layer)

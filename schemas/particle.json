@@ -190,6 +190,14 @@
         "directionDeviationSpeed": {
             "$ref": "_structures/ExprVector2.json",
             "description": "The speed of directional deviation, in radians per second. This will rotate the particle's speed vector."
+        },
+        "angle": {
+            "$ref": "_structures/ExprNumber.json",
+            "description": "The starting rotation of this Particle, in radians."
+        },
+        "angleSpeed": {
+            "$ref": "_structures/ExprNumber.json",
+            "description": "The rotation speed of this Particle, in radians per second."
         }
     },
     "required": [
