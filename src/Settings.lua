@@ -9,7 +9,7 @@ local Settings = class:derive("Settings")
 function Settings:new()
 	self.FILE = "settings.json"
 
-	---@alias Setting "discordRPC"|"backToBoot"|"backToBootWithX"|"maximizeOnStart"|"aimingRetical"|"consoleWindow"|"threedeeSound"|"hideIncompatibleGames"|"printDeprecationNotices"
+	---@alias Setting "discordRPC"|"backToBoot"|"backToBootWithX"|"maximizeOnStart"|"aimingRetical"|"consoleWindow"|"threedeeSound"|"hideIncompatibleGames"|"printDeprecationNotices"|"enableProfiler"
 
 	-- Contains the true setting values which are respected.
 	self.data = {
@@ -21,7 +21,8 @@ function Settings:new()
 		consoleWindow = true,
 		threedeeSound = false,
 		hideIncompatibleGames = false,
-		printDeprecationNotices = false
+		printDeprecationNotices = false,
+		enableProfiler = false
 	}
 	-- Contains the setting values which are not yet respected and have to be confirmed with `:saveWork()` or restored with `:restoreWork()`.
 	self.workData = _Utils.copyTable(self.data)

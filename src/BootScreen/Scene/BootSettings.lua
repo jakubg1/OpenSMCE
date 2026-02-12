@@ -12,7 +12,7 @@ local BootSettings = class:derive("BootSettings")
 function BootSettings:new(bootScreen)
   	self.bootScreen = bootScreen
 
-	---@type {name: string, key: string, tooltip: string}[]
+	---@type {name: string, key: Setting, tooltip: string}[]
 	self.SETTINGS = {
 		{name = "Enable Discord Rich Presence", key = "discordRPC", tooltip = "Shows your game progress in your Discord profile, if you have Discord running\non your computer.\n\nThis feature currently works only on Windows systems."},
 		{name = "Go back to Boot Screen after closing a game", key = "backToBoot", tooltip = "If enabled, when quitting a game, the Boot Screen will show up again."},
@@ -22,7 +22,8 @@ function BootSettings:new(bootScreen)
 		{name = "Debug console window", key = "consoleWindow", tooltip = "Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from the source code,\nbut the console output will be suppressed.\nYou will need to restart the engine for this setting change to take effect."},
 		{name = "Enable 3D Sound", key = "threedeeSound", tooltip = "Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker."},
 		{name = "Hide incompatible games", key = "hideIncompatibleGames", tooltip = "Hides all incompatible games from the boot menu, including games which have\nan unknown supported version."},
-		{name = "Print deprecation notices", key = "printDeprecationNotices", tooltip = "For developers!\n\nEnables printing code deprecation notices."}
+		{name = "Print deprecation notices", key = "printDeprecationNotices", tooltip = "For developers!\n\nEnables printing code deprecation notices."},
+		{name = "Enable Profiler", key = "enableProfiler", tooltip = "For developers!\n\nEnables performance profiling.\nRequires an engine restart."}
 	}
 
 	-- buttons

@@ -45,6 +45,10 @@ function Path:new(map, pathData, pathBehavior)
 	self.clearOffset = 0
 	---@type PathEntity[]
 	self.pathEntities = {}
+
+	---@alias SphereEffectGroup {cause: Sphere, count: integer}
+	-- Note: This table's keys are integers, but the values are not shifed around when an entry is removed!
+	---@type table<integer, SphereEffectGroup>
 	self.sphereEffectGroups = {}
 end
 

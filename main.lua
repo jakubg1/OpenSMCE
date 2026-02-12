@@ -39,14 +39,11 @@ _Utils = require("com.utils")
 _V = require("com.vectorutils")
 _ConfigUtils = require("src.Configs.utils")
 
--- performance profiler
-PROF_CAPTURE = true
-_Profiler = require("com.jprof")
-
 local json = require("com.json")
 
 local Log = require("src.Log")
 local Debug = require("src.Debug")
+local JProf = require("src.JProf")
 local Display = require("src.Display")
 local Renderer = require("src.Renderer")
 local ResourceManager = require("src.ResourceManager")
@@ -106,6 +103,8 @@ _Game = nil
 _Log = nil
 ---@type Debug
 _Debug = nil
+---@type JProf
+_JProf = nil
 ---@type Display
 _Display = nil
 ---@type Renderer
@@ -127,7 +126,7 @@ _TotalTime = 0
 _TimeScale = 1
 
 function love.load(args)
-	-- Initialize RNG for Boot Screen
+	-- Initialize RNG
 	math.randomseed(os.time())
 
 	-- Initialize some classes
@@ -135,6 +134,7 @@ function love.load(args)
 	_Settings:load()
 	_Log = Log()
 	_Debug = Debug()
+	_JProf = JProf()
 	_Display = Display()
 	_Renderer = Renderer()
 	_Res = ResourceManager()
@@ -143,19 +143,14 @@ function love.load(args)
 	_ThreadManager = ThreadManager()
 	_DiscordRPC = DiscordRichPresence()
 
-	-- Print system limits.
-	_Log:printt("main", "System info:")
-	for k, v in pairs(love.graphics.getSystemLimits()) do
-		_Log:printt("main", string.format("%s = %s", k, v))
-	end
-
 	-- Parse commandline arguments.
 	local parsedArgs = _ParseCommandLineArguments(args)
 
 	if parsedArgs.h or parsedArgs.help then
 		print("OpenSMCE Command Line Arguments")
 		print("===============================")
-		print("-g / --game <game>    Immediately starts the provided game from directory.")
+		print("-g / --game <game>    Immediately starts the specified game.")
+		print("-e / --edit <game>    Immediately opens an editor for the specified game.")
 		print("-t / --test           Opens the test suite and performs unit tests.")
 		love.event.quit()
 	elseif parsedArgs.t or parsedArgs.test then
@@ -164,13 +159,33 @@ function love.load(args)
 	else
 		-- If the `-g` argument is provided, that game will be immediately loaded and Boot Screen will be skipped.
 		-- Otherwise, if the `autoload.txt` exists in the main directory, read the game name from it and load that game.
-		local autoload = parsedArgs.g or parsedArgs.game or love.restart or _Utils.loadFile("autoload.txt")
+		local g = parsedArgs.g or parsedArgs.game
+		local e = parsedArgs.e or parsedArgs.edit
+		if g and e then
+			print("Both -g[ame] and -e[dit] have been specified. You must only specify one of these arguments.")
+			love.event.quit()
+			return
+		end
+		local autoload = g or e or love.restart or _Utils.loadFile("autoload.txt")
+
+		-- Print system limits.
+		_Log:printt("main", "System info:")
+		for k, v in pairs(love.graphics.getSystemLimits()) do
+			_Log:printt("main", string.format("%s = %s", k, v))
+		end
+
 		if autoload then
-			_LoadGame(autoload)
+			if e then
+				_LoadGameEditor(autoload)
+			else
+				_LoadGame(autoload)
+			end
 		else
 			_LoadBootScreen()
 		end
-		_Profiler.connect()
+		if _Settings:getSetting("enableProfiler") then
+			_JProf:start()
+		end
 	end
 end
 
@@ -195,11 +210,11 @@ function love.update(dt)
 	love.resize(love.window.getMode())
 
 	_Debug:profUpdateStop()
-	_Profiler.netFlush()
+	_JProf:update(dt)
 end
 
 function love.draw()
-	_Profiler.push("frame")
+	_JProf:push("frame")
 
 	-- Main
 	if _Game then
@@ -209,7 +224,7 @@ function love.draw()
 	-- Tests
 	_Debug:draw()
 
-	_Profiler.pop("frame")
+	_JProf:pop("frame")
 end
 
 function love.mousepressed(x, y, button)
@@ -273,7 +288,7 @@ function love.quit()
 	end
 	_DiscordRPC:disconnect()
 	_Debug:disconnect()
-	_Profiler.write("performance.jprof")
+	_JProf:close()
 end
 
 
