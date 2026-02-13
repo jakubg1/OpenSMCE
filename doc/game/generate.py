@@ -778,7 +778,7 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 	if "description" in entry:
 		stripped_description = markdown_strip(entry["description"])
 		out["description"] = stripped_description
-		# If we lost some Markdown, make sure to preserve it via an additional field.
+		# If we lost some Markdown, make sure to preserve it by putting it in an additional field.
 		if stripped_description != entry["description"]:
 			out["markdownDescription"] = entry["description"]
 
@@ -816,14 +816,15 @@ def docld_to_schema(entry, is_root = True, structures_path = "_structures/"):
 							out["allOf"].append(child_block)
 							out["properties"][key]["enum"].append(child["const"])
 						else: # "Always-there" properties for Enum Objects.
+							# Add this entry to the first block, as it is available all the time.
+							out["properties"][child["name"]] = docld_to_schema(child, False, structures_path)
+							# Mark as non-optional if necessary.
+							if not child["optional"]:
+								out["required"].append(child["name"])
+							# Allow this parameter for all conditional blocks.
 							for child_block in out["allOf"]:
-								# The first entry is the type definition, so we need to omit that one.
 								if "then" in child_block:
-									if not child["optional"]:
-										if not "required" in child_block["then"]:
-											child_block["then"]["required"] = []
-										child_block["then"]["required"].append(child["name"])
-									child_block["then"]["properties"][child["name"]] = docld_to_schema(child, False, structures_path)
+									child_block["then"]["properties"][child["name"]] = True
 			elif "children" in entry and not "name" in entry["children"][0]:
 				# One nameless child in a regular object means that the object behaves like an array, with all keys possible.
 				out["patternProperties"] = {}

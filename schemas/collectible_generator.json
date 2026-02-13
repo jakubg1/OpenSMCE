@@ -11,6 +11,14 @@
                 "repeat",
                 "randomPick"
             ]
+        },
+        "conditions": {
+            "type": "array",
+            "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
+            "items": {
+                "$ref": "_structures/ExprBoolean.json",
+                "description": "A single condition."
+            }
         }
     },
     "allOf": [
@@ -41,14 +49,7 @@
                         "$ref": "_structures/Collectible.json",
                         "description": "A single collectible to be evaluated to."
                     },
-                    "conditions": {
-                        "type": "array",
-                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
-                        "items": {
-                            "$ref": "_structures/ExprBoolean.json",
-                            "description": "A single condition."
-                        }
-                    }
+                    "conditions": true
                 },
                 "required": [
                     "collectible"
@@ -76,14 +77,7 @@
                         "$ref": "_structures/CollectibleGenerator.json",
                         "description": "Path to another Collectible Generator which will be evaluated."
                     },
-                    "conditions": {
-                        "type": "array",
-                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
-                        "items": {
-                            "$ref": "_structures/ExprBoolean.json",
-                            "description": "A single condition."
-                        }
-                    }
+                    "conditions": true
                 },
                 "required": [
                     "generator"
@@ -115,14 +109,7 @@
                             "description": "A single collectible generator entry."
                         }
                     },
-                    "conditions": {
-                        "type": "array",
-                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
-                        "items": {
-                            "$ref": "_structures/ExprBoolean.json",
-                            "description": "A single condition."
-                        }
-                    }
+                    "conditions": true
                 },
                 "required": [
                     "entries"
@@ -155,14 +142,7 @@
                         "description": "How many times the entry should be evaluated.",
                         "minimum": 2
                     },
-                    "conditions": {
-                        "type": "array",
-                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
-                        "items": {
-                            "$ref": "_structures/ExprBoolean.json",
-                            "description": "A single condition."
-                        }
-                    }
+                    "conditions": true
                 },
                 "required": [
                     "entry",
@@ -210,14 +190,7 @@
                             "additionalProperties": false
                         }
                     },
-                    "conditions": {
-                        "type": "array",
-                        "description": "A list of conditions. All of them must be satisfied. In other case, this entry will not generate any collectibles and return an empty list.",
-                        "items": {
-                            "$ref": "_structures/ExprBoolean.json",
-                            "description": "A single condition."
-                        }
-                    }
+                    "conditions": true
                 },
                 "required": [
                     "pool"

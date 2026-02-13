@@ -21,7 +21,7 @@ function BootSettings:new(bootScreen)
 		{name = "Aiming Retical", key = "aimingRetical", tooltip = "Enables the Aiming Retical, which is either one defined by the game or\na simple placeholder, if not defined."},
 		{name = "Debug console window", key = "consoleWindow", tooltip = "Whether a separate console window should appear when launching the game.\nUseful for debugging.\nThis setting does not work when running directly from the source code,\nbut the console output will be suppressed.\nYou will need to restart the engine for this setting change to take effect."},
 		{name = "Enable 3D Sound", key = "threedeeSound", tooltip = "Enables 3D sound.\nThat means sounds which originate on the left side of the screen will lean\nslightly more towards the left speaker, and these which originate on the right\nside will be amplified on the right speaker."},
-		{name = "Hide incompatible games", key = "hideIncompatibleGames", tooltip = "Hides all incompatible games from the boot menu, including games which have\nan unknown supported version."},
+		{name = "Hide incompatible games", key = "hideIncompatibleGames", tooltip = "Hides all incompatible games from the boot menu, including games which have\nan unknown supported version.\n\nThis setting requires a restart to take effect."},
 		{name = "Print deprecation notices", key = "printDeprecationNotices", tooltip = "For developers!\n\nEnables printing code deprecation notices."},
 		{name = "Enable Profiler", key = "enableProfiler", tooltip = "For developers!\n\nEnables performance profiling.\nRequires an engine restart."}
 	}

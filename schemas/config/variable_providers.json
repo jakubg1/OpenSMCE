@@ -25,6 +25,10 @@
                                 "redirectSphere",
                                 "redirectSphereColor"
                             ]
+                        },
+                        "framePersistence": {
+                            "type": "boolean",
+                            "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
                         }
                     },
                     "allOf": [
@@ -54,10 +58,7 @@
                                         "type": "integer",
                                         "description": "The integer value to be returned."
                                     },
-                                    "framePersistence": {
-                                        "type": "boolean",
-                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
-                                    }
+                                    "framePersistence": true
                                 },
                                 "required": [
                                     "value"
@@ -84,10 +85,7 @@
                                         "$ref": "../_structures/SphereSelector.json",
                                         "description": "A Sphere Selector which will select all eligible spheres."
                                     },
-                                    "framePersistence": {
-                                        "type": "boolean",
-                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
-                                    }
+                                    "framePersistence": true
                                 },
                                 "required": [
                                     "sphereSelector"
@@ -118,10 +116,7 @@
                                         "$ref": "../_structures/ExprInteger.json",
                                         "description": "The fallback color to resort to if no eligible spheres are found."
                                     },
-                                    "framePersistence": {
-                                        "type": "boolean",
-                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
-                                    }
+                                    "framePersistence": true
                                 },
                                 "required": [
                                     "sphereSelector",
@@ -153,10 +148,7 @@
                                             "description": "A single Sphere Color."
                                         }
                                     },
-                                    "framePersistence": {
-                                        "type": "boolean",
-                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
-                                    }
+                                    "framePersistence": true
                                 },
                                 "additionalProperties": false
                             }
@@ -185,10 +177,7 @@
                                         "$ref": "../_structures/SphereSelector.json",
                                         "description": "A Sphere Selector which will select all eligible spheres."
                                     },
-                                    "framePersistence": {
-                                        "type": "boolean",
-                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
-                                    }
+                                    "framePersistence": true
                                 },
                                 "required": [
                                     "sphere",
@@ -225,10 +214,7 @@
                                         "$ref": "../_structures/ExprInteger.json",
                                         "description": "The fallback color to resort to if no eligible spheres are found."
                                     },
-                                    "framePersistence": {
-                                        "type": "boolean",
-                                        "description": "If set, this Provider will be evaluated at most once per frame, with subsequent calls in the same frame returning the same value."
-                                    }
+                                    "framePersistence": true
                                 },
                                 "required": [
                                     "sphere",

@@ -28,6 +28,18 @@
                             "sprite",
                             "particle"
                         ]
+                    },
+                    "layer": {
+                        "type": "string",
+                        "description": "The layer on which the object will be displayed."
+                    },
+                    "x": {
+                        "type": "number",
+                        "description": "The X position of this object."
+                    },
+                    "y": {
+                        "type": "number",
+                        "description": "The Y position of this object."
                     }
                 },
                 "allOf": [
@@ -57,24 +69,12 @@
                                     "$ref": "_structures/Sprite.json",
                                     "description": "Path to a Sprite to be displayed."
                                 },
-                                "layer": {
-                                    "type": "string",
-                                    "description": "The layer on which the object will be displayed."
-                                },
-                                "x": {
-                                    "type": "number",
-                                    "description": "The X position of this object."
-                                },
-                                "y": {
-                                    "type": "number",
-                                    "description": "The Y position of this object."
-                                }
+                                "layer": true,
+                                "x": true,
+                                "y": true
                             },
                             "required": [
-                                "sprite",
-                                "layer",
-                                "x",
-                                "y"
+                                "sprite"
                             ],
                             "additionalProperties": false
                         }
@@ -98,31 +98,22 @@
                                     "$ref": "_structures/ParticleEffect.json",
                                     "description": "Path to a particle effect to be displayed."
                                 },
-                                "layer": {
-                                    "type": "string",
-                                    "description": "The layer on which the object will be displayed."
-                                },
-                                "x": {
-                                    "type": "number",
-                                    "description": "The X position of this object."
-                                },
-                                "y": {
-                                    "type": "number",
-                                    "description": "The Y position of this object."
-                                }
+                                "layer": true,
+                                "x": true,
+                                "y": true
                             },
                             "required": [
-                                "particle",
-                                "layer",
-                                "x",
-                                "y"
+                                "particle"
                             ],
                             "additionalProperties": false
                         }
                     }
                 ],
                 "required": [
-                    "type"
+                    "type",
+                    "layer",
+                    "x",
+                    "y"
                 ]
             }
         }

@@ -17,6 +17,32 @@
                             "uiScript",
                             "randomizer"
                         ]
+                    },
+                    "checkpoint": {
+                        "type": "object",
+                        "description": "If specified, this entry will have a checkpoint.",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "description": "The ID of this checkpoint. It must be a unique number, which will be used to refer to this specific checkpoint elsewhere in the game."
+                            },
+                            "unlockedOnStart": {
+                                "type": "boolean",
+                                "description": "If set, this checkpoint will be instantly unlocked when creating a new profile."
+                            }
+                        },
+                        "required": [
+                            "id"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "unlockCheckpointsOnBeat": {
+                        "type": "array",
+                        "description": "If specified, after beating this entry, checkpoints with IDs provided in this list will be unlocked.",
+                        "items": {
+                            "type": "integer",
+                            "description": "A single checkpoint ID."
+                        }
                     }
                 },
                 "allOf": [
@@ -50,32 +76,8 @@
                                     "type": "string",
                                     "description": "A level name, passed to the UI Script and displayed in Rich Text Presence."
                                 },
-                                "checkpoint": {
-                                    "type": "object",
-                                    "description": "If specified, this entry will have a checkpoint.",
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "description": "The ID of this checkpoint. It must be a unique number, which will be used to refer to this specific checkpoint elsewhere in the game."
-                                        },
-                                        "unlockedOnStart": {
-                                            "type": "boolean",
-                                            "description": "If set, this checkpoint will be instantly unlocked when creating a new profile."
-                                        }
-                                    },
-                                    "required": [
-                                        "id"
-                                    ],
-                                    "additionalProperties": false
-                                },
-                                "unlockCheckpointsOnBeat": {
-                                    "type": "array",
-                                    "description": "If specified, after beating this entry, checkpoints with IDs provided in this list will be unlocked.",
-                                    "items": {
-                                        "type": "integer",
-                                        "description": "A single checkpoint ID."
-                                    }
-                                }
+                                "checkpoint": true,
+                                "unlockCheckpointsOnBeat": true
                             },
                             "required": [
                                 "level",
@@ -107,32 +109,8 @@
                                     "type": "string",
                                     "description": "A level name, passed to the UI Script and displayed in Rich Text Presence."
                                 },
-                                "checkpoint": {
-                                    "type": "object",
-                                    "description": "If specified, this entry will have a checkpoint.",
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "description": "The ID of this checkpoint. It must be a unique number, which will be used to refer to this specific checkpoint elsewhere in the game."
-                                        },
-                                        "unlockedOnStart": {
-                                            "type": "boolean",
-                                            "description": "If set, this checkpoint will be instantly unlocked when creating a new profile."
-                                        }
-                                    },
-                                    "required": [
-                                        "id"
-                                    ],
-                                    "additionalProperties": false
-                                },
-                                "unlockCheckpointsOnBeat": {
-                                    "type": "array",
-                                    "description": "If specified, after beating this entry, checkpoints with IDs provided in this list will be unlocked.",
-                                    "items": {
-                                        "type": "integer",
-                                        "description": "A single checkpoint ID."
-                                    }
-                                }
+                                "checkpoint": true,
+                                "unlockCheckpointsOnBeat": true
                             },
                             "required": [
                                 "callback",
@@ -198,32 +176,8 @@
                                         }
                                     ]
                                 },
-                                "checkpoint": {
-                                    "type": "object",
-                                    "description": "If specified, this entry will have a checkpoint.",
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "description": "The ID of this checkpoint. It must be a unique number, which will be used to refer to this specific checkpoint elsewhere in the game."
-                                        },
-                                        "unlockedOnStart": {
-                                            "type": "boolean",
-                                            "description": "If set, this checkpoint will be instantly unlocked when creating a new profile."
-                                        }
-                                    },
-                                    "required": [
-                                        "id"
-                                    ],
-                                    "additionalProperties": false
-                                },
-                                "unlockCheckpointsOnBeat": {
-                                    "type": "array",
-                                    "description": "If specified, after beating this entry, checkpoints with IDs provided in this list will be unlocked.",
-                                    "items": {
-                                        "type": "integer",
-                                        "description": "A single checkpoint ID."
-                                    }
-                                }
+                                "checkpoint": true,
+                                "unlockCheckpointsOnBeat": true
                             },
                             "required": [
                                 "pool",

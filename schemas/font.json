@@ -10,6 +10,10 @@
                 "truetype",
                 "bmfont"
             ]
+        },
+        "color": {
+            "$ref": "_structures/Color.json",
+            "description": "The color of this Font."
         }
     },
     "allOf": [
@@ -85,10 +89,7 @@
                         "type": "number",
                         "description": "The padding between lines to be added in a multiline text, in pixels."
                     },
-                    "color": {
-                        "$ref": "_structures/Color.json",
-                        "description": "The color of this Font."
-                    }
+                    "color": true
                 },
                 "required": [
                     "image",
@@ -126,10 +127,7 @@
                         "description": "Spacing between characters, in pixels.",
                         "minimum": 0
                     },
-                    "color": {
-                        "$ref": "_structures/Color.json",
-                        "description": "The color of this Font."
-                    }
+                    "color": true
                 },
                 "required": [
                     "image",
@@ -163,10 +161,7 @@
                         "description": "The size of the Font, in pixels.",
                         "exclusiveMinimum": 0
                     },
-                    "color": {
-                        "$ref": "_structures/Color.json",
-                        "description": "The color of this Font."
-                    }
+                    "color": true
                 },
                 "required": [
                     "file",
@@ -196,10 +191,7 @@
                         "description": "The path to a valid BMFont .fnt file. Images related to the BMFont must be located alongside that file.",
                         "markdownDescription": "The path to a valid BMFont `.fnt` file. Images related to the BMFont must be located alongside that file."
                     },
-                    "color": {
-                        "$ref": "_structures/Color.json",
-                        "description": "The color of this Font."
-                    }
+                    "color": true
                 },
                 "required": [
                     "file"
