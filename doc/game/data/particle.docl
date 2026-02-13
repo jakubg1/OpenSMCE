@@ -12,7 +12,7 @@
     - spawnScale ($Vector2) - The particle will be spawned at a random angle on an ellipse of these perihellium and aphellium.
     - lifespan* ($number) [>0] - How many seconds the particle should exist. If left out, it will persist indefinitely.
     - sprite (Sprite) - Path to the Sprite which should represent this Particle.
-    - animationFrameCount (integer) [>=1] - How many frames are in the animation.
+    - animationFrameCount* (integer) [>=1] - How many frames are in the animation. If omitted, all frames from the provided sprite will be used for the animation.
     - animationSpeed (number) - Speed of the animation, in frames per second.
     - animationLoop (boolean) - If set, the animation will loop. Otherwise, it will stop on the last frame.
     - animationFrameRandom (boolean) - If set, the initial animation frame will be picked at random from all possible frames. Otherwise, it will always start from the first frame.

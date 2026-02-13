@@ -55,7 +55,7 @@ function ParticlePiece:new(manager, spawner, data)
 
 	self.sprite = data.sprite
 	self.animationSpeed = data.animationSpeed
-	self.animationFrameCount = data.animationFrameCount
+	self.animationFrameCount = data.animationFrameCount or self.sprite:getFrameCount(1)
 	self.animationLoop = data.animationLoop
 	self.fadeTime = data.fadeTime and data.fadeTime:evaluate()
 	self.fadeInPoint = data.fadeInPoint

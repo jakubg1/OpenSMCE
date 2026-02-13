@@ -137,7 +137,7 @@
         },
         "animationFrameCount": {
             "type": "integer",
-            "description": "How many frames are in the animation.",
+            "description": "How many frames are in the animation. If omitted, all frames from the provided sprite will be used for the animation.",
             "minimum": 1
         },
         "animationSpeed": {
@@ -204,7 +204,6 @@
         "movement",
         "spawnScale",
         "sprite",
-        "animationFrameCount",
         "animationSpeed",
         "animationLoop",
         "animationFrameRandom"
