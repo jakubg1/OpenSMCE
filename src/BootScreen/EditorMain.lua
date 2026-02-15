@@ -19,7 +19,12 @@ function EditorMain:new(name)
 	-- buttons
 	self.menuBtn = Button("Quit", _FONT_BIG, Vec2(1170, 4), Vec2(100, 24), function() self:quit() end)
 
-	-- other UI stuff
+	-- UI constants
+	self.uiTopPaneHeight = 36
+	self.uiFilePickerWidth = 300
+	self.uiMock = false
+
+	-- UI state
 	self.resourceListOffset = 0
 	self.resourceList = {}
 	self.hoveredResource = nil
@@ -55,13 +60,16 @@ end
 
 
 function EditorMain:update(dt)
+	self.resourceList = _Res:getResourceList("Sprite")
+	table.sort(self.resourceList, function(a, b) return a < b end)
+
 	-- buttons
 	self.menuBtn:update(dt)
 
 	self.hoveredResource = nil
 	for i, key in ipairs(self.resourceList) do
 		local y = 50 + (i - 1) * 15 - self.resourceListOffset
-		if _Utils.isPointInsideBox(_MouseX, _MouseY, 0, y, 300, 15) then
+		if _Utils.isPointInsideBox(_MouseX, _MouseY, 0, y, self.uiFilePickerWidth, 15) then
 			self.hoveredResource = key
 			break
 		end
@@ -93,34 +101,36 @@ end
 
 
 function EditorMain:draw()
-	-- White color
-	love.graphics.setColor(1, 1, 1)
-
 	-----------------------------
 	-- HEADER
 	-----------------------------
+	love.graphics.setColor(0.1, 0.1, 0.1)
+	love.graphics.rectangle("fill", 0, 0, self.nativeResolution.x, self.uiTopPaneHeight)
+	love.graphics.setColor(1, 1, 1)
 	love.graphics.setFont(_FONT_BIG)
-	love.graphics.print("Game Editor", 10, 4)
+	love.graphics.print("Game Editor", 10, 0)
 	love.graphics.setFont(_FONT)
-	love.graphics.print(string.format("Editing: games/%s/", self.name), 10, 24)
+	love.graphics.print(string.format("Editing: games/%s/", self.name), 10, 20)
 
 	-----------------------------
 	-- LEFT BAR
 	-----------------------------
-	if _Res:getLoadProgress("main") < 1 then
-		love.graphics.print("Loading...", 15, 35)
+	love.graphics.setColor(0.07, 0.07, 0.07)
+	love.graphics.rectangle("fill", 0, self.uiTopPaneHeight, self.uiFilePickerWidth, self.nativeResolution.y - self.uiTopPaneHeight)
+	love.graphics.setColor(1, 1, 1)
+	local progress = _Res:getLoadProgress("main")
+	if progress < 1 then
+		love.graphics.print(string.format("Loading... %d%%", progress * 100), 15, 35)
 	end
-	self.resourceList = _Res:getResourceList("Sprite")
-	table.sort(self.resourceList, function(a, b) return a < b end)
 	for i, key in ipairs(self.resourceList) do
 		local y = 50 + (i - 1) * 15 - self.resourceListOffset
 		-- Background
 		if self.selectedResource == key then
 			love.graphics.setColor(1, 1, 0)
-			love.graphics.rectangle("fill", 0, y, 300, 15)
+			love.graphics.rectangle("fill", 0, y, self.uiFilePickerWidth, 15)
 		elseif self.hoveredResource == key then
 			love.graphics.setColor(1, 1, 0, 0.5)
-			love.graphics.rectangle("fill", 0, y, 300, 15)
+			love.graphics.rectangle("fill", 0, y, self.uiFilePickerWidth, 15)
 		end
 		-- Label
 		if self.selectedResource == key then
@@ -237,6 +247,22 @@ function EditorMain:draw()
 	end
 
 	-----------------------------
+	-- DATA MOCK
+	-----------------------------
+	if self.uiMock then
+		local data = {
+			{type = "ref", name = "image", value = "fonts/dialog_body_cursor.png"},
+			{type = "vec2", name = "frameSize", value = {x = 13, y = 20}},
+			{type = "", name = "states:"},
+			{type = "vec2", name = "[1] pos", value = {x = 0, y = 0}},
+			{type = "vec2", name = "[1] frames", value = {x = 2, y = 1}}
+		}
+		for i, line in ipairs(data) do
+			self:drawInputMock(i, line)
+		end
+	end
+
+	-----------------------------
 	-- BOTTOM DETAILS
 	-----------------------------
 
@@ -244,6 +270,57 @@ function EditorMain:draw()
 	-- BUTTON
 	-----------------------------
 	self.menuBtn:draw()
+end
+
+---Draws an input mock.
+---@param i integer Which one it is?
+---@param data table Mock data.
+function EditorMain:drawInputMock(i, data)
+	local h = 24
+	local x = self.uiFilePickerWidth
+	local y = self.uiTopPaneHeight + (i - 1) * h
+	local w1 = 500
+	local w2 = self.nativeResolution.x - x - w1
+	-- Field name
+	love.graphics.setColor(0.12, 0.12, 0.12)
+	love.graphics.rectangle("fill", x, y, self.nativeResolution.x - x, h)
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.print(data.name, x + 10, y + 4)
+	if data.type == "ref" then
+		-- Input box
+		self:drawInputMockInputBox(i, x + w1, w2 - 40, data.value)
+		-- Go button
+		love.graphics.setColor(0.3, 0.3, 0.3)
+		love.graphics.rectangle("fill", self.nativeResolution.x - 35, y + 2, 25, h - 4)
+		love.graphics.setColor(0.05, 0.05, 0.05)
+		love.graphics.setLineWidth(1)
+		love.graphics.rectangle("line", self.nativeResolution.x - 34.5, y + 1.5, 25, h - 3)
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.print(">>", self.nativeResolution.x - 32, y + 4)
+	elseif data.type == "vec2" then
+		love.graphics.setColor(1, 1, 1)
+		love.graphics.print("X", x + w1, y + 4)
+		self:drawInputMockInputBox(i, x + w1 + 15, w2 / 2 - 25, tostring(data.value.x))
+		love.graphics.print("Y", x + w1 + w2 / 2, y + 4)
+		self:drawInputMockInputBox(i, x + w1 + w2 / 2 + 15, w2 / 2 - 25, tostring(data.value.y))
+	end
+end
+
+---Draws an input mock's input box.
+---@param i integer Which one it is?
+---@param x integer X coordinate.
+---@param w integer Width of the box.
+---@param value string What's inside.
+function EditorMain:drawInputMockInputBox(i, x, w, value)
+	local h = 24
+	local y = self.uiTopPaneHeight + (i - 1) * h
+	love.graphics.setColor(0.05, 0.05, 0.05)
+	love.graphics.rectangle("fill", x, y + 2, w, h - 4)
+	love.graphics.setColor(0.3, 0.3, 0.3)
+	love.graphics.setLineWidth(1)
+	love.graphics.rectangle("line", x + 0.5, y + 1.5, w, h - 3)
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.print(value, x + 5, y + 4)
 end
 
 
@@ -319,7 +396,7 @@ function EditorMain:mousereleased(x, y, button)
 end
 
 function EditorMain:wheelmoved(x, y)
-	if _MouseX < 300 then
+	if _MouseX < self.uiFilePickerWidth then
 		self.resourceListOffset = self.resourceListOffset - y * 30
 	else
 		self.spriteScale = _Utils.clamp(self.spriteScale + y, 1, 8)
