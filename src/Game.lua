@@ -33,10 +33,11 @@ function Game:init()
 	self.configManager:load()
 
 	-- Step 2. Initialize the window and canvas
+	local ww, wh = self:getWindowResolution()
+	_Display:setResolution(ww, wh, self.configManager.config.resizableWindow, self.configManager:getWindowTitle(), _Settings:getSetting("maximizeOnStart"))
 	local w, h = self:getNativeResolution()
-	_Display:setResolution(w, h, true, self.configManager:getWindowTitle(), _Settings:getSetting("maximizeOnStart"))
 	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode())
-	_Renderer:setLayers(self.configManager.layers.layers)
+	_Renderer:setLayers(self.configManager.config.layers and self.configManager.config.layers.layers)
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -50,21 +51,16 @@ function Game:init()
 
 	-- Step 6. Set up the UI Manager
 	self.uiManager = UIManager()
-	self.uiManager:initSplash()
+	self.uiManager:loadScript()
 end
 
 ---Loads all game resources.
-function Game:loadMain()
+function Game:loadResources()
 	_Res:startLoadCounter("main")
 	-- DEBUG: Make the game load everything on the fly
 	--_Res.loadCounters.main = {queued = 1, loaded = 1, active = false, queueKeys = {}}
 	_Res:scanResources()
 	_Res:stopLoadCounter("main")
-end
-
----Destroys the splash screen and sets up the main UI layout.
-function Game:initSession()
-	self.uiManager:init()
 end
 
 ---Updates the game.
@@ -236,6 +232,12 @@ function Game:getNativeResolution()
 	return self.configManager:getNativeResolution()
 end
 
+---Returns the default window resolution of this Game.
+---@return integer, integer
+function Game:getWindowResolution()
+	return self.configManager:getWindowResolution()
+end
+
 ---Returns the currently selected Profile.
 ---@return Profile
 function Game:getProfile()
@@ -388,7 +390,7 @@ end
 ---@param forced boolean? If `true`, the engine will exit completely even if the "Return to Boot Screen" option is enabled.
 function Game:quit(forced)
 	self:save()
-	_Res:unloadAllResources()
+	_Res:reset()
 	if _Settings:getSetting("backToBoot") and not forced then
 		_LoadBootScreen()
 	else

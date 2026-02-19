@@ -16,7 +16,6 @@ end
 function ConfigManager:load()
 	-- Load configuration files.
 	self.gameplay = _Res:getGameplayConfig("config/gameplay.json")
-	self.layers = _Res:getLayersConfig("config/layers.json")
 
 	-- Load map data.
 	-- TODO: This is now only used for checking the map names without loading the map (UI script -> stage map).
@@ -50,6 +49,15 @@ end
 ---@return integer, integer
 function ConfigManager:getNativeResolution()
 	return self.config.nativeResolution.x, self.config.nativeResolution.y
+end
+
+---Returns the default window resolution of this game.
+---@return integer, integer
+function ConfigManager:getWindowResolution()
+	if not self.config.windowResolution then
+		return self:getNativeResolution()
+	end
+	return self.config.windowResolution.x, self.config.windowResolution.y
 end
 
 ---Returns whether the Discord Rich Presence should be active in this game.

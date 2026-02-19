@@ -8,6 +8,7 @@ local CollectibleEffectConfig = require("src.Configs.CollectibleEffect")
 local CollectibleGeneratorConfig = require("src.Configs.CollectibleGenerator")
 local ColorGeneratorConfig = require("src.Configs.ColorGenerator")
 local GameEventConfig = require("src.Configs.GameEvent")
+local LayersConfig = require("src.Configs.Layers")
 local LevelConfig = require("src.Configs.Level")
 local LevelSequenceConfig = require("src.Configs.LevelSequence")
 local LevelSetConfig = require("src.Configs.LevelSet")
@@ -483,6 +484,16 @@ end
 ---@return GameEventConfig?
 function utils.parseGameEventConfigOpt(data, base, path, fields)
 	return parseClassConfigOpt(data, base, path, fields, "GameEvent", _Res.getGameEventConfig, GameEventConfig)
+end
+
+---@return LayersConfig
+function utils.parseLayersConfig(data, base, path, fields)
+	return parseClassConfig(data, base, path, fields, "Layers", _Res.getLayersConfig, LayersConfig)
+end
+
+---@return LayersConfig?
+function utils.parseLayersConfigOpt(data, base, path, fields)
+	return parseClassConfigOpt(data, base, path, fields, "Layers", _Res.getLayersConfig, LayersConfig)
 end
 
 ---@return LevelConfig

@@ -12,12 +12,16 @@ function Renderer:new()
     self.font = love.graphics.getFont() -- The working font
     self.sx, self.sy, self.sw, self.sh = nil, nil, nil, nil -- The working scissor
     self.workStencil = {fn = nil, action = nil, value = nil, keepValues = nil, testMode = nil, testValue = nil} -- The working stencil
-    self.layer = "MAIN" -- The working layer
+    self.layer = "" -- The working layer
     self.priority = 0 -- The working priority
     ---@type table<string, integer>
-    self.layers = {MAIN = 1} -- A list of layers, keyed by their names. The higher the number, the later the layer is drawn.
+    self.layers = {} -- A list of layers, keyed by their names. The higher the number, the later the layer is drawn.
 
-    ---@alias RendererQueueItem {i: integer, r: number, g: number, b: number, alpha: number, scissorX: number?, scissorY: number?, scissorW: number?, scissorH: number?, stencilFn: function?, stencilAction: love.StencilAction?, stencilValue: integer?, stencilKeepValues: boolean?, stencilTestMode: love.CompareMode?, stencilTestValue: number?, layer: string, type: string, priority: number, [any]: any}
+    ---@alias RendererQueueItem {i: integer, r: number, g: number, b: number, alpha: number,
+    ---                          scissorX: number?, scissorY: number?, scissorW: number?, scissorH: number?,
+    ---                          stencilFn: function?, stencilAction: love.StencilAction?, stencilValue: integer?, stencilKeepValues: boolean?,
+    ---                          stencilTestMode: love.CompareMode?, stencilTestValue: number?,
+    ---                          layer: string, type: string, priority: number, [any]: any}
     ---A list of commands to be performed, in the order of placing. When `:flush()` is called, this list is sorted by layer and emptied.
     ---@type RendererQueueItem[]
     self.queue = {}
@@ -29,12 +33,13 @@ function Renderer:new()
 end
 
 ---Sets a list of layers which should be available for this Renderer.
----By default, only a single layer called `MAIN` is available.
----@param layers string[] 
+---@param layers string[]?
 function Renderer:setLayers(layers)
     self.layers = {}
-    for i, layer in ipairs(layers) do
-        self.layers[layer] = i
+    if layers then
+        for i, layer in ipairs(layers) do
+            self.layers[layer] = i
+        end
     end
 end
 
@@ -215,7 +220,7 @@ function Renderer:flush()
     love.graphics.setScissor()
 end
 
----Returns how many entries in the queue were on the last frame.
+---Returns how many entries in the queue were processed on the last frame.
 ---@return integer
 function Renderer:getLastQueueLength()
     return self.lastQueueLength

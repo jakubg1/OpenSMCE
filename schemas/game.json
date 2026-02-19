@@ -21,6 +21,19 @@
             "$ref": "_structures/Vector2.json",
             "description": "The native resolution of the game."
         },
+        "windowResolution": {
+            "$ref": "_structures/Vector2.json",
+            "description": "The window size used for when the game is started. Useful for games with very low or high native resolution. By default, the game will start with its native resolution."
+        },
+        "resizableWindow": {
+            "type": "boolean",
+            "description": "Whether the game window can be resized. It is advised to leave this field out."
+        },
+        "layers": {
+            "$ref": "_structures/Layers.json",
+            "description": "The layer list file to be used by the game. If not specified, a single MAIN layer will be available.",
+            "markdownDescription": "The layer list file to be used by the game. If not specified, a single `MAIN` layer will be available."
+        },
         "locale": {
             "$ref": "_structures/Locale.json",
             "description": "The locale file to be used by the game. Locale files contain string translations. If not specified, no locale will be used."

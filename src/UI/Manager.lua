@@ -12,8 +12,7 @@ function UIManager:new()
 
     self.script = nil
     self.scriptFunctions = {
-        loadMain = function() _Game:loadMain() end,
-        initSession = function() _Game:initSession() end,
+        loadResources = function() _Game:loadResources() end,
         sessionTerminate = function() _Game:gameOver() end,
         loadingGetProgress = function() return _Res:getLoadProgress("main") end,
 
@@ -107,6 +106,8 @@ function UIManager:new()
         optionsSetMute = function(mute) _Game.runtimeManager.options:setSetting("mute", mute) end,
 
 
+        load = function(name, data) self:loadRootNode(name, data) end,
+        unload = function(name) self:unloadRootNode(name) end,
         getWidgetN = function(names) return self:getWidgetN(names) end,
         getWidgetListN = function(names) return self:getWidgetListN(names) end,
         resetActive = function() self:resetActive() end
@@ -115,21 +116,23 @@ function UIManager:new()
     self.hasFocus = true
 end
 
----Initializes the splash screen, loads the UI Script and fires the `init` UI Script callback.
-function UIManager:initSplash()
-    self.widgets.splash = UIWidget("ui/splash.json")
-
-    self.script = require(_ParsePathDots("ui.script"))
-    self:executeCallback("init")
+---Loads a new root node into the UI Manager.
+---@param name string The root node name, which is used in the paths.
+---@param data string|table Path to the UI file to be loaded or raw UI data (not recommended).
+function UIManager:loadRootNode(name, data)
+    self.widgets[name] = UIWidget(data)
 end
 
----Destroys the splash screen and loads the main game UI structure.
-function UIManager:init()
-    -- Cleanup the splash
-    self.widgets.splash = nil
+---Unloads a root node from the UI Manager.
+---@param name string The root node name, which is used in the paths.
+function UIManager:unloadRootNode(name)
+    self.widgets[name] = nil
+end
 
-    -- Setup the UI
-    self.widgets.root = UIWidget("ui/toplevel.json")
+---Loads the UI Script and fires the `init` UI Script callback.
+function UIManager:loadScript()
+    self.script = require(_ParsePathDots("ui.script"))
+    self:executeCallback("init")
 end
 
 ---Updates the UI Manager.

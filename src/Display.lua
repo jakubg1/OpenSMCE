@@ -6,11 +6,14 @@ local Display = class:derive("Display")
 
 ---Constructs a Display Manager.
 function Display:new()
-    self.w, self.h = 800, 600
-    self.bufferW, self.bufferH = 800, 600
+    self.w, self.h = 800, 600 -- Current window size.
+    self.windowW, self.windowH = 800, 600 -- Default window resolution in windowed mode.
+    self.resizable = true -- Whether the window is resizable.
+    self.bufferW, self.bufferH = 800, 600 -- Native game resolution.
     self.renderCanvas = nil
     self.debugCanvas = nil
     self.renderMode = "filtered"
+    -- TODO: Move to Renderer? What about global screen effects (CRT)?
     ---@type love.Shader[]
     self.shaderStack = {}
 
@@ -24,25 +27,26 @@ end
 ---@param title string The window title.
 ---@param maximized boolean? If set, the window will be maximized.
 function Display:setResolution(w, h, resizable, title, maximized)
-	love.window.setMode(w, h, {resizable = resizable})
+    self.windowW, self.windowH = w, h
+    self.resizable = resizable
+    local ww, wh = self:getSafeWindowSize()
+	love.window.setMode(ww, wh, {resizable = resizable})
 	if maximized then
 		love.window.maximize()
 	end
 	love.window.setTitle(title)
-	self.w, self.h = w, h
+    self.w, self.h = love.graphics.getDimensions()
 end
 
 ---Sets whether the window should be fullscreen.
 ---@param fullscreen boolean Whether the window should be fullscreen.
 function Display:setFullscreen(fullscreen)
-    if fullscreen == love.window.getFullscreen() then return end
-    if fullscreen then
-        local _, _, flags = love.window.getMode()
-        self.w, self.h = love.window.getDesktopDimensions(flags.display)
-    else
-        self.w, self.h = self.bufferW, self.bufferH
+    if fullscreen == love.window.getFullscreen() then
+        return
     end
-    love.window.setMode(self.w, self.h, {fullscreen = fullscreen, resizable = true})
+    local ww, wh = self:getSafeWindowSize()
+    love.window.setMode(ww, wh, {fullscreen = fullscreen, resizable = self.resizable})
+    self.w, self.h = love.graphics.getDimensions()
     self:populateSpriteAtlases()
 end
 
@@ -69,6 +73,20 @@ function Display:populateSpriteAtlases()
     for i, atlas in ipairs(_Res:getResourceList("SpriteAtlas")) do
         _Res:getSpriteAtlas(atlas):populate()
     end
+end
+
+---Returns the safe window size. This is the desired window resolution, but can differ if the window is too big to fit on the screen.
+---@private
+---@return integer, integer
+function Display:getSafeWindowSize()
+    local _, _, flags = love.window.getMode()
+    local w, h = love.window.getDesktopDimensions(flags.display)
+    -- Accomodate for stuff like taskbars.
+    local maxW, maxH = w * 0.9, h * 0.9
+    -- We are going to preserve the aspect ratio, so we will look for the smaller of two maximum coefficients for each dimension.
+    local sx, sy = maxW / self.windowW, maxH / self.windowH
+    local scale = math.min(math.min(sx, sy), 1)
+    return self.windowW * scale, self.windowH * scale
 end
 
 ---Returns the X offset of actual screen contents.

@@ -22,18 +22,32 @@ function EditorMain:new(name)
 	-- UI constants
 	self.uiTopPaneHeight = 36
 	self.uiFilePickerWidth = 300
-	self.uiMock = false
+	self.uiMock = true
+	self.wipMessage = {
+		"The OpenSMCE Game Editor is a work in progress.",
+		"It currently offers no actual editing functionality.",
+		"Stay tuned for future updates!"
+	}
 
 	-- UI state
 	self.resourceListOffset = 0
 	self.resourceList = {}
 	self.hoveredResource = nil
 	self.selectedResource = nil
+
 	self.spriteScale = 1
 	self.hoveredSpriteState = nil
 	self.selectedSpriteState = 1
 	self.hoveredSpriteFrame = nil
 	self.selectedSpriteFrame = 1
+
+	self.jsonEditorData = {
+		{type = "ref", name = "image", value = "fonts/dialog_body_cursor.png"},
+		{type = "vec2", name = "frameSize", value = {x = 13, y = 20}},
+		{type = "", name = "states:"},
+		{type = "vec2", name = "[1] pos", value = {x = 0, y = 0}},
+		{type = "vec2", name = "[1] frames", value = {x = 2, y = 1}}
+	}
 end
 
 
@@ -247,17 +261,10 @@ function EditorMain:draw()
 	end
 
 	-----------------------------
-	-- DATA MOCK
+	-- JSON EDITOR
 	-----------------------------
 	if self.uiMock then
-		local data = {
-			{type = "ref", name = "image", value = "fonts/dialog_body_cursor.png"},
-			{type = "vec2", name = "frameSize", value = {x = 13, y = 20}},
-			{type = "", name = "states:"},
-			{type = "vec2", name = "[1] pos", value = {x = 0, y = 0}},
-			{type = "vec2", name = "[1] frames", value = {x = 2, y = 1}}
-		}
-		for i, line in ipairs(data) do
+		for i, line in ipairs(self.jsonEditorData) do
 			self:drawInputMock(i, line)
 		end
 	end
@@ -270,6 +277,14 @@ function EditorMain:draw()
 	-- BUTTON
 	-----------------------------
 	self.menuBtn:draw()
+
+	-- Draw a WIP notice.
+	love.graphics.setFont(_FONT)
+	love.graphics.setColor(1, 1, 0)
+	for i, line in ipairs(self.wipMessage) do
+		local x, y = self.nativeResolution.x - _FONT:getWidth(line), self.nativeResolution.y - 15 * (#self.wipMessage - i + 1)
+		love.graphics.print(line, x, y)
+	end
 end
 
 ---Draws an input mock.
@@ -290,12 +305,12 @@ function EditorMain:drawInputMock(i, data)
 		-- Input box
 		self:drawInputMockInputBox(i, x + w1, w2 - 40, data.value)
 		-- Go button
-		love.graphics.setColor(0.3, 0.3, 0.3)
+		love.graphics.setColor(0.5, 0.5, 0.5)
 		love.graphics.rectangle("fill", self.nativeResolution.x - 35, y + 2, 25, h - 4)
-		love.graphics.setColor(0.05, 0.05, 0.05)
+		love.graphics.setColor(0.15, 0.15, 0.15)
 		love.graphics.setLineWidth(1)
 		love.graphics.rectangle("line", self.nativeResolution.x - 34.5, y + 1.5, 25, h - 3)
-		love.graphics.setColor(1, 1, 1)
+		love.graphics.setColor(0, 0, 0)
 		love.graphics.print(">>", self.nativeResolution.x - 32, y + 4)
 	elseif data.type == "vec2" then
 		love.graphics.setColor(1, 1, 1)
@@ -417,7 +432,7 @@ end
 
 ---Exits the Editor.
 function EditorMain:quit(forced)
-	_Res:unloadAllResources()
+	_Res:reset()
 	_LoadBootScreen()
 end
 

@@ -158,8 +158,8 @@ function ResourceManager:registerResourceSingletons(singletons)
 	end
 end
 
----Unloads all resources from this Resource Manager.
-function ResourceManager:unloadAllResources()
+---Unloads all resources from this Resource Manager, unqueues all queued resources and removes all progress bars.
+function ResourceManager:reset()
 	for key, resource in pairs(self.resources) do
 		-- TODO: Stop all sounds and music elsewhere. This is not the place to do it!
 		if resource.asset and resource.asset.stop then
@@ -167,6 +167,8 @@ function ResourceManager:unloadAllResources()
 		end
 		self:unloadResource(key)
 	end
+	_Utils.emptyTable(self.queuedResources)
+	_Utils.emptyTable(self.loadCounters)
 end
 
 ---Returns `true` if a resource at the provided path is loaded, `false` otherwise.

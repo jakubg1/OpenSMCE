@@ -30,7 +30,8 @@ function UIWidget:new(data, parent)
 	-- positions, alpha etc. are:
 	-- local in variables
 	-- global in methods
-	self.x, self.y = data.pos and data.pos.x or 0, data.pos and data.pos.y or 0
+	self.homeX, self.homeY = data.pos and data.pos.x or 0, data.pos and data.pos.y or 0
+	self.x, self.y = self.homeX, self.homeY
 	self.layer = data.layer or (parent and parent.layer)
 	self.alpha = data.alpha or 1
 
@@ -50,6 +51,7 @@ function UIWidget:new(data, parent)
 	end
 	self.animation = nil
 	self.animationTime = nil
+	self.animationStartX, self.animationStartY = nil, nil
 
 	self.parent = parent
 	---@type UIWidget[]
@@ -104,7 +106,7 @@ end
 ---Updates the UI widget's animations, timing and widget.
 ---@param dt number Time delta in seconds.
 function UIWidget:update(dt)
-	-- Update the new animations!
+	-- Update the animations.
 	if self.animationTime then
 		self.animationTime = self.animationTime + dt
 		self:updateAnimations()
@@ -139,11 +141,14 @@ end
 
 ---Updates the current and child Widget state based on currently ongoing Animations in this specific Widget, and checks if all the animations have finished.
 function UIWidget:updateAnimations()
-	local animation = self.animations[self.animation]
+	if not self.animation then
+		return
+	end
+	local animation = assert(self.animations[self.animation], string.format("Animation not found: %s", self.animation))
 	local maxTime = 0
 	for i, subanim in ipairs(animation) do
 		-- Get the widget we will be animating.
-		local widget = self:getChild(subanim.target)
+		local widget = self:assertGetChild(subanim.target)
 		-- Check the animation progress.
 		local t = _Utils.mapc(0, 1, 0, subanim.time, self.animationTime)
 		if subanim.transition and subanim.transition.type == "bezier" then
@@ -154,8 +159,8 @@ function UIWidget:updateAnimations()
 		if subanim.type == "fade" then
 			widget.alpha = _Utils.lerp(subanim.startValue, subanim.endValue, t)
 		elseif subanim.type == "move" then
-			widget.x = _Utils.lerp(subanim.startPos.x, subanim.endPos.x, t)
-			widget.y = _Utils.lerp(subanim.startPos.y, subanim.endPos.y, t)
+			widget.x = _Utils.lerp(subanim.startPos and subanim.startPos.x or widget.animationStartX, subanim.endPos.x, t)
+			widget.y = _Utils.lerp(subanim.startPos and subanim.startPos.y or widget.animationStartY, subanim.endPos.y, t)
 		end
 	end
 	-- Check if all subanimations have finished.
@@ -165,24 +170,42 @@ function UIWidget:updateAnimations()
 			self:executeAction("showEnd")
 		elseif self.animation == "out" then
 			self:executeAction("hideEnd")
+			-- Reset alpha and position when the animation finishes.
 			self.alpha = 0
+			for i, subanim in ipairs(animation) do
+				local widget = self:assertGetChild(subanim.target)
+				widget.x = widget.homeX
+				widget.y = widget.homeY
+			end
 		end
 		self.animation = nil
 		self.animationTime = nil
 	end
 end
 
+---Starts the animation with the given name.
+---@param name string The animation to start.
+function UIWidget:startAnimation(name)
+	self.animation = name
+	self.animationTime = 0
+	for i, subanim in ipairs(self.animations[name]) do
+		local widget = self:assertGetChild(subanim.target)
+		if name == "in" then
+			widget.alpha = 1
+		end
+		widget.animationStartX = widget.x
+		widget.animationStartY = widget.y
+	end
+	self:updateAnimations()
+end
+
 ---Shows the widget or starts its showing animation.
 function UIWidget:show()
 	self.visible = true
+	self.alpha = 1
 	if self.animations["in"] then
-		self.alpha = 1
-		-- If we have a new animation system animation instead, play that! what can happen?
-		self.animation = "in"
-		self.animationTime = 0
-		self:updateAnimations()
+		self:startAnimation("in")
 	else
-		self.alpha = 1
 		-- Spawn the particles.
 		if self.widget and self.widget.type == "particle" then
 			self.widget:spawn()
@@ -198,10 +221,7 @@ end
 function UIWidget:hide()
 	self.visible = false
 	if self.animations["out"] then
-		-- If we have a new animation defined, woo fancy! Start it!
-		self.animation = "out"
-		self.animationTime = 0
-		self:updateAnimations()
+		self:startAnimation("out")
 	else
 		self.alpha = 0
 		-- Despawn the particles.
@@ -500,6 +520,13 @@ function UIWidget:getChild(path)
 		widget = widget:getChildN(name)
 	end
 	return widget
+end
+
+---Returns a child of this Widget by path. If there is no Widget at the given path, throws an error.
+---@param path string Path to the widget separated by slashes.
+---@return UIWidget
+function UIWidget:assertGetChild(path)
+	return assert(self:getChild(path), string.format("Widget %s could not find child at %s", self:getFullName(), path))
 end
 
 ---Returns whether this Widget is currently marked as visible. Alpha is NOT taken into account, the widget can be visible even when its alpha is 0!

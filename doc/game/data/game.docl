@@ -3,6 +3,9 @@
     - windowTitle* (string) - The window title which the engine window will have, if defined.
     - engineVersion (string) - Specifies the version a game is for, e.g. `"v0.48.0"`.
     - nativeResolution (Vector2) - The native resolution of the game.
+    - windowResolution* (Vector2) - The window size used for when the game is started. Useful for games with very low or high native resolution. By default, the game will start with its native resolution.
+    - resizableWindow* = true (boolean) - Whether the game window can be resized. It is advised to leave this field out.
+    - layers* (Layers) - The layer list file to be used by the game. If not specified, a single `MAIN` layer will be available.
     - locale* (Locale) - The locale file to be used by the game. Locale files contain string translations. If not specified, no locale will be used.
     - tickRate* = 60 (integer) - The number of ticks to be performed per second. Defaults to `60`.
     - canvasRenderingMode* = "filtered" (string) - If the canvas rendering is enabled, this field determines the exact rendering properties.
