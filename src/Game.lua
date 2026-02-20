@@ -87,10 +87,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 	end
 
 	self.uiManager:update(dt)
-
-	if self.particleManager then
-		self.particleManager:update(dt)
-	end
+	self.particleManager:update(dt)
 
 	if self.configManager:isRichPresenceEnabled() then
 		self:updateRichPresence()
@@ -310,9 +307,7 @@ function Game:draw()
 
 	-- Particles and UI
 	self.uiManager:draw()
-	if self.particleManager then
-		self.particleManager:draw()
-	end
+	self.particleManager:draw()
 	_Debug:profDrawCheckpoint()
 
 	-- Flush all accumulated render tasks and draw them on the display.

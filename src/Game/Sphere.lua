@@ -24,7 +24,9 @@ function Sphere:new(sphereGroup, data, color, shootOrigin, shootTime, sphereEnti
 	self.map = sphereGroup.map
 
 	-- these two are filled by the sphere group object
+	---@type Sphere?
 	self.prevSphere = nil
+	---@type Sphere?
 	self.nextSphere = nil
 	self.offset = 0
 
@@ -50,8 +52,8 @@ function Sphere:new(sphereGroup, data, color, shootOrigin, shootTime, sphereEnti
 
 	self:loadConfig()
 
-	local pos = self:getPos()
-	self.entity = sphereEntity or SphereEntity(pos.x, pos.y, self.color)
+	local x, y = self:getPos()
+	self.entity = sphereEntity or SphereEntity(x, y, self.color)
 
 	if shootOrigin then
 		self.shootOrigin = shootOrigin
@@ -179,9 +181,7 @@ end
 
 ---Changes the color of this Sphere.
 ---@param color integer The new color for this Sphere to be obtained.
----@param particle ParticleEffectConfig? A one-time particle packet pointer to be spawned if the color change is successful.
----@param particleLayer string? If `particle` is specified, this is the layer the particle will be drawn on.
-function Sphere:changeColor(color, particle, particleLayer)
+function Sphere:changeColor(color)
 	self.map.level.colorManager:decrement(self.color)
 	self.map.level.colorManager:increment(color)
 	if self.danger then
@@ -191,10 +191,14 @@ function Sphere:changeColor(color, particle, particleLayer)
 	self.color = color
 	self.entity:setColor(color)
 	self:loadConfig()
-	if particle then
-		local pos = self:getPos()
-		_Game:spawnParticle(particle, pos.x, pos.y, assert(particleLayer))
-	end
+end
+
+---Spawns a particle on this Sphere.
+---@param particle ParticleEffectConfig The particle effect to be used.
+---@param layer string The layer this particle will be drawn on.
+function Sphere:spawnParticle(particle, layer)
+	local x, y = self:getPos()
+	_Game:spawnParticle(particle, x, y, layer)
 end
 
 
@@ -236,14 +240,14 @@ function Sphere:deleteVisually(ghostTime, crushed)
 			self.path:setOffsetVars("sphere", self:getOffset())
 			self:dumpVariables()
 			_Vars:set("sphere.crushed", crushed or false)
-			local pos = self:getPos()
+			local x, y = self:getPos()
 			-- Spawn collectibles, if any.
 			if self.config.destroyCollectible then
-				self.map.level:spawnCollectiblesFromEntry(self.config.destroyCollectible, pos.x, pos.y)
+				self.map.level:spawnCollectiblesFromEntry(self.config.destroyCollectible, x, y)
 			end
 			-- Play a sound.
 			if self.config.destroySound then
-				self.config.destroySound:play(pos.x, pos.y)
+				self.config.destroySound:play(x, y)
 			end
 			-- Execute a Game Event.
 			if self.config.destroyEvent then
@@ -284,12 +288,12 @@ function Sphere:breakChainLevel()
 	end
 
 	self.chainLevel = self.chainLevel - 1
-	local pos = self:getPos()
+	local x, y = self:getPos()
 	if self.config.chainDestroySound then
-		self.config.chainDestroySound:play(pos.x, pos.y)
+		self.config.chainDestroySound:play(x, y)
 	end
 	if self.config.chainDestroyParticle then
-		_Game:spawnParticle(self.config.chainDestroyParticle, pos.x, pos.y, self.config.chainDestroyParticleLayer)
+		_Game:spawnParticle(self.config.chainDestroyParticle, x, y, self.config.chainDestroyParticleLayer)
 	end
 end
 
@@ -335,15 +339,15 @@ function Sphere:applyEffect(effectConfig, infectionSize, infectionTime, effectGr
 		infectionTime = infectionTime or effectConfig.infectionTime,
 		effectGroupID = effectGroupID
 	}
-	local pos = self:getPos()
+	local x, y = self:getPos()
 	if effectConfig.particle then
-		effect.particle = _Game:spawnParticle(effectConfig.particle, pos.x, pos.y, effectConfig.particleLayer)
+		effect.particle = _Game:spawnParticle(effectConfig.particle, x, y, effectConfig.particleLayer)
 	end
 	table.insert(self.effects, effect)
 
 	-- Sound effect.
 	if effectConfig.applySound then
-		effectConfig.applySound:play(pos.x, pos.y)
+		effectConfig.applySound:play(x, y)
 	end
 end
 
@@ -358,8 +362,8 @@ function Sphere:removeAllEffects()
 		end
 		-- Emit destroy particles.
 		if effect.config.destroyParticle then
-			local pos = self:getPos()
-			_Game:spawnParticle(effect.config.destroyParticle, pos.x, pos.y, effect.config.destroyParticleLayer)
+			local x, y = self:getPos()
+			_Game:spawnParticle(effect.config.destroyParticle, x, y, effect.config.destroyParticleLayer)
 		end
 		-- Decrement the sphere effect group counter.
 		self.path:decrementSphereEffectGroup(effect.effectGroupID)
@@ -550,16 +554,19 @@ function Sphere:stopGrowing()
 	end
 	self.growStopped = true
 	-- Attach to the nearest sphere.
+	local x, y = self:getPos()
 	if self.prevSphere and not self.nextSphere then
 		self.attachedSphere = self.prevSphere
 	elseif not self.prevSphere and self.nextSphere then
 		self.attachedSphere = self.nextSphere
 	else
-		local prevDistance = (self.prevSphere:getPos() - self:getPos()):len()
-		local nextDistance = (self.nextSphere:getPos() - self:getPos()):len()
+		-- TODO: This will cause a crash if we are attaching to nothing. Potentially possible with no scarabs and multishot enabled. Investigate at some point.
+		local prevDistance = _V.distance(x, y, self.prevSphere:getPos())
+		local nextDistance = _V.distance(x, y, self.nextSphere:getPos())
 		self.attachedSphere = prevDistance < nextDistance and self.prevSphere or self.nextSphere
 	end
-	self.attachedAngle = (self.attachedSphere:getPos() - self:getPos()):angle() - self.attachedSphere:getAngle()
+	local attachedX, attachedY = self.attachedSphere:getPos()
+	self.attachedAngle = _V.angle(attachedX - x, attachedY - y) - self.attachedSphere:getAngle()
 	-- Calculate the matches and so on.
 	self:finishShot()
 end
@@ -575,12 +582,13 @@ end
 
 
 ---Returns the current global position of this Sphere.
----@return Vector2
+---@return number, number
 function Sphere:getPos()
 	if self.appendSize < 1 then
-		return Vec2(self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize))) * self.appendSize + self.shootOrigin * (1 - self.appendSize)
+		local targetX, targetY = self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize))
+		return _Utils.lerp(self.shootOrigin.x, targetX, self.appendSize), _Utils.lerp(self.shootOrigin.y, targetY, self.appendSize)
 	end
-	return Vec2(self.path:getPos(self:getOffset()))
+	return self.path:getPos(self:getOffset())
 end
 
 
@@ -658,22 +666,24 @@ end
 --- - `sphere.object` - The Sphere object. The only thing that can be done with this field is comparison, to see if two spheres are the same sphere.
 --- - `sphere.color` - The color ID of this Sphere.
 --- - `sphere.isOffscreen` - Whether this Sphere is close enough to the spawning point that it should be considered offscreen.
----If `pos` is given, additional variables will be available:
+---If `x` and `y` are given, additional variables will be available:
 --- - `sphere.distance` - The linear distance between the given position and the current sphere position.
 --- - `sphere.distanceX` - Ditto, but only considering the X axis.
 ---The context can be changed, but defaults to `sphere`.
 ---
 ---@param context string? The context to be used for the variables, `"sphere"` by default.
----@param pos Vector2? The position relative to which additional variables can be inserted.
-function Sphere:dumpVariables(context, pos)
+---@param x number? The X position relative to which additional variables can be inserted.
+---@param y number? The Y position relative to which additional variables can be inserted.
+function Sphere:dumpVariables(context, x, y)
 	context = context or "sphere"
 	_Vars:set(context .. ".object", self)
 	_Vars:set(context .. ".color", self.color)
 	_Vars:set(context .. ".chainLevel", self.chainLevel)
 	_Vars:set(context .. ".isOffscreen", self:isOffscreen())
-	if pos then
-		_Vars:set(context .. ".distance", (self:getPos() - pos):len())
-		_Vars:set(context .. ".distanceX", math.abs(self:getPos().x - pos.x))
+	if x and y then
+		local px, py = self:getPos()
+		_Vars:set(context .. ".distance", _V.distance(x, y, px, py))
+		_Vars:set(context .. ".distanceX", math.abs(px - x))
 	end
 end
 
@@ -685,9 +695,11 @@ function Sphere:draw()
 		return
 	end
 
-	local pos = self:getPos()
+	local x, y = self:getPos()
 	if self.attachedSphere and self.attachedAngle then
-		pos = self.attachedSphere:getPos() - Vec2(self:getSize() + self.attachedSphere:getSize(), 0):rotate(self.attachedAngle + self.attachedSphere:getAngle())
+		local attachedX, attachedY = self.attachedSphere:getPos()
+		local ox, oy = _V.rotate(self:getSize() + self.attachedSphere:getSize(), 0, self.attachedAngle + self.attachedSphere:getAngle())
+		x, y = attachedX - ox, attachedY - oy
 	end
 	local angle = self:getAngle()
 	local scale = self:getScale()
@@ -696,7 +708,7 @@ function Sphere:draw()
 	local hidden = self:getHidden()
 
 	-- Update the entity position, rotation, scale, frame, etc.
-	self.entity:setPos(pos.x, pos.y)
+	self.entity:setPos(x, y)
 	self.entity:setAngle(angle)
 	self.entity:setScale(scale)
 	self.entity:setRoll(roll)
@@ -710,16 +722,16 @@ function Sphere:draw()
 	-- Update particle positions.
 	for i, effect in ipairs(self.effects) do
 		if effect.particle then
-			effect.particle:setPos(pos.x, pos.y)
+			effect.particle:setPos(x, y)
 		end
 	end
 
 	if _Debug.gameDebugVisible and self.appendSize < 1 then
 		local x1, y1 = self.path:getPos(self:getOffset() + self.config.size / 2 * (1 - self.appendSize))
-		local p2 = self.shootOrigin
+		local x2, y2 = self.shootOrigin.x, self.shootOrigin.y
 		love.graphics.setColor(1, 0.5, 0)
 		love.graphics.setLineWidth(3)
-		love.graphics.line(x1, y1, p2.x, p2.y)
+		love.graphics.line(x1, y1, x2, y2)
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.setLineWidth(1)
 		love.graphics.circle("line", x1, y1, 15)
@@ -729,21 +741,21 @@ function Sphere:draw()
 	--[[
 	local effectConfig = _Res:getSphereEffectConfig("sphere_effects/match.json")
 	if not shadow and self:hasEffect(effectConfig) then
-		local p = self:getPos()
-		love.graphics.print(self:getEffectGroupID(effectConfig), p.x, p.y + 20)
+		local x, y = self:getPos()
+		love.graphics.print(self:getEffectGroupID(effectConfig), x, y + 20)
 	end
 	]]
 
 	-- Sphere appending
 	--[[
 	if not shadow and _Debug.gameDebugVisible and self.appendSize < 1 then
-		local p = self:getPos()
+		local x, y = self:getPos()
 		local s = ""
 		s = s .. "offset: " .. tostring(self.offset) .. "\n"
 		s = s .. "getOffset(): " .. tostring(self:getOffset()) .. "\n"
 		s = s .. "appendSize: " .. tostring(self.appendSize) .. "\n"
 		s = s .. "\nResult: " .. tostring(self:getOffset() + 32 - self.appendSize * 32)
-		love.graphics.print(s, p.x, p.y + 20)
+		love.graphics.print(s, x, y + 20)
 	end
 	]]
 end
@@ -866,7 +878,7 @@ function Sphere:deserialize(t)
 	if t.effects then
 		for i, effect in ipairs(t.effects) do
 			local effectConfig = _Res:getSphereEffectConfig(effect.name)
-			local pos = self:getPos()
+			local x, y = self:getPos()
 			local e = {
 				name = effect.name,
 				config = effectConfig,
@@ -874,7 +886,7 @@ function Sphere:deserialize(t)
 				infectionSize = effect.infectionSize,
 				infectionTime = effect.infectionTime,
 				effectGroupID = effect.effectGroupID,
-				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, pos.x, pos.y, effectConfig.particleLayer)
+				particle = effectConfig.particle and _Game:spawnParticle(effectConfig.particle, x, y, effectConfig.particleLayer)
 			}
 			table.insert(self.effects, e)
 		end

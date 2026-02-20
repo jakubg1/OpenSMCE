@@ -73,10 +73,8 @@ function ShotSphere:update(dt)
 			end
 			-- If there is no new homing target, do not proceed.
 			if self.homingTowards then
-				--local targetAngle = (self.homingTowards:getPos() - Vec2(self.posX, self.posY)):angle() + math.pi / 2
-				local homingPos = self.homingTowards:getPos()
-				local targetAngle = _V.angle(homingPos.x - self.x, homingPos.y - self.y) + math.pi / 2
-				self.angle = targetAngle
+				local homingX, homingY = self.homingTowards:getPos()
+				self.angle = _V.angle(homingX - self.x, homingY - self.y) + math.pi / 2
 			else
 				self:destroy()
 			end

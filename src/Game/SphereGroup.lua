@@ -1,5 +1,6 @@
 local class = require "com.class"
 local Sphere = require("src.Game.Sphere")
+local Vec2 = require("src.Essentials.Vector2")
 
 ---Represents a Sphere Group, which is a single group of spheres connected to each other. Handles all sphere movement on the track.
 ---@class SphereGroup
@@ -1142,7 +1143,7 @@ end
 ---@param position integer The sphere index in this sphere group.
 ---@return Vector2
 function SphereGroup:getSpherePos(position)
-	return self.spheres[position]:getPos()
+	return Vec2(self.spheres[position]:getPos())
 end
 
 ---Returns the index of the provided Sphere in this Sphere Group.

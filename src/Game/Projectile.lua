@@ -17,8 +17,7 @@ function Projectile:new(data, config, targetSphere)
         assert(targetSphere, "data is nil, targetSphere is nil. This shouldn't happen")
 
         self.config = config
-        local targetPos = targetSphere:getPos()
-        self.targetX, self.targetY = targetPos.x, targetPos.y
+        self.targetX, self.targetY = targetSphere:getPos()
         if config.spawnDistance then
             local ox, oy = _V.rotate(config.spawnDistance:evaluate(), 0, math.random() * math.pi * 2)
             self.x, self.y = self.targetX + ox, self.targetY + oy
@@ -54,8 +53,7 @@ function Projectile:update(dt)
     if self.targetSphere then
         if not self.targetSphere.delQueue then
             -- If we are homing towards a sphere, update the target position.
-            local targetPos = self.targetSphere:getPos()
-            self.targetX, self.targetY = targetPos.x, targetPos.y
+            self.targetX, self.targetY = self.targetSphere:getPos()
         else
             -- The target sphere no longer exists; stop homing towards it.
             self.targetSphere = nil

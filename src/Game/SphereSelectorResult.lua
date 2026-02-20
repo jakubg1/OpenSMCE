@@ -1,5 +1,4 @@
 local class = require "com.class"
-local Vec2 = require("src.Essentials.Vector2")
 
 ---Represents the result of executing a Sphere Selector.
 ---
@@ -9,15 +8,16 @@ local Vec2 = require("src.Essentials.Vector2")
 ---You should utilize and dispose it on the same frame it is created, as its contents do NOT update
 ---between frames.
 ---@class SphereSelectorResult
----@overload fun(config, pos):SphereSelectorResult
+---@overload fun(config: SphereSelectorConfig, x: number?, y: number?):SphereSelectorResult
 local SphereSelectorResult = class:derive("SphereSelectorResult")
 
 ---Constructs a new SphereSelectorResult.
 ---@param config SphereSelectorConfig The Sphere Selector configuration that will be used to generate a result of this selector.
----@param pos Vector2? A position to check the spheres' positions against. Note that the position-related variables will not be available if this argument is not provided.
-function SphereSelectorResult:new(config, pos)
+---@param x number? X position to check the spheres' positions against. Note that the position-related variables will not be available if this argument is not provided.
+---@param y number? Y position to check the spheres' positions against. Note that the position-related variables will not be available if this argument is not provided.
+function SphereSelectorResult:new(config, x, y)
 	self.config = config
-	self.pos = pos
+	self.x, self.y = x, y
 
 	---@type Sphere[]
 	self.spheres = {}
@@ -31,7 +31,7 @@ function SphereSelectorResult:new(config, pos)
 						local sphereGroup = sphereChain.sphereGroups[l]
 						for m = #sphereGroup.spheres, 1, -1 do
 							local sphere = sphereGroup.spheres[m]
-							sphere:dumpVariables("sphere", self.pos)
+							sphere:dumpVariables("sphere", self.x, self.y)
 							if sphere.color ~= 0 and operation.condition:evaluate() then
 								table.insert(self.spheres, sphere)
 							end
@@ -69,27 +69,26 @@ end
 function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
 	_Vars:set("selector.sphereCount", #self.spheres)
 	if scoreEvent then
-		local eventPos = self.pos
-		if not eventPos or forceEventPosCalculation then
-			local minPos, maxPos
+		local eventX, eventY = self.x, self.y
+		if not eventX or not eventY or forceEventPosCalculation then
+			local minX, minY, maxX, maxY
 			-- The event position will be calculated by taking the center of the smallest box surrounding all spheres.
 			for i, sphere in ipairs(self.spheres) do
-				local spherePos = sphere:getPos()
-				minPos = minPos and minPos:min(spherePos) or spherePos
-				maxPos = maxPos and maxPos:max(spherePos) or spherePos
+				local sphereX, sphereY = sphere:getPos()
+				minX, minY = minX and math.min(minX, sphereX) or sphereX, minY and math.min(minY, sphereY) or sphereY
+				maxX, maxY = maxX and math.max(maxX, sphereX) or sphereX, maxY and math.max(maxY, sphereY) or sphereY
 			end
-			eventPos = minPos and ((minPos + maxPos) / 2) or Vec2()
+			eventX, eventY = minX and ((minX + maxX) / 2) or 0, minY and ((minY + maxY) / 2) or 0
 		end
-		_Game.level:executeScoreEvent(scoreEvent, eventPos.x, eventPos.y)
+		_Game.level:executeScoreEvent(scoreEvent, eventX, eventY)
 	end
 	if gameEvent then
 		_Game:executeGameEvent(gameEvent)
 	end
 	for i, sphere in ipairs(self.spheres) do
-		sphere:dumpVariables("sphere", self.pos)
+		sphere:dumpVariables("sphere", self.x, self.y)
 		if scoreEventPerSphere then
-			local pos = sphere:getPos()
-			_Game.level:executeScoreEvent(scoreEventPerSphere, pos.x, pos.y)
+			_Game.level:executeScoreEvent(scoreEventPerSphere, sphere:getPos())
 		end
 		if gameEventPerSphere then
 			_Game:executeGameEvent(gameEventPerSphere)
@@ -106,7 +105,10 @@ end
 ---@param particleLayer string? If `particle` is specified, this is the layer the particle will be drawn on.
 function SphereSelectorResult:changeColor(color, particle, particleLayer)
 	for i, sphere in ipairs(self.spheres) do
-		sphere:changeColor(color, particle, particleLayer)
+		sphere:changeColor(color)
+		if particle and particleLayer then
+			sphere:spawnParticle(particle, particleLayer)
+		end
 	end
 end
 

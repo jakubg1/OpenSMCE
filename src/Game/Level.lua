@@ -1166,7 +1166,7 @@ end
 ---@param gameEventPerSphere GameEventConfig? The Game Event which will be executed separately for each sphere.
 ---@param forceEventPosCalculation boolean? If set, the `pos` argument will be ignored and a new position for the Score Event will be calculated anyways.
 function Level:destroySelector(sphereSelector, x, y, scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
-	SphereSelectorResult(sphereSelector, Vec2(x, y)):destroy(scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
+	SphereSelectorResult(sphereSelector, x, y):destroy(scoreEvent, scoreEventPerSphere, gameEvent, gameEventPerSphere, forceEventPosCalculation)
 end
 
 ---Selects spheres based on a provided Sphere Selector Config and changes their colors.
@@ -1174,7 +1174,7 @@ end
 ---@param x number? The X position used to calculate distances to spheres.
 ---@param y number? The Y position used to calculate distances to spheres.
 function Level:replaceColorSelector(hitBehavior, x, y)
-	SphereSelectorResult(hitBehavior.selector, Vec2(x, y)):changeColor(hitBehavior.color:evaluate(), hitBehavior.particle, hitBehavior.particleLayer)
+	SphereSelectorResult(hitBehavior.selector, x, y):changeColor(hitBehavior.color:evaluate(), hitBehavior.particle, hitBehavior.particleLayer)
 end
 
 ---Selects spheres based on a provided Sphere Selector Config and applies a Sphere Effect on them.
@@ -1182,7 +1182,7 @@ end
 ---@param x number? The X position used to calculate distances to spheres.
 ---@param y number? The Y position used to calculate distances to spheres.
 function Level:applyEffectSelector(hitBehavior, x, y)
-	SphereSelectorResult(hitBehavior.selector, Vec2(x, y)):applyEffect(hitBehavior.effect)
+	SphereSelectorResult(hitBehavior.selector, x, y):applyEffect(hitBehavior.effect)
 end
 
 ---Returns a randomly selected sphere, or `nil` if this level does not contain any spheres.
@@ -1357,12 +1357,12 @@ function Level:getNearestSphere(posX, posY)
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
-					local spherePos = sphere:getPos()
+					local sphereX, sphereY = sphere:getPos()
 					local sphereAngle = sphere:getAngle()
 					local sphereHidden = sphere:getHidden()
 
-					local sphereDist = _V.length(posX - spherePos.x, posY - spherePos.y)
-					local sphereDistAngle = _V.angle(posX - spherePos.x, posY - spherePos.y)
+					local sphereDist = _V.length(posX - sphereX, posY - sphereY)
+					local sphereDistAngle = _V.angle(posX - sphereX, posY - sphereY)
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
 					-- if closer than the closest for now, save it
@@ -1372,7 +1372,7 @@ function Level:getNearestSphere(posX, posY)
 						nearestData.sphereGroup = sphereGroup
 						nearestData.sphereID = l
 						nearestData.sphere = sphere
-						nearestData.pos = spherePos
+						nearestData.pos = Vec2(sphereX, sphereY)
 						nearestData.dist = sphereDist
 						nearestData.half = sphereHalf
 					end
@@ -1410,19 +1410,19 @@ function Level:getNearestSphereOnLine(posX, posY, angle)
 		for j, sphereChain in ipairs(path.sphereChains) do
 			for k, sphereGroup in ipairs(sphereChain.sphereGroups) do
 				for l, sphere in ipairs(sphereGroup.spheres) do
-					local spherePos = sphere:getPos()
+					local sphereX, sphereY = sphere:getPos()
 					local sphereSize = sphere:getSize()
 					local sphereAngle = sphere:getAngle()
 					local sphereHidden = sphere:getHidden()
 
-					local x, y = _V.rotate(spherePos.x - posX, spherePos.y - posY, -angle)
+					local x, y = _V.rotate(sphereX - posX, sphereY - posY, -angle)
 					local sphereTargetCPosX, sphereTargetCPosY = posX + x, posY + y
 					local sphereTargetY = sphereTargetCPosY + math.sqrt((sphereSize / 2) ^ 2 - (posX - sphereTargetCPosX) ^ 2)
 					local x, y = _V.rotate(0, sphereTargetY - posY, angle)
 					local sphereTargetPosX, sphereTargetPosY = posX + x, posY + y
 					local sphereDistX, sphereDistY = posX - sphereTargetCPosX, posY - sphereTargetY
 
-					local sphereDistAngle = _V.angle(posX - spherePos.x, posY - spherePos.y)
+					local sphereDistAngle = _V.angle(posX - sphereX, posY - sphereY)
 					local sphereAngleDiff = (sphereDistAngle - sphereAngle + math.pi / 2) % (math.pi * 2)
 					local sphereHalf = sphereAngleDiff <= math.pi / 2 or sphereAngleDiff > 3 * math.pi / 2
 					-- if closer than the closest for now, save it
@@ -1432,7 +1432,7 @@ function Level:getNearestSphereOnLine(posX, posY, angle)
 						nearestData.sphereGroup = sphereGroup
 						nearestData.sphereID = l
 						nearestData.sphere = sphere
-						nearestData.pos = spherePos
+						nearestData.pos = Vec2(sphereX, sphereY)
 						nearestData.dist = Vec2(sphereDistX, sphereDistY)
 						nearestData.targetPos = Vec2(sphereTargetPosX, sphereTargetPosY)
 						nearestData.half = sphereHalf

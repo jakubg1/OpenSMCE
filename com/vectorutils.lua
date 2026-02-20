@@ -11,6 +11,16 @@ function vectorutils.length(x, y)
 	return math.sqrt(x ^ 2 + y ^ 2)
 end
 
+---Returns the distance between the `(x1, y1)` and the `(x2, y2)` points.
+---@param x1 number The X component of the first vector.
+---@param y1 number The Y component of the first vector.
+---@param x2 number The X component of the second vector.
+---@param y2 number The Y component of the second vector.
+---@return number
+function vectorutils.distance(x1, y1, x2, y2)
+	return math.sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+end
+
 ---Returns the angle of the `(x, y)` vector.
 ---@param x number The X component of the vector.
 ---@param y number The Y component of the vector.
