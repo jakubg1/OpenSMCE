@@ -291,8 +291,6 @@
                 "foulSpeed",
                 "foulDestroySpheres",
                 "overspeedCheck",
-                "joinSound",
-                "newGroupSound",
                 "permitLongMatches"
             ],
             "additionalProperties": false

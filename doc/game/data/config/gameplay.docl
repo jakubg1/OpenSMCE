@@ -28,8 +28,8 @@
         - invincibleScarabs* (boolean) - If `true`, scarabs cannot be crushed by spheres behind them. Instead, they are pushed.
         - invincibleScarabFrontMatters* (boolean) - If `true`, the trains at the back cannot push the trains at the front and are instead blocked by them.
         - luxorized* (boolean) - Enables sphere physics gimmicks specific to the original Luxor game to mimic it better.
-        - joinSound (SoundEvent) - A sound event to be played when two groups of spheres hit each other.
-        - newGroupSound (SoundEvent) - A sound event to be played when a new sphere chain appears on the board.
+        - joinSound* (SoundEvent) - A sound event to be played when two groups of spheres hit each other.
+        - newGroupSound* (SoundEvent) - A sound event to be played when a new sphere chain appears on the board.
         - noScarabs* (boolean) - If `true`, the scarabs will not appear in the game.
         - noScarabAttraction* (boolean) - If `true`, the scarab will not attract any spheres.
         - permitLongMatches (boolean) - If `true`, the spheres will try to make the biggest clump possible before matching together.

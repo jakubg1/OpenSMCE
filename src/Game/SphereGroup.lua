@@ -523,8 +523,10 @@ function SphereGroup:join()
 	self.prevGroup:destroyFragileSpheres()
 	self:destroyFragileSpheres()
 	-- play a sound
-	local x, y = self.sphereChain.path:getPos(self.offset)
-	self.config.joinSound:play(x, y)
+	if self.config.joinSound then
+		local x, y = self.sphereChain.path:getPos(self.offset)
+		self.config.joinSound:play(x, y)
+	end
 end
 
 ---Divides this Sphere Group into two Sphere Groups.

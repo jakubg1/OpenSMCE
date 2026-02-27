@@ -35,7 +35,7 @@ function GameplayConfig:new(data, path, isAnonymous, base)
 
     self.scoreFormat = u.parseExprStringOpt(data, base, path, {"scoreFormat"})
 
-    ---@type {acceleration: number, attractionAcceleration: number?, attractionForwardDecceleration: number?, attractionForwardDeccelerationScarab: number?, decceleration: number, backwardsDecceleration: number?, attractionSpeedBase: number, attractionSpeedMult: number, knockbackSpeedBase: number, knockbackSpeedMult: number, knockbackTime: number?, knockbackStopAfterTime: boolean?, foulSpeed: number, foulAcceleration: number?, foulDestroySpheres: table, overspeedCheck: boolean, invincibleScarabs: boolean?, invincibleScarabFrontMatters: boolean?, luxorized: boolean?, joinSound: SoundEvent, newGroupSound: SoundEvent, noScarabs: boolean?, noScarabAttraction: boolean?, permitLongMatches: boolean, instantMatches: boolean?, cascadeScope: "chain"|"path"|"level", distanceEvents: {reference: "front"|"back", distance: number, forwards: boolean, backwards: boolean, event: GameEventConfig}[]}
+    ---@type {acceleration: number, attractionAcceleration: number?, attractionForwardDecceleration: number?, attractionForwardDeccelerationScarab: number?, decceleration: number, backwardsDecceleration: number?, attractionSpeedBase: number, attractionSpeedMult: number, knockbackSpeedBase: number, knockbackSpeedMult: number, knockbackTime: number?, knockbackStopAfterTime: boolean?, foulSpeed: number, foulAcceleration: number?, foulDestroySpheres: table, overspeedCheck: boolean, invincibleScarabs: boolean?, invincibleScarabFrontMatters: boolean?, luxorized: boolean?, joinSound: SoundEvent?, newGroupSound: SoundEvent?, noScarabs: boolean?, noScarabAttraction: boolean?, permitLongMatches: boolean, instantMatches: boolean?, cascadeScope: "chain"|"path"|"level", distanceEvents: {reference: "front"|"back", distance: number, forwards: boolean, backwards: boolean, event: GameEventConfig}[]}
     self.sphereBehavior = {}
     self.sphereBehavior.acceleration = u.parseNumber(data, base, path, {"sphereBehavior", "acceleration"})
     self.sphereBehavior.attractionAcceleration = u.parseNumberOpt(data, base, path, {"sphereBehavior", "attractionAcceleration"})
@@ -68,8 +68,8 @@ function GameplayConfig:new(data, path, isAnonymous, base)
     self.sphereBehavior.invincibleScarabs = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "invincibleScarabs"})
     self.sphereBehavior.invincibleScarabFrontMatters = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "invincibleScarabFrontMatters"})
     self.sphereBehavior.luxorized = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "luxorized"})
-    self.sphereBehavior.joinSound = u.parseSoundEvent(data, base, path, {"sphereBehavior", "joinSound"})
-    self.sphereBehavior.newGroupSound = u.parseSoundEvent(data, base, path, {"sphereBehavior", "newGroupSound"})
+    self.sphereBehavior.joinSound = u.parseSoundEventOpt(data, base, path, {"sphereBehavior", "joinSound"})
+    self.sphereBehavior.newGroupSound = u.parseSoundEventOpt(data, base, path, {"sphereBehavior", "newGroupSound"})
     self.sphereBehavior.noScarabs = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "noScarabs"})
     self.sphereBehavior.noScarabAttraction = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "noScarabAttraction"})
     self.sphereBehavior.permitLongMatches = u.parseBoolean(data, base, path, {"sphereBehavior", "permitLongMatches"})

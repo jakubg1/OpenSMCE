@@ -172,8 +172,11 @@ function Path:spawnChain()
 	table.insert(self.sphereChains, sphereChain)
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
-		local x, y = self:getPos(0)
-		_Game.configManager.gameplay.sphereBehavior.newGroupSound:play(x, y)
+		-- Play the new group sound.
+		if _Game.configManager.gameplay.sphereBehavior.newGroupSound then
+			local x, y = self:getPos(0)
+			_Game.configManager.gameplay.sphereBehavior.newGroupSound:play(x, y)
+		end
 	end
 end
 
