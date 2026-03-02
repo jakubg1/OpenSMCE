@@ -19,7 +19,7 @@ end
 ---Updates a Sound Instance, so it can adapt to the game volume.
 ---@param dt number Time delta in seconds.
 function SoundInstance:update(dt)
-    self.sound:setVolume(_Game:getEffectiveSoundVolume() * self.volume)
+    self.sound:setVolume(_Game.options:getEffectiveSoundVolume() * self.volume)
 end
 
 ---Plays the Instance.

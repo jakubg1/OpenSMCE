@@ -53,11 +53,11 @@ function UIManager:new()
         playlistSkip = function(playlist) _Res:getMusicPlaylist(playlist):nextTrack() end,
         playSound = function(sound) _Res:getSoundEvent(sound):play() end,
 
-        profileMSet = function(name) _Game.runtimeManager.profileManager:setCurrentProfile(name) end,
-        profileMCreate = function(name) return _Game.runtimeManager.profileManager:createProfile(name) end,
-        profileMDelete = function(name) _Game.runtimeManager.profileManager:deleteProfile(name) end,
+        profileMSet = function(name) _Game.profileManager:setCurrentProfile(name) end,
+        profileMCreate = function(name) return _Game.profileManager:createProfile(name) end,
+        profileMDelete = function(name) _Game.profileManager:deleteProfile(name) end,
 
-        profileMGetNameOrder = function() return _Game.runtimeManager.profileManager.order end,
+        profileMGetNameOrder = function() return _Game.profileManager.order end,
 
         profileNewGame = function(checkpoint, difficulty) _Game:getProfile():newGame(checkpoint, _Res:getDifficultyConfig(difficulty)) end,
         profileDeleteGame = function() _Game:getProfile():deleteGame() end,
@@ -84,8 +84,8 @@ function UIManager:new()
         profileSetVariable = function(name, value) _Game:getProfile():setVariable(name, value) end,
         profileGetVariable = function(name) return _Game:getProfile():getVariable(name) end,
 
-        highscoreReset = function() _Game.runtimeManager.highscores:reset() end,
-        highscoreGetEntry = function(n) return _Game.runtimeManager.highscores:getEntry(n) end,
+        highscoreReset = function() _Game.highscores:reset() end,
+        highscoreGetEntry = function(n) return _Game.highscores:getEntry(n) end,
 
         translate = function(key, ...) return _Game.configManager:translate(key, ...) end,
         configGetMapData = function(name) return _Game.configManager:getMapData(name) end,
@@ -96,14 +96,14 @@ function UIManager:new()
         configGetCheckpointLevel = function(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Res:getLevelSetConfig(levelSet), n) end,
         configGetCheckpointCount = function(levelSet) return #_Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet)) end,
 
-        optionsGetMusicVolume = function() return _Game.runtimeManager.options:getSetting("musicVolume") end,
-        optionsGetSoundVolume = function() return _Game.runtimeManager.options:getSetting("soundVolume") end,
-        optionsGetFullscreen = function() return _Game.runtimeManager.options:getSetting("fullscreen") end,
-        optionsGetMute = function() return _Game.runtimeManager.options:getSetting("mute") end,
-        optionsSetMusicVolume = function(volume) _Game.runtimeManager.options:setSetting("musicVolume", volume) end,
-        optionsSetSoundVolume = function(volume) _Game.runtimeManager.options:setSetting("soundVolume", volume) end,
-        optionsSetFullscreen = function(fullscreen) _Game.runtimeManager.options:setSetting("fullscreen", fullscreen) end,
-        optionsSetMute = function(mute) _Game.runtimeManager.options:setSetting("mute", mute) end,
+        optionsGetMusicVolume = function() return _Game.options:getSetting("musicVolume") end,
+        optionsGetSoundVolume = function() return _Game.options:getSetting("soundVolume") end,
+        optionsGetFullscreen = function() return _Game.options:getSetting("fullscreen") end,
+        optionsGetMute = function() return _Game.options:getSetting("mute") end,
+        optionsSetMusicVolume = function(volume) _Game.options:setSetting("musicVolume", volume) end,
+        optionsSetSoundVolume = function(volume) _Game.options:setSetting("soundVolume", volume) end,
+        optionsSetFullscreen = function(fullscreen) _Game.options:setSetting("fullscreen", fullscreen) end,
+        optionsSetMute = function(mute) _Game.options:setSetting("mute", mute) end,
 
 
         load = function(name, data) self:loadRootNode(name, data) end,

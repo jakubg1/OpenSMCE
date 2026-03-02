@@ -125,6 +125,10 @@ _DiscordRPC = nil
 _TotalTime = 0
 _TimeScale = 1
 
+-- Set this to `true` when performing critical loading operations.
+-- If the game crashes while that happens, the emergency save will not be performed automatically to avoid losing progress.
+_CriticalLoad = false
+
 function love.load(args)
 	-- Initialize RNG
 	math.randomseed(os.time())

@@ -78,7 +78,7 @@ function MusicTrack:update(dt)
 	end
 
 	-- Update the volume of the track based on its current volume and the global music volume.
-	local newSourceVolume = self.volume * self.playVolume * _Game:getEffectiveMusicVolume()
+	local newSourceVolume = self.volume * self.playVolume * _Game.options:getEffectiveMusicVolume()
 	if self.sourceVolume ~= newSourceVolume then
 		-- Setting the volumes of ASources is VERY, VERY EXPENSIVE!
 		-- Same for getting the volume. I do not know why that is the case...

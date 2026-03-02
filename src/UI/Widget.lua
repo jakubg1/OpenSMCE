@@ -32,7 +32,7 @@ function UIWidget:new(data, parent)
 	-- global in methods
 	self.homeX, self.homeY = data.pos and data.pos.x or 0, data.pos and data.pos.y or 0
 	self.x, self.y = self.homeX, self.homeY
-	self.layer = data.layer or (parent and parent.layer)
+	self.layer = data.layer or (parent and parent.layer or "MAIN")
 	self.alpha = data.alpha or 1
 
 	---@type {in: SoundEvent?, out: SoundEvent?}

@@ -432,11 +432,11 @@ end
 ---If successful, returns the position on the leaderboard. If not, returns `nil`.
 ---@return integer?
 function ProfileSession:writeHighscore()
-	local pos = _Game.runtimeManager.highscores:getPosition(self.score)
+	local pos = _Game.highscores:getPosition(self.score)
 	if not pos then
 		return
 	end
-	_Game.runtimeManager.highscores:storeEntry(pos, self.profile.name, self.score, self:getLevelName())
+	_Game.highscores:storeEntry(pos, self.profile.name, self.score, self:getLevelName())
 	return pos
 end
 

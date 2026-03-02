@@ -28,8 +28,10 @@ function CrashScreen:new(err, uerr)
 
     self.e00000e00 = math.random() < 1 / 100
 
-    -- Emergency save automatically.
-    self:emergencySave()
+    -- Emergency save automatically if we did not crash while performing critical file operations.
+    if not _CriticalLoad then
+        self:emergencySave()
+    end
 
 
 

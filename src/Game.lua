@@ -1,7 +1,10 @@
 local class = require "com.class"
 local Timer = require("src.Timer")
 local ConfigManager = require("src.ConfigManager")
-local RuntimeManager = require("src.Game.RuntimeManager")
+local RuntimeManager = require("src.RuntimeManager")
+local ProfileManager = require("src.Game.ProfileManager")
+local Highscores = require("src.Game.Highscores")
+local Options = require("src.Game.Options")
 local Level = require("src.Game.Level")
 local UIManager = require("src.UI.Manager")
 local ParticleManager = require("src.Particle.Manager")
@@ -18,6 +21,9 @@ function Game:new(name)
 
 	self.configManager = nil
 	self.runtimeManager = nil
+	self.profileManager = nil
+	self.highscores = nil
+	self.options = nil
 	self.level = nil
 
 	self.uiManager = nil
@@ -43,8 +49,15 @@ function Game:init()
 	self.timer = Timer()
 	math.randomseed(os.time())
 
-	-- Step 4. Create a runtime manager
+	-- Step 4. Create a runtime manager and a few savestate-releated objects
 	self.runtimeManager = RuntimeManager()
+	self.profileManager = ProfileManager()
+	self.highscores = Highscores()
+	self.options = Options()
+	self.runtimeManager:registerModule("profiles", self.profileManager)
+	self.runtimeManager:registerModule("highscores", self.highscores)
+	self.runtimeManager:registerModule("options", self.options)
+	self.runtimeManager:load()
 
 	-- Step 5. Create a Particle Manager
 	self.particleManager = ParticleManager()
@@ -72,7 +85,7 @@ function Game:update(dt) -- callback from main.lua
 		self:tick(delta)
 	end
 
-	_Display:setFullscreen(self.runtimeManager.options:getSetting("fullscreen"))
+	_Display:setFullscreen(self.options:getSetting("fullscreen"))
 end
 
 ---Updates the game logic. Contrary to `:update()`, this function will always have its delta time given as a multiple of 1/60.
@@ -99,14 +112,17 @@ end
 ---This function is intended to be called ONLY from UI scripts, using the UI Manager as a proxy.
 function Game:startLevel()
 	local session = assert(self:getSession(), "Attempt to start a level when no game is ongoing!")
-	if session:getLevelEntry().type == "uiScript" then
-		_Game.uiManager:executeCallback(session:getLevelEntry().callback)
+	local entry = session:getLevelEntry()
+	if entry.type == "uiScript" then
+		_Game.uiManager:executeCallback(entry.callback)
 	else
 		self.level = Level(session:getLevelData())
 		local savedLevelData = session:getLevelSaveData()
 		if savedLevelData then
 			-- Load existing level.
+			_CriticalLoad = true
 			self.level:deserialize(savedLevelData)
+			_CriticalLoad = false
 			self.uiManager:executeCallback("levelLoaded")
 		else
 			-- Start a new level.
@@ -238,7 +254,7 @@ end
 ---Returns the currently selected Profile.
 ---@return Profile
 function Game:getProfile()
-	return self.runtimeManager.profileManager:getCurrentProfile()
+	return self.profileManager:getCurrentProfile()
 end
 
 ---Returns the ongoing Session for the currently selected Profile, if it exists.
@@ -246,18 +262,6 @@ end
 function Game:getSession()
 	local profile = self:getProfile()
 	return profile and profile:getSession()
-end
-
----Returns the effective sound volume, dictated by the game options.
----@return number
-function Game:getEffectiveSoundVolume()
-	return self.runtimeManager.options:getEffectiveSoundVolume()
-end
-
----Returns the effective music volume, dictated by the game options.
----@return number
-function Game:getEffectiveMusicVolume()
-	return self.runtimeManager.options:getEffectiveMusicVolume()
 end
 
 ---Updates the game's Rich Presence information.
