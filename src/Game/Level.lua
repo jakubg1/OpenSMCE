@@ -39,9 +39,9 @@ function Level:new(config)
 	end
 
 	self.levelSequence = config.sequence.sequence
-	self.startingTimers = _Game.configManager.gameplay.levelTimers
-	self.startingTimerSeries = _Game.configManager.gameplay.levelTimerSeries
-	self.scoreFormat = _Game.configManager.gameplay.scoreFormat
+	self.startingTimers = _Game.gameplayConfig.levelTimers
+	self.startingTimerSeries = _Game.gameplayConfig.levelTimerSeries
+	self.scoreFormat = _Game.gameplayConfig.scoreFormat
 
 	-- Additional variables come from `:reset()`! You must call either `:reset()` or `:deserialize()`.
 end
@@ -294,7 +294,7 @@ function Level:updateMisc(dt)
 	end
 
 	-- Reset the cascade combo if necessary.
-	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "level" and not self:isMatchPredicted() then
+	if _Game.gameplayConfig.sphereBehavior.cascadeScope == "level" and not self:isMatchPredicted() then
 		self:endCascade()
 	end
 end
@@ -378,7 +378,7 @@ function Level:updateSequence(dt)
 			self.failDestructionDelay = self.failDestructionDelay - dt
 			if self.failDestructionDelay <= 0 then
 				self:destroyFrontmostSphere()
-				local failConfig = _Game.configManager.gameplay.sphereBehavior.foulDestroySpheres
+				local failConfig = _Game.gameplayConfig.sphereBehavior.foulDestroySpheres
 				self.failDestructionDelay = self.failDestructionDelay + failConfig.subsequentDelay
 			end
 		end
@@ -995,7 +995,7 @@ function Level:lose()
 	end
 	self.shotSpheres = {}
 	-- Start the destruction if the loss type has been configured to do so.
-	local failConfig = _Game.configManager.gameplay.sphereBehavior.foulDestroySpheres
+	local failConfig = _Game.gameplayConfig.sphereBehavior.foulDestroySpheres
 	if failConfig.type == "fromEnd" then
 		self.failDestructionDelay = failConfig.delay
 	end
@@ -1100,8 +1100,8 @@ function Level:reset()
 	self:resetSequence()
 
 	self.variables = {}
-	if _Game.configManager.gameplay.levelVariables then
-		for variable, value in pairs(_Game.configManager.gameplay.levelVariables) do
+	if _Game.gameplayConfig.levelVariables then
+		for variable, value in pairs(_Game.gameplayConfig.levelVariables) do
 			self.variables[variable] = value
 		end
 	end
@@ -1506,7 +1506,7 @@ end
 
 ---Spawns the Net particle and sound, if it doesn't exist yet.
 function Level:spawnNet()
-	local netConfig = _Game.configManager.gameplay.net
+	local netConfig = _Game.gameplayConfig.net
 	local w, h = _Game:getNativeResolution()
 	local x, y = w / 2, netConfig.posY
 	if not self.netParticle then

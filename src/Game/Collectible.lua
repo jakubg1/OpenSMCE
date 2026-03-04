@@ -43,7 +43,7 @@ function Collectible:update(dt)
 	-- catching/bouncing/destroying
 	local w, h = _Game:getNativeResolution()
 	local byShooter = _Game.level.shooter:isPosCatchable(self.x, self.y)
-	local byNet = _Game.level.netTime > 0 and self.y >= _Game.configManager.gameplay.net.posY
+	local byNet = _Game.level.netTime > 0 and self.y >= _Game.gameplayConfig.net.posY
 	if byShooter or byNet then
 		self:catch()
 	end
@@ -86,7 +86,7 @@ function Collectible:catch()
 		_Game:spawnParticle(self.config.pickupParticle, self.x, self.y, self.config.pickupParticleLayer)
 	end
 	if self.config.pickupName then
-		_Game.level:spawnFloatingText(_Game.configManager:translate(self.config.pickupName:evaluate()), self.x, self.y, self.config.pickupFont, self.config.pickupTextLayer)
+		_Game.level:spawnFloatingText(_Game:translate(self.config.pickupName:evaluate()), self.x, self.y, self.config.pickupFont, self.config.pickupTextLayer)
 	end
 end
 

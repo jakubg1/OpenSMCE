@@ -1,6 +1,5 @@
 local class = require "com.class"
 local Timer = require("src.Timer")
-local ConfigManager = require("src.ConfigManager")
 local RuntimeManager = require("src.RuntimeManager")
 local ProfileManager = require("src.Game.ProfileManager")
 local Highscores = require("src.Game.Highscores")
@@ -19,7 +18,6 @@ local Game = class:derive("Game")
 function Game:new(name)
 	self.name = name
 
-	self.configManager = nil
 	self.runtimeManager = nil
 	self.profileManager = nil
 	self.highscores = nil
@@ -35,15 +33,28 @@ function Game:init()
 	_Log:printt("Game", "Selected game: " .. self.name)
 
 	-- Step 1. Load the config
-	self.configManager = ConfigManager()
-	self.configManager:load()
+	self.config = _Res:getGameConfig("config.json")
+	self.gameplayConfig = _Res:getGameplayConfig("config/gameplay.json")
+
+	-- Load map data.
+	-- TODO: This is now only used for checking the map names without loading the map (UI script -> stage map).
+	-- Find out how to do it better at some point. Hint: Luxor 2 free play map selection dialog.
+	self.maps = {}
+	local mapList = _Utils.getDirListing(_ParsePath("maps"), "dir")
+	for i, mapName in ipairs(mapList) do
+		local mapConfig = _Utils.loadJson(_ParsePath("maps/" .. mapName .. "/config.json"))
+		if mapConfig then
+			_Log:printt("Game", "Loading map data: " .. mapName)
+			self.maps[mapName] = mapConfig
+		end
+	end
 
 	-- Step 2. Initialize the window and canvas
 	local ww, wh = self:getWindowResolution()
-	_Display:setResolution(ww, wh, self.configManager.config.resizableWindow, self.configManager:getWindowTitle(), _Settings:getSetting("maximizeOnStart"))
+	_Display:setResolution(ww, wh, self.config.resizableWindow, self:getWindowTitle(), _Settings:getSetting("maximizeOnStart"))
 	local w, h = self:getNativeResolution()
-	_Display:setCanvas(w, h, self.configManager:getCanvasRenderingMode())
-	_Renderer:setLayers(self.configManager.config.layers and self.configManager.config.layers.layers)
+	_Display:setCanvas(w, h, self:getCanvasRenderingMode())
+	_Renderer:setLayers(self.config.layers and self.config.layers.layers)
 
 	-- Step 3. Initialize RNG and timer
 	self.timer = Timer()
@@ -102,7 +113,7 @@ function Game:tick(dt) -- always with 1/60 seconds
 	self.uiManager:update(dt)
 	self.particleManager:update(dt)
 
-	if self.configManager:isRichPresenceEnabled() then
+	if self:isRichPresenceEnabled() then
 		self:updateRichPresence()
 	end
 end
@@ -242,13 +253,16 @@ end
 ---Returns the native resolution of this Game.
 ---@return integer, integer
 function Game:getNativeResolution()
-	return self.configManager:getNativeResolution()
+	return self.config.nativeResolution.x, self.config.nativeResolution.y
 end
 
 ---Returns the default window resolution of this Game.
 ---@return integer, integer
 function Game:getWindowResolution()
-	return self.configManager:getWindowResolution()
+	if not self.config.windowResolution then
+		return self:getNativeResolution()
+	end
+	return self.config.windowResolution.x, self.config.windowResolution.y
 end
 
 ---Returns the currently selected Profile.
@@ -264,10 +278,71 @@ function Game:getSession()
 	return profile and profile:getSession()
 end
 
+---Returns the game name if specified, else the internal (folder) name.
+---@return string
+function Game:getName()
+	return self.config.name or self.name
+end
+
+---Returns the title the window should have.
+---@return string
+function Game:getWindowTitle()
+	return self.config.windowTitle or string.format("OpenSMCE [%s] - %s", _VERSION, self:getName())
+end
+
+---Returns whether the Discord Rich Presence should be active in this game.
+---@return boolean
+function Game:isRichPresenceEnabled()
+	return self.config.richPresence and self.config.richPresence.enabled
+end
+
+---Returns the Rich Presence Application ID for this game, if it exists.
+---@return string?
+function Game:getRichPresenceApplicationID()
+	return self.config.richPresence and self.config.richPresence.applicationID
+end
+
+---Returns the canvas rendering mode, `"filtered"` by default.
+---@return string
+function Game:getCanvasRenderingMode()
+	return self.config.canvasRenderingMode
+end
+
+---Returns the game's tick rate. Defaults to `60`.
+---@return integer
+function Game:getTickRate()
+	return self.config.tickRate
+end
+
+---Gets map data by map name from `config.json` in the respective map directory.
+---If no such map exists, throws an error.
+---@param name string The map directory name.
+---@return table
+function Game:getMapData(name)
+	-- TODO/HARD: Currently, loading a map config also causes all of the related map assets to load.
+	-- Find a way to load resources only partially without dependencies or find a way to load resource only when they're needed.
+	--return _Res:getMapConfig("maps/" .. name .. "/config.json")
+	return assert(self.maps[name], string.format("Map '%s' not found", name))
+end
+
+---Translates a locale key to its value depending on the currently active locale and optionally fills in its parameters.
+---@param key string The locale key. If not found, this string will be returned back.
+---@param ... any Translation parameters, such as numbers.
+---@return string
+function Game:translate(key, ...)
+	local text = self.config.locale and self.config.locale.keys[key] or key
+	local success, result = pcall(function(...) return string.format(text, ...) end, ...)
+	if success then
+		return result
+	end
+	-- `string.format()` has failed, usually due to insufficient amount of parameters. Return the raw string.
+	return text
+end
+
 ---Updates the game's Rich Presence information.
 function Game:updateRichPresence()
 	local session = self:getSession()
-	local line1 = "Playing: " .. self.configManager:getGameName()
+	local line1 = "Playing: " .. self:getName()
 	local line2 = ""
 
 	if session then

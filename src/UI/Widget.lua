@@ -568,7 +568,7 @@ function UIWidget:executeAction(actionType)
 	-- Execute scheduled functions (UI script)
 	if self.actions[actionType] then
 		for i, action in ipairs(self.actions[actionType]) do
-			action.f(_Game.uiManager.scriptFunctions, action.parameters)
+			_Game.uiManager:executeFunction(action.f, action.parameters)
 			action.delQueue = action.oneshot
 		end
 		-- Clear all oneshot functions.

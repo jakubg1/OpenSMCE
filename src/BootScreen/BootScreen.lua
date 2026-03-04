@@ -110,6 +110,18 @@ function BootScreen:getNativeResolution()
 	return self.nativeResolution.x, self.nativeResolution.y
 end
 
+---Returns whether the Discord Rich Presence should be active in this game.
+---@return boolean
+function BootScreen:isRichPresenceEnabled()
+	return true
+end
+
+---Returns the Rich Presence Application ID for this game, if it exists.
+---@return string?
+function BootScreen:getRichPresenceApplicationID()
+	return _DISCORD_APPLICATION_ID
+end
+
 ---Do not use. Throws the not implemented error. This function is used to silence warnings.
 function BootScreen:gameOver()
 	error("Not implemented")

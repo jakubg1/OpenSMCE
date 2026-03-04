@@ -130,7 +130,7 @@ function Path:update(dt)
 	_Utils.removeDeadObjects(self.pathEntities)
 
 	-- Reset the cascade combo if necessary.
-	if _Game.configManager.gameplay.sphereBehavior.cascadeScope == "path" and not self:isMatchPredicted() then
+	if _Game.gameplayConfig.sphereBehavior.cascadeScope == "path" and not self:isMatchPredicted() then
 		self:endCascade()
 	end
 end
@@ -173,9 +173,9 @@ function Path:spawnChain()
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
 		-- Play the new group sound.
-		if _Game.configManager.gameplay.sphereBehavior.newGroupSound then
+		if _Game.gameplayConfig.sphereBehavior.newGroupSound then
 			local x, y = self:getPos(0)
-			_Game.configManager.gameplay.sphereBehavior.newGroupSound:play(x, y)
+			_Game.gameplayConfig.sphereBehavior.newGroupSound:play(x, y)
 		end
 	end
 end

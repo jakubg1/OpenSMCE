@@ -10,7 +10,7 @@ local Timer = class:derive("Timer")
 ---Constructor function.
 function Timer:new()
 	-- How long is one frame in seconds.
-	self.FRAME_LENGTH = 1 / _Game.configManager:getTickRate()
+	self.FRAME_LENGTH = 1 / _Game:getTickRate()
 	-- The maximum number of frames to be returned by `getFrameCount()`.
 	self.MAX_FRAMES = 6
 	-- Maximum deviation from the target frame length.

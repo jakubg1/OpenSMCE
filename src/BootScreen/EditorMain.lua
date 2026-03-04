@@ -1,7 +1,6 @@
 local class = require "com.class"
 local Vec2 = require("src.Essentials.Vector2")
 local Button = require("src.BootScreen.UI.Button")
-local ConfigManager = require("src.ConfigManager")
 
 ---@class EditorMain
 ---@overload fun(bootScreen):EditorMain
@@ -13,8 +12,6 @@ function EditorMain:new(name)
 	self.name = name
 
 	self.nativeResolution = Vec2(1280, 720)
-
-	self.configManager = nil
 
 	-- buttons
 	self.menuBtn = Button("Quit", _FONT_BIG, Vec2(1170, 4), Vec2(100, 24), function() self:quit() end)
@@ -61,14 +58,14 @@ function EditorMain:init()
 	_Res:scanResources()
 	_Res:stopLoadCounter("main")
 
-	-- Step 2. Load the config
-	self.configManager = ConfigManager()
-
-	-- Step 3. Initialize the window
+	-- Step 2. Initialize the window
 	local w, h = self:getNativeResolution()
 	_Display:setResolution(w, h, false, "OpenSMCE [" .. _VERSION .. "] - Game Editor - " .. self.name)
 	-- Despite the canvas is not used to draw any editor UI, the size is used to calculate the mouse position.
 	_Display:setCanvas(w, h, "filtered")
+
+	-- Set a Discord Rich Presence status.
+	_DiscordRPC:setStatus(string.format("Editing game: %s", self.name), string.format("Version: %s", _VERSION_NAME), true)
 end
 
 
@@ -346,9 +343,22 @@ function EditorMain:getNativeResolution()
 	return self.nativeResolution.x, self.nativeResolution.y
 end
 
+---Returns whether the Discord Rich Presence should be active in this game.
+---@return boolean
+function EditorMain:isRichPresenceEnabled()
+	return true
+end
+
+---Returns the Rich Presence Application ID for this game, if it exists.
+---@return string?
+function EditorMain:getRichPresenceApplicationID()
+	return _DISCORD_APPLICATION_ID
+end
+
 
 
 ---Returns the effective sound volume. In the editor, it's always 1.
+---TODO: This is currently completely unused, but it would be cool if there was a volume slider in the editor.
 ---@return number
 function EditorMain:getEffectiveSoundVolume()
 	return 1
@@ -357,6 +367,7 @@ end
 
 
 ---Returns the effective music volume. In the editor, it's always 1.
+---TODO: This is currently completely unused, but it would be cool if there was a volume slider in the editor.
 ---@return number
 function EditorMain:getEffectiveMusicVolume()
 	return 1

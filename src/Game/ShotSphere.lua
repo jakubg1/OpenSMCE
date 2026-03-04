@@ -176,7 +176,7 @@ function ShotSphere:moveStep()
 				local d = _V.length(self.x - p.x, self.y - p.y)
 				-- calculate time
 				self.hitTimeMax = d / self.speed * 5
-				self.hitSphere.sphereGroup:addSphere(self.color, Vec2(self.x, self.y), self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior and hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.configManager.gameplay.sphereBehavior.instantMatches)
+				self.hitSphere.sphereGroup:addSphere(self.color, Vec2(self.x, self.y), self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior and hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.gameplayConfig.sphereBehavior.instantMatches)
 				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 			end
 			_Vars:set("shot.bad", badShot)

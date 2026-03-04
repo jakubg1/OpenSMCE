@@ -135,16 +135,16 @@ function TestMain:getNativeResolution()
 	return self.nativeResolution.x, self.nativeResolution.y
 end
 
----Returns the effective sound volume. In the editor, it's always 1.
----@return number
-function TestMain:getEffectiveSoundVolume()
-	return 1
+---Returns whether the Discord Rich Presence should be active in this game.
+---@return boolean
+function TestMain:isRichPresenceEnabled()
+	return false
 end
 
----Returns the effective music volume. In the editor, it's always 1.
----@return number
-function TestMain:getEffectiveMusicVolume()
-	return 1
+---Returns the Rich Presence Application ID for this game, if it exists.
+---@return string?
+function TestMain:getRichPresenceApplicationID()
+	return nil
 end
 
 function TestMain:mousepressed(x, y, button)
@@ -169,6 +169,11 @@ end
 
 function TestMain:textinput(t)
 	-- STUB
+end
+
+---Exits the Test Suite.
+function TestMain:quit(forced)
+	love.event.quit()
 end
 
 return TestMain

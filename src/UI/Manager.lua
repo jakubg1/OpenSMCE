@@ -1,4 +1,5 @@
 local class = require "com.class"
+local ScriptAPI = require("src.UI.ScriptAPI")
 local UIWidget = require("src.UI.Widget")
 
 ---@class UIManager
@@ -11,107 +12,6 @@ function UIManager:new()
     self.widgets = {splash = nil, root = nil}
 
     self.script = nil
-    self.scriptFunctions = {
-        loadResources = function() _Game:loadResources() end,
-        sessionTerminate = function() _Game:gameOver() end,
-        loadingGetProgress = function() return _Res:getLoadProgress("main") end,
-
-        levelStart = function() _Game:startLevel() end,
-        levelContinue = function() _Game.level:continueSequence() end,
-        levelPause = function() _Game.level:setPause(true) end,
-        levelUnpause = function() _Game.level:setPause(false) end,
-        levelRestart = function() _Game.level:tryAgain() end,
-        levelEnd = function() _Game:endLevel() end,
-        levelWin = function() _Game:winLevel() end,
-        levelSave = function() _Game:saveLevel() end,
-        quit = function() _Game:quit() end,
-
-        levelExists = function() return _Game.level end,
-        levelGetProgress = function(n) return _Game.level:getObjectiveProgress(n or 1) end,
-        levelGetObjectives = function() return _Game.level.objectives end,
-        levelGetScore = function() return _Game.level.score end,
-        levelGetShots = function() return _Game.level.spheresShot end,
-        levelGetCoins = function() return _Game.level.coins end,
-        levelGetGems = function() return _Game.level.gems end,
-        levelGetChains = function() return _Game.level.sphereChainsSpawned end,
-        levelGetStreak = function() return _Game.level.streak end,
-        levelGetMaxStreak = function() return _Game.level.maxStreak end,
-        levelGetMaxCascade = function() return _Game.level.maxCascade end,
-        levelGetNewRecord = function() return _Game.level:hasNewScoreRecord() end,
-        levelGetAccuracy = function() return _Game.level:getShotAccuracy() end,
-
-        levelExecuteScoreEvent = function(event, x, y) _Game.level:executeScoreEvent(_Res:getScoreEventConfig(event), x, y) end,
-
-        musicPlay = function(music, duration) _Res:getMusicTrack(music):play(duration) end,
-        musicPause = function(music, duration) _Res:getMusicTrack(music):pause(duration) end,
-        musicStop = function(music, duration) _Res:getMusicTrack(music):stop(duration) end,
-        musicVolume = function(music, volume, duration) _Res:getMusicTrack(music):setVolume(volume, duration) end,
-        playlistPlay = function(playlist, duration) _Res:getMusicPlaylist(playlist):getTrack():play(duration) end,
-        playlistPause = function(playlist, duration) _Res:getMusicPlaylist(playlist):getTrack():pause(duration) end,
-        playlistStop = function(playlist, duration) _Res:getMusicPlaylist(playlist):getTrack():stop(duration) end,
-        playlistVolume = function(playlist, volume, duration) _Res:getMusicPlaylist(playlist):getTrack():setVolume(volume, duration) end,
-        playlistSkip = function(playlist) _Res:getMusicPlaylist(playlist):nextTrack() end,
-        playSound = function(sound) _Res:getSoundEvent(sound):play() end,
-
-        profileMSet = function(name) _Game.profileManager:setCurrentProfile(name) end,
-        profileMCreate = function(name) return _Game.profileManager:createProfile(name) end,
-        profileMDelete = function(name) _Game.profileManager:deleteProfile(name) end,
-
-        profileMGetNameOrder = function() return _Game.profileManager.order end,
-
-        profileNewGame = function(checkpoint, difficulty) _Game:getProfile():newGame(checkpoint, _Res:getDifficultyConfig(difficulty)) end,
-        profileDeleteGame = function() _Game:getProfile():deleteGame() end,
-        profileLevelAdvance = function() _Game:getSession():advanceLevel() end,
-        profileHighscoreWrite = function() return _Game:getSession():writeHighscore() end,
-
-        profileGetExists = function() return _Game:getProfile() ~= nil end,
-        profileGetName = function() return _Game:getProfile().name end,
-        profileGetLives = function() return _Game:getSession():getLives() end,
-        profileGetCoins = function() return _Game:getSession():getCoins() end,
-        profileGetScore = function() return _Game:getSession():getScore() end,
-        profileGetSession = function() return _Game:getSession() end,
-        profileGetLevel = function() return _Game:getSession():getTotalLevel() end,
-        profileGetLevelData = function() return _Game:getSession():getLevelData() end,
-        profileGetLevelName = function() return _Game:getSession():getLevelName() end,
-        profileGetDifficultyConfig = function() return _Game:getSession():getDifficultyConfig() end,
-        profileGetSavedLevel = function() return _Game:getSession():getLevelSaveData() end,
-        profileGetMap = function() return _Game:getSession():getMapData() end,
-        profileGetLatestCheckpoint = function() return _Game:getSession():getLatestCheckpoint() end,
-        profileGetUnlockedCheckpoints = function(levelSet) return _Game:getProfile():getUnlockedCheckpoints(_Res:getLevelSetConfig(levelSet)) end,
-        profileIsCheckpointUnlocked = function(levelSet, n) return _Game:getProfile():isCheckpointUnlocked(_Res:getLevelSetConfig(levelSet), n) end,
-        profileIsCheckpointUpcoming = function() return _Game:getSession():isCheckpointUpcoming() end,
-
-        profileSetVariable = function(name, value) _Game:getProfile():setVariable(name, value) end,
-        profileGetVariable = function(name) return _Game:getProfile():getVariable(name) end,
-
-        highscoreReset = function() _Game.highscores:reset() end,
-        highscoreGetEntry = function(n) return _Game.highscores:getEntry(n) end,
-
-        translate = function(key, ...) return _Game.configManager:translate(key, ...) end,
-        configGetMapData = function(name) return _Game.configManager:getMapData(name) end,
-        configGetLevelData = function(levelSet, n) return _Res:getLevelSetConfig(levelSet).levelOrder[n].level end,
-        configGetLevelName = function(levelSet, n) return _Res:getLevelSetConfig(levelSet).levelOrder[n].name end,
-        configGetLevelCount = function(levelSet) return #_Res:getLevelSetConfig(levelSet).levelOrder end,
-        configGetCheckpointID = function(levelSet, n) return _Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet))[n].levelID end,
-        configGetCheckpointLevel = function(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Res:getLevelSetConfig(levelSet), n) end,
-        configGetCheckpointCount = function(levelSet) return #_Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet)) end,
-
-        optionsGetMusicVolume = function() return _Game.options:getSetting("musicVolume") end,
-        optionsGetSoundVolume = function() return _Game.options:getSetting("soundVolume") end,
-        optionsGetFullscreen = function() return _Game.options:getSetting("fullscreen") end,
-        optionsGetMute = function() return _Game.options:getSetting("mute") end,
-        optionsSetMusicVolume = function(volume) _Game.options:setSetting("musicVolume", volume) end,
-        optionsSetSoundVolume = function(volume) _Game.options:setSetting("soundVolume", volume) end,
-        optionsSetFullscreen = function(fullscreen) _Game.options:setSetting("fullscreen", fullscreen) end,
-        optionsSetMute = function(mute) _Game.options:setSetting("mute", mute) end,
-
-
-        load = function(name, data) self:loadRootNode(name, data) end,
-        unload = function(name) self:unloadRootNode(name) end,
-        getWidgetN = function(names) return self:getWidgetN(names) end,
-        getWidgetListN = function(names) return self:getWidgetListN(names) end,
-        resetActive = function() self:resetActive() end
-    }
 
     self.hasFocus = true
 end
@@ -209,8 +109,15 @@ end
 function UIManager:executeCallback(name, parameters)
     local f = self.script[name]
     if f then
-        f(self.scriptFunctions, parameters)
+        f(ScriptAPI, parameters)
     end
+end
+
+---Temporary function. Works like `:executeCallback()` but you give the function itself.
+---@param f function The function.
+---@param parameters any[]? If specified, this is a list of parameters which will be passed to the executed function as a list.
+function UIManager:executeFunction(f, parameters)
+    f(ScriptAPI, parameters)
 end
 
 ---Deactivates all Widgets, which means they are no longer interactable.
@@ -270,6 +177,27 @@ function UIManager:getWidgetListN(names)
         i = i + 1
     end
     return widgets
+end
+
+---Returns the default Sound Event which will be played when a UI button is pressed.
+---@return SoundEvent?
+function UIManager:getButtonClickSound()
+    -- TODO: Move the `ui` section to a separate file or directly inside of the Game Config.
+	return _Game.gameplayConfig.ui.buttonClickSound
+end
+
+---Returns the default Sound Event which will be played when a UI button is released.
+---@return SoundEvent?
+function UIManager:getButtonReleaseSound()
+    -- TODO: Move the `ui` section to a separate file or directly inside of the Game Config.
+	return _Game.gameplayConfig.ui.buttonReleaseSound
+end
+
+---Returns the default Sound Event which will be played when a UI button is hovered.
+---@return SoundEvent?
+function UIManager:getButtonHoverSound()
+    -- TODO: Move the `ui` section to a separate file or directly inside of the Game Config.
+	return _Game.gameplayConfig.ui.buttonHoverSound
 end
 
 return UIManager

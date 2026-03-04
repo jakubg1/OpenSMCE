@@ -11,7 +11,7 @@ local SoundEvent = require("src.Essentials.SoundEvent")
 local Sprite = require("src.Essentials.Sprite")
 local SpriteAtlas = require("src.Essentials.SpriteAtlas")
 
----Manages all the Game's resources, alongside the ConfigManager. I'm not sure if this split is necessary and how it works.
+---Manages all the Game's resources.
 ---@class ResourceManager
 ---@overload fun():ResourceManager
 local ResourceManager = class:derive("ResourceManager")
