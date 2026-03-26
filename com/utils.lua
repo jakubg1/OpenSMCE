@@ -171,7 +171,7 @@ end
 ---@param extFilter string? If provided, files will have to end with this string in order to be listed. For example, `".json"` will only list `.json` files.
 ---@param recursive boolean? If set, files and directories will be checked recursively. Otherwise, only directories and files in this exact folder will be listed.
 ---@param pathRec string? Internal usage. Don't set.
----@return table
+---@return string[]
 function utils.getDirListing(path, filter, extFilter, recursive, pathRec)
 	-- filter can be "all", "dir" for directories only or "file" for files only.
 	filter = filter or "all"
