@@ -92,20 +92,19 @@ function Font:draw(text, x, y, alignX, alignY, color, alpha, scaleX, scaleY)
 	local sizeX, sizeY = self:getTextSize(text)
 	_Renderer:setColorRGB(color.r * self.color.r, color.g * self.color.g, color.b * self.color.b, alpha)
 	if self.type == "image" then
-		-- TODO: Add support for scaling for image type fonts.
-		y = y - sizeY * alignY
+		y = y - sizeY * alignY * scaleY
 		local line = ""
 		for i = 1, text:len() do
 			local character = text:sub(i, i)
 			if character == "\n" then
-				self:drawLine(line, x, y, alignX)
+				self:drawLine(line, x, y, alignX, scaleX, scaleY)
 				line = ""
-				y = y + self.height + self.lineSpacing
+				y = y + (self.height + self.lineSpacing) * scaleY
 			else
 				line = line .. character
 			end
 		end
-		self:drawLine(line, x, y, alignX)
+		self:drawLine(line, x, y, alignX, scaleX, scaleY)
 	else
 		local px, py = x - sizeX * alignX * scaleX, y - sizeY * alignY * scaleY
 		_Renderer:setFont(self.font)
@@ -119,15 +118,19 @@ end
 ---@param x number The X coordinate on which the line should be drawn.
 ---@param y number The Y coordinate on which the line should be drawn.
 ---@param align number The horizontal alignment of the line, `0` to left, `1` to right.
-function Font:drawLine(text, x, y, align)
+---@param scaleX number? Horizontal scale of the text, defaults to `1`.
+---@param scaleY number? Horizontal scale of the text, defaults to `scaleX`.
+function Font:drawLine(text, x, y, align, scaleX, scaleY)
+	scaleX, scaleY = scaleX or 1, scaleY or scaleX or 1
+
 	local sizeX, sizeY = self:getTextSize(text)
-	x = x - sizeX * align
+	x = x - sizeX * align * scaleX
 	for i = 1, text:len() do
 		local char = text:sub(i, i)
 		local charData = self:getCharacterData(char)
 		if charData then
-			_Renderer:drawImage(self.image.img, charData.quad, math.floor(x), math.floor(y))
-			x = x + charData.width
+			_Renderer:drawImage(self.image.img, charData.quad, math.floor(x), math.floor(y), nil, scaleX, scaleY)
+			x = x + charData.width * scaleX
 		end
 	end
 end
