@@ -160,9 +160,9 @@ function UITreeDebug:getUITreeText(node, rowTable, indent)
             scheduledCallbacks = scheduledCallbacks + #v
         end
         local layer = node.layer or ""
-        scheduledCallbacks = scheduledCallbacks > 0 and tostring(scheduledCallbacks) or ""
+        local scheduledCallbacksStr = scheduledCallbacks > 0 and tostring(scheduledCallbacks) or ""
 
-        table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color, node, forAutoCollapsing, scheduledCallbacks, layer})
+        table.insert(rowTable, {name, visible, visible2, active, alpha, alpha2, time, pos, color, node, forAutoCollapsing, scheduledCallbacksStr, layer})
         self.widgetDebugCount = self.widgetDebugCount + 1
 
         if not collapsed then

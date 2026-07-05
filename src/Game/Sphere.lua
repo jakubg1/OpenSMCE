@@ -224,8 +224,8 @@ end
 
 
 ---Removes this sphere, but only visually. The sphere will remain physically on the board until `:delete()` has been called or after a given time.
----@param crushed boolean? Used when this sphere is a vise and is destroyed by joining two sphere chains together. Sets a variable.
----@param ghostTime number? The time this Sphere will exist in its ghost form before it will get deleted completely.
+---@param ghostTime number? If specified, the sphere will be physically removed after this time in seconds.
+---@param crushed boolean? If specified, the targeted sphere will be destroyed as crushed. This is used for when a scarab is destroyed in a train merge event. Sets a `sphere.crushed` variable.
 function Sphere:deleteVisually(ghostTime, crushed)
 	if not self.entity then
 		return

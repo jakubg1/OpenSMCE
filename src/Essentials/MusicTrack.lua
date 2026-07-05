@@ -33,8 +33,8 @@ function MusicTrack:new(config, path)
 	self.targetStop = false
 	self.playing = false
 	-- These values are cached for the source, because `ASource:getVolume()` is computationally expensive for a weird reason.
-	self.sourceVolume = 0
-	self.sourceSpeed = 1
+	self.sourceVolume = nil
+	self.sourceSpeed = nil
 end
 
 ---Updates the Music Track.
@@ -86,7 +86,7 @@ function MusicTrack:update(dt)
 		self.sourceVolume = newSourceVolume
 	end
 
-	if self.sourceSpeed ~= self.speed then
+	if self.sourceSpeed ~= self.speed and self.instance.setTimeStretch then
 		self.instance:setTimeStretch(self.speed)
 		self.sourceSpeed = self.speed
 	end

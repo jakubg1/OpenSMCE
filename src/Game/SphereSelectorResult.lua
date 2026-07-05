@@ -94,7 +94,7 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 			_Game:executeGameEvent(gameEventPerSphere)
 		end
 		_Vars:unset("sphere")
-		sphere.sphereGroup:destroySphere(assert(sphere.sphereGroup:getSphereID(sphere)))
+		sphere.sphereGroup:destroySphereByRef(sphere)
 	end
 	_Vars:unset("selector")
 end

@@ -265,7 +265,7 @@ function SphereGroup:getAddSpherePos(position)
 end
 
 ---Destroys the sphere at the given position.
----If the given sphere is in the middle of this group, it will be split.
+---If the given sphere is in the middle of this group, the group will be split.
 ---@param position integer The index of the sphere to be destroyed.
 ---@param crushed boolean? If specified, the targeted sphere will be destroyed as crushed. This is used for when a scarab is destroyed in a train merge event.
 function SphereGroup:destroySphere(position, crushed)
@@ -292,12 +292,14 @@ function SphereGroup:destroySphere(position, crushed)
 	self:checkDeletion()
 end
 
----Visually destroys the sphere at the given position. Physically, the sphere is still going to exist in the group.
----@param position integer The index of the sphere to be destroyed.
----@param ghostTime number? If specified, the sphere will be physically removed after this time in seconds.
+---Destroys the specified sphere from this group.
+---If the given sphere is in the middle of this group, the group will be split.
+---If the specified sphere is not in this group, throws an error.
+---@param sphere Sphere The sphere to be destroyed.
 ---@param crushed boolean? If specified, the targeted sphere will be destroyed as crushed. This is used for when a scarab is destroyed in a train merge event.
-function SphereGroup:destroySphereVisually(position, ghostTime, crushed)
-	self.spheres[position]:deleteVisually(ghostTime, crushed)
+function SphereGroup:destroySphereByRef(sphere, crushed)
+	local id = assert(self:getSphereID(sphere), "Could not find sphere to be destroyed in this group")
+	self:destroySphere(id, crushed)
 end
 
 ---Destroys a section of spheres from this Sphere Group.
@@ -692,6 +694,7 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	local effectGroupID = assert(self.spheres[position]:getEffectGroupID(effectConfig), string.format("Assertion failed: no effect %s found on sphere %s!", effectConfig._path, position))
 
 	-- Prepare a list of spheres to be destroyed.
+	---@type Sphere[]
 	local spheres = {}
 	local position1 = nil
 	local position2 = 0
@@ -721,6 +724,7 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	if length == 0 then
 		return
 	end
+	assert(position1, "At least one sphere selected with no starting position...")
 
 	local prevSphere = self.spheres[position1 - 1]
 	local nextSphere = self.spheres[position2 + 1]
@@ -754,25 +758,24 @@ function SphereGroup:matchAndDeleteEffect(position, effectConfig)
 	local color = self.sphereChain.path:getSphereEffectGroup(effectGroupID).cause.color
 	for i = #spheres, 1, -1 do
 		local sphere = spheres[i]
-		local n = self:getSphereID(sphere)
 		if not effectConfig.destroyChainedSpheres and sphere:isChained() then
 			sphere:breakChainLevel()
 			sphere:removeAllEffects()
 		elseif effectConfig.ghostTime then
-			self:destroySphereVisually(n, effectConfig.ghostTime)
+			sphere:deleteVisually(effectConfig.ghostTime)
 		else
-			self:destroySphere(n)
+			self:destroySphereByRef(sphere)
 		end
 	end
 
 	-- Destroy adjacent spheres if they are stone spheres.
 	if nextSphere and nextSphere:isStone() then
 		local group = nextSphere.sphereGroup
-		group:destroySphere(group:getSphereID(nextSphere))
+		group:destroySphereByRef(nextSphere)
 	end
 	if prevSphere and prevSphere:isStone() then
 		local group = prevSphere.sphereGroup
-		group:destroySphere(group:getSphereID(prevSphere))
+		group:destroySphereByRef(prevSphere)
 	end
 
 	-- Now that we've finished destroying the spheres, we can adjust the group speed.
