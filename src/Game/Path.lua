@@ -26,7 +26,7 @@ function Path:new(map, pathData, pathBehavior)
 	self.currentWave = 0
 	self.reachedFinalWave = false
 	if _Game.satMode then
-		--local n = _Game:getSession():getUSMNumber() * 10
+		--local n = _Game.game:getSession():getUSMNumber() * 10
 		self.trainRules.length = nil
 	end
 	self.spawnAmount = 0
@@ -130,7 +130,7 @@ function Path:update(dt)
 	_Utils.removeDeadObjects(self.pathEntities)
 
 	-- Reset the cascade combo if necessary.
-	if _Game.gameplayConfig.sphereBehavior.cascadeScope == "path" and not self:isMatchPredicted() then
+	if _Game.game.gameplayConfig.sphereBehavior.cascadeScope == "path" and not self:isMatchPredicted() then
 		self:endCascade()
 	end
 end
@@ -173,9 +173,9 @@ function Path:spawnChain()
 	if not self.map.isDummy then
 		self.map.level.sphereChainsSpawned = self.map.level.sphereChainsSpawned + 1
 		-- Play the new group sound.
-		if _Game.gameplayConfig.sphereBehavior.newGroupSound then
+		if _Game.game.gameplayConfig.sphereBehavior.newGroupSound then
 			local x, y = self:getPos(0)
-			_Game.gameplayConfig.sphereBehavior.newGroupSound:play(x, y)
+			_Game.game.gameplayConfig.sphereBehavior.newGroupSound:play(x, y)
 		end
 	end
 end
@@ -501,7 +501,7 @@ end
 ---@return number
 function Path:getSpeed(pixels)
 	local speedMultiplier = 1
-	local session = _Game:getSession()
+	local session = _Game.game:getSession()
 	if not self.map.isDummy and session then
 		if _Game.satMode then
 			speedMultiplier = 1 + (session:getUSMNumber() - 1) * 0.05

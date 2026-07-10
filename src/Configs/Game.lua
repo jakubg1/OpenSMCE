@@ -39,6 +39,14 @@ function GameConfig:new(data, path, isAnonymous, base)
     ---@type "filtered"|"pixel"|"pixelPerfect"
     self.canvasRenderingMode = u.parseStringOpt(data, base, path, {"canvasRenderingMode"}, "filtered")
 
+    ---@type {buttonClickSound: SoundEvent?, buttonHoverSound: SoundEvent?, buttonReleaseSound: SoundEvent?}
+    if data.ui then
+        self.ui = {}
+        self.ui.buttonClickSound = u.parseSoundEventOpt(data, base, path, {"ui", "buttonClickSound"})
+        self.ui.buttonHoverSound = u.parseSoundEventOpt(data, base, path, {"ui", "buttonHoverSound"})
+        self.ui.buttonReleaseSound = u.parseSoundEventOpt(data, base, path, {"ui", "buttonReleaseSound"})
+    end
+
     ---@type {enabled: boolean, applicationID: string?}
     if data.richPresence then
         self.richPresence = {}

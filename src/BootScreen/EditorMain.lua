@@ -376,6 +376,11 @@ end
 
 
 ---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function EditorMain:getTickRate()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
 function EditorMain:gameOver()
 	error("Not implemented")
 end
@@ -397,6 +402,16 @@ end
 
 ---Do not use. Throws the not implemented error. This function is used to silence warnings.
 function EditorMain:getSession()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function EditorMain:save()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function EditorMain:translate(key, ...)
 	error("Not implemented")
 end
 

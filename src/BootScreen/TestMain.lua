@@ -147,6 +147,46 @@ function TestMain:getRichPresenceApplicationID()
 	return nil
 end
 
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:getTickRate()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:gameOver()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:spawnParticle(particleEffect, x, y, layer)
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:executeGameEvent(event, x, y)
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:getProfile()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:getSession()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:save()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:translate(key, ...)
+	error("Not implemented")
+end
+
 function TestMain:mousepressed(x, y, button)
 	-- STUB
 end

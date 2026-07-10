@@ -48,7 +48,7 @@ local Display = require("src.Display")
 local Renderer = require("src.Renderer")
 local ResourceManager = require("src.ResourceManager")
 
-local Game = require("src.Game")
+local Game = require("src.GameBase")
 local EditorMain = require("src.BootScreen.EditorMain")
 local BootScreen = require("src.BootScreen.BootScreen")
 local TestMain = require("src.BootScreen.TestMain")
@@ -97,7 +97,7 @@ _MouseX, _MouseY = 0, 0
 -- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
 _FSPrefix = ""
 
----@type Game|BootScreen|EditorMain|TestMain
+---@type GameBase|BootScreen|EditorMain|TestMain
 _Game = nil
 ---@type Log
 _Log = nil

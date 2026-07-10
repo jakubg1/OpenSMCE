@@ -13,7 +13,7 @@ function SphereChain:new(path, data)
 	self.path = path
 	self.map = path.map
 
-	self.config = _Game.gameplayConfig.sphereBehavior
+	self.config = _Game.game.gameplayConfig.sphereBehavior
 
 	if data then
 		self:deserialize(data)

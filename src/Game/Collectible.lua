@@ -42,8 +42,8 @@ function Collectible:update(dt)
 
 	-- catching/bouncing/destroying
 	local w, h = _Game:getNativeResolution()
-	local byShooter = _Game.level.shooter:isPosCatchable(self.x, self.y)
-	local byNet = _Game.level.netTime > 0 and self.y >= _Game.gameplayConfig.net.posY
+	local byShooter = _Game.game:getLevel().shooter:isPosCatchable(self.x, self.y)
+	local byNet = _Game.game:getLevel().netTime > 0 and self.y >= _Game.game.gameplayConfig.net.posY
 	if byShooter or byNet then
 		self:catch()
 	end
@@ -60,7 +60,7 @@ function Collectible:update(dt)
 		self:destroy()
 		if self.config.dropEffects then
 			for i, effect in ipairs(self.config.dropEffects) do
-				_Game.level:applyEffect(effect, self.x, self.y)
+				_Game.game:getLevel():applyEffect(effect, self.x, self.y)
 			end
 		end
 	end
@@ -75,7 +75,7 @@ function Collectible:catch()
 
 	if self.config.effects then
 		for i, effect in ipairs(self.config.effects) do
-			_Game.level:applyEffect(effect, self.x, self.y)
+			_Game.game:getLevel():applyEffect(effect, self.x, self.y)
 		end
 	end
 
@@ -86,7 +86,7 @@ function Collectible:catch()
 		_Game:spawnParticle(self.config.pickupParticle, self.x, self.y, self.config.pickupParticleLayer)
 	end
 	if self.config.pickupName then
-		_Game.level:spawnFloatingText(_Game:translate(self.config.pickupName:evaluate()), self.x, self.y, self.config.pickupFont, self.config.pickupTextLayer)
+		_Game.game:getLevel():spawnFloatingText(_Game:translate(self.config.pickupName:evaluate()), self.x, self.y, self.config.pickupFont, self.config.pickupTextLayer)
 	end
 end
 

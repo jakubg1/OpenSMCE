@@ -24,7 +24,7 @@ function SphereSelectorResult:new(config, x, y)
 	-- TODO: Trigger evaluation for all spheres only when necessary. The `:hasSphere()` function does not need full information.
 	for i, operation in ipairs(config.operations) do
 		if operation.type == "add" then
-			for j, path in ipairs(_Game.level.map.paths) do
+			for j, path in ipairs(_Game.game:getLevel().map.paths) do
 				for k = #path.sphereChains, 1, -1 do
 					local sphereChain = path.sphereChains[k]
 					for l = #sphereChain.sphereGroups, 1, -1 do
@@ -80,7 +80,7 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 			end
 			eventX, eventY = minX and ((minX + maxX) / 2) or 0, minY and ((minY + maxY) / 2) or 0
 		end
-		_Game.level:executeScoreEvent(scoreEvent, eventX, eventY)
+		_Game.game:getLevel():executeScoreEvent(scoreEvent, eventX, eventY)
 	end
 	if gameEvent then
 		_Game:executeGameEvent(gameEvent)
@@ -88,7 +88,7 @@ function SphereSelectorResult:destroy(scoreEvent, scoreEventPerSphere, gameEvent
 	for i, sphere in ipairs(self.spheres) do
 		sphere:dumpVariables("sphere", self.x, self.y)
 		if scoreEventPerSphere then
-			_Game.level:executeScoreEvent(scoreEventPerSphere, sphere:getPos())
+			_Game.game:getLevel():executeScoreEvent(scoreEventPerSphere, sphere:getPos())
 		end
 		if gameEventPerSphere then
 			_Game:executeGameEvent(gameEventPerSphere)

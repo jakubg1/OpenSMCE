@@ -85,7 +85,7 @@ function Projectile:explode()
     if self.targetSphere then
         self.targetSphere:dumpVariables("hitSphere")
     end
-    _Game.level:destroySelector(self.config.destroySphereSelector, self.x, self.y, self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere, self.config.destroyGameEvent, self.config.destroyGameEventPerSphere)
+    _Game.game:getLevel():destroySelector(self.config.destroySphereSelector, self.x, self.y, self.config.destroyScoreEvent, self.config.destroyScoreEventPerSphere, self.config.destroyGameEvent, self.config.destroyGameEventPerSphere)
     _Vars:unset("hitSphere")
 
     if self.config.destroySound then
@@ -131,7 +131,7 @@ function Projectile:deserialize(t)
     self.config = _Res:getProjectileConfig(t.id)
     self.x, self.y = t.pos.x, t.pos.y
     self.targetX, self.targetY = t.targetPos.x, t.targetPos.y
-    self.targetSphere = t.targetSphere and _Game.level:getSphere(t.targetSphere)
+    self.targetSphere = t.targetSphere and _Game.game:getLevel():getSphere(t.targetSphere)
 end
 
 return Projectile

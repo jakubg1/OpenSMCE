@@ -2,10 +2,8 @@ local class = require "com.class"
 
 ---Manages the Game's timing. Ensures the frame length is always consistent and prevents skipping too many frames when lag occurs.
 ---@class Timer
----@overload fun():Timer
+---@overload fun(): Timer
 local Timer = class:derive("Timer")
-
-
 
 ---Constructor function.
 function Timer:new()
@@ -22,15 +20,11 @@ function Timer:new()
 	self.time = 0
 end
 
-
-
 ---Updates the Timer by a specified value in seconds.
 ---@param dt number Delta time in seconds.
 function Timer:update(dt)
 	self.time = self.time + dt
 end
-
-
 
 ---Returns the number of frames that should be performed since the last call of this function.
 ---The second returned value is the frame length. It might slightly deviate from the target frame length.
@@ -58,7 +52,5 @@ function Timer:getFrameCount()
 	end
 	return frames, dt
 end
-
-
 
 return Timer

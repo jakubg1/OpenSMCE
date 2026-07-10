@@ -33,7 +33,7 @@ function SphereGroup:new(sphereChain, data)
 
 	self.maxSpeed = 0
 
-	self.config = _Game.gameplayConfig.sphereBehavior
+	self.config = _Game.game.gameplayConfig.sphereBehavior
 
 	self.delQueue = false
 end

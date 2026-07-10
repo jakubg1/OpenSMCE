@@ -68,11 +68,11 @@ function ExpressionVariables:evaluateVariableProvider(provider)
     if provider.type == "value" then
         return provider.value
     elseif provider.type == "countSpheres" then
-        assert(_Game.level, "Variable Provider error: Used `countSpheres` when no level is active!")
+        assert(_Game.game:getLevel(), "Variable Provider error: Used `countSpheres` when no level is active!")
         local selection = SphereSelectorResult(provider.sphereSelector)
         return selection:countSpheres()
     elseif provider.type == "mostFrequentColor" then
-        assert(_Game.level, "Variable Provider error: Used `mostFrequentColor` when no level is active!")
+        assert(_Game.game:getLevel(), "Variable Provider error: Used `mostFrequentColor` when no level is active!")
         local selection = SphereSelectorResult(provider.sphereSelector)
         local colors = selection:countColors()
         local maxAmount = 0
@@ -93,15 +93,15 @@ function ExpressionVariables:evaluateVariableProvider(provider)
         end
         return maxColors[math.random(#maxColors)]
     elseif provider.type == "randomSpawnableColor" then
-        assert(_Game.level, "Variable Provider error: Used `randomSpawnableColor` when no level is active!")
-        local colors = _Game.level:getSpawnableColors()
+        assert(_Game.game:getLevel(), "Variable Provider error: Used `randomSpawnableColor` when no level is active!")
+        local colors = _Game.game:getLevel():getSpawnableColors()
         if provider.excludedColors then
             colors = _Utils.tableSubtract(colors, provider.excludedColors)
         end
         assert(#colors > 0, "Variable Provider error: You've excluded all colors in `randomSpawnableColor`!")
         return colors[math.random(#colors)]
     elseif provider.type == "redirectSphere" then
-        assert(_Game.level, "Variable Provider error: Used `redirectSphere` when no level is active!")
+        assert(_Game.game:getLevel(), "Variable Provider error: Used `redirectSphere` when no level is active!")
         local sphere = provider.sphere:evaluate()
         local selection = SphereSelectorResult(provider.sphereSelector)
         if not selection:hasSphere(sphere) then
@@ -128,7 +128,7 @@ function ExpressionVariables:evaluateVariableProvider(provider)
         end
         return sphere
     elseif provider.type == "redirectSphereColor" then
-        assert(_Game.level, "Variable Provider error: Used `redirectSphereColor` when no level is active!")
+        assert(_Game.game:getLevel(), "Variable Provider error: Used `redirectSphereColor` when no level is active!")
         -- TODO: Don't copy code and extract the common denominator instead.
         local sphere = provider.sphere:evaluate()
         local selection = SphereSelectorResult(provider.sphereSelector)

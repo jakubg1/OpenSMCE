@@ -99,7 +99,7 @@ function ShotSphere:moveStep()
 	self.x, self.y = self.x + x, self.y + y
 
 	-- count the gaps
-	for i, path in ipairs(_Game.level.map.paths) do
+	for i, path in ipairs(_Game.game:getLevel().map.paths) do
 		local offsets = path:getIntersectionPoints(oldPosX, oldPosY, self.x, self.y)
 		for j, offset in ipairs(offsets) do
 			local size, group = path:getGapSize(offset)
@@ -116,7 +116,7 @@ function ShotSphere:moveStep()
 	end
 
 	-- add if there's a sphere nearby
-	local nearestSphere = _Game.level:getNearestSphere(self.x, self.y)
+	local nearestSphere = _Game.game:getLevel():getNearestSphere(self.x, self.y)
 	if nearestSphere and nearestSphere.dist < (self.size + nearestSphere.sphere.config.size) / 2 and (not self.homingTowards or self.homingTowards == nearestSphere.sphere) then
 		-- Execute this only if we are close enough to the nearest sphere and have ANY collision (we are not homing towards something different).
 		if nearestSphere.sphere:isFragile() then
@@ -138,11 +138,11 @@ function ShotSphere:moveStep()
 			if hitBehavior then
 				whatHappens = hitBehavior.pierce and "pierce" or "vanish"
 				if hitBehavior.type == "destroySpheres" then
-					_Game.level:destroySelector(hitBehavior.selector, self.x, self.y, hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
+					_Game.game:getLevel():destroySelector(hitBehavior.selector, self.x, self.y, hitBehavior.scoreEvent, hitBehavior.scoreEventPerSphere, hitBehavior.gameEvent, hitBehavior.gameEventPerSphere)
 				elseif hitBehavior.type == "recolorSpheres" then
-					_Game.level:replaceColorSelector(hitBehavior, self.x, self.y)
+					_Game.game:getLevel():replaceColorSelector(hitBehavior, self.x, self.y)
 				elseif hitBehavior.type == "applyEffect" then
-					_Game.level:applyEffectSelector(hitBehavior, self.x, self.y)
+					_Game.game:getLevel():applyEffectSelector(hitBehavior, self.x, self.y)
 				elseif hitBehavior.type == "splitAndPushBack" then
 					if hitSphere.nextSphere then
 						hitSphere.sphereGroup:divide(self.hitSphere.sphereID)
@@ -176,7 +176,7 @@ function ShotSphere:moveStep()
 				local d = _V.length(self.x - p.x, self.y - p.y)
 				-- calculate time
 				self.hitTimeMax = d / self.speed * 5
-				self.hitSphere.sphereGroup:addSphere(self.color, Vec2(self.x, self.y), self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior and hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.gameplayConfig.sphereBehavior.instantMatches)
+				self.hitSphere.sphereGroup:addSphere(self.color, Vec2(self.x, self.y), self.hitTimeMax, self.sphereEntity, self.hitSphere.sphereID, hitBehavior and hitBehavior.effects, self:getGapSizeList(), self.destroyedFragileSpheres, _Game.game.gameplayConfig.sphereBehavior.instantMatches)
 				badShot = self.hitSphere.sphereGroup:getMatchLengthInChain(self.hitSphere.sphereID) == 1
 			end
 			_Vars:set("shot.bad", badShot)
@@ -185,7 +185,7 @@ function ShotSphere:moveStep()
 			end
 			_Vars:unset("shot")
 			if not badShot and not self.markedAsSuccessfulShot then
-				_Game.level:markSuccessfulShot()
+				_Game.game:getLevel():markSuccessfulShot()
 				self.markedAsSuccessfulShot = true
 			end
 			_Vars:unset("hitSphere")
@@ -195,7 +195,7 @@ function ShotSphere:moveStep()
 	-- delete if outside of the board
 	if self:isOutsideBoard() then
 		self:destroy(true)
-		_Game.level.streak = 0
+		_Game.game:getLevel().streak = 0
 	end
 end
 
@@ -238,7 +238,7 @@ end
 
 ---Picks a random sphere from `Level:getHomingBugsTarget()` and sets that sphere as the new homing target.
 function ShotSphere:pickNewHomingTarget()
-	self.homingTowards = _Game.level:getHomingBugsSphere(self.color)
+	self.homingTowards = _Game.game:getLevel():getHomingBugsSphere(self.color)
 end
 
 
@@ -276,7 +276,7 @@ function ShotSphere:drawDebug()
 	love.graphics.setColor(0, 1, 1)
 	for i = self.y, 0, -self.PIXELS_PER_STEP do
 		love.graphics.circle("fill", self.x, i, 2)
-		local nearestSphere = _Game.level:getNearestSphere(self.x, i)
+		local nearestSphere = _Game.game:getLevel():getNearestSphere(self.x, i)
 		if nearestSphere and nearestSphere.dist < 32 then
 			love.graphics.setLineWidth(3)
 			love.graphics.circle("line", nearestSphere.pos.x, nearestSphere.pos.y, self.size / 2)
@@ -339,15 +339,15 @@ function ShotSphere:deserialize(t)
 	self.speed = t.speed
 	self.steps = t.steps
 	if t.homingTowards then
-		self.homingTowards = _Game.level:getSphere(t.homingTowards)
+		self.homingTowards = _Game.game:getLevel():getSphere(t.homingTowards)
 	end
 
-	self.shooter = _Game.level.shooter
+	self.shooter = _Game.game:getLevel().shooter
 
 	self.gapsTraversed = {}
 	if t.gaps then
 		for i, gap in ipairs(t.gaps) do
-			local group = _Game.level.map.paths[gap.pathID].sphereChains[gap.chainID].sphereGroups[gap.groupID]
+			local group = _Game.game:getLevel().map.paths[gap.pathID].sphereChains[gap.chainID].sphereGroups[gap.groupID]
 			table.insert(self.gapsTraversed, {group = group, size = gap.size})
 		end
 	end
@@ -360,7 +360,7 @@ function ShotSphere:deserialize(t)
 	if t.hitSphere then
 		self.hitSphere = {
 			sphereID = t.hitSphere.sphereID,
-			sphereGroup = _Game.level:getSphere(t.hitSphere).sphereGroup
+			sphereGroup = _Game.game:getLevel():getSphere(t.hitSphere).sphereGroup
 		}
 	else
 		self.sphereEntity = SphereEntity(self.x, self.y, self.color)

@@ -123,6 +123,11 @@ function BootScreen:getRichPresenceApplicationID()
 end
 
 ---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function BootScreen:getTickRate()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
 function BootScreen:gameOver()
 	error("Not implemented")
 end
@@ -144,6 +149,16 @@ end
 
 ---Do not use. Throws the not implemented error. This function is used to silence warnings.
 function BootScreen:getSession()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function BootScreen:save()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function BootScreen:translate(key, ...)
 	error("Not implemented")
 end
 

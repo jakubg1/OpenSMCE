@@ -11,15 +11,13 @@ function SoundInstance:new(instance)
     self.sound = instance
 
     self.volume = 1
-    -- Set initial position to the center of the screen.
-    local w, h = _Game:getNativeResolution()
-    self.x, self.y = w / 2, h / 2
+    self.x, self.y = 0, 0
 end
 
 ---Updates a Sound Instance, so it can adapt to the game volume.
 ---@param dt number Time delta in seconds.
 function SoundInstance:update(dt)
-    self.sound:setVolume(_Game.options:getEffectiveSoundVolume() * self.volume)
+    self.sound:setVolume(_Game.game.options:getEffectiveSoundVolume() * self.volume)
 end
 
 ---Plays the Instance.

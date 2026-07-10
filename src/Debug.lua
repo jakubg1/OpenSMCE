@@ -226,17 +226,24 @@ function Debug:getDebugMain()
 end
 
 function Debug:getDebugParticle()
+	local particleManager = _Game.particleManager
+	if not particleManager then
+		return ""
+	end
 	local s = ""
 
-	s = s .. "ParticlePacket# = " .. tostring(_Game.particleManager:getParticlePacketCount()) .. "\n"
-	s = s .. "ParticleSpawner# = " .. tostring(_Game.particleManager:getParticleSpawnerCount()) .. "\n"
-	s = s .. "Particle# = " .. tostring(_Game.particleManager:getParticlePieceCount()) .. "\n"
+	s = s .. "ParticlePacket# = " .. tostring(particleManager:getParticlePacketCount()) .. "\n"
+	s = s .. "ParticleSpawner# = " .. tostring(particleManager:getParticleSpawnerCount()) .. "\n"
+	s = s .. "Particle# = " .. tostring(particleManager:getParticlePieceCount()) .. "\n"
 
 	return s
 end
 
 function Debug:getDebugSession()
-	local session = assert(_Game:getSession())
+	local session = _Game.game:getSession()
+	if not session then
+		return ""
+	end
 	local s = ""
 
 	s = s .. string.format("Level: Level = %s, Sublevel = %s, Total = %s", session:getLevel(), session:getSublevel(), session:getTotalLevel()) .. "\n"
@@ -255,7 +262,10 @@ function Debug:getDebugSession()
 end
 
 function Debug:getDebugLevel()
-	local level = _Game.level
+	local level = _Game.game:getLevel()
+	if not level then
+		return ""
+	end
 	local s = ""
 
 	s = s .. "LevelScore = " .. tostring(level.score) .. "\n"
@@ -298,10 +308,14 @@ function Debug:getDebugLevel()
 end
 
 function Debug:getDebugOptions()
+	local options = _Game.game and _Game.game.options
+	if not options then
+		return ""
+	end
 	local s = ""
 
-	s = s .. "EffMusicVolume = " .. tostring(_Game.options:getEffectiveMusicVolume()) .. "\n"
-	s = s .. "EffSoundVolume = " .. tostring(_Game.options:getEffectiveSoundVolume()) .. "\n"
+	s = s .. "EffMusicVolume = " .. tostring(options:getEffectiveMusicVolume()) .. "\n"
+	s = s .. "EffSoundVolume = " .. tostring(options:getEffectiveSoundVolume()) .. "\n"
 
 	return s
 end
@@ -312,17 +326,13 @@ function Debug:getDebugInfo()
 	s = s .. "===== MAIN =====\n"
 	s = s .. self:getDebugMain()
 	s = s .. "\n===== COLOR MANAGER =====\n"
-	if _Game.level then
-		s = s .. _Game.level.colorManager:getDebugText()
+	if _Game.game and _Game.game:getLevel() then
+		s = s .. _Game.game:getLevel().colorManager:getDebugText()
 	end
 	s = s .. "\n===== SESSION =====\n"
-	if _Game.getSession and _Game:getSession() then
-		s = s .. self:getDebugSession()
-	end
+	s = s .. self:getDebugSession()
 	s = s .. "\n===== LEVEL =====\n"
-	if _Game.level then
-		s = s .. self:getDebugLevel()
-	end
+	s = s .. self:getDebugLevel()
 	s = s .. "\n===== VARIABLES =====\n"
 	s = s .. _Vars:getDebugText()
 
@@ -349,13 +359,9 @@ end
 function Debug:getRightDebugInfo()
 	local s = ""
 	s = s .. "\n===== PARTICLE =====\n"
-	if _Game.particleManager then
-		s = s .. self:getDebugParticle()
-	end
+	s = s .. self:getDebugParticle()
 	s = s .. "\n===== OPTIONS =====\n"
-	if _Game.runtimeManager then
-		s = s .. self:getDebugOptions()
-	end
+	s = s .. self:getDebugOptions()
 	return s
 end
 
@@ -428,8 +434,8 @@ function Debug:drawSphereInfo()
 	local y = 0
 	local x = 0
 
-	if _Game.level then
-		for i, path in ipairs(_Game.level.map.paths) do
+	if _Game.game.level then
+		for i, path in ipairs(_Game.game.level.map.paths) do
 			love.graphics.setColor(1, 1, 1)
 			love.graphics.print("Path " .. tostring(i), p.x + 10, p.y + 10 + y)
 			y = y + 25
@@ -538,7 +544,7 @@ function Debug:commandCrash()
 end
 
 function Debug:commandLose()
-	_Game.level:lose()
+	_Game.game:getLevel():lose()
 end
 
 function Debug:commandExpr(expression)
@@ -575,7 +581,7 @@ function Debug:commandCollectible(collectible, amount)
 	amount = amount or 1
 	local w, h = _Game:getNativeResolution()
 	for i = 1, amount do
-		_Game.level:spawnCollectible(collectible, w / 2, h / 2)
+		_Game.game:getLevel():spawnCollectible(collectible, w / 2, h / 2)
 	end
 end
 

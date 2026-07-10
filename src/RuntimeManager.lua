@@ -2,6 +2,8 @@ local class = require "com.class"
 
 ---A class which you can register various objects to (like ProfileManager, Highscores or Options).
 ---They can be then saved and loaded neatly from one file called `runtime.json`.
+---
+---Any module registered must be an object containing `serialize` and `deserialize` functions.
 ---@class RuntimeManager
 ---@overload fun():RuntimeManager
 local RuntimeManager = class:derive("RuntimeManager")
@@ -19,11 +21,11 @@ end
 ---Registers a module, which is an instance of any class.
 ---The class must have `:serialize()` and `:deserialize()` functions.
 ---@param name string Module name. This will be the name under which the provided module will be stored.
----@param m RuntimeManagerModule The object to be registered.
-function RuntimeManager:registerModule(name, m)
-	assert(m.serialize, "Attempted to register a module without a `:serialize()` function!")
-	assert(m.deserialize, "Attempted to register a module without a `:deserialize()` function!")
-	self.modules[name] = m
+---@param module RuntimeManagerModule The object to be registered.
+function RuntimeManager:registerModule(name, module)
+	assert(module.serialize, "Attempted to register a module without a `:serialize()` function!")
+	assert(module.deserialize, "Attempted to register a module without a `:deserialize()` function!")
+	self.modules[name] = module
 end
 
 ---Loads serialized data for each found module from `runtime.json`.
@@ -46,8 +48,8 @@ end
 ---Saves data from all registered modules to `runtime.json`.
 function RuntimeManager:save()
 	local data = {}
-	for name, m in pairs(self.modules) do
-		data[name] = m:serialize()
+	for name, module in pairs(self.modules) do
+		data[name] = module:serialize()
 	end
 	_Utils.saveJson(self.path, data)
 end

@@ -111,7 +111,7 @@ function Shooter:update(dt)
     self.mouseX, self.mouseY = _MouseX, _MouseY
 
     -- shot cooldown
-    if self.shotCooldown and (not _Game.level:hasShotSpheres() or self.config.multishot) then
+    if self.shotCooldown and (not _Game.game:getLevel():hasShotSpheres() or self.config.multishot) then
         self.shotCooldown = self.shotCooldown - dt
         if self.shotCooldown <= 0 then
             self.shotCooldown = nil
@@ -137,12 +137,12 @@ function Shooter:update(dt)
     if self:isActive() then
         -- remove nonexistent colors, but only if the current color generator allows removing these colors
         if not self.suppressColorRemoval then
-            local remTable = _Game.level:getCurrentColorGenerator().discardableColors
+            local remTable = _Game.game:getLevel():getCurrentColorGenerator().discardableColors
             if remTable then
-                if _Utils.isValueInTable(remTable, self.color) and not _Game.level.colorManager:isColorExistent(self.color) then
+                if _Utils.isValueInTable(remTable, self.color) and not _Game.game:getLevel().colorManager:isColorExistent(self.color) then
                     self:setColor(0)
                 end
-                if _Utils.isValueInTable(remTable, self.nextColor) and not _Game.level.colorManager:isColorExistent(self.nextColor) then
+                if _Utils.isValueInTable(remTable, self.nextColor) and not _Game.game:getLevel().colorManager:isColorExistent(self.nextColor) then
                     self:setNextColor(0)
                 end
             end
@@ -299,7 +299,7 @@ end
 ---Swaps this and next sphere colors with each other, if possible.
 function Shooter:swapColors()
     -- we must be careful not to swap the spheres when they're absent
-    if _Game.level.pause or self.color == 0 or self.nextColor == 0 or self.shotCooldownFade or not self:getSphereConfig().swappable then
+    if _Game.game:getLevel().pause or self.color == 0 or self.nextColor == 0 or self.shotCooldownFade or not self:getSphereConfig().swappable then
         return
     end
     local tmp = self.color
@@ -370,7 +370,7 @@ function Shooter:generateColor(data)
 		-- Make a pool with colors which are on the board.
 		local pool = {}
 		for i, color in ipairs(data.colors) do
-			if not data.hasToExist or _Game.level.colorManager:isColorExistent(color) then
+			if not data.hasToExist or _Game.game:getLevel().colorManager:isColorExistent(color) then
 				table.insert(pool, color)
 			end
 		end
@@ -380,7 +380,7 @@ function Shooter:generateColor(data)
 		end
 	elseif data.type == "nearEnd" then
 		-- Select a random path.
-		local path = _Game.level:getRandomPath(true, data.pathsInDangerOnly)
+		local path = _Game.game:getLevel():getRandomPath(true, data.pathsInDangerOnly)
 		if not path:getEmpty() then
 			-- Get a SphereChain nearest to the pyramid
 			local sphereChain = path.sphereChains[1]
@@ -412,7 +412,7 @@ function Shooter:generateColor(data)
         self.suppressColorRemoval = true
         local colors = data.colors
         if data.spawnableColorsOnly then
-            colors = _Utils.tableMultiply(colors, _Game.level:getSpawnableColors())
+            colors = _Utils.tableMultiply(colors, _Game.game:getLevel():getSpawnableColors())
         end
         return colors[math.random(#colors)]
 	end
@@ -427,7 +427,7 @@ end
 ---Generates a new color for the Shooter.
 ---@return integer
 function Shooter:getNewShooterColor()
-	return self:generateColor(_Game.level:getCurrentColorGenerator())
+	return self:generateColor(_Game.game:getLevel():getCurrentColorGenerator())
 end
 
 
@@ -436,11 +436,11 @@ end
 ---When the shooter is deactivated, new balls won't be added and existing can't be shot or removed.
 function Shooter:isActive()
     -- Eliminate all cases where we're not in the main level gameplay loop.
-    if _Game.level:getCurrentSequenceStepType() ~= "gameplay" or _Game.level.levelSequenceVars.warmupTime or _Game.level:hasNoMoreSpheres() then
+    if _Game.game:getLevel():getCurrentSequenceStepType() ~= "gameplay" or _Game.game:getLevel().levelSequenceVars.warmupTime or _Game.game:getLevel():hasNoMoreSpheres() then
         return false
     end
     -- When there's already a shot sphere and the config does not permit more, disallow.
-    if _Game.level:hasShotSpheres() and not self.config.multishot then
+    if _Game.game:getLevel():hasShotSpheres() and not self.config.multishot then
         return false
     end
     -- Same for shooting delay.
@@ -465,7 +465,7 @@ end
 ---Launches the current sphere, if possible.
 function Shooter:shoot()
     -- if nothing to shoot, it's pointless
-    if _Game.level.pause or not self:isActive() or self.shotCooldownFade or self.color == 0 then
+    if _Game.game:getLevel().pause or not self:isActive() or self.shotCooldownFade or self.color == 0 then
         return
     end
 
@@ -484,8 +484,8 @@ function Shooter:shoot()
                 local pos = self:getSphereShotPos(i)
                 local angle = self.angle + angleStart + angleStep * (j - 1)
                 local entity = j == 1 and self.sphereEntities[i] or self.sphereEntities[i]:copy()
-                _Game.level:spawnShotSphere(self, pos.x, pos.y, angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity, self.homingBugsTime > 0)
-                _Game.level:markSphereShot()
+                _Game.game:getLevel():spawnShotSphere(self, pos.x, pos.y, angle, self:getSphereSize(), self.color, self:getShootingSpeed(), entity, self.homingBugsTime > 0)
+                _Game.game:getLevel():markSphereShot()
             end
             self.sphereEntities[i] = nil
             if shotBehavior and shotBehavior.gameEvent then
@@ -497,8 +497,8 @@ function Shooter:shoot()
             if sphereConfig.destroyParticle then
                 _Game:spawnParticle(sphereConfig.destroyParticle, pos.x, pos.y, sphereConfig.destroyParticleLayer)
             end
-            _Game.level:destroySelector(shotBehavior.selector, pos.x, pos.y, shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
-            _Game.level:markSphereShot()
+            _Game.game:getLevel():destroySelector(shotBehavior.selector, pos.x, pos.y, shotBehavior.scoreEvent, shotBehavior.scoreEventPerSphere, shotBehavior.gameEvent, shotBehavior.gameEventPerSphere, true)
+            _Game.game:getLevel():markSphereShot()
             self:destroySphereEntities()
         end
     end
@@ -506,7 +506,7 @@ function Shooter:shoot()
     -- Apply any effects to the sphere if it has one.
     if sphereConfig.shotEffects then
         for i, effect in ipairs(sphereConfig.shotEffects) do
-            _Game.level:applyEffect(effect)
+            _Game.game:getLevel():applyEffect(effect)
         end
     end
 
@@ -551,7 +551,7 @@ end
 ---@param removeWhenTimeOut boolean? If set, when the time expires, the multi-sphere spheres will be removed from the shooter.
 ---@param holdTimeRate number? The ratio the timer will run at when the fire button is held.
 function Shooter:getMultiSphere(color, count, time, removeWhenTimeOut, holdTimeRate)
-    if _Game.level.lost then
+    if _Game.game:getLevel().lost then
         return
     end
     self.multiColorColor = color
@@ -770,7 +770,7 @@ function Shooter:destroySphereEntities()
     for i = 1, self:getSphereCount() do
         if self.sphereEntities[i] then
             -- Show particles if the level was lost.
-            self.sphereEntities[i]:destroy(_Game.level.lost and self.config.destroySphereOnFail)
+            self.sphereEntities[i]:destroy(_Game.game:getLevel().lost and self.config.destroySphereOnFail)
             self.sphereEntities[i] = nil
         end
     end
@@ -935,7 +935,7 @@ end
 ---Returns the reticle position, or `nil` if the reticle should not be rendered.
 ---@return Vector2?
 function Shooter:getTargetPos()
-    local targetData = _Game.level:getNearestSphereOnLine(self.pos.x, self.pos.y, self.angle)
+    local targetData = _Game.game:getLevel():getNearestSphereOnLine(self.pos.x, self.pos.y, self.angle)
     return targetData and targetData.targetPos
 end
 
@@ -946,7 +946,7 @@ end
 ---@return Vector2?
 function Shooter:getTargetPosForSphere(n)
     local spherePos = self:getSpherePos(n)
-    local targetData = _Game.level:getNearestSphereOnLine(spherePos.x, spherePos.y, self.angle)
+    local targetData = _Game.game:getLevel():getNearestSphereOnLine(spherePos.x, spherePos.y, self.angle)
     return targetData and targetData.targetPos
 end
 

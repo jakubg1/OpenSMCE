@@ -11,77 +11,77 @@ local api = {}
 ---Loads all game resources.
 function api.loadResources() _Game:loadResources() end
 ---Ends the current level and triggers a `gameOver` callback.
-function api.sessionTerminate() _Game:gameOver() end
+function api.sessionTerminate() _Game.game:gameOver() end
 ---Returns the percentage of the resources loaded, as a number from 0 to 1.
 ---@return number
 function api.loadingGetProgress() return _Res:getLoadProgress("main") end
 
 ---Starts a new Level from the current Profile, or loads one in progress if it has one.
 ---This also executes an appropriate entry in the UI script if the current level set's entry is a UI Script one. Yep, it's a mess.
-function api.levelStart() _Game:startLevel() end
+function api.levelStart() _Game.game:startLevel() end
 ---Moves on to the next sequence step if the current step is a UI callback which is waiting.
-function api.levelContinue() _Game.level:continueSequence() end
+function api.levelContinue() _Game.game:getLevel():continueSequence() end
 ---Pauses the level.
-function api.levelPause() _Game.level:setPause(true) end
+function api.levelPause() _Game.game:getLevel():setPause(true) end
 ---Unpauses the level.
-function api.levelUnpause() _Game.level:setPause(false) end
+function api.levelUnpause() _Game.game:getLevel():setPause(false) end
 ---Marks this level as lost and restarts it if there are some lives left. Otherwise, ends the game.
-function api.levelRestart() _Game.level:tryAgain() end
+function api.levelRestart() _Game.game:getLevel():tryAgain() end
 ---Ends the current level without saving its data.
-function api.levelEnd() _Game:endLevel() end
+function api.levelEnd() _Game.game:endLevel() end
 ---Ends the current level without saving its data and marks it as a win.
-function api.levelWin() _Game:winLevel() end
+function api.levelWin() _Game.game:winLevel() end
 ---Ends the current level and saves its data in the current profile.
-function api.levelSave() _Game:saveLevel() end
+function api.levelSave() _Game.game:saveLevel() end
 ---Exits the game.
 function api.quit() _Game:quit() end
 
 ---Returns `true` if a level is in progress and can be accessed, `false` otherwise.
 ---@return boolean
-function api.levelExists() return _Game.level ~= nil end
+function api.levelExists() return _Game.game:getLevel() ~= nil end
 ---Returns the percentage progress of the `n`-th objective as a number in range [0, 1].
 ---@param n integer? The objective index, defaults to 1.
 ---@return number
-function api.levelGetProgress(n) return _Game.level:getObjectiveProgress(n or 1) end
+function api.levelGetProgress(n) return _Game.game:getLevel():getObjectiveProgress(n or 1) end
 ---Returns a list of objectives in the current level.
 ---@return LevelObjective[]
-function api.levelGetObjectives() return _Game.level.objectives end
+function api.levelGetObjectives() return _Game.game:getLevel().objectives end
 ---Returns the total amount of points scored in this level.
 ---@return integer
-function api.levelGetScore() return _Game.level.score end
+function api.levelGetScore() return _Game.game:getLevel().score end
 ---Returns the total amount of shot spheres in this level.
 ---@return integer
-function api.levelGetShots() return _Game.level.spheresShot end
+function api.levelGetShots() return _Game.game:getLevel().spheresShot end
 ---Returns the total amount of coins collected in this level.
 ---@return integer
-function api.levelGetCoins() return _Game.level.coins end
+function api.levelGetCoins() return _Game.game:getLevel().coins end
 ---Returns the total amount of gems collected in this level.
 ---@return integer
-function api.levelGetGems() return _Game.level.gems end
+function api.levelGetGems() return _Game.game:getLevel().gems end
 ---Returns the total amount of sphere trains spawned in this level.
 ---@return integer
-function api.levelGetChains() return _Game.level.sphereChainsSpawned end
+function api.levelGetChains() return _Game.game:getLevel().sphereChainsSpawned end
 ---Returns the current streak value (amount of consecutive matches) in this level.
 ---@return integer
-function api.levelGetStreak() return _Game.level.streak end
+function api.levelGetStreak() return _Game.game:getLevel().streak end
 ---Returns the maximum streak value (amount of consecutive matches) achieved in this level.
 ---@return integer
-function api.levelGetMaxStreak() return _Game.level.maxStreak end
+function api.levelGetMaxStreak() return _Game.game:getLevel().maxStreak end
 ---Returns the maximum cascade value (chain reactions) achieved in this level.
 ---@return integer
-function api.levelGetMaxCascade() return _Game.level.maxCascade end
+function api.levelGetMaxCascade() return _Game.game:getLevel().maxCascade end
 ---Returns whether this level score beats the previously recorded best score for this level.
 ---@return boolean
-function api.levelGetNewRecord() return _Game.level:hasNewScoreRecord() end
+function api.levelGetNewRecord() return _Game.game:getLevel():hasNewScoreRecord() end
 ---Returns the current shot accuracy in this level as a percentage from 0 to 1.
 ---@return number
-function api.levelGetAccuracy() return _Game.level:getShotAccuracy() end
+function api.levelGetAccuracy() return _Game.game:getLevel():getShotAccuracy() end
 
 ---Executes a Score Event on the current level.
 ---@param event string Path to the Score Event to be evaluated and executed.
 ---@param x number? X position of the score event, used for floating text.
 ---@param y number? Y position of the score event, used for floating text.
-function api.levelExecuteScoreEvent(event, x, y) _Game.level:executeScoreEvent(_Res:getScoreEventConfig(event), x, y) end
+function api.levelExecuteScoreEvent(event, x, y) _Game.game:getLevel():executeScoreEvent(_Res:getScoreEventConfig(event), x, y) end
 
 ---Plays or resumes the specified Music Track.
 ---@param music string Path to the Music Track to be affected.
@@ -126,108 +126,108 @@ function api.playSound(sound) _Res:getSoundEvent(sound):play() end
 
 ---comment
 ---@param name any
-function api.profileMSet(name) _Game.profileManager:setCurrentProfile(name) end
+function api.profileMSet(name) _Game.game.profileManager:setCurrentProfile(name) end
 ---comment
 ---@param name any
 ---@return boolean
-function api.profileMCreate(name) return _Game.profileManager:createProfile(name) end
+function api.profileMCreate(name) return _Game.game.profileManager:createProfile(name) end
 ---comment
 ---@param name any
-function api.profileMDelete(name) _Game.profileManager:deleteProfile(name) end
+function api.profileMDelete(name) _Game.game.profileManager:deleteProfile(name) end
 
 ---comment
 ---@return table
-function api.profileMGetNameOrder() return _Game.profileManager.order end
+function api.profileMGetNameOrder() return _Game.game.profileManager.order end
 
 ---comment
 ---@param checkpoint any
 ---@param difficulty any
-function api.profileNewGame(checkpoint, difficulty) _Game:getProfile():newGame(checkpoint, _Res:getDifficultyConfig(difficulty)) end
+function api.profileNewGame(checkpoint, difficulty) _Game.game:getProfile():newGame(checkpoint, _Res:getDifficultyConfig(difficulty)) end
 ---comment
-function api.profileDeleteGame() _Game:getProfile():deleteGame() end
+function api.profileDeleteGame() _Game.game:getProfile():deleteGame() end
 ---comment
-function api.profileLevelAdvance() _Game:getSession():advanceLevel() end
+function api.profileLevelAdvance() _Game.game:getSession():advanceLevel() end
 ---comment
 ---@return integer?
-function api.profileHighscoreWrite() return _Game:getSession():writeHighscore() end
+function api.profileHighscoreWrite() return _Game.game:getSession():writeHighscore() end
 
 ---comment
 ---@return boolean
-function api.profileGetExists() return _Game:getProfile() ~= nil end
+function api.profileGetExists() return _Game.game:getProfile() ~= nil end
 ---comment
 ---@return string
-function api.profileGetName() return _Game:getProfile().name end
+function api.profileGetName() return _Game.game:getProfile().name end
 ---comment
 ---@return unknown
-function api.profileGetLives() return _Game:getSession():getLives() end
+function api.profileGetLives() return _Game.game:getSession():getLives() end
 ---comment
 ---@return integer
-function api.profileGetCoins() return _Game:getSession():getCoins() end
+function api.profileGetCoins() return _Game.game:getSession():getCoins() end
 ---comment
 ---@return integer
-function api.profileGetScore() return _Game:getSession():getScore() end
+function api.profileGetScore() return _Game.game:getSession():getScore() end
 ---comment
 ---@return ProfileSession?
-function api.profileGetSession() return _Game:getSession() end
+function api.profileGetSession() return _Game.game:getSession() end
 ---comment
 ---@return integer
-function api.profileGetLevel() return _Game:getSession():getTotalLevel() end
+function api.profileGetLevel() return _Game.game:getSession():getTotalLevel() end
 ---comment
 ---@return LevelConfig
-function api.profileGetLevelData() return _Game:getSession():getLevelData() end
+function api.profileGetLevelData() return _Game.game:getSession():getLevelData() end
 ---comment
 ---@return string
-function api.profileGetLevelName() return _Game:getSession():getLevelName() end
+function api.profileGetLevelName() return _Game.game:getSession():getLevelName() end
 ---comment
 ---@return DifficultyConfig
-function api.profileGetDifficultyConfig() return _Game:getSession():getDifficultyConfig() end
+function api.profileGetDifficultyConfig() return _Game.game:getSession():getDifficultyConfig() end
 ---comment
 ---@return table?
-function api.profileGetSavedLevel() return _Game:getSession():getLevelSaveData() end
+function api.profileGetSavedLevel() return _Game.game:getSession():getLevelSaveData() end
 ---comment
 ---@return table?
-function api.profileGetMap() return _Game:getSession():getMapData() end
+function api.profileGetMap() return _Game.game:getSession():getMapData() end
 ---comment
 ---@return integer?
-function api.profileGetLatestCheckpoint() return _Game:getSession():getLatestCheckpoint() end
+function api.profileGetLatestCheckpoint() return _Game.game:getSession():getLatestCheckpoint() end
 ---comment
 ---@param levelSet any
 ---@return integer[]
-function api.profileGetUnlockedCheckpoints(levelSet) return _Game:getProfile():getUnlockedCheckpoints(_Res:getLevelSetConfig(levelSet)) end
+function api.profileGetUnlockedCheckpoints(levelSet) return _Game.game:getProfile():getUnlockedCheckpoints(_Res:getLevelSetConfig(levelSet)) end
 ---comment
 ---@param levelSet any
 ---@param n any
 ---@return boolean
-function api.profileIsCheckpointUnlocked(levelSet, n) return _Game:getProfile():isCheckpointUnlocked(_Res:getLevelSetConfig(levelSet), n) end
+function api.profileIsCheckpointUnlocked(levelSet, n) return _Game.game:getProfile():isCheckpointUnlocked(_Res:getLevelSetConfig(levelSet), n) end
 ---comment
 ---@return boolean
-function api.profileIsCheckpointUpcoming() return _Game:getSession():isCheckpointUpcoming() end
+function api.profileIsCheckpointUpcoming() return _Game.game:getSession():isCheckpointUpcoming() end
 
 ---comment
 ---@param name any
 ---@param value any
-function api.profileSetVariable(name, value) _Game:getProfile():setVariable(name, value) end
+function api.profileSetVariable(name, value) _Game.game:getProfile():setVariable(name, value) end
 ---comment
 ---@param name any
 ---@return any
-function api.profileGetVariable(name) return _Game:getProfile():getVariable(name) end
+function api.profileGetVariable(name) return _Game.game:getProfile():getVariable(name) end
 
 ---comment
-function api.highscoreReset() _Game.highscores:reset() end
+function api.highscoreReset() _Game.game.highscores:reset() end
 ---comment
 ---@param n any
 ---@return table
-function api.highscoreGetEntry(n) return _Game.highscores:getEntry(n) end
+function api.highscoreGetEntry(n) return _Game.game.highscores:getEntry(n) end
 
 ---comment
 ---@param key any
 ---@param ... unknown
 ---@return string
-function api.translate(key, ...) return _Game:translate(key, ...) end
+function api.translate(key, ...) return assert(_Game:translate(key, ...)) end
 ---comment
 ---@param name any
 ---@return table
-function api.configGetMapData(name) return _Game:getMapData(name) end
+function api.configGetMapData(name) return _Game.game:getMapData(name) end
 ---comment
 ---@param levelSet any
 ---@param n any
@@ -246,41 +246,41 @@ function api.configGetLevelCount(levelSet) return #_Res:getLevelSetConfig(levelS
 ---@param levelSet any
 ---@param n any
 ---@return integer
-function api.configGetCheckpointID(levelSet, n) return _Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet))[n].levelID end
+function api.configGetCheckpointID(levelSet, n) return _Game.game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet))[n].levelID end
 ---comment
 ---@param levelSet any
 ---@param n any
 ---@return integer
-function api.configGetCheckpointLevel(levelSet, n) return _Game:getProfile():getCheckpointLevelN(_Res:getLevelSetConfig(levelSet), n) end
+function api.configGetCheckpointLevel(levelSet, n) return _Game.game:getProfile():getCheckpointLevelN(_Res:getLevelSetConfig(levelSet), n) end
 ---comment
 ---@param levelSet any
 ---@return integer
-function api.configGetCheckpointCount(levelSet) return #_Game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet)) end
+function api.configGetCheckpointCount(levelSet) return #_Game.game:getProfile():getCheckpointData(_Res:getLevelSetConfig(levelSet)) end
 
 ---comment
 ---@return any
-function api.optionsGetMusicVolume() return _Game.options:getSetting("musicVolume") end
+function api.optionsGetMusicVolume() return _Game.game.options:getSetting("musicVolume") end
 ---comment
 ---@return any
-function api.optionsGetSoundVolume() return _Game.options:getSetting("soundVolume") end
+function api.optionsGetSoundVolume() return _Game.game.options:getSetting("soundVolume") end
 ---comment
 ---@return any
-function api.optionsGetFullscreen() return _Game.options:getSetting("fullscreen") end
+function api.optionsGetFullscreen() return _Game.game.options:getSetting("fullscreen") end
 ---comment
 ---@return any
-function api.optionsGetMute() return _Game.options:getSetting("mute") end
+function api.optionsGetMute() return _Game.game.options:getSetting("mute") end
 ---comment
 ---@param volume any
-function api.optionsSetMusicVolume(volume) _Game.options:setSetting("musicVolume", volume) end
+function api.optionsSetMusicVolume(volume) _Game.game.options:setSetting("musicVolume", volume) end
 ---comment
 ---@param volume any
-function api.optionsSetSoundVolume(volume) _Game.options:setSetting("soundVolume", volume) end
+function api.optionsSetSoundVolume(volume) _Game.game.options:setSetting("soundVolume", volume) end
 ---comment
 ---@param fullscreen any
-function api.optionsSetFullscreen(fullscreen) _Game.options:setSetting("fullscreen", fullscreen) end
+function api.optionsSetFullscreen(fullscreen) _Game.game.options:setSetting("fullscreen", fullscreen) end
 ---comment
 ---@param mute any
-function api.optionsSetMute(mute) _Game.options:setSetting("mute", mute) end
+function api.optionsSetMute(mute) _Game.game.options:setSetting("mute", mute) end
 
 ---comment
 ---@param name any

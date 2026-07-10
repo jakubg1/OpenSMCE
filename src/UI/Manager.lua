@@ -182,22 +182,19 @@ end
 ---Returns the default Sound Event which will be played when a UI button is pressed.
 ---@return SoundEvent?
 function UIManager:getButtonClickSound()
-    -- TODO: Move the `ui` section to a separate file or directly inside of the Game Config.
-	return _Game.gameplayConfig.ui.buttonClickSound
+	return _Game.config.ui and _Game.config.ui.buttonClickSound
 end
 
 ---Returns the default Sound Event which will be played when a UI button is released.
 ---@return SoundEvent?
 function UIManager:getButtonReleaseSound()
-    -- TODO: Move the `ui` section to a separate file or directly inside of the Game Config.
-	return _Game.gameplayConfig.ui.buttonReleaseSound
+	return _Game.config.ui and _Game.config.ui.buttonReleaseSound
 end
 
 ---Returns the default Sound Event which will be played when a UI button is hovered.
 ---@return SoundEvent?
 function UIManager:getButtonHoverSound()
-    -- TODO: Move the `ui` section to a separate file or directly inside of the Game Config.
-	return _Game.gameplayConfig.ui.buttonHoverSound
+	return _Game.config.ui and _Game.config.ui.buttonHoverSound
 end
 
 return UIManager

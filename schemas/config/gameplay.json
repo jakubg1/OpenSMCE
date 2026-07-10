@@ -4,25 +4,6 @@
     "description": "The root entry.",
     "properties": {
         "$schema": true,
-        "ui": {
-            "type": "object",
-            "description": "Defines parameters which are constant throughout the entire UI.",
-            "properties": {
-                "buttonClickSound": {
-                    "$ref": "../_structures/SoundEvent.json",
-                    "description": "The default Sound Event that will be played whenever a UI button has been clicked."
-                },
-                "buttonHoverSound": {
-                    "$ref": "../_structures/SoundEvent.json",
-                    "description": "The default Sound Event that will be played whenever a UI button has been hovered with a mouse cursor."
-                },
-                "buttonReleaseSound": {
-                    "$ref": "../_structures/SoundEvent.json",
-                    "description": "The default Sound Event that will be played whenever a UI button has been released (unpressed)."
-                }
-            },
-            "additionalProperties": false
-        },
         "scoreFormat": {
             "$ref": "../_structures/ExprString.json",
             "description": "The default score formatting used for Score Events if the Score Event doesn't specify one. Should be an Expression. If specified, can be used for further formatting by Score Events with the [event.fscore] variable.",
@@ -379,7 +360,6 @@
         }
     },
     "required": [
-        "ui",
         "sphereBehavior"
     ],
     "additionalProperties": false
