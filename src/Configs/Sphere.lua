@@ -33,17 +33,17 @@ function SphereConfig:new(data, path, isAnonymous, base)
     for i = 1, #data.sprites do
         self.sprites[i] = {}
         self.sprites[i].sprite = u.parseSprite(data, base, path, {"sprites", i, "sprite"})
-        self.sprites[i].layer = u.parseStringOpt(data, base, path, {"sprites", i, "layer"}, "GamePieceNormal")
-        self.sprites[i].hiddenLayer = u.parseStringOpt(data, base, path, {"sprites", i, "hiddenLayer"}, "GamePieceHidden")
-        self.sprites[i].shooterLayer = u.parseStringOpt(data, base, path, {"sprites", i, "shooterLayer"}, "GameBullet")
-        self.sprites[i].shotLayer = u.parseStringOpt(data, base, path, {"sprites", i, "shotLayer"}, "GameBullet")
-        self.sprites[i].offset = u.parseVec2Opt(data, base, path, {"sprites", i, "offset"}, Vec2())
-        self.sprites[i].anchor = u.parseVec2Opt(data, base, path, {"sprites", i, "anchor"}, Vec2(0.5, 0.5))
-        self.sprites[i].rotate = u.parseBooleanOpt(data, base, path, {"sprites", i, "rotate"}, true)
-        self.sprites[i].resize = u.parseBooleanOpt(data, base, path, {"sprites", i, "resize"}, true)
+        self.sprites[i].layer = u.parseString(data, base, path, {"sprites", i, "layer"}, "GamePieceNormal")
+        self.sprites[i].hiddenLayer = u.parseString(data, base, path, {"sprites", i, "hiddenLayer"}, "GamePieceHidden")
+        self.sprites[i].shooterLayer = u.parseString(data, base, path, {"sprites", i, "shooterLayer"}, "GameBullet")
+        self.sprites[i].shotLayer = u.parseString(data, base, path, {"sprites", i, "shotLayer"}, "GameBullet")
+        self.sprites[i].offset = u.parseVec2(data, base, path, {"sprites", i, "offset"}, Vec2())
+        self.sprites[i].anchor = u.parseVec2(data, base, path, {"sprites", i, "anchor"}, Vec2(0.5, 0.5))
+        self.sprites[i].rotate = u.parseBoolean(data, base, path, {"sprites", i, "rotate"}, true)
+        self.sprites[i].resize = u.parseBoolean(data, base, path, {"sprites", i, "resize"}, true)
         self.sprites[i].animationSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "animationSpeed"})
         self.sprites[i].rollingSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "rollingSpeed"})
-        self.sprites[i].rollingMultiplier = u.parseNumberOpt(data, base, path, {"sprites", i, "rollingMultiplier"}, 2)
+        self.sprites[i].rollingMultiplier = u.parseNumber(data, base, path, {"sprites", i, "rollingMultiplier"}, 2)
 
         ---@type Expression[]
         self.sprites[i].conditions = {}
@@ -54,34 +54,34 @@ function SphereConfig:new(data, path, isAnonymous, base)
         end
     end
 
-    self.size = u.parseNumberOpt(data, base, path, {"size"}, 32)
+    self.size = u.parseNumber(data, base, path, {"size"}, 32)
     self.idleParticle = u.parseParticleEffectConfigOpt(data, base, path, {"idleParticle"})
-    self.idleParticleLayer = u.parseStringOpt(data, base, path, {"idleParticleLayer"}, "GamePieceNormalPsys")
-    self.idleParticleHiddenLayer = u.parseStringOpt(data, base, path, {"idleParticleHiddenLayer"}, "GamePieceHiddenPsys")
-    self.idleParticleShooterLayer = u.parseStringOpt(data, base, path, {"idleParticleShooterLayer"}, "GameBulletPsys")
-    self.idleParticleShotLayer = u.parseStringOpt(data, base, path, {"idleParticleShotLayer"}, "GameBulletPsys")
+    self.idleParticleLayer = u.parseString(data, base, path, {"idleParticleLayer"}, "GamePieceNormalPsys")
+    self.idleParticleHiddenLayer = u.parseString(data, base, path, {"idleParticleHiddenLayer"}, "GamePieceHiddenPsys")
+    self.idleParticleShooterLayer = u.parseString(data, base, path, {"idleParticleShooterLayer"}, "GameBulletPsys")
+    self.idleParticleShotLayer = u.parseString(data, base, path, {"idleParticleShotLayer"}, "GameBulletPsys")
     self.holdParticle = u.parseParticleEffectConfigOpt(data, base, path, {"holdParticle"})
-    self.holdParticleLayer = u.parseStringOpt(data, base, path, {"holdParticleLayer"}, "GameBulletPsys")
+    self.holdParticleLayer = u.parseString(data, base, path, {"holdParticleLayer"}, "GameBulletPsys")
     self.destroyParticle = u.parseParticleEffectConfigOpt(data, base, path, {"destroyParticle"})
-    self.destroyParticleLayer = u.parseStringOpt(data, base, path, {"destroyParticleLayer"}, "GameCollapses")
+    self.destroyParticleLayer = u.parseString(data, base, path, {"destroyParticleLayer"}, "GameCollapses")
     self.destroyCollectible = u.parseCollectibleGeneratorConfigOpt(data, base, path, {"destroyCollectible"})
     self.destroySound = u.parseSoundEventOpt(data, base, path, {"destroySound"})
     self.destroyEvent = u.parseGameEventConfigOpt(data, base, path, {"destroyEvent"})
     self.chainDestroyParticle = u.parseParticleEffectConfigOpt(data, base, path, {"chainDestroyParticle"})
-    self.chainDestroyParticleLayer = u.parseStringOpt(data, base, path, {"chainDestroyParticleLayer"}, "GameCollapses")
+    self.chainDestroyParticleLayer = u.parseString(data, base, path, {"chainDestroyParticleLayer"}, "GameCollapses")
     self.chainDestroySound = u.parseSoundEventOpt(data, base, path, {"chainDestroySound"})
     self.color = u.parseColorOpt(data, base, path, {"color"})
     self.colorPalette = u.parseColorPaletteOpt(data, base, path, {"colorPalette"})
     self.colorPaletteSpeed = u.parseNumberOpt(data, base, path, {"colorPaletteSpeed"})
-    self.swappable = u.parseBooleanOpt(data, base, path, {"swappable"}, true)
+    self.swappable = u.parseBoolean(data, base, path, {"swappable"}, true)
 
     ---@type table
     if data.shotBehavior then
         self.shotBehavior = {}
         self.shotBehavior.type = u.parseString(data, base, path, {"shotBehavior", "type"})
         if self.shotBehavior.type == "normal" then
-            self.shotBehavior.amount = u.parseIntegerOpt(data, base, path, {"shotBehavior", "amount"}, 1)
-            self.shotBehavior.spreadAngle = u.parseNumberOpt(data, base, path, {"shotBehavior", "spreadAngle"}, 0)
+            self.shotBehavior.amount = u.parseInteger(data, base, path, {"shotBehavior", "amount"}, 1)
+            self.shotBehavior.spreadAngle = u.parseNumber(data, base, path, {"shotBehavior", "spreadAngle"}, 0)
             self.shotBehavior.gameEvent = u.parseGameEventConfigOpt(data, base, path, {"shotBehavior", "gameEvent"})
         elseif self.shotBehavior.type == "destroySpheres" then
             self.shotBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"shotBehavior", "selector"})
@@ -128,7 +128,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
             self.hitBehavior.selector = u.parseSphereSelectorConfig(data, base, path, {"hitBehavior", "selector"})
             self.hitBehavior.color = u.parseExprInteger(data, base, path, {"hitBehavior", "color"})
             self.hitBehavior.particle = u.parseParticleEffectConfigOpt(data, base, path, {"hitBehavior", "particle"})
-            self.hitBehavior.particleLayer = u.parseStringOpt(data, base, path, {"hitBehavior", "particleLayer"}, "GameCollapses")
+            self.hitBehavior.particleLayer = u.parseString(data, base, path, {"hitBehavior", "particleLayer"}, "GameCollapses")
             self.hitBehavior.pierce = u.parseBooleanOpt(data, base, path, {"hitBehavior", "pierce"})
         elseif self.hitBehavior.type == "splitAndPushBack" then
             self.hitBehavior.speed = u.parseNumber(data, base, path, {"hitBehavior", "speed"})
@@ -145,7 +145,7 @@ function SphereConfig:new(data, path, isAnonymous, base)
     self.hitSound = u.parseSoundEventOpt(data, base, path, {"hitSound"})
     ---@type "normal"|"stone"?
     self.type = u.parseStringOpt(data, base, path, {"type"})
-    self.autofire = u.parseBooleanOpt(data, base, path, {"autofire"}, false)
+    self.autofire = u.parseBoolean(data, base, path, {"autofire"}, false)
 
     ---@type integer[]
     self.matches = {}

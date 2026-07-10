@@ -1,4 +1,5 @@
 #!/bin/python
+
 import os, sys, json
 
 
@@ -999,10 +1000,12 @@ def docld_to_lua_value(entry, class_name, fields, optional):
 			raise Exception("ERROR: Cannot get a generic object or array parser")
 		lookup = lua_expr_type_assoc if "expression" in entry else lua_type_assoc
 		if entry["type"] in lookup:
-			function = "u." + lookup[entry["type"]] + ("Opt" if optional else "")
+			function = "u." + lookup[entry["type"]]
 		else:
 			# If the provided type is not present in the lookup, assume a registered resource parser such as `parseCollectibleGeneratorConfig`
-			function = "u.parse" + entry["type"] + "Config" + ("Opt" if optional else "")
+			function = "u.parse" + entry["type"] + "Config"
+		if optional and not "default" in entry:
+			function += "Opt"
 		default = ""
 		if "default" in entry:
 			default = ", "

@@ -33,8 +33,39 @@ local utils = {}
 
 
 -- HELPER FUNCTIONS
+
+---Returns `true` if the specified value is not a string or is a properly formatted string expression (starts with `${` and ends with `}`).
+---Returns `false` otherwise.
+---@param data any? Data to be checked.
+---@return boolean
 local function isValidExpression(data)
-	return type(data) ~= "string" or (data:sub(1, 2) == "${" and data:sub(data:len(), data:len()) == "}")
+	return type(data) ~= "string" or (_Utils.strStartsWith(data, "${") and _Utils.strEndsWith(data, "}"))
+end
+
+---Checks whether the provided expression in string form is formatted properly. Non-strings are treated as valid expressions.
+---Throws an error if the expression is an incorrectly formatted string.
+---@param data any? Data to be checked.
+local function assertValidExpression(data)
+	assert(isValidExpression(data), string.format("%s is not a valid expression (format is ${<expression>})", data))
+end
+
+---Constructs an Expression with the specified data. If `data` is `nil`, returns `nil` instead of throwing an error.
+---@param data any? Data to be used in the Expression.
+---@return Expression?
+local function maybeMakeExpression(data)
+	return data ~= nil and Expression(data) or nil
+end
+
+---This is a workaround because `false or nil` evaluates to `nil` instead of `false`.
+---Returns `a` if it is not `nil`, otherwise returns `b`.
+---@param a boolean? First argument.
+---@param b boolean? Second argument.
+---@return boolean?
+local function orWithoutNils(a, b)
+	if a ~= nil then
+		return a
+	end
+	return b
 end
 
 ---Returns `data` indexed by the provided path of fields.
@@ -58,7 +89,7 @@ end
 
 ---Turns the provided path of fields into a string representation.
 ---For example, providing `{"test", 1}` will return `"test[1]"`.
----@param fields any[]? A list of indexes. If not specified, the function will return `""`.
+---@param fields (string|integer)[]? A list of indexes. If not specified, the function will return `""`.
 ---@return string
 local function getFieldPathStr(fields)
 	if not fields then
@@ -78,188 +109,179 @@ local function getFieldPathStr(fields)
 	return str
 end
 
+---Returns a formatted error message including information about fields.
+---@param fields (string|integer)[]? A list of indexes marking where the value is found.
+---@param type string What should be expected. Shown in the error message.
+---@return string
+local function assertDataMsg(fields, type)
+	return string.format("field %s is missing (%s expected)", getFieldPathStr(fields), type)
+end
+
+---Checks whether the `data` is not null. If it is `null`, throws a formatted error including information about fields.
+---@param data any? Data to be checked.
+---@param fields (string|integer)[]? A list of indexes marking where the value is found.
+---@param type string What should be expected. Shown in the error message.
+local function assertData(data, fields, type)
+	assert(data, string.format("field %s is missing (%s expected)", getFieldPathStr(fields), type))
+end
+
 
 
 ---@return integer
-function utils.parseInteger(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (integer expected)", getFieldPathStr(fields)))
+function utils.parseInteger(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "integer"))
 	return value
 end
 
 ---@return integer?
-function utils.parseIntegerOpt(data, base, path, fields, default)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value or default
+function utils.parseIntegerOpt(data, base, path, fields)
+	return getDataValue(data, fields) or getDataValue(base, fields)
 end
 
 ---@return number
-function utils.parseNumber(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (number expected)", getFieldPathStr(fields)))
+function utils.parseNumber(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "number"))
 	return value
 end
 
 ---@return number?
-function utils.parseNumberOpt(data, base, path, fields, default)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value or default
+function utils.parseNumberOpt(data, base, path, fields)
+	return getDataValue(data, fields) or getDataValue(base, fields)
 end
 
 ---@return boolean
-function utils.parseBoolean(data, base, path, fields)
-	-- This is a workaround because `false or nil` evaluates to `nil` instead of `false`.
-	local dataValue = getDataValue(data, fields)
-	local value = getDataValue(base, fields)
-	if dataValue ~= nil then
-		value = dataValue
-	end
-	assert(data ~= nil, string.format("field %s is missing (boolean expected)", getFieldPathStr(fields)))
+function utils.parseBoolean(data, base, path, fields, default)
+	local value = orWithoutNils(orWithoutNils(getDataValue(data, fields), getDataValue(base, fields)), default)
+	assert(value ~= nil, assertDataMsg(fields, "boolean"))
 	return value
 end
 
 ---@return boolean?
-function utils.parseBooleanOpt(data, base, path, fields, default)
-	-- This is a workaround because `false or nil` evaluates to `nil` instead of `false`.
-	local dataValue = getDataValue(data, fields)
-	local value = getDataValue(base, fields)
-	if dataValue ~= nil then
-		value = dataValue
-	end
-	if value ~= nil then
-		return value
-	end
-	return default
+function utils.parseBooleanOpt(data, base, path, fields)
+	return orWithoutNils(getDataValue(data, fields), getDataValue(base, fields))
 end
 
 ---@return string
-function utils.parseString(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (string expected)", getFieldPathStr(fields)))
+function utils.parseString(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "string"))
 	return value
 end
 
 ---@return string?
-function utils.parseStringOpt(data, base, path, fields, default)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value or default
+function utils.parseStringOpt(data, base, path, fields)
+	return getDataValue(data, fields) or getDataValue(base, fields)
 end
 
 
 
----Parses a required Vector2 field for a config file.
+---Parses a required Vector2 field (or an optional with a default value) for a config file.
 ---@param data table The data to be parsed.
 ---@param fields any[] A list of indexes specifying the path inside of the file.
 ---@return Vector2
-function utils.parseVec2(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Vector2 expected)", getFieldPathStr(fields)))
+function utils.parseVec2(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "Vector2"))
 	return Vec2(value.x, value.y)
 end
 
----Parses an optional Vector2 field for a config file.
+---Parses an optional Vector2 field without a default value for a config file.
 ---@param data table The data to be parsed.
 ---@param fields any[] A list of indexes specifying the path inside of the file.
 ---@return Vector2?
-function utils.parseVec2Opt(data, base, path, fields, default)
+function utils.parseVec2Opt(data, base, path, fields)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and Vec2(value.x, value.y) or default
+	return value and Vec2(value.x, value.y)
 end
 
 ---@return Color
-function utils.parseColor(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Color expected)", getFieldPathStr(fields)))
+function utils.parseColor(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "Color"))
 	return Color(value.r, value.g, value.b)
 end
 
 ---@return Color?
-function utils.parseColorOpt(data, base, path, fields, default)
+function utils.parseColorOpt(data, base, path, fields)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and Color(value.r, value.g, value.b) or default
+	return value and Color(value.r, value.g, value.b)
 end
 
 
 
 ---@return Expression
-function utils.parseExprNumber(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (number expression expected)", getFieldPathStr(fields)))
-	assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
+function utils.parseExprNumber(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "number expression"))
+	assertValidExpression(value)
 	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprNumberOpt(data, base, path, fields, default)
+function utils.parseExprNumberOpt(data, base, path, fields)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	if value then
-		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
-	end
-	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
+	assertValidExpression(value)
+	return maybeMakeExpression(value)
 end
 
 ---@return Expression
-function utils.parseExprInteger(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (integer expression expected)", getFieldPathStr(fields)))
-	assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
+function utils.parseExprInteger(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "integer expression"))
+	assertValidExpression(value)
 	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprIntegerOpt(data, base, path, fields, default)
+function utils.parseExprIntegerOpt(data, base, path, fields)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	if value then
-		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
-	end
-	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
+	assertValidExpression(value)
+	return maybeMakeExpression(value)
 end
 
 ---@return Expression
-function utils.parseExprBoolean(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (boolean expression expected)", getFieldPathStr(fields)))
-	assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
+function utils.parseExprBoolean(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "boolean expression"))
+	assertValidExpression(value)
 	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprBooleanOpt(data, base, path, fields, default)
+function utils.parseExprBooleanOpt(data, base, path, fields)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	if value then
-		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
-	end
-	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
+	assertValidExpression(value)
+	return maybeMakeExpression(value)
 end
 
 ---@return Expression
-function utils.parseExprString(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (string expression expected)", getFieldPathStr(fields)))
+function utils.parseExprString(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "string expression"))
 	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprStringOpt(data, base, path, fields, default)
+function utils.parseExprStringOpt(data, base, path, fields)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
+	return maybeMakeExpression(value)
 end
 
 ---@return Expression
-function utils.parseExprVec2(data, base, path, fields)
-	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	assert(value, string.format("field %s is missing (Vector2 expression expected)", getFieldPathStr(fields)))
-	assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
+function utils.parseExprVec2(data, base, path, fields, default)
+	local value = getDataValue(data, fields) or getDataValue(base, fields) or default
+	assert(value, assertDataMsg(fields, "Vector2 expression"))
+	assertValidExpression(value)
 	return Expression(value)
 end
 
 ---@return Expression?
-function utils.parseExprVec2Opt(data, base, path, fields, default)
+function utils.parseExprVec2Opt(data, base, path, fields)
 	local value = getDataValue(data, fields) or getDataValue(base, fields)
-	if value then
-		assert(isValidExpression(value), string.format("%s is not a vaild expression (format is ${<expression>})", value))
-	end
-	return value and Expression(value) or (default ~= nil and Expression(default) or nil)
+	assertValidExpression(value)
+	return maybeMakeExpression(value)
 end
 
 

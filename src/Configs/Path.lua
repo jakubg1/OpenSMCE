@@ -33,8 +33,8 @@ function PathConfig:new(data, path, isAnonymous, base)
         self.nodes[i] = {}
         self.nodes[i].x = u.parseNumber(data, base, path, {"nodes", i, "x"})
         self.nodes[i].y = u.parseNumber(data, base, path, {"nodes", i, "y"})
-        self.nodes[i].scale = u.parseNumberOpt(data, base, path, {"nodes", i, "scale"}, 1)
-        self.nodes[i].hidden = u.parseBooleanOpt(data, base, path, {"nodes", i, "hidden"}, false)
+        self.nodes[i].scale = u.parseNumber(data, base, path, {"nodes", i, "scale"}, 1)
+        self.nodes[i].hidden = u.parseBoolean(data, base, path, {"nodes", i, "hidden"}, false)
         self.nodes[i].warp = u.parseBooleanOpt(data, base, path, {"nodes", i, "warp"})
     end
 end

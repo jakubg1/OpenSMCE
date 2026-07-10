@@ -32,12 +32,12 @@ function GameConfig:new(data, path, isAnonymous, base)
     self.engineVersion = u.parseString(data, base, path, {"engineVersion"})
     self.nativeResolution = u.parseVec2(data, base, path, {"nativeResolution"})
     self.windowResolution = u.parseVec2Opt(data, base, path, {"windowResolution"})
-    self.resizableWindow = u.parseBooleanOpt(data, base, path, {"resizableWindow"}, true)
+    self.resizableWindow = u.parseBoolean(data, base, path, {"resizableWindow"}, true)
     self.layers = u.parseLayersConfigOpt(data, base, path, {"layers"})
     self.locale = u.parseLocaleConfigOpt(data, base, path, {"locale"})
-    self.tickRate = u.parseIntegerOpt(data, base, path, {"tickRate"}, 60)
+    self.tickRate = u.parseInteger(data, base, path, {"tickRate"}, 60)
     ---@type "filtered"|"pixel"|"pixelPerfect"
-    self.canvasRenderingMode = u.parseStringOpt(data, base, path, {"canvasRenderingMode"}, "filtered")
+    self.canvasRenderingMode = u.parseString(data, base, path, {"canvasRenderingMode"}, "filtered")
 
     ---@type {buttonClickSound: SoundEvent?, buttonHoverSound: SoundEvent?, buttonReleaseSound: SoundEvent?}
     if data.ui then

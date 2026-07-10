@@ -69,7 +69,7 @@ function GameplayConfig:new(data, path, isAnonymous, base)
     self.sphereBehavior.permitLongMatches = u.parseBoolean(data, base, path, {"sphereBehavior", "permitLongMatches"})
     self.sphereBehavior.instantMatches = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "instantMatches"})
     ---@type "chain"|"path"|"level"
-    self.sphereBehavior.cascadeScope = u.parseStringOpt(data, base, path, {"sphereBehavior", "cascadeScope"}, "chain")
+    self.sphereBehavior.cascadeScope = u.parseString(data, base, path, {"sphereBehavior", "cascadeScope"}, "chain")
 
     ---@type {reference: "front"|"back", distance: number, forwards: boolean, backwards: boolean, event: GameEventConfig}[]
     self.sphereBehavior.distanceEvents = {}
@@ -79,8 +79,8 @@ function GameplayConfig:new(data, path, isAnonymous, base)
             ---@type "front"|"back"
             self.sphereBehavior.distanceEvents[i].reference = u.parseString(data, base, path, {"sphereBehavior", "distanceEvents", i, "reference"})
             self.sphereBehavior.distanceEvents[i].distance = u.parseNumber(data, base, path, {"sphereBehavior", "distanceEvents", i, "distance"})
-            self.sphereBehavior.distanceEvents[i].forwards = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "distanceEvents", i, "forwards"}, false)
-            self.sphereBehavior.distanceEvents[i].backwards = u.parseBooleanOpt(data, base, path, {"sphereBehavior", "distanceEvents", i, "backwards"}, false)
+            self.sphereBehavior.distanceEvents[i].forwards = u.parseBoolean(data, base, path, {"sphereBehavior", "distanceEvents", i, "forwards"}, false)
+            self.sphereBehavior.distanceEvents[i].backwards = u.parseBoolean(data, base, path, {"sphereBehavior", "distanceEvents", i, "backwards"}, false)
             self.sphereBehavior.distanceEvents[i].event = u.parseGameEventConfig(data, base, path, {"sphereBehavior", "distanceEvents", i, "event"})
         end
     end
@@ -89,7 +89,7 @@ function GameplayConfig:new(data, path, isAnonymous, base)
     if data.net then
         self.net = {}
         self.net.particle = u.parseParticleEffectConfig(data, base, path, {"net", "particle"})
-        self.net.particleLayer = u.parseStringOpt(data, base, path, {"net", "particleLayer"}, "GamePowerups")
+        self.net.particleLayer = u.parseString(data, base, path, {"net", "particleLayer"}, "GamePowerups")
         self.net.sound = u.parseSoundEvent(data, base, path, {"net", "sound"})
         self.net.posY = u.parseInteger(data, base, path, {"net", "posY"})
     end
@@ -108,7 +108,7 @@ function GameplayConfig:new(data, path, isAnonymous, base)
         for n, _ in pairs(data.levelTimers) do
             self.levelTimers[n] = {}
             self.levelTimers[n].countDown = u.parseBooleanOpt(data, base, path, {"levelTimers", n, "countDown"})
-            self.levelTimers[n].value = u.parseNumberOpt(data, base, path, {"levelTimers", n, "value"}, 0)
+            self.levelTimers[n].value = u.parseNumber(data, base, path, {"levelTimers", n, "value"}, 0)
         end
     end
 

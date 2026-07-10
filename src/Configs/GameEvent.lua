@@ -47,7 +47,7 @@ function GameEventConfig:new(data, path, isAnonymous, base)
         self.value = u.parseExprNumber(data, base, path, {"value"})
     elseif self.type == "setLevelTimer" then
         self.timer = u.parseString(data, base, path, {"timer"})
-        self.time = u.parseExprNumberOpt(data, base, path, {"time"}, 0)
+        self.time = u.parseExprNumber(data, base, path, {"time"}, 0)
     elseif self.type == "addToTimerSeries" then
         self.timerSeries = u.parseString(data, base, path, {"timerSeries"})
         self.time = u.parseExprNumber(data, base, path, {"time"})

@@ -28,12 +28,12 @@ function SoundEventConfig:new(data, path, isAnonymous, base)
     base = base or {}
 
     self.sound = u.parseSoundOpt(data, base, path, {"sound"})
-    self.loop = u.parseBooleanOpt(data, base, path, {"loop"}, false)
-    self.flat = u.parseBooleanOpt(data, base, path, {"flat"}, false)
-    self.volume = u.parseExprNumberOpt(data, base, path, {"volume"}, 1)
-    self.pitch = u.parseExprNumberOpt(data, base, path, {"pitch"}, 1)
+    self.loop = u.parseBoolean(data, base, path, {"loop"}, false)
+    self.flat = u.parseBoolean(data, base, path, {"flat"}, false)
+    self.volume = u.parseExprNumber(data, base, path, {"volume"}, 1)
+    self.pitch = u.parseExprNumber(data, base, path, {"pitch"}, 1)
     self.playsPerFrame = u.parseIntegerOpt(data, base, path, {"playsPerFrame"})
-    self.instances = u.parseIntegerOpt(data, base, path, {"instances"}, 8)
+    self.instances = u.parseInteger(data, base, path, {"instances"}, 8)
 
     ---@type {sound: Sound, loop: boolean, flat: boolean, volume: Expression, pitch: Expression, playsPerFrame: integer?, instances: integer, conditions: Expression[]}[]
     self.sounds = {}
@@ -41,12 +41,12 @@ function SoundEventConfig:new(data, path, isAnonymous, base)
         for i = 1, #data.sounds do
             self.sounds[i] = {}
             self.sounds[i].sound = u.parseSound(data, base, path, {"sounds", i, "sound"})
-            self.sounds[i].loop = u.parseBooleanOpt(data, base, path, {"sounds", i, "loop"}, false)
-            self.sounds[i].flat = u.parseBooleanOpt(data, base, path, {"sounds", i, "flat"}, false)
-            self.sounds[i].volume = u.parseExprNumberOpt(data, base, path, {"sounds", i, "volume"}, 1)
-            self.sounds[i].pitch = u.parseExprNumberOpt(data, base, path, {"sounds", i, "pitch"}, 1)
+            self.sounds[i].loop = u.parseBoolean(data, base, path, {"sounds", i, "loop"}, false)
+            self.sounds[i].flat = u.parseBoolean(data, base, path, {"sounds", i, "flat"}, false)
+            self.sounds[i].volume = u.parseExprNumber(data, base, path, {"sounds", i, "volume"}, 1)
+            self.sounds[i].pitch = u.parseExprNumber(data, base, path, {"sounds", i, "pitch"}, 1)
             self.sounds[i].playsPerFrame = u.parseIntegerOpt(data, base, path, {"sounds", i, "playsPerFrame"})
-            self.sounds[i].instances = u.parseIntegerOpt(data, base, path, {"sounds", i, "instances"}, 8)
+            self.sounds[i].instances = u.parseInteger(data, base, path, {"sounds", i, "instances"}, 8)
 
             ---@type Expression[]
             self.sounds[i].conditions = {}

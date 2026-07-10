@@ -34,15 +34,15 @@ function FontConfig:new(data, path, isAnonymous, base)
         for n, _ in pairs(data.characters) do
             self.characters[n] = {}
             self.characters[n].x = u.parseInteger(data, base, path, {"characters", n, "x"})
-            self.characters[n].y = u.parseIntegerOpt(data, base, path, {"characters", n, "y"}, 0)
+            self.characters[n].y = u.parseInteger(data, base, path, {"characters", n, "y"}, 0)
             self.characters[n].width = u.parseInteger(data, base, path, {"characters", n, "width"})
         end
         self.height = u.parseIntegerOpt(data, base, path, {"height"})
-        self.lineSpacing = u.parseNumberOpt(data, base, path, {"lineSpacing"}, 0)
+        self.lineSpacing = u.parseNumber(data, base, path, {"lineSpacing"}, 0)
     elseif self.type == "imageLove" then
         self.image = u.parseImage(data, base, path, {"image"})
         self.characters = u.parseString(data, base, path, {"characters"})
-        self.spacing = u.parseIntegerOpt(data, base, path, {"spacing"}, 1)
+        self.spacing = u.parseInteger(data, base, path, {"spacing"}, 1)
     elseif self.type == "truetype" then
         self.file = u.parseFontFile(data, base, path, {"file"})
         self.size = u.parseInteger(data, base, path, {"size"})

@@ -74,7 +74,7 @@ function LevelConfig:new(data, path, isAnonymous, base)
         self.pathsBehavior[i].spawnDistance = u.parseNumber(data, base, path, {"pathsBehavior", i, "spawnDistance"})
         self.pathsBehavior[i].dangerDistance = u.parseNumber(data, base, path, {"pathsBehavior", i, "dangerDistance"})
         self.pathsBehavior[i].dangerParticle = u.parseParticleEffectConfigOpt(data, base, path, {"pathsBehavior", i, "dangerParticle"})
-        self.pathsBehavior[i].dangerParticleLayer = u.parseStringOpt(data, base, path, {"pathsBehavior", i, "dangerParticleLayer"}, "GameLevelWarningPsys")
+        self.pathsBehavior[i].dangerParticleLayer = u.parseString(data, base, path, {"pathsBehavior", i, "dangerParticleLayer"}, "GameLevelWarningPsys")
 
         ---@type {distance: number?, offset: number?, offsetFromEnd: number?, speed: number, transition: table}[]
         self.pathsBehavior[i].speeds = {}

@@ -30,14 +30,14 @@ function CollectibleConfig:new(data, path, isAnonymous, base)
     self.speed = u.parseExprVec2(data, base, path, {"speed"})
     self.acceleration = u.parseExprVec2(data, base, path, {"acceleration"})
     self.particle = u.parseParticleEffectConfig(data, base, path, {"particle"})
-    self.particleLayer = u.parseStringOpt(data, base, path, {"particleLayer"}, "GamePowerups")
+    self.particleLayer = u.parseString(data, base, path, {"particleLayer"}, "GamePowerups")
     self.pickupParticle = u.parseParticleEffectConfigOpt(data, base, path, {"pickupParticle"})
-    self.pickupParticleLayer = u.parseStringOpt(data, base, path, {"pickupParticleLayer"}, "GamePowerups")
+    self.pickupParticleLayer = u.parseString(data, base, path, {"pickupParticleLayer"}, "GamePowerups")
     self.spawnSound = u.parseSoundEventOpt(data, base, path, {"spawnSound"})
     self.pickupSound = u.parseSoundEventOpt(data, base, path, {"pickupSound"})
     self.pickupName = u.parseExprStringOpt(data, base, path, {"pickupName"})
     self.pickupFont = u.parseFontOpt(data, base, path, {"pickupFont"})
-    self.pickupTextLayer = u.parseStringOpt(data, base, path, {"pickupTextLayer"}, "GameScores")
+    self.pickupTextLayer = u.parseString(data, base, path, {"pickupTextLayer"}, "GameScores")
 
     ---@type CollectibleEffectConfig[]
     self.effects = {}

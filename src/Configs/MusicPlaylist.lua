@@ -34,7 +34,7 @@ function MusicPlaylistConfig:new(data, path, isAnonymous, base)
     end
 
     ---@type "random"|"sequence"
-    self.order = u.parseStringOpt(data, base, path, {"order"}, "random")
+    self.order = u.parseString(data, base, path, {"order"}, "random")
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

@@ -36,8 +36,8 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         self.sprites[i] = {}
         self.sprites[i].sprite = u.parseSprite(data, base, path, {"sprites", i, "sprite"})
         self.sprites[i].layer = u.parseString(data, base, path, {"sprites", i, "layer"})
-        self.sprites[i].offset = u.parseVec2Opt(data, base, path, {"sprites", i, "offset"}, Vec2())
-        self.sprites[i].anchor = u.parseVec2Opt(data, base, path, {"sprites", i, "anchor"}, Vec2(0.5, 0.5))
+        self.sprites[i].offset = u.parseVec2(data, base, path, {"sprites", i, "offset"}, Vec2())
+        self.sprites[i].anchor = u.parseVec2(data, base, path, {"sprites", i, "anchor"}, Vec2(0.5, 0.5))
         self.sprites[i].animationSpeed = u.parseNumberOpt(data, base, path, {"sprites", i, "animationSpeed"})
 
         ---@type Expression[]
@@ -77,20 +77,20 @@ function ShooterConfig:new(data, path, isAnonymous, base)
     ---@type {sprite: Sprite, layer: string, fadeTime: number, renderingType: "full"|"cut"|"scale", colored: boolean}
     self.speedShotBeam = {}
     self.speedShotBeam.sprite = u.parseSprite(data, base, path, {"speedShotBeam", "sprite"})
-    self.speedShotBeam.layer = u.parseStringOpt(data, base, path, {"speedShotBeam", "layer"}, "GameSpeedShotPsys")
+    self.speedShotBeam.layer = u.parseString(data, base, path, {"speedShotBeam", "layer"}, "GameSpeedShotPsys")
     self.speedShotBeam.fadeTime = u.parseNumber(data, base, path, {"speedShotBeam", "fadeTime"})
     ---@type "full"|"cut"|"scale"
     self.speedShotBeam.renderingType = u.parseString(data, base, path, {"speedShotBeam", "renderingType"})
     self.speedShotBeam.colored = u.parseBoolean(data, base, path, {"speedShotBeam", "colored"})
 
     self.speedShotParticle = u.parseParticleEffectConfigOpt(data, base, path, {"speedShotParticle"})
-    self.speedShotParticleLayer = u.parseStringOpt(data, base, path, {"speedShotParticleLayer"}, "GameSpeedShotPsys")
+    self.speedShotParticleLayer = u.parseString(data, base, path, {"speedShotParticleLayer"}, "GameSpeedShotPsys")
     self.shotSpeed = u.parseNumber(data, base, path, {"shotSpeed"})
-    self.shotCooldown = u.parseNumberOpt(data, base, path, {"shotCooldown"}, 0)
-    self.shotCooldownFade = u.parseNumberOpt(data, base, path, {"shotCooldownFade"}, 0)
-    self.multishot = u.parseBooleanOpt(data, base, path, {"multishot"}, false)
-    self.autofire = u.parseBooleanOpt(data, base, path, {"autofire"}, false)
-    self.destroySphereOnFail = u.parseBooleanOpt(data, base, path, {"destroySphereOnFail"}, false)
+    self.shotCooldown = u.parseNumber(data, base, path, {"shotCooldown"}, 0)
+    self.shotCooldownFade = u.parseNumber(data, base, path, {"shotCooldownFade"}, 0)
+    self.multishot = u.parseBoolean(data, base, path, {"multishot"}, false)
+    self.autofire = u.parseBoolean(data, base, path, {"autofire"}, false)
+    self.destroySphereOnFail = u.parseBoolean(data, base, path, {"destroySphereOnFail"}, false)
 
     ---@type {duration: number, strength: number, speedShotDuration: number?, speedShotStrength: number?}
     if data.knockback then
@@ -101,7 +101,7 @@ function ShooterConfig:new(data, path, isAnonymous, base)
         self.knockback.speedShotStrength = u.parseNumberOpt(data, base, path, {"knockback", "speedShotStrength"})
     end
 
-    self.hitboxOffset = u.parseVec2Opt(data, base, path, {"hitboxOffset"}, Vec2())
+    self.hitboxOffset = u.parseVec2(data, base, path, {"hitboxOffset"}, Vec2())
     self.hitboxSize = u.parseVec2(data, base, path, {"hitboxSize"})
 end
 

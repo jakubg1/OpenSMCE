@@ -46,7 +46,7 @@ function ScoreEventConfig:new(data, path, isAnonymous, base)
         self.fonts.choice = u.parseExprInteger(data, base, path, {"fonts", "choice"})
     end
 
-    self.layer = u.parseStringOpt(data, base, path, {"layer"}, "GameScores")
+    self.layer = u.parseString(data, base, path, {"layer"}, "GameScores")
 end
 
 ---Injects functions to Resource Manager regarding this resource type.
