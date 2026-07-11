@@ -79,29 +79,34 @@ end
 -- This function allows to load images from external sources.
 -- This is an altered code from https://love2d.org/forums/viewtopic.php?t=85350#p221460
 
----Opens an image file and returns its data.
----Returns `nil` if the file has not been found.
+---Opens an image file and returns its data. Returns `nil` if the file has not been found.
 ---@param path string The path to the file.
 ---@return love.ImageData?
 function utils.loadImageData(path)
 	local data = utils.loadFileBinary(path)
-	if data then
-		data = love.filesystem.newFileData(data, "tempname")
-		data = love.image.newImageData(data)
-		return data
-	end
+	return data and love.image.newImageData(love.filesystem.newFileData(data, "tempname"))
 end
 
----Opens an image file and constructs `love.Image` from it.
----Returns `nil` if the file has not been found.
+---Opens an image file and returns its data. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@return love.ImageData
+function utils.assertLoadImageData(path)
+	return assert(utils.loadImageData(path), string.format("Image data not found: %s", path))
+end
+
+---Opens an image file and constructs `love.Image` from it. Returns `nil` if the file has not been found.
 ---@param path string The path to the file.
 ---@return love.Image?
 function utils.loadImage(path)
 	local imageData = utils.loadImageData(path)
-	if not imageData then
-		return
-	end
-	return love.graphics.newImage(imageData)
+	return imageData and love.graphics.newImage(imageData)
+end
+
+---Opens an image file and constructs `love.Image` from it. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@return love.Image
+function utils.assertLoadImage(path)
+	return assert(utils.loadImage(path), string.format("Image not found: %s", path))
 end
 
 -- This function allows to load sounds from external sources.
@@ -117,10 +122,15 @@ function utils.loadSoundData(path)
 		-- source: https://love2d.org/wiki/love.filesystem.newFileData
 		local t = utils.strSplit(path, ".")
 		local extension = t[#t]
-		data = love.filesystem.newFileData(data, "tempname." .. extension)
-		data = love.sound.newSoundData(data)
-		return data
+		return love.sound.newSoundData(love.filesystem.newFileData(data, "tempname." .. extension))
 	end
+end
+
+---Opens a sound file and returns its sound data. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@return love.SoundData
+function utils.assertLoadSoundData(path)
+	return assert(utils.loadSoundData(path), string.format("Sound data not found: %s", path))
 end
 
 ---Opens a sound file and constructs `love.Source` from it. Returns `nil` if the file has not been found.
@@ -132,6 +142,14 @@ function utils.loadSound(path, type)
 	return soundData and love.audio.newSource(soundData, type)
 end
 
+---Opens a sound file and constructs `love.Source` from it. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@param type "static"|"stream" How the sound should be loaded: `"static"` or `"stream"`.
+---@return love.Source
+function utils.assertLoadSound(path, type)
+	return assert(utils.loadSound(path, type), string.format("Sound not found: %s", path))
+end
+
 -- This function allows to load fonts from external sources.
 -- This is an altered code from the above function.
 
@@ -141,11 +159,15 @@ end
 ---@return love.Rasterizer?
 function utils.loadFontData(path, size)
 	local data = utils.loadFileBinary(path)
-	if data then
-		data = love.filesystem.newFileData(data, "tempname")
-		data = love.font.newRasterizer(data, size)
-		return data
-	end
+	return data and love.font.newRasterizer(love.filesystem.newFileData(data, "tempname"), size)
+end
+
+---Opens a font file and returns its font data. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@param size integer? The size of the font, in pixels. Defaults to LOVE-specified 12 pixels.
+---@return love.Rasterizer
+function utils.assertLoadFontData(path, size)
+	return assert(utils.loadFontData(path, size), string.format("Font data not found: %s", path))
 end
 
 ---Opens a font file and constructs `love.Font` from it. Returns `nil` if the file has not been found.
@@ -157,12 +179,27 @@ function utils.loadFont(path, size)
 	return fontData and love.graphics.newFont(fontData)
 end
 
----Opens a shader file and constructs `love.Shader` from it. Returns `nil` if file not found.
+---Opens a font file and constructs `love.Font` from it. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@param size integer? The size of the font, in pixels. Defaults to LOVE-specified 12 pixels.
+---@return love.Font
+function utils.assertLoadFont(path, size)
+	return assert(utils.loadFont(path, size), string.format("Font not found: %s", path))
+end
+
+---Opens a shader file and constructs `love.Shader` from it. Returns `nil` if the file has not been found.
 ---@param path string The path to the file.
 ---@return love.Shader?
 function utils.loadShader(path)
 	local data = utils.loadFile(path)
 	return data and love.graphics.newShader(data)
+end
+
+---Opens a shader file and constructs `love.Shader` from it. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@return love.Shader
+function utils.assertLoadShader(path)
+	return assert(utils.loadShader(path), string.format("Shader not found: %s", path))
 end
 
 ---Returns a list of directories and/or files in a given path.

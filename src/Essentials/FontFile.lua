@@ -15,9 +15,7 @@ end
 ---@param size integer? The font size, `12` by default.
 ---@return love.Font
 function FontFile:makeFont(size)
-	local font = _Utils.loadFont(_ParsePath(self.path), size)
-	assert(font, "Failed to make a font: " .. self.path)
-	return font
+	return _Utils.assertLoadFont(_ParsePath(self.path), size)
 end
 
 ---Injects functions to Resource Manager regarding this resource type.

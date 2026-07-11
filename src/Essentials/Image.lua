@@ -11,8 +11,7 @@ local Image = class:derive("Image")
 function Image:new(data, path)
 	self.path = path
 
-	self.data = _Utils.loadImageData(_ParsePath(path))
-	assert(self.data, "Failed to load image data: " .. path)
+	self.data = _Utils.assertLoadImageData(_ParsePath(path))
 	self.img = love.graphics.newImage(self.data)
 	self.size = Vec2(self.img:getDimensions())
 end

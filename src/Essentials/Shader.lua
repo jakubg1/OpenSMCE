@@ -9,8 +9,7 @@ local Shader = class:derive("Shader")
 ---@param path string The path to the shader file.
 function Shader:new(data, path)
 	self.path = path
-	self.shader = _Utils.loadShader(_ParsePath(path))
-	assert(self.shader, "Failed to load shader data: " .. path)
+	self.shader = _Utils.assertLoadShader(_ParsePath(path))
 end
 
 ---Returns the LOVE2D shader object representing this Shader.

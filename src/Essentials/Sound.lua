@@ -9,8 +9,7 @@ local Sound = class:derive("Sound")
 ---@param data nil Unused, but required due to standardized resource constructors.
 ---@param path string The path to the sound file.
 function Sound:new(data, path)
-	self.data = _Utils.loadSoundData(_ParsePath(path))
-	assert(self.data, "Failed to load sound data: " .. path)
+	self.data = _Utils.assertLoadSoundData(_ParsePath(path))
 end
 
 ---Makes a LOVE2D Audio Source from the data of this Sound.
