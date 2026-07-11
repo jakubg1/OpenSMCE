@@ -28,6 +28,13 @@ function utils.loadFile(path)
 	return contents
 end
 
+---Loads a file from a given path and returns its contents. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@return string
+function utils.assertLoadFile(path)
+	return assert(utils.loadFile(path), string.format("File not found: %s", path))
+end
+
 ---Loads a file from a given path and returns its contents in binary form, or `nil` if the file has not been found.
 ---@param path string The path to the file.
 ---@return string?
@@ -43,13 +50,20 @@ function utils.loadFileBinary(path)
 	return contents
 end
 
+---Loads a file from a given path and returns its contents in binary form. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@return string
+function utils.assertLoadFileBinary(path)
+	return assert(utils.loadFileBinary(path), string.format("Binary file not found: %s", path))
+end
+
 ---Saves a file to the given path with the given contents. Errors out if the file cannot be created.
 ---@param path string The path to the file.
 ---@param data string The contents of the file.
 ---@param append boolean? If set to `true`, the data will be appended at the end of the file, if it exists.
 function utils.saveFile(path, data, append)
-	local file = io.open(path, append and "a" or "w")
-	assert(file, string.format("SAVE FILE FAIL: %s", path))
+	local file, err = io.open(path, append and "a" or "w")
+	assert(file, string.format("Failed to save file: %s (%s)", path, err))
 	io.output(file)
 	io.write(data)
 	io.close(file)
@@ -67,6 +81,13 @@ function utils.loadJson(path)
 	assert(success, string.format("JSON error: %s: %s", path, tostring(data)))
 	assert(data, string.format("Could not JSON-decode: %s, error in file contents", path))
 	return data
+end
+
+---Loads a file from a given path and interprets it as JSON data. Throws an error if the file has not been found.
+---@param path string The path to the file.
+---@return table
+function utils.assertLoadJson(path)
+	return assert(utils.loadJson(path), string.format("JSON file not found: %s", path))
 end
 
 ---Saves a file to the given path with the given contents, converted and beautified in JSON format. Errors out if the file cannot be created.

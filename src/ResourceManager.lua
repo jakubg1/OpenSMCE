@@ -278,7 +278,7 @@ function ResourceManager:loadResource(key, batches)
 	local contents = nil
 	local baseResource = nil
 	if _Utils.strEndsWith(key, ".json") then
-		contents = assert(_Utils.loadJson(_ParsePath(key)), "File not found: " .. key)
+		contents = _Utils.assertLoadJson(_ParsePath(key))
 		-- Determine the resource type based on schema.
 		resType = self:getResourceTypeFromSchema(contents["$schema"])
 		-- Load the base resource if defined.
