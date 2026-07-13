@@ -164,7 +164,10 @@ function Display:draw()
     end
 	love.graphics.setColor(1, 1, 1)
 	love.graphics.draw(self.renderCanvas, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
+    -- To avoid artifacts, the debug canvas is drawn as a premultiplied layer.
+    love.graphics.setBlendMode("alpha", "premultiplied")
 	love.graphics.draw(self.debugCanvas, self:getDisplayOffsetX(), self:getDisplayOffsetY(), 0, self:getCanvasScale())
+    love.graphics.setBlendMode("alpha", "alphamultiply")
     if self.funniFlashlight then
         love.graphics.setStencilTest()
     end

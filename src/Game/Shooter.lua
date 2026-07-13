@@ -742,6 +742,7 @@ end
 function Shooter:drawDebug()
     local p = self.pos + self.config.hitboxOffset - self.config.hitboxSize / 2
     local s = self.config.hitboxSize
+    love.graphics.setLineWidth(2)
     love.graphics.rectangle("line", p.x, p.y, s.x, s.y)
 end
 
