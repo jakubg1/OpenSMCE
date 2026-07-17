@@ -841,8 +841,8 @@ end
 ---@param n number The number to be formatted.
 ---@return string
 function utils.formatNumber(n)
-	local text = ""
-	local s = tostring(n)
+	local text = n < 0 and "-" or ""
+	local s = tostring(math.abs(n))
 	local l = s:len()
 	for i = 1, l do
 		text = text .. s:sub(i, i)
