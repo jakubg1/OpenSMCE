@@ -61,7 +61,7 @@ local Network = require("src.Network")
 local ThreadManager = require("src.ThreadManager")
 
 _VERSION = "v0.52.0"
-_VERSION_NAME = "Beta 4.12.0-dev"
+_VERSION_NAME = "Beta 4.12.0"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 _START_TIME = love.timer.getTime()
 
