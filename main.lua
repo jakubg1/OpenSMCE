@@ -60,8 +60,8 @@ local DiscordRichPresence = require("src.DiscordRichPresence")
 local Network = require("src.Network")
 local ThreadManager = require("src.ThreadManager")
 
-_VERSION = "v0.52.0"
-_VERSION_NAME = "Beta 4.12.0"
+_VERSION = "v0.52.1"
+_VERSION_NAME = "Beta 4.12.1-dev"
 _DISCORD_APPLICATION_ID = "797956172539887657"
 _START_TIME = love.timer.getTime()
 
