@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 ---@type {type: "test", a: {field: integer}?}
 self.obj = {}
 self.obj.type = u.parseString(data, base, path, {"obj", "type"})

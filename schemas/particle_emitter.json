@@ -17,7 +17,7 @@
             "description": "The acceleration of the Emitter."
         },
         "lifespan": {
-            "type": "number",
+            "$ref": "_structures/ExprNumber.json",
             "description": "How many seconds the Emitter should exist. If left out, this Emitter will never despawn and the entire Particle Packet will be a persistent packet.",
             "minimum": 0.0
         },

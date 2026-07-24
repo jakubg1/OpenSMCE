@@ -1278,21 +1278,28 @@ def docl_convert_file_lua(path_in, path_out):
 
 # Converts a DocLang (.docl) file to a config class, and then matches its contents with what's in the specified Config Class file (.lua).
 def docl_test_file_lua(path_test, path_against):
+	# Load DocLang contents.
 	contents_test = load_file(path_test)
+	# Load the .lua test file.
 	try:
 		contents_against = load_file(path_against)
 	except IOError:
 		contents_against = None
 	contents_tested = docl_to_lua(contents_test, "ExampleObject", "example_object.json", False)
+	# Include the warning silencer to match the testcases.
+	contents_tested = "---@diagnostic disable: undefined-global\n" + contents_tested
 	if contents_against == None:
+		# The file could not be loaded for one reason or another.
 		print(path_test + " -> " + path_against + ": " + C_YELLOW + "NO LUA FILE FOUND" + C_RESET)
 		print(indent_text(C_YELLOW + C_BOLD + "Should be:" + C_RESET, 4))
 		print(indent_text(contents_tested, 8))
 		return False
 	elif contents_tested == contents_against:
+		# Test passed! ^_^
 		print(path_test + " -> " + path_against + ": " + C_GREEN + "SUCCESS" + C_RESET)
 		return True
 	else:
+		# Test failed...
 		print(path_test + " -> " + path_against + ": " + C_RED + "FAILURE" + C_RESET)
 		print(indent_text(C_YELLOW + C_BOLD + "Expected (in file):" + C_RESET, 4))
 		print(indent_text(contents_against, 8))

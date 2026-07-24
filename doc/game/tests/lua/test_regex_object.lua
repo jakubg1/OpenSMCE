@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 ---@type table<number, boolean>
 self.integers = {}
 for n, _ in pairs(data.integers) do

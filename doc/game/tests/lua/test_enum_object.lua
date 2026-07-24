@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 self.type = u.parseString(data, base, path, {"type"})
 if self.type == "string" then
     self.value = u.parseString(data, base, path, {"value"})

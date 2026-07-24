@@ -18,7 +18,7 @@ function ParticleSpawner:new(manager, packet, data)
 	self.speedX, self.speedY = data.speed.x, data.speed.y
 	self.accelerationX, self.accelerationY = data.acceleration.x, data.acceleration.y
 	self.lifespan = data.lifespan -- nil if it lives indefinitely
-	self.lifetime = self.lifespan
+	self.lifetime = self.lifespan and self.lifespan:evaluate()
 	self.spawnMax = data.spawnMax
 	---@type ParticlePiece[]
 	self.pieces = {} -- Stores references to all Particle Pieces spawned by this Spawner. These pieces are also stored by the Particle Manager itself and should be accessed from there!

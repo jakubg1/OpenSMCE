@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 ---@type number[]
 self.listOfNumbers = {}
 for i = 1, #data.listOfNumbers do

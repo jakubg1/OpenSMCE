@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 ---@type {two: {three: {value: integer}[]}[]}[]
 self.one = {}
 for i = 1, #data.one do

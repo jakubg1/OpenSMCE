@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 self.a = u.parseInteger(data, base, path, {"a"}, 2)
 self.b = u.parseNumber(data, base, path, {"b"}, -3.14)
 self.c = u.parseBoolean(data, base, path, {"c"}, false)

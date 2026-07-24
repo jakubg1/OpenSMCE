@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 ---@type {item: integer}
 self.a = {}
 self.a.item = u.parseInteger(data, base, path, {"a", "item"})
