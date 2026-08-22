@@ -71,8 +71,6 @@ The ongoing plan is to keep releasing Beta 4.x versions, which will contain new 
 
 Beta 5.0 is an upcoming version, which is planned once the full game documentation is finished (https://github.com/jakubg1/OpenSMCE/issues/70, https://github.com/jakubg1/OpenSMCE/issues/112). This includes both a reference manual and JSON schemas.
 
-For more information on how the documentation works, you can look at the [article on how the generation pipeline works and the syntax of .docl files.](https://github.com/jakubg1/OpenSMCE/wiki/The-Doc-Language)
-
 From Beta 5.0 onwards, all games are intended to be backwards compatible. Then, further Beta 5.x versions will be released, which would ideally include:
 - Complete rewrite of UI system (https://github.com/jakubg1/OpenSMCE/issues/63; paused)
 - Partial *Luxor 2* support (mainly focusing on bringing the converter to parity)
