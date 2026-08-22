@@ -110,6 +110,7 @@ function UIWidget:update(dt)
 	if self.animationTime then
 		self.animationTime = self.animationTime + dt
 		self:updateAnimations()
+		self:updateAnimationTimeout()
 	end
 
 	-- Update the scheduled show/delay time.
@@ -145,7 +146,6 @@ function UIWidget:updateAnimations()
 		return
 	end
 	local animation = assert(self.animations[self.animation], string.format("Animation not found: %s", self.animation))
-	local maxTime = 0
 	for i, subanim in ipairs(animation) do
 		-- Get the widget we will be animating.
 		local widget = self:assertGetChild(subanim.target)
@@ -154,7 +154,6 @@ function UIWidget:updateAnimations()
 		if subanim.transition and subanim.transition.type == "bezier" then
 			t = _Utils.bzLerp(t, subanim.transition.point1, subanim.transition.point2)
 		end
-		maxTime = math.max(maxTime, subanim.time)
 		-- Animate the appropriate property.
 		if subanim.type == "fade" then
 			widget.alpha = _Utils.lerp(subanim.startValue, subanim.endValue, t)
@@ -163,7 +162,18 @@ function UIWidget:updateAnimations()
 			widget.y = _Utils.lerp(subanim.startPos and subanim.startPos.y or widget.animationStartY, subanim.endPos.y, t)
 		end
 	end
-	-- Check if all subanimations have finished.
+end
+
+---Checks if all the subanimations have finished and resets the animation state if so.
+function UIWidget:updateAnimationTimeout()
+	if not self.animation then
+		return
+	end
+	local animation = assert(self.animations[self.animation], string.format("Animation not found: %s", self.animation))
+	local maxTime = 0
+	for i, subanim in ipairs(animation) do
+		maxTime = math.max(maxTime, subanim.time)
+	end
 	if self.animationTime >= maxTime then
 		-- Finish the animation.
 		if self.animation == "in" then
