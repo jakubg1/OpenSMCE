@@ -156,6 +156,7 @@ function ExpressionVariables:evaluateVariableProvider(provider)
         end
         return sphere.color
     end
+    error(string.format("Illegal variable provider type: `%s`", provider.type))
 end
 
 ---Clears the Variable Provider cache. This should be executed at the beginning (or end) of each frame.

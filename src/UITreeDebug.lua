@@ -61,6 +61,9 @@ function UITreeDebug:draw()
         hover = math.floor((self.listOffset + mouseY) / 15)
     end
 
+    -- Reset the font.
+    love.graphics.setFont(_FONT)
+
     -- Draw the background.
     love.graphics.setColor(0, 0, 0, 0.7)
     love.graphics.rectangle("fill", 0, 0, 500, height)

@@ -191,6 +191,7 @@ function Renderer:drawText(text, x, y, rot, sx, sy)
     item.x, item.y = x, y
     item.rot = rot
     item.sx, item.sy = sx, sy
+    table.insert(self.queue, item)
 end
 
 ---Draws all queued draw instructions on the screen and clears the queue.
