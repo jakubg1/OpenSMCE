@@ -61,6 +61,10 @@ function Display:setCanvas(w, h, mode)
 	self.renderCanvas = love.graphics.newCanvas(w, h)
     if mode == "pixel" or mode == "pixelPerfect" then
         self.renderCanvas:setFilter("nearest", "nearest")
+        -- Crisp lines and sprite filtering
+        -- TODO: This only affects newly loaded resources. If the mode is changed mid-runtime, already loaded sprites will not look right!
+		love.graphics.setDefaultFilter("nearest", "nearest")
+		love.graphics.setLineStyle("rough")
     end
     -- The debug canvas is active for any `love.graphics.*` calls while the Renderer is active.
     self.debugCanvas = love.graphics.newCanvas(w, h)
