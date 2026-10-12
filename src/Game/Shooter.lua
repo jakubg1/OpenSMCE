@@ -601,7 +601,6 @@ function Shooter:draw()
             local entityPos = self:getSpherePos(i)
             entity:setPos(entityPos.x, entityPos.y)
             entity:setAngle(self.angle)
-            entity:setScale(self:getSphereSize() / 32)
             entity:setAlpha(self:getSphereAlpha())
             entity:draw()
         end
