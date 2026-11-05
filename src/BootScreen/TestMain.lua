@@ -148,6 +148,16 @@ function TestMain:getRichPresenceApplicationID()
 end
 
 ---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:getSoundVolume()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
+function TestMain:getMusicVolume()
+	error("Not implemented")
+end
+
+---Do not use. Throws the not implemented error. This function is used to silence warnings.
 function TestMain:getTickRate()
 	error("Not implemented")
 end

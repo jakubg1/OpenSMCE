@@ -3,7 +3,7 @@ local Vec2 = require("src.Essentials.Vector2")
 local Button = require("src.BootScreen.UI.Button")
 
 ---@class EditorMain
----@overload fun(bootScreen):EditorMain
+---@overload fun(name: string): EditorMain
 local EditorMain = class:derive("EditorMain")
 
 ---Constructs a new instance of Game Editor.
@@ -352,28 +352,22 @@ end
 ---Returns the Rich Presence Application ID for this game, if it exists.
 ---@return string?
 function EditorMain:getRichPresenceApplicationID()
-	return _DISCORD_APPLICATION_ID
+	return nil
 end
-
-
 
 ---Returns the effective sound volume. In the editor, it's always 1.
----TODO: This is currently completely unused, but it would be cool if there was a volume slider in the editor.
+---TODO: Add a volume slider to the editor.
 ---@return number
-function EditorMain:getEffectiveSoundVolume()
+function EditorMain:getSoundVolume()
 	return 1
 end
-
-
 
 ---Returns the effective music volume. In the editor, it's always 1.
----TODO: This is currently completely unused, but it would be cool if there was a volume slider in the editor.
+---TODO: Add a volume slider to the editor.
 ---@return number
-function EditorMain:getEffectiveMusicVolume()
+function EditorMain:getMusicVolume()
 	return 1
 end
-
-
 
 ---Do not use. Throws the not implemented error. This function is used to silence warnings.
 function EditorMain:getTickRate()
@@ -414,7 +408,6 @@ end
 function EditorMain:translate(key, ...)
 	error("Not implemented")
 end
-
 
 function EditorMain:mousepressed(x, y, button)
 	if button == 1 then

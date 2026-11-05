@@ -180,6 +180,18 @@ function GameBase:getCanvasRenderingMode()
 	return self.config.canvasRenderingMode
 end
 
+---Returns the effective sound volume.
+---@return number
+function GameBase:getSoundVolume()
+	return self.game.options:getEffectiveSoundVolume()
+end
+
+---Returns the effective music volume.
+---@return number
+function GameBase:getMusicVolume()
+	return self.game.options:getEffectiveMusicVolume()
+end
+
 ---Returns the game's tick rate. Defaults to `60`.
 ---@return integer
 function GameBase:getTickRate()
