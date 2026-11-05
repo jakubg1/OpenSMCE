@@ -1,9 +1,9 @@
-local class = require "com.class"
+local RootScene = require("src.RootScene")
 local Vec2 = require("src.Essentials.Vector2")
 
----@class TestMain
----@overload fun():TestMain
-local TestMain = class:derive("TestMain")
+---@class TestMain : RootScene
+---@overload fun(): TestMain
+local TestMain = RootScene:derive("TestMain")
 
 ---Constructs a new instance of Test Suite.
 ---This is the class which manages Tests, runs them and displays the results.
@@ -85,11 +85,6 @@ function TestMain:testCase(testcase, name)
 	end
 end
 
----Updates the Test Suite's onscreen components.
----@param dt number Time delta, in seconds.
-function TestMain:update(dt)
-end
-
 ---Draws the Test Suite's interface on the screen.
 function TestMain:draw()
 	-- White color
@@ -133,97 +128,6 @@ end
 ---@return integer, integer
 function TestMain:getNativeResolution()
 	return self.nativeResolution.x, self.nativeResolution.y
-end
-
----Returns whether the Discord Rich Presence should be active in this game.
----@return boolean
-function TestMain:isRichPresenceEnabled()
-	return false
-end
-
----Returns the Rich Presence Application ID for this game, if it exists.
----@return string?
-function TestMain:getRichPresenceApplicationID()
-	return nil
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:getSoundVolume()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:getMusicVolume()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:getTickRate()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:gameOver()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:spawnParticle(particleEffect, x, y, layer)
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:executeGameEvent(event, x, y)
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:getProfile()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:getSession()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:save()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function TestMain:translate(key, ...)
-	error("Not implemented")
-end
-
-function TestMain:mousepressed(x, y, button)
-	-- STUB
-end
-
-function TestMain:mousereleased(x, y, button)
-	-- STUB
-end
-
-function TestMain:wheelmoved(x, y)
-	-- STUB
-end
-
-function TestMain:keypressed(key)
-	-- STUB
-end
-
-function TestMain:keyreleased(key)
-	-- STUB
-end
-
-function TestMain:textinput(t)
-	-- STUB
-end
-
----Exits the Test Suite.
-function TestMain:quit(forced)
-	love.event.quit()
 end
 
 return TestMain

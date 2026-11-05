@@ -6,6 +6,8 @@ local Button = require("src.BootScreen.UI.Button")
 ---@overload fun(bootScreen):BootMain
 local BootMain = class:derive("BootMain")
 
+---Creates the boot screen's main scene.
+---@param bootScreen BootScreen The boot screen that owns this scene.
 function BootMain:new(bootScreen)
     self.bootScreen = bootScreen
 

@@ -97,7 +97,7 @@ _MouseX, _MouseY = 0, 0
 -- File system prefix. On Windows defaults to "", on Android defaults to "/sdcard/".
 _FSPrefix = ""
 
----@type GameBase|BootScreen|EditorMain|TestMain
+---@type RootScene
 _Game = nil
 ---@type Log
 _Log = nil

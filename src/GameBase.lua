@@ -1,4 +1,4 @@
-local class = require "com.class"
+local RootScene = require("src.RootScene")
 local Timer = require("src.Timer")
 local RuntimeManager = require("src.RuntimeManager")
 local UIManager = require("src.UI.Manager")
@@ -6,9 +6,9 @@ local ParticleManager = require("src.Particle.Manager")
 local Game = require("src.Game.Game")
 
 ---Main class for a Game. Handles everything the Game has to do.
----@class GameBase
----@overload fun(name):GameBase
-local GameBase = class:derive("Game")
+---@class GameBase : RootScene
+---@overload fun(name): GameBase
+local GameBase = RootScene:derive("Game")
 
 ---Constructs a new instance of Game.
 ---@param name string The name of the game, equivalent to the folder name in `games` directory.

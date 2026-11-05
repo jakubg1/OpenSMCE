@@ -1,25 +1,22 @@
-local class = require "com.class"
-
----@class BootScreen
----@overload fun():BootScreen
-local BootScreen = class:derive("BootScreen")
-
+local RootScene = require("src.RootScene")
 local Vec2 = require("src.Essentials.Vector2")
-
 local VersionManager = require("src.VersionManager")
-
 local BootMain = require("src.BootScreen.Scene.BootMain")
 local BootSettings = require("src.BootScreen.Scene.BootSettings")
 
+---@class BootScreen : RootScene
+---@overload fun(): BootScreen
+local BootScreen = RootScene:derive("BootScreen")
 
-
+---Creates the Boot Screen.
 function BootScreen:new()
 	self.nativeResolution = Vec2(800, 600)
 	self.isBootScreen = true
 
 	self.versionManager = VersionManager()
 
-	self.games = nil
+	---@type {name: string, config: table}[]
+	self.games = {}
 
 	self.scene = nil
 	self.sceneConstructors = {
@@ -28,17 +25,16 @@ function BootScreen:new()
 	}
 end
 
-
-
+---Initializes the Boot Screen.
 function BootScreen:init()
 	-- window title and size
 	local w, h = self:getNativeResolution()
 	_Display:setResolution(w, h, false, "OpenSMCE [" .. _VERSION .. "] - Boot Menu")
-	-- Despite the canvas is not used to draw any Boot Screen UI, the size is used to calculate the mouse position.
+	-- Despite the canvas not being used to draw any Boot Screen UI, its size is used to calculate the mouse position.
 	_Display:setCanvas(w, h, "filtered")
 
 	-- game list
-	self:fetchGameList()
+	self.games = self:getGames()
 
 	-- init the main screen
 	self:setScene("main")
@@ -47,8 +43,8 @@ function BootScreen:init()
 	_DiscordRPC:setStatus(string.format("Boot Screen - Version: %s", _VERSION_NAME), nil, true)
 end
 
-
-
+---Sets the current scene in the Boot Screen.
+---@param name string The scene name.
 function BootScreen:setScene(name)
 	self.scene = self.sceneConstructors[name](self)
 	if self.scene.init then
@@ -56,23 +52,22 @@ function BootScreen:setScene(name)
 	end
 end
 
-
-
+---Updates the Boot Screen.
+---@param dt number Time delta in seconds.
 function BootScreen:update(dt)
 	self.scene:update(dt)
 end
 
-
-
+---Draws the Boot Screen.
 function BootScreen:draw()
 	self.scene:draw()
 end
 
-
-
+---Scans the `games` directory next to the executable and returns a list of found games.
+---A given folder in the `games` folder is considered a valid game when it contains a "config.json" file with valid JSON structure.
+---TODO: This should be moved out to uhhh... somewhere else. Outside this class.
+---@return {name: string, config: table}[]
 function BootScreen:getGames()
-	-- A given folder in the "games" folder is considered a valid game when it contains a "config.json" file with valid JSON structure.
-
 	local games = {}
 
 	for i, name in ipairs(_Utils.getDirListing("games", "dir")) do
@@ -96,113 +91,18 @@ function BootScreen:getGames()
 	return games
 end
 
-
-
-function BootScreen:fetchGameList()
-	self.games = self:getGames()
-end
-
-
-
----Returns the native resolution of the Boot Screen, which is always 800 by 600.
----@return integer, integer
-function BootScreen:getNativeResolution()
-	return self.nativeResolution.x, self.nativeResolution.y
-end
-
 ---Returns whether the Discord Rich Presence should be active in this game.
 ---@return boolean
 function BootScreen:isRichPresenceEnabled()
 	return true
 end
 
----Returns the Rich Presence Application ID for this game, if it exists.
----@return string?
-function BootScreen:getRichPresenceApplicationID()
-	return nil
-end
-
----Returns the effective sound volume.
----@return number
-function BootScreen:getSoundVolume()
-	return 1
-end
-
----Returns the effective music volume.
----@return number
-function BootScreen:getMusicVolume()
-	return 1
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function BootScreen:getTickRate()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function BootScreen:gameOver()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function BootScreen:spawnParticle(particleEffect, x, y, layer)
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function BootScreen:executeGameEvent(event, x, y)
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function BootScreen:getProfile()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function BootScreen:getSession()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function BootScreen:save()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function BootScreen:translate(key, ...)
-	error("Not implemented")
-end
-
-
-
-function BootScreen:mousepressed(x, y, button)
-	-- STUB
-end
-
+---Executed when a mouse button is released.
+---@param x integer The X coordinate of mouse position.
+---@param y integer The Y coordinate of mouse position.
+---@param button integer The mouse button.
 function BootScreen:mousereleased(x, y, button)
 	self.scene:mousereleased(x, y, button)
-end
-
-function BootScreen:wheelmoved(x, y)
-	-- STUB
-end
-
-function BootScreen:keypressed(key)
-	-- STUB
-end
-
-function BootScreen:keyreleased(key)
-	-- STUB
-end
-
-function BootScreen:textinput(t)
-	-- STUB
-end
-
----Exits the Boot Screen.
-function BootScreen:quit(forced)
-	love.event.quit()
 end
 
 return BootScreen

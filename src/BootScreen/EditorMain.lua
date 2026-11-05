@@ -1,10 +1,10 @@
-local class = require "com.class"
+local RootScene = require("src.RootScene")
 local Vec2 = require("src.Essentials.Vector2")
 local Button = require("src.BootScreen.UI.Button")
 
----@class EditorMain
+---@class EditorMain : RootScene
 ---@overload fun(name: string): EditorMain
-local EditorMain = class:derive("EditorMain")
+local EditorMain = RootScene:derive("EditorMain")
 
 ---Constructs a new instance of Game Editor.
 ---@param name string The name of the game, equivalent to the folder name in `games` directory.
@@ -349,12 +349,6 @@ function EditorMain:isRichPresenceEnabled()
 	return true
 end
 
----Returns the Rich Presence Application ID for this game, if it exists.
----@return string?
-function EditorMain:getRichPresenceApplicationID()
-	return nil
-end
-
 ---Returns the effective sound volume. In the editor, it's always 1.
 ---TODO: Add a volume slider to the editor.
 ---@return number
@@ -367,46 +361,6 @@ end
 ---@return number
 function EditorMain:getMusicVolume()
 	return 1
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function EditorMain:getTickRate()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function EditorMain:gameOver()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function EditorMain:spawnParticle(particleEffect, x, y, layer)
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function EditorMain:executeGameEvent(event, x, y)
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function EditorMain:getProfile()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function EditorMain:getSession()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function EditorMain:save()
-	error("Not implemented")
-end
-
----Do not use. Throws the not implemented error. This function is used to silence warnings.
-function EditorMain:translate(key, ...)
-	error("Not implemented")
 end
 
 function EditorMain:mousepressed(x, y, button)
@@ -435,18 +389,6 @@ function EditorMain:wheelmoved(x, y)
 	else
 		self.spriteScale = _Utils.clamp(self.spriteScale + y, 1, 8)
 	end
-end
-
-function EditorMain:keypressed(key)
-	-- STUB
-end
-
-function EditorMain:keyreleased(key)
-	-- STUB
-end
-
-function EditorMain:textinput(t)
-	-- STUB
 end
 
 ---Exits the Editor.
