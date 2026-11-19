@@ -39,6 +39,33 @@ function Console:new()
 		}
 	}
 
+	---@alias CommandParameterType {parse: (fun(raw: string): any), getSuggestions: (fun(): string[])?}
+	---@type table<string, CommandParameterType>
+	self.parameterTypes = {
+		number = {
+			parse = function(raw) return assert(tonumber(raw), string.format("Failed to convert to number: `%s`, expected: number", raw)) end
+		},
+		integer = {
+			parse = function(raw) return assert(tonumber(raw), string.format("Failed to convert to number: `%s`, expected: integer", raw)) end
+		},
+		string = {
+			parse = function(raw) return raw end
+		},
+		Collectible = {
+			parse = function(raw) return _Res:getCollectibleConfig(raw) end,
+			getSuggestions = function() return _Res:getResourceList("Collectible") end
+		},
+		ParticleEffect = {
+			parse = function(raw) return _Res:getParticleEffectConfig(raw) end,
+			getSuggestions = function() return _Res:getResourceList("ParticleEffect") end
+		},
+		-- TODO: Support all resource types.
+		Layer = {
+			parse = function(raw) return raw end,
+			getSuggestions = function() return _Renderer:getLayers() end
+		}
+	}
+
 	---@type {text: string, time: number}[]
 	self.output = {}
 	self.outputOffset = 0
@@ -267,16 +294,10 @@ function Console:parseCommandParameter(parameter, raw)
 		-- Optional parameters which are not given evaluate to `nil`.
 		return nil
 	else
-		if parameter.type == "number" or parameter.type == "integer" then
-			return assert(tonumber(raw), string.format("Failed to convert to number: `%s`, expected: %s", raw, parameter.type))
-		elseif parameter.type == "string" or parameter.type == "Layer" then
-			return raw
-		elseif parameter.type == "Collectible" then
-			return _Res:getCollectibleConfig(raw)
-		elseif parameter.type == "ParticleEffect" then
-			return _Res:getParticleEffectConfig(raw)
+		if self.parameterTypes[parameter.type] then
+			return self.parameterTypes[parameter.type].parse(raw)
 		end
-		error(string.format("Invalid parameter type: `%s`. Fix the command manifest!", parameter.type))
+		error(string.format("Invalid parameter type: `%s`!", parameter.type))
 	end
 end
 
@@ -375,15 +396,10 @@ function Console:getCommandCompletionSuggestions(command)
 				end
 			end
 			if parameter then
-				-- TODO: Support all resource types.
-				if parameter.type == "Collectible" then
-					suggestions = _Res:getResourceList("Collectible")
-				elseif parameter.type == "ParticleEffect" then
-					suggestions = _Res:getResourceList("ParticleEffect")
-				elseif parameter.type == "Layer" then
-					suggestions = _Renderer:getLayers()
-				elseif parameter.type == "string" and parameter.subcommands then
+				if parameter.type == "string" and parameter.subcommands then
 					suggestions = _Utils.tableGetSortedKeys(parameter.subcommands)
+				elseif self.parameterTypes[parameter.type].getSuggestions then
+					suggestions = self.parameterTypes[parameter.type].getSuggestions()
 				end
 			end
 		end
@@ -723,6 +739,8 @@ function Console:inputEnter()
 
 	-- We need to bypass the crash function somehow.
 	if success and err == "crash" then
+		-- Do not automatically save the game when a manual crash is performed.
+		_CriticalLoad = true
 		error(msg)
 	end
 
