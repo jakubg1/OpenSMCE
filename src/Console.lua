@@ -269,11 +269,14 @@ function Console:parseCommandParameter(parameter, raw)
 	else
 		if parameter.type == "number" or parameter.type == "integer" then
 			return assert(tonumber(raw), string.format("Failed to convert to number: `%s`, expected: %s", raw, parameter.type))
-		elseif parameter.type == "string" then
+		elseif parameter.type == "string" or parameter.type == "Layer" then
 			return raw
 		elseif parameter.type == "Collectible" then
 			return _Res:getCollectibleConfig(raw)
+		elseif parameter.type == "ParticleEffect" then
+			return _Res:getParticleEffectConfig(raw)
 		end
+		error(string.format("Invalid parameter type: `%s`. Fix the command manifest!", parameter.type))
 	end
 end
 
@@ -349,7 +352,7 @@ end
 ---Returns a list of Tab completion suggestions for the current command.
 ---@private
 ---@param command string The incomplete command. The suggestions will be provided for the last word.
----@return table
+---@return string[]
 function Console:getCommandCompletionSuggestions(command)
 	local suggestions = {}
 	local words = _Utils.strSplit(command, " ")
@@ -377,6 +380,8 @@ function Console:getCommandCompletionSuggestions(command)
 					suggestions = _Res:getResourceList("Collectible")
 				elseif parameter.type == "ParticleEffect" then
 					suggestions = _Res:getResourceList("ParticleEffect")
+				elseif parameter.type == "Layer" then
+					suggestions = _Renderer:getLayers()
 				elseif parameter.type == "string" and parameter.subcommands then
 					suggestions = _Utils.tableGetSortedKeys(parameter.subcommands)
 				end

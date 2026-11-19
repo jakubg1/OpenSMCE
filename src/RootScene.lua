@@ -16,6 +16,8 @@ function RootScene:new()
     self.name = nil
     ---@type Game?
     self.game = nil
+    ---@type UIManager?
+    self.uiManager = nil
     ---@type ParticleManager?
     self.particleManager = nil
     ---@type Timer?
@@ -74,7 +76,12 @@ function RootScene:gameOver()
 	error("Not implemented")
 end
 
----Do not use. Throws the not implemented error. This function is used to silence warnings.
+---Spawns and returns a particle packet.
+---@param particleEffect ParticleEffectConfig The particle effect resource.
+---@param x number The initial X position of the particle packet.
+---@param y number The initial Y position of the particle packet.
+---@param layer string The layer the particles are supposed to be drawn on.
+---@return ParticlePacket
 function RootScene:spawnParticle(particleEffect, x, y, layer)
 	error("Not implemented")
 end

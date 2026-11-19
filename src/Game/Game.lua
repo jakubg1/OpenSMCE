@@ -31,7 +31,7 @@ function Game:new(base)
 		end
 	end
 
-	-- Step 3. Register a few savestate-releated objects
+	-- Step 3. Register a few savestate-related objects
 	self.profileManager = ProfileManager()
 	self.highscores = Highscores()
 	self.options = Options()

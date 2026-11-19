@@ -6,6 +6,7 @@ local UIDebug = require("src.UITreeDebug")
 local NetworkingTest = require("src.NetworkingTest.NetworkingTest")
 local Expression = require("src.Expression")
 local SphereSelectorResult = require("src.Game.SphereSelectorResult")
+local SphereChain = require("src.Game.SphereChain")
 
 ---@class Debug : Class
 ---@overload fun():Debug
@@ -15,20 +16,29 @@ local Debug = class:derive("Debug")
 function Debug:new()
 	self.console = Console()
 	self.console:setFont(_FONT_CONSOLE)
+
+	-- Register global commands.
 	self.console:addCommand("t", "Adjusts the speed scale of the game. 1 = default.", {{name = "scale", type = "number"}}, self.commandSpeedScale, self)
-	self.console:addCommand("n", "Destroys all spheres on the board.", {}, self.commandNukeSpheres, self)
-	self.console:addCommand("test", "Spawns a test particle.", {{name = "particle", type = "ParticleEffect"}}, self.commandTest, self)
 	self.console:addCommand("crash", "Crashes the game.", {}, self.commandCrash, self)
-	self.console:addCommand("lose", "Loses the level.", {}, self.commandLose, self)
 	self.console:addCommand("expr", "Evaluates an Expression.", {{name = "expression", type = "string", greedy = true}}, self.commandExpr, self)
 	self.console:addCommand("exprt", "Breaks down an Expression and shows the list of RPN steps.", {{name = "expression", type = "string", greedy = true}}, self.commandExprt, self)
 	self.console:addCommand("ex", "Debugs an Expression: shows detailed tokenization and list of RPN steps.", {{name = "expression", type = "string", greedy = true}}, self.commandEx, self)
-	self.console:addCommand("collectible", "Spawns a Collectible in the middle of the screen.", {{name = "collectible", type = "Collectible"}, {name = "amount", type = "integer", optional = true}}, self.commandCollectible, self)
+	-- TODO: Add commands to tinker with Expression Variables
+	-- TODO: Add a list of Expression Variables in a debug screen
+
+	-- Register game-specific commands.
+	self.console:addCommand("particle", "Spawns a Particle Effect at the cursor.", {{name = "particle", type = "ParticleEffect"}, {name = "layer", type = "Layer", optional = true}}, self.commandParticle, self)
+	self.console:addCommand("clearparticles", "Clears all particles spawned by the `particle` command.", {}, self.commandClearParticles, self)
+	self.console:addCommand("collectible", "Spawns a Collectible at the cursor.", {{name = "collectible", type = "Collectible"}, {name = "amount", type = "integer", optional = true}}, self.commandCollectible, self)
+	self.console:addCommand("n", "Destroys all spheres on the board.", {}, self.commandNukeSpheres, self)
+	self.console:addCommand("lose", "Loses the level.", {}, self.commandLose, self)
 	self.console:addCommand("train", "Evaluates a train preset generator.", {{name = "preset", type = "string", greedy = true}}, self.commandTrain, self)
-	-- Add commands to tinker with Expression Variables
-	-- Add a list of Expression Variables in a debug screen
-	-- Add a command to play any level
-	-- Add a command to set objective values
+	-- TODO: Add a command to play any level
+	-- TODO: Add a command to set objective values
+
+	---Stores particles spawned by the `particle` command. Useful to clear them later.
+	---@type ParticlePacket[]
+	self.particles = {}
 
 	-- Register network test commands.
 	self.console:addCommand("nettest", "A suite of commands intended for testing the networking functionality.", {{name = "action", type = "string"}})
@@ -71,6 +81,7 @@ function Debug:new()
 	self.vec2PerFrame = 0
 	self.lastVec2PerFrame = 0
 
+	---@type string[]
 	self.displayedDeprecationTraces = {}
 end
 
@@ -522,29 +533,15 @@ function Debug:drawSphereInfo()
 	end
 end
 
-
+-- Builtin commands
 
 function Debug:commandSpeedScale(scale)
 	_TimeScale = scale
 	self:print("Time scale set to " .. scale)
 end
 
-function Debug:commandNukeSpheres()
-	SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
-	self:print("Nuked!")
-end
-
-function Debug:commandTest(particle)
-	-- TODO: Layer argument/debug layer?
-	_Game:spawnParticle(particle, 100, 400, "MAIN")
-end
-
 function Debug:commandCrash()
 	return "crash", self:getWitty()
-end
-
-function Debug:commandLose()
-	_Game.game:getLevel():lose()
 end
 
 function Debug:commandExpr(expression)
@@ -577,119 +574,39 @@ function Debug:commandEx(expression)
 	self:print(string.format("ex(%s): %s", expression, e:evaluate()))
 end
 
+-- Gameplay commands
+
+function Debug:commandParticle(particle, layer)
+	local effect = _Game:spawnParticle(particle, _MouseX, _MouseY, layer or "MAIN")
+	table.insert(self.particles, effect)
+end
+
+function Debug:commandClearParticles()
+	for i, effect in ipairs(self.particles) do
+		effect:destroy(true)
+	end
+	_Utils.emptyTable(self.particles)
+end
+
 function Debug:commandCollectible(collectible, amount)
-	amount = amount or 1
-	local w, h = _Game:getNativeResolution()
-	for i = 1, amount do
-		_Game.game:getLevel():spawnCollectible(collectible, w / 2, h / 2)
+	for i = 1, amount or 1 do
+		_Game.game:getLevel():spawnCollectible(collectible, _MouseX, _MouseY)
 	end
 end
 
+function Debug:commandNukeSpheres()
+	SphereSelectorResult({operations = {{type = "add", condition = Expression(true)}}}):destroy()
+	self:print("Nuked!")
+end
+
+function Debug:commandLose()
+	_Game.game:getLevel():lose()
+end
+
+---Handles the `train` command.
+---@param preset string The train preset to be evaluated.
 function Debug:commandTrain(preset)
-	local result = preset
-	if tonumber(preset:sub(1, 1)) then
-		local blocks = {}
-		-- Parse the preset generator into blocks.
-		local strBlocks = _Utils.strSplit(preset, ",")
-		for i, strBlock in ipairs(strBlocks) do
-			local block = {pool = {}, size = 0} -- ex: {pool = {"X", "Y", "Z"}, size = 3}
-			local spl = _Utils.strSplit(strBlock, ":")
-			for j = 1, spl[2]:len() do
-				table.insert(block.pool, spl[2]:sub(j, j))
-			end
-			spl = _Utils.strSplit(spl[1], "*")
-			block.size = tonumber(spl[2])
-			for j = 1, tonumber(spl[1]) do
-				table.insert(blocks, block)
-			end
-		end
-		-- Generate the preset from blocks.
-		-- We need to make sure the same color (letter/key, colors are dispatched later) is not appearing in any two neighboring groups.
-		--
-		-- Key insights: (note that whenever "color" is said that actually means "key" in this context)
-		-- - Group sizes can be disregarded altogether, because their neighborhood doesn't change at all no matter how big or small
-		--    the groups are (we assume n>0).
-		-- - All generators with only groups of colors>=3 are possible, because at any possible insertion point inside the built train
-		--    there are at most 2 blocked colors, so for 3 or more colors there's always at least one good color which can be used.
-		-- - All generators with groups of colors>=2 are possible, because at the beginning and end of the built train
-		--    there's always exactly one blocked color, so the group can always pick the other one.
-		-- - If there is at least one single color group, all generators are possible as long as there is no color for which the amount of
-		--    single color groups is greater than N/2 rounded up, where N is the total number of groups.
-		-- - If so, you could always place them next to each other and fill the gaps inside with a different color; this is also an exclusive
-		--    condition for impossibility if we disregard blatant errors like groups of size = 0 or amount of colors = 0.
-		-- - Because the groups which have 2 or more colors are always going to have at least two valid places (the edges) to be inserted,
-		--    the generation should always start by picking a random single color group and only if none of them can be inserted at any
-		--    position, then place one group of the next smallest number of colors.
-		-- - Placing any of these groups will automatically enable at least one of the single color groups to be placed next to the previously
-		--    inserted group regardless of that group's position, and if we run out of everything while still having single color groups left
-		--    which cannot be dispatched, we've basically hit the impossibility condition.
-		--    (we've started with a single, then we've dispatched all X multi-color groups, and as such another X single color groups,
-		--    hence we've dispatched 2X+1 groups out of which X+1 were single color and only single color groups are left,
-		--    and as such we've proven no valid combination is possible).
-		local genBlocks = {} -- ex: {{key = "X", size = 3}, {key = "Y", size = 1}, ...}
-		while #blocks > 0 do
-			-- Each iteration = one inserted block (or crash if no valid combination is possible).
-			-- Compose the block order and iterate through it here.
-			-- #pool=1 blocks in random order, then #pool=2 blocks in random order, then #pool=3 blocks in random order, and so on.
-			local blockPools = {} -- ex: {[1] = {<block>, <block>}, [3] = {<block>}, [7] = {<block>}}, where <block> is ex: {pool = {"X", "Y", "Z"}, size = 3}
-			local blockPoolSizes = {}
-			for i, block in ipairs(blocks) do
-				if not blockPools[#block.pool] then
-					blockPools[#block.pool] = {}
-					table.insert(blockPoolSizes, #block.pool)
-				end
-				table.insert(blockPools[#block.pool], block)
-			end
-			-- Flatten the pools by shuffling all blocks within their pools and combining them together into one table with increasing pool size.
-			local blocksIter = {} -- ex: {<block #pool=1>, <block #pool=1>, <block #pool=3>, <block #pool=7>, <block #pool=7>}
-			for i, index in ipairs(blockPoolSizes) do
-				local pool = blockPools[index]
-				_Utils.tableShuffle(pool)
-				for j, block in ipairs(pool) do
-					table.insert(blocksIter, block)
-				end
-			end
-			local success = false
-			for i, block in ipairs(blocksIter) do
-				local gapInfo = {}
-				local validGaps = {}
-				for j = 1, #genBlocks + 1 do
-					-- For each position we can insert this group to, check which keys it can have.
-					local prevBlock = genBlocks[j - 1]
-					local nextBlock = genBlocks[j]
-					local validKeys = _Utils.copyTable(block.pool)
-					if prevBlock then
-						_Utils.iTableRemoveValue(validKeys, prevBlock.key)
-					end
-					if nextBlock then
-						_Utils.iTableRemoveValue(validKeys, nextBlock.key)
-					end
-					gapInfo[j] = validKeys
-					if #validKeys > 0 then
-						table.insert(validGaps, j)
-					end
-				end
-				if #validGaps > 0 then
-					-- Success! Roll the key out of valid ones, and add the block to the list.
-					local index = validGaps[math.random(#validGaps)]
-					local keys = gapInfo[index]
-					local key = keys[math.random(#keys)]
-					table.insert(genBlocks, index, {key = key, size = block.size})
-					_Utils.iTableRemoveFirstValue(blocks, block)
-					success = true
-					break
-				end
-			end
-			-- If `success` is `false`, we've exhausted all possibilities.
-			assert(success, string.format("Level error: Impossible combination of blocks for the wave `%s`! If there is at least one possible combination without repeat keys next to each other, let me know!", preset))
-		end
-		-- Generate the string from blocks.
-		result = ""
-		for i, block in ipairs(genBlocks) do
-			result = result .. block.key:rep(block.size)
-		end
-	end
-	self:print(result)
+	self:print(SphereChain.generateTrainPreset(preset))
 end
 
 -- Network test commands

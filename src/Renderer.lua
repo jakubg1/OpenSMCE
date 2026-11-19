@@ -33,7 +33,7 @@ function Renderer:new()
 end
 
 ---Sets a list of layers which should be available for this Renderer.
----@param layers string[]?
+---@param layers string[]? The list of layers, in order of drawing. In other words, layers later in the list will show up above the layers that appear earlier in the list.
 function Renderer:setLayers(layers)
     self.layers = {}
     if layers then
@@ -41,6 +41,14 @@ function Renderer:setLayers(layers)
             self.layers[layer] = i
         end
     end
+end
+
+---Returns a list of available layers, in order of drawing. In other words, layers later in the list will show up above the layers that appear earlier in the list.
+---@return string[]
+function Renderer:getLayers()
+    local layers = _Utils.tableGetSortedKeys(self.layers)
+    table.sort(layers, function(a, b) return self.layers[a] < self.layers[b] end)
+    return layers
 end
 
 ---Sets a color the following `:draw*()` calls will tint the drawn elements with, using a Color instance.
