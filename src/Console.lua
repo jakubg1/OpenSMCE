@@ -55,6 +55,10 @@ function Console:new()
 			parse = function(raw) return _Res:getCollectibleConfig(raw) end,
 			getSuggestions = function() return _Res:getResourceList("Collectible") end
 		},
+		SoundEvent = {
+			parse = function(raw) return _Res:getSoundEvent(raw) end,
+			getSuggestions = function() return _Res:getResourceList("SoundEvent") end
+		},
 		ParticleEffect = {
 			parse = function(raw) return _Res:getParticleEffectConfig(raw) end,
 			getSuggestions = function() return _Res:getResourceList("ParticleEffect") end

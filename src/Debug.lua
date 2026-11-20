@@ -29,6 +29,8 @@ function Debug:new()
 	-- Register game-specific commands.
 	self.console:addCommand("particle", "Spawns a Particle Effect at the cursor.", {{name = "particle", type = "ParticleEffect"}, {name = "layer", type = "Layer", optional = true}}, self.commandParticle, self)
 	self.console:addCommand("clearparticles", "Clears all particles spawned by the `particle` command.", {}, self.commandClearParticles, self)
+	self.console:addCommand("sound", "Plays a Sound Event at the cursor.", {{name = "soundEvent", type = "SoundEvent"}}, self.commandSound, self)
+	self.console:addCommand("clearsounds", "Clears all sounds played by the `sound` command.", {}, self.commandClearSounds, self)
 	self.console:addCommand("collectible", "Spawns a Collectible at the cursor.", {{name = "collectible", type = "Collectible"}, {name = "amount", type = "integer", optional = true}}, self.commandCollectible, self)
 	self.console:addCommand("n", "Destroys all spheres on the board.", {}, self.commandNukeSpheres, self)
 	self.console:addCommand("lose", "Loses the level.", {}, self.commandLose, self)
@@ -39,6 +41,9 @@ function Debug:new()
 	---Stores particles spawned by the `particle` command. Useful to clear them later.
 	---@type ParticlePacket[]
 	self.particles = {}
+	---Stores sounds played by the `sound` command. Useful to clear them later.
+	---@type SoundInstanceList[]
+	self.sounds = {}
 
 	-- Register network test commands.
 	self.console:addCommand("nettest", "A suite of commands intended for testing the networking functionality.", {{name = "action", type = "string"}})
@@ -201,6 +206,14 @@ end
 ---@param message any? The message to be sent. If it's not a string or a formatted string (table), `tostring` will be implicitly used first.
 function Debug:print(message)
 	self.console:print(message)
+	_Log:printt("CONSOLE", _Utils.strUnformat(message))
+end
+
+---Prints an error message to the console and also to the log.
+---Shorthand version for applying the red color.
+---@param message string The message to be sent.
+function Debug:printError(message)
+	self.console:print({_COLORS.red, message})
 	_Log:printt("CONSOLE", _Utils.strUnformat(message))
 end
 
@@ -576,22 +589,64 @@ end
 
 -- Gameplay commands
 
+---Spawns a particle effect at the mouse cursor.
+---@param particle ParticleEffectConfig The particle effect to be spawned.
+---@param layer string? Layer name, defaults to `"MAIN"`.
 function Debug:commandParticle(particle, layer)
 	local effect = _Game:spawnParticle(particle, _MouseX, _MouseY, layer or "MAIN")
 	table.insert(self.particles, effect)
+	self:print(string.format("Spawned particle effect `%s`", particle._path))
 end
 
+---Clears all particles spawned with `:commandParticle()`.
 function Debug:commandClearParticles()
+	local n = #self.particles
+	if n == 0 then
+		self:printError("There are no particles to clear")
+		return
+	end
 	for i, effect in ipairs(self.particles) do
 		effect:destroy(true)
 	end
 	_Utils.emptyTable(self.particles)
+	self:print(string.format("Cleared %s particles", n))
 end
 
+---Plays a sound event at the mouse cursor.
+---@param soundEvent SoundEvent The sound event to be played.
+function Debug:commandSound(soundEvent)
+	local sound = soundEvent:play(_MouseX, _MouseY)
+	table.insert(self.sounds, sound)
+	if sound then
+		self:print(string.format("Played sound `%s`", soundEvent.path))
+	else
+		self:printError("Could not play the specified sound")
+	end
+end
+
+---Clears all sounds played with `:commandSound()`.
+function Debug:commandClearSounds()
+	local n = #self.sounds
+	if n == 0 then
+		self:printError("There are no sounds to clear")
+		return
+	end
+	for i, sound in ipairs(self.sounds) do
+		sound:stop()
+	end
+	_Utils.emptyTable(self.sounds)
+	self:print(string.format("Cleared %s sounds", n))
+end
+
+---Spawns one or multiple collectibles of the specified type.
+---@param collectible CollectibleConfig The collectible to be spawned.
+---@param amount integer? The amount of collectibles to be spawned.
 function Debug:commandCollectible(collectible, amount)
-	for i = 1, amount or 1 do
+	amount = amount or 1
+	for i = 1, amount do
 		_Game.game:getLevel():spawnCollectible(collectible, _MouseX, _MouseY)
 	end
+	self:print(string.format("Spawned %s collectible(s) of type `%s`", amount, collectible._path))
 end
 
 function Debug:commandNukeSpheres()
