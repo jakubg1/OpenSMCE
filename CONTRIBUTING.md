@@ -8,6 +8,16 @@ This is a WIP document, [you can submit an issue](https://github.com/jakubg1/Ope
 
 
 
+## AI (LLM) Usage
+Usage of any generative AI models (both commercial and local ones) to generate code for this repository is **banned**.
+I reserve the right to close all pull requests that contain any traces of using generative AI without further notice, including, but not limited to:
+- AI-generated code chunks
+- AI-generated pull request summaries
+- Emojis and em-dashes in summaries, comments, etc.
+
+Using AI for code review is allowed, because since OpenSMCE is open source, its code has been already scanned by all the AI scrapers six ways to Sunday.
+However, I reserve the right to reject AI-generated issues in a stronger fashion than issues written by hand and checked by real humans.
+
 ## Editing
 The recommended IDE to use is **Visual Studio Code** with the **sumneko**'s **Lua Language Server** plugin which provides **luadoc** documentation as well as LÖVE2D API support.
 
